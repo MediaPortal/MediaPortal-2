@@ -36,6 +36,16 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
+  /// <summary>
+  /// The import was suspended and will be continued at another time.
+  /// </summary>
+  internal class ImportSuspendedException : ApplicationException
+  {
+  }
+
+  /// <summary>
+  /// The import was aborted.
+  /// </summary>
   internal class ImportAbortException : ApplicationException
   {
   }
@@ -134,12 +144,13 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected void CheckSuspended()
     {
       if (IsSuspended)
-        throw new ImportAbortException();
+        throw new ImportSuspendedException();
     }
 
     protected void CheckImportStillRunning(ImportJobState state)
     {
-      if (IsSuspended || state == ImportJobState.Cancelled || state == ImportJobState.Erroneous)
+      CheckSuspended();
+      if (state == ImportJobState.Cancelled || state == ImportJobState.Erroneous)
         throw new ImportAbortException();
     }
 
@@ -364,6 +375,10 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
         }
       }
+      catch (ImportSuspendedException)
+      {
+        throw;
+      }
       catch (ImportAbortException)
       {
         throw;
@@ -470,9 +485,14 @@ namespace MediaPortal.Core.Services.MediaManagement
             importJob.State = ImportJobState.Finished;
         return;
       }
+      catch (ImportSuspendedException)
+      {
+        ServiceScope.Get<ILogger>().Info("ImporterWorker: Suspending import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
+        return;
+      }
       catch (ImportAbortException)
       {
-        ServiceScope.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
+        ServiceScope.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
         return;
       }
     }
