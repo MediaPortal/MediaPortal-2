@@ -1306,14 +1306,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           PrepareOpacityMaskContext(textureSize);
 
         // FIXME: Fix this. If the window doesn't have the size of the skin, drawing through an opacity
-        // mask stretches the output
+        // mask doesn't stretch the output
         RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);
         RenderToTexture(_opacityMaskContext.Texture, tempRenderContext);
 
-        if (localRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds)
+        if (tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds)
           // We must check this each render pass because the control might have changed its bounds due to a render transform
           _updateOpacityMask = true;
-        _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
+        _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
 
         if (_updateOpacityMask)
         {
