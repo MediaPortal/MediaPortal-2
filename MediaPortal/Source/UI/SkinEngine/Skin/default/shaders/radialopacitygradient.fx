@@ -63,6 +63,10 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
+  half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
+  texPos = mul(texPos, Transform);
+  OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
+
   half4 alphaPos = half4(
       (IN.Texcoord.x - g_LowerVertsBounds.x)/(g_UpperVertsBounds.x - g_LowerVertsBounds.x),
       (IN.Texcoord.y - g_LowerVertsBounds.y)/(g_UpperVertsBounds.y - g_LowerVertsBounds.y), 0, 1);
@@ -70,10 +74,6 @@ void renderPixelShader(in v2p IN, out p2f OUT)
   half dist = GetColor(half2(alphaPos.x, alphaPos.y));
   dist = clamp(dist, 0, 0.9999);
 
-  half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  texPos = mul(texPos, Transform);
-  
-  OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
   half4 alphaColor = tex1D(alphaSampler, dist);
   OUT.Color[3] *= alphaColor[3] * g_opacity;
 }
