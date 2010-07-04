@@ -1302,7 +1302,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
       { // Control has an opacity mask
         Size textureSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-        if (_updateOpacityMask || !_opacityMaskContext.IsAllocated)
+        if (_opacityMaskContext == null || !_opacityMaskContext.IsAllocated)
+          _updateOpacityMask = true;
+        if (_updateOpacityMask)
           PrepareOpacityMaskContext(textureSize);
 
         // FIXME: Fix this. If the window doesn't have the size of the skin, drawing through an opacity
