@@ -101,7 +101,7 @@ namespace UiComponents.SkinBase.Actions
         return;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID, null);
+      workflowManager.NavigatePush(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID);
     }
 
     #endregion

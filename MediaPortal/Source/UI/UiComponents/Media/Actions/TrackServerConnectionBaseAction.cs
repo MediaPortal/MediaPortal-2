@@ -134,7 +134,7 @@ namespace UiComponents.Media.Actions
     public void Execute()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_targetWorkflowStateId, null);
+      workflowManager.NavigatePush(_targetWorkflowStateId);
     }
 
     #endregion

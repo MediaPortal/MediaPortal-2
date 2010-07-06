@@ -114,6 +114,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     void NavigatePush(Guid stateId, NavigationContextConfig config);
 
     /// <summary>
+    /// Convenience method for <see cref="NavigatePush(Guid,NavigationContextConfig)"/> with the config set to <c>null</c>.
+    /// </summary>
+    /// <param name="stateId">Id of the non-transient state to enter.</param>
+    void NavigatePush(Guid stateId);
+
+    /// <summary>
     /// Navigates to the specified transient state. This will push a new navigation context entry
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.

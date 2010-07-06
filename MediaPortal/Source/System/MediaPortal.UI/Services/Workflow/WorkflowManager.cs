@@ -687,6 +687,11 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    public void NavigatePush(Guid stateId)
+    {
+      NavigatePush(stateId, null);
+    }
+
     public void NavigatePushTransient(WorkflowState state, NavigationContextConfig config)
     {
       EnterWriteLock("NavigatePushTransient");

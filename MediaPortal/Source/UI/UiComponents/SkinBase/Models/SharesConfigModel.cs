@@ -380,10 +380,10 @@ namespace UiComponents.SkinBase.Models
         // if supported
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
         if (_shareEditProxy.MediaProviderSupportsResourceTreeNavigation)
-          workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID, null);
+          workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
         else // If needed, add other path navigation screens here
             // Fallback: Simple TextBox path editor screen
-          workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID, null);
+          workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID);
       }
       catch (DisconnectedException)
       {
@@ -461,7 +461,7 @@ namespace UiComponents.SkinBase.Models
             _shareEditProxy = new ServerShares(share);
         }
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID, null);
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
       catch (DisconnectedException)
       {

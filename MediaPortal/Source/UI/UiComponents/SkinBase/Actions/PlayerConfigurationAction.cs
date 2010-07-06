@@ -147,7 +147,7 @@ namespace UiComponents.SkinBase.Actions
     public void Execute()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE, null);
+      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
     }
 
     #endregion

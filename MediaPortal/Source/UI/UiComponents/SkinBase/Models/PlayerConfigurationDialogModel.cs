@@ -515,7 +515,7 @@ namespace UiComponents.SkinBase.Models
     public static void OpenPlayerConfigurationDialog()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE_ID, null);
+      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
     }
 
     #region Members to be accessed from the GUI
@@ -592,7 +592,7 @@ namespace UiComponents.SkinBase.Models
     public void OpenChooseAudioStreamDialog()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID, null);
+      workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID);
     }
 
     public void ChooseAudioStream(AudioStreamDescriptor asd)

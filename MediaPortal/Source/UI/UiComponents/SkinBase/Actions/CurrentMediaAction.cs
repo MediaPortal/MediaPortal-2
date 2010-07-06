@@ -162,7 +162,7 @@ namespace UiComponents.SkinBase.Actions
       if (pc == null)
         return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(pc.CurrentlyPlayingWorkflowStateId, null);
+      workflowManager.NavigatePush(pc.CurrentlyPlayingWorkflowStateId);
     }
 
     #endregion
