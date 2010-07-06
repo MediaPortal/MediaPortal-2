@@ -1301,14 +1301,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         DoRender(localRenderContext);
       else
       { // Control has an opacity mask
-        Size textureSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+        Size textureSize = new Size(GraphicsDevice.Width, GraphicsDevice.Height);
         if (_opacityMaskContext == null || !_opacityMaskContext.IsAllocated)
           _updateOpacityMask = true;
         if (_updateOpacityMask)
           PrepareOpacityMaskContext(textureSize);
 
-        // FIXME: Fix this. If the window doesn't have the size of the skin, drawing through an opacity
-        // mask doesn't stretch the output
         RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);
         RenderToTexture(_opacityMaskContext.Texture, tempRenderContext);
 
@@ -1348,7 +1346,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (OpacityMask == null)
         return;
-      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name, Screen.Name,
+      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext: " + Name, Screen.Name,
           new Texture(GraphicsDevice.Device, textureSize.Width, textureSize.Height, 1,
               Usage.RenderTarget, Format.A8R8G8B8, Pool.Default));
       ContentManager.Add(_opacityMaskContext);
