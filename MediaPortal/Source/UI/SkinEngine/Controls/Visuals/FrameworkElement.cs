@@ -1329,7 +1329,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.Device.DrawPrimitives(_opacityMaskContext.PrimitiveType, 0, 2);
         OpacityMask.EndRender();
 
-        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime.AddDays(1);
+        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime.AddSeconds(5);
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
