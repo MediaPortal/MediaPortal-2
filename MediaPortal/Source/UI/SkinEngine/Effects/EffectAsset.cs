@@ -79,17 +79,16 @@ namespace MediaPortal.UI.SkinEngine.Effects
         try
         {
           _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
+          _lastUsed = SkinContext.FrameRenderingStartTime;
+          _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
+          _handleTexture = _effect.GetParameter(null, "g_texture");
+          _handleTechnique = _effect.GetTechnique(0);
         }
         catch
         { 
           ServiceScope.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
           ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         }
-
-        _lastUsed = SkinContext.FrameRenderingStartTime;
-        _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
-        _handleTexture = _effect.GetParameter(null, "g_texture");
-        _handleTechnique = _effect.GetTechnique(0);
       }
     }
 

@@ -24,13 +24,12 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Effects;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -40,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     AbstractProperty _colorProperty;
     EffectAsset _effect;
-    EffectHandleAsset _effectHandleColor;
+    EffectHandleAsset _handleColor;
 
     #endregion
 
@@ -100,20 +99,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _colorProperty.SetValue(value); }
     }
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
-    {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _effect = ContentManager.GetEffect("solidbrush");
-      _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
-    }
-
     public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
+      Matrix finalTransform = renderContext.Transform.Clone();
       Color4 v = ColorConverter.FromColor(Color);
-      v.Alpha *= (float) renderContext.Opacity;
-      _effectHandleColor.SetParameter(v);
-      _effect.StartRender(renderContext.Transform);
+      v.Alpha *= (float) (Opacity * renderContext.Opacity);
+      _effect = ContentManager.GetEffect("solid");
+      _handleColor = _effect.GetParameterHandle("g_solidColor");
+      
+      _handleColor.SetParameter(v);
+      _effect.StartRender(finalTransform);
       return true;
+    }
+
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      if (tex == null)
+        return;
+      Color4 v = ColorConverter.FromColor(Color);
+      v.Alpha *= (float) (Opacity * renderContext.Opacity);
+      Matrix finalTransform = renderContext.Transform.Clone();
+      _effect = ContentManager.GetEffect("solidopacity");
+      _handleColor = _effect.GetParameterHandle("g_solidColor");
+
+      _effect.StartRender(tex, finalTransform);
     }
 
     public override void EndRender()

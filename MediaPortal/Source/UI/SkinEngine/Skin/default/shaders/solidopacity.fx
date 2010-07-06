@@ -1,6 +1,6 @@
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture  g_texture; // Color texture
-float4   g_solidColor = float4( 1.0f, 1.0f, 1.0f, 1.0f );
+float4   g_solidColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 sampler textureSampler = sampler_state
 {
@@ -35,13 +35,15 @@ struct p2f
 void renderVertexShader(in a2v IN, out v2p OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
-  OUT.Color = IN.Color;
   OUT.Texcoord = IN.Texcoord;
 }
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  OUT.Color = g_solidColor;
+  half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
+  OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
+
+  OUT.Color[3] *= g_solidColor;
 }
 
 technique simple
