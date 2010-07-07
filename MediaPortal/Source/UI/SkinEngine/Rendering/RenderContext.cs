@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       {
         Vector2 origin = renderTransformOrigin.HasValue ? new Vector2(
             bounds.X + bounds.Width * renderTransformOrigin.Value.X,
-            bounds.Y + bounds.Height * renderTransformOrigin.Value.Y) : new Vector2(0, 0);
+            bounds.Y + bounds.Height * renderTransformOrigin.Value.Y) : new Vector2(bounds.X, bounds.Y);
         Matrix transform = Matrix.Translation(new Vector3(-origin.X, -origin.Y, 0));
         transform *= localRenderTransform.Value;
         transform *= Matrix.Translation(new Vector3(origin.X, origin.Y, 0));
