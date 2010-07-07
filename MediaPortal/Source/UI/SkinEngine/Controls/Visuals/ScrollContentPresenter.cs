@@ -94,12 +94,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         float differenceY = 0;
         if (elementBounds.X + elementBounds.Width > ActualPosition.X + ActualWidth)
           differenceX = - (float) (elementBounds.X + elementBounds.Width - ActualPosition.X - ActualWidth);
-        if (elementBounds.X < ActualPosition.X)
+        if (elementBounds.X + differenceX < ActualPosition.X)
           differenceX = ActualPosition.X - elementBounds.X;
         if (elementBounds.Y + elementBounds.Height > ActualPosition.Y + ActualHeight)
           differenceY = - (float) (elementBounds.Y + elementBounds.Height - ActualPosition.Y - ActualHeight);
-        if (elementBounds.Y < ActualPosition.Y)
+        if (elementBounds.Y + differenceY < ActualPosition.Y)
           differenceY = ActualPosition.Y - elementBounds.Y;
+
         // Change rect as if children were already re-arranged
         elementBounds.X += differenceX;
         elementBounds.Y += differenceY;
@@ -156,23 +157,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualScrollOffsetY = _scrollOffsetY;
     }
 
-    public override void DoRender(RenderContext localRenderContext)
-    {
-      // FIXME: Scissor rect cannot be combined with transforms. Use an opacity brush instead.
-      Rectangle? origScissorRect = localRenderContext.ScissorRect;
-      localRenderContext.AddScissorRect(new Rectangle(
-          (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
-      GraphicsDevice.Device.ScissorRect = localRenderContext.ScissorRect.Value;
-      GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-      base.DoRender(localRenderContext); // Do the actual rendering
-      if (origScissorRect.HasValue)
-      {
-        GraphicsDevice.Device.ScissorRect = origScissorRect.Value;
-        GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-      }
-      else
-        GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
-    }
+    //Trying without scissor rect: Will be done in theme. This code can be removed if it works
+    // TODO: Remove scissor rects in render context
+    //public override void DoRender(RenderContext localRenderContext)
+    //{
+    //  // FIXME: Scissor rect cannot be combined with transforms. Use an opacity brush instead.
+    //  Rectangle? origScissorRect = localRenderContext.ScissorRect;
+    //  localRenderContext.AddScissorRect(new Rectangle(
+    //      (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
+    //  GraphicsDevice.Device.ScissorRect = localRenderContext.ScissorRect.Value;
+    //  GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
+    //  base.DoRender(localRenderContext); // Do the actual rendering
+    //  if (origScissorRect.HasValue)
+    //  {
+    //    GraphicsDevice.Device.ScissorRect = origScissorRect.Value;
+    //    GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
+    //  }
+    //  else
+    //    GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
+    //}
 
     #region IScrollViewerFocusSupport implementation
 
