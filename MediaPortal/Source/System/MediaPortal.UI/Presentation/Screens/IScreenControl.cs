@@ -30,7 +30,7 @@ namespace MediaPortal.UI.Presentation.Screens
   public enum ScreenMode
   {
     NormalWindowed,
-    FullScreenWindowed
+    FullScreen
   };
 
   public interface IScreenControl

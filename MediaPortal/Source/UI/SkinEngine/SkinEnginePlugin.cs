@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine
           if (sc.IsFullScreen)
             sc.SwitchMode(ScreenMode.NormalWindowed);
           else
-            sc.SwitchMode(ScreenMode.FullScreenWindowed);
+            sc.SwitchMode(ScreenMode.FullScreen);
           return true;
         });
     }

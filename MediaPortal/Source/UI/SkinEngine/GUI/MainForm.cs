@@ -55,7 +55,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private bool _renderThreadStopped;
     private int _fpsCounter;
     private DateTime _fpsTimer;
-    private FormWindowState _windowState;
     private Size _previousWindowClientSize;
     private Point _previousWindowPosition;
     private Point _previousMousePosition;
@@ -79,13 +78,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       AppSettings appSettings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
-      ClientSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+
+      _previousWindowPosition = Location;
+      _previousWindowClientSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+      ClientSize = _previousWindowClientSize; // Setting previous size before setting client size makes AdaptToSize return immediately
 
       SkinContext.Form = this;
       SkinContext.WindowSize = ClientSize;
-
-      // Remember prev size
-      _previousWindowClientSize = ClientSize;
 
       // Setup for fullscreen
       if (appSettings.FullScreen)
@@ -95,13 +94,14 @@ namespace MediaPortal.UI.SkinEngine.GUI
         ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
       }
-      _windowState = WindowState;
 
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       Application.Idle += OnApplicationIdle;
+
+      AdaptToSize(true);
     }
 
     public void DisposeDirectX()
@@ -110,6 +110,45 @@ namespace MediaPortal.UI.SkinEngine.GUI
       logger.Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
+    }
+
+    protected void StoreClientBounds()
+    {
+      if (_mode == ScreenMode.FullScreen)
+        return;
+      _previousWindowPosition = Location;
+      _previousWindowClientSize = ClientSize;
+    }
+
+    protected void AdaptToSize(bool force)
+    {
+      if (ClientSize == _previousWindowClientSize && !force)
+        return;
+
+      if (GraphicsDevice.DeviceLost)
+      {
+        StoreClientBounds();
+        return;
+      }
+      if (ClientSize != _previousWindowClientSize)
+      {
+        StoreClientBounds();
+        StopRenderThread();
+
+        PlayersHelper.ReleaseGUIResources();
+
+        ContentManager.Free();
+
+        SkinContext.WindowSize = ClientSize;
+
+        if (WindowState != FormWindowState.Minimized)
+        {
+          GraphicsDevice.Reset();
+
+          StartRenderThread_Async();
+        }
+        PlayersHelper.ReallocGUIResources();
+      }
     }
 
     private void OnApplicationIdle(object sender, EventArgs e)
@@ -337,54 +376,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
       base.WndProc(ref m);
     }
 
-    protected override void OnSizeChanged(EventArgs e)
-    {
-      base.OnSizeChanged(e);
-      if (GraphicsDevice.DeviceLost)
-        return;
-      if (ClientSize != _previousWindowClientSize)
-      {
-        if (WindowState != _windowState)
-        {
-          _windowState = WindowState;
-          OnResizeEnd(null);
-        }
-      }
-    }
-
     protected override void OnResizeEnd(EventArgs e)
     {
-      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), ScreenState);
-
-      if (GraphicsDevice.DeviceLost)
-      {
-        base.OnResizeEnd(e);
-        _previousWindowClientSize = ClientSize;
-        return;
-      }
-      if (ClientSize != _previousWindowClientSize)
-      {
-        base.OnResizeEnd(e);
-        _previousWindowClientSize = ClientSize;
-        //Trace.WriteLine("DirectX MainForm: Stop render thread");
-        StopRenderThread();
-
-        PlayersHelper.ReleaseGUIResources();
-
-        ContentManager.Free();
-
-        SkinContext.WindowSize = ClientSize;
-
-        //Trace.WriteLine("DirectX MainForm: Reset DirectX");
-        if (WindowState != FormWindowState.Minimized)
-        {
-          GraphicsDevice.Reset();
-
-          //Trace.WriteLine("DirectX MainForm: Restart render thread");
-          StartRenderThread_Async();
-        }
-        PlayersHelper.ReallocGUIResources();
-      }
+      base.OnResizeEnd(e);
+      AdaptToSize(false);
     }
 
     public void Start()
@@ -401,15 +396,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public void SwitchMode(ScreenMode mode)
     {
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0})", mode);
-      bool oldFullscreen = IsFullScreen;
-      bool newFullscreen = mode == ScreenMode.FullScreenWindowed;
+      bool newFullscreen = mode == ScreenMode.FullScreen;
       AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       // Already done, no need to do it twice
       if (mode == _mode)
         return;
-
-      _mode = mode;
 
       settings.FullScreen = newFullscreen;
       ServiceScope.Get<ISettingsManager>().Save(settings);
@@ -423,11 +415,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // Must be done before reset. Otherwise we will lose the device after reset.
       if (newFullscreen)
       {
-        if (!oldFullscreen)
-        {
-          _previousWindowPosition = Location;
-          _previousWindowClientSize = ClientSize;
-        }
+        StoreClientBounds();
         Location = new Point(0, 0);
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
@@ -440,23 +428,20 @@ namespace MediaPortal.UI.SkinEngine.GUI
         Location = _previousWindowPosition;
         ClientSize = _previousWindowClientSize;
       }
+      _mode = mode;
+
       CheckTopMost();
       Update();
       Activate();
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}", newFullscreen, mode);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
-
-      GraphicsDevice.Reset();
-
-      PlayersHelper.ReallocGUIResources();
-
-      StartRenderThread_Async();
+      AdaptToSize(true);
     }
 
     public bool IsFullScreen
     {
-      get { return _mode == ScreenMode.FullScreenWindowed; }
+      get { return _mode == ScreenMode.FullScreen; }
     }
 
     public bool IsScreenSaverActive
@@ -510,8 +495,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThread.Join();
       _renderThread = null;
     }
-
-    private void MainForm_MouseUp(object sender, MouseEventArgs e) { }
 
     protected override void OnGotFocus(EventArgs e)
     {

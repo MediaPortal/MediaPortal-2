@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
     {
       IScreenControl sc = ServiceScope.Get<IScreenControl>();
       if (_yes)
-        sc.SwitchMode(ScreenMode.FullScreenWindowed);
+        sc.SwitchMode(ScreenMode.FullScreen);
       else
         sc.SwitchMode(ScreenMode.NormalWindowed);
     }

@@ -69,9 +69,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       this.ClientSize = new System.Drawing.Size(292, 266);
       this.Name = "MainForm";
       this.Text = "MediaPortal 2";
-      this.Icon = new System.Drawing.Icon(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("MediaPortal.UI.SkinEngine.GUI.MP2.ico"));
       this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
-      this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseUp);
       this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseClick);
       this.Activated += new System.EventHandler(this.MainForm_Activated);
       this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
