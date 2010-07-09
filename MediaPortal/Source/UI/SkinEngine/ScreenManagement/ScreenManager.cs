@@ -282,7 +282,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
           case ScreenManagerMessaging.MessageType.CloseDialog:
             DialogData dd = (DialogData) message.MessageData[ScreenManagerMessaging.DIALOG_DATA];
-            DoCloseDialog(dd);
+            DoCloseDialog(dd, true);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
@@ -452,7 +452,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (closeDialogs)
-          DoCloseDialogs();
+          DoCloseDialogs(true);
         DoExchangeScreen(screen);
       }
     }
@@ -480,7 +480,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       dialog.Show();
     }
 
-    protected internal void DoCloseDialog(DialogData closeDD)
+    protected internal void DoCloseDialog(DialogData closeDD, bool fireCloseDelegate)
     {
       DialogData oldDialogData = null;
       lock(_syncObj)
@@ -515,11 +515,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           foreach (DialogData data in helpStack)
             _dialogStack.Push(data);
       }
-      if (oldDialogData != null && oldDialogData.CloseCallback != null)
+      if (fireCloseDelegate && oldDialogData != null && oldDialogData.CloseCallback != null)
         oldDialogData.CloseCallback(oldDialogData.DialogScreen.Name);
     }
 
-    protected internal void DoCloseDialogs()
+    protected internal void DoCloseDialogs(bool fireCloseDelegates)
     {
       while (true)
       {
@@ -530,7 +530,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
           dd = _dialogStack.Peek();
         }
-        DoCloseDialog(dd);
+        DoCloseDialog(dd, fireCloseDelegates);
       }
     }
 
@@ -550,11 +550,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
+    protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer, bool fireCloseDelegates)
     {
       if (closeBackgroundLayer)
         _backgroundData.Unload();
-      DoCloseDialogs();
+      DoCloseDialogs(fireCloseDelegates);
       DoCloseScreen();
     }
 
@@ -584,14 +584,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         screenName = _currentScreen.Name;
         dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         foreach (DialogData dd in _dialogStack)
-          // We should move the dialog's Closed delegate to the new dialog, but it is not possible to copy a delegate.
-          // To not clear the delegate here might lead to missbehaviour because the closed delegates are then fired too
-          // early, but clearing it without copying it will be even worse because modules might rely on this behaviour.
+          // Remember all dialogs and their close callbacks
           dialogsReverse.Add(new DialogSaveDescriptor(dd.DialogScreen.Name, dd.CloseCallback));
       }
 
       // Close all
-      DoCloseCurrentScreenAndDialogs(true);
+      DoCloseCurrentScreenAndDialogs(true, false);
 
       // Reload background
       if (backgroundName != null)
@@ -608,8 +606,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
         Screen dialog = GetScreen(dialogDescriptor.DialogName, false);
-        // We should have copied the dialog's Closed delegate of the old dialog instead of using null here... but it's not possible to
-        // copy it
         DoShowDialog(dialog, dialogDescriptor.CloseCallback);
       }
     }
@@ -670,8 +666,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Shutdown()
     {
       UnsubscribeFromMessages();
+      // Close all screens to make sure all SlimDX objects are correctly cleaned up
       lock (_syncObj)
-        DoCloseCurrentScreenAndDialogs(true);
+        DoCloseCurrentScreenAndDialogs(true, false);
       _skinManager.Dispose();
       Fonts.FontManager.Unload();
     }
@@ -728,7 +725,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         UninstallBackgroundManager();
         _backgroundData.Unload();
 
-        DoCloseCurrentScreenAndDialogs(true);
+        DoCloseCurrentScreenAndDialogs(true, false);
 
         PlayersHelper.ReleaseGUIResources();
 
@@ -1001,8 +998,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _backgroundData.Unload();
         return true;
       }
-      else
-        return _backgroundData.Load(backgroundName);
+      return _backgroundData.Load(backgroundName);
     }
 
     public void Reload()

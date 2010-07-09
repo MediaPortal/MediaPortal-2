@@ -103,6 +103,9 @@ namespace MediaPortal.UI.Presentation.Screens
     /// Shows the dialog screen with the specified name and calls the specified notification
     /// callback method when the dialog is closed.
     /// </summary>
+    /// <remarks>
+    /// The close delegate won't be called when the system goes down while the dialog is still being shown.
+    /// </remarks>
     /// <param name="dialogName">The logical screen name of the dialog to show.</param>
     /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
     /// gets closed, or <c>null</c>.</param>
