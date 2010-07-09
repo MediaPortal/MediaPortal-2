@@ -9,9 +9,12 @@
   </Grid.ColumnDefinitions>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
   </Grid.RowDefinitions>
   <Grid.Resources>
-    <ResourceWrapper x:Key="ElementsMargin" Resource="100"/>
+    <ResourceWrapper x:Key="ElementsMargin" Resource="70"/>
     <ResourceWrapper x:Key="LGBStartPoint" Resource="0,0.5"/>
     <ResourceWrapper x:Key="LGBEndPoint" Resource="1,0.5"/>
     <ResourceWrapper x:Key="ButtonContent" Resource="Blablablabla"/>
@@ -25,14 +28,23 @@
     </Style>
 
     <Storyboard x:Key="RotationStoryboard" FillBehavior="Stop">
-      <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="false" BeginTime="00:00:00" Storyboard.TargetName="ParentPanel" Storyboard.TargetProperty="RenderTransform.Angle">
+      <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="false" BeginTime="00:00:00" Storyboard.TargetName="RotatingPanel" Storyboard.TargetProperty="RenderTransform.Angle">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
         <SplineDoubleKeyFrame KeyTime="00:00:20" Value="360"/>
       </DoubleAnimationUsingKeyFrames>
     </Storyboard>
+
+    <Storyboard x:Key="ButtonTranslationStoryboard" FillBehavior="Stop">
+      <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="false" BeginTime="00:00:00" Storyboard.TargetName="TranslatingButton" Storyboard.TargetProperty="RenderTransform.X">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:03" Value="50"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:09" Value="-50"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:12" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
   </Grid.Resources>
 
-  <StackPanel Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="0" Grid.Row="0">
+  <StackPanel x:Name="SimplePanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="0" Grid.Row="0">
     <StackPanel.OpacityMask>
       <LinearGradientBrush StartPoint="{StaticResource LGBStartPoint}" EndPoint="{StaticResource LGBEndPoint}">
         <GradientStop Offset="0" Color="#00FFFFFF"/>
@@ -46,7 +58,7 @@
         Content="{StaticResource ButtonContent}"/>
   </StackPanel>
 
-  <StackPanel Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="1" Grid.Row="0">
+  <StackPanel x:Name="ButtonTranslatedPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="1" Grid.Row="0">
     <StackPanel.OpacityMask>
       <LinearGradientBrush StartPoint="{StaticResource LGBStartPoint}" EndPoint="{StaticResource LGBEndPoint}">
         <GradientStop Offset="0" Color="#00FFFFFF"/>
@@ -64,7 +76,7 @@
         Content="{StaticResource ButtonContent}"/>
   </StackPanel>
 
-  <StackPanel x:Name="ParentPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="2" Grid.Row="0" RenderTransformOrigin="0.5,0.5">
+  <StackPanel x:Name="RotatingPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="2" Grid.Row="0" RenderTransformOrigin="0.5,0.5">
     <StackPanel.OpacityMask>
       <LinearGradientBrush StartPoint="{StaticResource LGBStartPoint}" EndPoint="{StaticResource LGBEndPoint}">
         <GradientStop Offset="0" Color="#00FFFFFF"/>
@@ -74,7 +86,7 @@
     <StackPanel.RenderTransform>
       <RotateTransform Angle="{StaticResource StackPanelRotation}"/> <!-- Brush (gradient) should be rotated too -->
     </StackPanel.RenderTransform>
-    <Label Content="Button + StackPanel rotated"/>
+    <Label Content="StackPanel rotated"/>
     <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
         Content="{StaticResource ButtonContent}">
       <Button.RenderTransform>
@@ -89,4 +101,37 @@
       </EventTrigger>
     </StackPanel.Triggers>
   </StackPanel>
+
+  <StackPanel x:Name="ButtonMovingPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="0" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
+    <StackPanel.OpacityMask>
+      <LinearGradientBrush StartPoint="{StaticResource LGBStartPoint}" EndPoint="{StaticResource LGBEndPoint}">
+        <GradientStop Offset="0" Color="#00FFFFFF"/>
+        <GradientStop Offset="1" Color="#FFFFFFFF"/>
+      </LinearGradientBrush>
+    </StackPanel.OpacityMask>
+    <Label Content="Button moving"/>
+    <Button x:Name="TranslatingButton" Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
+        Content="{StaticResource ButtonContent}">
+      <Button.RenderTransform>
+        <TranslateTransform X="0"/> <!-- Brush (gradient) will be adapted to the overall real render size of the stack panel -->
+      </Button.RenderTransform>
+      <Button.Triggers>
+        <EventTrigger RoutedEvent="UIElement.Loaded">
+          <BeginStoryboard x:Name="ButtonTranslationStoryboard" Storyboard="{StaticResource ButtonTranslationStoryboard}"/>
+        </EventTrigger>
+      </Button.Triggers>
+    </Button>
+    <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
+        Content="{StaticResource ButtonContent}"/>
+  </StackPanel>
+
+  <Label Content="Test" Grid.Row="2" Grid.Column="0"/>
+  <Label Content="Test" Grid.Row="3" Grid.Column="0">
+    <Label.OpacityMask>
+      <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+        <GradientStop Offset="0.0" Color="#00000000" />
+        <GradientStop Offset="1.0" Color="#A0000000" />
+      </LinearGradientBrush>
+    </Label.OpacityMask>
+  </Label>
 </Grid>

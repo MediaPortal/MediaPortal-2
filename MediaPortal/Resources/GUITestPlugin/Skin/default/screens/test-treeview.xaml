@@ -5,14 +5,16 @@
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="200"/>
+    <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
+    <ColumnDefinition Width="200"/>
+    <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
-  <Label Grid.Row="0" Content="TreeView test" Wrap="True"/>
-  <TreeView Grid.Row="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+  <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="TreeView test" Wrap="True"/>
+  <TreeView Grid.Row="2" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       ForceExpander="True"
       ItemsSource="{Binding Path=Tree,Mode=OneTime}">
