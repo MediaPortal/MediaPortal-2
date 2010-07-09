@@ -166,6 +166,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       IncludeTransformedContentsBounds(includingTransformedBounds);
     }
 
+    public void SetUntransformedBounds(RectangleF bounds)
+    {
+      _transformedRenderBounds = _transform.GetIncludingTransformedRectangle(bounds);
+    }
+
     public void IncludeTransformedContentsBounds(RectangleF bounds)
     {
       _transformedRenderBounds = RectangleF.Union(_transformedRenderBounds, bounds);

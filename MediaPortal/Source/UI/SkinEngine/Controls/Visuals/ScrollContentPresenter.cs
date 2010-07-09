@@ -157,25 +157,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualScrollOffsetY = _scrollOffsetY;
     }
 
-    //Trying without scissor rect: Will be done in theme. This code can be removed if it works
-    // TODO: Remove scissor rects in render context
-    //public override void DoRender(RenderContext localRenderContext)
-    //{
-    //  // FIXME: Scissor rect cannot be combined with transforms. Use an opacity brush instead.
-    //  Rectangle? origScissorRect = localRenderContext.ScissorRect;
-    //  localRenderContext.AddScissorRect(new Rectangle(
-    //      (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
-    //  GraphicsDevice.Device.ScissorRect = localRenderContext.ScissorRect.Value;
-    //  GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-    //  base.DoRender(localRenderContext); // Do the actual rendering
-    //  if (origScissorRect.HasValue)
-    //  {
-    //    GraphicsDevice.Device.ScissorRect = origScissorRect.Value;
-    //    GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-    //  }
-    //  else
-    //    GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, false);
-    //}
+    public override void DoRender(RenderContext localRenderContext)
+    {
+      base.DoRender(localRenderContext); // Do the actual rendering
+      // The following line cuts all child output outside our bounds. The style for ScrollContentPresenter must
+      // use an opacity brush to avoid drawing children outside our range.
+      localRenderContext.SetUntransformedBounds(ActualBounds);
+    }
 
     #region IScrollViewerFocusSupport implementation
 

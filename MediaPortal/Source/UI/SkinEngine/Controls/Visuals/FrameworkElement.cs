@@ -889,54 +889,48 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (!double.IsNaN(desiredSize.Width))
       {
-        if (desiredSize.Width < childSize.Width)
+        // Width takes precedence over Stretch - Use Center as fallback
+        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
+            (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
         {
-          // Width takes precedence over Stretch - Use Center as fallback
-          if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
-              (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
-          {
-            location.X += (childSize.Width - desiredSize.Width)/2;
-            childSize.Width = desiredSize.Width;
-          }
-          else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-          {
-            location.X += childSize.Width - desiredSize.Width;
-            childSize.Width = desiredSize.Width;
-          }
-          else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Left)
-          {
-            // Leave location unchanged
-            childSize.Width = desiredSize.Width;
-          }
-          //else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch)
-          // Do nothing
+          location.X += (childSize.Width - desiredSize.Width)/2;
+          childSize.Width = desiredSize.Width;
         }
+        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        {
+          location.X += childSize.Width - desiredSize.Width;
+          childSize.Width = desiredSize.Width;
+        }
+        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Left)
+        {
+          // Leave location unchanged
+          childSize.Width = desiredSize.Width;
+        }
+        //else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch)
+        // Do nothing
       }
 
       if (!double.IsNaN(desiredSize.Height))
       {
-        if (desiredSize.Height < childSize.Height)
+        // Height takes precedence over Stretch - Use Center as fallback
+        if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
+            (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
         {
-          // Height takes precedence over Stretch - Use Center as fallback
-          if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
-              (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
-          {
-            location.Y += (childSize.Height - desiredSize.Height)/2;
-            childSize.Height = desiredSize.Height;
-          }
-          else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-          {
-            location.Y += childSize.Height - desiredSize.Height;
-            childSize.Height = desiredSize.Height;
-          }
-          else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
-          {
-            // Leave location unchanged
-            childSize.Height = desiredSize.Height;
-          }
-          //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
-          // Do nothing
+          location.Y += (childSize.Height - desiredSize.Height)/2;
+          childSize.Height = desiredSize.Height;
         }
+        else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+        {
+          location.Y += childSize.Height - desiredSize.Height;
+          childSize.Height = desiredSize.Height;
+        }
+        else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
+        {
+          // Leave location unchanged
+          childSize.Height = desiredSize.Height;
+        }
+        //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
+        // Do nothing
       }
     }
 
