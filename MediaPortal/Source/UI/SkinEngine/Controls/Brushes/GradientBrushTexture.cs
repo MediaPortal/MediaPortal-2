@@ -108,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       byte[] data = new byte[4 * 512];
       int offY = 256 * 4;
       IList<GradientStop> orderedStops = _stops.OrderedGradientStopList;
-      for (int i = 0; i < orderedStops.Count - 1; ++i)
+      for (int i = 0; i < orderedStops.Count - 1; i++)
       {
         GradientStop stopBegin = orderedStops[i];
         GradientStop stopEnd = orderedStops[i + 1];

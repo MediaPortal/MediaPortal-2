@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             GradientStop stop;
             if ((stop = result[0]).Offset != 0)
               result.Insert(0, new GradientStop(0, stop.Color));
-            if ((stop = result[Count - 1]).Offset != 1)
+            if ((stop = result[result.Count - 1]).Offset != 1)
               result.Add(new GradientStop(1, stop.Color));
           }
           _orderedGradientStopList = result;
