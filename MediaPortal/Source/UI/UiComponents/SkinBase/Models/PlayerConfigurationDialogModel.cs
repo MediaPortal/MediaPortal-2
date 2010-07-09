@@ -32,6 +32,7 @@ using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.SkinBase.Models
@@ -42,6 +43,13 @@ namespace UiComponents.SkinBase.Models
   /// </summary>
   public class PlayerConfigurationDialogModel : IDisposable, IWorkflowModel
   {
+    enum NavigationMode
+    {
+      SimpleChoice,
+      SuccessorDialog,
+      ExitPCWorkflow,
+    }
+
     #region Consts
 
     public const string PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR = "58A7F9E3-1514-47af-8E83-2AD60BA8A037";
@@ -61,6 +69,7 @@ namespace UiComponents.SkinBase.Models
     public const string KEY_SHOW_MUTE = "ShowMute";
 
     protected const string KEY_NAME = "Name";
+    protected const string KEY_NAVIGATION_MODE = "NavigationMode";
 
     protected const string PLAYER_OF_TYPE_RESOURCE = "[Players.PlayerOfType]";
     protected const string SLOT_NO_RESOURCE = "[Players.SlotNo]";
@@ -168,8 +177,7 @@ namespace UiComponents.SkinBase.Models
         IResourceString slotNo = LocalizationHelper.CreateResourceString(SLOT_NO_RESOURCE); // "Slot #{0}"
         return playerOfType.Evaluate(pc.MediaType.ToString()) + " (" + slotNo.Evaluate(playerSlot.ToString()) + ")"; // "Video player (Slot #1)"
       }
-      else
-        return player.Name + ": " + player.MediaItemTitle;
+      return player.Name + ": " + player.MediaItemTitle;
     }
 
     protected void UpdatePlayerConfigurationMenu()
@@ -197,6 +205,7 @@ namespace UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
               };
+            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
             _playerConfigurationMenu.Add(item);
           }
         }
@@ -207,6 +216,7 @@ namespace UiComponents.SkinBase.Models
             {
                 Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
             };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
           _playerConfigurationMenu.Add(item);
         }
         // Change geometry
@@ -227,6 +237,7 @@ namespace UiComponents.SkinBase.Models
             {
               Command = new MethodDelegateCommand(() => OpenChooseGeometryDialog(pc))
             };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerChooseGeometryHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
@@ -238,6 +249,7 @@ namespace UiComponents.SkinBase.Models
             {
                 Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
             };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerConfigurationMenu.Add(item);
         }
         // TODO: Handle subtitles same as audio streams
@@ -255,6 +267,7 @@ namespace UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
           _playerConfigurationMenu.Add(item);
         }
         // Close player
@@ -305,6 +318,7 @@ namespace UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
               };
+            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
             _audioStreamsMenu.Add(item);
           }
         }
@@ -340,6 +354,7 @@ namespace UiComponents.SkinBase.Models
             {
                 Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
             };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerSlotAudioMenu.Add(item);
         }
         if (_showToggleMute)
@@ -355,6 +370,7 @@ namespace UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
           _playerSlotAudioMenu.Add(item);
         }
 
@@ -375,6 +391,7 @@ namespace UiComponents.SkinBase.Models
             {
                 Command = new MethodDelegateCommand(() => SetGeometry(_playerGeometryMenuPlayerContext, geometry))
             };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerChooseGeometryMenu.Add(item);
         }
       }
@@ -557,6 +574,23 @@ namespace UiComponents.SkinBase.Models
       ICommand command = item.Command;
       if (command != null)
         command.Execute();
+      object obj;
+      NavigationMode mode = NavigationMode.SimpleChoice;
+      if (item.AdditionalProperties.TryGetValue(KEY_NAVIGATION_MODE, out obj))
+        mode = (NavigationMode) obj;
+      switch (mode)
+      {
+        case NavigationMode.SimpleChoice:
+          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          screenManager.CloseDialog();
+          break;
+        case NavigationMode.ExitPCWorkflow:
+          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+          workflowManager.NavigatePopToState(PLAYER_CONFIGURATION_DIALOG_STATE_ID, true);
+          break;
+        default:
+          break;
+      }
     }
 
     public void SetCurrentPlayer(int playerIndex)

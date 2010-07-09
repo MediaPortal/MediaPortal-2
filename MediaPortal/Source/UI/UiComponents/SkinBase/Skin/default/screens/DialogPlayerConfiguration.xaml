@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\simple_dialog_menu.xaml"
+    Source="screens\master_dialog_menu.xaml"
     >
   <Include.Resources>
 
@@ -17,9 +17,12 @@
       <Binding Source="{StaticResource PlayerConfigurationDialogModel}" Path="PlayerConfigurationMenu" Mode="OneTime"/>
     </ResourceWrapper>
 
-    <!-- Command -->
-    <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource PlayerConfigurationDialogModel}" Path="ExecuteMenuItem"/>
+    <!-- Menu_Command -->
+    <InvokeCommand x:Key="Menu_Command" CommandStencil="{CommandStencil Source={StaticResource PlayerConfigurationDialogModel},Path=ExecuteMenuItem}">
+      <InvokeCommand.CommandParameters>
+        <LateBoundValue BindingValue="{Binding}"/>
+      </InvokeCommand.CommandParameters>
+    </InvokeCommand>
 
   </Include.Resources>
 </Include>
