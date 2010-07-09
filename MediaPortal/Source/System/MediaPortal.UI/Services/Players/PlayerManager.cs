@@ -227,8 +227,15 @@ namespace MediaPortal.UI.Services.Players
     {
       lock (_syncObj)
         foreach (PlayerSlotController psc in _slots)
-          if (psc.IsActive)
-            execute(psc);
+          try
+          {
+            if (psc.IsActive)
+              execute(psc);
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
+          }
     }
 
     internal PlayerBuilderRegistration GetPlayerBuilderRegistration(string playerBuilderId)

@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.SkinEngine.Players
@@ -37,7 +39,14 @@ namespace MediaPortal.UI.SkinEngine.Players
       ISlimDXVideoPlayer sdvp = psc.CurrentPlayer as ISlimDXVideoPlayer;
       if (sdvp == null)
         return;
-      sdvp.ReleaseGUIResources();
+      try
+      {
+        sdvp.ReleaseGUIResources();
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Problem releasing GUI resources in player '{0}'", e, sdvp);
+      }
     }
 
     public static void ReallocGUIResources(IPlayerSlotController psc)
@@ -45,7 +54,14 @@ namespace MediaPortal.UI.SkinEngine.Players
       ISlimDXVideoPlayer sdvp = psc.CurrentPlayer as ISlimDXVideoPlayer;
       if (sdvp == null)
         return;
-      sdvp.ReallocGUIResources();
+      try
+      {
+        sdvp.ReallocGUIResources();
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Problem reallocating GUI resources in player '{0}'", e, sdvp);
+      }
     }
 
     public static void ReleaseGUIResources()
