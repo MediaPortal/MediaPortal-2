@@ -89,8 +89,9 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
+            <!-- The opacity mask is necessary to avoid drawing children outside the ScrollContentPresenter's range -->
             <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" OpacityMask="#FF000000"/>
             <!-- ScrollBar X -->
             <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="2" Grid.Column="0">
               <Grid.ColumnDefinitions>
@@ -432,7 +433,7 @@
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22"/>
 <!-- Additionally available properties to show here:
       <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[MediaProviderMetadata].Name}" FontSize="22"/>
-      <Label x:Name="ShareProvider" Grid.Column="3" Content="{Binding [Categories]}" FontSize="22"/>
+      <Label x:Name="Categories" Grid.Column="3" Content="{Binding [Categories]}" FontSize="22"/>
 -->
     </Grid>
   </DataTemplate>
