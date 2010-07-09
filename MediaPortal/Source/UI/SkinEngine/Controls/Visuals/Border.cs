@@ -276,9 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _performLayout = false;
 
-      SizeF rectSize = new SizeF(_borderRect.Size);
-
-      RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+      RectangleF rect = new RectangleF(-0.5f, -0.5f, _borderRect.Size.Width + 0.5f, _borderRect.Size.Height + 0.5f);
       rect.X += ActualPosition.X;
       rect.Y += ActualPosition.Y;
       PerformLayoutBackground(rect, context);
