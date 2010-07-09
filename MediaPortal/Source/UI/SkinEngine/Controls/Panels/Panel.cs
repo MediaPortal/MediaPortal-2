@@ -207,9 +207,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override void ArrangeOverride()
     {
-      RectangleF oldRect = new RectangleF(_innerRect.Location, _innerRect.Size);
+      PointF oldPosition = ActualPosition;
+      double oldWidth = ActualWidth;
+      double oldHeight = ActualHeight;
       base.ArrangeOverride();
-      if (!_innerRect.IsEmpty && oldRect != _innerRect)
+      if (ActualWidth != 0 && ActualHeight != 0 &&
+          (ActualWidth != oldWidth || ActualHeight != oldHeight || oldPosition != ActualPosition))
         _performLayout = true;
       _updateRenderOrder = true;
     }
