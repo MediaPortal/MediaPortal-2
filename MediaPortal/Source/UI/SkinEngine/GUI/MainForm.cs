@@ -395,7 +395,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void SwitchMode(ScreenMode mode)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0})", mode);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
       bool newFullscreen = mode == ScreenMode.FullScreen;
       AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
@@ -407,7 +407,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceScope.Get<ISettingsManager>().Save(settings);
 
       StopRenderThread();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Releasing resources");
       PlayersHelper.ReleaseGUIResources();
 
       ContentManager.Free();
@@ -434,8 +434,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       Update();
       Activate();
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}", newFullscreen, mode);
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
       AdaptToSize(true);
     }
 
@@ -480,7 +478,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (_renderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Start render thread");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
       _renderThreadStopped = false;
       _renderThread = new Thread(RenderLoop) {Name = "DirectX Render Thread"};
       _renderThread.Start();
@@ -491,7 +489,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThreadStopped = true;
       if (_renderThread == null)
         return;
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stop render thread");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
       _renderThread.Join();
       _renderThread = null;
     }
