@@ -23,7 +23,6 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
@@ -34,7 +33,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected readonly float _zOrder = 1.0f;
     protected readonly double _opacity = 1.0f;
-    protected Rectangle? _scissorRect = null;
     protected readonly Matrix _transform;
     protected readonly Matrix? _additionalMouseTransform;
     protected RectangleF _transformedRenderBounds = new RectangleF();
@@ -73,7 +71,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _opacity = opacity;
       _transform = transform;
       _additionalMouseTransform = additionalMouseTransform;
-      _scissorRect = null;
       SetUntransformedContentsBounds(untransformedBounds);
     }
 
@@ -115,15 +112,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       return result;
     }
 
-    public void AddScissorRect(Rectangle localScissorRect)
-    {
-      if (GeometricHelper.HasExtends(localScissorRect))
-        if (_scissorRect.HasValue)
-          _scissorRect.Value.Intersect(localScissorRect);
-        else
-          _scissorRect = new Rectangle(localScissorRect.Location, localScissorRect.Size);
-    }
-
     #endregion
 
     #region Public properties
@@ -136,11 +124,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public double Opacity
     {
       get { return _opacity; }
-    }
-
-    public Rectangle? ScissorRect
-    {
-      get { return _scissorRect; }
     }
 
     public Matrix Transform
