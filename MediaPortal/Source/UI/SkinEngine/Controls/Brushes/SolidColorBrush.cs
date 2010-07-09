@@ -35,11 +35,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush
   {
+    #region Consts
+
+    protected const string EFFECT_SOLID = "solid";
+    protected const string EFFECT_SOLIDOPACITY = "solidopacity";
+
+    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
+
+    #endregion
+
     #region Private properties
 
     AbstractProperty _colorProperty;
     EffectAsset _effect;
-    EffectHandleAsset _handleColor;
 
     #endregion
 
@@ -104,10 +112,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Matrix finalTransform = renderContext.Transform.Clone();
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
-      _effect = ContentManager.GetEffect("solid");
-      _handleColor = _effect.GetParameterHandle("g_solidColor");
-      
-      _handleColor.SetParameter(v);
+      _effect = ContentManager.GetEffect(EFFECT_SOLID);
+      _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(finalTransform);
       return true;
     }
@@ -119,9 +125,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
       Matrix finalTransform = renderContext.Transform.Clone();
-      _effect = ContentManager.GetEffect("solidopacity");
-      _handleColor = _effect.GetParameterHandle("g_solidColor");
-
+      _effect = ContentManager.GetEffect(EFFECT_SOLIDOPACITY);
+      _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(tex, finalTransform);
     }
 

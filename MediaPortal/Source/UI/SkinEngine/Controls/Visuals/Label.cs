@@ -32,7 +32,6 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
-using FontRender = MediaPortal.UI.SkinEngine.ContentManagement.FontRender;
 using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.FontBufferAsset;
 using FontManager = MediaPortal.UI.SkinEngine.Fonts.FontManager;
 using MediaPortal.Utilities.DeepCopy;
@@ -51,7 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _textAlignProperty;
     protected AbstractProperty _maxDesiredWidthProperty;
     protected FontBufferAsset _asset;
-    protected FontRender _renderer;
     protected string _resourceString;
     private int _fontSizeCache;
 
@@ -227,8 +225,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (font != null)
           _asset = ContentManager.GetFont(font);
       }
-      if (_renderer == null && _asset != null && _asset.Font != null)
-        _renderer = new FontRender(_asset.Font);
     }
 
     /// <summary>
@@ -348,9 +344,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _asset.Free(true);
         _asset = null;
       }
-      if (_renderer != null)
-        _renderer.Free();
-      _renderer = null;
     }
   }
 }

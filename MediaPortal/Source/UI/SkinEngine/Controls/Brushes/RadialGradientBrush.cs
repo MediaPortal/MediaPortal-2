@@ -38,6 +38,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   // TODO: Implement Freezable behaviour
   public class RadialGradientBrush : GradientBrush
   {
+    #region Consts
+
+    protected const string EFFECT_RADIALGRADIENT = "radialgradient";
+    protected const string EFFECT_RADIALOPACITYGRADIENT = "radialopacitygradient";
+    protected const string EFFECT_SOLID = "solid";
+
+    protected const string PARAM_TRANSFORM = "g_transform";
+    protected const string PARAM_OPACITY = "g_opacity";
+    protected const string PARAM_FOCUS = "g_focus";
+    protected const string PARAM_CENTER = "g_center";
+    protected const string PARAM_RADIUS = "g_radius";
+
+    protected const string PARAM_ALPHATEX = "g_alphatex";
+    protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
+    protected const string PARAM_LOWERVERTSBOUNDS = "g_lowervertsbounds";
+
+    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
+
+    #endregion
+
     #region Private fields
 
     EffectAsset _effect;
@@ -46,15 +66,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     AbstractProperty _gradientOriginProperty;
     AbstractProperty _radiusXProperty;
     AbstractProperty _radiusYProperty;
-    EffectHandleAsset _handleTransform;
-    EffectHandleAsset _handleFocus;
-    EffectHandleAsset _handleCenter;
-    EffectHandleAsset _handleRadius;
-    EffectHandleAsset _handleOpacity;
-    EffectHandleAsset _handleColor;
-    EffectHandleAsset _handleAlphaTexture;
-    EffectHandleAsset _handleUpperVertsBounds;
-    EffectHandleAsset _handleLowerVertsBounds;
     GradientBrushTexture _gradientBrushTexture;
     float[] g_focus;
     float[] g_center;
@@ -199,20 +210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _refresh = false;
         CheckSingleColor();
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        if (_singleColor)
-        {
-          _effect = ContentManager.GetEffect("solidbrush");
-          _handleColor = _effect.GetParameterHandle("g_solidColor");
-        }
-        else
-        {
-          _effect = ContentManager.GetEffect("radialgradient");
-          _handleTransform = _effect.GetParameterHandle("Transform");
-          _handleFocus = _effect.GetParameterHandle("g_focus");
-          _handleCenter = _effect.GetParameterHandle("g_center");
-          _handleRadius = _effect.GetParameterHandle("g_radius");
-          _handleOpacity = _effect.GetParameterHandle("g_opacity");
-        }
+        _effect = _singleColor ? ContentManager.GetEffect(EFFECT_SOLID) : ContentManager.GetEffect("radialgradient");
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
@@ -241,16 +239,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_singleColor)
       {
         Color4 v = ColorConverter.FromColor(Color.FromArgb((int) (255*Opacity*renderContext.Opacity), GradientStops[0].Color));
-        _handleColor.SetParameter(v);
+        _effect.Parameters[PARAM_SOLIDCOLOR] = v;
         _effect.StartRender(finalTransform);
       }
       else
       {
-        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
-        _handleFocus.SetParameter(g_focus);
-        _handleCenter.SetParameter(g_center);
-        _handleRadius.SetParameter(g_radius);
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
+        _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+        _effect.Parameters[PARAM_FOCUS] = g_focus;
+        _effect.Parameters[PARAM_CENTER] = g_center;
+        _effect.Parameters[PARAM_RADIUS] = g_radius;
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
 
         _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
       }
@@ -268,15 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         CheckSingleColor();
         // TODO: if (_singleColor) ...
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        _effect = ContentManager.GetEffect("radialopacitygradient");
-        _handleTransform = _effect.GetParameterHandle("Transform");
-        _handleFocus = _effect.GetParameterHandle("g_focus");
-        _handleCenter = _effect.GetParameterHandle("g_center");
-        _handleRadius = _effect.GetParameterHandle("g_radius");
-        _handleOpacity = _effect.GetParameterHandle("g_opacity");
-        _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
-        _handleUpperVertsBounds = _effect.GetParameterHandle("g_UpperVertsBounds");
-        _handleLowerVertsBounds = _effect.GetParameterHandle("g_LowerVertsBounds");
+        _effect = ContentManager.GetEffect(EFFECT_RADIALOPACITYGRADIENT);
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
@@ -304,7 +294,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       if (_singleColor)
       {
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
+        // FIXME
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
         _effect.StartRender(tex, finalTransform);
       }
       else
@@ -313,14 +304,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         float[] g_LowerVertsBounds = new float[] {_vertsBounds.Left / desc.Width, _vertsBounds.Top / desc.Height};
         float[] g_UpperVertsBounds = new float[] {_vertsBounds.Right / desc.Width, _vertsBounds.Bottom / desc.Height};
 
-        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
-        _handleFocus.SetParameter(g_focus);
-        _handleCenter.SetParameter(g_center);
-        _handleRadius.SetParameter(g_radius);
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
-        _handleAlphaTexture.SetParameter(_gradientBrushTexture.Texture);
-        _handleUpperVertsBounds.SetParameter(g_UpperVertsBounds);
-        _handleLowerVertsBounds.SetParameter(g_LowerVertsBounds);
+        _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+        _effect.Parameters[PARAM_FOCUS] = g_focus;
+        _effect.Parameters[PARAM_CENTER] = g_center;
+        _effect.Parameters[PARAM_RADIUS] = g_radius;
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
+        _effect.Parameters[PARAM_ALPHATEX] = _gradientBrushTexture.Texture;
+        _effect.Parameters[PARAM_UPPERVERTSBOUNDS] = g_UpperVertsBounds;
+        _effect.Parameters[PARAM_LOWERVERTSBOUNDS] = g_LowerVertsBounds;
 
         _effect.StartRender(tex, finalTransform);
       }

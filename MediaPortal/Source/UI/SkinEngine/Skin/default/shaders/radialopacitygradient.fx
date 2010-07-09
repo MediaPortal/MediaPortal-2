@@ -1,12 +1,12 @@
 half44x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
-half4x4  Transform; 
 
+half4x4  g_transform; 
 half2    g_radius = {0.5f, 0.5f};
 half2    g_center = {0.5f, 0.5f};
 half2    g_focus = {0.5f, 0.5f};
 half     g_opacity;
-half2    g_UpperVertsBounds;
-half2    g_LowerVertsBounds;
+half2    g_uppervertsbounds;
+half2    g_lowervertsbounds;
 texture  g_texture; // Color texture 
 texture  g_alphatex; // Alpha gradient texture 
 
@@ -64,13 +64,13 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
   half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  texPos = mul(texPos, Transform);
+  texPos = mul(texPos, g_transform);
   OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
 
   half4 alphaPos = half4(
-      (IN.Texcoord.x - g_LowerVertsBounds.x)/(g_UpperVertsBounds.x - g_LowerVertsBounds.x),
-      (IN.Texcoord.y - g_LowerVertsBounds.y)/(g_UpperVertsBounds.y - g_LowerVertsBounds.y), 0, 1);
-  alphaPos = mul(alphaPos, Transform);
+      (IN.Texcoord.x - g_lowervertsbounds.x)/(g_uppervertsbounds.x - g_lowervertsbounds.x),
+      (IN.Texcoord.y - g_lowervertsbounds.y)/(g_uppervertsbounds.y - g_lowervertsbounds.y), 0, 1);
+  alphaPos = mul(alphaPos, g_transform);
   half dist = GetColor(half2(alphaPos.x, alphaPos.y));
   dist = clamp(dist, 0, 0.9999);
 

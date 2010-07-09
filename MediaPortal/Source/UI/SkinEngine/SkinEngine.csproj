@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -57,9 +57,7 @@
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
     <Compile Include="ContentManagement\FontBufferAsset.cs" />
-    <Compile Include="ContentManagement\FontRender.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
-    <Compile Include="ContentManagement\TextureRender.cs" />
     <Compile Include="ContentManagement\VertexBufferAsset.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
@@ -276,8 +274,6 @@
     <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\PositionColored2Textured.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
-    <Compile Include="Effects\EffectHandleAsset.cs" />
-    <Compile Include="Effects\EffectParameters.cs" />
     <Compile Include="MatrixOperations.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>

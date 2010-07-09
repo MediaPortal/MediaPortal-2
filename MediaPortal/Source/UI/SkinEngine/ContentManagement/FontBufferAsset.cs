@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private float _previousSize;
     private Color4 _previousColor;
     private bool _previousGradientUsed = false;
-    private Font _font;
+    private readonly Font _font;
     private VertexBuffer _vertexBuffer;
     private int _primitivecount;
     private DateTime _lastTimeUsed = DateTime.MinValue;

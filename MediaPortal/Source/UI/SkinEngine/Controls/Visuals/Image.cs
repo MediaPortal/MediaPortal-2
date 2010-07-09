@@ -274,12 +274,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float opacity = (float) localRenderContext.Opacity;
       if (_image != null)
       {
-        _image.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, localRenderContext.Transform);
+        _image.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, 0, localRenderContext.Transform);
         if (_image.Texture.IsAllocated)
           return;
       }
       else if (_fallbackImage != null)
-        _fallbackImage.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, localRenderContext.Transform);
+        _fallbackImage.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, 0, localRenderContext.Transform);
     }
 
     void PerformLayout(VertexBufferAsset asset)

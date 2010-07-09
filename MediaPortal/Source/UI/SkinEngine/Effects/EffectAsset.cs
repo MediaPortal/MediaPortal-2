@@ -41,9 +41,15 @@ namespace MediaPortal.UI.SkinEngine.Effects
   /// </summary>
   public class EffectAsset : IAsset
   {
+    #region Consts
+
+    protected const string PARAM_WORLDVIEWPROJ = "worldViewProj";
+    protected const string PARAM_TEXTURE = "g_texture";
+
+    #endregion
+
     private readonly string _effectName;
-    readonly Dictionary<string, object> _effectParameters;
-    readonly Dictionary<string, EffectHandleAsset> _parameters;
+    readonly Dictionary<string, object> _parameterValues;
     private Effect _effect;
     private DateTime _lastUsed = DateTime.MinValue;
     EffectHandle _handleWorldProjection;
@@ -52,49 +58,49 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     public EffectAsset(string effectName)
     {
-      _parameters = new Dictionary<string, EffectHandleAsset>();
-      _effectParameters = new Dictionary<string, object>();
+      _parameterValues = new Dictionary<string, object>();
       _effectName = effectName;
       Allocate();
     }
 
-    public void Allocate()
+    public bool Allocate()
     {
       string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(
-          string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY ,_effectName));
-      if (effectFilePath != null && File.Exists(effectFilePath))
+          string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY, _effectName));
+      if (effectFilePath == null || !File.Exists(effectFilePath))
+        return false;
+      string effectShader;
+      using (StreamReader reader = new StreamReader(effectFilePath))
+        effectShader = reader.ReadToEnd();
+      Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
+      Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
+
+      const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
+      //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
+      effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
+      effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
+
+      string errors = string.Empty;
+      try
       {
-        string effectShader;
-        using (StreamReader reader = new StreamReader(effectFilePath))
-          effectShader = reader.ReadToEnd();
-        Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
-        Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
-
-        const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-        //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
-        effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
-        effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
-
-        string errors = string.Empty;
-        try
-        {
-          _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
-          _lastUsed = SkinContext.FrameRenderingStartTime;
-          _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
-          _handleTexture = _effect.GetParameter(null, "g_texture");
-          _handleTechnique = _effect.GetTechnique(0);
-        }
-        catch
-        { 
-          ServiceScope.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
-          ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
-        }
+        _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
+        _lastUsed = SkinContext.FrameRenderingStartTime;
+        _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
+        _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
+        _handleTechnique = _effect.GetTechnique(0);
+        return true;
+      }
+      catch
+      { 
+        ServiceScope.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
+        ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
+        return false;
       }
     }
 
     public Dictionary<string, object> Parameters
     {
-      get { return _effectParameters; }
+      get { return _parameterValues; }
     }
 
     #region IAsset Members
@@ -121,13 +127,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
         _handleTexture.Dispose();
       if (_handleWorldProjection != null)
         _handleWorldProjection.Dispose();
-      Dictionary<string, EffectHandleAsset>.Enumerator enumer = _parameters.GetEnumerator();
-      while (enumer.MoveNext())
-      {
-        if (enumer.Current.Value.Handle != null)
-          enumer.Current.Value.Handle.Dispose();
-        enumer.Current.Value.Handle = null;
-      }
       _handleTechnique = null;
       _handleWorldProjection = null;
       _handleTexture = null;
@@ -243,8 +242,8 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     void SetEffectParameters()
     {
-      if (_effectParameters.Count == 0) return;
-      foreach (KeyValuePair<string, object> kvp in _effectParameters)
+      if (_parameterValues.Count == 0) return;
+      foreach (KeyValuePair<string, object> kvp in _parameterValues)
       {
         Type type = kvp.Value.GetType();
         if (type == typeof(Texture))
@@ -268,15 +267,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
         else if (type == typeof(int))
           _effect.SetValue(kvp.Key, (int) kvp.Value);
       }
-    }
-
-    public EffectHandleAsset GetParameterHandle(string name)
-    {
-      if (_parameters.ContainsKey(name))
-        return _parameters[name];
-      EffectHandleAsset asset = new EffectHandleAsset(name, this);
-      _parameters[name] = asset;
-      return asset;
     }
 
     public Effect Effect

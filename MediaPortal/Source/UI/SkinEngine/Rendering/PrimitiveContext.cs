@@ -22,8 +22,6 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 
@@ -33,9 +31,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
   {
     #region Protected fields
 
-    protected EffectAsset _effect;
-    protected EffectParameters _parameters;
-    protected ITextureAsset _texture;
     protected VertexBuffer _vertexBuffer;
     protected VertexFormat _vertexFormat;
     protected PrimitiveType _primitiveType;
@@ -74,24 +69,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     #region Properties
-
-    public EffectAsset Effect
-    {
-      get { return _effect; }
-      set { _effect = value; }
-    }
-
-    public EffectParameters Parameters
-    {
-      get { return _parameters; }
-      set { _parameters = value; }
-    }
-
-    public ITextureAsset Texture
-    {
-      get { return _texture; }
-      set { _texture = value; }
-    }
 
     public VertexBuffer VertexBuffer
     {

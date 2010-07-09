@@ -38,20 +38,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   // TODO: Implement Freezable behaviour
   public class LinearGradientBrush : GradientBrush
   {
+    #region Consts
+
+    protected const string EFFECT_LINEARGRADIENT = "lineargradient";
+    protected const string EFFECT_LINEAROPACITYGRADIENT = "linearopacitygradient";
+    protected const string EFFECT_SOLID = "solid";
+
+    protected const string PARAM_TRANSFORM = "g_transform";
+    protected const string PARAM_OPACITY = "g_opacity";
+    protected const string PARAM_STARTPOINT = "g_startpoint";
+    protected const string PARAM_ENDPOINT = "g_endpoint";
+
+    protected const string PARAM_ALPHATEX = "g_alphatex";
+    protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
+    protected const string PARAM_LOWERVERTSBOUNDS = "g_lowervertsbounds";
+
+    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
+
+    #endregion
+
     #region Private fields
 
     EffectAsset _effect;
 
     AbstractProperty _startPointProperty;
     AbstractProperty _endPointProperty;
-    EffectHandleAsset _handleTransform;
-    EffectHandleAsset _handleOpacity;
-    EffectHandleAsset _handleStartPoint;
-    EffectHandleAsset _handleEndPoint;
-    EffectHandleAsset _handleSolidColor;
-    EffectHandleAsset _handleAlphaTexture;
-    EffectHandleAsset _handleUpperVertsBounds;
-    EffectHandleAsset _handleLowerVertsBounds;
     GradientBrushTexture _gradientBrushTexture;
     float[] g_startpoint;
     float[] g_endpoint;
@@ -149,19 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _refresh = false;
         CheckSingleColor();
-        if (_singleColor)
-        {
-          _effect = ContentManager.GetEffect("solidbrush");
-          _handleSolidColor = _effect.GetParameterHandle("g_solidColor");
-        }
-        else
-        {
-          _effect = ContentManager.GetEffect("lineargradient");
-          _handleTransform = _effect.GetParameterHandle("Transform");
-          _handleOpacity = _effect.GetParameterHandle("g_opacity");
-          _handleStartPoint = _effect.GetParameterHandle("g_StartPoint");
-          _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
-        }
+        _effect = _singleColor ? ContentManager.GetEffect(EFFECT_SOLID) : ContentManager.GetEffect(EFFECT_LINEARGRADIENT);
 
         g_startpoint = new float[] {StartPoint.X, StartPoint.Y};
         g_endpoint = new float[] {EndPoint.X, EndPoint.Y};
@@ -184,15 +183,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_singleColor)
       {
         Color4 v = ColorConverter.FromColor(Color.FromArgb((int) (255*Opacity*renderContext.Opacity), GradientStops[0].Color));
-        _handleSolidColor.SetParameter(v);
+        _effect.Parameters[PARAM_SOLIDCOLOR] = v;
         _effect.StartRender(finalTransform);
       }
       else
       {
-        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
-        _handleStartPoint.SetParameter(g_startpoint);
-        _handleEndPoint.SetParameter(g_endpoint);
+        _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
+        _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
+        _effect.Parameters[PARAM_ENDPOINT] = g_endpoint;
         _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
       }
       return true;
@@ -207,14 +206,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _refresh = false;
         CheckSingleColor();
-        _effect = ContentManager.GetEffect("linearopacitygradient");
-        _handleTransform = _effect.GetParameterHandle("Transform");
-        _handleOpacity = _effect.GetParameterHandle("g_opacity");
-        _handleStartPoint = _effect.GetParameterHandle("g_StartPoint");
-        _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
-        _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
-        _handleUpperVertsBounds = _effect.GetParameterHandle("g_UpperVertsBounds");
-        _handleLowerVertsBounds = _effect.GetParameterHandle("g_LowerVertsBounds");
+        _effect = ContentManager.GetEffect(EFFECT_LINEAROPACITYGRADIENT);
 
         g_startpoint = new float[] {StartPoint.X, StartPoint.Y};
         g_endpoint = new float[] {EndPoint.X, EndPoint.Y};
@@ -236,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
       if (_singleColor)
       {
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
         _effect.StartRender(tex, finalTransform);
       }
       else
@@ -245,13 +237,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         float[] g_LowerVertsBounds = new float[] {_vertsBounds.Left / desc.Width, _vertsBounds.Top / desc.Height};
         float[] g_UpperVertsBounds = new float[] {_vertsBounds.Right / desc.Width, _vertsBounds.Bottom / desc.Height};
 
-        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
-        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
-        _handleStartPoint.SetParameter(g_startpoint);
-        _handleEndPoint.SetParameter(g_endpoint);
-        _handleAlphaTexture.SetParameter(_gradientBrushTexture.Texture);
-        _handleUpperVertsBounds.SetParameter(g_UpperVertsBounds);
-        _handleLowerVertsBounds.SetParameter(g_LowerVertsBounds);
+        _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+        _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
+        _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
+        _effect.Parameters[PARAM_ENDPOINT] = g_endpoint;
+        _effect.Parameters[PARAM_ALPHATEX] = _gradientBrushTexture.Texture;
+        _effect.Parameters[PARAM_UPPERVERTSBOUNDS] = g_UpperVertsBounds;
+        _effect.Parameters[PARAM_LOWERVERTSBOUNDS] = g_LowerVertsBounds;
 
         _effect.StartRender(tex, finalTransform);
       }

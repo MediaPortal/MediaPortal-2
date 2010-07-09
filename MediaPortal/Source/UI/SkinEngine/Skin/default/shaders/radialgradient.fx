@@ -1,6 +1,6 @@
 half4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
-half4x4 Transform; 
 
+half4x4 g_transform; 
 half2   g_radius = {0.5f, 0.5f};
 half2   g_center = {0.5f, 0.5f};
 half2   g_focus = {0.5f, 0.5f};
@@ -53,7 +53,7 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
   half4 pos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  pos = mul(pos, Transform);
+  pos = mul(pos, g_transform);
   half dist = GetColor(half2(pos.x, pos.y));
   dist = clamp(dist,0,0.9999);
   OUT.Color = tex1D(textureSampler, dist);

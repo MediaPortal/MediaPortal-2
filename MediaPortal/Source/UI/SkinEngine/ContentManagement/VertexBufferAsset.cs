@@ -33,6 +33,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class VertexBufferAsset : IAsset
   {
+    #region Consts
+
+    protected const string EFFECT_NORMAL = "normal";
+
+    #endregion
+
     #region Variables
 
     private VertexBuffer _vertexBuffer = null;
@@ -63,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public VertexBufferAsset(TextureAsset texture)
     {
       _texture = texture;
-      _effect = ContentManager.GetEffect("normal");
+      _effect = ContentManager.GetEffect(EFFECT_NORMAL);
     }
 
     /// <summary>
@@ -149,9 +155,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 //      _previousGradientInUse = SkinContext.GradientInUse;
     }
 
-    /// <summary>
-    /// Updates the vertex buffer.
-    /// </summary>
     private void UpdateVertexBuffer(float left, float top, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         int alphaUpperLeft, int alphaBottomLeft,
@@ -185,53 +188,41 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         long colorUpperRight = alphaUpperRight;
         colorUpperRight <<= 24;
         colorUpperRight += 0xffffff;
+
         //upper left
         verts[0].Tu1 = u1;
         verts[0].Tv1 = v1;
         verts[0].Position = upperLeft;
         verts[0].Color = (int)colorUpperLeft;
-        //SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
 
         //bottom left
         verts[1].Tu1 = u1;
         verts[1].Tv1 = v2;
         verts[1].Position = bottomLeft;
         verts[1].Color = (int)colorBottomLeft;
-        //SkinContext.GetAlphaGradientUV(bottomLeft, out tu2, out tv2);
+        
         //bottom right
         verts[2].Tu1 = u2;
         verts[2].Tv1 = v2;
         verts[2].Position = bottomRight;
         verts[2].Color = (int)colorBottomRight;
-        //SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
 
         //upper right
         verts[3].Tu1 = u2;
         verts[3].Tv1 = v1;
         verts[3].Position = upperRight;
         verts[3].Color = (int)colorUpperRight;
-        //SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
       }
       PositionColored2Textured.Set(_vertexBuffer, verts);
     }
 
     #region IAsset Members
 
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get { return _vertexBuffer != null; }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -245,9 +236,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
     public void Free(bool force)
     {
       if (_vertexBuffer != null)
@@ -261,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     #endregion
 
     /// <summary>
-    /// Draws the vertex buffer and associated texture
+    /// Draws the vertex buffer and associated texture.
     /// </summary>
     public void Draw(float x, float y, float z, float width, float height, float alpha, int streamNumber, Matrix finalTransform)
     {
@@ -289,12 +277,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Draws the vertex buffer and associated texture
+    /// Draws the vertex buffer and associated texture.
     /// </summary>
     public void Draw(float x, float y, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         float alphaUpperLeft, float alphaBottomLeft,
-        float alphaBottomRight, float alphaUpperRight, Matrix finalTransform)
+        float alphaBottomRight, float alphaUpperRight, int streamNumber, Matrix finalTransform)
     {
       if (!_texture.IsAllocated)
         _texture.Allocate();
@@ -335,57 +323,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       _effect.Render(_texture, 0, finalTransform);
-      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
-    }
-
-    public void Draw(float x, float y, float z, float width, float height,
-        float uoff, float voff, float umax, float vmax,
-        float alphaUpperLeft, float alphaBottomLeft,
-        float alphaBottomRight, float alphaUpperRight, EffectAsset effect, Matrix finalTransform)
-    {
-      if (!_texture.IsAllocated)
-        _texture.Allocate();
-      if (!_texture.IsAllocated)
-        return;
-      if (!IsAllocated)
-        Allocate();
-      if (!IsAllocated)
-        return;
-
-      alphaUpperLeft *= 255;
-      if (alphaUpperLeft < 0)
-        alphaUpperLeft = 0;
-      if (alphaUpperLeft > 255)
-        alphaUpperLeft = 255;
-
-      alphaBottomLeft *= 255;
-      if (alphaBottomLeft < 0)
-        alphaBottomLeft = 0;
-      if (alphaBottomLeft > 255)
-        alphaBottomLeft = 255;
-
-      alphaBottomRight *= 255;
-      if (alphaBottomRight < 0)
-        alphaBottomRight = 0;
-      if (alphaBottomRight > 255)
-        alphaBottomRight = 255;
-
-      alphaUpperRight *= 255;
-      if (alphaUpperRight < 0)
-        alphaUpperRight = 0;
-      if (alphaUpperRight > 255)
-        alphaUpperRight = 255;
-
-      Set(x, y, z, width, height,
-          uoff, voff, umax, vmax,
-          (int) alphaUpperLeft,
-          (int) alphaBottomLeft,
-          (int) alphaBottomRight,
-          (int) alphaUpperRight);
-
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      effect.Render(_texture,0, finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
   }
