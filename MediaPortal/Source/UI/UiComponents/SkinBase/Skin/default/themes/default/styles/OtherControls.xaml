@@ -447,7 +447,7 @@
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -832,7 +832,7 @@
                   <Label x:Name="SeekHint" FontSize="10" Content="{Binding SeekHint}"/>
                 </Grid>
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="1" Color="{ThemeResource DefaultPlayerControlMediaItemColor}"
-                    Content="{Binding MediaItemTitle}"/>
+                    Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
                   <Grid IsVisible="{Binding !ShowMouseControls}">
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"
