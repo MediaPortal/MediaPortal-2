@@ -33,10 +33,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     #region Ctor
 
-    public CommandStencilMarkupExtension(): base()
+    public CommandStencilMarkupExtension()
     { }
 
-    public CommandStencilMarkupExtension(string path): base(path)
+    public CommandStencilMarkupExtension(string path) : base(path)
     { }
 
     #endregion
