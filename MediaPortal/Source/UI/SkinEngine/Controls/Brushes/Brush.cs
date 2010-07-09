@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   ///   - viewbox
   ///   - resource cleanup (textures & vertexbuffers)
   /// </summary>
-  public class Brush : DependencyObject, IObservable
+  public abstract class Brush : DependencyObject, IObservable
   {
     #region Private fields
 
@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public Brush()
+    protected Brush()
     {
       Init();
       Attach();
@@ -258,16 +258,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return transform.Value;
     }
 
-    public virtual bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
-    {
-      return false;
-    }
+    public abstract bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext);
 
-    public virtual void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
-    { }
+    public abstract void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext);
 
-    public virtual void EndRender()
-    { }
+    public abstract void EndRender();
 
     public virtual void Allocate()
     { }

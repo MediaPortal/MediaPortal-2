@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     FlipY
   };
 
-  public class TileBrush : Brush
+  public abstract class TileBrush : Brush
   {
     #region Private fields
 
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public TileBrush()
+    protected TileBrush()
     {
       Init();
       Attach();

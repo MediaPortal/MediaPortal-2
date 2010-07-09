@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -144,6 +145,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
+      // TODO: Implement and use method in TileBrush
       FrameworkElement visual = _preparedVisual;
       if (visual == null) return false;
 
@@ -163,10 +165,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      // TODO: Create method in TileBrush to render an image as opacity brush and use that method here
+      throw new NotImplementedException();
+    }
+
     public override void EndRender()
     {
-      if (Visual != null)
-        _effect.EndRender();
+      // TODO: Create method in TileBrush and call from here
     }
+
   }
 }

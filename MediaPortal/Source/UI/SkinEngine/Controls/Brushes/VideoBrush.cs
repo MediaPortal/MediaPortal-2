@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -181,6 +182,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       UpdateVertexBuffer(_renderPlayer, primitiveContext.VertexBuffer, renderContext.ZOrder);
       _renderPlayer.BeginRender(_effect, renderContext.Transform);
       return true;
+    }
+
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      throw new NotImplementedException("VideoBrush doesn't support to be rendered as opacity brush");
     }
 
     public override void EndRender()

@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     Repeat
   };
 
-  public class GradientBrush : Brush, IAddChild<GradientStop>
+  public abstract class GradientBrush : Brush, IAddChild<GradientStop>
   {
     #region Protected fields
 
@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public GradientBrush()
+    protected GradientBrush()
     {
       Init();
       Attach();

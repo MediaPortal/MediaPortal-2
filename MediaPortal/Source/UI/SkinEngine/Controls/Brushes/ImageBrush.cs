@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -29,6 +30,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -162,6 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
+      // TODO: Implement and use method in TileBrush
       // TODO: Transform, RelativeTransform
       if (_tex == null)
         Allocate();
@@ -169,9 +172,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      // TODO: Create method in TileBrush to render an image as opacity brush and use that method here
+      throw new NotImplementedException();
+    }
+
     public override void EndRender()
     {
-      //GraphicsDevice.Device.SetTexture(0, null);
+      // TODO: Create method in TileBrush and call from here
     }
 
     #endregion
