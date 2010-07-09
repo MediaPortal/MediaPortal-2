@@ -172,24 +172,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           text += " ";
           string textDraw = text.Substring(_characterIndex) + text;
 
-          float x1 = textBox.X;
-          float y1 = textBox.Y;
-          float x2 = textBox.Width;
-          float y2 = textBox.Height;
-
-          uint enabled = GraphicsDevice.Device.GetRenderState<uint>(RenderState.ScissorTestEnable);
-          Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
-          GraphicsDevice.Device.ScissorRect = new Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
-          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-
           textBox.X -= _xPosition;
 
           _font.AddString(textDraw, textBox, 0.0f, alignment, size, color, true, true, finalTransform, out _textFits, out totalWidth);
           _font.Render(GraphicsDevice.Device, _vertexBuffer, finalTransform, out _primitivecount);
           _font.ClearStrings();
 
-          GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, (enabled != 0));
-          GraphicsDevice.Device.ScissorRect = rectOld;
           if (_xPosition >= _font.FirstCharWidth)
           {
             _characterIndex++;
