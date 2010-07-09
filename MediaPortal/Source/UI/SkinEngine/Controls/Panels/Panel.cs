@@ -300,24 +300,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       CollectionUtils.AddAll(childrenOut, Children);
     }
 
-    public override bool IsChildVisibleAt(UIElement child, float x, float y)
+    public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (!child.IsInArea(x, y) || !IsInVisibleArea(x, y))
-        return false;
-      IList<UIElement> children = new List<UIElement>(GetChildren());
+      List<UIElement> children = new List<UIElement>(_renderOrder);
       // Iterate from last to first to find elements which are located on top
-      for (int i = children.Count - 1; i <= 0; i--)
+      for (int i = children.Count - 1; i >= 0; i--)
       {
         UIElement current = children[i];
         if (!current.IsVisible)
           continue;
         if (current == child)
-          // Found our search target, all other children are located under the child so we can stop here
+          // Found our search target, so we are sure that the given coords aren't located inside another child's bounds
           break;
+        // We found a child which is located on top of the given child and which contains the given coords
         if (current.IsInArea(x, y))
           return false;
       }
-      return true;
+      return base.IsChildRenderedAt(child, x, y);
     }
 
     public override void Deallocate()

@@ -24,10 +24,8 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -155,6 +153,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _actualScrollOffsetX = _scrollOffsetX;
       _actualScrollOffsetY = _scrollOffsetY;
+    }
+
+    public override bool IsChildRenderedAt(UIElement child, float x, float y)
+    {
+      // The ScrollContentPresenter clips all rendering outside its range, so first check if x and y are in its area
+      return IsInArea(x, y) && base.IsChildRenderedAt(child, x, y);
     }
 
     public override void DoRender(RenderContext localRenderContext)

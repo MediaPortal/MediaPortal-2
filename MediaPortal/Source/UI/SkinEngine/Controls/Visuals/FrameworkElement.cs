@@ -1027,8 +1027,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           IsMouseOver = true;
           FireEvent(MOUSEENTER_EVENT);
         }
-        if (!HasFocus && IsInVisibleArea(xTrans, yTrans))
+        bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
+        if (!HasFocus && inVisibleArea)
           TrySetFocus(false);
+        if (HasFocus && !inVisibleArea)
+          HasFocus = false;
       }
       else
       {
@@ -1041,12 +1044,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           HasFocus = false;
       }
       base.OnMouseMove(x, y);
-    }
-
-    public override bool IsInVisibleArea(float x, float y)
-    {
-      UIElement parent = VisualParent as UIElement;
-      return parent != null ? parent.IsChildVisibleAt(this, x, y) : IsInArea(x, y);
     }
 
     public override bool IsInArea(float x, float y)

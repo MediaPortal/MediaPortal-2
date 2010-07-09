@@ -394,10 +394,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.MakeVisible(element, elementBounds);
     }
 
-    public override bool IsChildVisibleAt(UIElement child, float x, float y)
+    public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (!child.IsInArea(x, y) || !IsInVisibleArea(x, y))
-        return false;
       if (_canScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
@@ -407,7 +405,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
         if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) return false;
       }
-      return true;
+      return base.IsChildRenderedAt(child, x, y);
     }
 
     #endregion

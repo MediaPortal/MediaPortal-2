@@ -657,14 +657,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns the information if the specified (absolute) coordinates lay in this element's visible range.
+    /// Returns the information if the specified (absolute) coordinates lay in this element's range and this control is
+    /// visible at the given coords.
     /// </summary>
     /// <param name="x">Absolute X-coordinate.</param>
     /// <param name="y">Absolute Y-coordinate.</param>
     /// <returns><c>true</c> if the specified coordinates lay in this element's visible range.</returns>
     public virtual bool IsInVisibleArea(float x, float y)
     {
-      return false;
+      UIElement parent = VisualParent as UIElement;
+      return IsInArea(x, y) && (parent == null || parent.IsChildRenderedAt(this, x, y));
     }
 
     /// <summary>
@@ -673,21 +675,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="x">Absolute X-coordinate.</param>
     /// <param name="y">Absolute Y-coordinate.</param>
     /// <returns><c>true</c> if the specified coordinates lay in this element's range.</returns>
-    public virtual bool IsInArea(float x, float y)
-    {
-      return false;
-    }
+    public abstract bool IsInArea(float x, float y);
 
     /// <summary>
-    /// Returns the information if the specified (absolute) coordinates lay in the specified child's visible range.
+    /// Returns the information if the given child is rendered at the given position.
+    /// Panels will check their children in the given render order.
+    /// Controls, which clip their render output at their boundaries or which hide individual children
+    /// will check if the given child is shown.
+    /// Other controls, wich don't clip their children's render output, will simply return the return value
+    /// of their parent's <see cref="IsChildRenderedAt"/> method with <c>this</c> as argument.
     /// </summary>
-    /// <param name="child">The child to check.</param>
-    /// <param name="x">Absolute X-coordinate.</param>
-    /// <param name="y">Absolute Y-coordinate.</param>
-    /// <returns><c>true</c> if the specified coordinates lay in the specified child's visible range.</returns>
-    public virtual bool IsChildVisibleAt(UIElement child, float x, float y)
+    /// <param name="child">Child to check.</param>
+    /// <param name="x">Absolute X coordinate to check.</param>
+    /// <param name="y">Absolute Y coordinate to check.</param>
+    /// <returns><c>true</c> if the given child of this element is rendered.</returns>
+    public virtual bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      return child.IsInArea(x, y) && IsInVisibleArea(x, y);
+      UIElement parent = VisualParent as UIElement;
+      return parent == null ? true : parent.IsChildRenderedAt(this, x, y);
     }
 
     /// <summary>
