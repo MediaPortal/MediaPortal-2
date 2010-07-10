@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Commands;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -40,7 +41,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected const string NAVIGATION_ITEMS_KEY = "WorkflowNavigationBar: NAVIGATION_ITEMS";
     
-    protected const string NAME_KEY = "Name";
+    protected const string KEY_NAME = "Name";
+    protected const string KEY_ISFIRST = "IsFirst";
 
     #endregion
 
@@ -71,9 +73,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         List<NavigationContext> contexts = new List<NavigationContext>(contextStack);
         contexts.Reverse();
         navigationItems.Clear();
+        bool first = true;
         foreach (NavigationContext context in contexts)
         {
-          ListItem item = new ListItem(NAME_KEY, context.DisplayLabel);
+          ListItem item = new ListItem(KEY_NAME, context.DisplayLabel);
+          item.AdditionalProperties[KEY_ISFIRST] = first;
+          NavigationContext contextCopy = context;
+          item.Command = new MethodDelegateCommand(() => WorkflowPopToState(contextCopy.WorkflowState.StateId));
+          first = false;
           navigationItems.Add(item);
         }
         navigationItems.FireChange();
@@ -84,6 +91,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         ServiceScope.Get<ILogger>().Warn("WorkflowNavigationBar: Error updating properties", e);
         return null;
       }
+    }
+
+    protected void WorkflowPopToState(Guid workflowStateId)
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(workflowStateId, false);
     }
 
     #endregion
@@ -98,10 +111,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         lock (currentContext.SyncRoot)
         {
           ItemsList navigationItems = GetNavigationItems(currentContext);
-          if (navigationItems != null)
-            return navigationItems;
-          else
-            return UpdateNavigationItems(currentContext);
+          return navigationItems ?? UpdateNavigationItems(currentContext);
         }
       }
     }

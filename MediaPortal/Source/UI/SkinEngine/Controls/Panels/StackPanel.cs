@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region Public properties & events
+    #region Public properties
 
     public AbstractProperty OrientationProperty
     {
