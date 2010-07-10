@@ -150,9 +150,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// Picks the best graphics device and initializes it.
     /// </summary>
     /// <param name="form">The form.</param>
-    /// <param name="exclusiveMode">Set to true for exclusive mode.</param>
     /// <returns><c>true</c>, if a good device was found, <c>false</c> otherwise.</returns>
-    public bool SetupDirectX(Form form, bool exclusiveMode)
+    public bool SetupDirectX(Form form)
     {
       _cancelEventHandler = CancelAutoResizeEvent;
       _window = form;
@@ -197,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         */
         // Initialize the 3D environment for the app
-        _graphicsSettings.IsWindowed = !exclusiveMode;
+        _graphicsSettings.IsWindowed = true;
         InitializeEnvironment();
         // Initialize the app's custom scene stuff
       }

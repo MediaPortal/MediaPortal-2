@@ -51,12 +51,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
 
     private Thread _renderThread;
-    private GraphicsDevice _directX;
     private bool _renderThreadStopped;
     private int _fpsCounter;
     private DateTime _fpsTimer;
     private Size _previousWindowClientSize;
-    private Point _previousWindowPosition;
+    private Point _previousWindowLocation;
+    private FormWindowState _previousWindowState;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
@@ -64,9 +64,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
     protected bool _mouseHidden = false;
+    private readonly object _reclaimDeviceSyncObj = new object();
+
+    private bool _adaptToSizeEnabled;
 
     public MainForm(ScreenManager screenManager)
     {
+      _adaptToSizeEnabled = false;
       _screenManager = screenManager;
 
       ServiceScope.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
@@ -79,97 +83,94 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       _previousMousePosition = new Point(-1, -1);
 
-      _previousWindowPosition = Location;
-      _previousWindowClientSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-      ClientSize = _previousWindowClientSize; // Setting previous size before setting client size makes AdaptToSize return immediately
+      Size desiredWindowedSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+
+      _previousWindowLocation = Location;
+      _previousWindowClientSize = desiredWindowedSize;
+      _previousWindowState = FormWindowState.Normal;
+
+      if (appSettings.FullScreen)
+        SwitchToFullscreen();
+      else
+        SwitchToWindowedSize(Location, desiredWindowedSize, false);
 
       SkinContext.Form = this;
       SkinContext.WindowSize = ClientSize;
 
-      // Setup for fullscreen
-      if (appSettings.FullScreen)
-      {
-        Location = new Point(0, 0);
-        // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
-        ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
-        FormBorderStyle = FormBorderStyle.None;
-      }
-
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
-      _directX = new GraphicsDevice(this, appSettings.FullScreen);
+      GraphicsDevice.Initialize(this);
 
       Application.Idle += OnApplicationIdle;
+      _adaptToSizeEnabled = true;
+    }
 
-      AdaptToSize(true);
+    protected void SwitchToFullscreen()
+    {
+      Location = new Point(0, 0);
+      // TODO Albert78: Use the bounds of the screen MP is displayed on
+      ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
+      FormBorderStyle = FormBorderStyle.None;
+      _mode = ScreenMode.FullScreen;
+    }
+
+    protected void SwitchToWindowedSize(Point location, Size clientSize, bool maximize)
+    {
+      WindowState = FormWindowState.Normal;
+      FormBorderStyle = FormBorderStyle.Sizable;
+      Location = location;
+      ClientSize = clientSize;
+      // We must restore the window state after having set the ClientSize/Location to make the window remember the
+      // non-maximized bounds
+      WindowState = maximize ? FormWindowState.Maximized : FormWindowState.Normal;
+      _mode = ScreenMode.NormalWindowed;
     }
 
     public void DisposeDirectX()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       logger.Debug("DirectX MainForm: Dispose DirectX");
-      _directX.Dispose();
-      _directX = null;
+      GraphicsDevice.Dispose();
     }
 
     protected void StoreClientBounds()
     {
       if (_mode == ScreenMode.FullScreen)
         return;
-      _previousWindowPosition = Location;
+      // We must store the window state to be able to correctly restore the clients bounds if the user was in maximized mode
+      // when switching to fullscreen
+      _previousWindowState = WindowState;
+      if (WindowState != FormWindowState.Normal)
+        return;
+      // Only store size and position if we are in windowed mode and not maximized. The size for all other modes/states
+      // is obvious, only those two values are interesting to be restored on a mode switch from fullscreen to windowed.
+      _previousWindowLocation = Location;
       _previousWindowClientSize = ClientSize;
     }
 
-    protected void AdaptToSize(bool force)
+    public void StopUI()
     {
-      if (ClientSize == _previousWindowClientSize && !force)
-        return;
-
-      if (GraphicsDevice.DeviceLost)
-      {
-        StoreClientBounds();
-        return;
-      }
-      if (ClientSize != _previousWindowClientSize)
-      {
-        StoreClientBounds();
-        StopRenderThread();
-
-        PlayersHelper.ReleaseGUIResources();
-
-        ContentManager.Free();
-
-        SkinContext.WindowSize = ClientSize;
-
-        if (WindowState != FormWindowState.Minimized)
-        {
-          GraphicsDevice.Reset();
-
-          StartRenderThread_Async();
-        }
-        PlayersHelper.ReallocGUIResources();
-      }
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping UI");
+      StopRenderThread();
+      PlayersHelper.ReleaseGUIResources();
+      ContentManager.Free();
     }
 
-    private void OnApplicationIdle(object sender, EventArgs e)
+    public void StartUI()
     {
-      // Screen saver
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      if (_isScreenSaverEnabled)
-        _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
-            DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
-      else
-        _isScreenSaverActive = false;
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
+      GraphicsDevice.Reset();
+      PlayersHelper.ReallocGUIResources();
+      StartRenderThread_Async();
+    }
 
-      if (IsFullScreen)
-        // If we are in fullscreen mode, we may control the mouse cursor
-        ShowMouseCursor(inputManager.IsMouseUsed);
-      else
-        // Reset it to visible state, if state was switched
-        ShowMouseCursor(true);
+    protected void AdaptToSize()
+    {
+      StoreClientBounds();
 
-      // Time
-      SkinContext.FrameRenderingStartTime = DateTime.Now;
+      StopUI();
+      SkinContext.WindowSize = ClientSize;
+      StartUI();
     }
 
     protected void ShowMouseCursor(bool show)
@@ -183,16 +184,37 @@ namespace MediaPortal.UI.SkinEngine.GUI
         Cursor.Show();
     }
 
-    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    /// <summary>
+    /// Sets the TopMost property setting according to the current fullscreen setting
+    /// and activation mode.
+    /// </summary>
+    protected void CheckTopMost()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-      logger.Debug("DirectX MainForm: Stopping");
-      StopRenderThread();
-      logger.Debug("DirectX MainForm: Closing");
-      // We have to call ExitThread() explicitly because the application was started without
-      // setting the MainForm, which would have added an event handler which calls
-      // Application.ExitThread() for us
-      Application.ExitThread();
+#if DEBUG
+      TopMost = false;
+#else
+      TopMost = IsFullScreen && this == ActiveForm;
+#endif
+    }
+
+    protected void StartRenderThread_Async()
+    {
+      if (_renderThread != null)
+        throw new Exception("DirectX MainForm: Render thread already running");
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
+      _renderThreadStopped = false;
+      _renderThread = new Thread(RenderLoop) {Name = "DirectX Render Thread"};
+      _renderThread.Start();
+    }
+
+    internal void StopRenderThread()
+    {
+      _renderThreadStopped = true;
+      if (_renderThread == null)
+        return;
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
+      _renderThread.Join();
+      _renderThread = null;
     }
 
     private void RenderLoop()
@@ -234,6 +256,120 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }
 
+
+    public void Start()
+    {
+      CheckTopMost();
+      StartUI();
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
+    }
+
+    public void SwitchMode(ScreenMode mode)
+    {
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
+      bool newFullscreen = mode == ScreenMode.FullScreen;
+      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
+
+      // Already done, no need to do it twice
+      if (mode == _mode)
+        return;
+
+      settings.FullScreen = newFullscreen;
+      ServiceScope.Get<ISettingsManager>().Save(settings);
+
+      StopUI();
+
+      _adaptToSizeEnabled = false;
+      try
+      {
+        // Must be done before reset. Otherwise we will lose the device after reset.
+        if (newFullscreen)
+        {
+          StoreClientBounds();
+          SwitchToFullscreen();
+        }
+        else
+          SwitchToWindowedSize(_previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);
+      }
+      finally
+      {
+        _adaptToSizeEnabled = true;
+      }
+      SkinContext.WindowSize = ClientSize;
+
+      CheckTopMost();
+      Update();
+      Activate();
+
+      StartUI();
+    }
+
+    public bool IsFullScreen
+    {
+      get { return _mode == ScreenMode.FullScreen; }
+    }
+
+    public bool IsScreenSaverActive
+    {
+      get { return _isScreenSaverActive; }
+    }
+
+    public bool IsScreenSaverEnabled
+    {
+      get { return _isScreenSaverEnabled; }
+      set { _isScreenSaverEnabled = value; }
+    }
+
+    public IList<string> DisplayModes
+    {
+      get
+      {
+        IList<string> result = new List<string>();
+        foreach (DisplayMode mode in GraphicsDevice.GetDisplayModes())
+          result.Add(ToString(mode));
+        return result;
+      }
+    }
+
+    public IntPtr MainWindowHandle
+    {
+      get { return Handle; }
+    }
+
+    protected static string ToString(DisplayMode mode)
+    {
+      return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
+    }
+
+    private void OnApplicationIdle(object sender, EventArgs e)
+    {
+      // Screen saver
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      if (_isScreenSaverEnabled)
+        _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
+            DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
+      else
+        _isScreenSaverActive = false;
+
+      if (IsFullScreen)
+        // If we are in fullscreen mode, we may control the mouse cursor
+        ShowMouseCursor(inputManager.IsMouseUsed);
+      else
+        // Reset it to visible state, if state was switched
+        ShowMouseCursor(true);
+    }
+
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("DirectX MainForm: Stopping");
+      StopUI();
+      logger.Debug("DirectX MainForm: Closing");
+      // We have to call ExitThread() explicitly because the application was started without
+      // setting the MainForm, which would have added an event handler which calls
+      // Application.ExitThread() for us
+      Application.ExitThread();
+    }
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {
@@ -282,6 +418,41 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
       inputManager.MouseClick(e.Button);
+    }
+
+    private void timer_Tick(object sender, EventArgs e)
+    {
+      // Avoid multiple threads in here.
+      if (Monitor.TryEnter(_reclaimDeviceSyncObj))
+        try
+        {
+          if (GraphicsDevice.DeviceLost)
+          {
+            StopRenderThread();
+            if (_hasFocus)
+            {
+              if (GraphicsDevice.ReclaimDevice())
+              {
+                GraphicsDevice.DeviceLost = false;
+                StartRenderThread_Async();
+              }
+            }
+          }
+        }
+        finally
+        {
+          Monitor.Exit(_reclaimDeviceSyncObj);
+        }
+    }
+
+    private void MainForm_Activated(object sender, EventArgs e)
+    {
+      CheckTopMost();
+    }
+
+    private void MainForm_Deactivate(object sender, EventArgs e)
+    {
+      CheckTopMost();
     }
 
     protected override void WndProc(ref Message m)
@@ -379,119 +550,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected override void OnResizeEnd(EventArgs e)
     {
       base.OnResizeEnd(e);
-      AdaptToSize(false);
+      if (_adaptToSizeEnabled)
+        AdaptToSize();
     }
 
-    public void Start()
+    protected override void OnSizeChanged(EventArgs e)
     {
-      CheckTopMost();
-
-      // Start render thread before we show first screen, because the render thread does
-      // an invalidate, we don't want a double invalidate.
-      StartRenderThread_Async();
-
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
-    }
-
-    public void SwitchMode(ScreenMode mode)
-    {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
-      bool newFullscreen = mode == ScreenMode.FullScreen;
-      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
-
-      // Already done, no need to do it twice
-      if (mode == _mode)
-        return;
-
-      settings.FullScreen = newFullscreen;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-
-      StopRenderThread();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Releasing resources");
-      PlayersHelper.ReleaseGUIResources();
-
-      ContentManager.Free();
-
-      // Must be done before reset. Otherwise we will lose the device after reset.
-      if (newFullscreen)
-      {
-        StoreClientBounds();
-        Location = new Point(0, 0);
-        // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
-        ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
-        FormBorderStyle = FormBorderStyle.None;
-      }
-      else
-      {
-        WindowState = FormWindowState.Normal;
-        FormBorderStyle = FormBorderStyle.Sizable;
-        Location = _previousWindowPosition;
-        ClientSize = _previousWindowClientSize;
-      }
-      _mode = mode;
-
-      CheckTopMost();
-      Update();
-      Activate();
-
-      AdaptToSize(true);
-    }
-
-    public bool IsFullScreen
-    {
-      get { return _mode == ScreenMode.FullScreen; }
-    }
-
-    public bool IsScreenSaverActive
-    {
-      get { return _isScreenSaverActive; }
-    }
-
-    public bool IsScreenSaverEnabled
-    {
-      get { return _isScreenSaverEnabled; }
-      set { _isScreenSaverEnabled = value; }
-    }
-
-    public IList<string> DisplayModes
-    {
-      get
-      {
-        IList<string> result = new List<string>();
-        foreach (DisplayMode mode in GraphicsDevice.GetDisplayModes())
-          result.Add(ToString(mode));
-        return result;
-      }
-    }
-
-    public IntPtr MainWindowHandle
-    {
-      get { return Handle; }
-    }
-
-    protected static string ToString(DisplayMode mode)
-    {
-      return string.Format("{0}x{1}@{2}", mode.Width, mode.Height, mode.RefreshRate);
-    }
-
-    protected void StartRenderThread_Async()
-    {
-      if (_renderThread != null)
-        throw new Exception("DirectX MainForm: Render thread already running");
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
-      _renderThreadStopped = false;
-      _renderThread = new Thread(RenderLoop) {Name = "DirectX Render Thread"};
-      _renderThread.Start();
-    }
-
-    internal void StopRenderThread()
-    {
-      _renderThreadStopped = true;
-      if (_renderThread == null)
-        return;
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
-      _renderThread.Join();
-      _renderThread = null;
+      base.OnSizeChanged(e);
+      // This method override is only necessary to capture the window state change event. All other cases aren't interesting here.
+      if (_previousWindowState != WindowState && _adaptToSizeEnabled)
+        AdaptToSize();
     }
 
     protected override void OnGotFocus(EventArgs e)
@@ -506,54 +574,5 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _hasFocus = false;
     }
 
-    private readonly object _reclaimDeviceSyncObj = new object();
-
-    private void timer_Tick(object sender, EventArgs e)
-    {
-      // Avoid multiple threads in here.
-      if (Monitor.TryEnter(_reclaimDeviceSyncObj))
-        try
-        {
-          if (GraphicsDevice.DeviceLost)
-          {
-            StopRenderThread();
-            if (_hasFocus)
-            {
-              if (GraphicsDevice.ReclaimDevice())
-              {
-                GraphicsDevice.DeviceLost = false;
-                StartRenderThread_Async();
-              }
-            }
-          }
-        }
-        finally
-        {
-          Monitor.Exit(_reclaimDeviceSyncObj);
-        }
-    }
-
-    /// <summary>
-    /// Sets the TopMost property setting according to the current fullscreen setting
-    /// and activation mode.
-    /// </summary>
-    protected void CheckTopMost()
-    {
-#if DEBUG
-      TopMost = false;
-#else
-      TopMost = IsFullScreen && this == ActiveForm;
-#endif
-    }
-
-    private void MainForm_Activated(object sender, EventArgs e)
-    {
-      CheckTopMost();
-    }
-
-    private void MainForm_Deactivate(object sender, EventArgs e)
-    {
-      CheckTopMost();
-    }
   }
 }

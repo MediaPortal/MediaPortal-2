@@ -37,7 +37,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
-  public class GraphicsDevice : IDisposable
+  public static class GraphicsDevice
   {
     #region Variables
 
@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static Matrix TransformProjection;
     public static Matrix FinalTransform;
 
-    public GraphicsDevice(Form window, bool maximize)
+    public static void Initialize(Form window)
     {
       if (_firstTimeInitialisationMemory)
       {
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
         MPDirect3D.Load();
-        _setup.SetupDirectX(window, maximize);
+        _setup.SetupDirectX(window);
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
@@ -97,6 +97,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceScope.Get<ILogger>().Critical("GraphicsDevice: Failed to set-up DirectX", ex);
         Environment.Exit(0);
       }
+    }
+
+    public static void Dispose()
+    {
+      if (_backBuffer != null)
+        _backBuffer.Dispose();
+      _backBuffer = null;
+
+      if (_device != null)
+        _device.Dispose();
+      _device = null;
+      MPDirect3D.Unload();
     }
 
     public static bool DeviceLost
@@ -167,25 +179,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     {
       get { return _setup.Windowed; }
     }
-
-    #region IDisposable Members
-
-    /// <summary>
-    /// Disposes this instance.
-    /// </summary>
-    public void Dispose()
-    {
-      if (_backBuffer != null)
-        _backBuffer.Dispose();
-      _backBuffer = null;
-
-      if (_device != null)
-        _device.Dispose();
-      _device = null;
-      MPDirect3D.Unload();
-    }
-
-    #endregion
 
     /// <summary>
     /// Gets or sets the DirectX Device.
