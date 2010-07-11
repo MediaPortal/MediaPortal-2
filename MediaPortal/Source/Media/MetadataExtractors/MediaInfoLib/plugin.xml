@@ -1,10 +1,10 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="MediaInfoPlugin"
+    Name="MediaInfo"
     PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"
     Author="Team MediaPortal, Third party: Jerome Martinez"
     Copyright="GPL"
-    Description="Library plugin needed for some default metadata extractors"
+    Description="Library plugin providing the MediaInfo functionality needed for some default metadata extractors"
     PluginVersion="1.0">
 
   <Runtime>

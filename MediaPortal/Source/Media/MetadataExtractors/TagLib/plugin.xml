@@ -1,10 +1,10 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="TagLibPlugin"
+    Name="TagLib"
     PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"
     Author="Team MediaPortal, Third party: Brian Nickel"
     Copyright="GPL"
-    Description="Library plugin needed for some default metadata extractors"
+    Description="Library plugin providing the TagLib functionality needed for some default metadata extractors"
     PluginVersion="1.0">
 
   <Runtime>
