@@ -292,6 +292,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(getShareAction);
 
+      DvAction reImportShareAction = new DvAction("ReImportShare", OnReImportShare,
+          new DvArgument[] {
+            new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(reImportShareAction);
+
       DvAction getMediaCategoriesFromMetadataExtractorsAction = new DvAction("GetMediaCategoriesFromMetadataExtractors", OnGetMediaCategoriesFromMetadataExtractors,
           new DvArgument[] {
           },
@@ -611,6 +619,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       Share result = ServiceScope.Get<IMediaLibrary>().GetShare(shareId);
       outParams = new List<object> {result};
+      return null;
+    }
+
+    static UPnPError OnReImportShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      Share share = ServiceScope.Get<IMediaLibrary>().GetShare(shareId);
+      ServiceScope.Get<IImporterWorker>().ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+      outParams = null;
       return null;
     }
 
