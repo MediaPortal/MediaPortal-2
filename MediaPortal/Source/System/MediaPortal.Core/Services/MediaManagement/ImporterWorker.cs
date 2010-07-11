@@ -108,7 +108,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    protected ICollection<Guid> GetMetadataExtractorIdsForMediaCategories(ICollection<string> mediaCategories)
+    protected ICollection<Guid> GetMetadataExtractorIdsForMediaCategories(IEnumerable<string> mediaCategories)
     {
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ICollection<Guid> result = new HashSet<Guid>();
@@ -251,7 +251,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <summary>
     /// Imports the resource with the given <paramref name="mediaItemAccessor"/>.
     /// </summary>
-    /// <param name="mediaItemAccessor">File resource to be imported.</param>
+    /// <remarks>
+    /// This method will be called for file resources as well as for directory resources because some metadata extractors
+    /// extract their metadata from directories.
+    /// </remarks>
+    /// <param name="mediaItemAccessor">File or directory resource to be imported.</param>
     /// <param name="metadataExtractors">Collection of metadata extractors to apply to the given resoure.</param>
     /// <param name="mediaItemAspectTypes">Media item aspect types which are expected to be filled. All of those
     /// media item aspects will be present in the result, but not all of their values might be set if no metadata extractor
@@ -342,28 +346,31 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
         }
         CheckImportStillRunning(importJob.State);
-        foreach (IFileSystemResourceAccessor fileAccessor in FileSystemResourceNavigator.GetFiles(directoryAccessor))
-        { // Add & update files
-          try
-          {
-            MediaItemAspect importerAspect;
-            MediaItem mediaItem;
-            if (importJob.JobType == ImportJobType.Refresh &&
-                path2Item.TryGetValue(fileAccessor.LocalResourcePath.Serialize(), out mediaItem) &&
-                mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-                importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
-              // We can skip this file; it was imported after the last change time of the item
-              continue;
-            ImportResource(fileAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+        ImportResource(directoryAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
+        if (files != null)
+          foreach (IFileSystemResourceAccessor fileAccessor in files)
+          { // Add & update files
+            try
+            {
+              MediaItemAspect importerAspect;
+              MediaItem mediaItem;
+              if (importJob.JobType == ImportJobType.Refresh &&
+                  path2Item.TryGetValue(fileAccessor.LocalResourcePath.Serialize(), out mediaItem) &&
+                  mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                  importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
+                // We can skip this file; it was imported after the last change time of the item
+                continue;
+              ImportResource(fileAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+            }
+            catch (Exception e)
+            {
+              CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+              ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
+              importJob.State = ImportJobState.Erroneous;
+            }
+            CheckImportStillRunning(importJob.State);
           }
-          catch (Exception e)
-          {
-            CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-            ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
-            importJob.State = ImportJobState.Erroneous;
-          }
-          CheckImportStillRunning(importJob.State);
-        }
         if (importJob.JobType == ImportJobType.Refresh)
         { // Remove non-present files
           foreach (string pathStr in path2Item.Keys)
@@ -582,7 +589,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           _importJobs.Remove(job);
     }
 
-    public void ScheduleImport(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories)
+    public void ScheduleImport(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
     {
       ICollection<ImportJob> importJobs;
       lock (_syncObj)
@@ -598,7 +605,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       EnqueueImportJob(job);
     }
 
-    public void ScheduleRefresh(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories)
+    public void ScheduleRefresh(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories)
     {
       ICollection<ImportJob> importJobs;
       lock (_syncObj)

@@ -49,13 +49,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a rectified form of the provider resource path. This might be the DVD folder name, while
-    /// the underlaying provider resource path of the media item points to the 'video_ts.ifo' file.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECTIFIED_PATH =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("RectifiedPath", 1000, Cardinality.Inline, false);
-
-    /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for pictures) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
@@ -85,7 +78,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
             ATTR_MIME_TYPE,
-            ATTR_RECTIFIED_PATH,
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,

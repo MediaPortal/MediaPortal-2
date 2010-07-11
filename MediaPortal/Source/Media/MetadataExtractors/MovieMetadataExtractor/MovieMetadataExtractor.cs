@@ -30,6 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
@@ -76,12 +77,12 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       MOVIE_EXTENSIONS.Add(".mpg"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".ifo"); // Not confirmed yet
+      // Don't add .ifo here because they are processed while processing the video DVD directory
     }
 
     public MovieMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movie metadata extractor",
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movie metadata extractor", true,
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
@@ -105,6 +106,23 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       return MOVIE_EXTENSIONS.Contains(ext);
     }
 
+    protected MediaInfoWrapper ReadMediaInfo(IResourceAccessor mediaItemAccessor)
+    {
+      MediaInfoWrapper result = new MediaInfoWrapper();
+      Stream stream = null;
+      try
+      {
+        stream = mediaItemAccessor.OpenRead();
+        result.Open(stream);
+      }
+      finally
+      {
+        if (stream != null)
+          stream.Close();
+      }
+      return result;
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -114,167 +132,233 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
+    public class MovieResult
+    {
+      protected bool _isDVD;
+      protected string _title;
+      protected string _mimeType;
+
+      protected float? _ar;
+      protected int? _frameRate;
+      protected int? _width;
+      protected int? _height;
+      protected long? _playTime;
+      protected long? _vidBitRate;
+      protected long? _audBitRate;
+      protected int _audioStreamCount;
+      protected ICollection<string> _vidCodecs = new List<string>();
+      protected ICollection<string> _audCodecs = new List<string>();
+
+      public MovieResult(string movieTitle, MediaInfoWrapper mainInfo)
+      {
+        _title = movieTitle;
+        AddMediaInfo(mainInfo);
+      }
+
+      public static MovieResult CreateDVDInfo(string dvdTitle, MediaInfoWrapper videoTsInfo)
+      {
+        MovieResult result = new MovieResult(dvdTitle, videoTsInfo) {IsDVD = true};
+        return result;
+      }
+
+      public static MovieResult CreateFileInfo(string fileName, MediaInfoWrapper fileInfo)
+      {
+        return new MovieResult(fileName, fileInfo);
+      }
+
+      public void AddMediaInfo(MediaInfoWrapper mediaInfo)
+      {
+        // This method will be called at least one time, for video DVDs it will be called multiple times for the different
+        // .ifo files. The first time this method is called, the given media info instance is the "major" instance, i.e.
+        // in case of a video DVD, it is the video_ts.ifo file.
+        // We will collect most of our interesting attributes by taking the first one which is available. All others will then be
+        // ignored. Only for some attributes, all values will be collected.
+        for (int i = 0; i < mediaInfo.GetVideoCount(); i++)
+        {
+          if (!_ar.HasValue)
+            _ar = mediaInfo.GetAR(i);
+          if (!_frameRate.HasValue)
+            _frameRate = mediaInfo.GetFramerate(i);
+          if (!_width.HasValue)
+            _width = mediaInfo.GetWidth(i);
+          if (!_height.HasValue)
+            _height = mediaInfo.GetHeight(i);
+          if (!_playTime.HasValue)
+            _playTime = mediaInfo.GetPlaytime(i);
+          if (!_vidBitRate.HasValue)
+            _vidBitRate = mediaInfo.GetVidBitrate(i);
+          string vidCodec = mediaInfo.GetVidCodec(i);
+          if (!string.IsNullOrEmpty(vidCodec))
+            _vidCodecs.Add(vidCodec);
+        }
+        _audioStreamCount = mediaInfo.GetAudioCount();
+        for (int i = 0; i < _audioStreamCount; i++)
+        {
+          if (!_audBitRate.HasValue)
+            _audBitRate = mediaInfo.GetAudioBitrate(i);
+          string audCodec = mediaInfo.GetAudioCodec(i);
+          if (!string.IsNullOrEmpty(audCodec))
+            _audCodecs.Add(audCodec);
+        }
+      }
+
+      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect)
+      {
+        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, _title);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, _mimeType);
+        if (_ar.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_ASPECTRATIO, _ar.Value);
+        if (_frameRate.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_FPS, _frameRate.Value);
+        if (_width.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_WIDTH, _width.Value);
+        if (_height.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_HEIGHT, _height.Value);
+        if (_playTime.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_DURATION, _playTime.Value);
+        if (_vidBitRate.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value);
+        videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+
+        videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
+        if (_audBitRate.HasValue)
+          videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOBITRATE, _audBitRate.Value);
+        videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
+        // TODO: extract cover art (see Mantis #1977)
+    }
+
+      public bool IsDVD
+      {
+        get { return _isDVD; }
+        set { _isDVD = value; }
+      }
+
+      public string MimeType
+      {
+        get { return _mimeType; }
+        set { _mimeType = value; }
+      }
+    }
+
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string filePath = mediaItemAccessor.ResourcePathName;
-      if (!HasMovieExtension(filePath))
-        return false;
       try
       {
-        string ext = Path.GetExtension(filePath).ToLower();
-        bool isDvd = (ext == ".ifo");
-        string dvdFolder = null;
-        if (isDvd && !filePath.ToLower().EndsWith("\\video_ts.ifo")) return false;
-        if (isDvd)
+        MovieResult result;
+        IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+        if (fsra != null && fsra.IsDirectory && fsra.Exists("VIDEO_TS"))
         {
-          string video_ts_folderPath = Path.GetDirectoryName(filePath);
-          dvdFolder = Path.GetDirectoryName(video_ts_folderPath);
+          IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS") as IFileSystemResourceAccessor;
+          if (fsraVideoTs != null && fsraVideoTs.Exists("VIDEO_TS.IFO"))
+          { // Video DVD
+            using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
+            {
+              if (videoTsInfo.IsValid && videoTsInfo.GetVideoCount() == 0)
+                return false; // Invalid video_ts file
+              result = MovieResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
+            }
+            // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
+            foreach (IFileSystemResourceAccessor file in fsraVideoTs.GetFiles())
+            {
+              string lowerPath = file.ResourcePathName.ToLowerInvariant();
+              if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
+                continue;
+              using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
+              {
+                // Before we start evaluating the file, check if it is a video at all
+                if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+                  continue;
+                result.AddMediaInfo(mediaInfo);
+              }
+            }
+          }
         }
-        FileInfo info = new FileInfo(filePath);
-        using (MediaInfoWrapper mediaInfo = new MediaInfoWrapper())
+        else if (mediaItemAccessor.IsFile)
         {
-          Stream stream = null;
-          try
-          {
-            stream = mediaItemAccessor.OpenRead();
-            mediaInfo.Open(stream);
-          }
-          finally
-          {
-            if (stream != null)
-              stream.Close();
-          }
-          // Before we start evaluating the file, check if it is a video at all
-          if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+          string filePath = mediaItemAccessor.ResourcePathName;
+          if (!HasMovieExtension(filePath))
             return false;
+          using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
+          {
+            // Before we start evaluating the file, check if it is a video at all
+            if (fileInfo.IsValid && fileInfo.GetVideoCount() == 0)
+              return false;
+            result = MovieResult.CreateFileInfo(Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName), fileInfo);
+          }
+          result.MimeType = MimeTypeDetector.GetMimeType(filePath);
 
           // TODO: The creation of new media item aspects could be moved to a general method
           MediaItemAspect mediaAspect;
           if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
             extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-          MediaItemAspect movieAspect;
-          if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out movieAspect))
-            extractedAspectData[VideoAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(VideoAspect.Metadata);
+          MediaItemAspect videoAspect;
+          if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+            extractedAspectData[VideoAspect.ASPECT_ID] = videoAspect = new MediaItemAspect(VideoAspect.Metadata);
 
-          movieAspect.SetAttribute(VideoAspect.ATTR_DURATION, info.Length);
-          if (isDvd)
-          {
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileName(dvdFolder));
-            string parentDirectory = Path.GetDirectoryName(dvdFolder); // Directory where the DVD folder is located
-            // If DVD is located at root level (e.g. a DVD in the DVD drive), we don't have a dvd folder
-            mediaAspect.SetAttribute(MediaAspect.ATTR_RECTIFIED_PATH,
-                string.IsNullOrEmpty(parentDirectory) ? dvdFolder : parentDirectory);
-          }
-          else
-          {
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileNameWithoutExtension(filePath));
-            mediaAspect.SetAttribute(MediaAspect.ATTR_RECTIFIED_PATH, filePath);
-            // TODO: extract cover art, store it in media library (see Mantis #1977)
-          }
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, info.CreationTime);
-          movieAspect.SetAttribute(VideoAspect.ATTR_ISDVD, isDvd);
-          if (mediaInfo.IsValid)
-          {
-            int? i;
-            long? l;
-            string s;
-            float? f;
-
-            mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(filePath)); //tag.MimeType
-
-            s = mediaInfo.GetVidCodec(0);
-            if (s != null)
-              movieAspect.SetAttribute(VideoAspect.ATTR_VIDEOENCODING, s);
-            l = mediaInfo.GetVidBitrate(0);
-            if (l.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_VIDEOBITRATE, l.Value);
-            i = mediaInfo.GetWidth(0);
-            if (i.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_WIDTH, i.Value);
-            i = mediaInfo.GetHeight(0);
-            if (i.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_HEIGHT, i.Value);
-            i = mediaInfo.GetFramerate(0);
-            if (i.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_FPS, i.Value);
-            movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOSTREAMCOUNT, mediaInfo.GetAudioCount());
-            s = mediaInfo.GetAudioCodec(0);
-            if (s != null)
-              movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOENCODING, s);
-            l = mediaInfo.GetAudioBitrate(0);
-            if (l.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOBITRATE, l.Value);
-            f = mediaInfo.GetAR(0);
-            if (f.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_ASPECTRATIO, f.Value);
-            l = mediaInfo.GetPlaytime(0);
-            if (l.HasValue)
-              movieAspect.SetAttribute(VideoAspect.ATTR_DURATION, l.Value);
-          }
+          result.UpdateMetadata(mediaAspect, videoAspect);
+          return true;
         }
-
-        // The following code should be used in the slow batch mode (see Mantis #1977)
-        //#region code testing the xbmc scraper
-        //if (scraper.IsLoaded)
-        //{
-        //  scraper.CreateSearchUrl((string)movie["title"]);
-        //  ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
-        //  scraper.GetSearchResults();
-        //  ServiceScope.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
-        //  if (scraper.SearchResults.Count > 0)
-        //  {
-
-        //    SystemMessage msgc = new SystemMessage();
-        //    msgc.MessageData["action"] = "imdbchoiceneeded";
-        //    msgc.MessageData["file"] = filePath;
-        //    msgc.MessageData["title"] = (string)movie["title"];
-        //    List<string> urlList = new List<string>();
-        //    List<string> idList = new List<string>();
-        //    List<string> titleList = new List<string>();
-        //    foreach (ScraperSearchResult res in scraper.SearchResults)
-        //    {
-        //      urlList.Add(res.Url);
-        //      idList.Add(res.Id);
-        //      titleList.Add(res.Title);
-        //    }
-        //    msgc.MessageData["urls"] = urlList;
-        //    msgc.MessageData["ids"] = idList;
-        //    msgc.MessageData["titles"] = titleList;
-        //    SendMessage(msgc);
-
-        //    ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
-        //    scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
-        //    if (scraper.Metadata.ContainsKey("genre"))
-        //    {
-        //      movie["title"] = scraper.Metadata["title"];
-        //      movie["genre"] = scraper.Metadata["genre"];
-        //      if (scraper.Metadata.ContainsKey("thumb"))
-        //        movie["CoverArt"] = scraper.Metadata["thumb"];
-        //      if (scraper.Metadata.ContainsKey("actors"))
-        //        movie["actors"] = scraper.Metadata["actors"];
-        //      if (scraper.Metadata.ContainsKey("year"))
-        //        movie["year"] = scraper.Metadata["year"];
-
-        //    }
-        //  }
-        //}
-        //else
-        //{
-        //  ServiceScope.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
-        //}
-
-        //#endregion
-
-        return true;
       }
       catch
       {
-        // Only log at the info level here - And simply return false. This makes the importer know that we
+        // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading file '{0}'", mediaItemAccessor.LocalResourcePath);
-        return false;
+        ServiceScope.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}'", mediaItemAccessor.LocalResourcePath);
       }
+      return false;
     }
+
+    // The following code should be used in the slow batch mode (see Mantis #1977)
+    //#region code testing the xbmc scraper
+    //if (scraper.IsLoaded)
+    //{
+    //  scraper.CreateSearchUrl((string)movie["title"]);
+    //  ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
+    //  scraper.GetSearchResults();
+    //  ServiceScope.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
+    //  if (scraper.SearchResults.Count > 0)
+    //  {
+
+    //    SystemMessage msgc = new SystemMessage();
+    //    msgc.MessageData["action"] = "imdbchoiceneeded";
+    //    msgc.MessageData["file"] = filePath;
+    //    msgc.MessageData["title"] = (string)movie["title"];
+    //    List<string> urlList = new List<string>();
+    //    List<string> idList = new List<string>();
+    //    List<string> titleList = new List<string>();
+    //    foreach (ScraperSearchResult res in scraper.SearchResults)
+    //    {
+    //      urlList.Add(res.Url);
+    //      idList.Add(res.Id);
+    //      titleList.Add(res.Title);
+    //    }
+    //    msgc.MessageData["urls"] = urlList;
+    //    msgc.MessageData["ids"] = idList;
+    //    msgc.MessageData["titles"] = titleList;
+    //    SendMessage(msgc);
+
+    //    ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
+    //    scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
+    //    if (scraper.Metadata.ContainsKey("genre"))
+    //    {
+    //      movie["title"] = scraper.Metadata["title"];
+    //      movie["genre"] = scraper.Metadata["genre"];
+    //      if (scraper.Metadata.ContainsKey("thumb"))
+    //        movie["CoverArt"] = scraper.Metadata["thumb"];
+    //      if (scraper.Metadata.ContainsKey("actors"))
+    //        movie["actors"] = scraper.Metadata["actors"];
+    //      if (scraper.Metadata.ContainsKey("year"))
+    //        movie["year"] = scraper.Metadata["year"];
+
+    //    }
+    //  }
+    //}
+    //else
+    //{
+    //  ServiceScope.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
+    //}
+
+    //#endregion
 
     #endregion
   }

@@ -94,6 +94,11 @@ namespace MediaPortal.Core.MediaManagement
       return _baseAccessor.Exists(path);
     }
 
+    public IResourceAccessor GetResource(string path)
+    {
+      return _baseAccessor.GetResource(path);
+    }
+
     public Stream OpenRead()
     {
       // Using the stream on the base accessor doesn't cost so much resources than creating the bridge here

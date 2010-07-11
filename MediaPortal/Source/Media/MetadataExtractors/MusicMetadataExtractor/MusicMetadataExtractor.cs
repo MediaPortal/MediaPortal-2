@@ -123,7 +123,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     public MusicMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Music metadata extractor",
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Music metadata extractor", false,
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
@@ -187,6 +187,8 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
+      if (!mediaItemAccessor.IsFile)
+        return false;
       string humanReadablePath = mediaItemAccessor.ResourcePathName;
       if (!HasAudioExtension(humanReadablePath))
         return false;

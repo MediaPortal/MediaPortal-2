@@ -53,6 +53,11 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return result;
     }
 
+    protected string ExpandPath(string path)
+    {
+      return path.StartsWith("/") ? path : StringUtils.CheckSuffix(_path, "/") + StringUtils.RemovePrefixIfPresent(path, "/");
+    }
+
     #region ILocalFsResourceAccessor implementation
 
     public IMediaProvider ParentProvider
@@ -83,7 +88,15 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public bool Exists(string path)
     {
+      if (string.IsNullOrEmpty(path))
+        return false;
+      path = ExpandPath(path);
       return _provider.IsResource(path);
+    }
+
+    public IResourceAccessor GetResource(string path)
+    {
+      return _provider.CreateMediaItemAccessor(ExpandPath(path));
     }
 
     public Stream OpenRead()

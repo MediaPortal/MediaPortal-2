@@ -102,7 +102,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Media categories to choose metadata extractors for.</param>
     /// <param name="includeSubDirectories">If the given <paramref name="path"/> is a directory, this parameter controls if
     /// subdirectories are imported or not.</param>
-    void ScheduleImport(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories);
+    void ScheduleImport(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories);
 
     /// <summary>
     /// Schedules an asynchronous refresh of the local resource specified by <paramref name="path"/>.
@@ -115,6 +115,6 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Media categories to choose metadata extractors for.</param>
     /// <param name="includeSubDirectories">If the given <paramref name="path"/> is a directory, this parameter controls if
     /// subdirectories are imported or not.</param>
-    void ScheduleRefresh(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories);
+    void ScheduleRefresh(ResourcePath path, IEnumerable<string> mediaCategories, bool includeSubDirectories);
   }
 }

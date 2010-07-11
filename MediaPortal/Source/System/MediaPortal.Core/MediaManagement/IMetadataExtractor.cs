@@ -48,6 +48,10 @@ namespace MediaPortal.Core.MediaManagement
     /// If this method returns <c>true</c>, the extracted media item aspects were written to the
     /// <paramref name="extractedAspectData"/> collection.
     /// </summary>
+    /// <remarks>
+    /// If <see cref="MetadataExtractorMetadata.ProcessesNonFiles"/> is <c>true</c>, file resources as well as other resources
+    /// will be passed to this method.
+    /// </remarks>
     /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present

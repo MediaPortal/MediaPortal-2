@@ -87,11 +87,19 @@ namespace MediaPortal.Core.MediaManagement
     /// <remarks>
     /// This method is defined in interface <see cref="IResourceAccessor"/> rather than in interface <see cref="IMediaProvider"/>
     /// because we would need two different signatures for <see cref="IBaseMediaProvider"/> and <see cref="IChainedMediaProvider"/>,
-    /// which is not convenient.
+    /// which is not convenient. Furthermore, this method supports relative paths which are related to this resource.
     /// </remarks>
     /// <param name="path">Path to check for a resource.</param>
     /// <returns><c>true</c> if a resource at the given path exists in the <see cref="ParentProvider"/>, else <c>false</c>.</returns>
     bool Exists(string path);
+
+    /// <summary>
+    /// Returns a resource which is located in the same underlaying media provider and which might be located relatively
+    /// to this resource.
+    /// </summary>
+    /// <param name="path">Relative or absolute path which is valid in the underlaying media provider.</param>
+    /// <returns>Resource accessor for the desired resource, if it exists, else <c>null</c>.</returns>
+    IResourceAccessor GetResource(string path);
 
     /// <summary>
     /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this

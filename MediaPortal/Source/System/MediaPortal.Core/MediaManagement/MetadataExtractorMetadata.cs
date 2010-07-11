@@ -39,16 +39,18 @@ namespace MediaPortal.Core.MediaManagement
 
     protected Guid _metadataExtractorId;
     protected string _name;
+    protected bool _processesNonFiles;
     protected ICollection<string> _shareCategories;
     protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
 
-    public MetadataExtractorMetadata(Guid metadataExtractorId, string name,
+    public MetadataExtractorMetadata(Guid metadataExtractorId, string name, bool processesNonFiles,
         IEnumerable<string> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
     {
       _metadataExtractorId = metadataExtractorId;
       _name = name;
+      _processesNonFiles = processesNonFiles;
       _shareCategories = new List<string>(shareCategories);
       _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
       foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
@@ -84,6 +86,14 @@ namespace MediaPortal.Core.MediaManagement
     public ICollection<string> ShareCategories
     {
       get { return _shareCategories; }
+    }
+
+    /// <summary>
+    /// Returns the information if the metadata extractor also wants to process resources which are not files.
+    /// </summary>
+    public bool ProcessesNonFiles
+    {
+      get { return _processesNonFiles; }
     }
 
     /// <summary>
