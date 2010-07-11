@@ -60,7 +60,7 @@ namespace MediaPortal.UI.Presentation.Workflow
         IWorkflowModel workflowModel)
     {
       _workflowState = workflowState;
-      _displayLabel = displayLabel ?? workflowState.DisplayLabel;
+      _displayLabel = displayLabel;
       _predecessor = predecessor;
       if (workflowModel != null)
       {
