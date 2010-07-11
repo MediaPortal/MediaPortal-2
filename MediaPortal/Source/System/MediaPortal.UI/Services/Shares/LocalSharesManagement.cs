@@ -138,6 +138,14 @@ namespace MediaPortal.UI.Services.Shares
       return result;
     }
 
+    public void ReImportShare(Guid shareId)
+    {
+      Share share = GetShare(shareId);
+      if (share == null)
+        return;
+      SharesMessaging.SendShareReimportMessage(share);
+    }
+
     #endregion
   }
 }

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.ShareInformation]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="10"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareNameInfo]"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ShareName}" Scroll="True"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareMediaProviderInfo]"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.BaseMediaProvider.Name}" Scroll="True"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareMediaCategoriesInfo]"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.MediaCategories}" Scroll="True"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="[SharesConfig.SharePathInfo]"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Scroll="True"/>
+
+        <Label Grid.Row="4" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareResourcePathInfo]"/>
+        <!-- Attention: In the current implementation of the Grid's layouting code, the row for the following label might be layouted
+             too narrow. The problem is the label's wrapping, which cannot correctly be assessed by the grid. That's why we put it at
+             the bottom; here, the layout problem won't show up. -->
+        <Label Grid.Row="4" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ChoosenResourcePath}" Wrap="True"/>
+
+        <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="ReImportButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[SharesConfig.ReImportShare]"
+              Command="{Command ReImportShare}"/>
+          <Button x:Name="EditButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+              Content="[SharesConfig.EditShare]"
+              Command="{Command Source={StaticResource Model},Path=EditCurrentShare}"/>
+        </Grid>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

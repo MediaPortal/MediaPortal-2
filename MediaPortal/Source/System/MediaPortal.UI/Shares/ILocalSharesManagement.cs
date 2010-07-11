@@ -94,10 +94,16 @@ namespace MediaPortal.UI.Shares
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
-    /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
+    /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.ClearAndReImport"/>,
     /// all media items from the specified share will be removed from the media library or the local media items cache.</param>
     /// <returns>Changed share descriptor.</returns>
     Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
+
+    /// <summary>
+    /// Triggers a reimport of the given share.
+    /// </summary>
+    /// <param name="shareId">The id of the share to be re-imported.</param>
+    void ReImportShare(Guid shareId);
   }
 }

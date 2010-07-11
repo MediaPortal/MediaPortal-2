@@ -16,11 +16,11 @@
         MainScreen="shares_config_remove_shares"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <!-- Provides a screen to select a to-be-edited share from a list of server and client shares -->
-    <WorkflowState Id="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
-        Name="SharesEdit"
-        DisplayLabel="[SharesConfig.SharesEditWorkflowNavigationContextDisplayLabel]"
-        MainScreen="shares_config_edit_share"
+    <!-- Provides an info screen for a given schare -->
+    <WorkflowState Id="1D5618C2-61F4-403c-8946-E80B043BA021"
+        Name="SharesInfo"
+        DisplayLabel="[SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_share_info"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <!-- Provides a screen to select if a new share should be created on the server or on the client -->

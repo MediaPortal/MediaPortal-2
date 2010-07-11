@@ -51,7 +51,7 @@ namespace UiComponents.SkinBase.Models
 
     #region Protected fields
 
-    protected ShareEditMode _editMode;
+    protected ShareEditMode? _editMode;
     protected ItemsList _allBaseMediaProvidersList;
     protected AbstractProperty _isMediaProviderSelectedProperty;
     protected AbstractProperty _baseMediaProviderProperty;
@@ -68,7 +68,7 @@ namespace UiComponents.SkinBase.Models
 
     #endregion
 
-    protected SharesProxy(ShareEditMode editMode)
+    protected SharesProxy(ShareEditMode? editMode)
     {
       _editMode = editMode;
       _allBaseMediaProvidersList = new ItemsList();
@@ -131,9 +131,10 @@ namespace UiComponents.SkinBase.Models
       get { return _origShare; }
     }
 
-    public ShareEditMode EditMode
+    public ShareEditMode? EditMode
     {
       get { return _editMode; }
+      set { _editMode = value; }
     }
 
     /// <summary>
@@ -522,6 +523,8 @@ namespace UiComponents.SkinBase.Models
       if (string.IsNullOrEmpty(ShareName))
         ShareName = SuggestShareName();
     }
+
+    public abstract void ReImportShare();
 
     #endregion
   }

@@ -53,7 +53,7 @@ namespace UiComponents.SkinBase.Actions
     public static readonly Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
     public static readonly Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
 
-    public const string SYSTEM_WARNING_RES = "[System.Warning]";
+    public const string CANNOT_ADD_SHARES_TITLE_RES = "[SharesConfig.CannotAddSharesTitle]";
     public const string CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES = "[SharesConfig.CannotAddShareLocalHomeServerNotConnected]";
 
     #endregion
@@ -96,7 +96,7 @@ namespace UiComponents.SkinBase.Actions
         // This situation is an error condition: Our home server is local, i.e. all shares of this system must be configured
         // at the server, but the server is not online at the moment.
         IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-        dialogManager.ShowDialog(SYSTEM_WARNING_RES, CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES, DialogType.OkDialog, false,
+        dialogManager.ShowDialog(CANNOT_ADD_SHARES_TITLE_RES, CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES, DialogType.OkDialog, false,
             DialogButtonType.Ok);
         return;
       }

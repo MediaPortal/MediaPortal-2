@@ -45,7 +45,8 @@ namespace MediaPortal.UI.Shares
       // Share related messages. The SHARE will contain the share instance which is affected.
       ShareAdded,
       ShareRemoved,
-      ShareChanged, // Parameter RELOCATION_MODE will be set
+      ShareChanged, // Parameter RELOCATION_MODE will be additionally set
+      ReImportShare,
     }
 
     // Message data
@@ -64,11 +65,27 @@ namespace MediaPortal.UI.Shares
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
+    /// <summary>
+    /// Sends a message that a share was changed (<see cref="MessageType.ShareChanged"/>).
+    /// </summary>
+    /// <param name="share">Share which was changed.</param>
+    /// <param name="relocationMode">Controls how the data of the changed share should be adapted at the server.</param>
     public static void SendShareChangedMessage(Share share, RelocationMode relocationMode)
     {
       SystemMessage msg = new SystemMessage(MessageType.ShareChanged);
       msg.MessageData[SHARE] = share;
       msg.MessageData[RELOCATION_MODE] = relocationMode;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message that tells clients that a local share should be re-imported (<see cref="MessageType.ReImportShare"/>).
+    /// </summary>
+    /// <param name="share">Local share that should be re-imported.</param>
+    public static void SendShareReimportMessage(Share share)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.ReImportShare);
+      msg.MessageData[SHARE] = share;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

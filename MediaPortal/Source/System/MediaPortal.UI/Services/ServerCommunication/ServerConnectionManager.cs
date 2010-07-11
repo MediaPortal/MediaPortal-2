@@ -138,6 +138,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
                   RelocationMode.ClearAndReImport);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
+          case SharesMessaging.MessageType.ReImportShare:
+            share = (Share) message.MessageData[SharesMessaging.SHARE];
+            importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+            break;
         }
       }
     }

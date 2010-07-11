@@ -104,6 +104,12 @@ namespace UiComponents.SkinBase.Models
       contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
     }
 
+    public override void ReImportShare()
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      contentDirectory.ReImportShare(_origShare.ShareId);
+    }
+
     protected override string SuggestShareName()
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();

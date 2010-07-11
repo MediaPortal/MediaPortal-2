@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
@@ -63,7 +64,7 @@ namespace UiComponents.SkinBase.Models
     public const string SHARESCONFIG_MODEL_ID_STR = "1768FC91-86B9-4f78-8A4C-E204F0D51502";
     public const string SHARES_OVERVIEW_STATE_ID_STR = "36B3F24A-29B4-4cb4-BC7D-434C51491CD2";
     public const string SHARES_REMOVE_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
-    public const string SHARE_EDIT_STATE_ID_STR = "F68E8EB1-00B2-4951-9948-110CFCA93E8D";
+    public const string SHARE_INFO_STATE_ID_STR = "1D5618C2-61F4-403c-8946-E80B043BA021";
     public const string SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
     public const string SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
     public const string SHARE_EDIT_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
@@ -80,7 +81,7 @@ namespace UiComponents.SkinBase.Models
     
     public static Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
 
-    public static Guid SHARE_EDIT_STATE_ID = new Guid(SHARE_EDIT_STATE_ID_STR);
+    public static Guid SHARE_INFO_STATE_ID = new Guid(SHARE_INFO_STATE_ID_STR);
 
     public static Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
     public static Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
@@ -109,7 +110,7 @@ namespace UiComponents.SkinBase.Models
     protected ItemsList _systemsList = null;
     protected ItemsList _serverSharesList = null;
     protected ItemsList _localSharesList = null;
-    protected SharesProxy _shareEditProxy = null; // Encapsulates state and communication of shares configuration - either for server shares or for client shares
+    protected SharesProxy _shareProxy = null; // Encapsulates state and communication of shares configuration - either for server shares or for client shares
     protected AbstractProperty _isSharesSelectedProperty;
     protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _isLocalHomeServerProperty;
@@ -136,7 +137,7 @@ namespace UiComponents.SkinBase.Models
 
     public void Dispose()
     {
-      _shareEditProxy = null;
+      _shareProxy = null;
       _serverSharesList = null;
       _localSharesList = null;
     }
@@ -184,7 +185,7 @@ namespace UiComponents.SkinBase.Models
             UpdateSharesLists(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            if (_shareEditProxy is ServerShares)
+            if (_shareProxy is ServerShares)
               // If in edit workflow for a server share, when the server gets disconneted, go back to the shares overview
               NavigateBackToOverview();
             else
@@ -216,20 +217,20 @@ namespace UiComponents.SkinBase.Models
         if (systemItem.Selected)
         {
           lock (_syncObj)
-            _shareEditProxy = (SharesProxy) systemItem.AdditionalProperties[SHARES_PROXY_KEY];
+            _shareProxy = (SharesProxy) systemItem.AdditionalProperties[SHARES_PROXY_KEY];
           IsSystemSelected = true;
           return;
         }
       lock (_syncObj)
-        _shareEditProxy = null;
+        _shareProxy = null;
       IsSystemSelected = false;
     }
 
     #region Public properties (Also accessed from the GUI)
 
-    public SharesProxy ShareEditProxy
+    public SharesProxy ShareProxy
     {
-      get { return _shareEditProxy; }
+      get { return _shareProxy; }
     }
 
     public ItemsList SystemsList
@@ -367,19 +368,19 @@ namespace UiComponents.SkinBase.Models
     {
       try
       {
-        MediaProviderMetadata mpm = _shareEditProxy.GetSelectedBaseMediaProvider();
+        MediaProviderMetadata mpm = _shareProxy.GetSelectedBaseMediaProvider();
         if (mpm == null)
             // Error case: Should not happen
           return;
-        MediaProviderMetadata oldMediaProvider = _shareEditProxy.BaseMediaProvider;
+        MediaProviderMetadata oldMediaProvider = _shareProxy.BaseMediaProvider;
         if (oldMediaProvider == null ||
             oldMediaProvider.MediaProviderId != mpm.MediaProviderId)
-          _shareEditProxy.ClearAllConfiguredProperties();
-        _shareEditProxy.BaseMediaProvider = mpm;
+          _shareProxy.ClearAllConfiguredProperties();
+        _shareProxy.BaseMediaProvider = mpm;
         // Check if the choosen MP implements a known path navigation interface and go to that screen,
         // if supported
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        if (_shareEditProxy.MediaProviderSupportsResourceTreeNavigation)
+        if (_shareProxy.MediaProviderSupportsResourceTreeNavigation)
           workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
         else // If needed, add other path navigation screens here
             // Fallback: Simple TextBox path editor screen
@@ -395,14 +396,14 @@ namespace UiComponents.SkinBase.Models
     {
       try
       {
-        if (_shareEditProxy.EditMode == SharesProxy.ShareEditMode.AddShare)
+        if (_shareProxy.EditMode == SharesProxy.ShareEditMode.AddShare)
         {
-          _shareEditProxy.AddShare();
+          _shareProxy.AddShare();
           NavigateBackToOverview();
         }
-        else if (_shareEditProxy.EditMode == SharesProxy.ShareEditMode.EditShare)
+        else if (_shareProxy.EditMode == SharesProxy.ShareEditMode.EditShare)
         {
-          if (_shareEditProxy.IsResourcePathChanged)
+          if (_shareProxy.IsResourcePathChanged)
           {
             IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
             screenManager.ShowDialog(SHARES_CONFIG_RELOCATE_DIALOG_SCREEN);
@@ -411,7 +412,7 @@ namespace UiComponents.SkinBase.Models
             UpdateShareAndFinish(RelocationMode.ClearAndReImport);
         }
         else
-          throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _shareEditProxy.EditMode));
+          throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _shareProxy.EditMode));
       }
       catch (DisconnectedException)
       {
@@ -421,21 +422,21 @@ namespace UiComponents.SkinBase.Models
 
     public void FinishDoRelocate()
     {
-      try
-      {
-        UpdateShareAndFinish(RelocationMode.Relocate);
-      }
-      catch (DisconnectedException)
-      {
-        DisconnectedError();
-      }
+      UpdateShareAndFinish(RelocationMode.Relocate);
     }
 
     public void FinishDoReImport()
     {
+      UpdateShareAndFinish(RelocationMode.ClearAndReImport);
+    }
+
+    public void EditCurrentShare()
+    {
       try
       {
-        UpdateShareAndFinish(RelocationMode.ClearAndReImport);
+        _shareProxy.EditMode = SharesProxy.ShareEditMode.EditShare;
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
       catch (DisconnectedException)
       {
@@ -450,7 +451,7 @@ namespace UiComponents.SkinBase.Models
         Share share = GetSelectedLocalShares().FirstOrDefault();
         if (share != null)
           lock (_syncObj)
-            _shareEditProxy = new LocalShares(share);
+            _shareProxy = new LocalShares(share);
         else
         {
           share = GetSelectedServerShares().FirstOrDefault();
@@ -458,7 +459,7 @@ namespace UiComponents.SkinBase.Models
               // Should never happen
             return;
           lock (_syncObj)
-            _shareEditProxy = new ServerShares(share);
+            _shareProxy = new ServerShares(share);
         }
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
@@ -469,10 +470,22 @@ namespace UiComponents.SkinBase.Models
       }
     }
 
+    public void ReImportShare()
+    {
+      try
+      {
+        _shareProxy.ReImportShare();
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
     public void NavigateBackToOverview()
     {
       lock (_syncObj)
-        _shareEditProxy = null;
+        _shareProxy = null;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID, false);
     }
@@ -594,57 +607,69 @@ namespace UiComponents.SkinBase.Models
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
       foreach (Share share in shareDescriptors)
       {
+        ListItem shareItem = new ListItem(NAME_KEY, share.Name);
+        shareItem.AdditionalProperties[SHARE_KEY] = share;
         try
         {
-          ListItem shareItem = new ListItem(NAME_KEY, share.Name);
-          shareItem.AdditionalProperties[SHARE_KEY] = share;
-          try
+          string path = type == ShareType.Local ?
+              LocalShares.GetLocalResourcePathDisplayName(share.BaseResourcePath) :
+              ServerShares.GetServerResourcePathDisplayName(share.BaseResourcePath);
+          if (string.IsNullOrEmpty(path))
+            path = LocalizationHelper.Translate(INVALID_PATH_RES, share.BaseResourcePath);
+            // Error case: The path is invalid
+          shareItem.SetLabel(PATH_KEY, path);
+          Guid? firstMediaProviderId = SharesProxy.GetBaseMediaProviderId(share.BaseResourcePath);
+          if (firstMediaProviderId.HasValue)
           {
-            string path = type == ShareType.Local ?
-                LocalShares.GetLocalResourcePathDisplayName(share.BaseResourcePath) :
-                ServerShares.GetServerResourcePathDisplayName(share.BaseResourcePath);
-            if (string.IsNullOrEmpty(path))
-              path = LocalizationHelper.Translate(INVALID_PATH_RES, share.BaseResourcePath);
-              // Error case: The path is invalid
-            shareItem.SetLabel(PATH_KEY, path);
-            Guid? firstMediaProviderId = SharesProxy.GetBaseMediaProviderId(share.BaseResourcePath);
-            if (firstMediaProviderId.HasValue)
-            {
-              // Error case: The base media provider cannot be evaluated from the given share
-              MediaProviderMetadata firstMediaProviderMetadata = type == ShareType.Local ?
-                  LocalShares.GetLocalMediaProviderMetadata(firstMediaProviderId.Value) :
-                  ServerShares.GetServerMediaProviderMetadata(firstMediaProviderId.Value);
-              shareItem.AdditionalProperties[MEDIA_PROVIDER_METADATA_KEY] = firstMediaProviderMetadata;
-            }
-          }
-          catch (Exception e)
-          {
-            ServiceScope.Get<ILogger>().Warn("Problems building share item '{0}' (path '{1}')", e, share.Name, share.BaseResourcePath);
+            MediaProviderMetadata firstMediaProviderMetadata = type == ShareType.Local ?
+                LocalShares.GetLocalMediaProviderMetadata(firstMediaProviderId.Value) :
+                ServerShares.GetServerMediaProviderMetadata(firstMediaProviderId.Value);
+            shareItem.AdditionalProperties[MEDIA_PROVIDER_METADATA_KEY] = firstMediaProviderMetadata;
           }
           string categories = StringUtils.Join(", ", share.MediaCategories);
           shareItem.SetLabel(SHARE_CATEGORIES_KEY, categories);
-          if (selectShare)
-          {
-            selectShare = false;
-            shareItem.Selected = true;
-          }
-          shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
-          lock (_syncObj)
-            list.Add(shareItem);
+          Share shareCopy = share;
+          shareItem.Command = new MethodDelegateCommand(() => ShowShareInfo(shareCopy, type));
+        }
+        catch (DisconnectedException)
+        {
+          throw;
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Share item '{0}' (path '{1}') cannot be built", e, share.Name, share.BaseResourcePath);
+          ServiceScope.Get<ILogger>().Warn("Problems building share item '{0}' (path '{1}')", e, share.Name, share.BaseResourcePath);
         }
+        if (selectShare)
+        {
+          selectShare = false;
+          shareItem.Selected = true;
+        }
+        shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
+        lock (_syncObj)
+          list.Add(shareItem);
       }
       list.FireChange();
+    }
+
+    protected void ShowShareInfo(Share share, ShareType type)
+    {
+      if (share == null)
+        return;
+      if (type == ShareType.Local)
+        lock (_syncObj)
+          _shareProxy = new LocalShares(share);
+      else if (type == ShareType.Server)
+        lock (_syncObj)
+          _shareProxy = new ServerShares(share);
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(SHARE_INFO_STATE_ID, new NavigationContextConfig {NavigationContextDisplayLabel = share.Name});
     }
 
     protected void UpdateShareAndFinish(RelocationMode relocationMode)
     {
       try
       {
-        _shareEditProxy.UpdateShare(relocationMode);
+        _shareProxy.UpdateShare(relocationMode);
         NavigateBackToOverview();
       }
       catch (DisconnectedException)
@@ -702,9 +727,9 @@ namespace UiComponents.SkinBase.Models
         {
           UpdateSharesLists(push);
         }
-        else if (workflowState == SHARE_EDIT_STATE_ID)
+        else if (workflowState == SHARE_INFO_STATE_ID)
         {
-          UpdateSharesLists(push);
+          // Nothing to prepare
         }
         else if (workflowState == SHARE_ADD_CHOOSE_SYSTEM_STATE_ID)
         {
@@ -713,7 +738,7 @@ namespace UiComponents.SkinBase.Models
         else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID)
         {
           // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
-          _shareEditProxy.UpdateMediaProvidersList();
+          _shareProxy.UpdateMediaProvidersList();
         }
         else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)
         {
@@ -721,15 +746,15 @@ namespace UiComponents.SkinBase.Models
         }
         else if (workflowState == SHARE_EDIT_CHOOSE_PATH_STATE_ID)
         {
-          _shareEditProxy.UpdateMediaProviderPathTree();
+          _shareProxy.UpdateMediaProviderPathTree();
         }
         else if (workflowState == SHARE_EDIT_EDIT_NAME_STATE_ID)
         {
-          _shareEditProxy.PrepareShareName();
+          _shareProxy.PrepareShareName();
         }
         else if (workflowState == SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID)
         {
-          _shareEditProxy.UpdateMediaCategoriesList();
+          _shareProxy.UpdateMediaCategoriesList();
         }
       }
       catch (DisconnectedException)
@@ -742,7 +767,7 @@ namespace UiComponents.SkinBase.Models
     {
       lock (_syncObj)
       {
-        _shareEditProxy = null;
+        _shareProxy = null;
         _localSharesList = null;
         _serverSharesList = null;
         _systemsList = null;

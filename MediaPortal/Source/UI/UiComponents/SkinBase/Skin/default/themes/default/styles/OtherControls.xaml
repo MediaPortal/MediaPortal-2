@@ -305,7 +305,8 @@
     </Setter>
   </Style>
 
-  <!-- Container style for a simple highlightable list item -->
+  <!-- Container style for a simple highlightable share -->
+  <!-- Currently not used any more -->
   <Style x:Key="HighlightableShareContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
@@ -326,6 +327,26 @@
               <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             </Control.TemplateControl>
           </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Container style for a share item in a button -->
+  <Style x:Key="SelectableShareContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle}"
+              VerticalAlignment="Center" HorizontalAlignment="Stretch"
+              Command="{Binding Command}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
+                <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -490,7 +511,7 @@
       </Setter.Value>
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource HighlightableShareContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SelectableShareContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 

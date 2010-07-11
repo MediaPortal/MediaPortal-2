@@ -73,7 +73,7 @@
     <Compile Include="Models\ServerAttachmentModel.cs" />
     <Compile Include="Models\ServerShares.cs" />
     <Compile Include="Models\SharesConfigModel.cs" />
-    <Compile Include="Models\SharesProxy.cs" />
+    <Compile Include="Models\ShareProxy.cs" />
     <Compile Include="PlayerBackgroundManager.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -328,7 +328,7 @@
     <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
-    <Content Include="Skin\default\screens\shares_config_edit_share.xaml" />
+    <Content Include="Skin\default\screens\shares_config_share_info.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_system.xaml" />
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
     <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />

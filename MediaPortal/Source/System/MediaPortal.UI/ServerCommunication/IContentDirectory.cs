@@ -49,6 +49,7 @@ namespace MediaPortal.UI.ServerCommunication
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
     ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
     Share GetShare(Guid shareId);
+    void ReImportShare(Guid guid);
 
     ICollection<string> GetMediaCategoriesFromMetadataExtractors();
     ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata();

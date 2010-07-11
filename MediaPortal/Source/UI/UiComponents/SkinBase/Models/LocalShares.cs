@@ -224,5 +224,11 @@ namespace UiComponents.SkinBase.Models
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
     }
+
+    public override void ReImportShare()
+    {
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      sharesManagement.ReImportShare(_origShare.ShareId);
+    }
   }
 }

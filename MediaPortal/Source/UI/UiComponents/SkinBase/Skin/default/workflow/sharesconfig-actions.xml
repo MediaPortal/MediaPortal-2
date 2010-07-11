@@ -10,14 +10,6 @@
         ContributorModelId="9E456C79-3FF1-4040-8CD7-4247C4C12817"
         DisplayTitle="[SharesConfig.MenuAddShare]"/>
 
-    <PushNavigationTransition Id="5B6D2739-F0FE-41d9-8522-6C797D700B58"
-        Name="SharesOverview->SharesEdit"
-        DisplayCategory="a-SharesConfig"
-        SortOrder="b"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
-        DisplayTitle="[SharesConfig.MenuEditShares]"/>
-
     <PushNavigationTransition Id="F1BCC545-5859-4a67-805F-86F9540C0F82"
         Name="SharesOverview->SharesRemove"
         DisplayCategory="a-SharesConfig"

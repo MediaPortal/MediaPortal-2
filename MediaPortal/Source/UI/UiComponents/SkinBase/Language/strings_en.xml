@@ -108,17 +108,25 @@
   <Section Name="SharesConfig">
     <String Name="SharesOverviewWorkflowNavigationContextDisplayLabel" Text="Shares configuration"/>
     <String Name="SharesRemoveWorkflowNavigationContextDisplayLabel" Text="Remove shares"/>
-    <String Name="SharesEditWorkflowNavigationContextDisplayLabel" Text="Edit shares"/>
+    <String Name="ShareInfoWorkflowNavigationContextDisplayLabel" Text="Share info"/>
     <String Name="SharesAddChooseSystemWorkflowNavigationContextDisplayLabel" Text="Choose system"/>
     <String Name="SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
     <String Name="SharesEditEditPathWorkflowNavigationContextDisplayLabel" Text="Edit path"/>
     <String Name="SharesEditChoosePathWorkflowNavigationContextDisplayLabel" Text="Choose path"/>
     <String Name="SharesEditEditNameWorkflowNavigationContextDisplayLabel" Text="Edit name"/>
     <String Name="SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel" Text="Choose categories"/>
-    <String Name="CannotAddShareLocalHomeServerNotConnected" Text="Cannot add shares: The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
+    <String Name="CannotAddSharesTitle" Text="Cannot add shares"/>
+    <String Name="CannotAddShareLocalHomeServerNotConnected" Text="The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
     <String Name="SharesOverview" Text="Shares overview"/>
     <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
     <String Name="NoSharesAvailable" Text="There are no shares available"/>
+    <String Name="ShareInformation" Text="Share information"/>
+    <String Name="ShareNameInfo" Text="Name:"/>
+    <String Name="ShareMediaProviderInfo" Text="Base media provider:"/>
+    <String Name="SharePathInfo" Text="Path:"/>
+    <String Name="ShareResourcePathInfo" Text="Technical path:"/>
+    <String Name="ShareMediaCategoriesInfo" Text="Media categories:"/>
+    <String Name="ReImportShare" Text="ReImport share"/>
     <String Name="SetupDefaultShares" Text="Setup default shares"/>
     <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
     <String Name="RemoveShares" Text="Remove shares"/>
@@ -147,7 +155,6 @@
     <String Name="EditServerShare" Text="Edit global share"/> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
     <String Name="AddLocalShare" Text="Add local share"/>
     <String Name="EditLocalShare" Text="Edit local share"/>
-    <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
     <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
     <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's media provider and/or path have been updated."/>
     <String Name="UpdateShareRelocateItemsQueryText.Description" Text="The media library's information about the media items in that share can be updated (relocated) or cleared and reimported."/>

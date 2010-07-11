@@ -145,6 +145,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (Share) outParameters[0];
     }
 
+    public void ReImportShare(Guid shareId)
+    {
+      CpAction action = GetAction("ReImportShare");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
+      action.InvokeAction(inParameters);
+    }
+
     public ICollection<string> GetMediaCategoriesFromMetadataExtractors()
     {
       CpAction action = GetAction("GetMediaCategoriesFromMetadataExtractors");

@@ -10,7 +10,7 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ShareEditProxy.ConfigShareTitle}"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle}"/>
 
     <ResourceWrapper x:Key="ChooseShareCategoriesStateId" Resource="6218FE5B-767E-48e6-9691-65E466B6020B"/>
 
@@ -30,7 +30,7 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Wrap="True"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{ThemeResource TextBoxStyle}"
-            Text="{Binding Path=ShareEditProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
+            Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
         <!-- Row 3 contains error message - not necessary here -->
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
@@ -45,7 +45,7 @@
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Continue]" IsEnabled="{Binding ShareEditProxy.IsShareNameValid}"
+              Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsShareNameValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareCategoriesStateId}}"/>
         </Grid>
       </Grid>
