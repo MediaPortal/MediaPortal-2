@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -39,6 +40,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.Utilities;
 using SlimDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
@@ -359,6 +361,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
             throw new ArgumentException(string.Format("Cannot convert '{0}' to type Key", str));
           else
             result = new Key(str[0]);
+        return true;
+      }
+      else if (targetType == typeof(string) && value is IEnumerable)
+      {
+        result = StringUtils.Join(", ", (IEnumerable) value);
         return true;
       }
       result = value;
