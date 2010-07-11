@@ -118,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
             VisualParent = this
         };
-      result.Style = EllipsisControlStyle;
+      result.Style = EllipsisControlStyle; // Set the style after all other properties have been set to avoid doing work multiple times
       return result;
     }
 
@@ -229,8 +229,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
           childrenAfterEllipsis.RemoveRange(0, childrenAfterEllipsis.Count - numShownChildrenAfterEllipsis);
         }
-        // else
+        // else:
         //   childrenAfterEllipsis contains all children
+
+        // Lay out all other elements after ellipsis
         foreach (FrameworkElement child in childrenAfterEllipsis)
         {
           SizeF childSize = new SizeF(child.DesiredSize);
