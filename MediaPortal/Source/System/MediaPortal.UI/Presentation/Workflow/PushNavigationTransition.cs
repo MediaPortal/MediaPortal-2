@@ -35,16 +35,16 @@ namespace MediaPortal.UI.Presentation.Workflow
   {
     #region Protected fields
 
-    protected string _displayLabel;
+    protected string _navigationContextDisplayLabel;
     protected Guid _targetStateId;
 
     #endregion
 
-    public PushNavigationTransition(Guid actionId, string name, string displayLabel, Guid? sourceStateId, Guid targetStateId,
-        IResourceString displayTitle) :
+    public PushNavigationTransition(Guid actionId, string name, string navigationContextDisplayLabel,
+        Guid? sourceStateId, Guid targetStateId, IResourceString displayTitle) :
         base(actionId, name, sourceStateId, displayTitle)
     {
-      _displayLabel = displayLabel;
+      _navigationContextDisplayLabel = navigationContextDisplayLabel;
       _targetStateId = targetStateId;
     }
 
@@ -72,7 +72,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      ServiceScope.Get<IWorkflowManager>().NavigatePush(TargetStateId, new NavigationContextConfig { NavigationContextDisplayLabel = _displayLabel });
+      ServiceScope.Get<IWorkflowManager>().NavigatePush(TargetStateId, new NavigationContextConfig { NavigationContextDisplayLabel = _navigationContextDisplayLabel });
     }
   }
 }

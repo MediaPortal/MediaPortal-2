@@ -108,10 +108,17 @@ namespace MediaPortal.UI.Services.Workflow
             switch (childNav.LocalName)
             {
               case "States":
-                LoadStates(childNav.Clone());
+                foreach (WorkflowState state in LoadStates(childNav))
+                {
+                  if (_states.ContainsKey(state.StateId))
+                    throw new ArgumentException(string.Format(
+                        "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
+                        state.StateId, _states[state.StateId].Name, state.Name));
+                  _states.Add(state.StateId, state);
+                }
                 break;
               case "MenuActions":
-                foreach (WorkflowAction action in LoadActions(childNav.Clone()))
+                foreach (WorkflowAction action in LoadActions(childNav))
                 {
                   if (_menuActions.ContainsKey(action.ActionId))
                     throw new ArgumentException(string.Format(
@@ -131,7 +138,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    protected void LoadStates(XPathNavigator statesNav)
+    protected IEnumerable<WorkflowState> LoadStates(XPathNavigator statesNav)
     {
       XPathNavigator childNav = statesNav.Clone();
       if (childNav.MoveToChild(XPathNodeType.Element))
@@ -140,20 +147,10 @@ namespace MediaPortal.UI.Services.Workflow
           switch (childNav.LocalName)
           {
             case "WorkflowState":
-              WorkflowState workflowState = LoadWorkflowState(childNav.Clone());
-              if (_states.ContainsKey(workflowState.StateId))
-                throw new ArgumentException(string.Format(
-                    "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
-                    workflowState.StateId, _states[workflowState.StateId].Name, workflowState.Name));
-              _states.Add(workflowState.StateId, workflowState);
+              yield return LoadWorkflowState(childNav);
               break;
             case "DialogState":
-              WorkflowState dialogState = LoadDialogState(childNav);
-              if (_states.ContainsKey(dialogState.StateId))
-                throw new ArgumentException(string.Format(
-                    "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
-                    dialogState.StateId, _states[dialogState.StateId].Name, dialogState.Name));
-              _states.Add(dialogState.StateId, dialogState);
+              yield return LoadDialogState(childNav);
               break;
             default:
               throw new ArgumentException("'" + statesNav.Name + "' element doesn't support a child element '" + childNav.Name + "'");
@@ -209,7 +206,8 @@ namespace MediaPortal.UI.Services.Workflow
               displayLabel = attrNav.Value;
               break;
             case "Temporary":
-              isTemporary = Boolean.Parse(attrNav.Value);
+              if (!bool.TryParse(attrNav.Value, out isTemporary))
+                throw new ArgumentException("'Temporary' attribute has to be of type bool");
               break;
             case "DialogScreen":
               dialogScreen = attrNav.Value;
@@ -258,7 +256,8 @@ namespace MediaPortal.UI.Services.Workflow
               displayLabel = attrNav.Value;
               break;
             case "Temporary":
-              isTemporary = Boolean.Parse(attrNav.Value);
+              if (!bool.TryParse(attrNav.Value, out isTemporary))
+                throw new ArgumentException("'Temporary' attribute has to be of type bool");
               break;
             case "MainScreen":
               mainScreen = attrNav.Value;
@@ -290,7 +289,7 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
-      string displayLabel = null;
+      string navigationContextDisplayLabel = null;
       string displayCategory = null;
       string sortOrder = null;
       string sourceState = null;
@@ -308,8 +307,8 @@ namespace MediaPortal.UI.Services.Workflow
             case "Name":
               name = attrNav.Value;
               break;
-            case "DisplayLabel":
-              displayLabel = attrNav.Value;
+            case "NavigationContextDisplayLabel":
+              navigationContextDisplayLabel = attrNav.Value;
               break;
             case "DisplayCategory":
               displayCategory = attrNav.Value;
@@ -338,7 +337,7 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
-      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, displayLabel,
+      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, navigationContextDisplayLabel,
           sourceState == "*" ? new Guid?() : new Guid(sourceState), new Guid(targetState),
           LocalizationHelper.CreateResourceString(displayTitle))
         {
