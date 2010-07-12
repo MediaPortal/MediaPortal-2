@@ -51,9 +51,9 @@ namespace MediaPortal.Core.Localization
     protected string _name;
 
     /// <summary>
-    /// Lazy initialized cache for the localised string.
+    /// Lazy initialized cache for the localized string.
     /// </summary>
-    protected string _localised;
+    protected string _localized;
 
     #endregion
 
@@ -119,7 +119,7 @@ namespace MediaPortal.Core.Localization
         // Should we raise an exception here?
         _section = "system";
         _name = label;
-        _localised = label;
+        _localized = label;
       }
     }
 
@@ -128,18 +128,17 @@ namespace MediaPortal.Core.Localization
     #region Public methods
 
     /// <summary>
-    /// Returns the localised string,
-    /// or (if not found) the Label-property.
+    /// Returns the localized string, or (if not found) the Label-property.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Localized string.</returns>
     public override string ToString()
     {
-      if (_localised == null)
-        _localised = ServiceScope.Get<ILocalization>().ToString(_section, _name);
+      if (_localized == null)
+        _localized = ServiceScope.Get<ILocalization>().ToString(_section, _name);
 
-      if (_localised == null)
+      if (_localized == null)
         return Label;
-      return _localised;
+      return _localized;
     }
 
     #endregion
@@ -192,11 +191,6 @@ namespace MediaPortal.Core.Localization
 
     #region IComparable<StringId> implementation
 
-    /// <summary>
-    /// Compares the localised strings.
-    /// </summary>
-    /// <param name="other"></param>
-    /// <returns></returns>
     public int CompareTo(StringId other)
     {
       return string.Compare(ToString(), other.ToString(), false, ServiceScope.Get<ILocalization>().CurrentCulture);

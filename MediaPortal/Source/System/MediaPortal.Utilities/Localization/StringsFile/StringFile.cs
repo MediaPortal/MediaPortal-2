@@ -31,20 +31,36 @@ namespace MediaPortal.Utilities.Localization.StringsFile
   public class StringFile
   {
     #region Variables
+
     [XmlAttribute("Name")]
-    public string languageName;
+    public string _languageName;
+
     [XmlElement("Section")]
-    public List<StringSection> sections;
+    public List<StringSection> _sections;
+    
     #endregion
 
-    #region public
+    #region Public Members
+
+    [XmlIgnore]
+    public string LanguageName
+    {
+      get { return _languageName; }
+    }
+
+    [XmlIgnore]
+    public ICollection<StringSection> Sections
+    {
+      get { return _sections; }
+    }
+
     public bool IsSection(string sectionName)
     {
-      if (sections != null)
+      if (_sections != null)
       {
-        foreach (StringSection section in sections)
+        foreach (StringSection section in _sections)
         {
-          if (section.name == sectionName)
+          if (section.SectionName == sectionName)
             return true;
         }
       }
@@ -53,11 +69,12 @@ namespace MediaPortal.Utilities.Localization.StringsFile
 
     public void AddSection(StringSection section)
     {
-      if (sections == null)
-        sections = new List<StringSection>();
+      if (_sections == null)
+        _sections = new List<StringSection>();
 
-      sections.Add(section);
+      _sections.Add(section);
     }
+
     #endregion
   }
 }

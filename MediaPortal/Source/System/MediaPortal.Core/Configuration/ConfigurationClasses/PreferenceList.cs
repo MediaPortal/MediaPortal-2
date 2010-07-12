@@ -55,7 +55,7 @@ namespace MediaPortal.Core.Configuration.ConfigurationClasses
     }
 
     /// <summary>
-    /// Gets an enumerator to enumerate through the sorted and localised items.
+    /// Gets an enumerator to enumerate through the sorted and localized items.
     /// </summary>
     public IEnumerable<string> SortedItems
     {

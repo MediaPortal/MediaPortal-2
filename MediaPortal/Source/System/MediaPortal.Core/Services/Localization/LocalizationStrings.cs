@@ -49,8 +49,8 @@ namespace MediaPortal.Core.Services.Localization
   {
     #region Variables
 
-    protected readonly IDictionary<string, IDictionary<string, StringLocalised>> _languageStrings =
-        new Dictionary<string, IDictionary<string, StringLocalised>>(
+    protected readonly IDictionary<string, IDictionary<string, StringLocalized>> _languageStrings =
+        new Dictionary<string, IDictionary<string, StringLocalized>>(
             StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Sections to Map: Resource name to resource
     protected CultureInfo _culture;
     
@@ -96,7 +96,7 @@ namespace MediaPortal.Core.Services.Localization
     public string ToString(string section, string name)
     {
       if (_languageStrings.ContainsKey(section) && _languageStrings[section].ContainsKey(name))
-        return _languageStrings[section][name].text;
+        return _languageStrings[section][name].Text;
 
       return null;
     }
@@ -170,15 +170,15 @@ namespace MediaPortal.Core.Services.Localization
           TextReader r = new StreamReader(filePath, encoding);
           strings = (StringFile) s.Deserialize(r);
 
-          foreach (StringSection section in strings.sections)
+          foreach (StringSection section in strings.Sections)
           {
-            IDictionary<string, StringLocalised> sectionContents = _languageStrings.ContainsKey(section.name) ?
-                _languageStrings[section.name] : new Dictionary<string, StringLocalised>(
+            IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
+                _languageStrings[section.SectionName] : new Dictionary<string, StringLocalized>(
                     StringComparer.Create(CultureInfo.InvariantCulture, true));
-            foreach (StringLocalised languageString in section.localisedStrings)
-              sectionContents[languageString.name] = languageString;
+            foreach (StringLocalized languageString in section.LocalizedStrings)
+              sectionContents[languageString.StringName] = languageString;
             if (sectionContents.Count > 0)
-              _languageStrings[section.name] = sectionContents;
+              _languageStrings[section.SectionName] = sectionContents;
           }
         }
         catch (Exception ex)

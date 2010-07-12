@@ -30,34 +30,50 @@ namespace MediaPortal.Utilities.Localization.StringsFile
   public class StringSection
   {
     #region Variables
+
     [XmlAttribute("Name")]
-    public string name;
+    public string _name;
+
     [XmlElement("String")]
-    public List<StringLocalised> localisedStrings;
-    public bool isNew = false;
+    public List<StringLocalized> _localizedStrings;
+
     #endregion
 
-    #region public
+    #region Public Members
+
+    [XmlIgnore]
+    public string SectionName
+    {
+      get { return _name; }
+    }
+
+    [XmlIgnore]
+    public ICollection<StringLocalized> LocalizedStrings
+    {
+      get { return _localizedStrings; }
+    }
+
     public bool IsString(string stringName)
     {
-      if (localisedStrings != null)
+      if (_localizedStrings != null)
       {
-        foreach (StringLocalised str in localisedStrings)
+        foreach (StringLocalized str in _localizedStrings)
         {
-          if (str.name == stringName)
+          if (str.StringName == stringName)
             return true;
         }
       }
       return false;
     }
 
-    public void AddString(StringLocalised str)
+    public void AddString(StringLocalized str)
     {
-      if (localisedStrings == null)
-        localisedStrings = new List<StringLocalised>();
+      if (_localizedStrings == null)
+        _localizedStrings = new List<StringLocalized>();
 
-      localisedStrings.Add(str);
+      _localizedStrings.Add(str);
     }
+
     #endregion
   }
 }

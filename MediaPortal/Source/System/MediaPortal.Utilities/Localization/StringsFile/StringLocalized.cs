@@ -26,20 +26,37 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Utilities.Localization.StringsFile
 {
-  public class StringLocalised
+  public class StringLocalized
   {
     #region Variables
-    public string language;
+
     [XmlAttribute("Name")]
-    public string name;
+    public string _name;
+    
     [XmlAttribute("Text")]
-    public string text;
-    public bool isNew = false;
+    public string _text;
+
+    #endregion
+
+    #region Public members
+
+    [XmlIgnore]
+    public string StringName
+    {
+      get { return _name; }
+    }
+
+    [XmlIgnore]
+    public string Text
+    {
+      get { return _text; }
+    }
+
     #endregion
 
     public override string ToString()
     {
-      return "[" + name + "]" + ":" + text;
+      return "[" + _name + "]" + ":" + _text;
     }
   }
 }

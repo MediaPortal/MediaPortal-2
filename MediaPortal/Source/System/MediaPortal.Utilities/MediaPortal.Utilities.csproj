@@ -84,7 +84,7 @@
     <Compile Include="FileSystem\WindowsFilesystemPathComparer.cs" />
     <Compile Include="FileSystem\WindowsFilesystemPathEqualityComparer.cs" />
     <Compile Include="Localization\StringsFile\StringFile.cs" />
-    <Compile Include="Localization\StringsFile\StringLocalised.cs" />
+    <Compile Include="Localization\StringsFile\StringLocalized.cs" />
     <Compile Include="Localization\StringsFile\StringSection.cs" />
     <Compile Include="SystemAPI\MimeTypeDetector.cs" />
     <Compile Include="ObjectUtils.cs" />
