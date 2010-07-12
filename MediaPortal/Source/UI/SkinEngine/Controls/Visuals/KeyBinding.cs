@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -48,6 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Init();
       Attach();
+
+      IsVisible = false;
     }
 
     void Init()
@@ -87,6 +90,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    {
+      return new SizeF();
+    }
 
     void OnBindingConcerningPropertyChanged(AbstractProperty prop, object oldValue)
     {
