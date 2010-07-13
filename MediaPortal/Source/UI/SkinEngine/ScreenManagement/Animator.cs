@@ -308,10 +308,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="animationContext">The new animation context to check against the running
     /// animations.</param>
-    /// <param name="conflictingProperties">Conflicting data descriptors mapped to their original
-    /// values. This returned value can be used to initialize the original values of the new animation.</param>
     /// <param name="conflictingAnimations">Returns all already running or sleeping animations with
     /// conflicting properties.</param>
+    /// <param name="conflictingProperties">Conflicting data descriptors mapped to their original
+    /// values. This returned value can be used to initialize the original values of the new animation.</param>
     protected void FindConflicts(
         AnimationContext animationContext,
         out ICollection<AnimationContext> conflictingAnimations,
