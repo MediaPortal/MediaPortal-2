@@ -44,7 +44,6 @@ namespace MediaPortal.UI.Views
     protected IFilter _filter;
     protected bool _excludeCLOBs;
     protected bool _onlyOnline;
-    protected IList<ViewSpecification> _subViews = new List<ViewSpecification>();
 
     #endregion
 
@@ -91,29 +90,25 @@ namespace MediaPortal.UI.Views
       }
     }
 
-    protected internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
+      mediaItems = null;
+      subViewSpecifications = null;
       IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        yield break;
-      IList<MediaItem> mediaItems;
+        return;
       try
       {
         mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
             _filter, _excludeCLOBs, _onlyOnline);
+        subViewSpecifications = new List<ViewSpecification>();
       }
       catch (UPnPRemoteException e)
       {
-        ServiceScope.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItems: Error requesting server", e);
-        yield break;
+        ServiceScope.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
+        mediaItems = null;
+        subViewSpecifications = null;
       }
-      foreach (MediaItem mediaItem in mediaItems)
-        yield return mediaItem;
-    }
-
-    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
-    {
-      return new List<ViewSpecification>(_subViews);
     }
   }
 }

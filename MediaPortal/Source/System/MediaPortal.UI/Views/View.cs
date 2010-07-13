@@ -121,8 +121,8 @@ namespace MediaPortal.UI.Views
     {
       get
       {
-        if (!IsItemsInitialized)
-          RefreshItems();
+        if (!IsLoaded)
+          RefreshItemsAndSubViews();
         return _items;
       }
     }
@@ -134,26 +134,18 @@ namespace MediaPortal.UI.Views
     {
       get
       {
-        if (!IsSubViewsInitialized)
-          RefreshSubViews();
+        if (!IsLoaded)
+          RefreshItemsAndSubViews();
         return _subViews;
       }
     }
 
     /// <summary>
-    /// Returns the information if the (lazily initialized) sub views collection already has been initialized.
+    /// Returns the information if the (lazily initialized) items list and sub views collection already has been filled.
     /// </summary>
-    protected bool IsSubViewsInitialized
+    protected bool IsLoaded
     {
-      get { return _subViews != null; }
-    }
-
-    /// <summary>
-    /// Returns the information if the (lazily initialized) items collection already has been initialized.
-    /// </summary>
-    protected bool IsItemsInitialized
-    {
-      get { return _items != null; }
+      get { return _items != null && _subViews != null; }
     }
 
     /// <summary>
@@ -164,23 +156,17 @@ namespace MediaPortal.UI.Views
     {
       if (!IsValid)
         return;
-      RefreshItems();
-      RefreshSubViews();
+      RefreshItemsAndSubViews();
     }
 
-    public void RefreshItems()
+    public void RefreshItemsAndSubViews()
     {
       if (!IsValid)
         return;
-      _items = new List<MediaItem>(_viewSpecification.ReLoadItems());
-    }
-
-    public void RefreshSubViews()
-    {
-      if (!IsValid)
-        return;
+      IList<ViewSpecification> subViewSpecifications;
+      _viewSpecification.ReLoadItemsAndSubViewSpecifications(out _items, out subViewSpecifications);
       _subViews = new List<View>();
-      foreach (ViewSpecification vs in _viewSpecification.ReLoadSubViewSpecifications())
+      foreach (ViewSpecification vs in subViewSpecifications)
       {
         View subView = new View(this, vs) {_displayName = vs.ViewDisplayName};
         _subViews.Add(subView);

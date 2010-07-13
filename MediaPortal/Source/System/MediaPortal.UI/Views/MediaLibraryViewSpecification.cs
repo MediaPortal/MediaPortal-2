@@ -79,30 +79,25 @@ namespace MediaPortal.UI.Views
       }
     }
 
-    protected internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
+      mediaItems = null;
+      subViewSpecifications = null;
       IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
-        yield break;
-      IList<MediaItem> mediaItems;
+        return;
       try
       {
         mediaItems = cd.Search(_query, _onlyOnline);
+        subViewSpecifications = new List<ViewSpecification>(_subViews.Count);
+        CollectionUtils.AddAll(subViewSpecifications, _subViews);
       }
       catch (UPnPRemoteException e)
       {
-        ServiceScope.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItems: Error requesting server", e);
-        yield break;
+        ServiceScope.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
+        mediaItems = null;
+        subViewSpecifications = null;
       }
-      foreach (MediaItem mediaItem in mediaItems)
-        yield return mediaItem;
-    }
-
-    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
-    {
-      IList<ViewSpecification> result = new List<ViewSpecification>(_subViews.Count);
-      CollectionUtils.AddAll(result, _subViews);
-      return result;
     }
   }
 }

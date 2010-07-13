@@ -96,38 +96,26 @@ namespace MediaPortal.UI.Views
     /// <summary>
     /// Returns the information if the view specified by this instance currently can be built (i.e. if all of its
     /// providers/shares are present). If the task to check that completely is too complicated, implementors can also
-    /// return <c>true</c> and later fail in the methods <see cref="ReLoadItems"/> and/or
-    /// <see cref="ReLoadSubViewSpecifications"/>.
+    /// return <c>true</c> and later fail in method <see cref="ReLoadItemsAndSubViewSpecifications"/>.
     /// </summary>
     public abstract bool CanBeBuilt { get; }
 
     /// <summary>
-    /// Loads or reloads the items of for a view to this specification. This will re-request the database or datastore for
-    /// the media items.
+    /// Loads or reloads the items and sub view specifications for a view to this specification.
+    /// This will re-request the media database or datastore.
     /// </summary>
     /// <remarks>
-    /// This method will load the media items of a view specified by this <see cref="ViewSpecification"/>.
+    /// This method will load the media items and sub view specifications of a view specified by this
+    /// <see cref="ViewSpecification"/>.
     /// It will load all of the specified media item aspects which are available for the media items.
     /// <i>Hint:</i>
     /// The uppercase L of the name is no spelling error; it denotes that this method is for
     /// Loading and Reloading of media items.
     /// </remarks>
-    /// <returns>Media items in a view specified by this specification.</returns>
+    /// <param name="mediaItems">Media items to this view specification.</param>
+    /// <param name="subViewSpecifications">Sub view specifications to this view specification.</param>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
-    protected internal abstract IEnumerable<MediaItem> ReLoadItems();
-
-    /// <summary>
-    /// Loads or reloads the specifications of the sub views to this specification. This will rebuild the
-    /// sub view specifications by re-requesting the database or datastore, if necessary.
-    /// </summary>
-    /// <remarks>
-    /// <i>Hint:</i>
-    /// The uppercase L of the name is no spelling error; it denotes that this method is for
-    /// Loading and Reloading of sub views.
-    /// </remarks>
-    /// <returns>Sub views of a view specified by this specification.</returns>
-    /// <exception cref="Exception">If there are problems accessing the datasource of this view.</exception>
-    protected internal abstract IEnumerable<ViewSpecification> ReLoadSubViewSpecifications();
+    protected internal abstract void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications);
   }
 }

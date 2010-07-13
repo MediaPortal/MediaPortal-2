@@ -112,8 +112,10 @@ namespace MediaPortal.UI.Views
       get { return _viewPath.IsValidLocalPath; }
     }
 
-    protected internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
+      mediaItems = new List<MediaItem>();
+      subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
@@ -131,19 +133,19 @@ namespace MediaPortal.UI.Views
         {
           MediaItem result = GetMetadata(mediaAccessor, systemResolver, childAccessor, metadataExtractorIds);
           if (result != null)
-            yield return result;
+            mediaItems.Add(result);
         }
-    }
-
-    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
-    {
-      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
-      // Add all directories at the specified path
       ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
       if (directories != null)
-        foreach (IFileSystemResourceAccessor childDirectory in directories)
-          yield return new LocalDirectoryViewSpecification(null, childDirectory.LocalResourcePath,
-              _necessaryMIATypeIds, _optionalMIATypeIds);
+        foreach (IFileSystemResourceAccessor childAccessor in directories)
+        {
+          MediaItem result = GetMetadata(mediaAccessor, systemResolver, childAccessor, metadataExtractorIds);
+          if (result == null)
+            subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.LocalResourcePath,
+              _necessaryMIATypeIds, _optionalMIATypeIds));
+          else
+            mediaItems.Add(result);
+        }
     }
 
     #endregion

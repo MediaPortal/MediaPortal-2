@@ -50,18 +50,15 @@ namespace MediaPortal.UI.Views
       get { return true; }
     }
 
-    protected internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
-      yield break;
-    }
-
-    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
-    {
+      mediaItems = new List<MediaItem>();
+      subViewSpecifications = new List<ViewSpecification>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       foreach (Share share in sharesManagement.Shares.Values)
       {
-        yield return new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath,
-            _necessaryMIATypeIds, _optionalMIATypeIds);
+        subViewSpecifications.Add(new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath,
+            _necessaryMIATypeIds, _optionalMIATypeIds));
       }
     }
 
