@@ -244,7 +244,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
-        MovieResult result;
+        MovieResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra != null && fsra.IsDirectory && fsra.Exists("VIDEO_TS"))
         {
@@ -271,7 +271,6 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
                 result.AddMediaInfo(mediaInfo);
               }
             }
-            return true;
           }
         }
         else if (mediaItemAccessor.IsFile)
@@ -287,7 +286,9 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             result = MovieResult.CreateFileInfo(Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName), fileInfo);
           }
           result.MimeType = MimeTypeDetector.GetMimeType(filePath);
-
+        }
+        if (result != null)
+        {
           // TODO: The creation of new media item aspects could be moved to a general method
           MediaItemAspect mediaAspect;
           if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
