@@ -249,7 +249,9 @@ namespace MediaPortal.Core.Messaging
     /// delivered by this queue.</returns>
     public bool Shutdown()
     {
-      _shutdownWatcher.Remove();
+      if (_shutdownWatcher != null)
+        _shutdownWatcher.Remove();
+      _shutdownWatcher = null;
       UnregisterFromAllMessageChannels();
       Terminate();
       Thread threadToJoin;
