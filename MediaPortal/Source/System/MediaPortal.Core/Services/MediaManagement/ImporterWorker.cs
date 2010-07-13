@@ -262,7 +262,9 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// filled them.</param>
     /// <param name="resultHandler">Callback to notify the import results.</param>
     /// <param name="mediaAccessor">Convenience reference to the media accessor.</param>
-    protected void ImportResource(IResourceAccessor mediaItemAccessor, ICollection<IMetadataExtractor> metadataExtractors,
+    /// <returns><c>true</c>, if metadata could be extracted from the given <paramref name="mediaItemAccessor"/>, else
+    /// <c>false</c>.</returns>
+    protected bool ImportResource(IResourceAccessor mediaItemAccessor, ICollection<IMetadataExtractor> metadataExtractors,
         ICollection<MediaItemAspectMetadata> mediaItemAspectTypes, IImportResultHandler resultHandler,
         IMediaAccessor mediaAccessor)
     {
@@ -271,7 +273,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors);
       if (aspects == null)
         // No metadata could be extracted
-        return;
+        return false;
       // Fill empty entries for media item aspects which aren't returned - this will cleanup those aspects in media library
       foreach (MediaItemAspectMetadata mediaItemAspectType in mediaItemAspectTypes)
       {
@@ -279,6 +281,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           aspects[mediaItemAspectType.AspectId] = new MediaItemAspect(mediaItemAspectType);
       }
       resultHandler.UpdateMediaItem(path, aspects.Values);
+      return true;
     }
 
     /// <summary>
@@ -346,7 +349,15 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
         }
         CheckImportStillRunning(importJob.State);
-        ImportResource(directoryAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+        if (ImportResource(directoryAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor))
+        { // The directory itself was identified as as media item - remove all potential child items from media library
+          foreach (string pathStr in path2Item.Keys)
+          {
+            ResourcePath path = ResourcePath.Deserialize(pathStr);
+            resultHandler.DeleteMediaItem(path);
+          }
+          return;
+        }
         ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
@@ -361,7 +372,10 @@ namespace MediaPortal.Core.Services.MediaManagement
                   importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
                 // We can skip this file; it was imported after the last change time of the item
                 continue;
-              ImportResource(fileAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+              if (!ImportResource(fileAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor) &&
+                  path2Item.ContainsKey(fileAccessor.LocalResourcePath.Serialize()))
+                // Media item cannot be imported (any more)
+                resultHandler.DeleteMediaItem(fileAccessor.LocalResourcePath);
             }
             catch (Exception e)
             {
