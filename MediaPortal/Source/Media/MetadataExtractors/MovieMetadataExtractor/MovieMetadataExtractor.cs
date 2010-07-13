@@ -253,8 +253,8 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           { // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {
-              if (videoTsInfo.IsValid && videoTsInfo.GetVideoCount() == 0)
-                return false; // Invalid video_ts file
+              if (!videoTsInfo.IsValid || videoTsInfo.GetVideoCount() == 0)
+                return false; // Invalid video_ts.ifo file
               result = MovieResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
             }
             // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
@@ -263,7 +263,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
               string lowerPath = file.ResourcePathName.ToLowerInvariant();
               if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
                 continue;
-              using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
+              using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))
               {
                 // Before we start evaluating the file, check if it is a video at all
                 if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
@@ -271,6 +271,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
                 result.AddMediaInfo(mediaInfo);
               }
             }
+            return true;
           }
         }
         else if (mediaItemAccessor.IsFile)
