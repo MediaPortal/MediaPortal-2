@@ -140,7 +140,8 @@ namespace UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      UpdatePlaylistHeader(pc == null ? null : (PlayerContextType?) pc.MediaType, pc.PlayerSlotController.SlotIndex);
+      UpdatePlaylistHeader(pc == null ? null : (PlayerContextType?) pc.MediaType,
+          pc == null ? PlayerManagerConsts.PRIMARY_SLOT : pc.PlayerSlotController.SlotIndex);
       lock (_syncObj)
       {
         _playlist = playlist;
