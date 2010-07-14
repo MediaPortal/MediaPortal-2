@@ -1,0 +1,40 @@
+<!ELEMENT MediaPortalPlugin (DependsOn?, ConflictsWith?, Runtime?, (Register | Builder)*)>
+<!ATTLIST MediaPortalPlugin
+          DescriptorVersion CDATA #REQUIRED
+          PluginId          CDATA #REQUIRED
+          Name              CDATA #REQUIRED
+          Description       CDATA #IMPLIED
+          Author            CDATA #IMPLIED
+          Copyright         CDATA #IMPLIED
+          Description       CDATA #IMPLIED
+          PluginVersion     CDATA #REQUIRED
+          AutoActivate      (True|False) "False"
+          DeploymentType    (Frontend|Backend) #REQUIRED
+          >
+
+<!ELEMENT Runtime (Assembly*, PluginStateTracker?)>
+
+<!ELEMENT DependsOn (PluginReference)>
+
+<!ELEMENT ConflictsWith (PluginReference)>
+
+<!ELEMENT Register ANY>
+<!ATTLIST Register
+          Location CDATA #REQUIRED>
+
+<!ELEMENT Builder EMPTY>
+<!ATTLIST Builder
+          Name      CDATA #REQUIRED
+          ClassName CDATA #REQUIRED>
+
+<!ELEMENT Assembly EMPTY>
+<!ATTLIST Assembly
+          FileName CDATA #REQUIRED>
+
+<!ELEMENT PluginStateTracker EMPTY>
+<!ATTLIST PluginStateTracker
+          ClassName CDATA #REQUIRED>
+
+<!ELEMENT PluginReference EMPTY>
+<!ATTLIST PluginReference
+          PluginId CDATA #REQUIRED>

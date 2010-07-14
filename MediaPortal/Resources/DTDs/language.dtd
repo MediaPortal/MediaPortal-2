@@ -1,0 +1,12 @@
+<!ELEMENT Language (Section)*>
+<!ATTLIST Language
+          Name CDATA #REQUIRED>
+
+<!ELEMENT Section (String)*>
+<!ATTLIST Section
+          Name CDATA #REQUIRED>
+
+<!ELEMENT String EMPTY>
+<!ATTLIST String
+          Name CDATA #REQUIRED
+          Text CDATA #REQUIRED>

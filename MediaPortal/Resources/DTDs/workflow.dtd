@@ -1,0 +1,57 @@
+<!ELEMENT Workflow (States | MenuActions)*>
+<!ATTLIST Workflow
+          DescriptorVersion CDATA #REQUIRED>
+
+<!ELEMENT States (WorkflowState | DialogState)*>
+
+<!ELEMENT MenuActions (PushNavigationTransition | PopNavigationTransition | WorkflowContributorAction)*>
+
+<!ELEMENT WorkflowState EMPTY>
+<!ATTLIST WorkflowState
+          Id            CDATA #REQUIRED
+          Name          CDATA #REQUIRED
+          DisplayLabel  CDATA #REQUIRED
+          Temporary     (True|False) "False"
+          InheritMenu   (True|False) "False"
+          MainScreen    CDATA #IMPLIED
+          WorkflowModel CDATA #IMPLIED>
+
+<!ELEMENT DialogState EMPTY>
+<!ATTLIST DialogState
+          Id            CDATA #REQUIRED
+          Name          CDATA #REQUIRED
+          DisplayLabel  CDATA #REQUIRED
+          Temporary     (True|False) "False"
+          DialogScreen  CDATA #IMPLIED
+          WorkflowModel CDATA #IMPLIED>
+
+<!ELEMENT PushNavigationTransition EMPTY>
+<!ATTLIST PushNavigationTransition
+          Id                            CDATA #REQUIRED
+          Name                          CDATA #REQUIRED
+          DisplayCategory               CDATA #IMPLIED
+          SortOrder                     CDATA #IMPLIED
+          SourceState                   CDATA #REQUIRED
+          TargetState                   CDATA #REQUIRED
+          DisplayTitle                  CDATA #IMPLIED
+          NavigationContextDisplayLabel CDATA #IMPLIED>
+
+<!ELEMENT PopNavigationTransition EMPTY>
+<!ATTLIST PopNavigationTransition
+          Id              CDATA #REQUIRED
+          Name            CDATA #REQUIRED
+          DisplayCategory CDATA #IMPLIED
+          SortOrder       CDATA #IMPLIED
+          SourceState     CDATA #REQUIRED
+          NumPop          CDATA #REQUIRED
+          DisplayTitle    CDATA #IMPLIED>
+
+<!ELEMENT WorkflowContributorAction EMPTY>
+<!ATTLIST WorkflowContributorAction
+          Id                 CDATA #REQUIRED
+          Name               CDATA #REQUIRED
+          DisplayCategory    CDATA #IMPLIED
+          SortOrder          CDATA #IMPLIED
+          SourceState        CDATA #REQUIRED
+          ContributorModelId CDATA #REQUIRED
+          DisplayTitle       CDATA #IMPLIED>
