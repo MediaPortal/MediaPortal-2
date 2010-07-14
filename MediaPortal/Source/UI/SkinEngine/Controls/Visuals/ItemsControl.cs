@@ -443,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(item);
       if (focusable != null)
-        focusable.HasFocus = true;
+        focusable.TrySetFocus(true);
     }
 
     #endregion

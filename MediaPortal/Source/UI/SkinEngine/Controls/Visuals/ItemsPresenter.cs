@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           {
             FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(searchItem as FrameworkElement);
             if (focusable != null)
-              focusable.HasFocus = true;
+              focusable.TrySetFocus(true);
             return true;
           }
           index--;

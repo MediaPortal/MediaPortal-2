@@ -168,7 +168,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualHeightProperty.Attach(OnActualBoundsChanged);
       _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
-      _hasFocusProperty.Attach(OnHasFocusPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);
 
@@ -184,7 +183,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualHeightProperty.Detach(OnActualBoundsChanged);
       _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
-      _hasFocusProperty.Detach(OnHasFocusPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
 
@@ -223,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
       if (fe != null)
-        fe.HasFocus = true;
+        fe.TrySetFocus(true);
     }
 
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
@@ -242,30 +240,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
-    }
-
-    void OnHasFocusPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      Screen screen = Screen;
-      if (screen == null)
-      {
-        // HasFocus has been set before the screen was initialized - simply remember the focus request in attribute _setFocus and reset HasFocus to false
-        _setFocus = HasFocus;
-        HasFocus = false;
-        return;
-      }
-      if (HasFocus)
-      {
-        MakeVisible(this, ActualBounds);
-        if (!screen.FrameworkElementGotFocus(this))
-        {
-          HasFocus = false;
-          _setFocus = true;
-          return;
-        }
-      }
-      else
-        screen.FrameworkElementLostFocus(this);
     }
 
     /// <summary>
@@ -511,6 +485,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsVisible && IsEnabled && Focusable)
       {
+        Screen screen = Screen;
+        if (screen == null)
+          return false;
+        MakeVisible(this, ActualBounds);
+        if (!screen.FrameworkElementGotFocus(this))
+          return false;
         HasFocus = true;
         return true;
       }
@@ -519,13 +499,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         foreach (UIElement child in GetChildren())
         {
           FrameworkElement fe = child as FrameworkElement;
-          if (fe == null || !fe.IsVisible || !fe.IsEnabled)
+          if (fe == null)
             continue;
           if (fe.TrySetFocus(true))
             return true;
         }
       }
       return false;
+    }
+
+    public void ResetFocus()
+    {
+      HasFocus = false;
+      Screen screen = Screen;
+      if (screen == null)
+        return;
+      screen.FrameworkElementLostFocus(this);
     }
 
     #region Replacing methods for the == operator which evaluate two float.NaN values to equal
@@ -993,7 +982,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (!HasFocus && inVisibleArea)
           TrySetFocus(false);
         if (HasFocus && !inVisibleArea)
-          HasFocus = false;
+          ResetFocus();
       }
       else
       {
@@ -1003,7 +992,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           FireEvent(MOUSELEAVE_EVENT);
         }
         if (HasFocus)
-          HasFocus = false;
+          ResetFocus();
       }
       base.OnMouseMove(x, y);
     }
@@ -1085,25 +1074,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return (float) alpha;
     }
 
-    protected bool IsLocatedAbove(RectangleF otherRect)
+    protected bool IsLocatedBelow(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
       return alpha >= Math.PI/4 && alpha <= 3*Math.PI/4;
     }
 
-    protected bool IsLocatedBelow(RectangleF otherRect)
+    protected bool IsLocatedAbove(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
       return alpha >= 5*Math.PI/4 && alpha <= 7*Math.PI/4;
     }
 
-    protected bool IsLocatedRightOf(RectangleF otherRect)
+    protected bool IsLocatedLeftOf(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
       return alpha <= Math.PI/4 || alpha >= 7*Math.PI/4;
     }
 
-    protected bool IsLocatedLeftOf(RectangleF otherRect)
+    protected bool IsLocatedRightOf(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
       return alpha >= 3*Math.PI/4 && alpha <= 5*Math.PI/4;
@@ -1128,10 +1117,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Check if this control is a possible return value
       if (IsEnabled && Focusable)
         if (!currentFocusRect.HasValue ||
-            (dir == MoveFocusDirection.Up && IsLocatedBelow(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Down && IsLocatedAbove(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Left && IsLocatedRightOf(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Right && IsLocatedLeftOf(currentFocusRect.Value)))
+            (dir == MoveFocusDirection.Up && IsLocatedAbove(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Down && IsLocatedBelow(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Left && IsLocatedLeftOf(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Right && IsLocatedRightOf(currentFocusRect.Value)))
           return this;
       // Check child controls
       FrameworkElement bestMatch = null;

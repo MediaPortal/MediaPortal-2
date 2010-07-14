@@ -468,8 +468,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           focusedElement.ActualBounds, key);
       if (cntl != null)
       {
-        cntl.HasFocus = true;
-        if (cntl.HasFocus)
+        if (cntl.TrySetFocus(true))
           key = Key.None;
       }
     }
@@ -482,7 +481,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (_focusedElement != null)
         if (_focusedElement.HasFocus)
-          _focusedElement.HasFocus = false; // Will trigger the FrameworkElementLostFocus method, which sets _focusedElement to null
+          _focusedElement.ResetFocus(); // Will trigger the FrameworkElementLostFocus method, which sets _focusedElement to null
     }
 
     /// <summary>

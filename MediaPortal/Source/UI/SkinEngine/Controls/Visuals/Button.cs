@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void Execute()
     {
-      HasFocus = true;
+      TrySetFocus(true);
       IsPressed = true;
       if (Command != null)
         Command.Execute();
