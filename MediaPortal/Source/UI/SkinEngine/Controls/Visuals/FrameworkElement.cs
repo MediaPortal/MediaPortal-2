@@ -1058,46 +1058,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Focus prediction
 
-    private float CalcCenterDirection(RectangleF otherRect)
-    {
-      PointF thisCenter = GetCenterPosition(ActualBounds);
-      PointF thatCenter = GetCenterPosition(otherRect);
-      if (IsNear(thisCenter.X, thatCenter.X) && IsNear(thisCenter.Y, thatCenter.Y))
-        return float.NaN;
-      double x = thatCenter.X - thisCenter.X;
-      double y = thatCenter.Y - thisCenter.Y;
-      double alpha = Math.Acos(x/Math.Sqrt(x*x+y*y));
-      if (thatCenter.Y > thisCenter.Y) // Coordinates go from top to bottom, so y must be inverted
-        alpha = -alpha;
-      if (alpha < 0)
-        alpha += 2*Math.PI;
-      return (float) alpha;
-    }
-
-    protected bool IsLocatedBelow(RectangleF otherRect)
-    {
-      float alpha = CalcCenterDirection(otherRect);
-      return alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
-    }
-
-    protected bool IsLocatedAbove(RectangleF otherRect)
-    {
-      float alpha = CalcCenterDirection(otherRect);
-      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2*Math.PI - DELTA_DOUBLE;
-    }
-
-    protected bool IsLocatedLeftOf(RectangleF otherRect)
-    {
-      float alpha = CalcCenterDirection(otherRect);
-      return alpha < Math.PI/2 - DELTA_DOUBLE || alpha > 3*Math.PI/2 + DELTA_DOUBLE;
-    }
-
-    protected bool IsLocatedRightOf(RectangleF otherRect)
-    {
-      float alpha = CalcCenterDirection(otherRect);
-      return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
-    }
-
     /// <summary>
     /// Predicts the next control which is positioned in the specified direction
     /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
@@ -1156,6 +1116,58 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return bestMatch;
     }
 
+    protected static float CenterDistance(RectangleF r1, RectangleF r2)
+    {
+      float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
+      float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
+      return (float) Math.Sqrt(distX * distX + distY * distY);
+    }
+
+    protected PointF GetCenterPosition(RectangleF rect)
+    {
+      return new PointF((rect.Left + rect.Right)/2, (rect.Top + rect.Bottom)/2);
+    }
+
+    private float CalcCenterDirection(RectangleF otherRect)
+    {
+      PointF thisCenter = GetCenterPosition(ActualBounds);
+      PointF thatCenter = GetCenterPosition(otherRect);
+      if (IsNear(thisCenter.X, thatCenter.X) && IsNear(thisCenter.Y, thatCenter.Y))
+        return float.NaN;
+      double x = thatCenter.X - thisCenter.X;
+      double y = thatCenter.Y - thisCenter.Y;
+      double alpha = Math.Acos(x/Math.Sqrt(x*x+y*y));
+      if (thatCenter.Y > thisCenter.Y) // Coordinates go from top to bottom, so y must be inverted
+        alpha = -alpha;
+      if (alpha < 0)
+        alpha += 2*Math.PI;
+      return (float) alpha;
+    }
+
+    protected bool IsLocatedBelow(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
+    }
+
+    protected bool IsLocatedAbove(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2*Math.PI - DELTA_DOUBLE;
+    }
+
+    protected bool IsLocatedLeftOf(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha < Math.PI/2 - DELTA_DOUBLE || alpha > 3*Math.PI/2 + DELTA_DOUBLE;
+    }
+
+    protected bool IsLocatedRightOf(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
+    }
+
     protected static float BorderDistance(RectangleF r1, RectangleF r2)
     {
       float distX;
@@ -1173,18 +1185,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
         distY = 0;
       return (float) Math.Sqrt(distX * distX + distY * distY);
-    }
-
-    protected static float CenterDistance(RectangleF r1, RectangleF r2)
-    {
-      float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
-      float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
-      return (float) Math.Sqrt(distX * distX + distY * distY);
-    }
-
-    protected PointF GetCenterPosition(RectangleF rect)
-    {
-      return new PointF((rect.Left + rect.Right)/2, (rect.Top + rect.Bottom)/2);
     }
 
     #endregion
