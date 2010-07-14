@@ -1077,25 +1077,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool IsLocatedBelow(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
-      return alpha >= Math.PI/4 && alpha <= 3*Math.PI/4;
+      return alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
     }
 
     protected bool IsLocatedAbove(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
-      return alpha >= 5*Math.PI/4 && alpha <= 7*Math.PI/4;
+      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2*Math.PI - DELTA_DOUBLE;
     }
 
     protected bool IsLocatedLeftOf(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
-      return alpha <= Math.PI/4 || alpha >= 7*Math.PI/4;
+      return alpha < Math.PI/2 - DELTA_DOUBLE || alpha > 3*Math.PI/2 + DELTA_DOUBLE;
     }
 
     protected bool IsLocatedRightOf(RectangleF otherRect)
     {
       float alpha = CalcCenterDirection(otherRect);
-      return alpha >= 3*Math.PI/4 && alpha <= 5*Math.PI/4;
+      return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
     }
 
     /// <summary>
