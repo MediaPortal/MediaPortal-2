@@ -23,14 +23,20 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Drawing;
 using System.IO;
+using MediaPortal.Core.MediaManagement;
 
-namespace Media.Importers.PictureImporter
+namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
 {
+  /// <summary>
+  /// ExifMetaInfo class is used to extract EXIF information from images.
+  /// </summary>
   public class ExifMetaInfo : IDisposable
   {
-    #region privats
+    #region Variables
 
     private uint _PixXDim;
     private uint _PixYDim;
@@ -55,13 +61,37 @@ namespace Media.Importers.PictureImporter
 
     #region Properties
 
+    /// <summary>
+    /// Returns the width of image.
+    /// </summary>
     public uint PixXDim { get { return _PixXDim; } }
+    /// <summary>
+    /// Returns the height of image.
+    /// </summary>
     public uint PixYDim { get { return _PixYDim; } }
+    /// <summary>
+    /// Returns the make of camera.
+    /// </summary>
     public string EquipMake { get { return _EquipMake; } }
+    /// <summary>
+    /// Returns the model of camera.
+    /// </summary>
     public string EquipModel { get { return _EquipModel; } }
+    /// <summary>
+    /// Returns the description of image.
+    /// </summary>
     public string ImageDescription { get { return _ImageDescription; } }
+    /// <summary>
+    /// Returns the copyright of image.
+    /// </summary>
     public string Copyright { get { return _Copyright; } }
+    /// <summary>
+    /// Returns the rotation of image.
+    /// </summary>
     public uint Orientation { get { return _Orientation; } }
+    /// <summary>
+    /// Returns the rotation of image.
+    /// </summary>
     public Orientation OrientationType { get { return (Orientation)_Orientation; } }
 
     ///<summary>
@@ -85,45 +115,73 @@ namespace Media.Importers.PictureImporter
     public Fraction FNumber { get { return _FNumber; } }
 
     ///<summary>
-    ///Exposure Time
+    ///Exposure Time.
     ///</summary>						
     public Fraction ExposureTime { get { return _ExposureTime; } }
 
+    /// <summary>
+    /// Exposure Bias.
+    /// </summary>
     public Fraction ExposureBias { get { return _ExposureBias; } }
 
+    /// <summary>
+    /// ISO speed rating.
+    /// </summary>
     public string ISOSpeed { get { return _ISOSpeed; } }
 
+    /// <summary>
+    /// Flash mode.
+    /// </summary>
     public string FlashMode { get { return _FlashMode; } }
 
+    /// <summary>
+    /// True if flash fired.
+    /// </summary>
     public bool FlashFired { get { return _FlashFired; } }
 
+    /// <summary>
+    /// Metering mode.
+    /// </summary>
     public MeteringMode MeteringMode { get { return _MeteringMode; } }
 
+    /// <summary>
+    /// Embedded thumbnail image.
+    /// </summary>
     public Bitmap ThumbImage { get { return _ThumbImage; } }
-
 
     #endregion
 
+    #region Constructor
+
+    /// <summary>
+    /// Creates an ExifMetaInfo class by reading a local file.
+    /// </summary>
+    /// <param name="filename"></param>
     public ExifMetaInfo(string filename)
     {
       ReadMetaInfo(filename);
     }
 
-    public static int EXIFOrientationToRotation(int orientation)
+    /// <summary>
+    /// Creates an ExifMetaInfo class by reading a Stream from IResourceAccessor.OpenRead().
+    /// </summary>
+    /// <param name="mediaItemAccessor"></param>
+    public ExifMetaInfo(IResourceAccessor mediaItemAccessor)
     {
-      //Log.Info("Orientation: {0}", orientation);
-
-      if (orientation == 6)
-        return 1;
-
-      if (orientation == 3)
-        return 2;
-
-      if (orientation == 8)
-        return 3;
-
-      return 0;
+      ReadMetaInfo(mediaItemAccessor);
     }
+
+    /// <summary>
+    /// Creates an ExifMetaInfo class by reading a Stream.
+    /// </summary>
+    /// <param name="mediaStream"></param>
+    public ExifMetaInfo(Stream mediaStream)
+    {
+      ReadMetaInfo(mediaStream );
+    }
+
+    #endregion
+
 
     //The format is YYYY:MM:DD HH:MM:SS with time shown in 24-hour format and the date and time separated by one blank character (0x2000). The character string length is 20 bytes including the NULL terminator. When the field is empty, it is treated as unknown.
     private static DateTime ExifDTToDateTime(string exifDT)
@@ -148,13 +206,28 @@ namespace Media.Importers.PictureImporter
 
     }
 
+    private void ReadMetaInfo(IResourceAccessor mediaItemAccessor)
+    {
+      using (Stream mediaStream = mediaItemAccessor.OpenRead())
+      {
+        ReadMetaInfo(mediaStream);
+      }
+    }
+
     private void ReadMetaInfo(string filename)
+    {
+      using (FileStream fs = File.OpenRead(filename))
+      {
+        ReadMetaInfo(fs);
+      }
+    }
+
+    private void ReadMetaInfo(Stream mediaStream)
     {
       long ExifOffsetBase = 0;
 
       MemoryStream ms = new MemoryStream();
-      FileStream fs = File.OpenRead(filename);
-      BinaryReader br = new BinaryReader(fs);
+      BinaryReader br = new BinaryReader(mediaStream);
       bool IsBigEndian = false;
 
       try
@@ -163,14 +236,14 @@ namespace Media.Importers.PictureImporter
         ulong tempOffset = 0;
         ulong storedOffset = 0;
 
-        long ThumbSearchPos = fs.Position;
+        long ThumbSearchPos = mediaStream.Position;
 
         readBuffer = br.ReadBytes(2);
 
         while (!(readBuffer[0] == 0xFF && readBuffer[1] == 0xD8)) // search for the SOI (FF D8)
         {
           readBuffer = br.ReadBytes(2);
-          if (fs.Position >= ThumbSearchPos + (1 * 1024)) return; // exit the routine via the error handler if no thumb was found
+          if (mediaStream.Position >= ThumbSearchPos + (1 * 1024)) return; // exit the routine via the error handler if no thumb was found
         }
 
         bool ExifInformationFound = true;
@@ -185,11 +258,11 @@ namespace Media.Importers.PictureImporter
           if (readBuffer[0] == 0xFF && readBuffer[1] == 0xD8) // SOI reached
           {
             ExifInformationFound = false;
-            fs.Seek(-2, SeekOrigin.Current);
+            mediaStream.Seek(-2, SeekOrigin.Current);
             tempOffset = 0;
             break;
           }
-          if (fs.Position >= ThumbSearchPos + (2 * 1024)) return; // exit the routine via the error handler if no thumb was found
+          if (mediaStream.Position >= ThumbSearchPos + (2 * 1024)) return; // exit the routine via the error handler if no thumb was found
         }
 
         if (ExifInformationFound)
@@ -201,7 +274,7 @@ namespace Media.Importers.PictureImporter
             {
               throw (new Exception()); // exit the routine via the error handler
             }
-            if (fs.Position >= ThumbSearchPos + (5 * 1024)) return; // exit the routine via the error handler if no thumb was found
+            if (mediaStream.Position >= ThumbSearchPos + (5 * 1024)) return; // exit the routine via the error handler if no thumb was found
           }
 
           if (readBuffer[0] == 0x4D && readBuffer[1] == 0x4D) // is big endian?
@@ -209,7 +282,7 @@ namespace Media.Importers.PictureImporter
             IsBigEndian = true;
           }
 
-          ExifOffsetBase = fs.Position - 2;
+          ExifOffsetBase = mediaStream.Position - 2;
 
           readBuffer = br.ReadBytes(2); // read 0x42
 
@@ -218,12 +291,12 @@ namespace Media.Importers.PictureImporter
 
         while (tempOffset != 0) // cycle through the IFD's
         {
-          fs.Seek(ExifOffsetBase + (long)tempOffset, SeekOrigin.Begin); // jump to the begin of the exif data
+          mediaStream.Seek(ExifOffsetBase + (long)tempOffset, SeekOrigin.Begin); // jump to the begin of the exif data
           int tmpCount = BitConverter.ToInt16(ReadEndianBytes(br, IsBigEndian, 2), 0); // Read the count of entries
 
           if (tmpCount > 250) break; //skip corrupted exif info
 
-          //fs.Seek(tmpCount * 12, SeekOrigin.Current); // skip the entries
+          //mediaStream.Seek(tmpCount * 12, SeekOrigin.Current); // skip the entries
 
           ulong nextIfdOffset = 0; // If the Exif information is spread over more than one IFD, this value stores the offset to the next block
 
@@ -266,10 +339,10 @@ namespace Media.Importers.PictureImporter
               if ((entryCount * LenBase) > 4)
               {
                 ulong entryOffset = BitConverter.ToUInt32(entryData, 0); // Read the entry offset
-                long curPos = fs.Position; // store the current position in the image file
-                fs.Seek(ExifOffsetBase + (long)entryOffset, SeekOrigin.Begin); // jump to the begin of the entry data
+                long curPos = mediaStream.Position; // store the current position in the image file
+                mediaStream.Seek(ExifOffsetBase + (long)entryOffset, SeekOrigin.Begin); // jump to the begin of the entry data
                 entryData = br.ReadBytes((int)entryCount * LenBase); // read the entry
-                fs.Seek(curPos, SeekOrigin.Begin); // jump back to read the next entrty
+                mediaStream.Seek(curPos, SeekOrigin.Begin); // jump back to read the next entrty
               }
 
               if (_EquipMake.ToLower() == "canon" && entryId == 0x1 && entryType == 0x3)
@@ -321,7 +394,7 @@ namespace Media.Importers.PictureImporter
         }
 
         //readBuffer = br.ReadBytes(4);
-        //fs.Seek(-4, SeekOrigin.Current);
+        //mediaStream.Seek(-4, SeekOrigin.Current);
 
         //// does the thumbnail contain exif information? (is stupid and out of the standard but ...)
         //if (readBuffer[0] == 0xFF && readBuffer[1] == 0xD8 && readBuffer[2] == 0xFF) // && readBuffer[3] == 0xE1
@@ -334,15 +407,15 @@ namespace Media.Importers.PictureImporter
         //  //readBuffer = br.ReadBytes(8); // read YResolution Value
         //}
 
-        //fs.Seek(2, SeekOrigin.Begin); //jump back to the begin
+        //mediaStream.Seek(2, SeekOrigin.Begin); //jump back to the begin
 
-        ThumbSearchPos = fs.Position;
+        ThumbSearchPos = mediaStream.Position;
         readBuffer = br.ReadBytes(2); // read begin of image
 
         while (!(readBuffer[0] == 0xFF && readBuffer[1] == 0xD8)) // search for the SOI (FF D8)
         {
           readBuffer = br.ReadBytes(2);
-          if (fs.Position >= ThumbSearchPos + (10 * 1024)) return; // exit the routine via the error handler if no thumb was found
+          if (mediaStream.Position >= ThumbSearchPos + (10 * 1024)) return; // exit the routine via the error handler if no thumb was found
         }
 
         if (readBuffer[0] == 0xFF && readBuffer[1] == 0xD8) // If the next two bytes descripe a SOI
@@ -356,7 +429,7 @@ namespace Media.Importers.PictureImporter
             prevByte = readBuffer[0];
             readBuffer = br.ReadBytes(1);
             ms.Write(readBuffer, 0, 1);
-            if (fs.Position >= ThumbSearchPos + (20 * 1024)) return; // exit the routine via the error handler if no thumb was found 
+            if (mediaStream.Position >= ThumbSearchPos + (20 * 1024)) return; // exit the routine via the error handler if no thumb was found 
           }
           ms.Seek(0, SeekOrigin.Begin);
 
@@ -369,7 +442,7 @@ namespace Media.Importers.PictureImporter
       finally
       {
         br.Close();
-        fs.Close();
+        mediaStream.Close();
         ms.Close();
       }
     }

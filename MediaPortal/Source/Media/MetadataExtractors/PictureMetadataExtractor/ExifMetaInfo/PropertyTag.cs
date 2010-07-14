@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Media.Importers.PictureImporter
+namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
 {
   class PropertyTag
   {

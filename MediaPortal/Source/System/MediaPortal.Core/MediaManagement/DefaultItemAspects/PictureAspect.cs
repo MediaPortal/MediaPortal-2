@@ -40,12 +40,45 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
         MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MAKE =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentMake", 100, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MODEL =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentModel", 100, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_BIAS =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureBias", 20, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_TIME =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureTime", 20, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_FLASH_MODE =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIMENSIONS =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Dimensions", 10, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 20, Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SHUTTER_SPEED =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ShutterSpeed", 10, Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "PictureItem", new[] {
             ATTR_WIDTH,
             ATTR_HEIGHT,
+            ATTR_MAKE,
+            ATTR_MODEL,
+            ATTR_EXPOSURE_BIAS,
+            ATTR_EXPOSURE_TIME,
+            ATTR_FLASH_MODE,
+            ATTR_FNUMBER,
+            ATTR_DIMENSIONS,
+            ATTR_ISO_SPEED,
+            ATTR_ORIENTATION,
+            ATTR_METERING_MODE,
+            ATTR_SHUTTER_SPEED,
         });
   }
 }

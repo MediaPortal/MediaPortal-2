@@ -34,6 +34,8 @@ namespace MediaPortal.Utilities.SystemAPI
   /// </summary>
   public static class MimeTypeDetector
   {
+    #region Imports
+
     [DllImport(@"urlmon.dll", CharSet = CharSet.Auto)]
     private extern static UInt32 FindMimeFromData(
         UInt32 pBC,
@@ -46,6 +48,33 @@ namespace MediaPortal.Utilities.SystemAPI
         UInt32 dwReserverd
         );
 
+    #endregion
+
+    #region Static members
+
+    /// <summary>
+    /// Tries to detect the mimetype of a stream. 
+    /// It uses both binary detection as well as registry extension lookup.
+    /// </summary>
+    /// <param name="mediaItemStream">Opened Stream</param>
+    /// <returns>MimeType</returns>
+    public static string GetMimeType(Stream mediaItemStream)
+    {
+      String mimeType = GetMimeFromStream(mediaItemStream);
+      // If no specific type was found by binary data, try lookup via registry
+      if ((mimeType == "unknown/unknown" || mimeType == "application/octet-stream") && (mediaItemStream is FileStream))
+      {
+        mimeType = GetMimeTypeFromRegistry((mediaItemStream as FileStream).Name);
+      }
+      return mimeType;
+    }
+
+    /// <summary>
+    /// Tries to detect the mimetype of a local file.
+    /// It uses both binary detection as well as registry extension lookup.
+    /// </summary>
+    /// <param name="filename">Filename</param>
+    /// <returns>MimeType</returns>
     public static string GetMimeType(string filename)
     {
       String mimeType = GetMimeFromFile(filename);
@@ -57,34 +86,25 @@ namespace MediaPortal.Utilities.SystemAPI
       return mimeType;
     }
 
+    /// <summary>
+    /// Tries to detect the mimetype of a local file using binary detection only.
+    /// </summary>
+    /// <param name="filename">Filename</param>
+    /// <returns>MimeType</returns>
     public static string GetMimeFromFile(string filename)
     {
       if (!File.Exists(filename))
         throw new FileNotFoundException(filename + " not found");
 
-      byte[] buffer = new byte[256];
-      using (FileStream fs = new FileStream(filename, FileMode.Open))
-      {
-        if (fs.Length >= 256)
-          fs.Read(buffer, 0, 256);
-        else
-          fs.Read(buffer, 0, (int)fs.Length);
-      }
-      try
-      {
-        UInt32 mimetype;
-        FindMimeFromData(0, null, buffer, 256, null, 0, out mimetype, 0);
-        IntPtr mimeTypePtr = new IntPtr(mimetype);
-        string mime = Marshal.PtrToStringUni(mimeTypePtr);
-        Marshal.FreeCoTaskMem(mimeTypePtr);
-        return mime;
-      }
-      catch (Exception)
-      {
-        return "unknown/unknown";
-      }
+      FileStream fs = new FileStream(filename, FileMode.Open);
+      return GetMimeFromStream(fs);
     }
 
+    /// <summary>
+    /// Tries to detect the mimetype of a local file using registry extension lookup only.
+    /// </summary>
+    /// <param name="filename">Filename</param>
+    /// <returns>MimeType</returns>
     public static string GetMimeTypeFromRegistry(string filename)
     {
       try
@@ -108,5 +128,35 @@ namespace MediaPortal.Utilities.SystemAPI
         return "unknown/unknown";
       }
     }
+    
+    #endregion
+
+    #region Private members
+
+    private static string GetMimeFromStream(Stream fs)
+    {
+      byte[] buffer = new byte[256];
+      try
+      {
+        // read binary data from stream, maximum 256 bytes.
+        if (fs.Length >= 256)
+          fs.Read(buffer, 0, 256);
+        else
+          fs.Read(buffer, 0, (int)fs.Length);
+
+        UInt32 mimetype;
+        FindMimeFromData(0, null, buffer, 256, null, 0, out mimetype, 0);
+        IntPtr mimeTypePtr = new IntPtr(mimetype);
+        string mime = Marshal.PtrToStringUni(mimeTypePtr);
+        Marshal.FreeCoTaskMem(mimeTypePtr);
+        return mime;
+      }
+      catch (Exception)
+      {
+        return "unknown/unknown";
+      }
+    }
+
+    #endregion
   }
 }

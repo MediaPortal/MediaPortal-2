@@ -25,7 +25,7 @@
 // All this Enums are besed on MSDN Article Property Item Descriptions
 // MSDN Home >  MSDN Library >  Graphics and Multimedia >  GDI+ >  GDI+ Reference >  Constants >  Image Property Tag Constants 
 
-namespace Media.Importers.PictureImporter
+namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
 {
 	///<summary>
 	///Unit of measure used for the horizontal resolution and the vertical resolution.
@@ -35,7 +35,7 @@ namespace Media.Importers.PictureImporter
 		///<summary>Dots Per Inch</summary>
 		dpi  			= 2,
 		///<summary>Centimeters Per Inch</summary>
-		dpcm 			=3
+		dpcm 			= 3
 	}
 	
 	///<summary>
@@ -499,7 +499,7 @@ namespace Media.Importers.PictureImporter
 		///<summary></summary>
 		ThumbnailHeight			=	0x5014	,
 		///<summary></summary>
-		ThumbnailImageDescription=	0x5025	,
+		ThumbnailImageDescription =	0x5025	,
 		///<summary></summary>
 		ThumbnailImageHeight	=	0x5021	,
 		///<summary></summary>
@@ -577,6 +577,4 @@ namespace Media.Importers.PictureImporter
 		///<summary></summary>
 		YResolution				=	0x011B
 	}
-
-
-}
+  }
