@@ -77,6 +77,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       MOVIE_EXTENSIONS.Add(".mpg"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
+      MOVIE_EXTENSIONS.Add(".flv"); // Not confirmed yet
       // Don't add .ifo here because they are processed while processing the video DVD directory
     }
 
@@ -268,6 +269,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
                 // Before we start evaluating the file, check if it is a video at all
                 if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
                   continue;
+                result.MimeType = "video/dvd";
                 result.AddMediaInfo(mediaInfo);
               }
             }
