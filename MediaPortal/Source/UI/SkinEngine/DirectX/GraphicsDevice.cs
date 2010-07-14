@@ -74,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceScope.Get<ILogger>().Info("DirectX: Total Video Memory: {0} MB", videoMemory);
         if (videoMemory < 128)
         {
-          string text = String.Format("MediaPortal 2 needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal-II will continue but migh run slow", videoMemory);
+          string text = String.Format("MediaPortal 2 needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal 2 will continue but migh run slow", videoMemory);
           MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 #endif
@@ -144,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _firstTimeInitialisation = false;
         if (pixelShaderVersion < 2 || vertexShaderVersion < 2)
         {
-          string text = String.Format("MediaPortal 2 needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal-II will continue but migh run slow");
+          string text = String.Format("MediaPortal 2 needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal 2 will continue but migh run slow");
           MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
       }
