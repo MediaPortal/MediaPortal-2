@@ -102,7 +102,8 @@ namespace MediaPortal
           connectedClientSystemIDs.Add(clientConnection.Descriptor.MPFrontendServerUUID);
         foreach (AttachedClientData attachedClientData in clientManager.AttachedClients.Values)
         {
-          ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName, attachedClientData.LastSystem.HostName,
+          ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName,
+              attachedClientData.LastSystem == null ? null : attachedClientData.LastSystem.HostName,
               connectedClientSystemIDs.Contains(attachedClientData.SystemId));
           lvClients.Items.Add(lvi);
         }

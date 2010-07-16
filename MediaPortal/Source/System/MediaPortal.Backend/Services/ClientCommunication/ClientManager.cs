@@ -54,7 +54,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     void OnClientConnected(ClientDescriptor client)
     {
       UpdateClientSetOnline(client.MPFrontendServerUUID, client.System);
-      ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOnline, client);
       // This method is called as a result of our control point's attempt to connect to the (allegedly attached) client;
       // But maybe the client isn't attached any more to this server (it could have detached while the server wasn't online).
       // So we will validate if the client is still attached.
@@ -69,8 +68,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected void CompleteClientConnection(ClientDescriptor client)
     {
-      if (ValidateAttachmentState(client))
-        UpdateClientSystem(client.MPFrontendServerUUID, client.System, client.ClientName);
+      if (!ValidateAttachmentState(client))
+        return;
+      UpdateClientSystem(client.MPFrontendServerUUID, client.System, client.ClientName);
+      ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOnline, client);
     }
 
     protected bool ValidateAttachmentState(ClientDescriptor client)
@@ -163,6 +164,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         transaction.Rollback();
         throw;
       }
+      _attachedClients = ReadAttachedClientsFromDB();
     }
 
     #region IClientManager implementation
