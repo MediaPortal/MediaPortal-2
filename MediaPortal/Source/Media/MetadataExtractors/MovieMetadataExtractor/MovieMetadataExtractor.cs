@@ -158,7 +158,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 
       public static MovieResult CreateDVDInfo(string dvdTitle, MediaInfoWrapper videoTsInfo)
       {
-        MovieResult result = new MovieResult(dvdTitle, videoTsInfo) {IsDVD = true};
+        MovieResult result = new MovieResult(dvdTitle, videoTsInfo) {IsDVD = true, MimeType = "video/dvd"};
         return result;
       }
 
@@ -269,7 +269,6 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
                 // Before we start evaluating the file, check if it is a video at all
                 if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
                   continue;
-                result.MimeType = "video/dvd";
                 result.AddMediaInfo(mediaInfo);
               }
             }
