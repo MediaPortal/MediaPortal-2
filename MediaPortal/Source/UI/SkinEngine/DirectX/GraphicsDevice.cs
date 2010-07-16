@@ -377,11 +377,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Reset failed");
-          ServiceScope.Get<ILogger>().Error(ex);
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Reset failed", ex);
+          return false;
         }
       }
-      return false;
+      return true;
     }
 
     /// <summary>
