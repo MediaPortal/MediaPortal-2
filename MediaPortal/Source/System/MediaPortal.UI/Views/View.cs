@@ -165,6 +165,9 @@ namespace MediaPortal.UI.Views
         return;
       IList<ViewSpecification> subViewSpecifications;
       _viewSpecification.ReLoadItemsAndSubViewSpecifications(out _items, out subViewSpecifications);
+      if (_items == null || subViewSpecifications == null)
+        // Reload failed
+        return;
       _subViews = new List<View>();
       foreach (ViewSpecification vs in subViewSpecifications)
       {
