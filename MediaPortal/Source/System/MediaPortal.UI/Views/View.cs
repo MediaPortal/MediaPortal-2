@@ -154,15 +154,12 @@ namespace MediaPortal.UI.Views
     /// </summary>
     public void Refresh()
     {
-      if (!IsValid)
-        return;
+      Invalidate();
       RefreshItemsAndSubViews();
     }
 
     public void RefreshItemsAndSubViews()
     {
-      if (!IsValid)
-        return;
       IList<ViewSpecification> subViewSpecifications;
       _viewSpecification.ReLoadItemsAndSubViewSpecifications(out _items, out subViewSpecifications);
       if (_items == null || subViewSpecifications == null)
