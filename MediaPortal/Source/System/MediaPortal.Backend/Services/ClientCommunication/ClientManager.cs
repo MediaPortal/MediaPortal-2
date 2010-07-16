@@ -128,7 +128,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           while (reader.Read())
           {
             string clientSystemId = DBUtils.ReadDBValue<string>(reader, systemIdIndex);
-            SystemName lastHostName = new SystemName(DBUtils.ReadDBValue<string>(reader, lastHostNameIndex));
+            string lastClientHostName = DBUtils.ReadDBValue<string>(reader, lastHostNameIndex);
+            SystemName lastHostName = lastClientHostName == null ? null : new SystemName(lastClientHostName);
             string lastClientName = DBUtils.ReadDBValue<string>(reader, lastClientNameIndex);
             result.Add(clientSystemId, new AttachedClientData(clientSystemId, lastHostName, lastClientName));
           }
