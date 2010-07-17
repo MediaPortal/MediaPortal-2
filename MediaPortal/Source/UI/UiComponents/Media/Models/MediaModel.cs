@@ -712,10 +712,15 @@ namespace UiComponents.Media.Models
       HasParentDirectory = view.ParentView != null;
       if (view.IsValid)
       {
-        IsItemsValid = true;
         // Add items for sub views
         IList<View> subViews = view.SubViews;
-        if (subViews != null)
+        IList<MediaItem> mediaItems = view.MediaItems;
+        if (subViews == null || mediaItems == null)
+        {
+          IsItemsEmpty = false;
+          IsItemsValid = false;
+        }
+        else
         {
           List<ListItem> viewsList = new List<ListItem>();
           MediaNavigationMode subViewsNavigationMode = SubViewsNavigationMode;
@@ -728,10 +733,7 @@ namespace UiComponents.Media.Models
           }
           viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
           CollectionUtils.AddAll(items, viewsList);
-        }
-        IList<MediaItem> mediaItems = view.MediaItems;
-        if (mediaItems != null)
-        {
+
           PlayableItemCreatorDelegate picd = PlayableItemCreator;
           List<ListItem> itemsList = new List<ListItem>();
           foreach (MediaItem childItem in mediaItems)
@@ -744,8 +746,10 @@ namespace UiComponents.Media.Models
           }
           itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
           CollectionUtils.AddAll(items, itemsList);
+
+          IsItemsValid = true;
+          IsItemsEmpty = items.Count == 0;
         }
-        IsItemsEmpty = items.Count == 0;
       }
       else
       {
