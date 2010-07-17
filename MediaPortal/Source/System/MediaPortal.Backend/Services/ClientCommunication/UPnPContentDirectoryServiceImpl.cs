@@ -32,7 +32,6 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
