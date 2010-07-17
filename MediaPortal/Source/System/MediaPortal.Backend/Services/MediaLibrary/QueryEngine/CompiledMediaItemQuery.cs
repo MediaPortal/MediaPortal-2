@@ -235,7 +235,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 {
                   QueryAttribute qa = _mainSelectAttributes[attr];
                   string alias = qa2a[qa];
-                  mia.SetAttribute(attr, DBUtils.ReadDBObject(reader2, reader2.GetOrdinal(alias)));
+                  mia.SetAttribute(attr, DBUtils.ReadDBValue(attr.AttributeType, reader2, reader2.GetOrdinal(alias)));
                 }
                 else
                 {
