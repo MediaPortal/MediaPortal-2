@@ -1236,6 +1236,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _managedMIATypes.Remove(aspectId);
     }
 
+    public bool IsCLOBAttribute(MediaItemAspectMetadata.AttributeSpecification specification)
+    {
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      return specification.AttributeType == typeof(string) && database.IsCLOBNecessary(specification.MaxNumChars);
+    }
+
     #endregion
 
     #region MIA management

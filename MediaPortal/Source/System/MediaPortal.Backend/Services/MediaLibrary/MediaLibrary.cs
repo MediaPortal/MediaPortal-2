@@ -292,6 +292,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       importerWorker.Suspend();
     }
 
+    public MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs)
+    {
+      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      ICollection<IFilter> textFilters = new List<IFilter>();
+      foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
+        foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
+          if (attrType.AttributeType == typeof(string) && (includeCLOBs || !_miaManagement.IsCLOBAttribute(attrType)))
+            textFilters.Add(new LikeFilter(attrType, "%" + SqlUtils.LikeEscape(searchText, '\\') + "%", '\\'));
+      return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
+          filter));
+    }
+
     public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
     {
       MediaItemQuery innerQuery = new MediaItemQuery(query);

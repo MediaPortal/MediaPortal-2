@@ -34,6 +34,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird.Settings
   {
     #region Consts
 
+    public const FbServerType DEFAULT_SERVER_TYPE = FbServerType.Embedded;
     public const string DEFAULT_DATABASE_FILE = "Datastore.fdb";
     public const string DEFAULT_USER_ID = "MediaPortal";
     public const string DEFAULT_PASSWORD = "Firebird";
@@ -43,7 +44,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird.Settings
 
     #region Protected fields
 
-    protected FbServerType _serverType = FbServerType.Embedded;
+    protected FbServerType _serverType = DEFAULT_SERVER_TYPE;
     protected string _databaseFile;
     protected string _userID = DEFAULT_USER_ID;
     protected string _password = DEFAULT_PASSWORD;

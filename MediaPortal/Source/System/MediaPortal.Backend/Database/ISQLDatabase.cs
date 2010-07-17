@@ -99,6 +99,14 @@ namespace MediaPortal.Backend.Database
     string GetSQLVarLengthStringType(uint maxNumChars);
 
     /// <summary>
+    /// Returns the information if for the given number of characters, the SQL type for strings is a CLOB.
+    /// </summary>
+    /// <param name="maxNumChars">Number of characters for the string size.</param>
+    /// <returns><c>true</c>, if method <see cref="GetSQLVarLengthStringType"/> returns a CLOB type for the given
+    /// <paramref name="maxNumChars"/>, else <c>false</c>.</returns>
+    bool IsCLOBNecessary(uint maxNumChars);
+
+    /// <summary>
     /// Returns the type for unicode strings of the given fixed length in this database.
     /// </summary>
     /// <param name="maxNumChars">Number of chars which should fit into the returned string type.</param>

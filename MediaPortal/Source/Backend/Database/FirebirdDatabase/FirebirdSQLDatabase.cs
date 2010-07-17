@@ -193,10 +193,15 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
+      if (IsCLOBNecessary(maxNumChars))
         return "BLOB SUB_TYPE 1"; // SUB_TYPE 1 = text
       else
         return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
+    }
+
+    public bool IsCLOBNecessary(uint maxNumChars)
+    {
+      return maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR;
     }
 
     public string GetSQLFixedLengthStringType(uint maxNumChars)

@@ -57,6 +57,19 @@ namespace MediaPortal.Backend.MediaLibrary
     #region Media query
 
     /// <summary>
+    /// Builds a media item query which searches items by a given <paramref name="searchText"/> and which is constrained
+    /// to the given <paramref name="necessaryMIATypes"/> and the given <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="searchText">The text which should be searched in each available column.</param>
+    /// <param name="necessaryMIATypes">MIA types which must be present in the result media items.</param>
+    /// <param name="optionalMIATypes">Optional MIA types which will be returned if present.</param>
+    /// <param name="filter">Additional filter constraint for the query.</param>
+    /// <param name="includeCLOBs">If set to <c>true</c>, the queryalso searches in CLOB fields.</param>
+    /// <returns>Media item query build from the given parameters.</returns>
+    MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs);
+
+    /// <summary>
     /// Starts a search of media items.
     /// </summary>
     /// <param name="query">Query object which specifies the search parameters.</param>

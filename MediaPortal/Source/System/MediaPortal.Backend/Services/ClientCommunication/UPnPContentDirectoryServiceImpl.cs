@@ -490,20 +490,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // More actions go here
     }
 
-    public static MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
-        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs)
-    {
-      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
-      ICollection<IFilter> textFilters = new List<IFilter>();
-      foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
-        foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
-          if (attrType.AttributeType == typeof(string))
-            textFilters.Add(new LikeFilter(attrType, "%" + SqlUtils.LikeEscape(searchText, '\\') + "%", '\\'));
-      return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
-          filter));
-    }
-
     static UPnPError ParseOnlineState(string argumentName, string onlineStateStr, out bool all)
     {
       switch (onlineStateStr)
@@ -862,8 +848,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      MediaItemQuery query = BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes, filter, excludeCLOBs);
-      IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query, !all);
+      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      MediaItemQuery query = mediaLibrary.BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes,
+          filter, !excludeCLOBs);
+      IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all);
       outParams = new List<object> {mediaItems};
       return null;
     }
