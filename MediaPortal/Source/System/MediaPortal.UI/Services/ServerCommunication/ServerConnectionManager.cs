@@ -224,6 +224,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e, HomeServerSystemId);
           return; // As this is a real error case, we don't need to try any other service calls
         }
+      ICollection<Share> newShares = new List<Share>();
       IContentDirectory cd = ContentDirectory;
       if (cd != null)
       {
@@ -240,7 +241,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
               cd.RemoveShare(serverShareId);
           foreach (Share localShare in localShares.Values)
             if (!serverShares.ContainsKey(localShare.ShareId))
+            {
               cd.RegisterShare(localShare);
+              newShares.Add(localShare);
+            }
         }
         catch (Exception e)
         {
@@ -268,6 +272,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
         ImporterCallback ic = new ImporterCallback(cd);
         importerWorker.Activate(ic, ic);
+        foreach (Share share in newShares)
+          importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
       }
     }
 
