@@ -558,7 +558,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnSizeChanged(e);
       // This method override is only necessary to capture the window state change event. All other cases aren't interesting here.
-      if (_previousWindowState != WindowState && _adaptToSizeEnabled)
+      if (WindowState != FormWindowState.Minimized && _previousWindowState != WindowState && _adaptToSizeEnabled)
         AdaptToSize();
     }
 
