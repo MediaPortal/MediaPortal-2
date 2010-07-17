@@ -343,27 +343,41 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     private void OnApplicationIdle(object sender, EventArgs e)
     {
-      // Screen saver
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      if (_isScreenSaverEnabled)
-        _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
-            DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
-      else
-        _isScreenSaverActive = false;
+      try
+      {
+        // Screen saver
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        if (_isScreenSaverEnabled)
+          _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
+              DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
+        else
+          _isScreenSaverActive = false;
 
-      if (IsFullScreen)
-        // If we are in fullscreen mode, we may control the mouse cursor
-        ShowMouseCursor(inputManager.IsMouseUsed);
-      else
-        // Reset it to visible state, if state was switched
-        ShowMouseCursor(true);
+        if (IsFullScreen)
+          // If we are in fullscreen mode, we may control the mouse cursor
+          ShowMouseCursor(inputManager.IsMouseUsed);
+        else
+          // Reset it to visible state, if state was switched
+          ShowMouseCursor(true);
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in Idle handler", ex);
+      }
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
       ILogger logger = ServiceScope.Get<ILogger>();
-      logger.Debug("DirectX MainForm: Stopping");
-      StopUI();
+      try
+      {
+        logger.Debug("DirectX MainForm: Stopping");
+        StopUI();
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in FormClosing handler", ex);
+      }
       logger.Debug("DirectX MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
       // setting the MainForm, which would have added an event handler which calls
@@ -373,51 +387,79 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {
-      if (_renderThreadStopped)
-        return;
-      if (e.X == _previousMousePosition.X && e.Y == _previousMousePosition.Y)
-        return;
-      if (_previousMousePosition.X < 0 && _previousMousePosition.Y < 0)
+      try
       {
+        if (_renderThreadStopped)
+          return;
+        if (e.X == _previousMousePosition.X && e.Y == _previousMousePosition.Y)
+          return;
+        if (_previousMousePosition.X < 0 && _previousMousePosition.Y < 0)
+        {
+          _previousMousePosition.X = e.X;
+          _previousMousePosition.Y = e.Y;
+          return;
+        }
         _previousMousePosition.X = e.X;
         _previousMousePosition.Y = e.Y;
-        return;
+        float x = e.X;
+        float y = e.Y;
+        ServiceScope.Get<IInputManager>().MouseMove(x, y);
       }
-      _previousMousePosition.X = e.X;
-      _previousMousePosition.Y = e.Y;
-      float x = e.X;
-      float y = e.Y;
-      ServiceScope.Get<IInputManager>().MouseMove(x, y);
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in MouseMove handler", ex);
+      }
     }
 
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
-      // We'll handle special keys here
-      Key key = InputMapper.MapSpecialKey(e.KeyCode, e.Alt);
-      if (key != Key.None)
+      try
       {
-        IInputManager manager = ServiceScope.Get<IInputManager>();
-        manager.KeyPress(key);
-        e.Handled = true;
+        // We'll handle special keys here
+        Key key = InputMapper.MapSpecialKey(e.KeyCode, e.Alt);
+        if (key != Key.None)
+        {
+          IInputManager manager = ServiceScope.Get<IInputManager>();
+          manager.KeyPress(key);
+          e.Handled = true;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in KeyDown handler", ex);
       }
     }
 
     private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
-      // We'll handle printable keys here
-      Key key = InputMapper.MapPrintableKeys(e.KeyChar);
-      if (key != Key.None)
+      try
       {
-        IInputManager manager = ServiceScope.Get<IInputManager>();
-        manager.KeyPress(key);
-        e.Handled = true;
+        // We'll handle printable keys here
+        Key key = InputMapper.MapPrintableKeys(e.KeyChar);
+        if (key != Key.None)
+        {
+          IInputManager manager = ServiceScope.Get<IInputManager>();
+          manager.KeyPress(key);
+          e.Handled = true;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in KeyPress handler", ex);
       }
     }
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.MouseClick(e.Button);
+      try
+      {
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        inputManager.MouseClick(e.Button);
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Error occured in MouseClick handler", ex);
+      }
     }
 
     private void timer_Tick(object sender, EventArgs e)
