@@ -31,6 +31,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.UPnP;
+using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -58,7 +59,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         case "Invalid":
           return false;
         default:
-          throw new UPnPException("Validity argument '{0}' could not be parsed", validityStr);
+          throw new UPnPRemoteException(new UPnPError(402, string.Format("Validity argument '{0}' could not be parsed", validityStr)));
       }
     }
 

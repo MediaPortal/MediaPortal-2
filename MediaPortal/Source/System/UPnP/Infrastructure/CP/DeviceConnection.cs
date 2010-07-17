@@ -95,9 +95,16 @@ namespace UPnP.Infrastructure.CP
 
       public void SetRequestMessage(string message)
       {
-        StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), Encoding.UTF8);
-        sw.Write(message);
-        sw.Close();
+        try
+        {
+          StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), Encoding.UTF8);
+          sw.Write(message);
+          sw.Close();
+        }
+        catch (Exception e)
+        {
+          throw new UPnPRemoteException(new UPnPError(501, "Error writing action call document: " + e.Message));
+        }
       }
     }
 
