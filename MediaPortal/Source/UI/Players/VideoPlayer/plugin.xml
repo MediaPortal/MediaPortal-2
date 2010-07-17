@@ -1,11 +1,15 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="DefaultVideoPlayer"
+    Name="DefaultVideoPlayers"
     PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"
     Author="Frodo, Albert"
     Copyright="GPL"
     Description="This plugin contains default players for several video formats and DVD"
     PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+  </DependsOn>
 
   <Runtime>
     <Assembly FileName="VideoPlayers.dll"/>
