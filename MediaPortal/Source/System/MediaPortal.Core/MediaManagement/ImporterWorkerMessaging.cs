@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Services.MediaManagement;
 
-namespace MediaPortal.Core.Services.MediaManagement
+namespace MediaPortal.Core.MediaManagement
 {
   public class ImporterWorkerMessaging
   {

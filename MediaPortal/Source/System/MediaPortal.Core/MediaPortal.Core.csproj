@@ -141,7 +141,7 @@
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
-    <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
+    <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
     <Compile Include="MediaManagement\RemoteResourceToLocalFsAccessBridge.cs" />
