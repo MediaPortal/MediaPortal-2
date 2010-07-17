@@ -714,29 +714,37 @@ namespace UiComponents.Media.Models
       {
         IsItemsValid = true;
         // Add items for sub views
-        List<ListItem> viewsList = new List<ListItem>();
-        MediaNavigationMode subViewsNavigationMode = SubViewsNavigationMode;
-        PlayableItemCreatorDelegate picd = PlayableItemCreator;
-        foreach (View subView in view.SubViews)
+        IList<View> subViews = view.SubViews;
+        if (subViews != null)
         {
-          NavigationItem item = new NavigationItem(subViewsNavigationMode, subView, null);
-          View sv = subView;
-          item.Command = new MethodDelegateCommand(() => NavigateToView(subViewsNavigationMode, sv));
-          viewsList.Add(item);
+          List<ListItem> viewsList = new List<ListItem>();
+          MediaNavigationMode subViewsNavigationMode = SubViewsNavigationMode;
+          foreach (View subView in subViews)
+          {
+            NavigationItem item = new NavigationItem(subViewsNavigationMode, subView, null);
+            View sv = subView;
+            item.Command = new MethodDelegateCommand(() => NavigateToView(subViewsNavigationMode, sv));
+            viewsList.Add(item);
+          }
+          viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
+          CollectionUtils.AddAll(items, viewsList);
         }
-        viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
-        CollectionUtils.AddAll(items, viewsList);
-        List<ListItem> itemsList = new List<ListItem>();
-        foreach (MediaItem childItem in view.MediaItems)
+        IList<MediaItem> mediaItems = view.MediaItems;
+        if (mediaItems != null)
         {
-          PlayableItem item = picd(childItem);
-          if (item == null)
-            continue;
-          item.Command = new MethodDelegateCommand(() => CheckPlayMenu(item.MediaItem));
-          itemsList.Add(item);
+          PlayableItemCreatorDelegate picd = PlayableItemCreator;
+          List<ListItem> itemsList = new List<ListItem>();
+          foreach (MediaItem childItem in mediaItems)
+          {
+            PlayableItem item = picd(childItem);
+            if (item == null)
+              continue;
+            item.Command = new MethodDelegateCommand(() => CheckPlayMenu(item.MediaItem));
+            itemsList.Add(item);
+          }
+          itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
+          CollectionUtils.AddAll(items, itemsList);
         }
-        itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
-        CollectionUtils.AddAll(items, itemsList);
         IsItemsEmpty = items.Count == 0;
       }
       else
