@@ -37,20 +37,34 @@
           </Grid.ColumnDefinitions>
           <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Wrap="True"/>
           <UniformGrid Grid.Row="1" Columns="1">
-            <StackPanel x:Name="GlobalSharesPanel" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Grid x:Name="GlobalSharesPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding IsHomeServerConnected}">
-              <Label Margin="10" Content="[SharesConfig.GlobalShares]"/>
-              <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.GlobalShares]"/>
+              <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkableSharesListViewStyle}"
                   ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
-            </StackPanel>
-            <StackPanel x:Name="LocalSharesPanel" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            </Grid>
+            <Grid x:Name="LocalSharesPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding ShowLocalShares}">
-              <Label Margin="10" Content="[SharesConfig.LocalShares]"/>
-              <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.LocalShares]"/>
+              <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkableSharesListViewStyle}"
                   ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
-            </StackPanel>
+            </Grid>
           </UniformGrid>
           <Grid Grid.Row="2" Margin="10,10,10,0">
             <Grid.RowDefinitions>

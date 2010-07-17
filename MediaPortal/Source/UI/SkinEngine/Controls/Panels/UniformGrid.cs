@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (measureChildren)
         {
-          childSize = new SizeF(desiredColumnWidth, desiredRowHeight);
+          childSize = new SizeF(totalSize.Width / _actualColumns, totalSize.Height / _actualRows);
           child.Measure(ref childSize);
         }
         else
@@ -201,15 +201,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int visibleChildrenCount = visibleChildren.Count;
 
-      CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
+      if (_canScroll)
+        CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
+      else
+      {
+        _actualColumnWidth = (float) (ActualWidth / _actualColumns);
+        _actualRowHeight = (float) (ActualHeight / _actualRows);
+      }
 
       _actualNumVisibleCols = (int) (ActualWidth/_actualColumnWidth);
       _actualNumVisibleRows = (int) (ActualHeight/_actualRowHeight);
-      int maxScrollIndexX = Math.Max(_actualColumns - _actualNumVisibleCols, 0);
-      int maxScrollIndexY = Math.Max(_actualRows - _actualNumVisibleRows, 0);
 
       if (_canScroll)
       {
+        int maxScrollIndexX = Math.Max(_actualColumns - _actualNumVisibleCols, 0);
+        int maxScrollIndexY = Math.Max(_actualRows - _actualNumVisibleRows, 0);
+
         if (_scrollIndexX > maxScrollIndexX)
           _scrollIndexX = maxScrollIndexX;
         if (_scrollIndexY > maxScrollIndexY)

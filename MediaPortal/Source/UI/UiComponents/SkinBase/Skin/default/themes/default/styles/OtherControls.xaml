@@ -499,14 +499,20 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <StackPanel>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="22"/>
-          </StackPanel>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -520,14 +526,20 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <StackPanel>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="22"/>
-          </StackPanel>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -541,14 +553,20 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <StackPanel>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="22"/>
-          </StackPanel>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
