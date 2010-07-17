@@ -246,7 +246,7 @@ namespace UiComponents.SkinBase.Models
       get
       {
         lock (_syncObj)
-          return _enableLocalShares && _enableServerShares;
+          return _enableLocalShares && _enableServerShares && (_shareProxy == null || _shareProxy.EditMode != SharesProxy.ShareEditMode.EditShare);
       }
     }
 

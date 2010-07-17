@@ -37,7 +37,8 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
-              Content="[System.Back]" IsEnabled="{Binding Path=IsShowSystemsChoice}"/>
+              Content="[System.Back]" IsEnabled="{Binding Path=IsShowSystemsChoice}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsMediaProviderSelected}"
               Command="{Command Source={StaticResource Model},Path=SelectMediaProviderAndContinue}"/>
