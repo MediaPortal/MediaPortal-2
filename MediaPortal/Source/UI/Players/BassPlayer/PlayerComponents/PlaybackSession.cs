@@ -47,6 +47,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   {
     #region Protected fields
 
+    protected readonly object _syncObj = new object();
     protected readonly Controller _controller;
     protected readonly PlaybackProcessor _playbackProcessor;
     protected readonly int _channels;
@@ -93,6 +94,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       _sampleRate = sampleRate;
       _isPassThrough = isPassThrough;
       _streamWriteProcDelegate = OutputStreamWriteProc;
+      _state = SessionState.Reset;
     }
 
     #endregion
@@ -172,7 +174,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     public SessionState State
     {
-      get { return _state; }
+      get
+      {
+        lock (_syncObj)
+          return _state;
+      }
     }
 
     /// <summary>
@@ -191,9 +197,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     public void Play()
     {
-      if (_state != SessionState.Initialized)
-        return;
-      _state = SessionState.Playing;
+      lock (_syncObj)
+      {
+        if (_state != SessionState.Initialized)
+          return;
+        _state = SessionState.Playing;
+      }
       _controller.OutputDeviceManager.StartDevice();
     }
 
@@ -202,8 +211,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     public void End(bool waitForFadeOut)
     {
-      if (_state == SessionState.Reset)
-        return;
+      lock (_syncObj)
+        if (_state == SessionState.Reset)
+          return;
       _controller.OutputDeviceManager.StopDevice(waitForFadeOut);
         
       _controller.OutputDeviceManager.ResetInputStream();
@@ -211,12 +221,26 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       _WinAmpDSPProcessor.ResetInputStream();
       _VSTProcessor.ResetInputStream();
       _upDownMixer.ResetInputStream();
-      Reset();
+
+      lock (_syncObj)
+      {
+        _controller.ScheduleDisposeObject_Async(_outputStream);
+        _outputStream = null;
+        _controller.ScheduleDisposeObject_Async(_currentInputSource);
+        _currentInputSource = null;
+        _state = SessionState.Reset;
+      }
     }
 
-    public bool MoveToNewInputSource(IInputSource inputSource)
+    /// <summary>
+    /// Initializes this playback session with the given <paramref name="inputSource"/>.
+    /// <see cref="End"/> must have been called before.
+    /// </summary>
+    /// <param name="inputSource">The new input source to play.</param>
+    /// <returns><c>true</c>, if the new input source can be played. <c>false</c> if either <see cref="End"/> was not
+    /// called or if the new input source is not compatible with this playback session.</returns>
+    public bool InitializeWithNewInputSource(IInputSource inputSource)
     {
-      Reset();
       return Initialize(inputSource);
     }
 
@@ -224,30 +248,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     #region Protected members
 
-    /// <summary>
-    /// Resets the instance to its uninitialized state.
-    /// </summary>
-    protected void Reset()
-    {
-      Log.Debug("PlaybackSession.Reset()");
-
-      if (_outputStream != null)
-        _outputStream.Dispose();
-      _outputStream = null;
-        
-      IInputSource inputSource = _currentInputSource;
-      _currentInputSource = null;
-      if (inputSource != null)
-        inputSource.Dispose();
-
-      _state = SessionState.Reset;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
     protected bool Initialize(IInputSource inputSource)
     {
+      if (_state != SessionState.Reset)
+        return false;
+
       if (!MatchesInputSource(inputSource))
         return false;
 
@@ -269,13 +274,13 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       _outputStream = BassStream.Create(handle);
         
+      _state = SessionState.Initialized;
+
       _upDownMixer.SetInputStream(_outputStream);
       _VSTProcessor.SetInputStream(_upDownMixer.OutputStream);
       _WinAmpDSPProcessor.SetInputStream(_VSTProcessor.OutputStream);
       _playbackBuffer.SetInputStream(_WinAmpDSPProcessor.OutputStream);
       _controller.OutputDeviceManager.SetInputStream(_playbackBuffer.OutputStream, _outputStream.IsPassThrough);
-
-      _state = SessionState.Initialized;
       return true;
     }
 
@@ -289,49 +294,80 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <returns>Number of bytes read.</returns>
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
-      IInputSource inputSource = _currentInputSource;
-      if (inputSource == null)
+      IInputSource inputSource;
+      lock (_syncObj)
       {
-        _state = SessionState.Ended;
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
-      }
-      BassStream stream = inputSource.OutputStream;
-      int read = stream.Read(buffer, requestedBytes);
-
-      if (_state == SessionState.Playing && stream.GetPosition() > stream.Length - new TimeSpan(0, 0, 0, 0, 500))
-      { // Near end of the stream - make sure that next input source is available
-        _state = SessionState.AwaitingNextInputSource;
-        _playbackProcessor.CheckInputSourceAvailable();
+        if (_state == SessionState.Reset)
+          return 0;
+        inputSource = _currentInputSource;
+        if (inputSource == null)
+        {
+          _state = SessionState.Ended;
+          return (int) BASSStreamProc.BASS_STREAMPROC_END;
+        }
       }
 
-      if (read > 0)
-        return read;
-
-      // Second try: Next input source
-      _currentInputSource = null;
-      _controller.ScheduleDisposeObject_Async(inputSource);
-      inputSource = _playbackProcessor.PeekNextInputSource();
-      if (inputSource == null)
+      try
       {
+        BassStream stream = inputSource.OutputStream;
+        int read = stream.Read(buffer, requestedBytes);
+
+        bool doCheckNextInputSource = false;
+        lock (_syncObj)
+          if (_state == SessionState.Playing && stream.GetPosition() > stream.Length - new TimeSpan(0, 0, 0, 0, 500))
+          { // Near end of the stream - make sure that next input source is available
+            _state = SessionState.AwaitingNextInputSource;
+            doCheckNextInputSource = true;
+          }
+        if (doCheckNextInputSource)
+          _playbackProcessor.CheckInputSourceAvailable();
+
+        if (read > 0)
+          // Normal case, we have finished
+          return read;
+
+        // Nothing could be read from old input source. Second try: Next input source.
+        inputSource = _playbackProcessor.PeekNextInputSource();
+        lock (_syncObj)
+        {
+          _currentInputSource = null;
+          _controller.ScheduleDisposeObject_Async(inputSource);
+          if (inputSource == null)
+          {
+            _state = SessionState.Ended;
+            return (int) BASSStreamProc.BASS_STREAMPROC_END;
+          }
+        }
+
+        if (!MatchesInputSource(inputSource))
+        { // The next available input source is not compatible, so end our stream. The playback processor will start a new playback session later.
+          lock (_syncObj)
+            _state = SessionState.Ended;
+          return (int) BASSStreamProc.BASS_STREAMPROC_END;
+        }
+        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of inputSource
+        lock (_syncObj)
+        {
+          _currentInputSource = inputSource;
+          _state = SessionState.Playing;
+        }
+        stream = inputSource.OutputStream;
+        read = stream.Read(buffer, requestedBytes);
+
+        if (read > 0)
+          return read;
+
+        // No chance: Stream ended and we don't have another stream to switch to
         _state = SessionState.Ended;
         return (int) BASSStreamProc.BASS_STREAMPROC_END;
       }
-      if (!MatchesInputSource(inputSource))
-      { // The next available input source is not compatible, so end our stream. The playback processor will start a new playback session later.
-        _state = SessionState.Ended;
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
+      catch (Exception)
+      {
+        // We might come here due to a race condition. To avoid that, we would have to employ a new manual locking mechanism
+        // to avoid that during the execution of this method, no methods are called from outside which change our
+        // streams/partner instances.
+        return 0;
       }
-      _currentInputSource = _playbackProcessor.DequeueNextInputSource();
-      _state = SessionState.Playing;
-      stream = inputSource.OutputStream;
-      read = stream.Read(buffer, requestedBytes);
-
-      if (read > 0)
-        return read;
-
-      // No chance: Stream ended and we don't have another stream to switch to
-      _state = SessionState.Ended;
-      return (int) BASSStreamProc.BASS_STREAMPROC_END;
     }
 
     #endregion

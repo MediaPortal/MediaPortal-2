@@ -58,6 +58,16 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     #endregion
 
+    /// <summary>
+    /// Creates and initializes a new instance.
+    /// </summary>
+    /// <param name="controller">Containing controller instance.</param>
+    public PlaybackProcessor(Controller controller)
+    {
+      _controller = controller;
+      _inputSourceQueue = new Queue<IInputSource>();
+    }
+
     #region IDisposable implementation
 
     public void Dispose()
@@ -74,16 +84,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     }
 
     #endregion
-
-    /// <summary>
-    /// Creates and initializes a new instance.
-    /// </summary>
-    /// <param name="controller">Containing controller instance.</param>
-    public PlaybackProcessor(Controller controller)
-    {
-      _controller = controller;
-      _inputSourceQueue = new Queue<IInputSource>();
-    }
 
     protected void Initialize()
     {
@@ -112,12 +112,16 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _playbackSession.End(_internalState == InternalPlaybackState.Playing); // Only wait for fade out when we are playing
 
       _internalState = InternalPlaybackState.Playing;
-      Log.Debug("Playing next input source '{0}'", inputSource);      
+      if (inputSource == null)
+        Log.Debug("No more input sources available.");
+      else
+        Log.Debug("Playing next input source '{0}'", inputSource);
       if (_playbackSession != null)
       {
-        if (_playbackSession.MoveToNewInputSource(inputSource))
+        if (_playbackSession.InitializeWithNewInputSource(inputSource))
         {
           _playbackSession.Play();
+          DequeueNextInputSource();
           return;
         }
         _playbackSession.Dispose();
