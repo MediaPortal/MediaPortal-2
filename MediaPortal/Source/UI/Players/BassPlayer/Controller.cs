@@ -70,7 +70,7 @@ namespace Ui.Players.BassPlayer
     internal delegate void SetMuteWorkItemDelegate(bool value);
     internal delegate void SetPositionWorkItemDelegate(TimeSpan value);
     internal delegate void PlayWorkItemDelegate(IInputSource inputSource, StartTime startTime);
-    internal delegate void DisposeObjectDlgt(IInputSource inputSource);
+    internal delegate void DisposeObjectDlgt(IDisposable obj);
 
     #endregion
 
