@@ -341,7 +341,8 @@ namespace MediaPortal.UI.Services.Players
         CollectionUtils.Swap(_itemList, index1, index2);
         if (!InBatchUpdateMode)
           PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
-        if (_playIndexList == null)
+        if (_playIndexList == null || _playMode == PlayMode.Continuous)
+          // If index list isn't yet initialized or if we are in continuous mode, we don't need to adapt the play index positions
           return;
         // Adapt play index list
         int[] swapIndices = new int[2];
