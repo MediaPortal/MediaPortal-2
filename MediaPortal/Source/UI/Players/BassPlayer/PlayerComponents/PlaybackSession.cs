@@ -327,19 +327,19 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           return read;
 
         // Nothing could be read from old input source. Second try: Next input source.
-        inputSource = _playbackProcessor.PeekNextInputSource();
+        IInputSource newInputSource = _playbackProcessor.PeekNextInputSource();
         lock (_syncObj)
         {
           _currentInputSource = null;
           _controller.ScheduleDisposeObject_Async(inputSource);
-          if (inputSource == null)
+          if (newInputSource == null)
           {
             _state = SessionState.Ended;
             return (int) BASSStreamProc.BASS_STREAMPROC_END;
           }
         }
 
-        if (!MatchesInputSource(inputSource))
+        if (!MatchesInputSource(newInputSource))
         { // The next available input source is not compatible, so end our stream. The playback processor will start a new playback session later.
           lock (_syncObj)
             _state = SessionState.Ended;
@@ -348,10 +348,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _playbackProcessor.DequeueNextInputSource(); // Should be the contents of inputSource
         lock (_syncObj)
         {
-          _currentInputSource = inputSource;
+          _currentInputSource = newInputSource;
           _state = SessionState.Playing;
         }
-        stream = inputSource.OutputStream;
+        stream = newInputSource.OutputStream;
         read = stream.Read(buffer, requestedBytes);
 
         if (read > 0)

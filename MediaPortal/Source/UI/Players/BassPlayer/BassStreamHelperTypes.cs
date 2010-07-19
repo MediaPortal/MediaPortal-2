@@ -28,8 +28,8 @@ namespace Ui.Players.BassPlayer
 {
   public class SyncFifoBuffer
   {
-    SyncWord _SyncWord;
-    UInt16[] _Buffer;
+    protected readonly SyncWord _SyncWord;
+    protected readonly UInt16[] _Buffer;
 
     public SyncFifoBuffer(SyncWord syncWord)
     {
@@ -85,10 +85,6 @@ namespace Ui.Players.BassPlayer
     public int MaxFrameSize
     {
       get { return _MaxFrameSize; }
-    }
-
-    public SyncWord()
-    {
     }
   }
 
