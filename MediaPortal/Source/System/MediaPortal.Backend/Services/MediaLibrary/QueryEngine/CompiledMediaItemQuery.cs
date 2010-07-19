@@ -26,10 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Services.Logging;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
@@ -159,6 +160,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias,
               out statementStr, out values);
           command.CommandText = statementStr;
+          SqlDebugLogger.Write(command.CommandText);
           foreach (object value in values)
           {
             IDbDataParameter param = command.CreateParameter();
@@ -202,6 +204,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         mainQueryBuilder.GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a,
             out statementStr, out values);
         command.CommandText = statementStr;
+        SqlDebugLogger.Write(command.CommandText);
         foreach (object value in values)
         {
           IDbDataParameter param = command.CreateParameter();

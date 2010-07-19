@@ -23,10 +23,11 @@
 #endregion
 
 using System.Data;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Services.Logging;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Backend.Database;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
@@ -59,6 +60,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "SELECT SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME FROM ATTACHED_CLIENTS";
+      SqlDebugLogger.Write(result.CommandText);
 
       systemIdIndex = 0;
       lastHostNameIndex = 1;
@@ -72,6 +74,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (?, ?, ?)";
+      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = systemId;
@@ -94,6 +97,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = ?, LAST_CLIENT_NAME = ? WHERE SYSTEM_ID = ?";
+      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = system == null ? null : system.HostName;
@@ -115,6 +119,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "DELETE FROM ATTACHED_CLIENTS where SYSTEM_ID = ?";
+      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = systemId;

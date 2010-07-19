@@ -89,5 +89,28 @@ namespace MediaPortal.Utilities.DB
     {
       return StringUtils.Escape(str, SIMILAR_TO_SPECIAL_CHARACTERS, escapeChar);
     }
+
+    /// <summary>
+    /// Formats a SQL command for debug output.
+    /// </summary>
+    /// <param name="sqlCommand">SQL command</param>
+    public static string FormatSQL(String sqlCommand)
+    {
+      String formattedSQL = sqlCommand;
+      formattedSQL = formattedSQL.Replace("SELECT", "SELECT\r\n  ");
+      formattedSQL = formattedSQL.Replace("CREATE", "CREATE\r\n");
+      formattedSQL = formattedSQL.Replace(" FROM", "\r\nFROM");
+      formattedSQL = formattedSQL.Replace(",", ",\r\n  ");
+      formattedSQL = formattedSQL.Replace(" LEFT", "\r\n  LEFT");
+      formattedSQL = formattedSQL.Replace(" INNER", "\r\n  INNER");
+      formattedSQL = formattedSQL.Replace("WHERE", "\r\nWHERE\r\n  ");
+      formattedSQL = formattedSQL.Replace("GROUP BY", "\r\nGROUP BY\r\n  ");
+      formattedSQL = formattedSQL.Replace(" AND", "\r\n  AND");
+      formattedSQL = formattedSQL.Replace(" OR", "\r\n  OR");
+      formattedSQL = formattedSQL.Replace("(", "(\r\n   ");
+      formattedSQL = formattedSQL.Replace(")", "\r\n)");
+      formattedSQL = "\r\n" + formattedSQL; // always start logging inside new line, makes copy&paste easier.
+      return formattedSQL;
+    }
   }
 }

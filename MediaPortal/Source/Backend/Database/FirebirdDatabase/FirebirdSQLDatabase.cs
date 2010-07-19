@@ -30,10 +30,11 @@ using System.Reflection;
 using FirebirdSql.Data.FirebirdClient;
 using FirebirdSql.Data.Isql;
 using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Services.Logging;
+using MediaPortal.BackendComponents.Database.Firebird.Settings;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.BackendComponents.Database.Firebird.Settings;
 
 namespace MediaPortal.BackendComponents.Database.Firebird
 {
@@ -117,6 +118,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       {
         IDbCommand command = transaction.CreateCommand();
         command.CommandText = "CREATE DOMAIN BOOLEAN AS SMALLINT DEFAULT '0' NOT NULL CHECK (value in (0,1))";
+        SqlDebugLogger.Write(command.CommandText);
         command.ExecuteNonQuery();
         transaction.Commit(); // Seems as if the driver doesn't execute the CREATE DOMAIN statement if we don't commit...
       }
