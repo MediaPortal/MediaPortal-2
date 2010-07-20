@@ -25,22 +25,21 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Exceptions;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Backend.Services.Logging;
-using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Exceptions;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
-using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
+using RelocationMode=MediaPortal.Backend.MediaLibrary.RelocationMode;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -140,7 +139,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDbCommand command = transaction.CreateCommand();
       command.CommandText = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
           " WHERE " + systemIdAttribute + " = ? AND " + pathAttribute + " = ?";
-      SqlDebugLogger.Write(command.CommandText);
 
       IDbDataParameter param = command.CreateParameter();
       param.Value = systemId;
@@ -180,8 +178,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           pathAttribute + " = ? || SUBSTRING(" + pathAttribute + " FROM CHAR_LENGTH(?) + 1) " +
           "WHERE " + systemIdAttribute + " = ? AND " +
           "SUBSTRING(" + pathAttribute + " FROM 1 FOR CHAR_LENGTH(?)) = ?";
-      SqlDebugLogger.Write(command.CommandText);
-
       command.Parameters.Add(newBasePathStr);
       command.Parameters.Add(originalBasePathStr.Length);
       command.Parameters.Add(systemId);
@@ -221,7 +217,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       commandStr = commandStr + ")";
 
       command.CommandText = commandStr;
-      SqlDebugLogger.Write(command.CommandText);
       return command.ExecuteNonQuery();
     }
 

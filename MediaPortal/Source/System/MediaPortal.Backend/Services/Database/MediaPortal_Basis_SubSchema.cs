@@ -25,7 +25,6 @@
 using System.Data;
 using System.IO;
 using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Services.Logging;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 
@@ -54,7 +53,6 @@ namespace MediaPortal.Backend.Services.Database
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT SUBSCHEMA_NAME FROM MEDIAPORTAL_BASIS";
-      SqlDebugLogger.Write(result.CommandText);
 
       nameIndex = 0;
       return result;
@@ -65,7 +63,6 @@ namespace MediaPortal.Backend.Services.Database
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT VERSION_MAJOR, VERSION_MINOR FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME=?";
-      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = subSchemaName;
@@ -81,8 +78,7 @@ namespace MediaPortal.Backend.Services.Database
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "UPDATE MEDIAPORTAL_BASIS SET VERSION_MAJOR=?, VERSION_MINOR=? WHERE SUBSCHEMA_NAME=?";
-      SqlDebugLogger.Write(result.CommandText);
-      
+
       IDbDataParameter param = result.CreateParameter();
       param.Value = versionMajor;
       result.Parameters.Add(param);
@@ -103,7 +99,6 @@ namespace MediaPortal.Backend.Services.Database
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO MEDIAPORTAL_BASIS (SUBSCHEMA_NAME, VERSION_MAJOR, VERSION_MINOR) VALUES (?, ?, ?)";
-      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = subSchemaName;
@@ -124,7 +119,6 @@ namespace MediaPortal.Backend.Services.Database
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME=?";
-      SqlDebugLogger.Write(result.CommandText);
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = subSchemaName;

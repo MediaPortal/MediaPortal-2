@@ -25,12 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Services.Logging;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Backend.Database;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
@@ -124,7 +123,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               out statementStr, out values);
         }
         command.CommandText = statementStr;
-        SqlDebugLogger.Write(command.CommandText);
         foreach (object value in values)
         {
           IDbDataParameter param = command.CreateParameter();

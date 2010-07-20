@@ -72,7 +72,6 @@
     <Compile Include="Services\ClientCommunication\UPnPServerControlPoint.cs" />
     <Compile Include="Services\ClientCommunication\UPnPClientControllerServiceProxy.cs" />
     <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
-    <Compile Include="Services\Logging\SQLDebugLogger.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />

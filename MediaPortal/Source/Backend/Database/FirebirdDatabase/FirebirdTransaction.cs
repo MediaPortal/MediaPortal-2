@@ -102,7 +102,13 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public IDbCommand CreateCommand()
     {
-      IDbCommand result = _connection.CreateCommand();
+      IDbCommand result;
+#if DEBUG
+      // return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+      result = new LoggingDbCommandWrapper(_connection.CreateCommand());
+#else
+      result =_connection.CreateCommand();
+#endif
       result.Transaction = _transaction;
       return result;
     }

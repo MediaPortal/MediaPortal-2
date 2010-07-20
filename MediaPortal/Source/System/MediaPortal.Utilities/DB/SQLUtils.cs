@@ -94,6 +94,7 @@ namespace MediaPortal.Utilities.DB
     /// Formats a SQL command for debug output.
     /// </summary>
     /// <param name="sqlCommand">SQL command</param>
+    /// <returns>Formatted text</returns>
     public static string FormatSQL(String sqlCommand)
     {
       String formattedSQL = sqlCommand;
@@ -111,6 +112,27 @@ namespace MediaPortal.Utilities.DB
       formattedSQL = formattedSQL.Replace(")", "\r\n)");
       formattedSQL = "\r\n" + formattedSQL; // always start logging inside new line, makes copy&paste easier.
       return formattedSQL;
+    }
+
+    /// <summary>
+    /// Formats a ParameterCollection for debug output.
+    /// </summary>
+    /// <param name="parameterCollection">ParameterCollection</param>
+    /// <returns>Formatted text</returns>
+    public static string FormatSQLParameters(System.Data.IDataParameterCollection parameterCollection)
+    {
+      if (parameterCollection == null)
+        return String.Empty;
+
+      StringBuilder sb = new StringBuilder();
+      foreach (System.Data.Common.DbParameter param in parameterCollection)
+      {
+        String pv = "[NULL]";
+        if (param.Value != null)
+          pv = param.Value.ToString();
+        sb.AppendFormat("\r\n\"{0}\" [{1}]: {2}", param.ParameterName, param.DbType, pv);
+      }
+      return sb.ToString();
     }
   }
 }
