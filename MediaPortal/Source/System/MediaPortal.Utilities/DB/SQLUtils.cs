@@ -127,10 +127,15 @@ namespace MediaPortal.Utilities.DB
       StringBuilder sb = new StringBuilder();
       foreach (System.Data.Common.DbParameter param in parameterCollection)
       {
+        String quoting = "";
         String pv = "[NULL]";
         if (param.Value != null)
           pv = param.Value.ToString();
-        sb.AppendFormat("\r\n\"{0}\" [{1}]: {2}", param.ParameterName, param.DbType, pv);
+
+        if (param.DbType == System.Data.DbType.String)
+          quoting = "'";
+
+        sb.AppendFormat("\r\n\"{0}\" [{1}]: {3}{2}{3}", param.ParameterName, param.DbType, pv, quoting);
       }
       return sb.ToString();
     }
