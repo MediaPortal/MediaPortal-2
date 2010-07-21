@@ -380,7 +380,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       logger.Debug("DirectX MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
-      // setting the MainForm, which would have added an event handler which calls
+      // setting the MainWindow, which would have added an event handler which calls
       // Application.ExitThread() for us
       Application.ExitThread();
     }
