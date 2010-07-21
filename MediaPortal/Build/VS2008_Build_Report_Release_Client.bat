@@ -10,4 +10,4 @@ xcopy /Y ..\Tools\BuildReport\images\*.* .\images\
 
 "%ProgramDir%\Microsoft Visual Studio 9.0\Common7\IDE\devenv.com" ..\Source\MP2-Client.sln /Rebuild "Release|x86" > VS2008_Build_Report_Release_x86.txt
 
-..\Tools\BuildReport\bin\Release\BuildReport.exe /VS2008 /Input=VS2008_Build_Report_Release_x86.txt /Output=VS2008_Build_Report_Release_x86.html /Solution=MP2-Client.sln /Title="MediaPortal 2 - Build Report"
+..\Tools\BuildReport\bin\Release\BuildReport.exe /VS2008 /Input=VS2008_Build_Report_Release_x86.txt /Output=VS2008_Build_Report_Release_x86.html /Solution=MP2-Client.sln /Title="MediaPortal 2 Client - Build Report"
