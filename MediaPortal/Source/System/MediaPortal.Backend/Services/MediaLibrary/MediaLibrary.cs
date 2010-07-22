@@ -284,10 +284,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _miaManagement = new MIA_Management();
       IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
+      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
     public void Shutdown()
     {
+      NotifySystemOffline(_localSystemId);
       IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
       importerWorker.Suspend();
     }
