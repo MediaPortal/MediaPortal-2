@@ -72,7 +72,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public SystemName GetSystemNameForSystemId(string systemId)
     {
-      CpAction action = GetAction("GetSystemNameForSytemId");
+      CpAction action = GetAction("GetSystemNameForSystemId");
       IList<object> outParams = action.InvokeAction(new List<object> {systemId});
       string hostName = (string) outParams[0];
       if (string.IsNullOrEmpty(hostName))
