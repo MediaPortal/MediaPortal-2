@@ -154,6 +154,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         };
       AddStateVariable(A_ARG_TYPE_OnlineState);
 
+      // Used to transport a value indicating if query has to be done case sensitive or not.
+      DvStateVariable A_ARG_TYPE_CapitalizationMode = new DvStateVariable("A_ARG_TYPE_CapitalizationMode", new DvStandardDataType(UPnPStandardDataType.String))
+      {
+        SendEvents = false,
+        AllowedValueList = new List<string> { "CaseSensitive", "CaseInsensitive" }
+      };
+      AddStateVariable(A_ARG_TYPE_CapitalizationMode);
+
       // Used to transport a collection of media items with some media item aspects
       DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItems))
         {
@@ -434,6 +442,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
             new DvArgument("SearchMode", A_ARG_TYPE_TextSearchMode, ArgumentDirection.In),
             new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+            new DvArgument("CapitalizationMode", A_ARG_TYPE_CapitalizationMode, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
@@ -519,6 +528,23 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         default:
           excludeCLOBs = true;
           return new UPnPError(600, string.Format("Argument '{0}' must be of value 'Normal' or 'ExcludeCLOBs'", argumentName));
+      }
+      return null;
+    }
+
+    static UPnPError ParseCapitalizationMode(string argumentName, string searchModeStr, out bool caseSensitive)
+    {
+      switch (searchModeStr)
+      {
+        case "CaseSensitive":
+          caseSensitive = true;
+          break;
+        case "CaseInsensitive":
+          caseSensitive = false;
+          break;
+        default:
+          caseSensitive = true;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'CaseSensitive' or 'CaseInsensitive'", argumentName));
       }
       return null;
     }
@@ -839,9 +865,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IFilter filter = (IFilter) inParams[3];
       string searchModeStr = (string) inParams[4];
       string onlineStateStr = (string) inParams[5];
+      string capitalizationMode = (string) inParams[6];
       bool excludeCLOBs;
       bool all = false;
-      UPnPError error = ParseSearchMode("SearchMode", searchModeStr, out excludeCLOBs) ?? ParseOnlineState("OnlineState", onlineStateStr, out all);
+      bool caseSensitive = true;
+      UPnPError error = ParseSearchMode("SearchMode", searchModeStr, out excludeCLOBs) ?? 
+        ParseOnlineState("OnlineState", onlineStateStr, out all) ??
+        ParseCapitalizationMode("CapitalizationMode", capitalizationMode, out caseSensitive);
       if (error != null)
       {
         outParams = null;
@@ -849,7 +879,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       MediaItemQuery query = mediaLibrary.BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes,
-          filter, !excludeCLOBs);
+          filter, !excludeCLOBs, caseSensitive);
       IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all);
       outParams = new List<object> {mediaItems};
       return null;

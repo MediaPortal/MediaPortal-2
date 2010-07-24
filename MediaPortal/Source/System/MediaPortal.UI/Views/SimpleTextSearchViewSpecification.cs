@@ -102,7 +102,7 @@ namespace MediaPortal.UI.Views
       try
       {
         mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
-            _filter, _excludeCLOBs, _onlyOnline);
+            _filter, _excludeCLOBs, _onlyOnline, false);
         subViewSpecifications = new List<ViewSpecification>();
       }
       catch (UPnPRemoteException e)

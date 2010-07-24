@@ -281,12 +281,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       LikeFilter likeFilter = filter as LikeFilter;
       if (likeFilter != null)
       {
+        if (!likeFilter.CaseSensitive)
+          resultParts.Add("UPPER(");
+
         resultParts.Add(attributeOperand);
-        resultParts.Add(" LIKE ?");
+
+        if (!likeFilter.CaseSensitive)
+          resultParts.Add(")");
+
+        resultParts.Add(" LIKE ");
+        if (likeFilter.CaseSensitive)
+          resultParts.Add("?");
+        else
+          resultParts.Add("UPPER(?)");
         resultValues.Add(likeFilter.Expression);
-        resultParts.Add(" ESCAPE '");
-        resultParts.Add(likeFilter.EscapeChar);
-        resultParts.Add("'");
+        resultParts.Add(" ESCAPE ?");
+        resultValues.Add(likeFilter.EscapeChar);
         return;
       }
 

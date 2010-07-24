@@ -295,14 +295,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
-        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs)
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs, bool caseSensitive)
     {
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       ICollection<IFilter> textFilters = new List<IFilter>();
       foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
         foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
           if (attrType.AttributeType == typeof(string) && (includeCLOBs || !_miaManagement.IsCLOBAttribute(attrType)))
-            textFilters.Add(new LikeFilter(attrType, "%" + SqlUtils.LikeEscape(searchText, '\\') + "%", '\\'));
+            textFilters.Add(new LikeFilter(attrType, "%" + SqlUtils.LikeEscape(searchText, '\\') + "%", '\\', caseSensitive));
       return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
           filter));

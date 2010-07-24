@@ -29,8 +29,24 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// </summary>
   public class LikeFilter : AbstractExpressionFilter
   {
+    private bool _caseSensitive = true;
+
     public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar) : base(attributeType, expression, escapeChar) { }
+        string expression, char escapeChar, bool caseSensitive) : base(attributeType, expression, escapeChar) 
+    {
+      _caseSensitive = caseSensitive;
+    }
+
+    public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        string expression, char escapeChar) : this(attributeType, expression, escapeChar, true) { }
+
+    /// <summary>
+    /// Returns the information if this filter uses a case sensitive comparison.
+    /// </summary>
+    public bool CaseSensitive
+    {
+      get { return _caseSensitive; }
+    }
 
     #region Additional members for the XML serialization
 

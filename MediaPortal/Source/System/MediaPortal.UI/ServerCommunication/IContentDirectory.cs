@@ -70,7 +70,7 @@ namespace MediaPortal.UI.ServerCommunication
     // Media query
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-        IFilter filter, bool excludeCLOBs, bool onlyOnline);
+        IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
     ICollection<MediaItem> Browse(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline);
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,

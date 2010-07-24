@@ -271,15 +271,16 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
-        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline)
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive)
     {
       CpAction action = GetAction("SimpleTextSearch");
       String searchModeStr = excludeCLOBs ? "ExcludeCLOBs" : "Normal";
       String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
+      String capitalizationMode = caseSensitive ? "CaseSensitive" : "CaseInsensitive";
       IList<object> inParameters = new List<object> {searchText,
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-          filter, searchModeStr, onlineStateStr};
+          filter, searchModeStr, onlineStateStr, capitalizationMode};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
