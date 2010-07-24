@@ -197,7 +197,6 @@ namespace UiComponents.Weather.Grabbers
     /// <returns>success status</returns>
     private bool Download(string locationCode, string weatherFile)
     {
-      string url;
       // update variables from the settings
       LoadSettings();
 
@@ -219,17 +218,11 @@ namespace UiComponents.Weather.Grabbers
       }
 
       char units = _temperatureFarenheit[0]; //convert from temp units to metric/standard
-      if (units == 'F') //we'll convert the speed later depending on what thats set to
-      {
-        units = 's';
-      }
-      else
-      {
-        units = 'm';
-      }
+      //we'll convert the speed later depending on what thats set to
+      units = units == 'F' ? 's' : 'm';
 
-      url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&dayf=5&link=xoap&prod=xoap&par={1}&key={2}&unit={3}", 
-                          locationCode, PARTNER_ID, PARTNER_KEY, units);
+      string url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&dayf=5&link=xoap&prod=xoap&par={1}&key={2}&unit={3}", 
+          locationCode, PARTNER_ID, PARTNER_KEY, units);
 
       using (WebClient client = new WebClient())
       {
@@ -256,15 +249,11 @@ namespace UiComponents.Weather.Grabbers
     private bool ParseFile(City c, string weatherFile)
     {
       if (!File.Exists(weatherFile))
-      {
         return false;
-      }
       XmlDocument doc = new XmlDocument();
       doc.Load(weatherFile);
       if (doc.DocumentElement == null)
-      {
         return false;
-      }
       XmlNode xmlElement = doc.DocumentElement;
 
       if (doc.DocumentElement.Name == "error")
@@ -275,30 +264,18 @@ namespace UiComponents.Weather.Grabbers
 
       unitTemperature = _temperatureFarenheit;
       if (_windSpeed[0] == 'M')
-      {
         _unitSpeed = "mph";
-      }
       else if (_windSpeed[0] == 'K')
-      {
         _unitSpeed = "km/h";
-      }
       else
-      {
         _unitSpeed = "m/s";
-      }
 
       if (!ParseLocation(c, xmlElement.SelectSingleNode("loc")))
-      {
         return false;
-      }
       if (!ParseCurrentCondition(c, xmlElement.SelectSingleNode("cc")))
-      {
         return false;
-      }
       if (!ParseDayForeCast(c, xmlElement.SelectSingleNode("dayf")))
-      {
         return false;
-      }
       return true;
     }
 
@@ -322,9 +299,7 @@ namespace UiComponents.Weather.Grabbers
     private static bool ParseLocation(City c, XmlNode xmlElement)
     {
       if (xmlElement == null)
-      {
         return false;
-      }
       c.LocationInfo = new LocInfo();
       c.LocationInfo.Time = GetString(xmlElement, "tm", String.Empty); // <tm>1:12 AM</tm>
       c.LocationInfo.Lat = GetString(xmlElement, "lat", String.Empty); // <lat>49.02</lat>
@@ -355,9 +330,7 @@ namespace UiComponents.Weather.Grabbers
     private bool ParseCurrentCondition(City c, XmlNode xmlElement)
     {
       if (xmlElement == null)
-      {
         return false;
-      }
 
       c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", String.Empty));
       c.Condition.City = GetString(xmlElement, "obst", String.Empty);
@@ -386,9 +359,7 @@ namespace UiComponents.Weather.Grabbers
     private bool ParseDayForeCast(City c, XmlNode xmlElement)
     {
       if (xmlElement == null)
-      {
         return false;
-      }
 
       XmlNode element = xmlElement.SelectSingleNode("day");
       DayForeCast forecast;
@@ -401,53 +372,27 @@ namespace UiComponents.Weather.Grabbers
           forecast.Day = LocalizeDay(element.Attributes.GetNamedItem("t").InnerText);
 
           forecast.High = GetString(element, "hi", String.Empty); //string cause i've seen it return N/A
-          if (forecast.High == "N/A")
-          {
-            forecast.High = "N/A";
-          }
-          else
-          {
-            forecast.High = String.Format("{0}{1}{2}", forecast.High, DEGREE_CHARACTER, unitTemperature);
-          }
+          forecast.High = forecast.High == "N/A" ? "N/A" :
+              String.Format("{0}{1}{2}", forecast.High, DEGREE_CHARACTER, unitTemperature);
 
           forecast.Low = GetString(element, "low", String.Empty);
-          if (forecast.Low == "N/A")
-          {
-            forecast.Low = "N/A";
-          }
-          else
-          {
-            forecast.Low = String.Format("{0}{1}{2}", forecast.Low, DEGREE_CHARACTER, unitTemperature);
-          }
+          forecast.Low = forecast.Low == "N/A" ? "N/A" :
+              String.Format("{0}{1}{2}", forecast.Low, DEGREE_CHARACTER, unitTemperature);
 
           forecast.SunRise = GetString(element, "sunr", String.Empty);
-          if (forecast.SunRise == "N/A")
-          {
-            forecast.SunRise = String.Empty;
-          }
-          else
-          {
-            forecast.SunRise = String.Format("{0}", RelocalizeTime(forecast.SunRise));
-          }
+          forecast.SunRise = forecast.SunRise == "N/A" ? String.Empty :
+              String.Format("{0}", RelocalizeTime(forecast.SunRise));
 
           forecast.SunSet = GetString(element, "suns", String.Empty);
-          if (forecast.SunSet == "N/A")
-          {
-            forecast.SunSet = String.Empty;
-          }
-          else
-          {
-            forecast.SunSet = String.Format("{0}", RelocalizeTime(forecast.SunSet));
-          }
+          forecast.SunSet = forecast.SunSet == "N/A" ? String.Empty :
+              String.Format("{0}", RelocalizeTime(forecast.SunSet));
 
           XmlNode dayElement = element.SelectSingleNode("part"); //grab the first day/night part (should be day)
           if (dayElement != null && i == 0)
           {
             // If day forecast is not available (at the end of the day), show night forecast
             if (GetString(dayElement, "t", String.Empty) == "N/A")
-            {
               dayElement = dayElement.NextSibling;
-            }
           }
 
           if (dayElement != null)
@@ -487,12 +432,8 @@ namespace UiComponents.Weather.Grabbers
         if (node != null)
         {
           if (node.InnerText != null)
-          {
             if (node.InnerText != "-")
-            {
               value = node.InnerText;
-            }
-          }
         }
       }
       catch {}
@@ -650,6 +591,7 @@ namespace UiComponents.Weather.Grabbers
     /// <returns></returns>
     private static string LocalizeOverview(string token)
     {
+      // TODO: Cleanup, also localization strings
       string localizedLine = String.Empty;
 
       foreach (string tokenSplit in token.Split(' '))
