@@ -302,7 +302,13 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         Skin basedOnSkin;
         SkinResources inheritResources;
         if (current.BasedOnSkin != null && _skins.TryGetValue(current.BasedOnSkin, out basedOnSkin))
-          inheritResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
+        {
+          Theme basedOnTheme;
+          if (current.BasedOnTheme != null && basedOnSkin.Themes.TryGetValue(current.BasedOnTheme, out basedOnTheme))
+            inheritResources = basedOnTheme;
+          else
+            inheritResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
+        }
         else
           inheritResources = kvp.Key == DEFAULT_SKIN ? null : defaultInheritResources;
         current.InheritedSkinResources = inheritResources;
