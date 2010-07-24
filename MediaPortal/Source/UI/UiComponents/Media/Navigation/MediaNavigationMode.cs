@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Navigation
 {
   /// <summary>
   /// Represents different modes, the media model can look for the user. Basically, each of those modes determines

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace UiComponents.SkinBase
+namespace MediaPortal.UiComponents.SkinBase
 {
   public interface IConnectionListenerService
   {

@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.MLQueries;
 
-namespace UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   /// <summary>
   /// Represents a single filter criterion for filtering media items in the system's media library.

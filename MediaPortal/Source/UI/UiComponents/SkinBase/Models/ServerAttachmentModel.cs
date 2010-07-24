@@ -35,7 +35,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Model which attends the dialog workflow states "AttachToServer" and "DetachFromServer".

@@ -28,10 +28,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.ServerCommunication;
-using UiComponents.SkinBase.Utils;
+using MediaPortal.UiComponents.SkinBase.Utils;
 using RelocationMode=MediaPortal.Core.MediaManagement.RelocationMode;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   public class ServerShares : SharesProxy
   {

@@ -11,6 +11,6 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="{82582433-FD64-41bd-9059-7F662DBDA713}" Name="LoginModel" ClassName="UiComponents.Login.LoginModel"/>
+    <Model Id="{82582433-FD64-41bd-9059-7F662DBDA713}" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.LoginModel"/>
   </Register>
 </Plugin>

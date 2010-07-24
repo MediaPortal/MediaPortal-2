@@ -30,7 +30,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// This model attends the currently-playing and fullscreen-content workflow states for

@@ -26,7 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather
 {
 
   #region WeatherSetupDataModel

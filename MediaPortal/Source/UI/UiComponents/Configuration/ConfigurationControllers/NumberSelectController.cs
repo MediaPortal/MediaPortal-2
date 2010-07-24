@@ -30,7 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Utilities.Exceptions;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller for the <see cref="NumberSelect"/> configuration setting.

@@ -16,8 +16,8 @@
   </DependsOn>
   
   <Register Location="/Models">
-    <Model Id="92BDB53F-4159-4dc2-B212-6083C820A214" Name="WeatherModel" ClassName="UiComponents.Weather.WeatherViewModel"/>
-    <Model Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A" Name="WeatherSetupModel" ClassName="UiComponents.Weather.WeatherSetupViewModel"/>
+    <Model Id="92BDB53F-4159-4dc2-B212-6083C820A214" Name="WeatherModel" ClassName="MediaPortal.UiComponents.Weather.WeatherViewModel"/>
+    <Model Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A" Name="WeatherSetupModel" ClassName="MediaPortal.UiComponents.Weather.WeatherSetupViewModel"/>
   </Register>
 
   <Register Location="/Resources/Language">

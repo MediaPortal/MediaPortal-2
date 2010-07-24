@@ -30,7 +30,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 
-namespace UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action to add a share. Depending on the evaluation if our home server runs at the same machine as the GUI,

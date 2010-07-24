@@ -32,9 +32,9 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
-using UiComponents.Media.Navigation;
+using MediaPortal.UiComponents.Media.Navigation;
 
-namespace UiComponents.Media.Models
+namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the ShowPlaylist workflow state.

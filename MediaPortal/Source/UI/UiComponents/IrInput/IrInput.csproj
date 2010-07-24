@@ -7,7 +7,7 @@
     <ProjectGuid>{EE24ACB8-4306-41BB-B59A-F134FBC7A9A1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UiComponents.IrInput</RootNamespace>
+    <RootNamespace>MediaPortal.UiComponents.IrInput</RootNamespace>
     <AssemblyName>IrInput</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

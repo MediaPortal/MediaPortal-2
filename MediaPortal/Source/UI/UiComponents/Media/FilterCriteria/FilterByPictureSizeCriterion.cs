@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
 
-namespace UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByPictureSizeCriterion : MLFilterCriterion
   {

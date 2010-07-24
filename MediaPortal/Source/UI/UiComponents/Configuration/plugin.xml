@@ -16,7 +16,7 @@
   </DependsOn>
 
   <Register Location="/Models">
-    <Model Id="545674F1-D92A-4383-B6C1-D758CECDBDF5" ClassName="UiComponents.Configuration.ConfigurationModel"/>
+    <Model Id="545674F1-D92A-4383-B6C1-D758CECDBDF5" ClassName="MediaPortal.UiComponents.Configuration.ConfigurationModel"/>
   </Register>
 
   <Register Location="/Resources/Language">

@@ -28,7 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller for the <see cref="SingleSelectionList"/> configuration setting.

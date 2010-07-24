@@ -29,7 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// This model provides information about the screen saver and mouse controls state. It provides a copy of the

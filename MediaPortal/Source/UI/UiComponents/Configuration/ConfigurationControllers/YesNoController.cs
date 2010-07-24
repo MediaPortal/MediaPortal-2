@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core.General;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller for the <see cref="YesNo"/> configuration setting.

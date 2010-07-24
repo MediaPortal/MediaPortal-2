@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.MediaManagement;
 
-namespace UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Navigation
 {
   public class MusicItem : PlayableItem
   {

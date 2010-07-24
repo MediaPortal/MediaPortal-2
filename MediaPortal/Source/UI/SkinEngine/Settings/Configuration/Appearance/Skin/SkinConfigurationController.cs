@@ -26,7 +26,7 @@
 using MediaPortal.Core.Configuration;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using UiComponents.Configuration.ConfigurationControllers;
+using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 {

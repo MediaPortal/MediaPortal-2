@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
 
-namespace UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   /// <summary>
   /// Filter criterion which creates a filter by a simple attribute value.

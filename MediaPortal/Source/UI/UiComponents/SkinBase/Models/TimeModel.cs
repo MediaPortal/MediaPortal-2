@@ -30,9 +30,9 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Models;
-using UiComponents.SkinBase.Settings;
+using MediaPortal.UiComponents.SkinBase.Settings;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Model which provides data for the skin clock.

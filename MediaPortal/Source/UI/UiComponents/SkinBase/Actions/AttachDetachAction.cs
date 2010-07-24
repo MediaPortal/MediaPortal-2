@@ -29,7 +29,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 
-namespace UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action which triggers a switch to workflow state DetachFromServer if a server is currently connected.

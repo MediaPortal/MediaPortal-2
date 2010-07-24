@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Utilities;
 
-namespace UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Navigation
 {
   /// <summary>
   /// Holds a GUI item which encapsulates a playable media item.

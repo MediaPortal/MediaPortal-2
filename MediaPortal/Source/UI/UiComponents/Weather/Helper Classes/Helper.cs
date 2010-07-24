@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather
 {
   public class Helper
   {

@@ -36,7 +36,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 
-namespace UiComponents.Weather.Grabbers
+namespace MediaPortal.UiComponents.Weather.Grabbers
 {
   /// <summary>
   /// Implementation of the IWeatherCatcher

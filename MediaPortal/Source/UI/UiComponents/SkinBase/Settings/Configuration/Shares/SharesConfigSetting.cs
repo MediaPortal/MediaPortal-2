@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace UiComponents.SkinBase.Settings.Configuration.Shares
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares
 {
   public class SharesConfigSetting : CustomConfigSetting
   {

@@ -26,7 +26,7 @@ using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
 using MediaPortal.UI.Presentation.Screens;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controllers showing a configuration dialog.

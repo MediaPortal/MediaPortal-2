@@ -35,7 +35,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// This model attends the dialogs "DialogPlayerConfiguration", "DialogChooseAudioStream", "DialogPlayerSlotAudio" and

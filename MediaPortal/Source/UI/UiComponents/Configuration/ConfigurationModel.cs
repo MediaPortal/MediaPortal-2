@@ -33,9 +33,9 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using UiComponents.Configuration.ConfigurationControllers;
+using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 
-namespace UiComponents.Configuration
+namespace MediaPortal.UiComponents.Configuration
 {
   /// <summary>
   /// Model providing the workflow for the configuration part.

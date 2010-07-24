@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 
-namespace UiComponents.Media.Models
+namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Base class for playlist navigation models.

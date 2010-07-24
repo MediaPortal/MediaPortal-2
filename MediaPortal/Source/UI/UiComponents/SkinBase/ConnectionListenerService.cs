@@ -29,10 +29,10 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
-using UiComponents.SkinBase.Models;
-using UiComponents.SkinBase.Settings;
+using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.SkinBase.Settings;
 
-namespace UiComponents.SkinBase
+namespace MediaPortal.UiComponents.SkinBase
 {
   /// <summary>
   /// Service listening for MP server connections and showing the connection screen.

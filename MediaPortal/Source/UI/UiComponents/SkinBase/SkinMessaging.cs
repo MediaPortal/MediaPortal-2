@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace UiComponents.SkinBase
+namespace MediaPortal.UiComponents.SkinBase
 {
   /// <summary>
   /// This class provides an interface for the messages sent in this plugin.

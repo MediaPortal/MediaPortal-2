@@ -29,10 +29,10 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
-using UiComponents.Weather.Grabbers;
+using MediaPortal.UiComponents.Weather.Grabbers;
 
 
-namespace UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
   /// ViewModel Class for weather.xml

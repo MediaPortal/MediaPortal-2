@@ -26,7 +26,7 @@ using System;
 using System.Xml.Serialization;
 using MediaPortal.UI.Control.InputManager;
 
-namespace UiComponents.IrInput
+namespace MediaPortal.UiComponents.IrInput
 {
   /// <summary>
   /// Mapping of a remote button key code to a <see cref="Key"/> instance.

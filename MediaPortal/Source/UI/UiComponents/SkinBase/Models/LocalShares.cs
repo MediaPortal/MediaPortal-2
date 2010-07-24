@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   public class LocalShares : SharesProxy
   {

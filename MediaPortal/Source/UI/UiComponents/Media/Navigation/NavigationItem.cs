@@ -25,7 +25,7 @@
 using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Navigation
 {
   /// <summary>
   /// Holds a GUI item which encapsulates a view to navigate to.

@@ -30,7 +30,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.Media.Models
+namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for audio players.

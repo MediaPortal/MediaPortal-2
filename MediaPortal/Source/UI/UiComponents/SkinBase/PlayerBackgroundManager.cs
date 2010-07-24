@@ -29,9 +29,9 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
-using UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.SkinBase.Models;
 
-namespace UiComponents.SkinBase
+namespace MediaPortal.UiComponents.SkinBase
 {
   public class PlayerBackgroundManager : IBackgroundManager
   {

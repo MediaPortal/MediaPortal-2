@@ -1,8 +1,8 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <RootNamespace>UiComponents.Weather</RootNamespace>
+    <RootNamespace>MediaPortal.UiComponents.Weather</RootNamespace>
     <AssemblyName>Weather</AssemblyName>
     <WarningLevel>4</WarningLevel>
     <OutputType>Library</OutputType>
@@ -113,11 +113,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\weather.xaml"/>
-    <Content Include="Skin\default\screens\dialogWeatherSetup.xaml"/>
-    <Content Include="Skin\default\screens\dialogWeatherLocations.xaml"/>
-    <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml"/>
-    <Content Include="Skin\default\screens\dialogWeatherSearch.xaml"/>
+    <Content Include="Skin\default\screens\weather.xaml" />
+    <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
+    <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
+    <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml" />
+    <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\media\Weather\128x128\0.png" />

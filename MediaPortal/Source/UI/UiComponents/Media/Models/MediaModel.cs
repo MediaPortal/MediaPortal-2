@@ -40,11 +40,11 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.Navigation;
 using MediaPortal.Utilities;
-using UiComponents.Media.FilterCriteria;
-using UiComponents.Media.Navigation;
 
-namespace UiComponents.Media.Models
+namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Model which holds the GUI state for the current navigation in the media views.

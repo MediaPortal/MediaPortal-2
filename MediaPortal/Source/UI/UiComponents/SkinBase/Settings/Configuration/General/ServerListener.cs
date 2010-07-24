@@ -27,7 +27,7 @@ using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 
-namespace UiComponents.SkinBase.Settings.Configuration.General
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
 {
   public class ServerListener : YesNo
   {

@@ -25,7 +25,7 @@
 using MediaPortal.Core.Configuration;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller for all decendants of <see cref="ConfigItemList"/>.

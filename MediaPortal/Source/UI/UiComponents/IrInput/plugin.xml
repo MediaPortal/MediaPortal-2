@@ -10,6 +10,6 @@
 
   <Runtime>
     <Assembly FileName="IrInput.dll"/>
-    <PluginStateTracker ClassName="UiComponents.IrInput.IrInputPlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.IrInput.IrInputPlugin"/>
   </Runtime>
 </Plugin>

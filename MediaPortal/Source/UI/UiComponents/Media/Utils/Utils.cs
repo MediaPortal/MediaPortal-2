@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Localization;
 
-namespace UiComponents.Media.Utils
+namespace MediaPortal.UiComponents.Media.Utils
 {
   public class Utils
   {

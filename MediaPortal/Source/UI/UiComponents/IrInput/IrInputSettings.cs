@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
-namespace UiComponents.IrInput
+namespace MediaPortal.UiComponents.IrInput
 {
   /// <summary>
   /// Settings class for IrInputPlugin.

@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
 {
   public class TimeFormat : Entry
   {

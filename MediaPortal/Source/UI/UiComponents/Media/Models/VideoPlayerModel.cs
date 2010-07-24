@@ -31,9 +31,9 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.SkinBase.Models;
 
-namespace UiComponents.Media.Models
+namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for video players.

@@ -7,7 +7,7 @@
     <ProjectGuid>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UiComponents.SkinBase</RootNamespace>
+    <RootNamespace>MediaPortal.UiComponents.SkinBase</RootNamespace>
     <AssemblyName>SkinBase</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

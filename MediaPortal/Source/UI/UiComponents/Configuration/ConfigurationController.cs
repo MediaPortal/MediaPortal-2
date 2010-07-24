@@ -27,7 +27,7 @@ using MediaPortal.Core.Configuration;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 
-namespace UiComponents.Configuration
+namespace MediaPortal.UiComponents.Configuration
 {
   /// <summary>
   /// Base class for all configuration controllers.

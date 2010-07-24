@@ -29,7 +29,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 
-namespace UiComponents.Media.Actions
+namespace MediaPortal.UiComponents.Media.Actions
 {
   public class TrackServerConnectionBaseAction : IWorkflowContributor
   {

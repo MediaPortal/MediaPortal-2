@@ -38,10 +38,10 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
+using MediaPortal.UiComponents.SkinBase.Utils;
 using MediaPortal.Utilities;
-using UiComponents.SkinBase.Utils;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Provides a workflow model to attend the complex configuration process for server and client shares

@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Utilities;
 
-namespace UiComponents.SkinBase.Models
+namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Base data class which has two orthogonal jobs:

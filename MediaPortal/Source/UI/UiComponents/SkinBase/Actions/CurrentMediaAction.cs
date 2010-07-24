@@ -29,7 +29,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action which is visible when player slots are open. Depending on the currently active players, this action will

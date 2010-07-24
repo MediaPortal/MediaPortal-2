@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 
-namespace UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
   /// this is a basic field where

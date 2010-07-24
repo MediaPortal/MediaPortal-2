@@ -38,7 +38,7 @@ using MediaPortal.Core.Settings;
 using IrssComms;
 using IrssUtils;
 
-namespace UiComponents.IrInput
+namespace MediaPortal.UiComponents.IrInput
 {
   /// <summary>
   /// Input Service plugin. Communicates with an IR Server Suite server.

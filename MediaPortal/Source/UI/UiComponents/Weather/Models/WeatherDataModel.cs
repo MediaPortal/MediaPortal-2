@@ -25,9 +25,9 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using UiComponents.Weather.Grabbers;
+using MediaPortal.UiComponents.Weather.Grabbers;
 
-namespace UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
   ///  WeatherDataModel

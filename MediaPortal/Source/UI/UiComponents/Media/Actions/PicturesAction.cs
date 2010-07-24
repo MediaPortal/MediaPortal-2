@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models;
 
-namespace UiComponents.Media.Actions
+namespace MediaPortal.UiComponents.Media.Actions
 {
   public class PicturesAction : TrackServerConnectionBaseAction
   {

@@ -28,7 +28,7 @@ using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
   /// Configuration controller which shows a configuration with an own workflow.

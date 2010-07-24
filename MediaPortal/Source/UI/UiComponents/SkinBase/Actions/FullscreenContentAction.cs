@@ -29,7 +29,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   public class FullscreenContentAction : IWorkflowContributor
   {

@@ -31,7 +31,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 
-namespace UiComponents.SkinBase.Actions
+namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action which is visible when player slots are open. This action will show the dialog

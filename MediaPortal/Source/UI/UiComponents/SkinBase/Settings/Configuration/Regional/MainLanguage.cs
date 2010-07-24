@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace UiComponents.SkinBase.Settings.Configuration.Regional
+namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
 {
   public class MainLanguage : SingleSelectionList
   {

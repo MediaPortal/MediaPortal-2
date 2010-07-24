@@ -24,7 +24,7 @@
 
 using System;
 
-namespace UiComponents.SkinBase.Utils
+namespace MediaPortal.UiComponents.SkinBase.Utils
 {
   /// <summary>
   /// Raised if a method is being called at the server but the server is disconnected.

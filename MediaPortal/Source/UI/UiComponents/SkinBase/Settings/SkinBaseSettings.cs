@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace UiComponents.SkinBase.Settings
+namespace MediaPortal.UiComponents.SkinBase.Settings
 {
   public class SkinBaseSettings
   {
