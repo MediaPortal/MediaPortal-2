@@ -121,7 +121,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     public void RemoveAllConfigurationData(bool user, bool global)
     {
-      ServiceScope.Get<ISettingsManager>().RemoveAllSettingsData(user, global);
+      ServiceRegistration.Get<ISettingsManager>().RemoveAllSettingsData(user, global);
       Dispose();
     }
 
@@ -134,7 +134,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     public void Save()
     {
       CheckInitialized();
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       settingsManager.StartBatchUpdate();
       _tree.SaveSettings();
       settingsManager.EndBatchUpdate();

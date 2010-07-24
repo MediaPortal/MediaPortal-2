@@ -306,7 +306,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}'", mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}'", mediaItemAccessor.LocalResourcePath);
       }
       return false;
     }
@@ -316,9 +316,9 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
     //if (scraper.IsLoaded)
     //{
     //  scraper.CreateSearchUrl((string)movie["title"]);
-    //  ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
+    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: Getting online info from: {0} ", scraper.SearchUrl);
     //  scraper.GetSearchResults();
-    //  ServiceScope.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
+    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: Result found {0} ", scraper.SearchResults.Count);
     //  if (scraper.SearchResults.Count > 0)
     //  {
 
@@ -340,7 +340,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
     //    msgc.MessageData["titles"] = titleList;
     //    SendMessage(msgc);
 
-    //    ServiceScope.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
+    //    ServiceRegistration.Get<ILogger>().Info("MovieImporter: Getting online info for: {0}", scraper.SearchResults[0].Title);
     //    scraper.GetDetails(scraper.SearchResults[0].Url, scraper.SearchResults[0].Id);
     //    if (scraper.Metadata.ContainsKey("genre"))
     //    {
@@ -358,7 +358,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
     //}
     //else
     //{
-    //  ServiceScope.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
+    //  ServiceRegistration.Get<ILogger>().Info("MovieImporter: No online scrapers are loaded ");
     //}
 
     //#endregion

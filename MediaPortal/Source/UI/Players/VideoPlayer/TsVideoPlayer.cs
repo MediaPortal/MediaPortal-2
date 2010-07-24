@@ -220,7 +220,7 @@ namespace Ui.Players.Video
             {
               if (!QueryConnect(pins[0], other))
               {
-                ServiceScope.Get<ILogger>().Info("Graph needs a rebuild");
+                ServiceRegistration.Get<ILogger>().Info("Graph needs a rebuild");
                 return true;
               }
             }
@@ -239,8 +239,8 @@ namespace Ui.Players.Video
       Marshal.FreeCoTaskMem(ptrFetched);
       Marshal.ReleaseComObject(pinEnum);
       //this is only debug output at the moment. always do a rebuild for now.
-      ServiceScope.Get<ILogger>().Info("Graph would _not_ need a rebuild");
-      ServiceScope.Get<ILogger>().Info("BaseTSReaderPlayer: GraphNeedsRebuild() original return value is false.");
+      ServiceRegistration.Get<ILogger>().Info("Graph would _not_ need a rebuild");
+      ServiceRegistration.Get<ILogger>().Info("BaseTSReaderPlayer: GraphNeedsRebuild() original return value is false.");
       //return true;
       return false; // Eabin ; this one breaks channel change, when going from one channel with mpeg audio to another with ac3 and vice versa.     
     }
@@ -248,7 +248,7 @@ namespace Ui.Players.Video
     void DoGraphRebuild()
     {
       IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
-      ServiceScope.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged()");
+      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged()");
       bool needRebuild = GraphNeedsRebuild();
       if (mediaCtrl != null)
       {
@@ -257,7 +257,7 @@ namespace Ui.Players.Video
           int hr = mediaCtrl.Stop();
           if (hr != 0)
           {
-            ServiceScope.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
+            ServiceRegistration.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
           }
           FilterState state;
           for (; ; )
@@ -265,32 +265,32 @@ namespace Ui.Players.Video
             hr = mediaCtrl.GetState(200, out state);
             if (hr != 0)
             {
-              ServiceScope.Get<ILogger>().Info("GetState failed: {0:x}", hr);
+              ServiceRegistration.Get<ILogger>().Info("GetState failed: {0:x}", hr);
             }
             else if (state == FilterState.Stopped)
             {
               break;
             }
-            ServiceScope.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged(): Graph not yet stopped, waiting some more.");
+            ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged(): Graph not yet stopped, waiting some more.");
             mediaCtrl.Stop();
             System.Threading.Thread.Sleep(100);
 
           }
-          ServiceScope.Get<ILogger>().Info("Graph stopped.");
+          ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
           if (needRebuild)
           {
-            ServiceScope.Get<ILogger>().Info("Doing full graph rebuild.");
+            ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
             DisconnectAllPins(_graphBuilder, _fileSource);
             RenderOutputPins(_fileSource);
           }
           else
           {
-            ServiceScope.Get<ILogger>().Info("Reconnecting all pins of base filter.");
+            ServiceRegistration.Get<ILogger>().Info("Reconnecting all pins of base filter.");
             ReConnectAll(_graphBuilder, _fileSource);
           }
           mediaCtrl.Run();
         }
-        ServiceScope.Get<ILogger>().Info("Reconfigure graph done");
+        ServiceRegistration.Get<ILogger>().Info("Reconfigure graph done");
       }
       return;
     }
@@ -319,7 +319,7 @@ namespace Ui.Players.Video
       PinInfo infoOther;
       pin.QueryPinInfo(out info);
       other.QueryPinInfo(out infoOther);
-      ServiceScope.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types", info.name, infoOther.name, count);
+      ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types", info.name, infoOther.name, count);
       return false;
     }
 
@@ -333,7 +333,7 @@ namespace Ui.Players.Video
       int hr = filter.EnumPins(out pinEnum);
       if ((hr == 0) && (pinEnum != null))
       {
-        ServiceScope.Get<ILogger>().Info("got pins");
+        ServiceRegistration.Get<ILogger>().Info("got pins");
         pinEnum.Reset();
         IPin[] pins = new IPin[1];
         int iFetched;
@@ -341,7 +341,7 @@ namespace Ui.Players.Video
         do
         {
           // Get the next pin
-          //ServiceScope.Get<ILogger>().Info("  get pin:{0}",iPinNo);
+          //ServiceRegistration.Get<ILogger>().Info("  get pin:{0}",iPinNo);
           iPinNo++;
           hr = pinEnum.Next(1, pins, ptrFetched);
           iFetched = Marshal.ReadInt32(ptrFetched);
@@ -353,12 +353,12 @@ namespace Ui.Players.Video
               hr = pins[0].QueryPinInfo(out pinInfo);
               if (hr == 0)
               {
-                ServiceScope.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
+                ServiceRegistration.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
                 Marshal.ReleaseComObject(pinInfo.filter);
               }
               else
               {
-                ServiceScope.Get<ILogger>().Info("  got pin:?");
+                ServiceRegistration.Get<ILogger>().Info("  got pin:?");
               }
               PinDirection pinDir;
               pins[0].QueryDirection(out pinDir);
@@ -368,11 +368,11 @@ namespace Ui.Players.Video
                 hr = pins[0].ConnectedTo(out other);
                 if (hr == 0 && other != null)
                 {
-                  ServiceScope.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
+                  ServiceRegistration.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
                   hr = graphBuilder.Reconnect(pins[0]);
                   if (hr != 0)
                   {
-                    ServiceScope.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName, pinInfo.name, hr);
+                    ServiceRegistration.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName, pinInfo.name, hr);
                   }
                 }
               }
@@ -381,7 +381,7 @@ namespace Ui.Players.Video
             else
             {
               iFetched = 0;
-              ServiceScope.Get<ILogger>().Info("no pins?");
+              ServiceRegistration.Get<ILogger>().Info("no pins?");
               break;
             }
           }
@@ -399,7 +399,7 @@ namespace Ui.Players.Video
       if (hr != 0 || pinEnum == null) return false;
       FilterInfo info;
       filter.QueryFilterInfo(out info);
-      ServiceScope.Get<ILogger>().Info("Disconnecting all pins from filter {0}", info.achName);
+      ServiceRegistration.Get<ILogger>().Info("Disconnecting all pins from filter {0}", info.achName);
       bool allDisconnected = true;
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
       for (; ; )
@@ -428,7 +428,7 @@ namespace Ui.Players.Video
       bool allDisconnected = true;
       PinInfo info;
       pin.QueryPinInfo(out info);
-      ServiceScope.Get<ILogger>().Info("Disconnecting pin {0}", info.name);
+      ServiceRegistration.Get<ILogger>().Info("Disconnecting pin {0}", info.name);
       if (hr == 0 && other != null)
       {
         other.QueryPinInfo(out info);
@@ -438,19 +438,19 @@ namespace Ui.Players.Video
         if (hr != 0)
         {
           allDisconnected = false;
-          ServiceScope.Get<ILogger>().Error("Error disconnecting: {0:x}", hr);
+          ServiceRegistration.Get<ILogger>().Error("Error disconnecting: {0:x}", hr);
         }
         hr = other.Disconnect();
         if (hr != 0)
         {
           allDisconnected = false;
-          ServiceScope.Get<ILogger>().Error("Error disconnecting other: {0:x}", hr);
+          ServiceRegistration.Get<ILogger>().Error("Error disconnecting other: {0:x}", hr);
         }
         Marshal.ReleaseComObject(other);
       }
       else
       {
-        ServiceScope.Get<ILogger>().Info("  Not connected");
+        ServiceRegistration.Get<ILogger>().Info("  Not connected");
       }
       return allDisconnected;
     }

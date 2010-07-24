@@ -160,12 +160,12 @@ namespace Ui.Players.BassPlayer
 
     public static BassPlayerSettings GetSettings()
     {
-      return ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
+      return ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
     }
 
     public static void SaveSettings(BassPlayerSettings settings)
     {
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public WorkItem DequeueWorkItem()
@@ -366,7 +366,7 @@ namespace Ui.Players.BassPlayer
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Exception in player main thread", e);
+        ServiceRegistration.Get<ILogger>().Error("Exception in player main thread", e);
       }
     }
 

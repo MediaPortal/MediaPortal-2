@@ -75,7 +75,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
       public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
       {
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         foreach (PluginItemMetadata item in items)
         {
           IMetadataExtractor metadataExtractor = pluginManager.RequestPluginItem<IMetadataExtractor>(
@@ -101,7 +101,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
       public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
       {
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         foreach (PluginItemMetadata item in items)
         {
           IMediaProvider mediaProvider = pluginManager.RequestPluginItem<IMediaProvider>(
@@ -157,7 +157,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (_providers != null)
         return;
       _providers = new Dictionary<Guid, IMediaProvider>();
-      foreach (IMediaProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMediaProvider>(
+      foreach (IMediaProvider provider in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IMediaProvider>(
           MEDIA_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker(MEDIA_PROVIDERS_USE_COMPONENT_NAME))) // TODO: Make providers removable
         RegisterProvider(provider);
     }
@@ -171,14 +171,14 @@ namespace MediaPortal.Core.Services.MediaManagement
         return;
       _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
 
-      foreach (IMetadataExtractor metadataExtractor in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMetadataExtractor>(
+      foreach (IMetadataExtractor metadataExtractor in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IMetadataExtractor>(
           METADATA_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME))) // TODO: Make metadata extractors removable
         RegisterMetadataExtractor(metadataExtractor);
     }
 
     protected void RegisterPluginItemListeners()
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.AddItemRegistrationChangeListener(MEDIA_PROVIDERS_PLUGIN_LOCATION,
           _mediaProvidersPluginItemChangeListener);
       pluginManager.AddItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
@@ -187,7 +187,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected void UnregisterPluginItemListeners()
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.RemoveItemRegistrationChangeListener(MEDIA_PROVIDERS_PLUGIN_LOCATION,
           _mediaProvidersPluginItemChangeListener);
       pluginManager.RemoveItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
@@ -303,7 +303,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IMetadataExtractor metadataExtractor in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
@@ -345,7 +345,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
       string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       SystemName systemName = systemResolver.GetSystemNameForSystemId(systemId);
       if (systemName == null)
         throw new ArgumentException(string.Format("Media item cannot be located, system ID '{0}' cannot be resolved", systemId));

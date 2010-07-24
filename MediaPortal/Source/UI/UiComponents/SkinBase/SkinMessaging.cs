@@ -48,7 +48,7 @@ namespace UiComponents.SkinBase
     {
       // Send Startup Finished Message.
       SystemMessage msg = new SystemMessage(messageType);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

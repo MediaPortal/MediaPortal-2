@@ -46,12 +46,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
     
     public string GetFriendlyName(CultureInfo culture)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       FrontendServerSettings settings = settingsManager.Load<FrontendServerSettings>();
       string result = settings.FriendlyName;
       if (string.IsNullOrEmpty(result))
       {
-        result = StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+        result = StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
         settings.FriendlyName = result;
         settingsManager.Save(settings);
@@ -61,37 +61,37 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public string GetManufacturer(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MANUFACTURER));
     }
 
     public string GetManufacturerURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MANUFACTURER_URL));
     }
 
     public string GetModelDescription(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION));
     }
 
     public string GetModelName(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MODEL_NAME));
     }
 
     public string GetModelNumber(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MODEL_NUMBER));
     }
 
     public string GetModelURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_UPNPSERVER_SECTION, RES_MODEL_URL));
     }
 

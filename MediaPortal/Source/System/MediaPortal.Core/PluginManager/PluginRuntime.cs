@@ -271,7 +271,7 @@ namespace MediaPortal.Core.PluginManager
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Error disposing plugin object '{0}' in plugin '{1}' (id '{2}')", e,
+          ServiceRegistration.Get<ILogger>().Warn("Error disposing plugin object '{0}' in plugin '{1}' (id '{2}')", e,
               typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
           throw;
         }
@@ -568,7 +568,7 @@ namespace MediaPortal.Core.PluginManager
 
     protected static IRegistryNode GetRegistryNode(string path, bool createOnNotExist)
     {
-      IRegistry registry = ServiceScope.Get<IRegistry>();
+      IRegistry registry = ServiceRegistration.Get<IRegistry>();
       return registry.GetRegistryNode(path, createOnNotExist);
     }
 

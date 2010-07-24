@@ -60,7 +60,7 @@ namespace Ui.Players.Video
       _propertyIs71 = new WProperty(typeof(bool), false);
 
 
-      _audioSettings = ServiceScope.Get<ISettingsManager>().Load<AudioSettings>();
+      _audioSettings = ServiceRegistration.Get<ISettingsManager>().Load<AudioSettings>();
       switch (_audioSettings.ConnectionType)
       {
         case SpeakerConnectionType.Analog:
@@ -132,7 +132,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         if (_defaultAudioLanguages.Count == 0)
         {
           CultureInfo[] culturesInfos = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
@@ -155,10 +155,10 @@ namespace Ui.Players.Video
     }
     public void SetDefaultAudioLanguage(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       string name = item.Label("Name", "").Evaluate();
       settings.AudioLanguage = name;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
     #endregion
 
@@ -167,7 +167,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         if (_defaultSubtitleLanguages.Count == 0)
         {
           CultureInfo[] culturesInfos = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
@@ -190,10 +190,10 @@ namespace Ui.Players.Video
     }
     public void SetDefaultSubtitleLanguage(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       string name = item.Label("Name", "").Evaluate();
       settings.SubtitleLanguage = name;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
     #endregion
 
@@ -202,7 +202,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _mpeg2Codecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -218,7 +218,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _h264Codecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -234,7 +234,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _divxCodecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -250,7 +250,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
         foreach (ListItem item in _audioCodecs)
         {
           string name = item.Label("Name", "").Evaluate();
@@ -264,27 +264,27 @@ namespace Ui.Players.Video
     }
     public void SetMpeg2Codec(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.Mpeg2Codec = item.Label("Name", "").Evaluate();
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
     public void SetH264Codec(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.H264Codec = item.Label("Name", "").Evaluate();
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
     public void SetDivXCodec(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.DivXCodec = item.Label("Name", "").Evaluate();
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
     public void SetAudioCodec(ListItem item)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.AudioCodec = item.Label("Name", "").Evaluate();
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     static void AddCodec(ICollection<ListItem> collection, string name, string CLSID)
@@ -507,7 +507,7 @@ namespace Ui.Players.Video
         IsDigital = false;
         _audioSettings.ConnectionType = SpeakerConnectionType.Analog;
       }
-      ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
+      ServiceRegistration.Get<ISettingsManager>().Save(_audioSettings);
     }
 
     void OnSpeakerAmountChanged(AbstractProperty prop, object oldValue)
@@ -531,7 +531,7 @@ namespace Ui.Players.Video
         Is51 = false;
         _audioSettings.Count = SpeakerAmount.Speakers_7_1;
       }
-      ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
+      ServiceRegistration.Get<ISettingsManager>().Save(_audioSettings);
     }
     #endregion
   }

@@ -214,7 +214,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
           // couldn't perform our task here
-          ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.LocalResourcePath);
+          ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.LocalResourcePath);
           return false;
         }
 
@@ -248,14 +248,14 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.LocalResourcePath);
         return false;
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
         return false;
       }
     }

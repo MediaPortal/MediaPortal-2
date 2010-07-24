@@ -70,7 +70,7 @@ namespace UiComponents.SkinBase.Models
 
     protected void ReadSettings()
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
       _dateFormat = settings.DateFormat;
       _timeFormat = settings.TimeFormat;
@@ -95,7 +95,7 @@ namespace UiComponents.SkinBase.Models
 
     protected override void Update()
     {
-      ILocalization localization = ServiceScope.Get<ILocalization>();
+      ILocalization localization = ServiceRegistration.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;
 
       DateTime now = DateTime.Now;

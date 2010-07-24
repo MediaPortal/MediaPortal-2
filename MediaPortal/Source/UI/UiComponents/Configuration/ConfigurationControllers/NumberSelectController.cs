@@ -75,7 +75,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
 
       protected static bool ToDouble(string value, out double result)
       {
-        ILocalization localization = ServiceScope.Get<ILocalization>();
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
         CultureInfo culture = localization.CurrentCulture;
         return double.TryParse(value, NumberStyles.Float, culture, out result);
       }
@@ -130,7 +130,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
 
       public override string ToString()
       {
-        ILocalization localization = ServiceScope.Get<ILocalization>();
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
         CultureInfo culture = localization.CurrentCulture;
         return _value.ToString("F" + GetNumberOfDigitsToPreserve(), culture);
       }
@@ -170,7 +170,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
 
       public override string ToString()
       {
-        ILocalization localization = ServiceScope.Get<ILocalization>();
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
         CultureInfo culture = localization.CurrentCulture;
         return _value.ToString(culture);
       }

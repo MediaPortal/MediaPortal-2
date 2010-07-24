@@ -51,7 +51,7 @@ namespace UiComponents.Weather
       // look in the settings what locations are configured
       // and create a new list full of data by downloading and setting
       // it...
-      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       // check if loading went well, if not return null
       if (settings.LocationsList == null)
       {
@@ -62,7 +62,7 @@ namespace UiComponents.Weather
       List<City> citiesList = Helper.CityInfoListToCityObjectList(settings.LocationsList);
       // Get the WeatherCatchers that should be used from the Plugins (if availale)
       /******* TEMPORILY ADD EXISTING CATCHERS *****/
-      //List<IWeatherCatcher> catchers = ServiceScope.Get<IPluginManager>().BuildItems<IWeatherCatcher>("/Models.Weather/Grabbers");
+      //List<IWeatherCatcher> catchers = ServiceRegistration.Get<IPluginManager>().BuildItems<IWeatherCatcher>("/Models.Weather/Grabbers");
       List<IWeatherCatcher> catchers = new List<IWeatherCatcher>();
       catchers.Add(new WeatherDotComCatcher());
 

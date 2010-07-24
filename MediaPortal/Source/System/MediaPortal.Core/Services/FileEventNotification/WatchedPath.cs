@@ -205,7 +205,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
       catch (Exception e)
       {
         // Directory.Exists() might throw undocumented exception in .NET 2.0 (and maybe also later versions)
-        ServiceScope.Get<ILogger>().Warn(
+        ServiceRegistration.Get<ILogger>().Warn(
           "FileEventNotifier encountered an exception for path \"{0}\" while checking it's availability.",
           e, _path.FullName);
         return false;

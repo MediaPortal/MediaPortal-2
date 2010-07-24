@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     static UPnPError OnGetHomeServer(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      outParams = new List<object> {ServiceScope.Get<IServerConnectionManager>().HomeServerSystemId};
+      outParams = new List<object> {ServiceRegistration.Get<IServerConnectionManager>().HomeServerSystemId};
       return null;
     }
 
@@ -120,9 +120,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
           return new UPnPError(600, "Argument 'ImportMode' must be of value 'Import' or 'Refresh'");
       }
       if (refresh)
-        ServiceScope.Get<IImporterWorker>().ScheduleRefresh(path, mediaCategories, true);
+        ServiceRegistration.Get<IImporterWorker>().ScheduleRefresh(path, mediaCategories, true);
       else
-        ServiceScope.Get<IImporterWorker>().ScheduleImport(path, mediaCategories, true);
+        ServiceRegistration.Get<IImporterWorker>().ScheduleImport(path, mediaCategories, true);
       return null;
     }
   }

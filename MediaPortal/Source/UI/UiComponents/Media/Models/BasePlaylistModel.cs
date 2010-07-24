@@ -57,7 +57,7 @@ namespace UiComponents.Media.Models
 
     protected virtual void PlayItem(int index)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
       lock (_syncObj)
@@ -69,7 +69,7 @@ namespace UiComponents.Media.Models
 
     protected virtual bool RemoveItem(int index)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
       lock (_syncObj)

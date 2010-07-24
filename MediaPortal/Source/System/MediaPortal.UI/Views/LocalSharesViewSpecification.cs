@@ -54,7 +54,7 @@ namespace MediaPortal.UI.Views
     {
       mediaItems = new List<MediaItem>();
       subViewSpecifications = new List<ViewSpecification>();
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       foreach (Share share in sharesManagement.Shares.Values)
       {
         subViewSpecifications.Add(new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath,

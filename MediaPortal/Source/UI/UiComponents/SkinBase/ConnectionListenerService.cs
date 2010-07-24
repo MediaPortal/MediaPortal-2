@@ -62,12 +62,12 @@ namespace UiComponents.SkinBase
 
     private static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE_ID)
         // If we are already in the AttachToServer state, don't navigate there again
         return;
       // Check setting which prevents the listener service to pop up server availability messages
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
       if (!settings.EnableServerListener)
         return;

@@ -252,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       if (!_initialized)
         // Avoid changing the player manager's mute state in the initialization phase
         return;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted = IsMuted;
     }
 
@@ -315,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+          ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
           if (sss.CurrentState == SystemState.ShuttingDown)
           {
             UnsubscribeFromMessages();
@@ -327,13 +327,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected IPlayerContext GetPlayerContext()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       return playerContextManager.GetPlayerContext(SlotIndex);
     }
 
     protected void CheckShowMouseControls()
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       ShowMouseControls = inputManager.IsMouseUsed && Screen != null && Screen.HasInputFocus;
     }
 
@@ -344,8 +344,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _updating = true;
       try
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(SlotIndex);
         IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
         IPlayer player = playerSlotController.CurrentPlayer;
@@ -593,7 +593,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("PlayerControl: Error updating properties", e);
+        ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Error updating properties", e);
       }
       finally
       {
@@ -1242,7 +1242,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public void AudioButtonPressed()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerContext playerContext = GetPlayerContext();
       IList<AudioStreamDescriptor> audioStreamDescriptors =
           new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors());
@@ -1256,7 +1256,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
       else
       {
-        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new NavigationContextConfig
           {
             AdditionalContextVariables = new Dictionary<string, object>
@@ -1381,7 +1381,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public void ToggleMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted ^= true;
       UpdateProperties();
     }
@@ -1392,7 +1392,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public void MakeCurrent()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = SlotIndex;
     }
 
@@ -1402,7 +1402,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public void SwitchPip()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.SwitchPipPlayers();
       // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
       // if necessary

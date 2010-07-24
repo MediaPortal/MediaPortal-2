@@ -53,21 +53,21 @@ namespace MediaPortal.UI.SkinEngine
 
     protected static void RegisterGlobalKeyBindings()
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       inputManager.AddKeyBinding(Key.Escape, () =>
         {
           // Close dialog or switch to previous workflow state
-          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
           if (screenManager.IsDialogVisible)
             screenManager.CloseDialog();
           else
-            ServiceScope.Get<IWorkflowManager>().NavigatePop(1);
+            ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
           return true;
         });
       inputManager.AddKeyBinding(Key.Fullscreen, () =>
         {
           //switch to fullscreen
-          IScreenControl sc = ServiceScope.Get<IScreenControl>();
+          IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
           if (sc.IsFullScreen)
             sc.SwitchMode(ScreenMode.NormalWindowed);
           else
@@ -78,7 +78,7 @@ namespace MediaPortal.UI.SkinEngine
 
     protected static void UnregisterGlobalKeyBindings()
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       inputManager.RemoveKeyBinding(Key.Escape);
       inputManager.RemoveKeyBinding(Key.Back);
       inputManager.RemoveKeyBinding(Key.Fullscreen);
@@ -90,24 +90,24 @@ namespace MediaPortal.UI.SkinEngine
     {
       ContentManager.Initialize();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
       IGeometryManager geometryManager = new GeometryManager();
-      ServiceScope.Add<IGeometryManager>(geometryManager);
+      ServiceRegistration.Add<IGeometryManager>(geometryManager);
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
-      ServiceScope.Add<IInputManager>(InputManager.Instance);
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
+      ServiceRegistration.Add<IInputManager>(InputManager.Instance);
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
-      ServiceScope.Add<IScreenManager>(_screenManager);
+      ServiceRegistration.Add<IScreenManager>(_screenManager);
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
-      ServiceScope.Add<ISkinResourceManager>(_screenManager.SkinResourceManager);
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
+      ServiceRegistration.Add<ISkinResourceManager>(_screenManager.SkinResourceManager);
     }
 
     public void Startup()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinEnginePlugin: Startup");
       SlimDX.Configuration.EnableObjectTracking = true;
 
@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine
       _mainForm.Start();
 
       logger.Debug("SkinEnginePlugin: Switching workflow manager to home state");
-      ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
+      ServiceRegistration.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
 
       logger.Debug("SkinEnginePlugin: Registering default key bindings");
       RegisterGlobalKeyBindings();
@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine
 
     void ISkinEngine.Shutdown()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("SkinEnginePlugin: Unregistering default key bindings");
       UnregisterGlobalKeyBindings();
@@ -141,17 +141,17 @@ namespace MediaPortal.UI.SkinEngine
       ContentManager.Free();
       ContentManager.Uninitialize();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
-      ServiceScope.Remove<ISkinResourceManager>();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
+      ServiceRegistration.Remove<ISkinResourceManager>();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
-      ServiceScope.Remove<IScreenManager>();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
+      ServiceRegistration.Remove<IScreenManager>();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
-      ServiceScope.Remove<IInputManager>();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
+      ServiceRegistration.Remove<IInputManager>();
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
-      ServiceScope.Remove<IGeometryManager>();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
+      ServiceRegistration.Remove<IGeometryManager>();
     }
 
     public void Dispose()
@@ -168,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceScope.Add<ISkinEngine>(this);
+      ServiceRegistration.Add<ISkinEngine>(this);
     }
 
     public bool RequestEnd()

@@ -87,7 +87,7 @@ namespace MediaPortal.UI.Views
     {
       get
       {
-        IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
         return scm.IsHomeServerConnected;
       }
     }
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Views
     {
       mediaItems = null;
       subViewSpecifications = null;
-      IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
       try
@@ -107,7 +107,7 @@ namespace MediaPortal.UI.Views
       }
       catch (UPnPRemoteException e)
       {
-        ServiceScope.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
+        ServiceRegistration.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
         mediaItems = null;
         subViewSpecifications = null;
       }

@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       try
       {
         ItemsList navigationItems = GetOrCreateNavigationItems(currentContext);
-        Stack<NavigationContext> contextStack = ServiceScope.Get<IWorkflowManager>().NavigationContextStack;
+        Stack<NavigationContext> contextStack = ServiceRegistration.Get<IWorkflowManager>().NavigationContextStack;
         List<NavigationContext> contexts = new List<NavigationContext>(contextStack);
         contexts.Reverse();
         navigationItems.Clear();
@@ -88,14 +88,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("WorkflowNavigationBar: Error updating properties", e);
+        ServiceRegistration.Get<ILogger>().Warn("WorkflowNavigationBar: Error updating properties", e);
         return null;
       }
     }
 
     protected void WorkflowPopToState(Guid workflowStateId)
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(workflowStateId, false);
     }
 
@@ -107,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get
       {
-        NavigationContext currentContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+        NavigationContext currentContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
         lock (currentContext.SyncRoot)
         {
           ItemsList navigationItems = GetNavigationItems(currentContext);

@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       Add(new GeometryLetterBox());
       Add(new GeometryPanAndScan());
       Add(new GeometryIntelligentZoom());
-      PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
+      PlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PlayerSettings>();
       string defaultGeometry = settings.DefaultGeometry;
       foreach (IGeometry geometry in _availableGeometries.Values)
         if (geometry.Name == defaultGeometry)
@@ -75,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       {
         bool changed = _defaultVideoGeometry != value;
         _defaultVideoGeometry = value;
-        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         PlayerSettings settings = settingsManager.Load<PlayerSettings>();
         settings.DefaultGeometry = _defaultVideoGeometry == null ? null : _defaultVideoGeometry.Name;
         if (changed)

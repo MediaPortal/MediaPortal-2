@@ -51,12 +51,12 @@ namespace Media.Players.PicturePlayer
       //and tell it to show the image
       _state = PlaybackState.Playing;
       _mediaItem = item;
-      ServiceScope.Get<IScreenManager>().PrepareScreen("pictureviewer");
+      ServiceRegistration.Get<IScreenManager>().PrepareScreen("pictureviewer");
       SystemMessage msg = new SystemMessage();
       msg.MessageData["action"] = "show";
       msg.MessageData["mediaitem"] = item;
-      ServiceScope.Get<IMessageBroker>().Send(PICTUREVIEWERQUEUE_NAME, msg);
-      ServiceScope.Get<IScreenManager>().ShowScreen("pictureviewer");
+      ServiceRegistration.Get<IMessageBroker>().Send(PICTUREVIEWERQUEUE_NAME, msg);
+      ServiceRegistration.Get<IScreenManager>().ShowScreen("pictureviewer");
     }
 
     #region IPlayer Members
@@ -67,9 +67,9 @@ namespace Media.Players.PicturePlayer
     public void Stop()
     {
       //remove this player
-      ServiceScope.Get<IPlayerCollection>().Remove(this);
+      ServiceRegistration.Get<IPlayerCollection>().Remove(this);
       //goto the previous window
-      ServiceScope.Get<IScreenManager>().ShowPreviousScreen();
+      ServiceRegistration.Get<IScreenManager>().ShowPreviousScreen();
     }
 
     #endregion

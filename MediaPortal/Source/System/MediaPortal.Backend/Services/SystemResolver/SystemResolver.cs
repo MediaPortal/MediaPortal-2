@@ -34,7 +34,7 @@ namespace MediaPortal.Backend.Services.SystemResolver
   {
     public SystemResolver()
     {
-      ServiceScope.Get<ILogger>().Info("SystemResolver: Local system id is '{0}'", _localSystemId);
+      ServiceRegistration.Get<ILogger>().Info("SystemResolver: Local system id is '{0}'", _localSystemId);
     }
 
     #region ISystemResolver implementation
@@ -43,7 +43,7 @@ namespace MediaPortal.Backend.Services.SystemResolver
     {
       if (systemId == _localSystemId)
         return SystemName.GetLocalSystemName();
-      IClientManager clientManager = ServiceScope.Get<IClientManager>();
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
       return clientManager.GetSystemNameForSystemId(systemId);
     }
 

@@ -60,7 +60,7 @@ namespace MediaPortal.Core.Configuration
     /// </summary>
     public ISettingsManager SettingsManager
     {
-      get { return ServiceScope.Get<ISettingsManager>(); }
+      get { return ServiceRegistration.Get<ISettingsManager>(); }
     }
 
     #endregion

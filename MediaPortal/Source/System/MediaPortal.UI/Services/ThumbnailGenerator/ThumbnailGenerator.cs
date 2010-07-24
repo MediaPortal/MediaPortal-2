@@ -114,7 +114,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
           }
           catch (Exception ex)
           {
-            ServiceScope.Get<ILogger>().Warn("ThumbnailGenerator: Error creating thumbnails", ex);
+            ServiceRegistration.Get<ILogger>().Warn("ThumbnailGenerator: Error creating thumbnails", ex);
           }
           if (item.CreatedDelegate != null)
           {

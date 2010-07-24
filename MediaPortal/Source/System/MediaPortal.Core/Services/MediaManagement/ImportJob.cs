@@ -247,7 +247,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("ImportJob '{0}': cannot add pending import resource '{1}'", e,
+            ServiceRegistration.Get<ILogger>().Warn("ImportJob '{0}': cannot add pending import resource '{1}'", e,
                 _basePath.Serialize(), path);
           }
       }

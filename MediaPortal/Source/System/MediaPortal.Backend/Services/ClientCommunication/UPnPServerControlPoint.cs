@@ -168,7 +168,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Info("UPnPServerControlPoint: Error while disconnecting from client '{0}'", e, systemId);
+          ServiceRegistration.Get<ILogger>().Info("UPnPServerControlPoint: Error while disconnecting from client '{0}'", e, systemId);
         }
     }
 
@@ -190,7 +190,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       catch (Exception e)
       {
         RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
-        ServiceScope.Get<ILogger>().Warn("UPnPServerControlPoint: Error parsing UPnP device description for root device '{0}' at location '{1}'", e,
+        ServiceRegistration.Get<ILogger>().Warn("UPnPServerControlPoint: Error parsing UPnP device description for root device '{0}' at location '{1}'", e,
             rootEntry.RootDeviceID, rootEntry.PreferredLink.DescriptionLocation);
         return null;
       }
@@ -204,7 +204,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}'",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}'",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Add(clientDescriptor);
       }
@@ -220,7 +220,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: MP 2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: MP 2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Remove(clientDescriptor);
       }
@@ -261,7 +261,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn(
+        ServiceRegistration.Get<ILogger>().Warn(
             "UPnPServerControlPoint: Error connecting to UPnP MP 2 frontend server '{0}'", e, clientSystemId);
         return;
       }
@@ -274,7 +274,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn(
+        ServiceRegistration.Get<ILogger>().Warn(
             "UPnPServerControlPoint: Error connecting to services of UPnP MP 2 frontend server '{0}'", e, clientSystemId);
         _controlPoint.Disconnect(connection);
         return;

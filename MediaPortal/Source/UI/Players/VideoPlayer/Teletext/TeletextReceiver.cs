@@ -48,7 +48,7 @@ namespace Ui.Players.Video.Teletext
     {
       if (!ok)
       { //throw new Exception("Assertion failed! " + msg);
-        ServiceScope.Get<ILogger>().Error("Assertion failed! " + msg);
+        ServiceRegistration.Get<ILogger>().Error("Assertion failed! " + msg);
       }
     }
 
@@ -71,24 +71,24 @@ namespace Ui.Players.Video.Teletext
     {
       assert(source != null, "Source is null");
       assert(ttxtDecoder != null, "Decoder is null");
-      ServiceScope.Get<ILogger>().Debug("Setting up teletext receiver ... ");
+      ServiceRegistration.Get<ILogger>().Debug("Setting up teletext receiver ... ");
       eventCallback = new TeletextEventCallback(OnEvent);
       packetCallback = new TeletextPacketCallback(OnTSPacket);
       serviceInfoCallback = new TeletextServiceInfoCallback(OnServiceInfo);
 
       // tell the tsreader's teletext source interface to deliver ts packets to us
       // and to inform us on resets
-      ServiceScope.Get<ILogger>().Debug("Setting up callbacks with ITeletextSource");
+      ServiceRegistration.Get<ILogger>().Debug("Setting up callbacks with ITeletextSource");
       source.SetTeletextTSPacketCallback(Marshal.GetFunctionPointerForDelegate(packetCallback));
       source.SetTeletextEventCallback(Marshal.GetFunctionPointerForDelegate(eventCallback));
       source.SetTeletextServiceInfoCallback(Marshal.GetFunctionPointerForDelegate(serviceInfoCallback));
 
       //tsPackets = new Queue<Packet>();
 
-      ServiceScope.Get<ILogger>().Debug("Setting up ttxtdecoder and pes decoder");
+      ServiceRegistration.Get<ILogger>().Debug("Setting up ttxtdecoder and pes decoder");
       this.ttxtDecoder = ttxtDecoder;
       pesDecoder = new PESDecoder(new PESCallback(OnPesPacket));
-      ServiceScope.Get<ILogger>().Debug("Done setting up teletext receiver ... ");
+      ServiceRegistration.Get<ILogger>().Debug("Done setting up teletext receiver ... ");
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ namespace Ui.Players.Video.Teletext
       lock (this)
       {
         if (discardPackets) return;
-        //ServiceScope.Get<ILogger>().Debug("OnTSPacket");
+        //ServiceRegistration.Get<ILogger>().Debug("OnTSPacket");
         assert(len == 188, "TS packet length is not 188");
         byte[] buffer = new byte[len];
         Marshal.Copy(pbuf, buffer, 0, len); // copy buffer
@@ -126,17 +126,17 @@ namespace Ui.Players.Video.Teletext
         switch (e)
         {
           case TeletextEvent.RESET:
-            ServiceScope.Get<ILogger>().Debug("Teletext: RESET");
+            ServiceRegistration.Get<ILogger>().Debug("Teletext: RESET");
             pesDecoder.Reset();
             ttxtDecoder.Reset();
             // tsPackets.Clear();
             break;
           case TeletextEvent.SEEK_START:
-            ServiceScope.Get<ILogger>().Debug("Teletext: SEEK_START");
+            ServiceRegistration.Get<ILogger>().Debug("Teletext: SEEK_START");
             discardPackets = true;
             break;
           case TeletextEvent.SEEK_END:
-            ServiceScope.Get<ILogger>().Debug("Teletext: SEEK_END");
+            ServiceRegistration.Get<ILogger>().Debug("Teletext: SEEK_END");
 
             pesDecoder.Reset();
             ttxtDecoder.Reset();
@@ -144,21 +144,21 @@ namespace Ui.Players.Video.Teletext
             discardPackets = false;
             break;
           case TeletextEvent.BUFFER_IN_UPDATE:
-            ServiceScope.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (BUFFER_IN_UPDATE)");
+            ServiceRegistration.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (BUFFER_IN_UPDATE)");
             break;
           case TeletextEvent.BUFFER_OUT_UPDATE:
-            ServiceScope.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (BUFFER_OUT_UPDATE)");
+            ServiceRegistration.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (BUFFER_OUT_UPDATE)");
             break;
           case TeletextEvent.PACKET_PCR_UPDATE:
-            //if(lastStreamPCR != eventValue) ServiceScope.Get<ILogger>().Debug("Teletext: Packet PCR : {0}", eventValue);
+            //if(lastStreamPCR != eventValue) ServiceRegistration.Get<ILogger>().Debug("Teletext: Packet PCR : {0}", eventValue);
             lastStreamPCR = eventValue;
             break;
           case TeletextEvent.COMPENSATION_UPDATE:
-            ServiceScope.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (COMPENSATION_UPDATE)");
+            ServiceRegistration.Get<ILogger>().Error("TeletextReceiver: Call to OnEvent with obsolete event value (COMPENSATION_UPDATE)");
             //if (eventValue != lastCompensation)
             //{
             //    lastCompensation = eventValue;
-            //    ServiceScope.Get<ILogger>().Debug("Teletext: Compensation Update : {0}", eventValue);
+            //    ServiceRegistration.Get<ILogger>().Debug("Teletext: Compensation Update : {0}", eventValue);
             //}
             break;
           default:
@@ -172,7 +172,7 @@ namespace Ui.Players.Video.Teletext
     {
       lock (this)
       {
-        ServiceScope.Get<ILogger>().Debug("Page {0} is of type {1} and in lang {2}{3}{4}", page, type, (char)langb1, (char)langb2, (char)langb3);
+        ServiceRegistration.Get<ILogger>().Debug("Page {0} is of type {1} and in lang {2}{3}{4}", page, type, (char)langb1, (char)langb2, (char)langb3);
         StringBuilder sbuf = new StringBuilder();
         sbuf.Append((char)langb1);
         sbuf.Append((char)langb2);
@@ -190,7 +190,7 @@ namespace Ui.Players.Video.Teletext
 
 
       UInt64 PTS = 0;
-      ServiceScope.Get<ILogger>().Debug("TEST: " + (1 << 60));
+      ServiceRegistration.Get<ILogger>().Debug("TEST: " + (1 << 60));
       PTS &= ((UInt64)(header_PTS[0] & 0x0E)) << 32;
       return PTS;
     }
@@ -226,18 +226,18 @@ namespace Ui.Players.Video.Teletext
       byte PTS_DTS_flag = (byte)((header[7] & 0xC0) >> 6);
       assert(PTS_DTS_flag != 0x01, "PTS_DTS_flag != 0x01");
 
-      //ServiceScope.Get<ILogger>().Debug("Header len:" + headerlen);
+      //ServiceRegistration.Get<ILogger>().Debug("Header len:" + headerlen);
       if (PTS_DTS_flag == 0x02 || PTS_DTS_flag == 0x03)
       {
         /*byte[] header_PTS = new byte[5];
         Array.Copy(header,header_PTS,5);
         UInt64 PTS = DecodePTS(header_PTS, PTS_DTS_flag);
-        ServiceScope.Get<ILogger>().Debug("PES packet contains PTS = " + PTS);*/
+        ServiceRegistration.Get<ILogger>().Debug("PES packet contains PTS = " + PTS);*/
       }
       else
       {
         assert(PTS_DTS_flag == 0x00, "PTS_DTS_flag != 0x00 " + PTS_DTS_flag);
-        //ServiceScope.Get<ILogger>().Debug("PES PACKET DOES NOT CONTAIN PTS");
+        //ServiceRegistration.Get<ILogger>().Debug("PES PACKET DOES NOT CONTAIN PTS");
       }
 
       byte PES_HEADER_DATA_LENGTH = header[8];
@@ -259,7 +259,7 @@ namespace Ui.Players.Video.Teletext
       byte data_identifier = data[0];
       if (!(data_identifier >= 0x10 && data_identifier <= 0x1F))
       {
-        ServiceScope.Get<ILogger>().Debug("Data identifier not as expected {0}", data_identifier);
+        ServiceRegistration.Get<ILogger>().Debug("Data identifier not as expected {0}", data_identifier);
       }
       // assert(data_identifier >= 0x10 && data_identifier <= 0x1F);
 
@@ -279,7 +279,7 @@ namespace Ui.Players.Video.Teletext
 
         byte data_unit_id = data[offset];
 
-        //ServiceScope.Get<ILogger>().Debug("Data unit id " + data_unit_id);
+        //ServiceRegistration.Get<ILogger>().Debug("Data unit id " + data_unit_id);
 
         if (!(data_unit_id == 0xFF || data_unit_id == 0x02 || data_unit_id == 0x03))
         {
@@ -290,10 +290,10 @@ namespace Ui.Players.Video.Teletext
             dataLeft -= data_unit_length + 2; // +2 for id and length
             continue;
           }
-          ServiceScope.Get<ILogger>().Debug("Data unit id incorrect: " + data_unit_id);
+          ServiceRegistration.Get<ILogger>().Debug("Data unit id incorrect: " + data_unit_id);
           if (data_unit_id == 0x2C && data[offset + 2] == 0xE4 && data_identifier == 0x02)
           {
-            ServiceScope.Get<ILogger>().Debug("Data starts without data_identifier! data_identifier has value of data_unit_id, data_unit_id of data_unit_length etc..!!!");
+            ServiceRegistration.Get<ILogger>().Debug("Data starts without data_identifier! data_identifier has value of data_unit_id, data_unit_id of data_unit_length etc..!!!");
           }
 
           assert(data_unit_id == 0xFF || data_unit_id == 0x02 || data_unit_id == 0x03, "Data unit id invalid value");
@@ -303,11 +303,11 @@ namespace Ui.Players.Video.Teletext
         // does the decoder wants this type of teletext data?
         if (ttxtDecoder == null)
         {
-          //ServiceScope.Get<ILogger>().Debug("Ignoring PES packet (decoder == null)");
+          //ServiceRegistration.Get<ILogger>().Debug("Ignoring PES packet (decoder == null)");
         }
         else if (!ttxtDecoder.AcceptsDataUnitID(data_unit_id))
         {
-          //ServiceScope.Get<ILogger>().Debug("Ignoring PES packet (unit id " + data_unit_id + " not accepted)");
+          //ServiceRegistration.Get<ILogger>().Debug("Ignoring PES packet (unit id " + data_unit_id + " not accepted)");
         }
         else if (data_unit_id == 0x03)
         {
@@ -316,7 +316,7 @@ namespace Ui.Players.Video.Teletext
           // always the same length for teletext data (see section 4.4)
           if (data_unit_length != 0x2C)
           {
-            ServiceScope.Get<ILogger>().Debug("EBU teletext sub has wrong length field! " + data_unit_length, "Wrong length field");
+            ServiceRegistration.Get<ILogger>().Debug("EBU teletext sub has wrong length field! " + data_unit_length, "Wrong length field");
           }
 
           //WAS: byte* teletextPacketData = &data[offset + 2]; // skip past data_unit_id and data_unit_length
@@ -327,13 +327,13 @@ namespace Ui.Players.Video.Teletext
         }
         else if (data_unit_id == 0x02)
         { //EBU teletext non-subtitle data
-          //ServiceScope.Get<ILogger>().Debug("EBU Teletext non-subtitle data");
+          //ServiceRegistration.Get<ILogger>().Debug("EBU Teletext non-subtitle data");
           byte data_unit_length = data[offset + 1];
 
           // always the same length for teletext data (see section 4.4)
           if (data_unit_length != 0x2C)
           {
-            ServiceScope.Get<ILogger>().Debug("EBU teletext sub has wrong length field! %X", data_unit_length, "Wrong length field (non sub");
+            ServiceRegistration.Get<ILogger>().Debug("EBU teletext sub has wrong length field! %X", data_unit_length, "Wrong length field (non sub");
           }
 
           //WAS: byte* teletextPacketData = &data[offset + 2]; // skip past data_unit_id and data_unit_length

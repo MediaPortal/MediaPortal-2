@@ -172,7 +172,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing plugin descriptor file '" + _pluginFilePath + "'", e);
+        ServiceRegistration.Get<ILogger>().Error("Error parsing plugin descriptor file '" + _pluginFilePath + "'", e);
         return false;
       }
       return true;

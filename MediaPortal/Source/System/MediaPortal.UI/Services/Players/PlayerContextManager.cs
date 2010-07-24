@@ -231,7 +231,7 @@ namespace MediaPortal.UI.Services.Players
     /// </summary>
     protected static void CheckAudio()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         if (playerManager.AudioSlotIndex != -1)
@@ -253,7 +253,7 @@ namespace MediaPortal.UI.Services.Players
 
     protected void CheckCurrentPlayerSlot()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerSlotController primaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
       IPlayerSlotController secondaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT);
       lock (playerManager.SyncObj)
@@ -277,7 +277,7 @@ namespace MediaPortal.UI.Services.Players
     /// </summary>
     protected void CheckMediaWorkflowStates_Async()
     {
-      ServiceScope.Get<IThreadPool>().Add(new DoWorkHandler(CheckMediaWorkflowStates_NoLock), "PlayerContextManager: CheckMediaWorkflowStates");
+      ServiceRegistration.Get<IThreadPool>().Add(new DoWorkHandler(CheckMediaWorkflowStates_NoLock), "PlayerContextManager: CheckMediaWorkflowStates");
     }
 
     /// <summary>
@@ -311,14 +311,14 @@ namespace MediaPortal.UI.Services.Players
     /// </remarks>
     protected void CheckMediaWorkflowStates_NoLock()
     {
-      ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+      ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState != SystemState.Running)
         // Only automatically change workflow states in running state
         return;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.StartBatchUpdate();
-      ILogger log = ServiceScope.Get<ILogger>();
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      ILogger log = ServiceRegistration.Get<ILogger>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       try
       {
         for (int i = 0; i < _playerWfStateInstances.Count; i++)
@@ -383,7 +383,7 @@ namespace MediaPortal.UI.Services.Players
 
     protected static PlayerContext GetPlayerContextInternal(int slotIndex)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       return PlayerContext.GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
     }
 
@@ -404,7 +404,7 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         return playerManager.SyncObj;
       }
     }
@@ -413,7 +413,7 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         // We don't need to lock here because of the ||
         return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IAudioPlayer ||
             playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IAudioPlayer;
@@ -424,7 +424,7 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         // No locking necessary
         return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IVideoPlayer;
       }
@@ -434,7 +434,7 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         // No locking necessary
         return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
       }
@@ -517,7 +517,7 @@ namespace MediaPortal.UI.Services.Players
     public IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrent, Guid currentlyPlayingWorkflowStateId,
         Guid fullscreenContentWorkflowStateId)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         int numActive = playerManager.NumActiveSlots;
@@ -545,7 +545,7 @@ namespace MediaPortal.UI.Services.Players
     public IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, bool concurrent, bool subordinatedVideo,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         int numActive = playerManager.NumActiveSlots;
@@ -633,7 +633,7 @@ namespace MediaPortal.UI.Services.Players
           return;
         currentlyPlayingStateId = pc.CurrentlyPlayingWorkflowStateId;
       }
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(currentlyPlayingStateId);
     }
 
@@ -649,7 +649,7 @@ namespace MediaPortal.UI.Services.Players
           return;
         fullscreenContentStateId = pc.FullscreenContentWorkflowStateId;
       }
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(fullscreenContentStateId);
     }
 
@@ -709,7 +709,7 @@ namespace MediaPortal.UI.Services.Players
 
     public bool SetAudioStream(AudioStreamDescriptor stream)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerContext playerContext = stream.PlayerContext;
       lock (playerManager.SyncObj)
       {
@@ -810,7 +810,7 @@ namespace MediaPortal.UI.Services.Players
 
     public void SwitchPipPlayers()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         int numActive = playerManager.NumActiveSlots;

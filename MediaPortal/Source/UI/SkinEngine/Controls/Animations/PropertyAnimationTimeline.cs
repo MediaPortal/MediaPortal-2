@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       }
       catch (XamlBindingException e)
       {
-        ServiceScope.Get<ILogger>().Warn("PropertyAnimationTimeline: Error evaluating expression '{0}' on target object '{1}'", e, _propertyExpression, targetObject);
+        ServiceRegistration.Get<ILogger>().Warn("PropertyAnimationTimeline: Error evaluating expression '{0}' on target object '{1}'", e, _propertyExpression, targetObject);
       }
       return null;
     }

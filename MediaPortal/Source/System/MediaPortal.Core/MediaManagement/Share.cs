@@ -137,7 +137,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
     public static Share CreateNewLocalShare(ResourcePath baseResourcePath, string name, IEnumerable<string> mediaCategories)
     {
-      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       return CreateNewShare(systemResolver.LocalSystemId, baseResourcePath, name, mediaCategories);
     }
 

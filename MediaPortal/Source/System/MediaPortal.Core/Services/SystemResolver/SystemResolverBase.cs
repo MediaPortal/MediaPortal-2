@@ -36,7 +36,7 @@ namespace MediaPortal.Core.Services.SystemResolver
 
     protected SystemResolverBase()
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SystemResolverSettings settings = settingsManager.Load<SystemResolverSettings>();
       if (string.IsNullOrEmpty(settings.SystemId))
       {

@@ -95,7 +95,7 @@ namespace MediaPortal
       try
       {
         lvClients.Items.Clear();
-        IClientManager clientManager = ServiceScope.Get<IClientManager>();
+        IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
         ICollection<ClientConnection> clients = clientManager.ConnectedClients;
         ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
         foreach (ClientConnection clientConnection in clients)

@@ -89,8 +89,8 @@ namespace UiComponents.SkinBase.Models
 
     protected void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       Size videoAspectRatio = pipPlayer == null ? new Size(4, 3) : pipPlayer.VideoAspectRatio;
@@ -153,31 +153,31 @@ namespace UiComponents.SkinBase.Models
 
     public void SetCurrentPlayer(int playerIndex)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = playerIndex;
     }
 
     public void ClosePlayerContext(int playerIndex)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(playerIndex);
     }
 
     public void PlayersMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted = true;
     }
 
     public void PlayersResetMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted = false;
     }
 
     public void SwitchPrimarySecondaryPlayer()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.SwitchSlots();
     }
 
@@ -187,73 +187,73 @@ namespace UiComponents.SkinBase.Models
 
     public static void Play()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.Play();
     }
 
     public static void Pause()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.Pause();
     }
 
     public static void TogglePause()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.TogglePlayPause();
     }
 
     public static void Stop()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.Stop();
     }
 
     public static void SeekForward()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.SeekForward();
     }
 
     public static void SeekBackward()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.SeekBackward();
     }
 
     public static void Previous()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.PreviousItem();
     }
 
     public static void Next()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.NextItem();
     }
 
     public static void VolumeUp()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.VolumeUp();
     }
 
     public static void VolumeDown()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.VolumeDown();
     }
 
     public static void ToggleMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted ^= true;
     }
 
     public static void ToggleCurrentPlayer()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.ToggleCurrentPlayer();
     }
 

@@ -184,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing theme descriptor '" + metaFilePath + "'", e);
+        ServiceRegistration.Get<ILogger>().Error("Error parsing theme descriptor '" + metaFilePath + "'", e);
         return false;
       }
       return true;

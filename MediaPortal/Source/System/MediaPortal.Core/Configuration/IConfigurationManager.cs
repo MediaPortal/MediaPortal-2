@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Configuration
   /// </para>
   /// <example>
   /// <code>
-  /// IConfigurationNode node = ServiceScope.Get&lt;IConfigurationManager&gt;.GetNode("/System/General");
+  /// IConfigurationNode node = ServiceRegistration.Get&lt;IConfigurationManager&gt;.GetNode("/System/General");
   /// </code>
   /// </example>
   /// The configuration manager has to be disposed by calling <see cref="IDisposable.Dispose"/> after it was

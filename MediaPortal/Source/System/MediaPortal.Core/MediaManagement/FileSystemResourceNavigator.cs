@@ -111,7 +111,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="provider">Chained media provider which can chain upon the given file resource.</param>
     public static bool CanBeUnfolded(IResourceAccessor fileAccessor, out IChainedMediaProvider provider)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IChainedMediaProvider cmp in mediaAccessor.LocalChainedMediaProviders)
         if (cmp.CanChainUp(fileAccessor))
         {

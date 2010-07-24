@@ -306,7 +306,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         CPolygon p = remainingPolygon.CutEar();
         if (p == null)
         {
-          ServiceScope.Get<ILogger>().Warn("Serious problem while triangulating polygon '{0}'", p);
+          ServiceRegistration.Get<ILogger>().Warn("Serious problem while triangulating polygon '{0}'", p);
           yield break;
         }
         yield return p;

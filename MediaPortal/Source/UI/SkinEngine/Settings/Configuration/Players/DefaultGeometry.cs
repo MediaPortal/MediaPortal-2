@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
 
     public override void Load()
     {
-      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+      IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
       _geometries = new List<IGeometry>(geometryManager.AvailableGeometries.Values);
       IGeometry current = geometryManager.DefaultVideoGeometry;
       // Fill items
@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
 
     public override void Save()
     {
-      ServiceScope.Get<IGeometryManager>().DefaultVideoGeometry = _geometries[Selected];
+      ServiceRegistration.Get<IGeometryManager>().DefaultVideoGeometry = _geometries[Selected];
     }
 
     #endregion

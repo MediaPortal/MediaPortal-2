@@ -51,7 +51,7 @@ namespace MediaPortal.Core.Commands
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
+        ServiceRegistration.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
       }
     }
 

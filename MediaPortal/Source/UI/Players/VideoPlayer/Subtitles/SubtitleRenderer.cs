@@ -266,16 +266,16 @@ namespace Ui.Players.Video.Subtitles
       {
         useBitmap = false;
         activeSubPage = option.entry.page;
-        ServiceScope.Get<ILogger>().Debug("SubtitleRender: Now rendering {0} teletext subtitle page {1}", option.language, activeSubPage);
+        ServiceRegistration.Get<ILogger>().Debug("SubtitleRender: Now rendering {0} teletext subtitle page {1}", option.language, activeSubPage);
       }
       else if (option.type == SubtitleType.Bitmap)
       {
         useBitmap = true;
-        ServiceScope.Get<ILogger>().Debug("SubtitleRender: Now rendering bitmap subtitles in language {0}", option.language);
+        ServiceRegistration.Get<ILogger>().Debug("SubtitleRender: Now rendering bitmap subtitles in language {0}", option.language);
       }
       else
       {
-        ServiceScope.Get<ILogger>().Error("Unknown subtitle option " + option);
+        ServiceRegistration.Get<ILogger>().Error("Unknown subtitle option " + option);
       }
     }
 
@@ -287,7 +287,7 @@ namespace Ui.Players.Video.Subtitles
     /// <returns></returns>
     public int OnSeek(double startPos)
     {
-      ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: OnSeek - clear subtitles");
+      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: OnSeek - clear subtitles");
       // Remove all previously received subtitles
       lock (subtitles)
       {
@@ -297,7 +297,7 @@ namespace Ui.Players.Video.Subtitles
       //this.startPos = startPos;
       clearOnNextRender = true;
       //posOnLastTextSub = -1;
-      ServiceScope.Get<ILogger>().Debug("New StartPos is " + startPos);
+      ServiceRegistration.Get<ILogger>().Debug("New StartPos is " + startPos);
       return 0;
     }
 
@@ -309,7 +309,7 @@ namespace Ui.Players.Video.Subtitles
     /// <returns></returns>
     public int Reset()
     {
-      ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: RESET");
+      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: RESET");
       // Remove all previously received subtitles
       lock (subtitles)
       {
@@ -326,7 +326,7 @@ namespace Ui.Players.Video.Subtitles
     /// <returns></returns>
     public int UpdateTimeout(ref Int64 timeOut)
     {
-      ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: UpdateTimeout");
+      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: UpdateTimeout");
       Subtitle latest;
       if (subtitles.Count > 0)
       {
@@ -340,7 +340,7 @@ namespace Ui.Players.Video.Subtitles
       if (latest != null)
       {
         latest.timeOut = (double)timeOut / 1000.0f;
-        ServiceScope.Get<ILogger>().Debug("  new timeOut = {0}", latest.timeOut);
+        ServiceRegistration.Get<ILogger>().Debug("  new timeOut = {0}", latest.timeOut);
       }
       return 0;
     }
@@ -355,13 +355,13 @@ namespace Ui.Players.Video.Subtitles
     public int OnSubtitle(ref NATIVE_SUBTITLE sub)
     {
       if (!useBitmap) return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
-      ServiceScope.Get<ILogger>().Debug("OnSubtitle - stream position " + player.CurrentTime);
+      ServiceRegistration.Get<ILogger>().Debug("OnSubtitle - stream position " + player.CurrentTime);
       lock (alert)
       {
         try
         {
-          ServiceScope.Get<ILogger>().Debug("SubtitleRenderer:  Bitmap: bpp=" + sub.bmBitsPixel + " planes " + sub.bmPlanes + " dim = " + sub.bmWidth + " x " + sub.bmHeight + " stride : " + sub.bmWidthBytes);
-          ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: to = " + sub.timeOut + " ts=" + sub.timeStamp + " fsl=" + sub.firstScanLine + " (startPos = " + startPos + ")");
+          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer:  Bitmap: bpp=" + sub.bmBitsPixel + " planes " + sub.bmPlanes + " dim = " + sub.bmWidth + " x " + sub.bmHeight + " stride : " + sub.bmWidthBytes);
+          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: to = " + sub.timeOut + " ts=" + sub.timeStamp + " fsl=" + sub.firstScanLine + " (startPos = " + startPos + ")");
 
           Subtitle subtitle = new Subtitle();
           subtitle.subBitmap = new Bitmap(sub.bmWidth, sub.bmHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -371,7 +371,7 @@ namespace Ui.Players.Video.Subtitles
           subtitle.width = (uint)sub.bmWidth;
           subtitle.firstScanLine = sub.firstScanLine;
           subtitle.id = subCounter++;
-          //ServiceScope.Get<ILogger>().Debug("Received Subtitle : " + subtitle.ToString());
+          //ServiceRegistration.Get<ILogger>().Debug("Received Subtitle : " + subtitle.ToString());
 
           // get bits of allocated image
           BitmapData bmData = subtitle.subBitmap.LockBits(new Rectangle(0, 0, sub.bmWidth, sub.bmHeight), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
@@ -380,7 +380,7 @@ namespace Ui.Players.Video.Subtitles
 
           if (newSize != size)
           {
-            ServiceScope.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
+            ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
           }
           // Copy to new bitmap
           //Marshal.Copy(sub.bmBits,bmData.Scan0, 0, newSize);
@@ -398,16 +398,16 @@ namespace Ui.Players.Video.Subtitles
           {
             while (subtitles.Count >= MAX_SUBTITLES_IN_QUEUE)
             {
-              ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
+              ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
               subtitles.RemoveFirst();
             }
             subtitles.AddLast(subtitle);
-            ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle added, now have " + subtitles.Count + " subtitles in cache");
+            ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Subtitle added, now have " + subtitles.Count + " subtitles in cache");
           }
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error(e);
+          ServiceRegistration.Get<ILogger>().Error(e);
         }
       }
       return 0;
@@ -420,45 +420,45 @@ namespace Ui.Players.Video.Subtitles
     public void OnTextSubtitle(ref TEXT_SUBTITLE sub)
     {
       //bool blank = false;
-      ServiceScope.Get<ILogger>().Debug("On TextSubtitle called");
+      ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
 
       try
       {
         if (sub.page == activeSubPage)
         {
-          ServiceScope.Get<ILogger>().Debug("Page: " + sub.page);
-          ServiceScope.Get<ILogger>().Debug("Character table: " + sub.encoding);
-          ServiceScope.Get<ILogger>().Debug("Timeout: " + sub.timeOut);
-          ServiceScope.Get<ILogger>().Debug("Timestamp" + sub.timeStamp);
-          ServiceScope.Get<ILogger>().Debug("Language: " + sub.language);
+          ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.page);
+          ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.encoding);
+          ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.timeOut);
+          ServiceRegistration.Get<ILogger>().Debug("Timestamp" + sub.timeStamp);
+          ServiceRegistration.Get<ILogger>().Debug("Language: " + sub.language);
 
           String content = sub.text;
           if (content == null)
           {
-            ServiceScope.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
+            ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
             return;
           }
           // FIXME: Remove this
-          //ServiceScope.Get<ILogger>().Debug("Content: ");
+          //ServiceRegistration.Get<ILogger>().Debug("Content: ");
           //if (content.Trim().Length > 0) // debug log subtitles
           //{
           //  StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
           //  while (st.HasMore)
           //  {
-          //    ServiceScope.Get<ILogger>().Debug(st.NextToken());
+          //    ServiceRegistration.Get<ILogger>().Debug(st.NextToken());
           //  }
           //}
           //else
           //{
           //  //blank = true;
-          //  ServiceScope.Get<ILogger>().Debug("<BLANK PAGE>");
+          //  ServiceRegistration.Get<ILogger>().Debug("<BLANK PAGE>");
           //}
         }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Problem with TEXT_SUBTITLE");
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Error("Problem with TEXT_SUBTITLE");
+        ServiceRegistration.Get<ILogger>().Error(e);
       }
 
       try
@@ -466,12 +466,12 @@ namespace Ui.Players.Video.Subtitles
         // if we dont need the subtitle
         if (!renderSubtitles || useBitmap || (activeSubPage != sub.page))
         {
-          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
+          ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
           return;
         }
         else
         {
-          ServiceScope.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
+          ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.page, useBitmap, activeSubPage);
         }
 
         Subtitle subtitle = new Subtitle();
@@ -487,18 +487,18 @@ namespace Ui.Players.Video.Subtitles
         {
           while (subtitles.Count >= MAX_SUBTITLES_IN_QUEUE)
           {
-            ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
+            ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Subtitle queue too big, discarding first element");
             subtitles.RemoveFirst();
           }
           subtitles.AddLast(subtitle);
 
-          ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have " + subtitles.Count + " subtitles in cache " + subtitle.ToString() + " pos on last render was " + posOnLastRender);
+          ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Text subtitle added, now have " + subtitles.Count + " subtitles in cache " + subtitle.ToString() + " pos on last render was " + posOnLastRender);
         }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Problem processing text subtitle");
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Error("Problem processing text subtitle");
+        ServiceRegistration.Get<ILogger>().Error(e);
       }
 
       return;
@@ -545,7 +545,7 @@ namespace Ui.Players.Video.Subtitles
     /// <param name="bitmap"></param>
     private void SetSubtitle(Subtitle subtitle)
     {
-      ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: SetSubtitle : " + subtitle.ToString());
+      ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: SetSubtitle : " + subtitle.ToString());
       Texture texture = null;
       try
       {
@@ -586,8 +586,8 @@ namespace Ui.Players.Video.Subtitles
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: Failed to create subtitle surface!!!");
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: Failed to create subtitle surface!!!");
+        ServiceRegistration.Get<ILogger>().Error(e);
         return;
       }
 
@@ -616,11 +616,11 @@ namespace Ui.Players.Video.Subtitles
       {
         filter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "MediaPortal DVBSub2");
         subFilter = filter as IDVBSubtitleSource;
-        ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (filter != null) + " & " + (subFilter != null));
+        ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (filter != null) + " & " + (subFilter != null));
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Error(e);
       }
       subFilter.StatusTest(111);
       IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(callBack);
@@ -643,13 +643,13 @@ namespace Ui.Players.Video.Subtitles
       {
         return;
       }
-      //ServiceScope.Get<ILogger>().Debug("\n\n***** SubtitleRenderer: Subtitle render *********");
-      // ServiceScope.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
+      //ServiceRegistration.Get<ILogger>().Debug("\n\n***** SubtitleRenderer: Subtitle render *********");
+      // ServiceRegistration.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
       //if (!GUIGraphicsContext.IsFullScreenVideo) return;
 
       if (clearOnNextRender)
       {
-        //ServiceScope.Get<ILogger>().Debug("SubtitleRenderer: clearOnNextRender");
+        //ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: clearOnNextRender");
         clearOnNextRender = false;
         if (subTexture != null) subTexture.Dispose();
         subTexture = null;
@@ -671,7 +671,7 @@ namespace Ui.Players.Video.Subtitles
           if (next.presentTime <= player.CurrentTime.TotalSeconds) timeForNext = true;
           else
           {
-            //ServiceScope.Get<ILogger>().Debug("-NEXT subtitle is in the future");
+            //ServiceRegistration.Get<ILogger>().Debug("-NEXT subtitle is in the future");
           }
         }
       }
@@ -681,15 +681,15 @@ namespace Ui.Players.Video.Subtitles
       // Check for subtitle if we dont have one currently or if the current one is beyond its timeout
       if (currentSubtitle == null || currentSubtitle.presentTime + currentSubtitle.timeOut <= player.CurrentTime.TotalSeconds || timeForNext)
       {
-        //ServiceScope.Get<ILogger>().Debug("-Current position: ");
+        //ServiceRegistration.Get<ILogger>().Debug("-Current position: ");
         if (currentSubtitle != null && !timeForNext)
         {
-          //ServiceScope.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " time out expired");
+          //ServiceRegistration.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " time out expired");
           currentSubtitle = null;
         }
         if (timeForNext)
         {
-          //if (currentSubtitle != null) ServiceScope.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " TIME FOR NEXT!");
+          //if (currentSubtitle != null) ServiceRegistration.Get<ILogger>().Debug("-Current subtitle : " + currentSubtitle.ToString() + " TIME FOR NEXT!");
         }
 
         Subtitle next = null;
@@ -699,7 +699,7 @@ namespace Ui.Players.Video.Subtitles
           {
             next = subtitles.First.Value;
 
-            //ServiceScope.Get<ILogger>().Debug("-next from queue: " + next.ToString());
+            //ServiceRegistration.Get<ILogger>().Debug("-next from queue: " + next.ToString());
             // if the next should be displayed now or previously
             if (next.presentTime <= player.CurrentTime.TotalSeconds)
             {
@@ -718,7 +718,7 @@ namespace Ui.Players.Video.Subtitles
             else
             {
 
-              //ServiceScope.Get<ILogger>().Debug("-next is in the future");
+              //ServiceRegistration.Get<ILogger>().Debug("-next is in the future");
               break;
             }
           }
@@ -757,7 +757,7 @@ namespace Ui.Players.Video.Subtitles
         // make sure the vertex buffer is ready and correct for the coordinates
         CreateVertexBuffer(wx, wy, wwidth, wheight);
 
-        // ServiceScope.Get<ILogger>().Debug("Subtitle render target: wx = {0} wy = {1} ww = {2} wh = {3}", wx, wy, wwidth, wheight);
+        // ServiceRegistration.Get<ILogger>().Debug("Subtitle render target: wx = {0} wy = {1} ww = {2} wh = {3}", wx, wy, wwidth, wheight);
 
         // enable alpha testing so that the subtitle is rendered with transparent background
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, true);
@@ -774,7 +774,7 @@ namespace Ui.Players.Video.Subtitles
       catch (Exception e)
       {
 
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Error(e);
       }
       try
       {
@@ -785,7 +785,7 @@ namespace Ui.Players.Video.Subtitles
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error(e);
+        ServiceRegistration.Get<ILogger>().Error(e);
       }
     }
 
@@ -801,13 +801,13 @@ namespace Ui.Players.Video.Subtitles
     {
       if (vertexBuffer == null)
       {
-        ServiceScope.Get<ILogger>().Debug("Subtitle: Creating vertex buffer");
+        ServiceRegistration.Get<ILogger>().Debug("Subtitle: Creating vertex buffer");
         vertexBuffer = PositionColoredTextured.Create(4);
       }
 
       if (wx0 != wx || wy0 != wy || wwidth0 != wwidth || wheight0 != wheight)
       {
-        ServiceScope.Get<ILogger>().Debug("Subtitle: Setting vertices");
+        ServiceRegistration.Get<ILogger>().Debug("Subtitle: Setting vertices");
         PositionColoredTextured[] verts = new PositionColoredTextured[4];
         int color;
         unchecked

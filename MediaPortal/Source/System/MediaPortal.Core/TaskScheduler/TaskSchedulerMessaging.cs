@@ -52,7 +52,7 @@ namespace MediaPortal.Core.TaskScheduler
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[TASK] = task;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

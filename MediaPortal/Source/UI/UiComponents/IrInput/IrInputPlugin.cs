@@ -59,9 +59,9 @@ namespace UiComponents.IrInput
     void Startup()
     {
       if (StartClient())
-        ServiceScope.Get<ILogger>().Info("IrInputPlugin: Started");
+        ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Started");
       else
-        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Failed to start local comms, input service is unavailable for this session");
+        ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Failed to start local comms, input service is unavailable for this session");
     }
 
     void CommsFailure(object obj)
@@ -69,20 +69,20 @@ namespace UiComponents.IrInput
       Exception ex = obj as Exception;
 
       if (ex != null)
-        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Communications failure", ex);
+        ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Communications failure", ex);
       else
-        ServiceScope.Get<ILogger>().Error("IrInputPlugin: Communications failure");
+        ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Communications failure");
 
       StopClient();
 
-      ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Attempting communications restart ...");
+      ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: Attempting communications restart ...");
 
       StartClient();
     }
 
     void Connected(object obj)
     {
-      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Connected to server");
+      ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Connected to server");
 
       IrssMessage message = new IrssMessage(MessageType.RegisterClient, MessageFlags.Request);
       _client.Send(message);
@@ -90,12 +90,12 @@ namespace UiComponents.IrInput
 
     void Disconnected(object obj)
     {
-      ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Communications with server has been lost");
+      ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: Communications with server has been lost");
     }
 
     void ReceivedMessage(IrssMessage received)
     {
-      ServiceScope.Get<ILogger>().Debug("IrInputPlugin: Received Message '{0}' {1}", received.Type, received.GetDataAsString());
+      ServiceRegistration.Get<ILogger>().Debug("IrInputPlugin: Received Message '{0}' {1}", received.Type, received.GetDataAsString());
       try
       {
         switch (received.Type)
@@ -119,9 +119,9 @@ namespace UiComponents.IrInput
           /*
           case MessageType.BlastIR:
             if ((received.Flags & MessageFlags.Success) == MessageFlags.Success)
-              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Blast successful");
+              ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Blast successful");
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
-              ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Failed to blast IR command");
+              ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: Failed to blast IR command");
             break;
           */
           case MessageType.RegisterClient:
@@ -129,10 +129,10 @@ namespace UiComponents.IrInput
             {
               _irServerInfo = IRServerInfo.FromBytes(received.GetDataAsBytes());
 
-              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Registered to Input Service '{0}'", _irServerInfo);
+              ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Registered to Input Service '{0}'", _irServerInfo);
             }
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
-              ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Input Service refused to register plugin");
+              ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: Input Service refused to register plugin");
             break;
 
           // TODO: What to do with this code?
@@ -140,7 +140,7 @@ namespace UiComponents.IrInput
           case MessageType.LearnIR:
             if ((received.Flags & MessageFlags.Success) == MessageFlags.Success)
             {
-              ServiceScope.Get<ILogger>().Info("IrInputPlugin: Learned IR Successfully");
+              ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Learned IR Successfully");
 
               byte[] dataBytes = received.GetDataAsBytes();
 
@@ -148,23 +148,23 @@ namespace UiComponents.IrInput
                 file.Write(dataBytes, 0, dataBytes.Length);
             }
             else if ((received.Flags & MessageFlags.Failure) == MessageFlags.Failure)
-              ServiceScope.Get<ILogger>().Error("IrInputPlugin: Failed to learn IR command");
+              ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Failed to learn IR command");
             else if ((received.Flags & MessageFlags.Timeout) == MessageFlags.Timeout)
-              ServiceScope.Get<ILogger>().Error("IrInputPlugin: Learn IR command timed-out");
+              ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Learn IR command timed-out");
             break;
           */
           case MessageType.ServerShutdown:
-            ServiceScope.Get<ILogger>().Warn("IrInputPlugin: Input Service shutdown - IrInputPlugin is disabled until Input Service returns");
+            ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: Input Service shutdown - IrInputPlugin is disabled until Input Service returns");
             break;
 
           case MessageType.Error:
-            ServiceScope.Get<ILogger>().Error("IrInputPlugin: Received error '{0}'", received.GetDataAsString());
+            ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: Received error '{0}'", received.GetDataAsString());
             break;
         }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Problem receiving IR message: {0}", ex);
+        ServiceRegistration.Get<ILogger>().Error("Problem receiving IR message: {0}", ex);
       }
     }
 
@@ -178,7 +178,7 @@ namespace UiComponents.IrInput
     /// <returns><c>true</c>, if the client could successfully be started, else <c>false</c>.</returns>
     public bool StartClient()
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       IrInputSettings settings = settingsManager.Load<IrInputSettings>();
       IPAddress serverIP = Client.GetIPFromName(settings.ServerHost);
       IPEndPoint endPoint = new IPEndPoint(serverIP, Server.DefaultPort);
@@ -192,7 +192,7 @@ namespace UiComponents.IrInput
     /// <returns><c>true</c>, if the client could successfully be started, else <c>false</c>.</returns>
     public bool StartClient(IPEndPoint endPoint)
     {
-      ServiceScope.Get<ILogger>().Info("IrInputPlugin: Connect to service ({0}:{1})", endPoint.Address, endPoint.Port);
+      ServiceRegistration.Get<ILogger>().Info("IrInputPlugin: Connect to service ({0}:{1})", endPoint.Address, endPoint.Port);
       if (_client != null)
         return false;
 
@@ -227,10 +227,10 @@ namespace UiComponents.IrInput
 
     void RemoteHandler(string remoteButton)
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       if (inputManager == null)
       {
-        ServiceScope.Get<ILogger>().Error("IrInputPlugin: No Input Manager, can't map and act on '{0}'", remoteButton);
+        ServiceRegistration.Get<ILogger>().Error("IrInputPlugin: No Input Manager, can't map and act on '{0}'", remoteButton);
         return;
       }
 
@@ -238,10 +238,10 @@ namespace UiComponents.IrInput
       if (_mappedKeyCodes.TryGetValue(remoteButton, out key))
       {
         inputManager.KeyPress(key);
-        ServiceScope.Get<ILogger>().Debug("IrInputPlugin: Mapped Key '{0}' to '{1}'", remoteButton, key);
+        ServiceRegistration.Get<ILogger>().Debug("IrInputPlugin: Mapped Key '{0}' to '{1}'", remoteButton, key);
       }
       else
-        ServiceScope.Get<ILogger>().Warn("IrInputPlugin: No remote mapping found for remote button '{0}'", remoteButton);
+        ServiceRegistration.Get<ILogger>().Warn("IrInputPlugin: No remote mapping found for remote button '{0}'", remoteButton);
     }
 
     protected static ICollection<MappedKeyCode> LoadRemoteMap(string remoteFile)
@@ -262,7 +262,7 @@ namespace UiComponents.IrInput
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       // We initialize the key code map here instead of in the constructor because here, we have access to the plugin's
       // directory (via the pluginRuntime parameter).
       IrInputSettings settings = settingsManager.Load<IrInputSettings>();

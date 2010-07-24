@@ -164,13 +164,13 @@ namespace UiComponents.Configuration
     public void ShowConfigItem(string configLocation)
     {
       _currentLocation = configLocation;
-      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationManager configurationManager = ServiceRegistration.Get<IConfigurationManager>();
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
       ConfigSetting configSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
       _currentConfigController = FindConfigurationController(configSetting);
       if (_currentConfigController == null)
       { // Error case: We don't have a configuration controller for the setting to be shown
-        ServiceScope.Get<ILogger>().Warn(
+        ServiceRegistration.Get<ILogger>().Warn(
             "ConfigurationModel: Cannot show configuration for setting '{0}', no configuration controller available",
             configSetting);
         return;
@@ -229,7 +229,7 @@ namespace UiComponents.Configuration
         Type controllerType = metadata.AdditionalTypes["CustomConfigController"];
         if (controllerType == null)
         {
-          ServiceScope.Get<ILogger>().Warn(
+          ServiceRegistration.Get<ILogger>().Warn(
             "ConfigurationModel: Custom configuration controller could not be loaded (config setting at location '{0}')",
             metadata.Location);
           return null;
@@ -356,7 +356,7 @@ namespace UiComponents.Configuration
     protected void UpdateConfigSettings()
     {
       _configSettingsList.Clear();
-      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationManager configurationManager = ServiceRegistration.Get<IConfigurationManager>();
       IConfigurationNode currentNode = configurationManager.GetNode(_currentLocation);
       if (currentNode == null)
         // This is an error case, should not happen
@@ -375,7 +375,7 @@ namespace UiComponents.Configuration
       _currentConfigController = null;
       ReleaseAllVisibleEnabledNotifications();
       string configLocation = GetConfigLocation(newContext);
-      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationManager configurationManager = ServiceRegistration.Get<IConfigurationManager>();
       bool enteringConfiguration = !IsInitialized(oldContext);
       if (enteringConfiguration)
         configurationManager.Initialize();
@@ -426,16 +426,16 @@ namespace UiComponents.Configuration
     {
       // The cached configuration won't be saved persistently here as it only will be saved on explicit
       // calls to the appropriate method from the skin.
-      if (!ServiceScope.Get<IWorkflowManager>().IsModelContainedInNavigationStack(ModelId))
-        ServiceScope.Get<IConfigurationManager>().Dispose();
+      if (!ServiceRegistration.Get<IWorkflowManager>().IsModelContainedInNavigationStack(ModelId))
+        ServiceRegistration.Get<IConfigurationManager>().Dispose();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
-      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationManager configurationManager = ServiceRegistration.Get<IConfigurationManager>();
       string configLocation = GetConfigLocation(context);
       WorkflowState mainState;
-      ServiceScope.Get<IWorkflowManager>().States.TryGetValue(new Guid(CONFIGURATION_MAIN_STATE_ID_STR),
+      ServiceRegistration.Get<IWorkflowManager>().States.TryGetValue(new Guid(CONFIGURATION_MAIN_STATE_ID_STR),
           out mainState);
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
       foreach (IConfigurationNode childNode in currentNode.ChildNodes)

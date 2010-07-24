@@ -92,7 +92,7 @@ namespace UiComponents.SkinBase
     /// <returns>Player context for the current player or <c>null</c>, if there is no current player focus.</returns>
     protected static IPlayerContext GetCurrentPlayerContext()
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       return pcm.GetPlayerContext(PlayerChoice.CurrentPlayer);
     }
 
@@ -216,7 +216,7 @@ namespace UiComponents.SkinBase
     protected void AddKeyBinding_NeedLock(Key key, ActionDlgt action)
     {
       _registeredKeyBindings.Add(key);
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       inputManager.AddKeyBinding(key, action);
     }
 
@@ -225,7 +225,7 @@ namespace UiComponents.SkinBase
     /// </summary>
     protected void UnregisterKeyBindings()
     {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>(false);
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>(false);
       if (inputManager == null)
         return;
       lock (_syncObj)
@@ -235,7 +235,7 @@ namespace UiComponents.SkinBase
 
     protected static void UpdateBackground()
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       string targetBackgroundScreen = GetTargetBackgroundScreen();
       if (screenManager.ActiveBackgroundScreenName != targetBackgroundScreen)
         screenManager.SetBackgroundLayer(targetBackgroundScreen);
@@ -243,7 +243,7 @@ namespace UiComponents.SkinBase
 
     protected static string GetTargetBackgroundScreen()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       if (playerManager.NumActiveSlots == 0)
         return DEFAULT_BACKGROUND_SCREEN;
       IPlayerSlotController pscPrimary = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);

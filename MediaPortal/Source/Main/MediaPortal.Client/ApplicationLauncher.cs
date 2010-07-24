@@ -65,119 +65,116 @@ namespace MediaPortal
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
 #endif
 
-      using (new ServiceScope(true)) // Create the servicescope
+      SystemStateService systemStateService = new SystemStateService();
+      ServiceRegistration.Add<ISystemStateService>(systemStateService);
+      systemStateService.SwitchSystemState(SystemState.Initializing, false);
+
+      try
       {
-        SystemStateService systemStateService = new SystemStateService();
-        ServiceScope.Add<ISystemStateService>(systemStateService);
-        systemStateService.SwitchSystemState(SystemState.Initializing, false);
+        ILogger logger = null;
+        try
+        {
+
+          ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+
+          logger = ServiceRegistration.Get<ILogger>();
+
+          IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+
+          // Check if user wants to override the default Application Data location.
+          if (!string.IsNullOrEmpty(mpArgs.DataDirectory))
+            pathManager.SetPath("DATA", mpArgs.DataDirectory);
+
+#if !DEBUG
+          logPath = pathManager.GetPath("<LOG>");
+#endif
+
+          UiExtension.RegisterUiServices();
+        }
+        catch (Exception e)
+        {
+          if (logger != null)
+            logger.Critical("Error starting application", e);
+          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+          ServiceRegistration.IsShuttingDown = true;
+
+          UiExtension.DisposeUiServices();
+          ApplicationCore.DisposeCoreServices();
+
+          throw;
+        }
+
+        // Start the core
+        logger.Debug("ApplicationLauncher: Starting application");
 
         try
         {
-          ILogger logger = null;
-          try
-          {
+          IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+          pluginManager.Initialize();
+          pluginManager.Startup(false);
+          ApplicationCore.StartCoreServices();
 
-            ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+          ISkinEngine skinEngine = ServiceRegistration.Get<ISkinEngine>();
+          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+          IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
 
-            logger = ServiceScope.Get<ILogger>();
+          // We have to handle some dependencies here in the start order:
+          // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
+          // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
+          // 3) After the workflow states and actions are loaded, the main window can be shown
+          // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
+          mediaAccessor.Initialize(); // Independent from other services
+          localSharesManagement.Initialize(); // After media accessor was initialized
+          skinEngine.Initialize(); // 1)
+          workflowManager.Initialize(); // 2)
+          skinEngine.Startup(); // 3)
+          UiExtension.Startup();
 
-            IPathManager pathManager = ServiceScope.Get<IPathManager>();
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 
-            // Check if user wants to override the default Application Data location.
-            if (!string.IsNullOrEmpty(mpArgs.DataDirectory))
-              pathManager.SetPath("DATA", mpArgs.DataDirectory);
+          systemStateService.SwitchSystemState(SystemState.Running, true);
 
-#if !DEBUG
-            logPath = pathManager.GetPath("<LOG>");
-#endif
+          Application.Run();
 
-            UiExtension.RegisterUiServices();
-          }
-          catch (Exception e)
-          {
-            if (logger != null)
-              logger.Critical("Error starting application", e);
-            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-            ServiceScope.IsShuttingDown = true;
+          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+          ServiceRegistration.IsShuttingDown = true; // Block ServiceRegistration from trying to load new services in shutdown phase
 
-            UiExtension.DisposeUiServices();
-            ApplicationCore.DisposeCoreServices();
-
-            throw;
-          }
-
-          // Start the core
-          logger.Debug("ApplicationLauncher: Starting application");
-
-          try
-          {
-            IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-            pluginManager.Initialize();
-            pluginManager.Startup(false);
-            ApplicationCore.StartCoreServices();
-
-            ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
-            IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-            IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-            ILocalSharesManagement localSharesManagement = ServiceScope.Get<ILocalSharesManagement>();
-
-            // We have to handle some dependencies here in the start order:
-            // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
-            // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
-            // 3) After the workflow states and actions are loaded, the main window can be shown
-            // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
-            mediaAccessor.Initialize(); // Independent from other services
-            localSharesManagement.Initialize(); // After media accessor was initialized
-            skinEngine.Initialize(); // 1)
-            workflowManager.Initialize(); // 2)
-            skinEngine.Startup(); // 3)
-            UiExtension.Startup();
-
-            ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
-
-            systemStateService.SwitchSystemState(SystemState.Running, true);
-
-            Application.Run();
-
-            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-            ServiceScope.IsShuttingDown = true; // Block ServiceScope from trying to load new services in shutdown phase
-
-            // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
-            // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)
-            // 3) Shutdown WorkflowManager (Disposes all models)
-            // 4) Shutdown PluginManager (Shuts down all plugins)
-            // 5) Remove all services
-            UiExtension.StopAll();
-            skinEngine.Shutdown();
-            workflowManager.Shutdown();
-            pluginManager.Shutdown();
-            mediaAccessor.Shutdown();
-            localSharesManagement.Shutdown();
-            ApplicationCore.StopCoreServices();
-          }
-          catch (Exception e)
-          {
-            logger.Critical("Error executing application", e);
-            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-            ServiceScope.IsShuttingDown = true;
-          }
-          finally
-          {
-            UiExtension.DisposeUiServices();
-            ApplicationCore.DisposeCoreServices();
-
-            systemStateService.SwitchSystemState(SystemState.Ending, false);
-          }
+          // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
+          // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)
+          // 3) Shutdown WorkflowManager (Disposes all models)
+          // 4) Shutdown PluginManager (Shuts down all plugins)
+          // 5) Remove all services
+          UiExtension.StopAll();
+          skinEngine.Shutdown();
+          workflowManager.Shutdown();
+          pluginManager.Shutdown();
+          mediaAccessor.Shutdown();
+          localSharesManagement.Shutdown();
+          ApplicationCore.StopCoreServices();
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-#if !DEBUG
-          UiCrashLogger crash = new UiCrashLogger(logPath);
-          crash.CreateLog(ex);
-#endif
-          systemStateService.SwitchSystemState(SystemState.Ending, false);
-          Application.Exit();
+          logger.Critical("Error executing application", e);
+          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+          ServiceRegistration.IsShuttingDown = true;
         }
+        finally
+        {
+          UiExtension.DisposeUiServices();
+          ApplicationCore.DisposeCoreServices();
+
+          systemStateService.SwitchSystemState(SystemState.Ending, false);
+        }
+      }
+      catch (Exception ex)
+      {
+#if !DEBUG
+        UiCrashLogger crash = new UiCrashLogger(logPath);
+        crash.CreateLog(ex);
+#endif
+        systemStateService.SwitchSystemState(SystemState.Ending, false);
+        Application.Exit();
       }
     }
   }

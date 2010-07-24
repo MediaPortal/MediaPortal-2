@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SystemMessage msg = new SystemMessage(MessageType.ShowScreen);
       msg.MessageData[SCREEN] = screen;
       msg.MessageData[CLOSE_DIALOGS] = closeDialogs;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     internal static void SendMessageShowDialog(Screen dialog, DialogCloseCallbackDlgt dialogCloseCallback)
@@ -85,20 +85,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SystemMessage msg = new SystemMessage(MessageType.ShowDialog);
       msg.MessageData[SCREEN] = dialog;
       msg.MessageData[DIALOG_CLOSE_CALLBACK] = dialogCloseCallback;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     internal static void SendMessageCloseDialog(DialogData dd)
     {
       SystemMessage msg = new SystemMessage(MessageType.CloseDialog);
       msg.MessageData[DIALOG_DATA] = dd;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     internal static void SendMessageReloadScreens()
     {
       SystemMessage msg = new SystemMessage(MessageType.ReloadScreens);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

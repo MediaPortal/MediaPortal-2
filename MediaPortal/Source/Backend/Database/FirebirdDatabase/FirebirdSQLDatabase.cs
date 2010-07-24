@@ -63,7 +63,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       // load resources from the application's directory
       Environment.SetEnvironmentVariable("FIREBIRD", dllDirectory);
       Environment.SetEnvironmentVariable("FIREBIRD_MSG", dllDirectory);
-      FirebirdSettings settings = ServiceScope.Get<ISettingsManager>().Load<FirebirdSettings>();
+      FirebirdSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<FirebirdSettings>();
       FbConnectionStringBuilder sb = new FbConnectionStringBuilder
         {
             ServerType = settings.ServerType,
@@ -86,7 +86,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Critical("Error establishing database connection", e);
+        ServiceRegistration.Get<ILogger>().Critical("Error establishing database connection", e);
         throw;
       }
     }
@@ -122,7 +122,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("FirebirdSQLDatabase: Error creating database (connection string is '{0}')", e, connectionString);
+        ServiceRegistration.Get<ILogger>().Error("FirebirdSQLDatabase: Error creating database (connection string is '{0}')", e, connectionString);
         transaction.Rollback();
       }
     }

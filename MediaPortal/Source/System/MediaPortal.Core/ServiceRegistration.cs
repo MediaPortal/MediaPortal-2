@@ -39,17 +39,16 @@ namespace MediaPortal.Core
   /// <para>This class is some kind of repository that holds a reference to
   /// services that other components could need.</para>
   /// </remarks>
-  /// TODO: Rename ServiceScope to ServiceRegistration
-  public sealed class ServiceScope : IDisposable, IStatus
+  public sealed class ServiceRegistration : IDisposable, IStatus
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
 
     private static readonly object _syncObj = new object();
 
     /// <summary>
-    /// Singleton instance of the <see cref="ServiceScope"/>.
+    /// Singleton instance of the <see cref="ServiceRegistration"/>.
     /// </summary>
-    private static ServiceScope _instance;
+    private static ServiceRegistration _instance;
 
     private static bool _isShuttingDown = false;
 
@@ -63,7 +62,7 @@ namespace MediaPortal.Core
     /// </summary>
     private readonly ICollection<Type> _pluginServices = new List<Type>();
 
-    private ServiceScope()
+    private ServiceRegistration()
     {
       lock (_syncObj)
       {
@@ -79,14 +78,14 @@ namespace MediaPortal.Core
     }
 
     /// <summary>
-    /// Gets or sets the current <see cref="ServiceScope"/>
+    /// Gets or sets the current <see cref="ServiceRegistration"/>
     /// </summary>
-    public static ServiceScope Instance
+    public static ServiceRegistration Instance
     {
       get
       {
         if (_instance == null)
-          return _instance = new ServiceScope();
+          return _instance = new ServiceRegistration();
         return _instance;
       }
     }
@@ -97,7 +96,7 @@ namespace MediaPortal.Core
       set { _isShuttingDown = value; }
     }
 
-    ~ServiceScope()
+    ~ServiceRegistration()
     {
       Dispose();
     }
@@ -112,10 +111,10 @@ namespace MediaPortal.Core
     #endregion
 
     /// <summary>
-    /// Adds a new Service to the <see cref="ServiceScope"/>
+    /// Adds a new Service to the <see cref="ServiceRegistration"/>
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> of service to add. This is typically (but not necessarily) an interface
-    /// and works as "handle" for the service, i.e. the service is retrieved from the <see cref="ServiceScope"/> by
+    /// and works as "handle" for the service, i.e. the service is retrieved from the <see cref="ServiceRegistration"/> by
     /// calling <see cref="Get{T}()"/> method with that interface as type parameter.</typeparam>
     /// <param name="service">The service implementation to add.</param>
     public static void Add<T>(T service) where T : class
@@ -149,7 +148,7 @@ namespace MediaPortal.Core
     }
 
     /// <summary>
-    /// Gets a service from the <see cref="ServiceScope"/>
+    /// Gets a service from the <see cref="ServiceRegistration"/>
     /// </summary>
     /// <typeparam name="T">the type of the service to get.</typeparam>
     /// <returns>the service implementation.</returns>
@@ -160,7 +159,7 @@ namespace MediaPortal.Core
     }
 
     /// <summary>
-    /// Gets a service from the current <see cref="ServiceScope"/>
+    /// Gets a service from the current <see cref="ServiceRegistration"/>
     /// </summary>
     /// <typeparam name="T">The type of the service to get. This is typically
     /// (but not necessarily) an interface</typeparam>
@@ -221,7 +220,7 @@ namespace MediaPortal.Core
     {
       IPluginManager pluginManager = Get<IPluginManager>();
       ILogger logger = Get<ILogger>();
-      logger.Info("ServiceScope: Loading services from plugin manager at location '{0}'", PLUGIN_TREE_SERVICES_LOCATION);
+      logger.Info("ServiceRegistration: Loading services from plugin manager at location '{0}'", PLUGIN_TREE_SERVICES_LOCATION);
       ICollection<PluginItemMetadata> metadata = pluginManager.GetAllPluginItemMetadata(PLUGIN_TREE_SERVICES_LOCATION);
       foreach (PluginItemMetadata itemMetadata in metadata)
       {
@@ -229,7 +228,7 @@ namespace MediaPortal.Core
             PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, new FixedItemStateTracker(string.Format("System services")));
         if (item == null)
         {
-          Get<ILogger>().Warn("ServiceScope: Could not register dynamic service with id '{0}'", itemMetadata.Id);
+          Get<ILogger>().Warn("ServiceRegistration: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
         Instance._services.Add(item.RegistrationType, item.ServiceInstance);
@@ -256,7 +255,7 @@ namespace MediaPortal.Core
 
     public IList<string> GetStatus()
     {
-      List<string> status = new List<string> { "== ServiceScope List Start" };
+      List<string> status = new List<string> { "== ServiceRegistration List Start" };
       foreach (KeyValuePair<Type, object> service in _services)
       {
         status.Add(String.Format("=== Service = {0}, {1}", service.Key.Name, service.Value));
@@ -266,7 +265,7 @@ namespace MediaPortal.Core
           status.AddRange(info.GetStatus());
         }
       }
-      status.Add("== ServiceScope List End");
+      status.Add("== ServiceRegistration List End");
       return status;
     }
 

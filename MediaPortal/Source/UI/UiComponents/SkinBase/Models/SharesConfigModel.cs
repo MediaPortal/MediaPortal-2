@@ -379,7 +379,7 @@ namespace UiComponents.SkinBase.Models
         _shareProxy.BaseMediaProvider = mpm;
         // Check if the choosen MP implements a known path navigation interface and go to that screen,
         // if supported
-        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         if (_shareProxy.MediaProviderSupportsResourceTreeNavigation)
           workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
         else // If needed, add other path navigation screens here
@@ -405,7 +405,7 @@ namespace UiComponents.SkinBase.Models
         {
           if (_shareProxy.IsResourcePathChanged)
           {
-            IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+            IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
             screenManager.ShowDialog(SHARES_CONFIG_RELOCATE_DIALOG_SCREEN);
           }
           else
@@ -435,7 +435,7 @@ namespace UiComponents.SkinBase.Models
       try
       {
         _shareProxy.EditMode = SharesProxy.ShareEditMode.EditShare;
-        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
       catch (DisconnectedException)
@@ -461,7 +461,7 @@ namespace UiComponents.SkinBase.Models
           lock (_syncObj)
             _shareProxy = new ServerShares(share);
         }
-        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
       catch (DisconnectedException)
@@ -486,7 +486,7 @@ namespace UiComponents.SkinBase.Models
     {
       lock (_syncObj)
         _shareProxy = null;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID, false);
     }
 
@@ -637,7 +637,7 @@ namespace UiComponents.SkinBase.Models
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Problems building share item '{0}' (path '{1}')", e, share.Name, share.BaseResourcePath);
+          ServiceRegistration.Get<ILogger>().Warn("Problems building share item '{0}' (path '{1}')", e, share.Name, share.BaseResourcePath);
         }
         if (selectShare)
         {
@@ -661,7 +661,7 @@ namespace UiComponents.SkinBase.Models
       else if (type == ShareType.Server)
         lock (_syncObj)
           _shareProxy = new ServerShares(share);
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(SHARE_INFO_STATE_ID, new NavigationContextConfig {NavigationContextDisplayLabel = share.Name});
     }
 
@@ -688,7 +688,7 @@ namespace UiComponents.SkinBase.Models
       }
       try
       {
-        IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IsHomeServerConnected = serverConnectionManager.IsHomeServerConnected;
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
         IsLocalHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();

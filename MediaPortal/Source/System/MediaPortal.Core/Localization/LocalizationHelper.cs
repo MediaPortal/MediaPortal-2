@@ -50,7 +50,7 @@ namespace MediaPortal.Core.Localization
       string name;
       if (StringId.ExtractSectionAndName(maybeLocalizationResource, out section, out name))
       {
-        ILocalization localization = ServiceScope.Get<ILocalization>();
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
         return localization.ToString(section, name, parameters);
       }
       else

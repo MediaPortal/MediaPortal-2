@@ -160,7 +160,7 @@ namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("PictureMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("PictureMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
         return false;
       }
     }

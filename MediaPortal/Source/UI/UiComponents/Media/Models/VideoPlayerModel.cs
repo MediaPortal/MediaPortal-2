@@ -81,10 +81,10 @@ namespace UiComponents.Media.Models
 
     protected override void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
       IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
       IsPip = pipPlayer != null;
@@ -100,7 +100,7 @@ namespace UiComponents.Media.Models
 
     protected void UpdateVideoStateType(NavigationContext newContext)
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
       {
         screenManager.BackgroundDisabled = false;
@@ -186,7 +186,7 @@ namespace UiComponents.Media.Models
 
     public void ShowZoomModeDialog()
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = pcm.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
     }
@@ -202,7 +202,7 @@ namespace UiComponents.Media.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = null;
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
         // The "currently playing" screen is always bound to the "current player"

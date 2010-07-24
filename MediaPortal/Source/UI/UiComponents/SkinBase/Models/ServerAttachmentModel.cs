@@ -186,13 +186,13 @@ namespace UiComponents.SkinBase.Models
     {
       if (_mode == Mode.None)
         return;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePop(1);
     }
 
     protected void SynchronizeAvailableServers()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IDictionary<string, ServerDescriptor> availableServers = new Dictionary<string, ServerDescriptor>();
       ICollection<ServerDescriptor> systemAvailableServers = scm.AvailableServers;
       if (systemAvailableServers != null) // AvailableServers can have been null if a home server was attached in the meantime
@@ -245,7 +245,7 @@ namespace UiComponents.SkinBase.Models
 
     protected void ShowAttachToServerDialog()
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(ATTACH_TO_SERVER_DIALOG, dialogName =>
           {
             if (_attachInfoDialogHandle == null)
@@ -259,8 +259,8 @@ namespace UiComponents.SkinBase.Models
     /// <param name="sd">Descriptor of the server whose information should be shown.</param>
     protected void ShowAttachInformationDialogAndClose(ServerDescriptor sd)
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       _attachInfoDialogHandle = Guid.Empty; // Set this to value != null here to make the attachment dialog's close handler know we are not finished in our WF-state
       screenManager.CloseDialog();
       string header = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_HEADER_RES);
@@ -277,8 +277,8 @@ namespace UiComponents.SkinBase.Models
 
     protected void ShowDetachConfirmationDialog()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       string header = LocalizationHelper.Translate(DETACH_CONFIRM_DIALOG_HEADER_RES);
       string serverName = scm.LastHomeServerName ?? LocalizationHelper.Translate(UNKNOWN_SERVER_NAME_RES);
       SystemName system = scm.LastHomeServerSystem;
@@ -291,7 +291,7 @@ namespace UiComponents.SkinBase.Models
 
     protected void DoDetachFromHomeServer()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       scm.DetachFromHomeServer();
     }
 
@@ -358,7 +358,7 @@ namespace UiComponents.SkinBase.Models
     /// </summary>
     public void ConnectToSingleServerAndClose()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       scm.SetNewHomeServer(_singleAvailableServer.MPBackendServerUUID);
       ShowAttachInformationDialogAndClose(_singleAvailableServer);
     }
@@ -370,7 +370,7 @@ namespace UiComponents.SkinBase.Models
     public void ChooseNewHomeServerAndClose(ListItem availableServerItem)
     {
       ServerDescriptor sd = (ServerDescriptor) availableServerItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY];
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       scm.SetNewHomeServer(sd.MPBackendServerUUID);
       ShowAttachInformationDialogAndClose(sd);
     }
@@ -391,7 +391,7 @@ namespace UiComponents.SkinBase.Models
           return false; // We are already active
       _detachConfirmDialogHandle = Guid.Empty;
       _attachInfoDialogHandle = null;
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       if (newContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE)
       {
         // We are always able to enter this state

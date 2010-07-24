@@ -185,8 +185,8 @@ namespace UiComponents.SkinBase.Models
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
-        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         int numActiveSlots = playerManager.NumActiveSlots;
         IList<string> playerNames = new List<string>(2);
         for (int i = 0; i < numActiveSlots; i++)
@@ -293,8 +293,8 @@ namespace UiComponents.SkinBase.Models
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
 
         _audioStreamsMenu.Clear();
         for (int i = 0; i < playerManager.NumActiveSlots; i++)
@@ -331,8 +331,8 @@ namespace UiComponents.SkinBase.Models
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
 
         _playerSlotAudioMenu.Clear();
         IPlayerContext pc = playerContextManager.GetPlayerContext(_playerSlotAudioMenuSlotIndex);
@@ -383,7 +383,7 @@ namespace UiComponents.SkinBase.Models
     {
       if (_playerChooseGeometryMenu.Count == 0)
       {
-        IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+        IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
         foreach (KeyValuePair<string, IGeometry> nameToGeometry in geometryManager.AvailableGeometries)
         {
           IGeometry geometry = nameToGeometry.Value;
@@ -403,7 +403,7 @@ namespace UiComponents.SkinBase.Models
     /// </summary>
     protected void CheckUpdatePlayerConfigurationData()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
 
       lock (_syncObj)
       {
@@ -458,7 +458,7 @@ namespace UiComponents.SkinBase.Models
     /// <returns>Player context for the current player or <c>null</c>, if there is no current player.</returns>
     protected static IPlayerContext GetCurrentPlayerContext()
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       return pcm.GetPlayerContext(PlayerChoice.CurrentPlayer);
     }
 
@@ -519,7 +519,7 @@ namespace UiComponents.SkinBase.Models
 
     public static void OpenChooseGeometryDialog(IPlayerContext playerContext)
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, new NavigationContextConfig
         {
           AdditionalContextVariables = new Dictionary<string, object>
@@ -531,7 +531,7 @@ namespace UiComponents.SkinBase.Models
 
     public static void OpenPlayerConfigurationDialog()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
     }
 
@@ -581,11 +581,11 @@ namespace UiComponents.SkinBase.Models
       switch (mode)
       {
         case NavigationMode.SimpleChoice:
-          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
           screenManager.CloseDialog();
           break;
         case NavigationMode.ExitPCWorkflow:
-          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
           workflowManager.NavigatePopToState(PLAYER_CONFIGURATION_DIALOG_STATE_ID, true);
           break;
         default:
@@ -595,44 +595,44 @@ namespace UiComponents.SkinBase.Models
 
     public void SetCurrentPlayer(int playerIndex)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = playerIndex;
     }
 
     public void ClosePlayerContext(int playerIndex)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(playerIndex);
     }
 
     public void PlayersMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted = true;
     }
 
     public void PlayersResetMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.Muted = false;
     }
 
     public void SwitchPrimarySecondaryPlayer()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.SwitchSlots();
     }
 
     public void OpenChooseAudioStreamDialog()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID);
     }
 
     public void ChooseAudioStream(AudioStreamDescriptor asd)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerContextManager.SetAudioStream(asd);
       playerManager.Muted = false;
     }

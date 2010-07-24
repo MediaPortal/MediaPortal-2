@@ -73,7 +73,7 @@ namespace MediaPortal.Backend.Services.Database
     protected static string PreprocessScript(TextReader reader)
     {
       string orig = reader.ReadToEnd();
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       return Preprocess(orig, database);
     }
 

@@ -386,7 +386,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Exception in bufferupdate thread", e);
+        ServiceRegistration.Get<ILogger>().Error("Exception in bufferupdate thread", e);
       }
     }
 

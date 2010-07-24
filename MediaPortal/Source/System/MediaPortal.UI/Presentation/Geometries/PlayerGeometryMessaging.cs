@@ -61,7 +61,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     {
       SystemMessage msg = new SystemMessage(MessageType.GeometryChanged);
       msg.MessageData[PLAYER_SLOT] = playerSlot;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

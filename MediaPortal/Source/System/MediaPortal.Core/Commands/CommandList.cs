@@ -58,7 +58,7 @@ namespace MediaPortal.Core.Commands
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("CommandList: Error executing command {0}: {1}", ex, i, currentCommand);
+        ServiceRegistration.Get<ILogger>().Error("CommandList: Error executing command {0}: {1}", ex, i, currentCommand);
       }
     }
 

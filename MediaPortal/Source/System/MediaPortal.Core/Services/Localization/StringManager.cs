@@ -47,17 +47,17 @@ namespace MediaPortal.Core.Services.Localization
 
     public StringManager()
     {
-      ServiceScope.Get<ILogger>().Debug("StringManager: Loading settings");
-      RegionSettings settings = ServiceScope.Get<ISettingsManager>().Load<RegionSettings>();
+      ServiceRegistration.Get<ILogger>().Debug("StringManager: Loading settings");
+      RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
       if (string.IsNullOrEmpty(settings.Culture))
       {
         _currentCulture = CultureInfo.CurrentUICulture;
-        ServiceScope.Get<ILogger>().Info("StringManager: Culture not set. Using culture: '{0}'", _currentCulture.Name);
+        ServiceRegistration.Get<ILogger>().Info("StringManager: Culture not set. Using culture: '{0}'", _currentCulture.Name);
       }
       else
       {
         _currentCulture = CultureInfo.GetCultureInfo(settings.Culture);
-        ServiceScope.Get<ILogger>().Info("StringManager: Using culture: " + _currentCulture.Name);
+        ServiceRegistration.Get<ILogger>().Info("StringManager: Using culture: " + _currentCulture.Name);
       }
     }
 
@@ -122,9 +122,9 @@ namespace MediaPortal.Core.Services.Localization
       {
         _currentCulture = culture;
         ReLoad();
-        RegionSettings settings = ServiceScope.Get<ISettingsManager>().Load<RegionSettings>();
+        RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
         settings.Culture = _currentCulture.Name;
-        ServiceScope.Get<ISettingsManager>().Save(settings);
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
 
       FireLanguageChange();
@@ -141,7 +141,7 @@ namespace MediaPortal.Core.Services.Localization
       }
       catch (FormatException e)
       {
-        ServiceScope.Get<ILogger>().Error("StringManager: Error formatting localized string '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
+        ServiceRegistration.Get<ILogger>().Error("StringManager: Error formatting localized string '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
         return translation;
       }
     }

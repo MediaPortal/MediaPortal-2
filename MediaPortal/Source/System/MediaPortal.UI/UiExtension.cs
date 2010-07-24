@@ -49,88 +49,88 @@ namespace MediaPortal.UI
   {
     public static void RegisterUiServices()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("UiExtension: Registering ISystemResolver service");
-      ServiceScope.Add<ISystemResolver>(new SystemResolver());
+      ServiceRegistration.Add<ISystemResolver>(new SystemResolver());
 
       logger.Debug("UiExtension: Registering IWorkflowManager service");
-      ServiceScope.Add<IWorkflowManager>(new WorkflowManager());
+      ServiceRegistration.Add<IWorkflowManager>(new WorkflowManager());
 
       logger.Debug("UiExtension: Registering IPlayerManager service");
-      ServiceScope.Add<IPlayerManager>(new PlayerManager());
+      ServiceRegistration.Add<IPlayerManager>(new PlayerManager());
 
       logger.Debug("UiExtension: Registering IPlayerContextManager service");
-      ServiceScope.Add<IPlayerContextManager>(new PlayerContextManager());
+      ServiceRegistration.Add<IPlayerContextManager>(new PlayerContextManager());
 
       logger.Debug("UiExtension: Registering IUserService service");
-      ServiceScope.Add<IUserService>(new UserService());
+      ServiceRegistration.Add<IUserService>(new UserService());
 
       logger.Debug("UiExtension: Registering IAsyncThumbnailGenerator service");
-      ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
+      ServiceRegistration.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
 
       logger.Debug("UiExtension: Registering ILocalSharesManagement service");
-      ServiceScope.Add<ILocalSharesManagement>(new LocalSharesManagement());
+      ServiceRegistration.Add<ILocalSharesManagement>(new LocalSharesManagement());
 
       logger.Debug("UiExtension: Registering IServerConnectionManager service");
-      ServiceScope.Add<IServerConnectionManager>(new ServerConnectionManager());
+      ServiceRegistration.Add<IServerConnectionManager>(new ServerConnectionManager());
 
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
-      ServiceScope.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+      ServiceRegistration.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
       logger.Debug("UiExtension: Registering IFrontendServer service");
-      ServiceScope.Add<IFrontendServer>(new Services.FrontendServer.FrontendServer());
+      ServiceRegistration.Add<IFrontendServer>(new Services.FrontendServer.FrontendServer());
 
       AdditionalUiBuilders.Register();
     }
 
     public static void StopAll()
     {
-      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       serverConnectionManager.Shutdown();
 
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.Shutdown();
 
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseAllSlots();
     }
 
     public static void DisposeUiServices()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
 
       // Reverse order than method RegisterUiServices()
 
       logger.Debug("UiExtension: Removing IFrontendServer service");
-      ServiceScope.RemoveAndDispose<IFrontendServer>();
+      ServiceRegistration.RemoveAndDispose<IFrontendServer>();
 
       logger.Debug("UiExtension: Removing IMediaItemAspectTypeRegistration service");
-      ServiceScope.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
+      ServiceRegistration.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
 
       logger.Debug("UiExtension: Removing IServerConnectionManager service");
-      ServiceScope.RemoveAndDispose<IServerConnectionManager>();
+      ServiceRegistration.RemoveAndDispose<IServerConnectionManager>();
 
       logger.Debug("UiExtension: Removing ILocalSharesManagement service");
-      ServiceScope.RemoveAndDispose<ILocalSharesManagement>();
+      ServiceRegistration.RemoveAndDispose<ILocalSharesManagement>();
 
       logger.Debug("UiExtension: Removing IAsyncThumbnailGenerator service");
-      ServiceScope.RemoveAndDispose<IAsyncThumbnailGenerator>();
+      ServiceRegistration.RemoveAndDispose<IAsyncThumbnailGenerator>();
 
       logger.Debug("UiExtension: Removing IUserService service");
-      ServiceScope.RemoveAndDispose<IUserService>();
+      ServiceRegistration.RemoveAndDispose<IUserService>();
 
       logger.Debug("UiExtension: Removing IPlayerContextManager service");
-      ServiceScope.RemoveAndDispose<IPlayerContextManager>();
+      ServiceRegistration.RemoveAndDispose<IPlayerContextManager>();
 
       logger.Debug("UiExtension: Removing IPlayerManager service");
-      ServiceScope.RemoveAndDispose<IPlayerManager>();
+      ServiceRegistration.RemoveAndDispose<IPlayerManager>();
 
       logger.Debug("UiExtension: Removing IWorkflowManager service");
-      ServiceScope.RemoveAndDispose<IWorkflowManager>();
+      ServiceRegistration.RemoveAndDispose<IWorkflowManager>();
 
       logger.Debug("UiExtension: Removing ISystemResolver service");
-      ServiceScope.RemoveAndDispose<ISystemResolver>();
+      ServiceRegistration.RemoveAndDispose<ISystemResolver>();
     }
 
     /// <summary>
@@ -144,8 +144,8 @@ namespace MediaPortal.UI
     public static void Startup()
     {
       RegisterDefaultCommandShortcuts();
-      ServiceScope.Get<IServerConnectionManager>().Startup();
-      ServiceScope.Get<IFrontendServer>().Startup();
+      ServiceRegistration.Get<IServerConnectionManager>().Startup();
+      ServiceRegistration.Get<IFrontendServer>().Startup();
     }
   }
 }

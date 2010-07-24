@@ -28,7 +28,7 @@ using System.Globalization;
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// Occurs when requested service is not found in the current- or one of its parent <see cref="ServiceScope"/>s.
+  /// Occurs when requested service is not found in the current- or one of its parent <see cref="ServiceRegistration"/>s.
   /// </summary>
   [Serializable]
   public class ServiceNotFoundException : Exception

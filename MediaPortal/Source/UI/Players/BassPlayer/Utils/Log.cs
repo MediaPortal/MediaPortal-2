@@ -45,7 +45,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// </summary>
     public static ILogger Instance
     {
-      get { return ServiceScope.Get<ILogger>(); }
+      get { return ServiceRegistration.Get<ILogger>(); }
     }
 
     /// <summary>

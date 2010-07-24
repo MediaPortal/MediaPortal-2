@@ -234,7 +234,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
+            ServiceRegistration.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
           }
     }
 
@@ -249,7 +249,7 @@ namespace MediaPortal.UI.Services.Players
     {
       lock (_syncObj)
       {
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(PLAYERBUILDERS_REGISTRATION_PATH))
           RequestPlayerBuilder(itemMetadata.Id);
         pluginManager.AddItemRegistrationChangeListener(PLAYERBUILDERS_REGISTRATION_PATH, _playerBuilderRegistrationChangeListener);
@@ -258,12 +258,12 @@ namespace MediaPortal.UI.Services.Players
 
     protected void RequestPlayerBuilder(string playerBuilderId)
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       IPlayerBuilder playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
               playerBuilderId, _playerBuilderPluginItemStateTracker);
       if (playerBuilder == null)
       {
-        ServiceScope.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
+        ServiceRegistration.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
         return;
       }
       PlayerBuilderRegistration registration = new PlayerBuilderRegistration(playerBuilder);
@@ -293,7 +293,7 @@ namespace MediaPortal.UI.Services.Players
     {
       RevokePlayerBuilder(playerBuilderId);
       // Revoke player builder plugin item usage
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.RevokePluginItem(PLAYERBUILDERS_REGISTRATION_PATH, playerBuilderId, _playerBuilderPluginItemStateTracker);
     }
 
@@ -343,7 +343,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
+            ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
           }
         }
         return false;

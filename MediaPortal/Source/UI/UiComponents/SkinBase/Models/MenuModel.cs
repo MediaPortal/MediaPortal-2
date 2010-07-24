@@ -99,7 +99,7 @@ namespace UiComponents.SkinBase.Models
 
     protected bool IsSystemActive()
     {
-      ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+      ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       return sss.CurrentState == SystemState.Running;
     }
 
@@ -204,7 +204,7 @@ namespace UiComponents.SkinBase.Models
     /// </summary>
     protected void UpdateMenus()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.Lock.EnterReadLock();
       try
       {
@@ -347,7 +347,7 @@ namespace UiComponents.SkinBase.Models
     {
       get
       {
-        NavigationContext currentContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+        NavigationContext currentContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
         lock (currentContext.SyncRoot)
         {
           ItemsList menu = GetMenuItems(currentContext);

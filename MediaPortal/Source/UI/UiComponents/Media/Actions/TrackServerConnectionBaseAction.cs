@@ -88,7 +88,7 @@ namespace UiComponents.Media.Actions
 
     protected void Update()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       bool lastVisible = _isVisible;
       _isVisible = scm.IsHomeServerConnected ^ !_visibleOnServerConnect;
       if (lastVisible != _isVisible)
@@ -133,7 +133,7 @@ namespace UiComponents.Media.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(_targetWorkflowStateId);
     }
 

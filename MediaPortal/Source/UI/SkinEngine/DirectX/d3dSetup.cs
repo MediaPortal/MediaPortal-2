@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         string name = MPDirect3D.Direct3D.Adapters[i].Details.Description;
         if (String.Compare(name, "NVIDIA PerfHUD", true) == 0)
         {
-          ServiceScope.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i,
+          ServiceRegistration.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i,
               MPDirect3D.Direct3D.Adapters[i].Details.Description);
           primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[i].CurrentDisplayMode;
           perfHudFound = true;
@@ -445,12 +445,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       if (!FindBestFullscreenMode(false, false))
       {
-        ServiceScope.Get<ILogger>().Critical("D3DSetup: failed to find best fullscreen mode.");
+        ServiceRegistration.Get<ILogger>().Critical("D3DSetup: failed to find best fullscreen mode.");
         return false;
       }
       if (!FindBestWindowedMode(false, false))
       {
-        ServiceScope.Get<ILogger>().Critical("D3DSetup: failed to find best windowed mode.");
+        ServiceRegistration.Get<ILogger>().Critical("D3DSetup: failed to find best windowed mode.");
         return false;
       }
       return true;
@@ -486,7 +486,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // Make sure to allow multithreaded apps if we need them
       //presentParams.ForceNoMultiThreadedFlag = !isMultiThreaded;
 
-      ServiceScope.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
               _graphicsSettings.AdapterOrdinal,
               MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
               _graphicsSettings.DevType);
@@ -572,7 +572,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         // Set device stats string
         _deviceStats = sb.ToString();
-        ServiceScope.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
+        ServiceRegistration.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
         // Set up the fullscreen cursor
         /*if (showCursorWhenFullscreen && !windowed)
         {
@@ -1089,7 +1089,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       _presentParams.EnableAutoDepthStencil = false;
 
-      ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
+      ServiceRegistration.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
           _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
 
       if (_graphicsSettings.IsWindowed)

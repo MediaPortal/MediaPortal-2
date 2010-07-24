@@ -56,7 +56,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get
       {
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         return pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\");
       }
     }
@@ -338,7 +338,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
 
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       result.CommandText = "SELECT (" + database.GetSelectSequenceCurrValStatement(MEDIA_LIBRARY_ID_SEQUENCE_NAME) + ") FROM " + databaseManager.DummyTableName;
 
       return result;

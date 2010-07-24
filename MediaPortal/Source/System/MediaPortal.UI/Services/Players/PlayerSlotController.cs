@@ -104,7 +104,7 @@ namespace MediaPortal.UI.Services.Players
             }
             catch (Exception e)
             {
-              ServiceScope.Get<ILogger>().Warn("Error disposing player '{0}'", e, d);
+              ServiceRegistration.Get<ILogger>().Warn("Error disposing player '{0}'", e, d);
             }
           _player = null;
         }
@@ -177,7 +177,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
+          ServiceRegistration.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
         }
       }
     }
@@ -202,7 +202,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
+            ServiceRegistration.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
           }
         IReusablePlayer rp = _player as IReusablePlayer;
         if (rp != null)
@@ -212,7 +212,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
+            ServiceRegistration.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
           }
       }
     }
@@ -229,7 +229,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
+            ServiceRegistration.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
           }
         IReusablePlayer rp = _player as IReusablePlayer;
         if (rp != null)
@@ -239,7 +239,7 @@ namespace MediaPortal.UI.Services.Players
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
+            ServiceRegistration.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
           }
       }
     }
@@ -475,7 +475,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
+          ServiceRegistration.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
           return result = false;
         }
         finally

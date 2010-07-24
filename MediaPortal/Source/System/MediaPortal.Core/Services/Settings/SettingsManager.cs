@@ -80,7 +80,7 @@ namespace MediaPortal.Core.Services.Settings
     protected static string GetUserFilePath(Type settingsType)
     {
       string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingsType.FullName + ".xml");
-      return ServiceScope.Get<IPathManager>().GetPath(fullUserFileName);
+      return ServiceRegistration.Get<IPathManager>().GetPath(fullUserFileName);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ namespace MediaPortal.Core.Services.Settings
     protected static string GetGlobalFilePath(Type settingsType)
     {
       string fullFileName = String.Format(@"<CONFIG>\{0}", settingsType.FullName + ".xml");
-      return ServiceScope.Get<IPathManager>().GetPath(fullFileName);
+      return ServiceRegistration.Get<IPathManager>().GetPath(fullFileName);
     }
 
     #endregion
@@ -108,7 +108,7 @@ namespace MediaPortal.Core.Services.Settings
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
         globalHandler.Clear();
         RemoveSettingsData(settingsType, false, true);
       }
@@ -118,7 +118,7 @@ namespace MediaPortal.Core.Services.Settings
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
         userHandler.Clear();
         RemoveSettingsData(settingsType, true, false);
       }
@@ -142,7 +142,7 @@ namespace MediaPortal.Core.Services.Settings
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("SettingsManager: Error loading settings of type '{0}'", e, settingsType.Name);
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading settings of type '{0}'", e, settingsType.Name);
         return null;
       }
     }
@@ -167,7 +167,7 @@ namespace MediaPortal.Core.Services.Settings
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("SettingsManager: Error writing settings of type '{0}'... Will clear settings files for this setting", e, settingsObject.GetType().Name);
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error writing settings of type '{0}'... Will clear settings files for this setting", e, settingsObject.GetType().Name);
         RemoveSettingsData(settingsObject.GetType(), true, true);
       }
     }
@@ -264,14 +264,14 @@ namespace MediaPortal.Core.Services.Settings
       {
         if (user)
         {
-          string userPath = ServiceScope.Get<IPathManager>().GetPath(string.Format(@"<CONFIG>\{0}", Environment.UserName));
+          string userPath = ServiceRegistration.Get<IPathManager>().GetPath(string.Format(@"<CONFIG>\{0}", Environment.UserName));
           DirectoryInfo userConfigDirectory = new DirectoryInfo(userPath);
           if (userConfigDirectory.Exists)
             userConfigDirectory.Delete(true);
         }
         if (global)
         {
-          string globalPath = ServiceScope.Get<IPathManager>().GetPath("<CONFIG>");
+          string globalPath = ServiceRegistration.Get<IPathManager>().GetPath("<CONFIG>");
           DirectoryInfo globalConfigDirectory = new DirectoryInfo(globalPath);
           if (globalConfigDirectory.Exists)
             globalConfigDirectory.Delete(true);

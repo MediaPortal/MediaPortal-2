@@ -64,7 +64,7 @@ namespace Ui.Players.Video.Subtitles
 
     private static void assert(bool ok, string msg)
     {
-      if (!ok) ServiceScope.Get<ILogger>().Error("Assertion failed in TeletextSubtitleDecoder : " + msg);
+      if (!ok) ServiceRegistration.Get<ILogger>().Error("Assertion failed in TeletextSubtitleDecoder : " + msg);
     }
 
     public void OnServiceInfo(int page, byte type, string iso_lang)
@@ -121,7 +121,7 @@ namespace Ui.Players.Video.Subtitles
 
       if (Y == 0)
       { // teletext packet header
-        //ServiceScope.Get<ILogger>().Debug("Header package : Data length is {0} , offset is {1}", data.Length, offset);
+        //ServiceRegistration.Get<ILogger>().Debug("Header package : Data length is {0} , offset is {1}", data.Length, offset);
         byte[] offsetdata = new byte[data.Length - offset];
         Array.Copy(data, offset, offsetdata, 0, offsetdata.Length);
 
@@ -139,7 +139,7 @@ namespace Ui.Players.Video.Subtitles
             magazines[i].EndPage();
           }
           assert(inProgress <= 1, "Serial mode: too many pages in progress : " + inProgress); // at most one page should be in progress
-          if (inProgress > 1) ServiceScope.Get<ILogger>().Debug("Pages in progress at same time exceeds one ! (%i)", inProgress);
+          if (inProgress > 1) ServiceRegistration.Get<ILogger>().Debug("Pages in progress at same time exceeds one ! (%i)", inProgress);
         }
 
         /*if (header.isSubtitle())
@@ -149,7 +149,7 @@ namespace Ui.Players.Video.Subtitles
       }
       else if (Y >= 1 && Y <= 25)
       { // display content
-        //ServiceScope.Get<ILogger>().Debug("Content package : Data length is {0} , offset is {1}", data.Length, offset);
+        //ServiceRegistration.Get<ILogger>().Debug("Content package : Data length is {0} , offset is {1}", data.Length, offset);
         byte[] offsetdata = new byte[data.Length - offset];
         Array.Copy(data, offset, offsetdata, 0, offsetdata.Length);
         magazines[magIndex].SetLine(Y, offsetdata);
@@ -167,7 +167,7 @@ namespace Ui.Players.Video.Subtitles
 
     public bool AcceptsDataUnitID(byte id)
     {
-      //ServiceScope.Get<ILogger>().Debug("Decoder: Asked about accepting unit id {0}", id);
+      //ServiceRegistration.Get<ILogger>().Debug("Decoder: Asked about accepting unit id {0}", id);
       // We need to accept both EMU Teletext subs and non-subs
       // because some providers transmit the subs in non-sub PES packets :)
       return id == 0x03 || id == 0x02;

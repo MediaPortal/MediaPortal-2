@@ -102,8 +102,8 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
       IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
@@ -168,11 +168,11 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       if (pc == null)
         return;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(pc.FullscreenContentWorkflowStateId);
     }
 

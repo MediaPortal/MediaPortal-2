@@ -48,7 +48,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       get
       {
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         return pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\");
       }
     }

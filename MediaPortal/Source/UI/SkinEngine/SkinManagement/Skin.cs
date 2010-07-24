@@ -286,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing skin descriptor '" + metaFilePath + "'", e);
+        ServiceRegistration.Get<ILogger>().Error("Error parsing skin descriptor '" + metaFilePath + "'", e);
         return false;
       }
       return true;
@@ -320,7 +320,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected override void LoadDirectory(string skinDirectoryPath)
     {
       base.LoadDirectory(skinDirectoryPath);
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       // Add themes
       string themesDirectoryPath = Path.Combine(skinDirectoryPath, THEMES_DIRECTORY);
       if (Directory.Exists(themesDirectoryPath))

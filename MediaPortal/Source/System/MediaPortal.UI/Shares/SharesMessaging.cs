@@ -62,7 +62,7 @@ namespace MediaPortal.UI.Shares
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[SHARE] = share;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ namespace MediaPortal.UI.Shares
       SystemMessage msg = new SystemMessage(MessageType.ShareChanged);
       msg.MessageData[SHARE] = share;
       msg.MessageData[RELOCATION_MODE] = relocationMode;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ namespace MediaPortal.UI.Shares
     {
       SystemMessage msg = new SystemMessage(MessageType.ReImportShare);
       msg.MessageData[SHARE] = share;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -70,7 +70,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      ServiceScope.Get<IWorkflowManager>().NavigatePop(NumPop);
+      ServiceRegistration.Get<IWorkflowManager>().NavigatePop(NumPop);
     }
   }
 }

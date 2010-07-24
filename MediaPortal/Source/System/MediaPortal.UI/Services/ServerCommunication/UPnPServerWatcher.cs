@@ -91,7 +91,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Error parsing UPnP device description", e);
+        ServiceRegistration.Get<ILogger>().Warn("Error parsing UPnP device description", e);
         return null;
       }
     }
@@ -104,7 +104,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaPortal 2 BackendServer '{0}' at host '{1}'",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaPortal 2 BackendServer '{0}' at host '{1}'",
             serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
@@ -120,7 +120,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MediaPortal 2 BackendServer '{0}' at host '{1}' was removed from the network",
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerWatcher: MediaPortal 2 BackendServer '{0}' at host '{1}' was removed from the network",
             serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;

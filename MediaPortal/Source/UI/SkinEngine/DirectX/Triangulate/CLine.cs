@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error initializing CLine", e);
+        ServiceRegistration.Get<ILogger>().Error("Error initializing CLine", e);
       }
     }
 
@@ -121,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error creating CLine", e);
+        ServiceRegistration.Get<ILogger>().Error("Error creating CLine", e);
       }
     }
 
@@ -160,7 +160,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         //x = System.Float.NaN;
         x = 0;
-        ServiceScope.Get<ILogger>().Error("CLine.GetX: Error calculating X coordinate", e);
+        ServiceRegistration.Get<ILogger>().Error("CLine.GetX: Error calculating X coordinate", e);
       }
 
       return x;
@@ -183,7 +183,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         //y = System.Float.NaN;
         y = 0;
-        ServiceScope.Get<ILogger>().Error("CLine.GetY: Error calculating Y coordinate", e);
+        ServiceRegistration.Get<ILogger>().Error("CLine.GetY: Error calculating Y coordinate", e);
       }
       return y;
     }

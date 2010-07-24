@@ -60,7 +60,7 @@ namespace MediaPortal.UI.Presentation.Screens
       SystemMessage msg = new SystemMessage(MessageType.DialogClosed);
       msg.MessageData[DIALOG_HANDLE] = dialogHandle;
       msg.MessageData[DIALOG_RESULT] = result;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

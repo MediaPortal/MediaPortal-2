@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
       }
       catch (XamlBindingException e)
       {
-        ServiceScope.Get<ILogger>().Warn("Error evaluating Static markup", e);
+        ServiceRegistration.Get<ILogger>().Warn("Error evaluating Static markup", e);
       }
     }
 

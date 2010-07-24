@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Type t = TYPE_MAPPING[_interfaceName];
       try
       {
-        Type scType = typeof(ServiceScope);
+        Type scType = typeof(ServiceRegistration);
         MethodInfo mi = scType.GetMethod("Get",
           BindingFlags.Public | BindingFlags.Static,
           null, new Type[] { typeof(bool) }, null);
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("ServiceScopeMarkupExtension: Error getting service '{0}'", ex, t.Name);
+        ServiceRegistration.Get<ILogger>().Error("ServiceScopeMarkupExtension: Error getting service '{0}'", ex, t.Name);
       }
       value = null;
       return false;

@@ -107,12 +107,12 @@ namespace UiComponents.Media.Models
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
-            IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-            ISystemStateService sss = ServiceScope.Get<ISystemStateService>() ;
+            IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+            ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>() ;
             IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
             if (pc == null && sss.CurrentState == SystemState.Running)
             {
-              IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+              IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
               workflowManager.NavigatePopToState(EDIT_PLAYLIST_WORKFLOW_STATE_ID, true);
             }
             break;
@@ -158,7 +158,7 @@ namespace UiComponents.Media.Models
 
     protected void UpdatePlaylist()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
       UpdatePlaylistHeader(pc == null ? null : (PlayerContextType?) pc.MediaType, pc.PlayerSlotController.SlotIndex);
@@ -215,7 +215,7 @@ namespace UiComponents.Media.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       return pc != null && (pc.MediaType == PlayerContextType.Audio || pc.MediaType == PlayerContextType.Video);
     }

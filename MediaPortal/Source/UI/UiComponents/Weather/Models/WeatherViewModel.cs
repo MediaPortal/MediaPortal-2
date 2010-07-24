@@ -50,7 +50,7 @@ namespace UiComponents.Weather
     {
       _currentLocation = new WProperty(typeof(City), new City("No Data", "No Data"));
       // for testing purposes add a weathercatcher
-      ServiceScope.Add<IWeatherCatcher>(new WeatherDotComCatcher());
+      ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       // add citys from settings to the locations list
       GetLocationsFromSettings(true);
     }
@@ -64,7 +64,7 @@ namespace UiComponents.Weather
       _locationsList.Clear();
       _locations.Clear();
       // add citys from settings to the locations list
-      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       ListItem buffItem;
       foreach (CitySetupInfo loc in settings.LocationsList)
       {
@@ -101,7 +101,7 @@ namespace UiComponents.Weather
         // no locations have been setup yet, guide to setup
         else
         {
-          //  ServiceScope.Get<IScreenManager>().ShowScreen("weathersetup");
+          //  ServiceRegistration.Get<IScreenManager>().ShowScreen("weathersetup");
         }
       }
       // we've added new citys, so update the locations collection
@@ -117,18 +117,18 @@ namespace UiComponents.Weather
     /// <returns></returns>
     public void RefreshData(City loc)
     {
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
+      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
 
-      if (ServiceScope.Get<IWeatherCatcher>().GetLocationData(loc))
+      if (ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(loc))
       {
-        ServiceScope.Get<ILogger>().Info("Loaded Weather Data for " + loc.Name + ", " + loc.Id);
+        ServiceRegistration.Get<ILogger>().Info("Loaded Weather Data for " + loc.Name + ", " + loc.Id);
       }
       else
       {
-        ServiceScope.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
+        ServiceRegistration.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
       }
 
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
+      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -168,9 +168,9 @@ namespace UiComponents.Weather
         RefreshData(found);
         CurrentLocation.Copy(found);
         // also save the last selected city to settings
-        WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
+        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
         settings.LocationCode = found.Id;
-        ServiceScope.Get<ISettingsManager>().Save(settings);
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
 
     }

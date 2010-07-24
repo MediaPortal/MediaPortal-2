@@ -73,13 +73,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _adaptToSizeEnabled = false;
       _screenManager = screenManager;
 
-      ServiceScope.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
-      ServiceScope.Add<IScreenControl>(this);
+      ServiceRegistration.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
+      ServiceRegistration.Add<IScreenControl>(this);
 
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      AppSettings appSettings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
+      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
 
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.WindowSize = ClientSize;
 
       // GraphicsDevice has to be initialized after the form was sized correctly
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       GraphicsDevice.Initialize(this);
 
       Application.Idle += OnApplicationIdle;
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void DisposeDirectX()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Debug("DirectX MainForm: Dispose DirectX");
       GraphicsDevice.Dispose();
     }
@@ -150,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void StopUI()
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping UI");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping UI");
       StopRenderThread();
       PlayersHelper.ReleaseGUIResources();
       ContentManager.Free();
@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void StartUI()
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
       GraphicsDevice.Reset();
       PlayersHelper.ReallocGUIResources();
       StartRenderThread_Async();
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (_renderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
       _renderThreadStopped = false;
       _renderThread = new Thread(RenderLoop) {Name = "DirectX Render Thread"};
       _renderThread.Start();
@@ -212,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThreadStopped = true;
       if (_renderThread == null)
         return;
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
       _renderThread.Join();
       _renderThread = null;
     }
@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         SkinContext.RenderThread = null;
       }
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }
 
 
@@ -261,21 +261,21 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       CheckTopMost();
       StartUI();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Running");
     }
 
     public void SwitchMode(ScreenMode mode)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
+      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
       bool newFullscreen = mode == ScreenMode.FullScreen;
-      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
       // Already done, no need to do it twice
       if (mode == _mode)
         return;
 
       settings.FullScreen = newFullscreen;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
       StopUI();
 
@@ -346,7 +346,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         // Screen saver
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
         if (_isScreenSaverEnabled)
           _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
               DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
@@ -362,13 +362,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in Idle handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in Idle handler", ex);
       }
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       try
       {
         logger.Debug("DirectX MainForm: Stopping");
@@ -376,7 +376,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in FormClosing handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in FormClosing handler", ex);
       }
       logger.Debug("DirectX MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
@@ -403,11 +403,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
         _previousMousePosition.Y = e.Y;
         float x = e.X;
         float y = e.Y;
-        ServiceScope.Get<IInputManager>().MouseMove(x, y);
+        ServiceRegistration.Get<IInputManager>().MouseMove(x, y);
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in MouseMove handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in MouseMove handler", ex);
       }
     }
 
@@ -419,14 +419,14 @@ namespace MediaPortal.UI.SkinEngine.GUI
         Key key = InputMapper.MapSpecialKey(e.KeyCode, e.Alt);
         if (key != Key.None)
         {
-          IInputManager manager = ServiceScope.Get<IInputManager>();
+          IInputManager manager = ServiceRegistration.Get<IInputManager>();
           manager.KeyPress(key);
           e.Handled = true;
         }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in KeyDown handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in KeyDown handler", ex);
       }
     }
 
@@ -438,14 +438,14 @@ namespace MediaPortal.UI.SkinEngine.GUI
         Key key = InputMapper.MapPrintableKeys(e.KeyChar);
         if (key != Key.None)
         {
-          IInputManager manager = ServiceScope.Get<IInputManager>();
+          IInputManager manager = ServiceRegistration.Get<IInputManager>();
           manager.KeyPress(key);
           e.Handled = true;
         }
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in KeyPress handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in KeyPress handler", ex);
       }
     }
 
@@ -453,12 +453,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       try
       {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
         inputManager.MouseClick(e.Button);
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error occured in MouseClick handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("Error occured in MouseClick handler", ex);
       }
     }
 

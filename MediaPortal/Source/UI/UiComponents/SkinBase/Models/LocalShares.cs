@@ -74,13 +74,13 @@ namespace UiComponents.SkinBase.Models
 
     public static IEnumerable<Share> GetShares()
     {
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       return sharesManagement.Shares.Values;
     }
 
     public static bool RemoveShares(IEnumerable<Share> shares)
     {
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       foreach (Share share in shares)
         sharesManagement.RemoveShare(share.ShareId);
       return true;
@@ -88,13 +88,13 @@ namespace UiComponents.SkinBase.Models
 
     public override void AddShare()
     {
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       sharesManagement.RegisterShare(ChoosenResourcePath, ShareName, MediaCategories);
     }
 
     protected static IBaseMediaProvider GetMediaProvider(Guid mediaProviderId)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IMediaProvider result;
       if (!mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out result))
         return null;
@@ -103,7 +103,7 @@ namespace UiComponents.SkinBase.Models
 
     protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IBaseMediaProvider mediaProvider in mediaAccessor.LocalBaseMediaProviders)
         yield return mediaProvider.Metadata;
     }
@@ -167,7 +167,7 @@ namespace UiComponents.SkinBase.Models
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
+        ServiceRegistration.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
         return string.Empty;
       }
     }
@@ -188,7 +188,7 @@ namespace UiComponents.SkinBase.Models
 
     protected override IEnumerable<string> GetAllAvailableCategories()
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ICollection<string> result = new HashSet<string>();
       foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
       {
@@ -214,20 +214,20 @@ namespace UiComponents.SkinBase.Models
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Problem generating suggestion for share name for path '{0}'", e, ChoosenResourcePath);
+        ServiceRegistration.Get<ILogger>().Warn("Problem generating suggestion for share name for path '{0}'", e, ChoosenResourcePath);
         return string.Empty;
       }
     }
 
     public override void UpdateShare(RelocationMode relocationMode)
     {
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       sharesManagement.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
     }
 
     public override void ReImportShare()
     {
-      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       sharesManagement.ReImportShare(_origShare.ShareId);
     }
   }

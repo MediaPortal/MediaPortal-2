@@ -116,8 +116,8 @@ namespace MediaPortal.UI.Views
     {
       mediaItems = new List<MediaItem>();
       subViewSpecifications = new List<ViewSpecification>();
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
       ICollection<Guid> miaTypeIDs = new HashSet<Guid>(_necessaryMIATypeIds);
       CollectionUtils.AddAll(miaTypeIDs, _optionalMIATypeIds);
@@ -161,9 +161,9 @@ namespace MediaPortal.UI.Views
     /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
     /// </summary>
     /// <param name="mediaAccessor">Media manager instance. This parameter is for performance to avoid
-    /// iterated calls to the <see cref="ServiceScope"/>.</param>
+    /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
     /// <param name="systemResolver">System resolver instance. This parameter is for performance to avoid
-    /// iterated calls to the <see cref="ServiceScope"/>.</param>
+    /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
     /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>

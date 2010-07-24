@@ -81,20 +81,20 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       try
       {
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
+        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
         MPDirect3D.Load();
         _setup.SetupDirectX(window);
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-        ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
+        ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
             Height, adapterInfo.CurrentDisplayMode.Format,
             adapterInfo.CurrentDisplayMode.RefreshRate);
         GetCapabilities();
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: Failed to set-up DirectX", ex);
+        ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to set-up DirectX", ex);
         Environment.Exit(0);
       }
     }
@@ -133,8 +133,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           ResourceType.Surface, Format.A8R8G8B8);
       int vertexShaderVersion = Device.Capabilities.VertexShaderVersion.Major;
       int pixelShaderVersion = Device.Capabilities.PixelShaderVersion.Major;
-      ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.Capabilities.PixelShaderVersion.Major, Device.Capabilities.PixelShaderVersion.Minor);
-      ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.Capabilities.VertexShaderVersion.Major, Device.Capabilities.VertexShaderVersion.Minor);
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.Capabilities.PixelShaderVersion.Major, Device.Capabilities.PixelShaderVersion.Minor);
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.Capabilities.VertexShaderVersion.Major, Device.Capabilities.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
         _supportsShaders = true;
       else
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static bool Reset()
     {
-      ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
+      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
       if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
       {
         if (_backBuffer != null)
@@ -164,14 +164,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _setup.ResetDevice();
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
+        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
             adapterInfo.CurrentDisplayMode.Format,
             adapterInfo.CurrentDisplayMode.RefreshRate);
         _backBuffer = _device.GetRenderTarget(0);
         GetCapabilities();
       }
       else
-        ServiceScope.Get<ILogger>().Error("GraphicsDevice: Cannot reset DirectX due to pending texture- or vertex-references (#texture references: {0}, #vertex references: {1})", ContentManager.TextureReferences, ContentManager.VertexReferences);
+        ServiceRegistration.Get<ILogger>().Error("GraphicsDevice: Cannot reset DirectX due to pending texture- or vertex-references (#texture references: {0}, #vertex references: {1})", ContentManager.TextureReferences, ContentManager.VertexReferences);
       return true;
     }
 
@@ -327,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
           _device.BeginScene();
 
-          ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
+          ScreenManager manager = (ScreenManager) ServiceRegistration.Get<IScreenManager>();
           manager.Render();
 
           _device.EndScene();
@@ -336,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         catch (Direct3D9Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
           _deviceLost = true;
           return true;
         }
@@ -360,24 +360,24 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       if (result == ResultCode.DeviceNotReset)
       {
-        ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired DirectX device");
+        ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired DirectX device");
         try
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Device reset");
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device reset");
           _setup.ResetDevice();
           int ordinal = Device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
+          ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
               adapterInfo.CurrentDisplayMode.Format,
               adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
           PlayersHelper.ReallocGUIResources();
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
           return true;
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Reset failed", ex);
+          ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Reset failed", ex);
           return false;
         }
       }

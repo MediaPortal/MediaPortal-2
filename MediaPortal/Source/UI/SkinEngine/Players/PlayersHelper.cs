@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Players
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Problem releasing GUI resources in player '{0}'", e, sdvp);
+        ServiceRegistration.Get<ILogger>().Error("Problem releasing GUI resources in player '{0}'", e, sdvp);
       }
     }
 
@@ -60,18 +60,18 @@ namespace MediaPortal.UI.SkinEngine.Players
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Problem reallocating GUI resources in player '{0}'", e, sdvp);
+        ServiceRegistration.Get<ILogger>().Error("Problem reallocating GUI resources in player '{0}'", e, sdvp);
       }
     }
 
     public static void ReleaseGUIResources()
     {
-      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+      ServiceRegistration.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
     }
 
     public static void ReallocGUIResources()
     {
-      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+      ServiceRegistration.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
     }
   }
 }

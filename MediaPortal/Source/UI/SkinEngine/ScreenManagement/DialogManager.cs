@@ -142,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         bool isDefault)
     {
       ListItem result = new ListItem(KEY_NAME, buttonText);
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       IList<ICommand> commands = new List<ICommand>
           {
               new DialogResultCommand(dialogHandle, dialogResult),
@@ -193,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, focusedButton == DialogButtonType.Cancel));
 
       CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogClosed);
       return dialogHandle;
     }

@@ -58,8 +58,8 @@ namespace UiComponents.SkinBase.Models
 
     protected override void Update()
     {
-      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       IsScreenSaverActive = screenControl.IsScreenSaverActive;
       IsMouseUsed = inputManager.IsMouseUsed;
     }

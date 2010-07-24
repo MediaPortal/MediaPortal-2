@@ -64,7 +64,7 @@ namespace MediaPortal.UI.Services.Shares
 
     public void LoadSharesFromSettings()
     {
-      SharesSettings sharesSettings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
+      SharesSettings sharesSettings = ServiceRegistration.Get<ISettingsManager>().Load<SharesSettings>();
       foreach (Share share in sharesSettings.LocalShares)
         _shares.Add(share.ShareId, share);
     }
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.Services.Shares
     {
       SharesSettings settings = new SharesSettings();
       CollectionUtils.AddAll(settings.LocalShares, _shares.Values);
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public IDictionary<Guid, Share> Shares
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.Services.Shares
 
     public void Initialize()
     {
-      ServiceScope.Get<ILogger>().Info("LocalSharesManagement: Initialize");
+      ServiceRegistration.Get<ILogger>().Info("LocalSharesManagement: Initialize");
       LoadSharesFromSettings();
     }
 
@@ -93,7 +93,7 @@ namespace MediaPortal.UI.Services.Shares
 
     public void SetupDefaultShares()
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (Share share in mediaAccessor.CreateDefaultShares())
         RegisterShare(share.BaseResourcePath, share.Name, share.MediaCategories);
     }

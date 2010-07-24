@@ -183,7 +183,7 @@ namespace MediaPortal.Core.Services.Localization
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
+          ServiceRegistration.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
           return;
         }
       }

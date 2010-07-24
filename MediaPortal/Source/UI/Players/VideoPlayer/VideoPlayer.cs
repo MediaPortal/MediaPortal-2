@@ -213,7 +213,7 @@ namespace Ui.Players.Video
               if (evCode == EventCode.Complete)
               {
                 _state = PlayerState.Ended;
-                ServiceScope.Get<ILogger>().Debug("{0}: Playback ended", PlayerTitle);
+                ServiceRegistration.Get<ILogger>().Debug("{0}: Playback ended", PlayerTitle);
                 // TODO: RemoveResumeData();
                 FireEnded();
                 return;
@@ -243,7 +243,7 @@ namespace Ui.Players.Video
       _state = PlayerState.Active;
       _isPaused = true;
       _vertices = new PositionColored2Textured[4];
-      ServiceScope.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
       try
       {
@@ -266,13 +266,13 @@ namespace Ui.Players.Video
 
         AddEvr();
 
-        ServiceScope.Get<ILogger>().Debug("{0}: Adding preferred codecs", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding preferred codecs", PlayerTitle);
         AddPreferredCodecs();
 
-        ServiceScope.Get<ILogger>().Debug("{0}: Adding file source", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding file source", PlayerTitle);
         AddFileSource();
 
-        ServiceScope.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
 
         ///This needs to be done here before we check if the evr pins are connected
         ///since this method gives players the chance to render the last bits of the graph
@@ -369,7 +369,7 @@ namespace Ui.Players.Video
 
     void AddEvr()
     {
-      ServiceScope.Get<ILogger>().Debug("{0}: Initialize EVR", PlayerTitle);
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Initialize EVR", PlayerTitle);
 
       _evr = (IBaseFilter) new EnhancedVideoRenderer();
 
@@ -448,7 +448,7 @@ namespace Ui.Players.Video
       _graphCapabilities = CodecHandler.CodecCapabilities.None;
 
       CodecHandler codecHandler = new CodecHandler();
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
 
       string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
@@ -508,7 +508,7 @@ namespace Ui.Players.Video
         if (TryAdd(currentCodec.Name))
         {
           _graphCapabilities |= currentCodec.Capabilities; // remember all capabilities
-          ServiceScope.Get<ILogger>().Debug("{0}: Add {1} Codec {2} ", PlayerTitle, requestedCapability.ToString(), currentCodec.Name);
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Add {1} Codec {2} ", PlayerTitle, requestedCapability.ToString(), currentCodec.Name);
         }
       }
     }
@@ -547,7 +547,7 @@ namespace Ui.Players.Video
       _initialized = false;
       lock (_resourceAccessor)
       {
-        ServiceScope.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
         int hr = 0;
 
         if (_graphBuilder != null)
@@ -567,7 +567,7 @@ namespace Ui.Players.Video
             hr = mc.StopWhenReady();
             hr = mc.Stop();
             mc.GetState(10, out state);
-            ServiceScope.Get<ILogger>().Info("state:{0}", state);
+            ServiceRegistration.Get<ILogger>().Info("state:{0}", state);
           }
 
           if (_evr != null)
@@ -646,7 +646,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected void FreeResources()
     {
-      ServiceScope.Get<ILogger>().Info("{0}: FreeResources", PlayerTitle);
+      ServiceRegistration.Get<ILogger>().Info("{0}: FreeResources", PlayerTitle);
       // Free Managed Direct3D resources
       if (_vertexBuffer != null)
       {
@@ -755,7 +755,7 @@ namespace Ui.Players.Video
       }
       set
       {
-        ServiceScope.Get<ILogger>().Debug("{0}: Seek to {1} seconds", PlayerTitle, value.TotalSeconds);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Seek to {1} seconds", PlayerTitle, value.TotalSeconds);
 
         if (_state != PlayerState.Active)
           // If the player isn't active when setting its position, we will switch to pause mode to prevent the
@@ -885,7 +885,7 @@ namespace Ui.Players.Video
     {
       if (_state != PlayerState.Stopped)
       {
-        ServiceScope.Get<ILogger>().Debug("{0}: Stop", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Stop", PlayerTitle);
         // FIXME
 //        ResetRefreshRate();
         // TODO: WriteResumeData();
@@ -900,7 +900,7 @@ namespace Ui.Players.Video
     {
       if (!_isPaused)
       {
-        ServiceScope.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
         IMediaControl mc = (IMediaControl) _graphBuilder;
         if (mc != null)
           mc.Pause();
@@ -915,14 +915,14 @@ namespace Ui.Players.Video
     {
       if (_isPaused || IsSeeking)
       {
-        ServiceScope.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
         IMediaControl mc = (IMediaControl) _graphBuilder;
         if (mc != null)
         {
           int hr = mc.Run();
           if (hr != 0 && hr != 1)
           {
-            ServiceScope.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);
+            ServiceRegistration.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);
             Shutdown();
             FireStopped();
             return;

@@ -146,7 +146,7 @@ namespace MediaPortal.Core.Services.Registry
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error adding plugin item '{0}' to plugin tree node '{1}'", e, name, Path);
+          ServiceRegistration.Get<ILogger>().Error("Error adding plugin item '{0}' to plugin tree node '{1}'", e, name, Path);
         }
       }
     }

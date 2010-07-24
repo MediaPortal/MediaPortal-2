@@ -61,7 +61,7 @@ namespace UiComponents.Media.Models
 
     protected override void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
 
       CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
@@ -105,7 +105,7 @@ namespace UiComponents.Media.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = null;
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
         // The "currently playing" screen is always bound to the "current player"

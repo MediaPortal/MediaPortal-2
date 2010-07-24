@@ -357,7 +357,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_visual)
       {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
         if (_attachedInput && inputManager.IsMouseUsed)
           _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
       }

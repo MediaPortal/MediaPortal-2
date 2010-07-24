@@ -42,7 +42,7 @@ namespace MediaPortal.Core.Localization
     /// <see cref="LocalizationSettings.MediaDurationFormat"/>.</returns>
     public static string FormatMediaDuration(TimeSpan duration)
     {
-      LocalizationSettings settings = ServiceScope.Get<ISettingsManager>().Load<LocalizationSettings>();
+      LocalizationSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LocalizationSettings>();
       return string.Format(settings.MediaDurationFormat, (int) duration.TotalMinutes, duration.Seconds);
     }
   }

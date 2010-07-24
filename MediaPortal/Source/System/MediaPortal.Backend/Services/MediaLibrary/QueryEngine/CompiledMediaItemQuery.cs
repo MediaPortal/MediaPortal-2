@@ -138,7 +138,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     public IList<MediaItem> Execute()
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {

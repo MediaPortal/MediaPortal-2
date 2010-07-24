@@ -148,7 +148,7 @@ namespace MediaPortal.Core.Services.PathManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error reading default paths file", e);
+        ServiceRegistration.Get<ILogger>().Error("Error reading default paths file", e);
       }
     }
 

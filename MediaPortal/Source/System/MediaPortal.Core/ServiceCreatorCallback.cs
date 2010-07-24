@@ -24,5 +24,5 @@
 
 namespace MediaPortal.Core
 {
-  public delegate T ServiceCreatorCallback<T>(ServiceScope scope);
+  public delegate T ServiceCreatorCallback<T>(ServiceRegistration registration);
 }

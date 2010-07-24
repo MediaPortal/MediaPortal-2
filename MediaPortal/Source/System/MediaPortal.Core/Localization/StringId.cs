@@ -134,7 +134,7 @@ namespace MediaPortal.Core.Localization
     public override string ToString()
     {
       if (_localized == null)
-        _localized = ServiceScope.Get<ILocalization>().ToString(_section, _name);
+        _localized = ServiceRegistration.Get<ILocalization>().ToString(_section, _name);
 
       if (_localized == null)
         return Label;
@@ -193,7 +193,7 @@ namespace MediaPortal.Core.Localization
 
     public int CompareTo(StringId other)
     {
-      return string.Compare(ToString(), other.ToString(), false, ServiceScope.Get<ILocalization>().CurrentCulture);
+      return string.Compare(ToString(), other.ToString(), false, ServiceRegistration.Get<ILocalization>().CurrentCulture);
     }
 
     #endregion

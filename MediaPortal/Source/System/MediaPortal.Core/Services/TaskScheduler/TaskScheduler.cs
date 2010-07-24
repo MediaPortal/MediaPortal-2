@@ -59,12 +59,12 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public TaskScheduler()
     {
-      _settings = ServiceScope.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
       SaveChanges(false);
 
       DoStartup();
       _work = new IntervalWork(DoWork, new TimeSpan(0, 0, 20));
-      ServiceScope.Get<IThreadPool>().AddIntervalWork(_work, false);
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, false);
     }
 
     #endregion
@@ -74,9 +74,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public void Stop()
     {
       _work.Cancel();
-      ServiceScope.Get<IThreadPool>().RemoveIntervalWork(_work);
-      ServiceScope.Remove<ITaskScheduler>();
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
+      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
+      ServiceRegistration.Remove<ITaskScheduler>();
+      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
     #endregion
@@ -126,7 +126,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
           // Only process non-repeat tasks
           if (task.Occurrence == Occurrence.Once || task.Occurrence == Occurrence.Repeat)
           {
-            ServiceScope.Get<ILogger>().Debug("TaskScheduler: ProcessTask: {0}", task.ToString());
+            ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: ProcessTask: {0}", task.ToString());
             // Process task if schedule is due
             if (task.IsDue(now))
             {
@@ -202,7 +202,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     {
       if (needSort)
         _settings.TaskCollection.Sort();
-      ServiceScope.Get<ISettingsManager>().Save(_settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
     #endregion

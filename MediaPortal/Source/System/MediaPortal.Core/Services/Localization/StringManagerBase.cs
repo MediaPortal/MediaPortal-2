@@ -120,7 +120,7 @@ namespace MediaPortal.Core.Services.Localization
 
     public virtual void Dispose()
     {
-      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(LANGUAGE_RESOURCES_REGISTRATION_PATH,
+      ServiceRegistration.Get<IPluginManager>().RevokeAllPluginItems(LANGUAGE_RESOURCES_REGISTRATION_PATH,
           _languagePluginStateTracker);
     }
 
@@ -133,7 +133,7 @@ namespace MediaPortal.Core.Services.Localization
       try
       {
         // Add language directories
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         ICollection<PluginResource> languageResources = pluginManager.RequestAllPluginItems<PluginResource>(
             LANGUAGE_RESOURCES_REGISTRATION_PATH, _languagePluginStateTracker);
         pluginManager.AddItemRegistrationChangeListener(
@@ -143,7 +143,7 @@ namespace MediaPortal.Core.Services.Localization
         {
           _languageDirectories = new List<string>();
   
-          ILogger logger = ServiceScope.Get<ILogger>();
+          ILogger logger = ServiceRegistration.Get<ILogger>();
           foreach (PluginResource resource in languageResources)
           {
             logger.Debug("{0}: Adding language directory '{1}'", GetType().Name, resource.Path);
@@ -158,7 +158,7 @@ namespace MediaPortal.Core.Services.Localization
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("{0}: Error initializing language resources", e, GetType().Name);
+        ServiceRegistration.Get<ILogger>().Error("{0}: Error initializing language resources", e, GetType().Name);
       }
     }
 
@@ -167,7 +167,7 @@ namespace MediaPortal.Core.Services.Localization
       lock (_syncObj)
         foreach (PluginItemMetadata item in items)
         {
-          PluginResource resource = ServiceScope.Get<IPluginManager>().RequestPluginItem<PluginResource>(
+          PluginResource resource = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<PluginResource>(
                 item.RegistrationLocation, item.Id, _languagePluginStateTracker);
           if (resource != null && Directory.Exists(resource.Path))
             _languageDirectories.Add(resource.Path);

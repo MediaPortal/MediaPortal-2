@@ -40,14 +40,14 @@ namespace MediaPortal.Backend.Services.MediaManagement
     {
       get
       {
-        IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
         return mediaLibrary.GetManagedMediaItemAspectMetadata();
       }
     }
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam)
     {
-      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam);
     }
   }

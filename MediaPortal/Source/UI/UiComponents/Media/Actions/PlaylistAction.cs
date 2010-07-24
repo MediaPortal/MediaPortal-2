@@ -104,8 +104,8 @@ namespace UiComponents.Media.Actions
 
     protected void Update()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       bool visible = pc != null;
       string displayTitleRes = null;
@@ -181,7 +181,7 @@ namespace UiComponents.Media.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(SHOW_PLAYLIST_WORKFLOW_STATE_ID);
     }
 

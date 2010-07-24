@@ -106,10 +106,10 @@ namespace UiComponents.SkinBase.Actions
     {
       get
       {
-        IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+        IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
         bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
-        ILocalSharesManagement localSharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+        ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
         return !localHomeServer && localSharesManagement.Shares.Count == 0;
       }
     }
@@ -151,7 +151,7 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      ILocalSharesManagement localSharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       if (CanSetupDefaultShares)
         localSharesManagement.SetupDefaultShares();
     }

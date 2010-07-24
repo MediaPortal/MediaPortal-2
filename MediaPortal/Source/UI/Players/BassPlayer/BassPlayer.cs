@@ -210,7 +210,7 @@ namespace Ui.Players.BassPlayer
       IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator);
       if (inputSource == null)
       {
-        ServiceScope.Get<ILogger>().Warn("Unable to play '{0}'", locator);
+        ServiceRegistration.Get<ILogger>().Warn("Unable to play '{0}'", locator);
         return;
       }
       _externalState = PlayerState.Active;

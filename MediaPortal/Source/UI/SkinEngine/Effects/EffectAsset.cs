@@ -92,8 +92,8 @@ namespace MediaPortal.UI.SkinEngine.Effects
       }
       catch
       { 
-        ServiceScope.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
-        ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
+        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
+        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         return false;
       }
     }

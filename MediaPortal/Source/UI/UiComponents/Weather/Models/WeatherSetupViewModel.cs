@@ -54,9 +54,9 @@ namespace UiComponents.Weather
     {
       _searchCity = new WProperty(typeof(string), "");
       // see if we already have a weather catcher in servicescope, if not, add one (for testing purposes)
-      if (!ServiceScope.IsRegistered<IWeatherCatcher>())
+      if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
       {
-        ServiceScope.Add<IWeatherCatcher>(new WeatherDotComCatcher());
+        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       }
       // load settings
       GetLocationsFromSettings();
@@ -81,7 +81,7 @@ namespace UiComponents.Weather
     /// </summary>
     private void GetLocationsFromSettings()
     {
-      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       Locations = settings.LocationsList;
     }
 
@@ -91,7 +91,7 @@ namespace UiComponents.Weather
     /// <param name="name"></param>
     public void SearchLocations(string name)
     {
-      LocationsSearch = ServiceScope.Get<IWeatherCatcher>().FindLocationsByName(name);
+      LocationsSearch = ServiceRegistration.Get<IWeatherCatcher>().FindLocationsByName(name);
     }
 
 
@@ -100,13 +100,13 @@ namespace UiComponents.Weather
     /// </summary>
     public void SaveSettings()
     {
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
-      WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
+      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       // apply new locations list
       settings.LocationsList = Locations;
       // save
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-      //ServiceScope.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>

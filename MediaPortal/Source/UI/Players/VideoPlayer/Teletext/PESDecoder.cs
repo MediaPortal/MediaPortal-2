@@ -49,7 +49,7 @@ namespace Ui.Players.Video.Teletext
 
     public PESDecoder(PESCallback cb)
     {
-      ServiceScope.Get<ILogger>().Debug("PESDecoder ctor");
+      ServiceRegistration.Get<ILogger>().Debug("PESDecoder ctor");
       this.cb = cb;
       m_pid = -1;
       m_pesBuffer = new byte[MAX_PES_PACKET];
@@ -62,7 +62,7 @@ namespace Ui.Players.Video.Teletext
 
     public void Reset()
     {
-      ServiceScope.Get<ILogger>().Debug("PESDecoder.Reset");
+      ServiceRegistration.Get<ILogger>().Debug("PESDecoder.Reset");
       m_iWritePos = 0;
       m_iPesHeaderLen = 0;
       hasPayloadStart = false;
@@ -84,7 +84,7 @@ namespace Ui.Players.Video.Teletext
       //LogDebug("PesDecoder::OnTsPacket %i", tsPacketCount++);
       if (tsPacket == null)
       {
-        ServiceScope.Get<ILogger>().Debug("tsPacket null!");
+        ServiceRegistration.Get<ILogger>().Debug("tsPacket null!");
         return false;
       }
 
@@ -92,13 +92,13 @@ namespace Ui.Players.Video.Teletext
       // Assume that correct pid is passed!
       /*if (header.Pid != m_pid) 
       {
-          ServiceScope.Get<ILogger>().Debug("Header Pid is %i, expected %i", header.Pid, m_pid);
+          ServiceRegistration.Get<ILogger>().Debug("Header Pid is %i, expected %i", header.Pid, m_pid);
           return false;
       }*/
 
       if (header.SyncByte != TS_PACKET_SYNC)
       {
-        ServiceScope.Get<ILogger>().Debug("pesdecoder pid:%x sync error", m_pid);
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x sync error", m_pid);
         return false;
       }
 
@@ -107,19 +107,19 @@ namespace Ui.Players.Video.Teletext
         m_bStart = false;
         m_iWritePos = 0;
         m_iPesLength = 0;
-        ServiceScope.Get<ILogger>().Debug("pesdecoder pid:%x transport error", m_pid);
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x transport error", m_pid);
         return false;
       }
 
       bool scrambled = (header.TScrambling != 0);
       if (scrambled)
       {
-        ServiceScope.Get<ILogger>().Debug("pesdecoder scrambled!");
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder scrambled!");
         return false;
       }
       if (header.AdaptionFieldOnly())
       {
-        ServiceScope.Get<ILogger>().Debug("pesdecoder AdaptionFieldOnly!");
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder AdaptionFieldOnly!");
         return false;
       }
       return true;
@@ -129,13 +129,13 @@ namespace Ui.Players.Video.Teletext
     {
       if (!b)
       {
-        ServiceScope.Get<ILogger>().Error("Assertion failed in PESDecoder: " + msg);
+        ServiceRegistration.Get<ILogger>().Error("Assertion failed in PESDecoder: " + msg);
       }
     }
 
     public void OnTsPacket(byte[] tsPacket, UInt64 presentTime)
     {
-      // ServiceScope.Get<ILogger>().Debug("PESDECODER ONTSPACKET");
+      // ServiceRegistration.Get<ILogger>().Debug("PESDECODER ONTSPACKET");
       TSHeader header = new TSHeader(tsPacket);
       if (!SanityCheck(header, tsPacket)) return;
 
@@ -143,7 +143,7 @@ namespace Ui.Players.Video.Teletext
 
       if (header.PayloadUnitStart) // if this header starts a new PES packet
       {
-        //ServiceScope.Get<ILogger>().Debug("PESDECODER: PayLoadUnitStart");
+        //ServiceRegistration.Get<ILogger>().Debug("PESDECODER: PayLoadUnitStart");
         hasPayloadStart = true;
         if (tsPacket[pos + 0] == 0 && tsPacket[pos + 1] == 0 && tsPacket[pos + 2] == 1)
         {
@@ -160,7 +160,7 @@ namespace Ui.Players.Video.Teletext
           if (m_iWritePos != 0)
           {
             //throw new Exception("Buffer is not empty, but new packet is being received!");
-            ServiceScope.Get<ILogger>().Warn("PESDECODER: Buffer is not empty, but new packet is being received!");
+            ServiceRegistration.Get<ILogger>().Warn("PESDECODER: Buffer is not empty, but new packet is being received!");
           }
           m_iWritePos = 0;
 
@@ -168,7 +168,7 @@ namespace Ui.Players.Video.Teletext
 
           if (m_pesHeader.Length < m_iPesHeaderLen)
           {
-            ServiceScope.Get<ILogger>().Error("PESDecoder: Reported header length is bigger than header buffer! : {0} vs {1}", m_pesHeader.Length, m_iPesHeaderLen);
+            ServiceRegistration.Get<ILogger>().Error("PESDecoder: Reported header length is bigger than header buffer! : {0} vs {1}", m_pesHeader.Length, m_iPesHeaderLen);
           }
           Array.Copy(tsPacket, pos, m_pesHeader, 0, m_iPesHeaderLen);
           //above replaces -> memcpy(m_pesHeader,&tsPacket[pos],m_iPesHeaderLen);
@@ -184,18 +184,18 @@ namespace Ui.Players.Video.Teletext
       }
       else if (!hasPayloadStart)
       {
-        //ServiceScope.Get<ILogger>().Debug("PACKET DISCARDED: END OF PACKET FOR WHICH WE DONT HAVE START");
+        //ServiceRegistration.Get<ILogger>().Debug("PACKET DISCARDED: END OF PACKET FOR WHICH WE DONT HAVE START");
         return;
       }
 
       if (m_iWritePos < 0)
       {
-        ServiceScope.Get<ILogger>().Debug("m_iWritePos < 0");
+        ServiceRegistration.Get<ILogger>().Debug("m_iWritePos < 0");
         return;
       }
       if (m_iStreamId <= 0)
       {
-        ServiceScope.Get<ILogger>().Debug("m_iStreamId <= 0");
+        ServiceRegistration.Get<ILogger>().Debug("m_iStreamId <= 0");
         return;
       }
 
@@ -209,12 +209,12 @@ namespace Ui.Players.Video.Teletext
 
       if (m_iPesLength == m_iWritePos) // we have the expected data
       {
-        // ServiceScope.Get<ILogger>().Debug("PESDECODER: GOT COMPLETE PACKET");
+        // ServiceRegistration.Get<ILogger>().Debug("PESDECODER: GOT COMPLETE PACKET");
 
         // assert(cb != null, "cb is null!");
         if (m_iWritePos > 0 && cb != null)
         {
-          //ServiceScope.Get<ILogger>().Debug("PESDECODER: CALLING CALLBACK");
+          //ServiceRegistration.Get<ILogger>().Debug("PESDECODER: CALLING CALLBACK");
           cb(m_iStreamId, m_pesHeader, m_iPesHeaderLen, m_pesBuffer, m_iWritePos, m_bStart, presentTime);
 
           m_bStart = false;

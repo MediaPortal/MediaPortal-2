@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _stops = stops;
       Allocate();
-      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
+      IScreenManager mgr = ServiceRegistration.Get<IScreenManager>();
       _name = String.Format("brush#{0} {1}", _assetId, mgr.ActiveScreenName);
       _assetId++;
       ContentManager.Add(this);

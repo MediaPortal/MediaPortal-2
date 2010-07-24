@@ -65,7 +65,7 @@ namespace MediaPortal.UI.Services.Workflow
     {
       _states.Clear();
       _menuActions.Clear();
-      IDictionary<string, string> workflowResources = ServiceScope.Get<ISkinResourceManager>().
+      IDictionary<string, string> workflowResources = ServiceRegistration.Get<ISkinResourceManager>().
           SkinResourceContext.GetResourceFilePaths("^" + WORKFLOW_DIRECTORY + "\\\\.*\\.xml$");
       foreach (string workflowResourceFilePath in workflowResources.Values)
         LoadWorkflowResourceFile(workflowResourceFilePath);
@@ -134,7 +134,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error loading workflow resource file '" + filePath + "'", e);
+        ServiceRegistration.Get<ILogger>().Error("Error loading workflow resource file '" + filePath + "'", e);
       }
     }
 

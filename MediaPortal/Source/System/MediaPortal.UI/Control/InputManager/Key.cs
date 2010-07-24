@@ -124,7 +124,7 @@ namespace MediaPortal.UI.Control.InputManager
     /// <param name="name">Name of the special key.</param>
     public Key(string name)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       _name = name;
       if (NAME2SPECIALKEY.ContainsKey(name))
         logger.Warn("Key: Special key '{0}' was instantiated multiple times", name);

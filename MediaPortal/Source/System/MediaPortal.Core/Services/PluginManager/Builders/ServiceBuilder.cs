@@ -35,7 +35,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
   /// <remarks>
   /// The item registration has to provide the parameters "ServiceClassName", which contains the fully
   /// qualified name of the class in one of the plugin's assemblies, the "RegistrationClassName", which contains the
-  /// fully qualified name of the registration type in ServiceScope and the "RegistrationClassAssembly", which
+  /// fully qualified name of the registration type in ServiceRegistration and the "RegistrationClassAssembly", which
   /// contains the name of the assembly, where the registration type is defined:
   /// <example>
   /// &lt;Service Id="FooService" RegistrationClassName="IFoo" RegistrationClassAssembly="System.Foo" ServiceClassName="Foo"/&gt;
@@ -76,7 +76,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
       object serviceInstance = plugin.InstantiatePluginObject(serviceClassName);
       if (serviceInstance == null)
       {
-        ServiceScope.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service class '{0}' in plugin '{1}' (id: '{2}')",
+        ServiceRegistration.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service class '{0}' in plugin '{1}' (id: '{2}')",
             serviceClassName, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
         return null;
       }
@@ -94,7 +94,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
             Type.GetType(registrationClassName + ", " + registrationClassAssembly);
       if (registrationType == null)
       {
-        ServiceScope.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service registration type '{0}' (Assembly: '{1}') in plugin '{2}' (id: '{3}')",
+        ServiceRegistration.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service registration type '{0}' (Assembly: '{1}') in plugin '{2}' (id: '{3}')",
             registrationClassName, registrationClassAssembly, itemData.PluginRuntime.Metadata.Name, itemData.PluginRuntime.Metadata.PluginId);
         return null;
       }

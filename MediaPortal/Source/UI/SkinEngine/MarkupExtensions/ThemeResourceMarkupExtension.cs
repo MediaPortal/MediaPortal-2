@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _resource = FindResourceInTheme(_resourceKey) ?? FindResourceInParserContext(_resourceKey, context);
 
       if (_resource == null)
-        ServiceScope.Get<ILogger>().Error("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
+        ServiceRegistration.Get<ILogger>().Error("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
     }
 
     bool IEvaluableMarkupExtension.Evaluate(out object value)

@@ -38,7 +38,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       string dialog = DialogScreen;
       if (dialog != null)
       {
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
         screenManager.ShowDialog(dialog);
       }
     }

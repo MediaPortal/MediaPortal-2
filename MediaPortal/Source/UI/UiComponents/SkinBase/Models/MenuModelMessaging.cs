@@ -41,7 +41,7 @@ namespace UiComponents.SkinBase.Models
     public static void SendMenuMessage(MessageType messageType)
     {
       SystemMessage msg = new SystemMessage(messageType);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

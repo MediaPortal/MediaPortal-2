@@ -150,7 +150,7 @@ namespace MediaPortal.UI.Services.Workflow
     public WorkflowManager()
     {
       _modelItemStateTracker = new ModelItemStateTracker(this);
-      ServiceScope.Get<IPluginManager>().RegisterSystemPluginItemBuilder("Model", new ModelBuilder());
+      ServiceRegistration.Get<IPluginManager>().RegisterSystemPluginItemBuilder("Model", new ModelBuilder());
     }
 
     #endregion
@@ -213,9 +213,9 @@ namespace MediaPortal.UI.Services.Workflow
     protected void ReloadWorkflowResources()
     {
       if (_states.Count == 0)
-        ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading workflow resources");
+        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Loading workflow resources");
       else
-        ServiceScope.Get<ILogger>().Debug("WorkflowManager: Reloading workflow resources");
+        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Reloading workflow resources");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
       EnterWriteLock("ReloadWorkflowResources");
@@ -258,8 +258,8 @@ namespace MediaPortal.UI.Services.Workflow
           entry.Use();
           return entry.ModelInstance;
         }
-        ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading GUI model '{0}'", modelId);
-        object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Loading GUI model '{0}'", modelId);
+        object model = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
             MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
         if (model == null)
           throw new ArgumentException(string.Format("WorkflowManager: Model with id '{0}' is not available", modelId));
@@ -287,7 +287,7 @@ namespace MediaPortal.UI.Services.Workflow
       {
         ExitWriteLock();
       }
-      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
+      ServiceRegistration.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
     }
 
     protected void RemoveModelFromNavigationStack(Guid modelId)
@@ -338,7 +338,7 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("DoPushNavigationContext");
       try
       {
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
         NavigationContext current = CurrentNavigationContext;
 
         if (current != null && current.WorkflowState.IsTemporary && state.WorkflowType == WorkflowType.Workflow)
@@ -455,7 +455,7 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("DoPopNavigationContext");
       try
       {
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
 
         logger.Info("WorkflowManager: Trying to remove {0} workflow states from navigation stack...", count);
         IDictionary<Guid, NavigationContext> removedContexts = new Dictionary<Guid, NavigationContext>();
@@ -470,7 +470,7 @@ namespace MediaPortal.UI.Services.Workflow
           removedContexts[oldContext.WorkflowState.StateId] = oldContext;
           if (oldContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
           {
-            IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+            IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
             if (screenManager.IsDialogVisible && screenManager.ActiveScreenName == oldContext.WorkflowState.MainScreen)
               // In fact this will trigger our close dialog delegate which we attached in the UpdateScreen_NeedsLock method,
               // but the anonymous close event delegate checks the current navigation context, which has already been
@@ -528,7 +528,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     protected void IterateCache_NoLock()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Debug("WorkflowManager: Tidying up...");
       ICollection<Guid> modelsToFree = new List<Guid>();
       EnterWriteLock("IterateCache_NoLock");
@@ -563,8 +563,8 @@ namespace MediaPortal.UI.Services.Workflow
     /// </remarks>
     protected void UpdateScreen_NeedsLock()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       NavigationContext currentContext = CurrentNavigationContext;
       Guid? workflowModelId = currentContext.WorkflowModelId;
       IWorkflowModel workflowModel = workflowModelId.HasValue ?
@@ -644,7 +644,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void Initialize()
     {
-      ServiceScope.Get<ILogger>().Info("WorkflowManager: Startup");
+      ServiceRegistration.Get<ILogger>().Info("WorkflowManager: Startup");
       SubscribeToMessages();
       ReloadWorkflowResources();
     }
@@ -654,7 +654,7 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("Shutdown");
       try
       {
-        ServiceScope.Get<ILogger>().Info("WorkflowManager: Shutdown");
+        ServiceRegistration.Get<ILogger>().Info("WorkflowManager: Shutdown");
         UnsubscribeFromMessages();
         foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
           FreeModel_NoLock(modelId);
@@ -753,14 +753,14 @@ namespace MediaPortal.UI.Services.Workflow
       // But with a batch update, the internal state of workflow models, which has been established by calls to
       // EnterModelContext/ChangeModelContext/ExitModelContext, will become out-of-sync with screen update requests,
       // which would need to take place after the actual workflow model state change.
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.StartBatchUpdate();
     }
 
     public void EndBatchUpdate()
     {
       // See comment in method StartBatchUpdate()
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.EndBatchUpdate();
     }
 
@@ -774,7 +774,7 @@ namespace MediaPortal.UI.Services.Workflow
         lock (current.SyncRoot)
           if (!current.Models.ContainsKey(modelId))
           {
-            ServiceScope.Get<ILogger>().Debug(
+            ServiceRegistration.Get<ILogger>().Debug(
                 "WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
                 modelId, CurrentNavigationContext.WorkflowState.StateId);
             current.Models[modelId] = model;

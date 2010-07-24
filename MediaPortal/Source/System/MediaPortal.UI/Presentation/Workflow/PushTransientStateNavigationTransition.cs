@@ -84,7 +84,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       NavigationContextConfig config = new NavigationContextConfig {
         NavigationContextDisplayLabel = _displayLabel,
         AdditionalContextVariables = _workflowNavigationContextVariables

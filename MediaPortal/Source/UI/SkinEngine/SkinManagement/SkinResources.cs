@@ -365,7 +365,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       object result;
       if (_styleGUIModels.TryGetValue(modelId, out result))
         return result;
-      result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+      result = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       if (result == null)
         throw new ArgumentException(string.Format("StyleResources: Model with id '{0}' is not available", modelId));
@@ -375,7 +375,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     protected void ReleaseAllGUIModels()
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       foreach (Guid modelId in _styleGUIModels.Keys)
         pluginManager.RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _styleGUIModels.Clear();
@@ -419,7 +419,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       // Do the actual work
       LoadStyleResource(resourceKey);
       if (GetResourceFilePath(resourceKey) == null)
-        ServiceScope.Get<ILogger>().Warn("SkinResources: Requested style resource '{0}' could not be found", resourceKey);
+        ServiceRegistration.Get<ILogger>().Warn("SkinResources: Requested style resource '{0}' could not be found", resourceKey);
     }
 
     protected void LoadStyleResource(string resourceKey)
@@ -433,7 +433,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           throw new CircularReferenceException(
               string.Format("SkinResources: Style resource '{0}' is part of a circular reference", resourceKey));
         pr.State = LoadState.Loading;
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
         try
         {
           logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
@@ -504,7 +504,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     protected virtual void LoadDirectory(string rootDirectoryPath)
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinResources: Adding skin resource directory '{0}' to {1} '{2}'", rootDirectoryPath, GetType().Name, Name);
       // Add resource files for this directory
       int directoryNameLength = rootDirectoryPath.Length;

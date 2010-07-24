@@ -112,11 +112,11 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     protected void Bind()
     {
-      object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+      object model = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
       if (model == null)
       {
-        ServiceScope.Get<ILogger>().Warn(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
+        ServiceRegistration.Get<ILogger>().Warn(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
         return;
       }
       _contributor = (IWorkflowContributor) model;
@@ -129,7 +129,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       if (_contributor == null)
         return;
-      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(),
+      ServiceRegistration.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(),
           _modelItemStateTracker);
       _contributor.Uninitialize();
       _contributor = null;

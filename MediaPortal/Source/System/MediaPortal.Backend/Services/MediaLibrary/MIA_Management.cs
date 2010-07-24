@@ -170,7 +170,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       lock (_syncObj)
       {
-        ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         ITransaction transaction = database.BeginTransaction();
         try
         {
@@ -323,7 +323,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (_nameAliases.ContainsKey(objectIdentifier))
           throw new InvalidDataException("Table identifier '{0}' is already present in alias cache", objectIdentifier);
-        ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         uint maxLen = database.MaxObjectNameLength;
         uint ct = 0;
         string result;
@@ -393,7 +393,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected static IDictionary<Guid, string> SelectAllMediaItemAspectMetadataSerializations()
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -574,7 +574,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         // Delete old entries
         DeleteOneToManyAttributeValuesNotInEnumeration(transaction, spec, mediaItemId, values);
 
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       // Add new entries - commands for insert and update are the same here
       foreach (object value in values)
       {
@@ -642,7 +642,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItemAspectMetadata.AttributeSpecification spec, Int64 mediaItemId, object value, bool insert, out Int64 valuePk)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       ISQLDatabase database = transaction.Database;
 
       LockAttribute(spec);
@@ -732,7 +732,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItemAspectMetadata.AttributeSpecification spec, Int64 mediaItemId, object value)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       // Insert value into collection attribute table if not exists: We do it in a single statement to avoid rountrips to the DB
       IDbCommand command = transaction.CreateCommand();
       command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
@@ -860,9 +860,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           return;
         _managedMIATypes.Add(miam.AspectId, null);
       }
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      ServiceScope.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
+      ServiceRegistration.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
           miam.Name, miam.AspectId);
       try
       {
@@ -905,7 +905,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                   "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                   ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   collectionAttributeTableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -944,12 +944,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         mainStatementBuilder.Append(")");
         command = transaction.CreateCommand();
         command.CommandText = mainStatementBuilder.ToString();
-        ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating main table '{0}' for media item aspect '{1}'",
+        ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating main table '{0}' for media item aspect '{1}'",
             miaTableName, miam.AspectId);
         command.ExecuteNonQuery();
 
         string indexName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK_IDX", "IDX");
-        ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating primary key index '{0}' for media item aspect '{1}'",
+        ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating primary key index '{0}' for media item aspect '{1}'",
             indexName, miam.AspectId);
         command = transaction.CreateCommand();
         command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + MIA_MEDIA_ITEM_ID_COL_NAME + ")";
@@ -970,7 +970,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnName + "_IDX", "IDX");
                 command = transaction.CreateCommand();
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + attributeColumnName + ")";
-                ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating index '{0}' for inline attribute '{1}' in media item aspect '{2}'",
+                ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating index '{0}' for inline attribute '{1}' in media item aspect '{2}'",
                     indexName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
               }
@@ -990,7 +990,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                   " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
                   ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating OTM table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating OTM table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   collectionAttributeTableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -999,7 +999,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command = transaction.CreateCommand();
               command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
                   MIA_MEDIA_ITEM_ID_COL_NAME + ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating foreign key index '{0}' for OTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating foreign key index '{0}' for OTM attribute '{1}' in media item aspect '{2}'",
                   indexName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1010,7 +1010,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command = transaction.CreateCommand();
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
                     COLL_ATTR_VALUE_COL_NAME + ")";
-                ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for OTM attribute '{1}' in media item aspect '{2}'",
+                ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for OTM attribute '{1}' in media item aspect '{2}'",
                     indexName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
               }
@@ -1025,7 +1025,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command = transaction.CreateCommand();
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" +
                     attributeColumnName + ")";
-                ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating foreign key index '{0}' for MTO attribute '{1}' in media item aspect '{2}'",
+                ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating foreign key index '{0}' for MTO attribute '{1}' in media item aspect '{2}'",
                     indexName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
               }
@@ -1035,7 +1035,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command = transaction.CreateCommand();
               command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
                   COLL_ATTR_VALUE_COL_NAME + ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for MTO attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for MTO attribute '{1}' in media item aspect '{2}'",
                   indexName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
               break;
@@ -1054,7 +1054,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                   "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                   ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   collectionAttributeTableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1068,7 +1068,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   "CONSTRAINT " + fkForeignTableConstraintName + " FOREIGN KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                   " REFERENCES " + collectionAttributeTableName + " (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ") ON DELETE CASCADE" +
                   ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                   nmTableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1077,7 +1077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command = transaction.CreateCommand();
               command.CommandText = "CREATE INDEX " + indexName + " ON " + nmTableName + "(" +
                   MIA_MEDIA_ITEM_ID_COL_NAME + ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating foreign index '{0}' to main MIA table for MTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating foreign index '{0}' to main MIA table for MTM attribute '{1}' in media item aspect '{2}'",
                   indexName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1086,7 +1086,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command = transaction.CreateCommand();
               command.CommandText = "CREATE INDEX " + indexName + " ON " + nmTableName + "(" +
                   FOREIGN_COLL_ATTR_ID_COL_NAME + ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating foreign index '{0}' to value table for MTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating foreign index '{0}' to value table for MTM attribute '{1}' in media item aspect '{2}'",
                   indexName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1097,7 +1097,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command = transaction.CreateCommand();
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
                     COLL_ATTR_VALUE_COL_NAME + ")";
-                ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
+                ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating value index '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                     indexName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
               }
@@ -1111,7 +1111,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MIA_Management: Error adding media item aspect storage '{0}'", e, miam.AspectId);
+        ServiceRegistration.Get<ILogger>().Error("MIA_Management: Error adding media item aspect storage '{0}'", e, miam.AspectId);
         transaction.Rollback();
         throw;
       }
@@ -1128,9 +1128,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _managedMIATypes[aspectId] = null;
       }
       MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      ServiceScope.Get<ILogger>().Info("MIA_Management: Removing media library storage for media item aspect '{0}' (id '{1}')",
+      ServiceRegistration.Get<ILogger>().Info("MIA_Management: Removing media library storage for media item aspect '{0}' (id '{1}')",
           miam.Name, miam.AspectId);
       try
       {
@@ -1155,7 +1155,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // Foreign attribute value table
               command = transaction.CreateCommand();
               command.CommandText = "DROP TABLE " + tableName;
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Dropping OTM table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Dropping OTM table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                   tableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
               break;
@@ -1168,7 +1168,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // N:M table
               command = transaction.CreateCommand();
               command.CommandText = "DROP TABLE " + tableName;
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Dropping MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Dropping MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   tableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
@@ -1177,7 +1177,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // Foreign attribute value table
               command = transaction.CreateCommand();
               command.CommandText = "DROP TABLE " + tableName;
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Dropping N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Dropping N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                   tableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
               break;
@@ -1189,7 +1189,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         // Main table
         command.CommandText = "DROP TABLE " + miaTableName;
-        ServiceScope.Get<ILogger>().Debug("MIA_Management: Dropping main table '{0}' for media item aspect '{1}')",
+        ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Dropping main table '{0}' for media item aspect '{1}')",
             miaTableName, miam.AspectId);
         command.ExecuteNonQuery();
 
@@ -1209,7 +1209,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // Foreign attribute value table
               command = transaction.CreateCommand();
               command.CommandText = "DROP TABLE " + tableName;
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Dropping MTO value table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Dropping MTO value table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   tableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
               break;
@@ -1228,7 +1228,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MIA_Management: Error removing media item aspect storage '{0}'", e, aspectId);
+        ServiceRegistration.Get<ILogger>().Error("MIA_Management: Error removing media item aspect storage '{0}'", e, aspectId);
         transaction.Rollback();
         throw;
       }
@@ -1238,7 +1238,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool IsCLOBAttribute(MediaItemAspectMetadata.AttributeSpecification specification)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       return specification.AttributeType == typeof(string) && database.IsCLOBNecessary(specification.MaxNumChars);
     }
 

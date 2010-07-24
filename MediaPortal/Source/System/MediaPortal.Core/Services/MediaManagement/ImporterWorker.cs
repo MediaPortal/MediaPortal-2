@@ -110,7 +110,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected ICollection<Guid> GetMetadataExtractorIdsForMediaCategories(IEnumerable<string> mediaCategories)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ICollection<Guid> result = new HashSet<Guid>();
       foreach (string mediaCategory in mediaCategories)
         CollectionUtils.AddAll(result, mediaAccessor.GetMetadataExtractorsForCategory(mediaCategory));
@@ -121,7 +121,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         settings.PendingImportJobs = new List<ImportJob>(_importJobs);
         settingsManager.Save(settings);
@@ -133,7 +133,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         _importJobs.Clear();
         CollectionUtils.AddAll(_importJobs, settings.PendingImportJobs);
@@ -314,7 +314,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       catch (Exception e)
       {
         CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-        ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
         importJob.State = ImportJobState.Erroneous;
       }
     }
@@ -380,7 +380,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             catch (Exception e)
             {
               CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-              ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
+              ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
               importJob.State = ImportJobState.Erroneous;
             }
             CheckImportStillRunning(importJob.State);
@@ -407,7 +407,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       catch (Exception e)
       {
         CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-        ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing directory '{0}'", e, directoryAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing directory '{0}'", e, directoryAccessor.LocalResourcePath);
         importJob.State = ImportJobState.Erroneous;
       }
     }
@@ -428,7 +428,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return;
 
       // Preparation
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IImportResultHandler resultHandler;
       IMediaBrowsing mediaBrowsing;
       lock (_syncObj)
@@ -455,7 +455,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         // Prepare import
         if (state == ImportJobState.Scheduled)
         {
-          ServiceScope.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
           IResourceAccessor accessor = importJob.BasePath.CreateLocalMediaItemAccessor();
           if (accessor is IFileSystemResourceAccessor)
           { // Prepare complex import process
@@ -473,7 +473,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
         }
         else
-          ServiceScope.Get<ILogger>().Info("ImporterWorker: Resuming import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Resuming import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
 
         // Actual import process
         while (importJob.HasPendingResources)
@@ -483,7 +483,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           IFileSystemResourceAccessor fsra;
           lock (importJob.SyncObj)
             fsra = importJob.PendingResources.FirstOrDefault();
-          ServiceScope.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'", fsra.ResourcePathName);
+          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'", fsra.ResourcePathName);
           if (fsra.IsFile)
             ImportFile(importJob, fsra, metadataExtractors, mediaItemAspectTypes, mediaBrowsing, resultHandler, mediaAccessor);
           else if (fsra.IsDirectory)
@@ -499,7 +499,7 @@ namespace MediaPortal.Core.Services.MediaManagement
                   importJob.PendingResources.Add(childDirectory);
           }
           else
-            ServiceScope.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
+            ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
           lock (importJob.SyncObj)
             importJob.PendingResources.Remove(fsra);
         }
@@ -510,12 +510,12 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       catch (ImportSuspendedException)
       {
-        ServiceScope.Get<ILogger>().Info("ImporterWorker: Suspending import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Suspending import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
         return;
       }
       catch (ImportAbortException)
       {
-        ServiceScope.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
         return;
       }
     }

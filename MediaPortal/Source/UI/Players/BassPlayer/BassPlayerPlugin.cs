@@ -72,7 +72,7 @@ namespace Ui.Players.BassPlayer
       // First check the Mime Type
       if (!string.IsNullOrEmpty(mimeType) && !mimeType.Contains("audio"))
         return null;
-      BassPlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
+      BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
       if (settings.SupportedExtensions.IndexOf(ext) > -1)
       {
         BassPlayer player = new BassPlayer(_pluginDirectory);
@@ -82,7 +82,7 @@ namespace Ui.Players.BassPlayer
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("BassPlayer: Error playing media item '{0}'", e, locator);
+          ServiceRegistration.Get<ILogger>().Warn("BassPlayer: Error playing media item '{0}'", e, locator);
           player.Dispose();
           return null;
         }

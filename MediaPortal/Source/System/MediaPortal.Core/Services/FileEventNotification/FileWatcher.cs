@@ -548,7 +548,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
       // Suppress all exceptions.
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
+        ServiceRegistration.Get<ILogger>().Error("Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
       }
     }
 

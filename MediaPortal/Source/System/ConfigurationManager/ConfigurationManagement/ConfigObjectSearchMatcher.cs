@@ -66,7 +66,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     /// </returns>
     public float CalculateMatchQuality(ConfigBase configObject)
     {
-      CultureInfo culture = ServiceScope.Get<ILocalization>().CurrentCulture;
+      CultureInfo culture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       IEnumerable<string> searchTexts = configObject.GetSearchTexts();
       double result = 0;
       int count = 0;

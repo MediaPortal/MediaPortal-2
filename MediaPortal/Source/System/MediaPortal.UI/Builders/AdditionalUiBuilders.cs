@@ -35,7 +35,7 @@ namespace MediaPortal.UI.Builders
 
     public static void Register()
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.RegisterSystemPluginItemBuilder(BACKGROUND_BUILDER_NAME, new BackgroundBuilder());
 
       pluginManager.RegisterSystemPluginItemBuilder(PLAYERBUILDER_BUILDER_NAME, new PlayerBuilder());

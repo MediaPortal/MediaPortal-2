@@ -50,7 +50,7 @@ namespace MediaPortal.UI.General
     {
       SystemMessage msg = new SystemMessage(MessageType.WindowsBroadcast);
       msg.MessageData[MESSAGE] = message;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
       // Copy message back to the ref message
       message = (Message) msg.MessageData[MESSAGE];
     }

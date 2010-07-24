@@ -60,13 +60,13 @@ namespace MediaPortal.Backend.Services.Database
 
     public void Startup()
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
       {
-        ServiceScope.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
+        ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
         database.ExecuteBatch(new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath), true);
       }
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
@@ -74,13 +74,13 @@ namespace MediaPortal.Backend.Services.Database
       int versionMinor;
       if (!GetSubSchemaVersion(MediaPortal_Basis_Schema.SUBSCHEMA_NAME, out versionMajor, out versionMinor))
         throw new UnexpectedStateException("{0} schema is not present or corrupted", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
-      ServiceScope.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}",
+      ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}",
           MediaPortal_Basis_Schema.SUBSCHEMA_NAME, versionMajor, versionMinor);
     }
 
     public ICollection<string> GetDatabaseSubSchemas()
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -109,7 +109,7 @@ namespace MediaPortal.Backend.Services.Database
     {
       versionMajor = 0;
       versionMinor = 0;
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -143,7 +143,7 @@ namespace MediaPortal.Backend.Services.Database
     public bool UpdateSubSchema(string subSchemaName, int? currentVersionMajor, int? currentVersionMinor,
         string updateScriptFilePath, int newVersionMajor, int newVersionMinor)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       int versionMajor;
       int versionMinor;
       bool schemaPresent = GetSubSchemaVersion(subSchemaName, out versionMajor, out versionMinor);
@@ -151,7 +151,7 @@ namespace MediaPortal.Backend.Services.Database
         if (currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
             currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor)
         {
-          ServiceScope.Get<ILogger>().Debug("DatabaseManager: Updating subschema '{0}' from version {1}.{2} to version {3}.{4}...",
+          ServiceRegistration.Get<ILogger>().Debug("DatabaseManager: Updating subschema '{0}' from version {1}.{2} to version {3}.{4}...",
               subSchemaName, versionMajor, versionMinor, newVersionMajor, newVersionMinor);
           database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
         }
@@ -162,7 +162,7 @@ namespace MediaPortal.Backend.Services.Database
       else // !schemaPresent
         if (!currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
         {
-          ServiceScope.Get<ILogger>().Debug("DatabaseManager: Creating subschema '{0}' version {1}.{2}...",
+          ServiceRegistration.Get<ILogger>().Debug("DatabaseManager: Creating subschema '{0}' version {1}.{2}...",
               subSchemaName, newVersionMajor, newVersionMinor);
           database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
         }
@@ -182,13 +182,13 @@ namespace MediaPortal.Backend.Services.Database
               transaction, subSchemaName, newVersionMajor, newVersionMinor);
         command.ExecuteNonQuery();
         transaction.Commit();
-        ServiceScope.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}", subSchemaName,
+        ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}", subSchemaName,
             newVersionMajor, newVersionMinor);
         return true;
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("DatabaseManager: Error updating subschema '{0}'", e, subSchemaName);
+        ServiceRegistration.Get<ILogger>().Error("DatabaseManager: Error updating subschema '{0}'", e, subSchemaName);
         transaction.Rollback();
         throw;
       }
@@ -196,7 +196,7 @@ namespace MediaPortal.Backend.Services.Database
 
     public void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       int versionMajor;
       int versionMinor;
       bool schemaPresent = GetSubSchemaVersion(subSchemaName, out versionMajor, out versionMinor);

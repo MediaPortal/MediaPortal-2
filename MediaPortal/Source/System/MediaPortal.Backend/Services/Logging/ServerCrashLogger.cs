@@ -51,7 +51,7 @@ namespace MediaPortal.Backend.Services.Logging
       {
         using (TextWriter writer = new StreamWriter(_filename, false))
         {
-          writer.WriteLine("Crash Log: {0}", _crashTime.ToString());
+          writer.WriteLine("Crash Log: {0}", _crashTime);
 
           writer.WriteLine("= System Information");
           writer.Write(SystemInfo());
@@ -68,7 +68,7 @@ namespace MediaPortal.Backend.Services.Logging
 
 					writer.WriteLine("= MediaPortal Information");
 					writer.WriteLine();
-        	IList<string> statusList = ServiceScope.Current.GetStatus();
+        	IList<string> statusList = ServiceRegistration.Instance.GetStatus();
         	foreach (string status in statusList)
         		writer.WriteLine(status);
         }

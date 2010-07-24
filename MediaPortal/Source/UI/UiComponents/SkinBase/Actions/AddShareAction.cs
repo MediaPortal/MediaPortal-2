@@ -87,7 +87,7 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
       bool localHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       bool homeServerConnected = serverConnectionManager.IsHomeServerConnected;
@@ -95,12 +95,12 @@ namespace UiComponents.SkinBase.Actions
       {
         // This situation is an error condition: Our home server is local, i.e. all shares of this system must be configured
         // at the server, but the server is not online at the moment.
-        IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
         dialogManager.ShowDialog(CANNOT_ADD_SHARES_TITLE_RES, CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES, DialogType.OkDialog, false,
             DialogButtonType.Ok);
         return;
       }
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID);
     }
 

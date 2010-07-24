@@ -56,7 +56,7 @@ namespace MediaPortal.Core.Runtime
     {
       SystemMessage msg = new SystemMessage(MessageType.SystemStateChanged);
       msg.MessageData[PARAM] = newState;
-      IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
+      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
       if (messageBroker != null)
         messageBroker.Send(CHANNEL, msg);
     }

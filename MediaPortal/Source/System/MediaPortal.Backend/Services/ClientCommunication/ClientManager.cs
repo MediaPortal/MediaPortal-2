@@ -57,7 +57,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // This method is called as a result of our control point's attempt to connect to the (allegedly attached) client;
       // But maybe the client isn't attached any more to this server (it could have detached while the server wasn't online).
       // So we will validate if the client is still attached.
-      ServiceScope.Get<IThreadPool>().Add(() => CompleteClientConnection(client));
+      ServiceRegistration.Get<IThreadPool>().Add(() => CompleteClientConnection(client));
     }
 
     void OnClientDisconnected(ClientDescriptor client)
@@ -77,16 +77,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     protected bool ValidateAttachmentState(ClientDescriptor client)
     {
       string clientSystemId = client.MPFrontendServerUUID;
-      ServiceScope.Get<ILogger>().Info("ClientManager: Validating attachment state of client '{0}' (system ID '{1}')",
+      ServiceRegistration.Get<ILogger>().Info("ClientManager: Validating attachment state of client '{0}' (system ID '{1}')",
           client.ClientName, clientSystemId);
       ClientConnection connection = _controlPoint.GetClientConnection(clientSystemId);
       if (connection != null)
       {
         string homeServer = connection.ClientController.GetHomeServer();
-        ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         if (homeServer != systemResolver.LocalSystemId)
         {
-          ServiceScope.Get<ILogger>().Info(
+          ServiceRegistration.Get<ILogger>().Info(
               "ClientManager: Client '{0}' is no longer attached to this server, cleaning up client data", clientSystemId);
           DetachClientAndRemoveShares(clientSystemId);
           return false;
@@ -97,13 +97,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected void UpdateClientSetOnline(string clientSystemId, SystemName currentSytemName)
     {
-      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.NotifySystemOnline(clientSystemId, currentSytemName);
     }
 
     protected void UpdateClientSetOffline(string clientSystemId)
     {
-      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.NotifySystemOffline(clientSystemId);
     }
 
@@ -113,7 +113,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     /// <returns>Dictionary with system ids mapped to host names.</returns>
     protected IDictionary<string, AttachedClientData> ReadAttachedClientsFromDB()
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -149,8 +149,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected void UpdateClientSystem(string clientSystemId, SystemName system, string clientName)
     {
-      ServiceScope.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", clientSystemId, system.HostName);
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ServiceRegistration.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", clientSystemId, system.HostName);
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -160,7 +160,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("ClientManager: Error updating host name '{0}' of client '{1}'", e, system.HostName, clientSystemId);
+        ServiceRegistration.Get<ILogger>().Error("ClientManager: Error updating host name '{0}' of client '{1}'", e, system.HostName, clientSystemId);
         transaction.Rollback();
         throw;
       }
@@ -203,7 +203,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public void AttachClient(string clientSystemId)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -213,11 +213,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("ClientManager: Error attaching client '{0}'", e, clientSystemId);
+        ServiceRegistration.Get<ILogger>().Error("ClientManager: Error attaching client '{0}'", e, clientSystemId);
         transaction.Rollback();
         throw;
       }
-      ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' attached", clientSystemId);
+      ServiceRegistration.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' attached", clientSystemId);
       // Establish the UPnP connection to the client, if available in the network
       _attachedClients = ReadAttachedClientsFromDB();
       _controlPoint.AddAttachedClient(clientSystemId);
@@ -226,14 +226,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public void DetachClientAndRemoveShares(string clientSystemId)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
         IDbCommand command = ClientManager_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId);
         command.ExecuteNonQuery();
 
-        IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
         mediaLibrary.DeleteMediaItemOrPath(clientSystemId, null);
         mediaLibrary.RemoveSharesOfSystem(clientSystemId);
 
@@ -241,11 +241,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("ClientManager: Error detaching client '{0}'", e, clientSystemId);
+        ServiceRegistration.Get<ILogger>().Error("ClientManager: Error detaching client '{0}'", e, clientSystemId);
         transaction.Rollback();
         throw;
       }
-      ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' detached", clientSystemId);
+      ServiceRegistration.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' detached", clientSystemId);
       // Last action: Remove the client from the collection of attached clients and disconnect the client connection, if connected
       _attachedClients = ReadAttachedClientsFromDB();
       _controlPoint.RemoveAttachedClient(clientSystemId);

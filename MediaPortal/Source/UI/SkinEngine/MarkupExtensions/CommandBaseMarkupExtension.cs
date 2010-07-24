@@ -146,7 +146,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       IDataDescriptor start;
       if (!_source.Evaluate(out start))
       {
-        ServiceScope.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find source value, could not execute command ({0})",
+        ServiceRegistration.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find source value, could not execute command ({0})",
             ToString());
         return;
       }
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _compiledPath.GetMethod(start, out obj, out mi);
       if (mi == null)
       {
-        ServiceScope.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find method, could not execute command ({0})",
+        ServiceRegistration.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find method, could not execute command ({0})",
             ToString());
         return;
       }
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
+        ServiceRegistration.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
       }
     }
 

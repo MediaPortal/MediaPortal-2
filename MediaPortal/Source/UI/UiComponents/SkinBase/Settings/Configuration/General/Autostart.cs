@@ -50,7 +50,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.General
       {
         try
         {
-          string applicationPath = ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+          string applicationPath = ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
           if (value)
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else
@@ -58,7 +58,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.General
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("Can't write autostart-value '{0}' to registry", ex, _yes);
+          ServiceRegistration.Get<ILogger>().Error("Can't write autostart-value '{0}' to registry", ex, _yes);
         }
       }
     }

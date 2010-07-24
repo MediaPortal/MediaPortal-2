@@ -108,8 +108,8 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IPlayerContext pc = playerContextManager.CurrentPlayerContext;
       bool visible = pc == null ? false :
           workflowManager.CurrentNavigationContext.WorkflowState.StateId != pc.CurrentlyPlayingWorkflowStateId;
@@ -157,11 +157,11 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.CurrentPlayerContext;
       if (pc == null)
         return;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(pc.CurrentlyPlayingWorkflowStateId);
     }
 

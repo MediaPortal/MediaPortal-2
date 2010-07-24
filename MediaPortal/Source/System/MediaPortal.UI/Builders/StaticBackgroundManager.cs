@@ -51,7 +51,7 @@ namespace MediaPortal.UI.Builders
     {
       if (!string.IsNullOrEmpty(_backgroundScreenName))
       {
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
         screenManager.SetBackgroundLayer(_backgroundScreenName);
       }
     }

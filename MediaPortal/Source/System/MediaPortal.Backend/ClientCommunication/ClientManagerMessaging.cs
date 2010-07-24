@@ -79,7 +79,7 @@ namespace MediaPortal.Backend.ClientCommunication
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[CLIENT_DESCRIPTOR] = client;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.ClientCommunication
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[CLIENT_SYSTEM] = clientSystemId;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -101,8 +101,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _verts = verts;
       _videoSize = new Size(0, 0);
       _videoAspectRatio = new Size(0, 0);
-      if (ServiceScope.Get<IPlayerManager>(false) == null)
-        ServiceScope.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
+      if (ServiceRegistration.Get<IPlayerManager>(false) == null)
+        ServiceRegistration.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
     void UpdateVertexBuffer(IVideoPlayer player, VertexBuffer vertexBuffer, float zOrder)
@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         (aspectRatio.Height * size.Width) / (float) (aspectRatio.Width * size.Height);
 
       IGeometry geometry = player.GeometryOverride;
-      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+      IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
       if (geometry == null)
         geometry = geometryManager.DefaultVideoGeometry;
       if (size == _videoSize && aspectRatio == _videoAspectRatio && geometry == _currentGeometry && _pixelAspectRatio == pixelRatio)
@@ -168,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
       if (playerManager == null)
       {
         _renderPlayer = null;

@@ -471,7 +471,7 @@ namespace UiComponents.Media.Models
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + view.DisplayName, view.DisplayName, false, null, true, WorkflowType.Workflow);
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {
             {NAVIGATION_MODE_KEY, navigationMode},
@@ -488,7 +488,7 @@ namespace UiComponents.Media.Models
     /// <param name="item">The item which was selected to play.</param>
     protected void CheckPlayMenu(MediaItem item)
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       int numOpen = pcm.NumActivePlayerContexts;
       if (numOpen == 0)
       {
@@ -557,11 +557,11 @@ namespace UiComponents.Media.Models
       }
       else
       {
-        IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
         dialogManager.ShowDialog(SYSTEM_INFORMATION_RESOURCE, CANNOT_PLAY_ITEM_RESOURCE, DialogType.OkDialog, false,
             DialogButtonType.Ok);
       }
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);
     }
 
@@ -585,14 +585,14 @@ namespace UiComponents.Media.Models
     /// <param name="item">Media item to be played.</param>
     protected static void PlayItem(MediaItem item)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
       PlayOrEnqueueItem(item, true, false, false);
     }
 
     protected static IPlayerContext GetPlayerContextByMediaType(PlayerContextType mediaType, bool concurrent)
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext result;
       if (mediaType == PlayerContextType.Video && concurrent || mediaType == PlayerContextType.Audio)
         // Concurrent video & audio - search in reverse order
@@ -647,7 +647,7 @@ namespace UiComponents.Media.Models
     /// applicable.</param>
     protected static void PlayOrEnqueueItem(MediaItem item, bool play, bool concurrent, bool subordinatedVideo)
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
       Guid moduleId;
       string contextName;
@@ -797,7 +797,7 @@ namespace UiComponents.Media.Models
                     {
                       WorkflowState state = WorkflowState.CreateTransientState(filterTitle, filterTitle, false, null, false,
                           WorkflowType.Workflow);
-                      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+                      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                       workflowManager.NavigatePushTransient(state, new NavigationContextConfig
                         {
                           AdditionalContextVariables = new Dictionary<string, object>
@@ -818,7 +818,7 @@ namespace UiComponents.Media.Models
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("MediaModel: Error creating filter values list", e);
+        ServiceRegistration.Get<ILogger>().Warn("MediaModel: Error creating filter values list", e);
         IsItemsValid = false;
         IsItemsEmpty = true;
         throw;
@@ -978,7 +978,7 @@ namespace UiComponents.Media.Models
         if (currentStateId != LOCAL_MEDIA_NAVIGATION_ROOT_STATE)
         {
           // Error case: We cannot handle the given state
-          ServiceScope.Get<ILogger>().Warn("MediaModel: Unknown root workflow state with ID '{0}'", currentStateId);
+          ServiceRegistration.Get<ILogger>().Warn("MediaModel: Unknown root workflow state with ID '{0}'", currentStateId);
           // We simply use the local media mode as fallback for this case, so we go on
         }
         Mode = MediaNavigationMode.LocalMedia;
@@ -1025,7 +1025,7 @@ namespace UiComponents.Media.Models
       MediaNavigationMode? mode = GetMode();
       if (!mode.HasValue)
       {
-        ServiceScope.Get<ILogger>().Error("MediaModel: Media navigation mode isn't initialized; cannot prepare necessary variables");
+        ServiceRegistration.Get<ILogger>().Error("MediaModel: Media navigation mode isn't initialized; cannot prepare necessary variables");
         return;
       }
 
@@ -1044,7 +1044,7 @@ namespace UiComponents.Media.Models
           StackedFiltersMLVS sfmlvs = view.Specification as StackedFiltersMLVS;
           if (sfmlvs == null)
           {
-            ServiceScope.Get<ILogger>().Error("MediaModel: Wrong type of media library view '{0}'", view);
+            ServiceRegistration.Get<ILogger>().Error("MediaModel: Wrong type of media library view '{0}'", view);
             return;
           }
           switch (mode.Value)
@@ -1111,14 +1111,14 @@ namespace UiComponents.Media.Models
               InitializeSimpleSearch();
               break;
             default:
-              ServiceScope.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
+              ServiceRegistration.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
               return;
           }
         }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error loading screen data", e);
+        ServiceRegistration.Get<ILogger>().Error("Error loading screen data", e);
       }
       Screen = screen;
     }
@@ -1159,7 +1159,7 @@ namespace UiComponents.Media.Models
 
     protected void SwitchToCurrentScreen()
     {
-      ServiceScope.Get<IScreenManager>().ShowScreen(Screen);
+      ServiceRegistration.Get<IScreenManager>().ShowScreen(Screen);
     }
 
     /// <summary>

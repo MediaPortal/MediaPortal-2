@@ -97,8 +97,8 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     {
       if (_childrenLoaded)
         return;
-      ILogger logger = ServiceScope.Get<ILogger>();
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
       // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
       // after usage. The alternative would be to use a plugin item state tracker which is able to
@@ -142,7 +142,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     /// <paramref name="location"/>.</returns>
     private static IList<string> FindPluginRegistrations(string location)
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       ICollection<PluginItemMetadata> itemRegistrations = pluginManager.GetAllPluginItemMetadata(location);
       List<string> result = new List<string>();
       foreach (PluginItemMetadata itemRegistration in itemRegistrations)
@@ -159,7 +159,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     protected ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
     {
-      ServiceScope.Get<ILogger>().Debug("ConfigurationNode: Loading configuration item '{0}'", metadata.Location);
+      ServiceRegistration.Get<ILogger>().Debug("ConfigurationNode: Loading configuration item '{0}'", metadata.Location);
       ConfigBase result;
       if (metadata.GetType() == typeof(ConfigGroupMetadata))
         result = new ConfigGroup();
@@ -182,14 +182,14 @@ namespace MediaPortal.Configuration.ConfigurationManagement
                 if (node.ConfigObj is ConfigSetting)
                   cs.ListenTo((ConfigSetting) node.ConfigObj);
                 else
-                  ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
+                  ServiceRegistration.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
                                                    Location, listenToLocation, node.ConfigObj.GetType().Name);
             }
           result = cs;
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("Error loading configuration class '{0}'", ex, csm.ClassName);
+          ServiceRegistration.Get<ILogger>().Error("Error loading configuration class '{0}'", ex, csm.ClassName);
           return null;
         }
       }
@@ -260,7 +260,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     /// </summary>
     public void DisposeConfigObj()
     {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       string itemLocation = Constants.PLUGINTREE_BASELOCATION + (_parent == null ? string.Empty : _parent.Location);
       ConfigSetting cs = _configObj as ConfigSetting;
       if (cs != null)
@@ -281,7 +281,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     {
       if (!_childrenLoaded)
         return;
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
       foreach (ConfigurationNode node in _childNodes)
       {

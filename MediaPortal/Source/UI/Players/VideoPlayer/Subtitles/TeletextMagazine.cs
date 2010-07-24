@@ -55,7 +55,7 @@ namespace Ui.Players.Video.Subtitles
     }
     public TeletextMagazine()
     {
-      ServiceScope.Get<ILogger>().Debug("Magazine ctor");
+      ServiceRegistration.Get<ILogger>().Debug("Magazine ctor");
       pageContent = new byte[TELETEXT_LINES * TELETEXT_WIDTH];
       pageNumInProgress = -1;
       language = -1;
@@ -83,7 +83,7 @@ namespace Ui.Players.Video.Subtitles
       int mag = header.Magazine();
       if (mag != magID)
       {
-        ServiceScope.Get<ILogger>().Debug("Magazine magid mag: {0}, {1}", magID, mag);
+        ServiceRegistration.Get<ILogger>().Debug("Magazine magid mag: {0}, {1}", magID, mag);
       }
       assert(mag == magID, "Inconsistent magazine id");
       assert(pageNumInProgress == -1 || (pageNumInProgress >= 100 && pageNumInProgress <= 966), "PageNumInProgress out of range");
@@ -102,7 +102,7 @@ namespace Ui.Players.Video.Subtitles
 
       if (header.isSerial() && !this.isSerial)
       {
-        ServiceScope.Get<ILogger>().Debug("MagID {0} is in serial mode", magID);
+        ServiceRegistration.Get<ILogger>().Debug("MagID {0} is in serial mode", magID);
         this.isSerial = true;
       }
       int new_page_num = header.PageNumber();
@@ -137,11 +137,11 @@ namespace Ui.Players.Video.Subtitles
       if (pageNumInProgress == -1) return; // no page in progress
       else if ((pageNumInProgress < 0 || pageNumInProgress >= 966))
       {
-        ServiceScope.Get<ILogger>().Debug("DANGER DANGER!, endpage with pageNumInProgress = %i", pageNumInProgress);
+        ServiceRegistration.Get<ILogger>().Debug("DANGER DANGER!, endpage with pageNumInProgress = %i", pageNumInProgress);
         return;
       }
 
-      ServiceScope.Get<ILogger>().Debug("Finished Page {0}", pageNumInProgress);
+      ServiceRegistration.Get<ILogger>().Debug("Finished Page {0}", pageNumInProgress);
       //bool hasContent = false;
 
       for (int i = 0; i < 25; i++)
@@ -185,7 +185,7 @@ namespace Ui.Players.Video.Subtitles
 
 
       /*if(!hasContent) {
-        ServiceScope.Get<ILogger>().Debug("(BLANK PAGE)");
+        ServiceRegistration.Get<ILogger>().Debug("(BLANK PAGE)");
       }*/
 
       byte[] text = new byte[TELETEXT_WIDTH * TELETEXT_LINES];

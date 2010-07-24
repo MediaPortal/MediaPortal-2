@@ -54,7 +54,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird.Settings
 
     public FirebirdSettings()
     {
-      IPathManager pathManager = ServiceScope.Get<IPathManager>();
+      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string dataDirectory = pathManager.GetPath("<DATA>");
       _databaseFile = Path.Combine(dataDirectory, DEFAULT_DATABASE_FILE);
     }

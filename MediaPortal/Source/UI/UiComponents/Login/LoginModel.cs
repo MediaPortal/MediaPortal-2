@@ -54,7 +54,7 @@ namespace UiComponents.Login
     /// </summary>
     private void LoadUsers()
     {
-      IUserService userService = ServiceScope.Get<IUserService>();
+      IUserService userService = ServiceRegistration.Get<IUserService>();
       // add a few dummy users, later this should be more flexible and handled by a login manager / user account control
       IUser u1 = userService.AddUser(SystemInformation.ComputerName.ToLower());
       u1.NeedsPassword = true;
@@ -72,7 +72,7 @@ namespace UiComponents.Login
     /// </summary>
     private void RefreshUserList()
     {
-      IList<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
+      IList<IUser> users = ServiceRegistration.Get<IUserService>().GetUsers();
       // clear the exposed users list
       Users.Clear();
       // add users to expose them
@@ -106,7 +106,7 @@ namespace UiComponents.Login
     /// <param name="item"></param>
     public void SelectUser(ListItem item)
     {
-      IList<IUser> users = ServiceScope.Get<IUserService>().GetUsers();
+      IList<IUser> users = ServiceRegistration.Get<IUserService>().GetUsers();
 
       foreach (IUser user in users)
       {

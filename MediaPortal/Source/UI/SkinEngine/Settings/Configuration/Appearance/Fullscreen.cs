@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Save()
     {
-      IScreenControl sc = ServiceScope.Get<IScreenControl>();
+      IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
       if (_yes)
         sc.SwitchMode(ScreenMode.FullScreen);
       else

@@ -55,7 +55,7 @@ namespace MediaPortal.UI.Presentation.SkinResources
     public static void SendSkinResourcesMessage(MessageType type)
     {
       SystemMessage msg = new SystemMessage(type);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

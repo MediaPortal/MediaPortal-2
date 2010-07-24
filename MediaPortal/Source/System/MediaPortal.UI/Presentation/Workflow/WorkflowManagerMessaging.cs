@@ -80,7 +80,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       SystemMessage msg = new SystemMessage(MessageType.StatePushed);
       msg.MessageData[CONTEXT] = context;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -92,13 +92,13 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       SystemMessage msg = new SystemMessage(MessageType.StatesPopped);
       msg.MessageData[CONTEXTS] = contexts;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     public static void SendNavigationCompleteMessage()
     {
       SystemMessage msg = new SystemMessage(MessageType.NavigationComplete);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

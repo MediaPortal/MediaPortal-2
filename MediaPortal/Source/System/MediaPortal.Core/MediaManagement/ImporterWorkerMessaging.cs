@@ -47,7 +47,7 @@ namespace MediaPortal.Core.MediaManagement
     {
       SystemMessage msg = new SystemMessage(MessageType.ImportStatus);
       msg.MessageData[RESOURCE_PATH] = path;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

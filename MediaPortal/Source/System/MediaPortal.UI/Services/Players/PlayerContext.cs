@@ -103,7 +103,7 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         return playerManager.SyncObj;
       }
     }
@@ -116,7 +116,7 @@ namespace MediaPortal.UI.Services.Players
       mediaItemTitle = null;
       if (item == null)
         return false;
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       locator = mediaAccessor.GetResourceLocator(item);
       MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
       mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
@@ -194,7 +194,7 @@ namespace MediaPortal.UI.Services.Players
     {
       if (psc == null)
         return null;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         if (!psc.IsActive)
@@ -377,7 +377,7 @@ namespace MediaPortal.UI.Services.Players
 
     public void Close()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(_slotController);
     }
 

@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         Free(true);
       }
 
-      //ServiceScope.Get<ILogger>().Debug("FONTASSET alloc vertextbuffer");
+      //ServiceRegistration.Get<ILogger>().Debug("FONTASSET alloc vertextbuffer");
       _vertexBuffer = PositionColored2Textured.Create(Font.MaxVertices);//dynamic|writeonly?
       ContentManager.VertexReferences++;
       _previousText = "";
@@ -265,7 +265,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       if (_vertexBuffer != null)
       {
-        //ServiceScope.Get<ILogger>().Debug("FONTASSET dispose vertextbuffer");
+        //ServiceRegistration.Get<ILogger>().Debug("FONTASSET dispose vertextbuffer");
         _vertexBuffer.Dispose();
         _vertexBuffer = null;
         ContentManager.VertexReferences--;

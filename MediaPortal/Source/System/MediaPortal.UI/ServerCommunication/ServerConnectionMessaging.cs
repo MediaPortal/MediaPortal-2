@@ -84,7 +84,7 @@ namespace MediaPortal.UI.ServerCommunication
     public static void SendConnectionStateChangedMessage(MessageType messageType)
     {
       SystemMessage msg = new SystemMessage(messageType);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.ServerCommunication
       SystemMessage msg = new SystemMessage(MessageType.AvailableServersChanged);
       msg.MessageData[SERVERS_WERE_ADDED] = serversWereAdded;
       msg.MessageData[AVAILABLE_SERVERS] = availableServers;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

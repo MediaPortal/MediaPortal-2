@@ -113,13 +113,13 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       lock (_syncObj)
       {
-        ServiceScope.Get<ILogger>().Info("PluginManager: Initialize");
+        ServiceRegistration.Get<ILogger>().Info("PluginManager: Initialize");
         _state = PluginManagerState.Initializing;
-        ServiceScope.Get<ILogger>().Debug("PluginManager: Loading plugins");
+        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Loading plugins");
         IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
         foreach (IPluginMetadata pm in loadedPlugins.Values)
           AddPlugin(pm);
-        ServiceScope.Get<ILogger>().Debug("PluginManager: Initialized");
+        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Initialized");
       }
     }
 
@@ -128,20 +128,20 @@ namespace MediaPortal.Core.Services.PluginManager
       lock (_syncObj)
       {
         if (maintenanceMode)
-          ServiceScope.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
+          ServiceRegistration.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
         else
-          ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
+          ServiceRegistration.Get<ILogger>().Info("PluginManager: Startup");
         _maintenanceMode = maintenanceMode;
         _state = PluginManagerState.Starting;
       }
       PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Startup);
-      ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
+      ServiceRegistration.Get<ILogger>().Debug("PluginManager: Checking dependencies");
       ICollection<Guid> disabledPlugins;
       ICollection<PluginRuntime> availablePlugins;
       lock (_syncObj)
       {
         availablePlugins = new List<PluginRuntime>(_availablePlugins.Values);
-        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+        PluginManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PluginManagerSettings>();
         disabledPlugins = settings.UserDisabledPlugins;
       }
       foreach (PluginRuntime plugin in availablePlugins)
@@ -155,16 +155,16 @@ namespace MediaPortal.Core.Services.PluginManager
       lock (_syncObj)
         _state = PluginManagerState.Running;
       if (maintenanceMode)
-        ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
+        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
       else
-        ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
-      ServiceScope.LoadServicesFromPlugins();
+        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Ready");
+      ServiceRegistration.LoadServicesFromPlugins();
     }
 
     public void Shutdown()
     {
-      ServiceScope.RemoveAndDisposePluginServices();
-      ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
+      ServiceRegistration.RemoveAndDisposePluginServices();
+      ServiceRegistration.Get<ILogger>().Info("PluginManager: Shutdown");
       ICollection<PluginRuntime> availablePlugins;
       lock (_syncObj)
       {
@@ -182,7 +182,7 @@ namespace MediaPortal.Core.Services.PluginManager
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error shutting plugin state tracker '{0}' down in plugin '{1}' (id '{2})", e,
+            ServiceRegistration.Get<ILogger>().Warn("Error shutting plugin state tracker '{0}' down in plugin '{1}' (id '{2})", e,
                 stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
           }
       }
@@ -208,9 +208,9 @@ namespace MediaPortal.Core.Services.PluginManager
       if (result)
         lock (_syncObj)
         {
-          PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+          PluginManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PluginManagerSettings>();
           settings.RemoveUserDisabledPlugin(pluginId);
-          ServiceScope.Get<ISettingsManager>().Save(settings);
+          ServiceRegistration.Get<ISettingsManager>().Save(settings);
         }
       return result;
     }
@@ -219,9 +219,9 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       lock (_syncObj)
       {
-        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+        PluginManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PluginManagerSettings>();
         settings.AddUserDisabledPlugin(pluginId);
-        ServiceScope.Get<ISettingsManager>().Save(settings);
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
 
       PluginRuntime plugin;
@@ -441,7 +441,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("PluginManager: Error building plugin item '{0}' at location '{1}'",
+        ServiceRegistration.Get<ILogger>().Error("PluginManager: Error building plugin item '{0}' at location '{1}'",
             e, itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation);
       }
       // Requested item isn't of type T - revoke usage again
@@ -480,7 +480,7 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error revoking usage of item '{0}' at location '{1}' (item builder is '{2}')", e,
+          ServiceRegistration.Get<ILogger>().Error("Error revoking usage of item '{0}' at location '{1}' (item builder is '{2}')", e,
               itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation, metadata.BuilderName);
         }
         itemRegistration.Item = null;
@@ -554,7 +554,7 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error instanciating plugin item builder '{0}' (id '{1}')", e,
+          ServiceRegistration.Get<ILogger>().Error("Error instanciating plugin item builder '{0}' (id '{1}')", e,
             builderPlugin.Metadata.Name, builderPlugin.Metadata.PluginId);
         }
         if (obj == null)
@@ -595,7 +595,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error calling method 'RequestEnd' at plugin item state tracker '{0}'", e, stateTracker);
+        ServiceRegistration.Get<ILogger>().Error("Error calling method 'RequestEnd' at plugin item state tracker '{0}'", e, stateTracker);
         return true;
       }
     }
@@ -608,7 +608,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error calling method 'Continue' at plugin item state tracker '{0}'", e, stateTracker);
+        ServiceRegistration.Get<ILogger>().Error("Error calling method 'Continue' at plugin item state tracker '{0}'", e, stateTracker);
       }
     }
 
@@ -620,7 +620,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error calling method 'Stop' at plugin item state tracker '{0}'", e, stateTracker);
+        ServiceRegistration.Get<ILogger>().Error("Error calling method 'Stop' at plugin item state tracker '{0}'", e, stateTracker);
       }
     }
 
@@ -749,7 +749,7 @@ namespace MediaPortal.Core.Services.PluginManager
         // Exchange pure read lock by upgradable read lock
         UnlockPluginState(plugin);
         LockPluginStateDependency(plugin, true, PluginState.Available, PluginState.Disabled);
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         logger.Debug("PluginManager: Trying to enable plugin '{0}' (id '{1}')", pluginName, pluginId);
@@ -864,7 +864,7 @@ namespace MediaPortal.Core.Services.PluginManager
         LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled);
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
         logger.Debug("PluginManager: Trying to activate plugin '{0}' (id '{1}')", pluginName, pluginId);
         // Activate parent plugins - Load their assemblies etc.
         IDictionary<Guid, PluginRuntime> availablePlugins;
@@ -909,7 +909,7 @@ namespace MediaPortal.Core.Services.PluginManager
               }
               catch (Exception e)
               {
-                ServiceScope.Get<ILogger>().Warn("Error activating plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
+                ServiceRegistration.Get<ILogger>().Warn("Error activating plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
                     stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
               }
             }
@@ -958,7 +958,7 @@ namespace MediaPortal.Core.Services.PluginManager
         // Exchange pure read lock by upgradable read lock
         UnlockPluginState(plugin);
         LockPluginStateDependency(plugin, true, PluginState.Enabled, PluginState.Active);
-        ILogger logger = ServiceScope.Get<ILogger>();
+        ILogger logger = ServiceRegistration.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         logger.Debug("PluginManager: Trying to disable plugin '{0}' (id '{1}')", pluginName, pluginId);
@@ -1006,7 +1006,7 @@ namespace MediaPortal.Core.Services.PluginManager
               }
               catch (Exception e)
               {
-                ServiceScope.Get<ILogger>().Warn("Error stopping plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
+                ServiceRegistration.Get<ILogger>().Warn("Error stopping plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
                     stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
               }
               plugin.StateTracker = null;
@@ -1051,7 +1051,7 @@ namespace MediaPortal.Core.Services.PluginManager
     public IDictionary<string, IPluginMetadata> LoadPluginsData()
     {
       IDictionary<string, IPluginMetadata> result = new Dictionary<string, IPluginMetadata>();
-      String pluginsDirectoryPath = ServiceScope.Get<IPathManager>().GetPath("<PLUGINS>");
+      String pluginsDirectoryPath = ServiceRegistration.Get<IPathManager>().GetPath("<PLUGINS>");
       foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
       {
         if (Path.GetFileName(pluginDirectoryPath).StartsWith("."))
@@ -1066,7 +1066,7 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error loading plugin in directory '{0}'", e, pluginDirectoryPath);
+          ServiceRegistration.Get<ILogger>().Error("Error loading plugin in directory '{0}'", e, pluginDirectoryPath);
         }
       }
       return result;

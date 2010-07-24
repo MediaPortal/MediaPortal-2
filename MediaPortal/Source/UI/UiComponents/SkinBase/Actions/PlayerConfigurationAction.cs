@@ -102,7 +102,7 @@ namespace UiComponents.SkinBase.Actions
     {
       bool oldVisible = _isVisible;
 
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       _isVisible = playerManager.NumActiveSlots > 0;
       if (oldVisible != _isVisible)
         FireStateChanged();
@@ -146,7 +146,7 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
     }
 

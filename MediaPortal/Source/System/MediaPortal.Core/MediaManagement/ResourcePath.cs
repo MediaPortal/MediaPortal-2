@@ -275,7 +275,7 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     public void CheckValidLocalPath()
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       if (!IsAbsolute) // This will check the path itself. Below, we will check if the referenced media providers implement the correct interfaces
         throw new ArgumentException(string.Format(
             "Can only access media files at an absolute resource path (given relative path is '{0}')", Serialize()));
@@ -315,7 +315,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
     public IResourceAccessor CreateLocalMediaItemAccessor()
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();
       if (!enumer.MoveNext())
         throw new UnexpectedStateException("Cannot build resource accessor for an empty resource path");

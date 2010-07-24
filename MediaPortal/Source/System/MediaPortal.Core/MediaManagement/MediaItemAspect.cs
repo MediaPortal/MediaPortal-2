@@ -299,7 +299,7 @@ namespace MediaPortal.Core.MediaManagement
         throw new ArgumentException("Media item aspect cannot be deserialized: 'AspectTypeId' attribute missing");
       Guid aspectTypeId = new Guid(reader.ReadContentAsString());
       reader.MoveToElement();
-      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       MediaItemAspectMetadata miaType;
       if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectTypeId, out miaType))
         throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}'",

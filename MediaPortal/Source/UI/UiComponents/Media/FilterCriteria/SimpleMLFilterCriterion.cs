@@ -50,7 +50,7 @@ namespace UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
-      IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
       HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);

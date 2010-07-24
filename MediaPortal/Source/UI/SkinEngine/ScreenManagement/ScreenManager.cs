@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       public object GetOrLoadModel(Guid modelId)
       {
-        return ServiceScope.Get<IWorkflowManager>().GetModel(modelId);
+        return ServiceRegistration.Get<IWorkflowManager>().GetModel(modelId);
       }
     }
 
@@ -133,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           oldModels = new List<Guid>(_models.Keys);
           _models.Clear();
         }
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         foreach (Guid modelId in oldModels)
           pluginManager.RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
       }
@@ -168,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         lock (_parent.SyncRoot)
           if (_models.TryGetValue(modelId, out result))
             return result;
-        result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+        result = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
             MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
         if (result == null)
           throw new ArgumentException(string.Format("ScreenManager: Model with id '{0}' is not available", modelId));
@@ -227,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public ScreenManager()
     {
-      SkinSettings screenSettings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
+      SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       _skinManager = new SkinManager();
       _backgroundData = new BackgroundData(this);
 
@@ -241,7 +241,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SubscribeToMessages();
 
       // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
       PrepareSkinAndTheme_NeedLocks(skinName, themeName);
 
       // Update the settings with our current skin/theme values
@@ -249,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         screenSettings.Skin = _skin.Name;
         screenSettings.Theme = _theme == null ? null : _theme.Name;
-        ServiceScope.Get<ISettingsManager>().Save(screenSettings);
+        ServiceRegistration.Get<ISettingsManager>().Save(screenSettings);
       }
       _garbageCollectorThread = new Thread(DoGarbageCollection)
         {
@@ -380,7 +380,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// or <c>null</c> for the default theme of the skin.</param>
     protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
     {
-      ServiceScope.Get<ILogger>().Info("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
       Skin defaultSkin = _skinManager.DefaultSkin;
       lock (_syncObj)
       {
@@ -411,7 +411,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         catch (ArgumentException ex)
         {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', fallback to previous skin/theme",
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', fallback to previous skin/theme",
               ex, skinName, themeName);
           // Fall back to current skin/theme
           skin = _skin;
@@ -432,13 +432,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         catch (Exception ex)
         {
           // Didn't work - try fallback skin/theme
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'", ex,
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'", ex,
               skin == null ? "<undefined>" : skin.Name, theme == null ? "<undefined>" : theme.Name);
           Skin fallbackSkin = _skin ?? defaultSkin; // Either the previous skin (_skin) or the default skin
           Theme fallbackTheme = ((fallbackSkin == _skin) ? _theme : null) ?? fallbackSkin.DefaultTheme; // Use the previous theme if previous skin is our fallback
           if (fallbackSkin == skin && fallbackTheme == theme)
           {
-            ServiceScope.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
+            ServiceRegistration.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
             throw;
           }
           PrepareSkinAndTheme_NeedLocks(fallbackSkin.Name, fallbackTheme == null ? null : fallbackTheme.Name);
@@ -448,7 +448,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoShowScreen(Screen screen, bool closeDialogs)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.Name);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.Name);
       lock (_syncObj)
       {
         if (closeDialogs)
@@ -573,7 +573,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoReloadScreens()
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Reload");
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Reload");
       // Remember all open screens
       string backgroundName;
       string screenName;
@@ -715,7 +715,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         if (newSkinName == _skin.Name &&
             newThemeName == (_theme == null ? null : _theme.Name)) return;
-        ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
+        ServiceRegistration.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
@@ -743,10 +743,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         Screen screen = GetScreen(currentScreenName, false);
         DoExchangeScreen(screen);
       }
-      SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
+      SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     /// <summary>
@@ -763,11 +763,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
       if (skinFilePath == null)
       {
-        ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", relativeScreenPath);
+        ServiceRegistration.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", relativeScreenPath);
         resourceBundle = null;
         return null;
       }
-      ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
+      ServiceRegistration.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
       return XamlLoader.Load(skinFilePath, loader, true) as UIElement;
     }
 
@@ -802,13 +802,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (root != null)
             root.Dispose();
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
           if (isBackground)
-            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
                 LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
                 DialogType.OkDialog, false, null);
           else
-            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
                 LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
                 DialogType.OkDialog, false, null);
           return null;
@@ -818,21 +818,21 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
+        ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
         try
         {
           if (isBackground)
-            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
                 LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
                 DialogType.OkDialog, false, null);
           else
-            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
                 LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
                 DialogType.OkDialog, false, null);
         }
         catch (Exception)
         {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error showing generic dialog for error message");
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error showing generic dialog for error message");
           return null;
         }
         return null;
@@ -922,9 +922,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         lock (_syncObj)
         {
           if (value)
-            ServiceScope.Get<ILogger>().Debug("ScreenManager: Disabling background screen rendering");
+            ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Disabling background screen rendering");
           else
-            ServiceScope.Get<ILogger>().Debug("ScreenManager: Enabling background screen rendering");
+            ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Enabling background screen rendering");
           _backgroundDisabled = value;
         }
       }
@@ -943,7 +943,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public bool ShowScreen(string screenName)
     {
       IncPendingOperations();
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, false);
       if (newScreen == null)
           // Error message was shown in GetScreen()
@@ -956,7 +956,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public bool ExchangeScreen(string screenName)
     {
       IncPendingOperations();
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, false);
       if (newScreen == null)
           // Error message was shown in GetScreen()
@@ -974,7 +974,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       IncPendingOperations();
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
       Screen newDialog = GetScreen(dialogName, false);
       if (newDialog == null)
         return false;
@@ -985,13 +985,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void CloseDialog()
     {
       IncPendingOperations();
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to close topmost dialog");
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close topmost dialog");
       ScreenManagerMessaging.SendMessageCloseDialog(CurrentDialogData);
     }
 
     public bool SetBackgroundLayer(string backgroundName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Setting background screen '{0}'...", backgroundName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Setting background screen '{0}'...", backgroundName);
       // No locking necessary
       if (backgroundName == null)
       {
@@ -1004,7 +1004,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Reload()
     {
       IncPendingOperations();
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
       ScreenManagerMessaging.SendMessageReloadScreens();
     }
 

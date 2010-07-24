@@ -40,25 +40,25 @@ namespace MediaPortal.Backend
   {
     public static void RegisterBackendServices()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("BackendExtension: Registering ISystemResolver service");
-      ServiceScope.Add<ISystemResolver>(new SystemResolver());
+      ServiceRegistration.Add<ISystemResolver>(new SystemResolver());
 
       logger.Debug("BackendExtension: Registering IDatabaseManager service");
-      ServiceScope.Add<IDatabaseManager>(new DatabaseManager());
+      ServiceRegistration.Add<IDatabaseManager>(new DatabaseManager());
 
       logger.Debug("BackendExtension: Registering IMediaLibrary service");
-      ServiceScope.Add<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
+      ServiceRegistration.Add<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
 
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
-      ServiceScope.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+      ServiceRegistration.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
       logger.Debug("BackendExtension: Registering IBackendServer service");
-      ServiceScope.Add<IBackendServer>(new Services.BackendServer.BackendServer());
+      ServiceRegistration.Add<IBackendServer>(new Services.BackendServer.BackendServer());
 
       logger.Debug("BackendExtension: Registering IClientManager service");
-      ServiceScope.Add<IClientManager>(new Services.ClientCommunication.ClientManager());
+      ServiceRegistration.Add<IClientManager>(new Services.ClientCommunication.ClientManager());
     }
 
     /// <summary>
@@ -66,40 +66,40 @@ namespace MediaPortal.Backend
     /// </summary>
     public static void StartupBackendServices()
     {
-      ServiceScope.Get<IDatabaseManager>().Startup();
-      ServiceScope.Get<IMediaLibrary>().Startup();
-      ServiceScope.Get<IClientManager>().Startup();
-      ServiceScope.Get<IBackendServer>().Startup();
+      ServiceRegistration.Get<IDatabaseManager>().Startup();
+      ServiceRegistration.Get<IMediaLibrary>().Startup();
+      ServiceRegistration.Get<IClientManager>().Startup();
+      ServiceRegistration.Get<IBackendServer>().Startup();
     }
 
     public static void ShutdownBackendServices()
     {
-      ServiceScope.Get<IClientManager>().Shutdown();
-      ServiceScope.Get<IMediaLibrary>().Shutdown();
-      ServiceScope.Get<IBackendServer>().Shutdown();
+      ServiceRegistration.Get<IClientManager>().Shutdown();
+      ServiceRegistration.Get<IMediaLibrary>().Shutdown();
+      ServiceRegistration.Get<IBackendServer>().Shutdown();
     }
 
     public static void DisposeBackendServices()
     {
-      ILogger logger = ServiceScope.Get<ILogger>();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("BackendExtension: Removing IClientManager service");
-      ServiceScope.RemoveAndDispose<IClientManager>();
+      ServiceRegistration.RemoveAndDispose<IClientManager>();
 
       logger.Debug("BackendExtension: Removing IBackendServer service");
-      ServiceScope.RemoveAndDispose<IBackendServer>();
+      ServiceRegistration.RemoveAndDispose<IBackendServer>();
 
       logger.Debug("BackendExtension: Removing IMediaItemAspectTypeRegistration service");
-      ServiceScope.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
+      ServiceRegistration.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
 
       logger.Debug("BackendExtension: Removing IMediaLibrary service");
-      ServiceScope.RemoveAndDispose<IMediaLibrary>();
+      ServiceRegistration.RemoveAndDispose<IMediaLibrary>();
 
       logger.Debug("BackendExtension: Removing IDatabaseManager service");
-      ServiceScope.RemoveAndDispose<IDatabaseManager>();
+      ServiceRegistration.RemoveAndDispose<IDatabaseManager>();
 
       logger.Debug("BackendExtension: Removing ISystemResolver service");
-      ServiceScope.RemoveAndDispose<ISystemResolver>();
+      ServiceRegistration.RemoveAndDispose<ISystemResolver>();
     }
   }
 }

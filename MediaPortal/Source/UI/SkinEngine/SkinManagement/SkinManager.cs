@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       {
         Uninstall();
         string location = "/Skins/" + skin.Name;
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
         PluginItemMetadata md = pluginManager.GetPluginItemMetadata(location, BACKGROUND_PLUGIN_ITEM_ID);
         if (md == null)
           return false;
@@ -78,7 +78,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         if (_backgroundManager == null)
           return;
         _backgroundManager.Uninstall();
-        ServiceScope.Get<IPluginManager>().RevokePluginItem(_backgroundLocation, BACKGROUND_PLUGIN_ITEM_ID, this);
+        ServiceRegistration.Get<IPluginManager>().RevokePluginItem(_backgroundLocation, BACKGROUND_PLUGIN_ITEM_ID, this);
         _backgroundManager = null;
         _backgroundLocation = null;
       }
@@ -202,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       _skinResourcesPluginItemStateTracker = new SkinResourcesPluginItemStateTracker(this);
       _skinResourcesRegistrationChangeListener = new SkinResourcesRegistrationChangeListener(this);
       _backgroundManagerData = new BackgroundManagerData(this);
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.AddItemRegistrationChangeListener(
           SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesRegistrationChangeListener);
       ReloadSkins();
@@ -254,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     protected void ReleasePluginSkinResources()
     {
-      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(
+      ServiceRegistration.Get<IPluginManager>().RevokeAllPluginItems(
           SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker);
     }
 
@@ -287,10 +287,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("SkinManager: Error loading skins from directory '{0}'", e, rootDirectoryPath);
+            ServiceRegistration.Get<ILogger>().Warn("SkinManager: Error loading skins from directory '{0}'", e, rootDirectoryPath);
           }
         else
-          ServiceScope.Get<ILogger>().Warn("SkinManager: Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
+          ServiceRegistration.Get<ILogger>().Warn("SkinManager: Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
       // Setup the resource chain: Inherit the theme resources of the based-on-skin for all
       // skins, and use the default skin as last fallback
       Skin defaultSkin = DefaultSkin;
@@ -354,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected ICollection<string> GetSkinRootDirectoryPaths()
     {
       ReleasePluginSkinResources();
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       ICollection<string> result = new List<string>();
       foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
           SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker))

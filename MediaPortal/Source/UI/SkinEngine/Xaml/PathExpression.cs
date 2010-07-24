@@ -164,7 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("AttachedPropertyPathSegment: Cannot evaluate attached property '{0}' on object '{1}'", e, ToString(), source.Value);
+        ServiceRegistration.Get<ILogger>().Warn("AttachedPropertyPathSegment: Cannot evaluate attached property '{0}' on object '{1}'", e, ToString(), source.Value);
         return false;
       }
       return true;

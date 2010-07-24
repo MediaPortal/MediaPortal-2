@@ -65,7 +65,7 @@ namespace UiComponents.SkinBase.Models
 
     protected static IContentDirectory GetContentDirectoryService()
     {
-      IContentDirectory contentDirectory = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      IContentDirectory contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory != null)
         return contentDirectory;
       throw new DisconnectedException();
@@ -73,14 +73,14 @@ namespace UiComponents.SkinBase.Models
 
     public static IEnumerable<Share> GetShares()
     {
-      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
       return contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
     }
 
     public static void RemoveShares(IEnumerable<Share> shares)
     {
-      IContentDirectory contentDirectory = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      IContentDirectory contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory == null)
       {
         if (new List<Share>(shares).Count > 0)
@@ -93,7 +93,7 @@ namespace UiComponents.SkinBase.Models
 
     public override void AddShare()
     {
-      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
       contentDirectory.RegisterShare(Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories));
     }
@@ -154,7 +154,7 @@ namespace UiComponents.SkinBase.Models
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
+        ServiceRegistration.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
         return string.Empty;
       }
     }

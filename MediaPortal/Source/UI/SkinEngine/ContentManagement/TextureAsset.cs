@@ -152,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       ImageType imageType = ImageType.Unknown;
       ImageInformation info = new ImageInformation();
 
-      IAsyncThumbnailGenerator generator = ServiceScope.Get<IAsyncThumbnailGenerator>();
+      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
       if (_state == State.Unknown)
       {
         string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
@@ -168,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           Uri uri;
           if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
           {
-            ServiceScope.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
+            ServiceRegistration.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
             _state = State.DoesNotExist;
             return;
           }
@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         {
           try
           {
-            //ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
+            //ServiceRegistration.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
             if (UseThumbnail)
             {
               info = ImageInformation.FromStream(stream);
@@ -291,7 +291,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
       else
       {
-        //        ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from file:{0}", _sourceFileName);
+        //        ServiceRegistration.Get<ILogger>().Debug("TEXTURE alloc from file:{0}", _sourceFileName);
         try
         {
           if (UseThumbnail)
@@ -339,7 +339,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       if (e.Error != null)
       {
-        ServiceScope.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);
+        ServiceRegistration.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);
         _webClient.Dispose();
         _webClient = null;
         _state = State.DoesNotExist;
@@ -422,7 +422,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         lock (_texture)
         {
-          //ServiceScope.Get<ILogger>().Debug("TEXTURE dispose from {0}", _textureName);
+          //ServiceRegistration.Get<ILogger>().Debug("TEXTURE dispose from {0}", _textureName);
           _texture.Dispose();
           _texture = null;
 

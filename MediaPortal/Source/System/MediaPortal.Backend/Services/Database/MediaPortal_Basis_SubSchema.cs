@@ -44,7 +44,7 @@ namespace MediaPortal.Backend.Services.Database
     {
       get
       {
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         return Path.Combine(pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\"), SUBSCHEMA_CREATE_SCRIPT_NAME);
       }
     }

@@ -63,7 +63,7 @@ namespace MediaPortal.Core.Messaging
 
       public static ShutdownWatcher Create(AsynchronousMessageQueue owner)
       {
-        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+        IMessageBroker broker = ServiceRegistration.Get<IMessageBroker>();
         ShutdownWatcher result = new ShutdownWatcher(owner);
         broker.RegisterMessageReceiver(SystemMessaging.CHANNEL, result);
         return result;
@@ -71,7 +71,7 @@ namespace MediaPortal.Core.Messaging
 
       public void Remove()
       {
-        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+        IMessageBroker broker = ServiceRegistration.Get<IMessageBroker>();
         broker.UnregisterMessageReceiver(SystemMessaging.CHANNEL, this);
       }
 
@@ -80,7 +80,7 @@ namespace MediaPortal.Core.Messaging
         if (message.ChannelName == SystemMessaging.CHANNEL)
         {
           SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
-          ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+          ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
           if (messageType == SystemMessaging.MessageType.SystemStateChanged)
             if (sss.CurrentState == SystemState.ShuttingDown || sss.CurrentState == SystemState.Ending)
               // It is necessary to block the main thread as long as our message delivery thread is terminated to
@@ -134,7 +134,7 @@ namespace MediaPortal.Core.Messaging
         {
           MessageReceivedHandler handler = MessageReceived;
           if (handler == null)
-            ServiceScope.Get<ILogger>().Warn(
+            ServiceRegistration.Get<ILogger>().Warn(
               "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
               _queueName, message.ChannelName, message.MessageType);
           else
@@ -144,7 +144,7 @@ namespace MediaPortal.Core.Messaging
             }
             catch (Exception e)
             {
-              ServiceScope.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
+              ServiceRegistration.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
                   e, Name, message.MessageType);
             }
         }

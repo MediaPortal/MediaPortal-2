@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
     public override void Load()
     {
       _themes.Clear();
-      SkinManager skinManager = ServiceScope.Get<ISkinResourceManager>() as SkinManager;
+      SkinManager skinManager = ServiceRegistration.Get<ISkinResourceManager>() as SkinManager;
       if (skinManager == null)
         return;
       SkinSettings settings = SettingsManager.Load<SkinSettings>();
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 
     public override void Save()
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (screenManager == null)
         return;
       screenManager.SwitchTheme(_currentThemeName);

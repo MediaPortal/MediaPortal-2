@@ -49,7 +49,7 @@ namespace MediaPortal.UI.Services.MediaManagement
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
         return;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
-      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = serverConnectionManager == null ? null :
           serverConnectionManager.ContentDirectory;
       if (cd != null)

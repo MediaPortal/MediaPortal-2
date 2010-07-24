@@ -116,7 +116,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Error connecting to UPnP MP 2 backend server '{0}'", e, deviceUuid);
+          ServiceRegistration.Get<ILogger>().Warn("Error connecting to UPnP MP 2 backend server '{0}'", e, deviceUuid);
           return;
         }
       }
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Error connecting to services of UPnP MP 2 backend server '{0}'", e, deviceUuid);
+        ServiceRegistration.Get<ILogger>().Warn("Error connecting to services of UPnP MP 2 backend server '{0}'", e, deviceUuid);
         connection.DeviceDisconnected -= OnUPnPDeviceDisconnected;
         _controlPoint.Disconnect(deviceUuid);
         return;

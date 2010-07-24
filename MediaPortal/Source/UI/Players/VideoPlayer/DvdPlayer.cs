@@ -180,7 +180,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected override void AddPreferredCodecs()
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
 
       if (!string.IsNullOrEmpty(settings.Mpeg2Codec))
       {
@@ -242,7 +242,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected override void AddFileSource()
     {
-      ServiceScope.Get<ILogger>().Debug("DvdPlayer.Play");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.Play");
       _pendingCmd = true;
       if (dvdDNavigator == "DVD Navigator")
       {
@@ -320,14 +320,14 @@ namespace Ui.Players.Video
       hr = _dvdInfo.GetDVDVolumeInfo(out numOfVolumes, out volume, out side, out titles);
       if (hr < 0)
       {
-        ServiceScope.Get<ILogger>().Error("DVDPlayer:Unable to get dvdvolumeinfo 0x{0:X}", hr);
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer:Unable to get dvdvolumeinfo 0x{0:X}", hr);
         //return false;
       }
       else
       {
         if (titles <= 0)
         {
-          ServiceScope.Get<ILogger>().Error("DVDPlayer:DVD does not contain any titles? {0}", titles);
+          ServiceRegistration.Get<ILogger>().Error("DVDPlayer:DVD does not contain any titles? {0}", titles);
           //return false;
         }
       }
@@ -827,7 +827,7 @@ namespace Ui.Players.Video
     /// </summary>
     public void ShowDvdMenu()
     {
-      ServiceScope.Get<ILogger>().Debug("DvdPlayer: ShowDvdMenu");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: ShowDvdMenu");
       _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.None, out _cmdOption);
     }
 
@@ -859,7 +859,7 @@ namespace Ui.Players.Video
       get { return new TimeSpan(0, 0, 0, 0, (int)(_currentTime * 1000.0f)); }
       set
       {
-        ServiceScope.Get<ILogger>().Debug("DvdPlayer: seek {0} / {1}", value.TotalSeconds, Duration.TotalSeconds);
+        ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: seek {0} / {1}", value.TotalSeconds, Duration.TotalSeconds);
         TimeSpan newTime = value;
         if (newTime.TotalSeconds < 0)
         {
@@ -920,13 +920,13 @@ namespace Ui.Players.Video
                 case DvdAudioLangExt.Captions:
                   break;
                 case DvdAudioLangExt.VisuallyImpaired:
-                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "27"); // " (Visually Impaired)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "27"); // " (Visually Impaired)";
                   break;
                 case DvdAudioLangExt.DirectorComments1:
-                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "24"); // " (Director Comments)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "24"); // " (Director Comments)";
                   break;
                 case DvdAudioLangExt.DirectorComments2:
-                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "28"); //" (Director Comments 2)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "28"); //" (Director Comments 2)";
                   break;
               }
             }
@@ -945,7 +945,7 @@ namespace Ui.Players.Video
         bool isDisabled;
         _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
         string[] streams = new string[streamsAvailable + 1];
-        streams[0] = ServiceScope.Get<ILocalization>().ToString("playback", "17"); //off
+        streams[0] = ServiceRegistration.Get<ILocalization>().ToString("playback", "17"); //off
         for (int i = 0; i < streamsAvailable; ++i)
         {
           DvdSubpictureAttributes attr;
@@ -962,28 +962,28 @@ namespace Ui.Players.Video
                 case DvdSubPictureLangExt.CaptionNormal:
                   break;
                 case DvdSubPictureLangExt.CaptionBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "18"); //big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "18"); //big
                   break;
                 case DvdSubPictureLangExt.CaptionChildren:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "19"); //Children
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "19"); //Children
                   break;
                 case DvdSubPictureLangExt.CCNormal:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "20"); //CC
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "20"); //CC
                   break;
                 case DvdSubPictureLangExt.CCBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "21"); //CC big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "21"); //CC big
                   break;
                 case DvdSubPictureLangExt.CCChildren:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "22"); //CC Children
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "22"); //CC Children
                   break;
                 case DvdSubPictureLangExt.Forced:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "23"); //Forced
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "23"); //Forced
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsNormal:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "24"); //Director Comments
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "24"); //Director Comments
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "25"); //Director Comments big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "25"); //Director Comments big
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsChildren:
                   streams[i + 1] += " (Directors Comments children)";
@@ -998,7 +998,7 @@ namespace Ui.Players.Video
 
     public void SetSubtitle(string subtitle)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       string[] subtitles = Subtitles;
       for (int i = 0; i < subtitles.Length; ++i)
       {
@@ -1006,14 +1006,14 @@ namespace Ui.Players.Video
         {
           if (i == 0)
           {
-            ServiceScope.Get<ILogger>().Debug("DvdPlayer: disable subtitles");
+            ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: disable subtitles");
             _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
             settings.SubtitleLanguage = "";
-            ServiceScope.Get<ISettingsManager>().Save(settings);
+            ServiceRegistration.Get<ISettingsManager>().Save(settings);
           }
           else
           {
-            ServiceScope.Get<ILogger>().Debug("DvdPlayer: select subtitle:{0}", subtitle);
+            ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: select subtitle:{0}", subtitle);
             _dvdCtrl.SelectSubpictureStream(i - 1, DvdCmdFlags.None, out _cmdOption);
             _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
             int iLanguage;
@@ -1023,7 +1023,7 @@ namespace Ui.Players.Video
               if (ci.LCID == (iLanguage & 0x3ff))
               {
                 settings.SubtitleLanguage = ci.EnglishName;
-                ServiceScope.Get<ISettingsManager>().Save(settings);
+                ServiceRegistration.Get<ISettingsManager>().Save(settings);
                 break;
               }
             }
@@ -1055,13 +1055,13 @@ namespace Ui.Players.Video
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       string[] audioStreams = AudioStreams;
       for (int i = 0; i < audioStreams.Length; ++i)
       {
         if (audioStreams[i] == audioStream)
         {
-          ServiceScope.Get<ILogger>().Debug("DvdPlayer: select audio stream:{0}", audioStream);
+          ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: select audio stream:{0}", audioStream);
           _dvdCtrl.SelectAudioStream(i, DvdCmdFlags.None, out _cmdOption);
           int audioLanguage;
           _dvdInfo.GetAudioLanguage(i, out audioLanguage);
@@ -1070,7 +1070,7 @@ namespace Ui.Players.Video
             if (ci.LCID == (audioLanguage & 0x3ff))
             {
               settings.AudioLanguage = ci.EnglishName;
-              ServiceScope.Get<ISettingsManager>().Save(settings);
+              ServiceRegistration.Get<ISettingsManager>().Save(settings);
               break;
             }
           }
@@ -1185,7 +1185,7 @@ namespace Ui.Players.Video
 
     public override void Stop()
     {
-      ServiceScope.Get<ILogger>().Debug("DvdPlayer:Stop");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer:Stop");
 
       base.Stop();
     }
@@ -1314,8 +1314,8 @@ namespace Ui.Players.Video
     /// </summary>
     private void SetDefaultLanguages()
     {
-      VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
-      ServiceScope.Get<ILogger>().Info("SetDefaultLanguages");
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      ServiceRegistration.Get<ILogger>().Info("SetDefaultLanguages");
       int lCID;
       if (settings.AudioLanguage != null && settings.AudioLanguage != "")
       {
@@ -1342,7 +1342,7 @@ namespace Ui.Players.Video
           }
 
 
-          ServiceScope.Get<ILogger>().Info("DVDPlayer:Set default language:{0} {1} {2}", settings.AudioLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default language:{0} {1} {2}", settings.AudioLanguage, lCID, errorText);
         }
       }
       if (settings.SubtitleLanguage != null && settings.SubtitleLanguage != "")
@@ -1369,7 +1369,7 @@ namespace Ui.Players.Video
               errorText = "Unknown Error. " + setError;
               break;
           }
-          ServiceScope.Get<ILogger>().Info("DVDPlayer:Set default menu language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default menu language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
         }
 
         lCID = GetLCID(settings.SubtitleLanguage);
@@ -1391,7 +1391,7 @@ namespace Ui.Players.Video
               errorText = "Unknown Error. " + setError;
               break;
           }
-          ServiceScope.Get<ILogger>().Info("DVDPlayer:Set default subtitle language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default subtitle language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
         }
 
         // Force subtitles if this option is set in the configuration

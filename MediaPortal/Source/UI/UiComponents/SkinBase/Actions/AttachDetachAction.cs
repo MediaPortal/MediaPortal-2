@@ -98,7 +98,7 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       _titleRes = LocalizationHelper.CreateResourceString(string.IsNullOrEmpty(scm.HomeServerSystemId) ? SEARCH_FOR_SERVERS_RES : DETACH_FROM_SERVER_RES);
       FireStateChanged();
     }
@@ -141,8 +141,8 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       if (string.IsNullOrEmpty(scm.HomeServerSystemId))
         workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE);
       else

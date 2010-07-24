@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public MediaLibrary()
     {
-      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _localSystemId = systemResolver.LocalSystemId;
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
@@ -253,7 +253,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void TryScheduleLocalShareImport(Share share)
     {
-      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
 
       if (share.SystemId == _localSystemId)
         importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
@@ -261,7 +261,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void TryCancelLocalImportJobs(Share share)
     {
-      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
 
       if (share.SystemId == _localSystemId)
         importerWorker.CancelJobsForPath(share.BaseResourcePath);
@@ -282,7 +282,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             "Unable to update the MediaLibrary's subschema version to expected version {0}.{1}",
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
       _miaManagement = new MIA_Management();
-      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
@@ -290,14 +290,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Shutdown()
     {
       NotifySystemOffline(_localSystemId);
-      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
     }
 
     public MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
         IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs)
     {
-      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       ICollection<IFilter> textFilters = new List<IFilter>();
       foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
         foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
@@ -351,7 +351,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       // TODO: Avoid multiple write operations to the same media item
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -395,7 +395,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) in path '{0}'", e, path.Serialize());
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) in path '{0}'", e, path.Serialize());
         transaction.Rollback();
         throw;
       }
@@ -403,7 +403,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -412,7 +412,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) of system '{0}' in path '{1}'",
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) of system '{0}' in path '{1}'",
             e, systemId, path.Serialize());
         transaction.Rollback();
         throw;
@@ -459,7 +459,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RegisterShare(Share share)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -490,7 +490,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error registering share '{0}'", e, share.ShareId);
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error registering share '{0}'", e, share.ShareId);
         transaction.Rollback();
         throw;
       }
@@ -510,7 +510,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -522,7 +522,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error removing share '{0}'", e, shareId);
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error removing share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -534,7 +534,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       foreach (Share share in shares.Values)
         TryCancelLocalImportJobs(share);
 
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -547,7 +547,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error removing shares of system '{0}'", e, systemId);
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error removing shares of system '{0}'", e, systemId);
         transaction.Rollback();
         throw;
       }
@@ -559,7 +559,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -603,7 +603,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error updating share '{0}'", e, shareId);
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error updating share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -611,7 +611,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
@@ -654,7 +654,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public Share GetShare(Guid shareId)
     {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {

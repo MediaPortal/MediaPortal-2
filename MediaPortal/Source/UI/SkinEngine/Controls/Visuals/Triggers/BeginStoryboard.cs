@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
           }
           catch (ArgumentException)
           {
-            ServiceScope.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
+            ServiceRegistration.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
       }
     }

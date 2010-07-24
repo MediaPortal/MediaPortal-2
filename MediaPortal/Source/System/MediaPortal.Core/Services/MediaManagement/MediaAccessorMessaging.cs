@@ -61,7 +61,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[PARAM] = mediaProviderId;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[PARAM] = metadataExtractorId;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -165,7 +165,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error creating thumbnail for folder '{0}'", ex, folderPath);
+        ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for folder '{0}'", ex, folderPath);
       }
       // Trace.WriteLine("Create folder thumb failed");
       return false;
@@ -247,7 +247,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("Error creating thumbnail for file '{0}'", ex, filePath);
+        ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for file '{0}'", ex, filePath);
       }
       return false;
     }

@@ -107,7 +107,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       string clientSystemId = (string) inParams[0];
-      bool isAttached = ServiceScope.Get<IClientManager>().AttachedClients.ContainsKey(clientSystemId);
+      bool isAttached = ServiceRegistration.Get<IClientManager>().AttachedClients.ContainsKey(clientSystemId);
       outParams = new List<object> {isAttached};
       return null;
     }
@@ -116,7 +116,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       string clientSystemId = (string) inParams[0];
-      ServiceScope.Get<IClientManager>().AttachClient(clientSystemId);
+      ServiceRegistration.Get<IClientManager>().AttachClient(clientSystemId);
       outParams = null;
       return null;
     }
@@ -125,7 +125,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       string clientSystemId = (string) inParams[0];
-      ServiceScope.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
+      ServiceRegistration.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
       outParams = null;
       return null;
     }
@@ -134,7 +134,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       string systemId = (string) inParams[0];
-      SystemName result = ServiceScope.Get<ISystemResolver>().GetSystemNameForSystemId(systemId);
+      SystemName result = ServiceRegistration.Get<ISystemResolver>().GetSystemNameForSystemId(systemId);
       outParams = new List<object> {result == null ? null : result.HostName};
       return null;
     }

@@ -389,7 +389,7 @@ namespace MediaPortal.Backend.Database
     /// else <c>false</c>.</returns>
     public bool UpdateSubSchema(out int newVersionMajor, out int newVersionMinor)
     {
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       int curVersionMajor = 0;
       int curVersionMinor = 0;
       try
@@ -420,7 +420,7 @@ namespace MediaPortal.Backend.Database
           curVersionMajor = nextOperation.ToVersionMajor;
           curVersionMinor = nextOperation.ToVersionMinor;
         }
-        ServiceScope.Get<ILogger>().Info("DatabaseSubSchemaManager: Subschema '{0}' present in version {1}.{2}",
+        ServiceRegistration.Get<ILogger>().Info("DatabaseSubSchemaManager: Subschema '{0}' present in version {1}.{2}",
             _subSchemaName, curVersionMajor, curVersionMinor);
         return true;
       }
@@ -438,7 +438,7 @@ namespace MediaPortal.Backend.Database
     /// </summary>
     public bool DeleteSubSchema()
     {
-      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       int curVersionMajor;
       int curVersionMinor;
       if (!databaseManager.GetSubSchemaVersion(_subSchemaName, out curVersionMajor, out curVersionMinor))

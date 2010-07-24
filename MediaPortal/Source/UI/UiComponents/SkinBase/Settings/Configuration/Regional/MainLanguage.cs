@@ -51,7 +51,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Regional
       List<CultureInfo> cultures = new List<CultureInfo>(CultureInfo.GetCultures(CultureTypes.SpecificCultures));
       cultures.Sort(CompareByName);
       _cultures = cultures;
-      CultureInfo current = ServiceScope.Get<ILocalization>().CurrentCulture;
+      CultureInfo current = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       // Fill items
       _items = new List<IResourceString>(_cultures.Count);
       for (int i = 0; i < _cultures.Count; i++)
@@ -65,7 +65,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Regional
 
     public override void Save()
     {
-      ServiceScope.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
+      ServiceRegistration.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
     }
 
     #endregion

@@ -45,7 +45,7 @@ namespace Ui.Players.Video.Subtitles
 
     public static string ConvertLineLangSpecific(string lang, string line)
     {
-      ServiceScope.Get<ILogger>().Debug("ConvertLineLangSpecific {0} {1}", lang, line);
+      ServiceRegistration.Get<ILogger>().Debug("ConvertLineLangSpecific {0} {1}", lang, line);
       if (!langSpecificMap.ContainsKey(lang)) return line;
 
       StringBuilder lineBuilder = new StringBuilder();
@@ -133,17 +133,17 @@ namespace Ui.Players.Video.Subtitles
     public static void Convert(int lang, byte[] teletext)
     {
       assert(lang >= 0 && lang <= 7, "Convert: Lang outside range!");
-      ServiceScope.Get<ILogger>().Debug("Convert: Input data length {0} teletext");
+      ServiceRegistration.Get<ILogger>().Debug("Convert: Input data length {0} teletext");
       for (int i = 0; i < teletext.Length; i++)
       {
-        //ServiceScope.Get<ILogger>().Debug("" + (teletext[i] & 0x7f));
+        //ServiceRegistration.Get<ILogger>().Debug("" + (teletext[i] & 0x7f));
 
         int charIndex = (teletext[i] & 0x7f) - 0x20;
         //assert(charIndex >= 0, "Convert: About to index position [" +lang + ", " + charIndex + "] source pos is " + i+ "( line " + (i % 25) + ")");
 
         if (charIndex < 0)
         {
-          ServiceScope.Get<ILogger>().Debug("Convert: About to index position [" + lang + ", " + charIndex + "] source pos is " + i + "( line " + (i % 25) + ")");
+          ServiceRegistration.Get<ILogger>().Debug("Convert: About to index position [" + lang + ", " + charIndex + "] source pos is " + i + "( line " + (i % 25) + ")");
           continue;
         }
         teletext[i] = vtx2iso8559_1_table[lang, charIndex];

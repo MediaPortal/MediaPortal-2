@@ -37,7 +37,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public static MediaItemAspectMetadata.AttributeSpecification DeserializeAttributeTypeReference(string atStr)
     {
       int index = atStr.IndexOf(':');
-      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       Guid aspectId = new Guid(atStr.Substring(0, index));
       string attributeName = atStr.Substring(index + 1);
       MediaItemAspectMetadata miam;
@@ -45,7 +45,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectId, out miam) ||
           !miam.AttributeSpecifications.TryGetValue(attributeName, out result))
       {
-        ServiceScope.Get<ILogger>().Warn("SortInformation: Could not deserialize SortInformation '{0}'", atStr);
+        ServiceRegistration.Get<ILogger>().Warn("SortInformation: Could not deserialize SortInformation '{0}'", atStr);
         return null;
       }
       return result;

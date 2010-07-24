@@ -68,10 +68,10 @@ namespace Components.Services.AutoPlay
     {
       // We need BASS CD Support, so we need to load the plugin
       BassRegistration.BassRegistration.Register();
-      string decoderFolderPath = ServiceScope.Get<IPathManager>().GetPath(@"<APPLICATION_ROOT>\musicplayer\plugins\audio decoders");
+      string decoderFolderPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<APPLICATION_ROOT>\musicplayer\plugins\audio decoders");
       int pluginHandle = Un4seen.Bass.Bass.BASS_PluginLoad(decoderFolderPath + "\\basscd.dll");
 
-      Logger = ServiceScope.Get<ILogger>();
+      Logger = ServiceRegistration.Get<ILogger>();
       LoadSettings();
     }
 
@@ -139,8 +139,8 @@ namespace Components.Services.AutoPlay
             try
             {
               //window.WaitCursorVisible = true;
-              IPlayerCollection collection = ServiceScope.Get<IPlayerCollection>();
-              IPlayerFactory factory = ServiceScope.Get<IPlayerFactory>();
+              IPlayerCollection collection = ServiceRegistration.Get<IPlayerCollection>();
+              IPlayerFactory factory = ServiceRegistration.Get<IPlayerFactory>();
               IMediaItem mediaItem = new AutoPlayMediaItem(strDrive + @"\VIDEO_TS\VIDEO_TS.IFO");
               mediaItem.Title = "DVD";
               mediaItem.MetaData["MimeType"] = "audio";
@@ -153,7 +153,7 @@ namespace Components.Services.AutoPlay
               if (player.CanResumeSession(null))
               {
                 player.Paused = true;
-                ServiceScope.Get<IScreenManager>().ShowDialog("movieResume");
+                ServiceRegistration.Get<IScreenManager>().ShowDialog("movieResume");
               }
 
             }
@@ -161,7 +161,7 @@ namespace Components.Services.AutoPlay
             {
               //window.WaitCursorVisible = false;
             }
-            IScreenManager manager = (IScreenManager)ServiceScope.Get<IScreenManager>();
+            IScreenManager manager = (IScreenManager)ServiceRegistration.Get<IScreenManager>();
             // We need to show the movies window first, otherwise we'll have problems returning back from full screen on stop.
             manager.ShowScreen("movies");
             manager.ShowScreen("fullscreenvideo");
@@ -189,11 +189,11 @@ namespace Components.Services.AutoPlay
               //window.WaitCursorVisible = true;
               // Get the files of the Audio CD via the MediaManager
               // This does call the MusicImporter, which does a FreeDB Query
-              IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+              IMediaManager mediaManager = ServiceRegistration.Get<IMediaManager>();
               IList<IAbstractMediaItem> tracks = mediaManager.GetView(strDrive + @"\");
 
               // Add all items of the CD to the Playlist
-              IPlaylistManager playList = ServiceScope.Get<IPlaylistManager>();
+              IPlaylistManager playList = ServiceRegistration.Get<IPlaylistManager>();
               foreach (IAbstractMediaItem item in tracks)
               {
                 IMediaItem mediaItem = item as IMediaItem;
@@ -251,7 +251,7 @@ namespace Components.Services.AutoPlay
 
       SystemMessage msg = new SystemMessage("Inserted");
       msg.MessageData["drive"] = driveLetter;
-      ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
+      ServiceRegistration.Get<IMessageBroker>().Send("autoplay", msg);
 
       ExamineVolume(driveLetter);
     }
@@ -266,7 +266,7 @@ namespace Components.Services.AutoPlay
 
       SystemMessage msg = new SystemMessage("Removed");
       msg.MessageData["drive"] = driveLetter;
-      ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
+      ServiceRegistration.Get<IMessageBroker>().Send("autoplay", msg);
     }
     #endregion
 
@@ -274,7 +274,7 @@ namespace Components.Services.AutoPlay
 
     private void LoadSettings()
     {
-      _settings = ServiceScope.Get<ISettingsManager>().Load<AutoPlaySettings>();
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<AutoPlaySettings>();
     }
 
     /// <summary>
@@ -331,34 +331,34 @@ namespace Components.Services.AutoPlay
     {
       string line;
 
-      ServiceScope.Get<IScreenManager>().DialogTitle = ServiceScope.Get<ILocalization>().ToString("autoplay", "autoplay");
+      ServiceRegistration.Get<IScreenManager>().DialogTitle = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "autoplay");
       
       switch (iMedia)
       {
         case MediaType.AUDIO:
         case MediaType.AUDIO_CD:
-          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "audio");
+          line = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "audio");
           break;
 
         case MediaType.DVD:
-          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "dvd");
+          line = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "dvd");
           break;
 
         case MediaType.PHOTOS:
-          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "photo");
+          line = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "photo");
           break;
 
         case MediaType.VIDEOS:
-          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "video");
+          line = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "video");
           break;
 
         default:
-          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "disc");
+          line = ServiceRegistration.Get<ILocalization>().ToString("autoplay", "disc");
           break;
       }
-      ServiceScope.Get<IScreenManager>().DialogLine1 = line;
-      ServiceScope.Get<IScreenManager>().ShowDialog("dialogYesNo");
-      return ServiceScope.Get<IScreenManager>().GetDialogResponse();
+      ServiceRegistration.Get<IScreenManager>().DialogLine1 = line;
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogYesNo");
+      return ServiceRegistration.Get<IScreenManager>().GetDialogResponse();
     }
 
 
@@ -420,7 +420,7 @@ namespace Components.Services.AutoPlay
       {
         if (((PluginManagerMessaging.MessageType) message.MessageType) == PluginManagerMessaging.MessageType.PluginsInitialized)
         {
-          IScreenControl sc = ServiceScope.Get<IScreenControl>();
+          IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
           _windowHandle = sc.MainWindowHandle;
           StartListening();
 

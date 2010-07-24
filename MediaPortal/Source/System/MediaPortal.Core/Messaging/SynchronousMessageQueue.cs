@@ -54,7 +54,7 @@ namespace MediaPortal.Core.Messaging
       MessagesAvailableHandler handler = MessagesAvailable;
       if (handler == null)
       {
-        ServiceScope.Get<ILogger>().Warn(
+        ServiceRegistration.Get<ILogger>().Warn(
           "SynchronousMessageQueue: Synchronous message queue '{0}' has no message handler and there are already {1} messages to be delivered",
               _queueName, NumMessages);
         return;

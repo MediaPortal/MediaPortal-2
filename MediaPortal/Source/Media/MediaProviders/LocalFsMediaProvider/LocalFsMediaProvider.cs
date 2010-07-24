@@ -173,7 +173,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     {
       ICollection<FileWatchChangeType> fwiChangeTypes = TranslateChangeTypes(changeTypes);
       ChangeTrackerRegistrationKey ctrk = new ChangeTrackerRegistrationKey(path, changeDelegate);
-      _changeTrackers[ctrk] = ServiceScope.Get<IFileEventNotifier>().Subscribe(path, true, FileEventHandler,
+      _changeTrackers[ctrk] = ServiceRegistration.Get<IFileEventNotifier>().Subscribe(path, true, FileEventHandler,
                                                                                fileNameFilters, fwiChangeTypes);
     }
 
@@ -184,7 +184,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       if (!_changeTrackers.TryGetValue(ctrk, out fwi))
         return;
       _changeTrackers.Remove(ctrk);
-      ServiceScope.Get<IFileEventNotifier>().Unsubscribe(fwi);
+      ServiceRegistration.Get<IFileEventNotifier>().Unsubscribe(fwi);
     }
 
     public void UnregisterAll(PathChangeDelegate changeDelegate)

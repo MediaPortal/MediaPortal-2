@@ -51,7 +51,7 @@ namespace MediaPortal.UI.Presentation.Models
     {
       _timer = new Timer(updateInterval);
 
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
+      ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
       if (systemStateService.CurrentState == SystemState.Running)
         StartTimer();
       SubscribeToMessages();

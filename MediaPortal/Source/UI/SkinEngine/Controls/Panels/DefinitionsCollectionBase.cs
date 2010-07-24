@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int relativeCount = 0;
       if (cellIndex < 0 || cellIndex >= Count)
       {
-        ServiceScope.Get<ILogger>().Warn("{0}: Invalid cell index {1}; allowed range is {2}-{3}", GetType().Name, cellIndex, 0, Count-1);
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell index {1}; allowed range is {2}-{3}", GetType().Name, cellIndex, 0, Count-1);
         if (cellIndex < 0)
           cellIndex = 0;
         else
@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       if (cellSpan < 0 || cellSpan + cellIndex > Count)
       {
-        ServiceScope.Get<ILogger>().Warn("{0}: Invalid cell span {1} in cell {2}; allowed range is {3}-{4}",
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell span {1} in cell {2}; allowed range is {3}-{4}",
             GetType().Name, cellSpan, cellIndex, 1, Count-cellIndex);
         if (cellSpan < 0)
           cellSpan = 0;

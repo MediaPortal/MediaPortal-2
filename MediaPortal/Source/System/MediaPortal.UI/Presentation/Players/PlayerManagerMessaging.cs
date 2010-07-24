@@ -140,7 +140,7 @@ namespace MediaPortal.UI.Presentation.Players
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
       msg.MessageData[ACTIVATION_SEQUENCE] = psc.ActivationSequence;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.Presentation.Players
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ namespace MediaPortal.UI.Presentation.Players
     public static void SendPlayerManagerPlayerMessage(MessageType type)
     {
       SystemMessage msg = new SystemMessage(type);
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

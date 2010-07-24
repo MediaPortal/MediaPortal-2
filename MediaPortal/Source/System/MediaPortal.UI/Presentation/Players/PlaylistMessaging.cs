@@ -67,7 +67,7 @@ namespace MediaPortal.UI.Presentation.Players
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_CONTEXT] = playerContext;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }
