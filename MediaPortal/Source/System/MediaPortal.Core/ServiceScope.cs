@@ -27,78 +27,19 @@ using System.Collections.Generic;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager.Builders;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// The Service Scope class.  It is used to keep track of the scope of services.
-  /// The moment you create a new ServiceScope instance, any service instances you
-  /// add to it will be automtically used by code that is called while the the 
-  /// ServiceScope instance remains in scope (i.e. is not Disposed)
+  /// The global service provider class. It is used to provide the references to all
+  /// globally available services.
   /// </summary>
   /// <remarks>
-  /// <para>A ServiceScope is some kind of repository that holds a reference to 
-  /// services that other components could need.</para><para>Instead of making
-  /// this class a static with static properties for all types of services we 
-  /// choose to create a mechanism that is more flexible. The biggest advantage of
-  /// this implemtentation is that you can create different ServiceScope instances
-  /// that will be "stacked" upon one another.</para><para>This way you can (temporarily) 
-  /// override a certain service by adding another implementation of the service
-  /// interface, which fits you better. While your new ServiceScope instance 
-  /// remains in scope, all code that is executed will automatically (if it is
-  /// written correctly of course) use this new service implementation.</para>
-  /// <para>
-  /// <b>A service scope is only valid in the same thread it was created.</b> 
-  /// </para><para>
-  /// The recommended way of passing the current <see cref="ServiceScope"/> to 
-  /// another thread is by passing <see cref="ServiceScope.Current"/> with the 
-  /// delegate used to start the thread and then use 
-  /// <c>ServiceScope.Current = passedContect;</c> to restore it in the 
-  /// thread.</para><para>If you do not pass the current ServiceScope to the 
-  /// background thread, it will automatically fallback to the <b>global</b> 
-  /// ServiceScope.  This is the current ServiceScope of the application thread.
-  /// This ServiceScope can be another instance than the one you expect... </para>
+  /// <para>This class is some kind of repository that holds a reference to
+  /// services that other components could need.</para>
   /// </remarks>
-  /// <example> This example creates a new ServiceScope and adds its own implementation
-  /// of a certain service to it.
-  /// <code>
-  /// //SomeMethod will log to the old logger here.
-  /// SomeMethod();
-  /// using(new ServiceScope())
-  /// {
-  ///   ServiceScope.Add&lt;ILogger&gt;(new FileLogger("blabla.txt"))
-  ///   {
-  ///     //SomeMethod will now log to our new logger (which will log to blabla.txt)
-  ///     SomeMethod();
-  ///   }
-  /// }
-  /// .
-  /// .
-  /// .
-  /// private void SomeMethod()
-  /// {
-  ///    ILogger logger = ServiceScope.Get&lt;ILogger&gt;();
-  ///    logger.Debug("Logging to whatever file our calling method decides");
-  /// }
-  /// </code></example>
-  /// <example>This is an example of how to pass the current ServiceScope to a
-  /// timer thread.
-  /// <code>
-  /// using(Timer timer = new Timer(TimerTick, ServiceScope.Current, 0000, 3000))
-  /// {
-  ///   //do something useful here while the timer is busy
-  /// }
-  /// .
-  /// .
-  /// .
-  /// private void TimerTick(object passedScope)
-  /// {
-  ///   ServiceScope.Current = passedScope as ServiceScope;
-  ///   ServiceScope.Get&lt;ILogger&gt;().Info("Timer tick");
-  /// }
-  /// </code>
-  /// </example>
-  /// TODO: Remove the stacking functionality; rename ServiceScope to ServiceRegistration
+  /// TODO: Rename ServiceScope to ServiceRegistration
   public sealed class ServiceScope : IDisposable, IStatus
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
@@ -106,28 +47,11 @@ namespace MediaPortal.Core
     private static readonly object _syncObj = new object();
 
     /// <summary>
-    /// Pointer to the current <see cref="ServiceScope"/>.
+    /// Singleton instance of the <see cref="ServiceScope"/>.
     /// </summary>
-    /// <remarks>
-    /// This pointer is only static for the current thread.
-    /// </remarks>
-    [ThreadStatic]
-    private static ServiceScope _current;
+    private static ServiceScope _instance;
 
-    /// <summary>
-    /// Pointer to the global <see cref="ServiceScope"/>.  This is the 
-    /// </summary>
-    private static ServiceScope _global;
-
-    private static bool _isRunning = false;
     private static bool _isShuttingDown = false;
-
-    /// <summary>
-    /// Pointer to the previous <see cref="ServiceScope"/>.  We need this pointer 
-    /// to be able to restore the previous ServiceScope when the <see cref="Dispose()"/>
-    /// method is called, and to ask it for services that we do not contain ourselves.
-    /// </summary>
-    private readonly ServiceScope _oldInstance;
 
     /// <summary>
     /// Holds the dictionary of services.
@@ -139,63 +63,32 @@ namespace MediaPortal.Core
     /// </summary>
     private readonly ICollection<Type> _pluginServices = new List<Type>();
 
-    /// <summary>
-    /// Keeps track whether the instance is already disposed
-    /// </summary>
-    private bool _isDisposed = false;
-
-
-    public ServiceScope(bool isFirst)
+    private ServiceScope()
     {
       lock (_syncObj)
       {
-        bool updateGlobal = _global == _current;
-        _oldInstance = _current;
-        _current = this;
-        if (updateGlobal)
-        {
-          _global = this;
-        }
-        if (isFirst)
-        {
-          _isRunning = true;
-        }
+        if (_instance != null)
+          throw new IllegalCallException("The ServiceRegistration class was already instantiated");
+        _instance = this;
       }
     }
 
-    /// <summary>
-    /// Creates a new <see cref="ServiceScope"/> instance and initialize it.
-    /// </summary>
-    public ServiceScope() : this(false) { }
-
     public static void RemoveAndDisposePluginServices()
     {
-      Current.DoRemoveAndDisposePluginServices();
+      Instance.DoRemoveAndDisposePluginServices();
     }
 
     /// <summary>
     /// Gets or sets the current <see cref="ServiceScope"/>
     /// </summary>
-    public static ServiceScope Current
+    public static ServiceScope Instance
     {
       get
       {
-        if (_current == null)
-        {
-          if (_global == null)
-          {
-            new ServiceScope();
-          }
-          _current = _global;
-        }
-        return _current;
+        if (_instance == null)
+          return _instance = new ServiceScope();
+        return _instance;
       }
-      set { _current = value; }
-    }
-
-    internal static bool IsRunning
-    {
-      get { return _isRunning; }
     }
 
     public static bool IsShuttingDown
@@ -206,86 +99,64 @@ namespace MediaPortal.Core
 
     ~ServiceScope()
     {
-      Dispose(false);
+      Dispose();
     }
 
     #region IDisposable implementation
 
-    /// <summary>
-    /// Restores the previous service context.
-    /// </summary>
-    /// <remarks>
-    /// Use the using keyword to automatically call this method when the 
-    /// service context goes out of scope.
-    /// </remarks>
     public void Dispose()
     {
-      Dispose(true);
+      _instance = null;
     }
 
     #endregion
 
-    private void Dispose(bool alsoManaged)
-    {
-      if (_isDisposed) // already disposed?
-        return;
-      if (alsoManaged)
-      {
-        bool updateGlobal = _current == _global;
-        _current = _oldInstance; //set current scope to previous one
-        if (updateGlobal)
-        {
-          _global = _current;
-        }
-      }
-      _isDisposed = true;
-    }
-
     /// <summary>
     /// Adds a new Service to the <see cref="ServiceScope"/>
     /// </summary>
-    /// <typeparam name="T">The <see cref="Type"/> of service to add.</typeparam>
+    /// <typeparam name="T">The <see cref="Type"/> of service to add. This is typically (but not necessarily) an interface
+    /// and works as "handle" for the service, i.e. the service is retrieved from the <see cref="ServiceScope"/> by
+    /// calling <see cref="Get{T}()"/> method with that interface as type parameter.</typeparam>
     /// <param name="service">The service implementation to add.</param>
     public static void Add<T>(T service) where T : class
     {
-      Current.AddService(typeof(T), service);
+      Instance.AddService(typeof(T), service);
     }
 
     public static void Replace<T>(T service) where T : class
     {
-      Current.ReplaceService(typeof(T), service);
+      Instance.ReplaceService(typeof(T), service);
     }
 
     public static void Remove<T>() where T : class
     {
-      Current.RemoveService(typeof(T));
+      Instance.RemoveService(typeof(T));
     }
 
     public static void RemoveAndDispose<T>() where T : class
     {
-      Current.RemoveAndDispose(typeof(T));
+      Instance.RemoveAndDispose(typeof(T));
     }
 
     public static bool IsRegistered<T>() where T : class
     {
-      return Current.IsServiceRegistered(typeof(T));
+      return Instance.IsServiceRegistered(typeof(T));
     }
 
     public static bool IsPluginService<T>() where T : class
     {
-      return Current.IsPluginService(typeof(T));
+      return Instance.IsPluginService(typeof(T));
     }
 
     /// <summary>
-    /// Gets a service from the current <see cref="ServiceScope"/>
+    /// Gets a service from the <see cref="ServiceScope"/>
     /// </summary>
-    /// <typeparam name="T">the type of the service to get.  This is typically
-    /// (but not necessarily) an interface</typeparam>
+    /// <typeparam name="T">the type of the service to get.</typeparam>
     /// <returns>the service implementation.</returns>
     /// <exception cref="ServiceNotFoundException">when the requested service type is not found.</exception>
     public static T Get<T>() where T : class
     {
-      return (T) Current.GetService(typeof(T), true);
+      return (T) Instance.GetService(typeof(T), true);
     }
 
     /// <summary>
@@ -301,7 +172,7 @@ namespace MediaPortal.Core
     /// is <b>true</b> andthe requested service type is not found.</exception>
     public static T Get<T>(bool throwIfNotFound) where T : class
     {
-      return (T) Current.GetService(typeof(T), throwIfNotFound);
+      return (T) Instance.GetService(typeof(T), throwIfNotFound);
     }
 
     private void AddService(Type type, object service)
@@ -323,7 +194,7 @@ namespace MediaPortal.Core
       object service = GetService(type, false);
       if (service != null)
       {
-        Current.RemoveService(type);
+        Instance.RemoveService(type);
         IDisposable disposableService = service as IDisposable;
         if (disposableService != null)
           disposableService.Dispose();
@@ -334,8 +205,6 @@ namespace MediaPortal.Core
     {
       foreach (Type serviceType in _pluginServices)
         RemoveAndDispose(serviceType);
-      if (_oldInstance != null)
-        _oldInstance.DoRemoveAndDisposePluginServices();
     }
 
     private bool IsServiceRegistered(Type type)
@@ -363,8 +232,8 @@ namespace MediaPortal.Core
           Get<ILogger>().Warn("ServiceScope: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
-        Current._services.Add(item.RegistrationType, item.ServiceInstance);
-        Current._pluginServices.Add(item.RegistrationType);
+        Instance._services.Add(item.RegistrationType, item.ServiceInstance);
+        Instance._pluginServices.Add(item.RegistrationType);
       }
     }
 
@@ -372,25 +241,15 @@ namespace MediaPortal.Core
     {
       if (_services.ContainsKey(type))
         return _services[type];
-      if (_oldInstance == null)
-        if (throwIfNotFound)
-          throw new ServiceNotFoundException(type);
-        else
-          return null;
-      return _oldInstance.GetService(type, throwIfNotFound);
+      if (throwIfNotFound)
+        throw new ServiceNotFoundException(type);
+      return null;
     }
 
     private void ReplaceService(Type type, object service)
     {
       RemoveService(type);
       AddService(type, service);
-    }
-
-    internal static void Reset()
-    {
-      _current = null;
-      _global = null;
-      _isRunning = false;
     }
 
     #region IStatus implementation
