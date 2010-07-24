@@ -72,6 +72,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected string _skinEngineVersion = null;
     protected string _defaultThemeName = null;
     protected string _basedOnSkin = null;
+    protected string _basedOnTheme = null;
 
     #endregion
 
@@ -80,6 +81,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public string BasedOnSkin
     {
       get { return _basedOnSkin; }
+    }
+
+    public string BasedOnTheme
+    {
+      get { return _basedOnTheme; }
     }
 
     public string ShortDescription
@@ -278,6 +284,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
                 break;
               case "BasedOnSkin":
                 _basedOnSkin = childNav.Value;
+                break;
+              case "BasedOnTheme":
+                _basedOnTheme = childNav.Value;
                 break;
               default:
                 throw new ArgumentException("Child element '" + childNav.Name + "' is unknown");
