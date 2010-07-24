@@ -75,7 +75,14 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\workflow\weather-actions.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\default\workflow\weather-states.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -105,10 +112,131 @@
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\weather.xaml"/>
+    <Content Include="Skin\default\screens\dialogWeatherSetup.xaml"/>
+    <Content Include="Skin\default\screens\dialogWeatherLocations.xaml"/>
+    <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml"/>
+    <Content Include="Skin\default\screens\dialogWeatherSearch.xaml"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\media\Weather\128x128\0.png" />
+    <Content Include="Skin\default\media\Weather\128x128\1.png" />
+    <Content Include="Skin\default\media\Weather\128x128\10.png" />
+    <Content Include="Skin\default\media\Weather\128x128\11.png" />
+    <Content Include="Skin\default\media\Weather\128x128\12.png" />
+    <Content Include="Skin\default\media\Weather\128x128\13.png" />
+    <Content Include="Skin\default\media\Weather\128x128\14.png" />
+    <Content Include="Skin\default\media\Weather\128x128\15.png" />
+    <Content Include="Skin\default\media\Weather\128x128\16.png" />
+    <Content Include="Skin\default\media\Weather\128x128\17.png" />
+    <Content Include="Skin\default\media\Weather\128x128\18.png" />
+    <Content Include="Skin\default\media\Weather\128x128\19.png" />
+    <Content Include="Skin\default\media\Weather\128x128\2.png" />
+    <Content Include="Skin\default\media\Weather\128x128\20.png" />
+    <Content Include="Skin\default\media\Weather\128x128\21.png" />
+    <Content Include="Skin\default\media\Weather\128x128\22.png" />
+    <Content Include="Skin\default\media\Weather\128x128\23.png" />
+    <Content Include="Skin\default\media\Weather\128x128\24.png" />
+    <Content Include="Skin\default\media\Weather\128x128\25.png" />
+    <Content Include="Skin\default\media\Weather\128x128\26.png" />
+    <Content Include="Skin\default\media\Weather\128x128\27.png" />
+    <Content Include="Skin\default\media\Weather\128x128\28.png" />
+    <Content Include="Skin\default\media\Weather\128x128\29.png" />
+    <Content Include="Skin\default\media\Weather\128x128\3.png" />
+    <Content Include="Skin\default\media\Weather\128x128\30.png" />
+    <Content Include="Skin\default\media\Weather\128x128\31.png" />
+    <Content Include="Skin\default\media\Weather\128x128\32.png" />
+    <Content Include="Skin\default\media\Weather\128x128\33.png" />
+    <Content Include="Skin\default\media\Weather\128x128\34.png" />
+    <Content Include="Skin\default\media\Weather\128x128\35.png" />
+    <Content Include="Skin\default\media\Weather\128x128\36.png" />
+    <Content Include="Skin\default\media\Weather\128x128\37.png" />
+    <Content Include="Skin\default\media\Weather\128x128\38.png" />
+    <Content Include="Skin\default\media\Weather\128x128\39.png" />
+    <Content Include="Skin\default\media\Weather\128x128\4.png" />
+    <Content Include="Skin\default\media\Weather\128x128\40.png" />
+    <Content Include="Skin\default\media\Weather\128x128\41.png" />
+    <Content Include="Skin\default\media\Weather\128x128\42.png" />
+    <Content Include="Skin\default\media\Weather\128x128\43.png" />
+    <Content Include="Skin\default\media\Weather\128x128\44.png" />
+    <Content Include="Skin\default\media\Weather\128x128\45.png" />
+    <Content Include="Skin\default\media\Weather\128x128\46.png" />
+    <Content Include="Skin\default\media\Weather\128x128\47.png" />
+    <Content Include="Skin\default\media\Weather\128x128\5.png" />
+    <Content Include="Skin\default\media\Weather\128x128\6.png" />
+    <Content Include="Skin\default\media\Weather\128x128\7.png" />
+    <Content Include="Skin\default\media\Weather\128x128\8.png" />
+    <Content Include="Skin\default\media\Weather\128x128\9.png" />
+    <Content Include="Skin\default\media\Weather\128x128\na.png" />
+    <Content Include="Skin\default\media\Weather\128x128\permission.txt" />
+    <Content Include="Skin\default\media\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\default\media\Weather\64x64\0.png" />
+    <Content Include="Skin\default\media\Weather\64x64\1.png" />
+    <Content Include="Skin\default\media\Weather\64x64\10.png" />
+    <Content Include="Skin\default\media\Weather\64x64\11.png" />
+    <Content Include="Skin\default\media\Weather\64x64\12.png" />
+    <Content Include="Skin\default\media\Weather\64x64\13.png" />
+    <Content Include="Skin\default\media\Weather\64x64\14.png" />
+    <Content Include="Skin\default\media\Weather\64x64\15.png" />
+    <Content Include="Skin\default\media\Weather\64x64\16.png" />
+    <Content Include="Skin\default\media\Weather\64x64\17.png" />
+    <Content Include="Skin\default\media\Weather\64x64\18.png" />
+    <Content Include="Skin\default\media\Weather\64x64\19.png" />
+    <Content Include="Skin\default\media\Weather\64x64\2.png" />
+    <Content Include="Skin\default\media\Weather\64x64\20.png" />
+    <Content Include="Skin\default\media\Weather\64x64\21.png" />
+    <Content Include="Skin\default\media\Weather\64x64\22.png" />
+    <Content Include="Skin\default\media\Weather\64x64\23.png" />
+    <Content Include="Skin\default\media\Weather\64x64\24.png" />
+    <Content Include="Skin\default\media\Weather\64x64\25.png" />
+    <Content Include="Skin\default\media\Weather\64x64\26.png" />
+    <Content Include="Skin\default\media\Weather\64x64\27.png" />
+    <Content Include="Skin\default\media\Weather\64x64\28.png" />
+    <Content Include="Skin\default\media\Weather\64x64\29.png" />
+    <Content Include="Skin\default\media\Weather\64x64\3.png" />
+    <Content Include="Skin\default\media\Weather\64x64\30.png" />
+    <Content Include="Skin\default\media\Weather\64x64\31.png" />
+    <Content Include="Skin\default\media\Weather\64x64\32.png" />
+    <Content Include="Skin\default\media\Weather\64x64\33.png" />
+    <Content Include="Skin\default\media\Weather\64x64\34.png" />
+    <Content Include="Skin\default\media\Weather\64x64\35.png" />
+    <Content Include="Skin\default\media\Weather\64x64\36.png" />
+    <Content Include="Skin\default\media\Weather\64x64\37.png" />
+    <Content Include="Skin\default\media\Weather\64x64\38.png" />
+    <Content Include="Skin\default\media\Weather\64x64\39.png" />
+    <Content Include="Skin\default\media\Weather\64x64\4.png" />
+    <Content Include="Skin\default\media\Weather\64x64\40.png" />
+    <Content Include="Skin\default\media\Weather\64x64\41.png" />
+    <Content Include="Skin\default\media\Weather\64x64\42.png" />
+    <Content Include="Skin\default\media\Weather\64x64\43.png" />
+    <Content Include="Skin\default\media\Weather\64x64\44.png" />
+    <Content Include="Skin\default\media\Weather\64x64\45.png" />
+    <Content Include="Skin\default\media\Weather\64x64\46.png" />
+    <Content Include="Skin\default\media\Weather\64x64\47.png" />
+    <Content Include="Skin\default\media\Weather\64x64\5.png" />
+    <Content Include="Skin\default\media\Weather\64x64\6.png" />
+    <Content Include="Skin\default\media\Weather\64x64\7.png" />
+    <Content Include="Skin\default\media\Weather\64x64\8.png" />
+    <Content Include="Skin\default\media\Weather\64x64\9.png" />
+    <Content Include="Skin\default\media\Weather\64x64\na.png" />
+    <Content Include="Skin\default\media\Weather\64x64\permission.txt" />
+    <Content Include="Skin\default\media\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\default\media\Weather\Logos\TWClogo_32px.png" />
+    <Content Include="Skin\default\media\Weather\Logos\TWClogo_64px.png" />
+    <Content Include="Skin\default\media\Weather\Logos\weather48x48.gif" />
+    <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP /XD .svn
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin" /MIR /NP /XD .svn
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

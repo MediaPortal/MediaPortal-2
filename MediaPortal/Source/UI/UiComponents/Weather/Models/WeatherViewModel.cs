@@ -22,14 +22,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
-
 using UiComponents.Weather.Grabbers;
 
 
@@ -38,9 +37,12 @@ namespace UiComponents.Weather
   /// <summary>
   /// ViewModel Class for weather.xml
   /// </summary>
-  public class WeatherViewModel
+  public class WeatherViewModel 
   {
-    private AbstractProperty _currentLocation;
+    public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
+
+    //private readonly City _currentLocation;
+    private readonly AbstractProperty _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
     private readonly ItemsList _locationsList = new ItemsList();
@@ -65,29 +67,13 @@ namespace UiComponents.Weather
       _locations.Clear();
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      ListItem buffItem;
+
+      if (settings == null || settings.LocationsList == null)
+        return;
+
       foreach (CitySetupInfo loc in settings.LocationsList)
-      {
-        if (loc != null)
-        {
-          City buffLoc = new City(loc);
-          _locations.Add(buffLoc);
+        AddCityToLocations(loc, settings.LocationCode);
 
-          buffItem = new ListItem();
-          buffItem.SetLabel("Name", loc.Name);
-          buffItem.SetLabel("Id", loc.Id);
-          _locationsList.Add(buffItem);
-
-          // Is this the setting?
-          if (loc.Id.Equals(settings.LocationCode))
-          {
-            // Fetch data
-            RefreshData(buffLoc);
-            // Copy the data to the skin property.
-            CurrentLocation.Copy(buffLoc);
-          }
-        }
-      }
       // if there is no city selected until yet, choose the first one
       if (settings.LocationCode.Equals("<none>"))
       {
@@ -101,13 +87,37 @@ namespace UiComponents.Weather
         // no locations have been setup yet, guide to setup
         else
         {
-          //  ServiceRegistration.Get<IScreenManager>().ShowScreen("weathersetup");
+          //ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSetup");
         }
       }
       // we've added new citys, so update the locations collection
       if (shouldFire)
       {
         _locationsList.FireChange();
+      }
+    }
+
+    private void AddCityToLocations(CitySetupInfo loc, String LocationCode)
+    {
+      if (loc != null)
+      {
+        ListItem buffItem;
+        City buffLoc = new City(loc);
+        _locations.Add(buffLoc);
+
+        buffItem = new ListItem();
+        buffItem.SetLabel("Name", loc.Name);
+        buffItem.SetLabel("Id", loc.Id);
+        _locationsList.Add(buffItem);
+
+        // Is this the setting?
+        if (loc.Id.Equals(LocationCode))
+        {
+          // Fetch data
+          RefreshData(buffLoc);
+          // Copy the data to the skin property.
+          CurrentLocation.Copy(buffLoc);
+        }
       }
     }
 
@@ -125,7 +135,7 @@ namespace UiComponents.Weather
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Info("Failded to load Weather Data for " + loc.Name + ", " + loc.Id);
+        ServiceRegistration.Get<ILogger>().Info("Failed to load Weather Data for " + loc.Name + ", " + loc.Id);
       }
 
       //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
@@ -201,10 +211,7 @@ namespace UiComponents.Weather
     /// </summary>
     public ItemsList LocationsList
     {
-      get
-      {
-        return _locationsList;
-      }
+      get { return _locationsList; }
     }
   }
 }

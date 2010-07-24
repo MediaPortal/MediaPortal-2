@@ -27,14 +27,15 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
-
 using UiComponents.Weather.Grabbers;
 
 
 namespace UiComponents.Weather
 {
-  public class WeatherSetupViewModel
+  public class WeatherSetupViewModel 
   {
+    public const string WEATHER_SETUP_MODEL_ID_STR = "CF0434F2-B319-48ff-A700-0BB7F0C2CD2A";
+
     // locations that are already in the list
     private List<CitySetupInfo> _locations;
     // locations that return as result of searching for a city
@@ -45,7 +46,7 @@ namespace UiComponents.Weather
     private readonly ItemsList _locationsSearchExposed = new ItemsList();
 
 
-    private AbstractProperty _searchCity;
+    private readonly AbstractProperty _searchCity;
 
     /// <summary>
     /// constructor
@@ -82,7 +83,7 @@ namespace UiComponents.Weather
     private void GetLocationsFromSettings()
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      Locations = settings.LocationsList;
+      Locations = settings.LocationsList ?? new List<CitySetupInfo>();
     }
 
     /// <summary>
@@ -126,8 +127,7 @@ namespace UiComponents.Weather
       }
       _locationsExposed.Add(item);
       // create a CitySetupObject and add it to the loctions list
-      CitySetupInfo c =
-        new CitySetupInfo(item["Name"], item["Id"]);
+      CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]);
       _locations.Add(c);
       _locationsExposed.FireChange();
     }
@@ -192,7 +192,6 @@ namespace UiComponents.Weather
     public List<CitySetupInfo> LocationsSearch
     {
       get { return _locationsSearch; }
-
       set
       {
         _locationsSearch = value;
@@ -232,5 +231,6 @@ namespace UiComponents.Weather
     {
       get { return _locationsSearchExposed; }
     }
+
   }
 }

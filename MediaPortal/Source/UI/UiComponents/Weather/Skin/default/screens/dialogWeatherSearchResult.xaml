@@ -7,20 +7,20 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.3]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.addcity]"/>
 
-    <!-- DataContext -->
-    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherSetupModel"/>
+    <!-- WeatherSetup view model -->
+    <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel>
         <ListView Height="300" Width="400" x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}"
-            ItemsSource="{Binding Source={StaticResource DataContext},Path=SetupSearchLocations,Mode=OneTime}"
+            ItemsSource="{Binding Source={StaticResource Model},Path=SetupSearchLocations,Mode=OneTime}"
             HorizontalAlignment="Left" VerticalAlignment="Top">
           <ListView.Resources>
             <CommandList x:Key="Menu_Command">
-              <Command Source="{StaticResource DataContext}" Path="AddLocation">
+              <Command Source="{StaticResource Model}" Path="AddLocation">
                 <Command.Parameters>
                   <LateBoundValue BindingValue="{Binding}"/>
                 </Command.Parameters>

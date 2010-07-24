@@ -56,9 +56,7 @@ namespace UiComponents.Weather
           _locations = (List<CitySetupInfo>) value;
           // update
           if (PropertyChanged != null)
-          {
             PropertyChanged(this, new PropertyChangedEventArgs("Locations"));
-          }
         }
       }
     }

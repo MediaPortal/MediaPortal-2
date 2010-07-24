@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="Weather">
+    <String Name="Title" Text="Weather"/>
+    <String Name="Location" Text="Location"/>
+    <String Name="Refresh" Text="Refresh"/>
+    <String Name="Weather" Text="Weather"/>
+    <String Name="Setup" Text="Set-up"/>
+    <String Name="NoData" Text="no data"/>
+    <String Name="Temp" Text="Temp"/>
+    <String Name="TempFeel" Text="Feels Like"/>
+    <String Name="UVIndex" Text="UV Index"/>
+    <String Name="Wind" Text="Wind"/>
+    <String Name="Humidity" Text="Humidity"/>
+    <String Name="DewPoint" Text="Dew Point"/>
+    <String Name="Sunrise" Text="Sunrise"/>
+    <String Name="Sunset" Text="Sunset"/>
+    
+    <!-- following string names are directly mapped internally -->
+    <String Name="370" Text="T-Storms"/>
+    <String Name="371" Text="Partly"/>
+    <String Name="372" Text="Mostly"/>
+    <String Name="373" Text="Sunny"/>
+    <String Name="374" Text="Cloudy"/>
+    <String Name="375" Text="Snow"/>
+    <String Name="376" Text="Rain"/>
+    <String Name="377" Text="Light"/>
+    <String Name="378" Text="AM"/>
+    <String Name="379" Text="PM"/>
+    <String Name="380" Text="Showers"/>
+    <String Name="381" Text="Few"/>
+    <String Name="382" Text="Scattered"/>
+    <String Name="383" Text="Wind"/>
+    <String Name="384" Text="Strong"/>
+    <String Name="386" Text="Clear"/>
+    <String Name="387" Text="Early"/>
+    <String Name="389" Text="Fog"/>
+    <String Name="390" Text="Haze"/>
+    <String Name="391" Text="Windy"/>
+    <String Name="392" Text="Drizzle"/>
+    <String Name="393" Text="Freezing"/>
+    <String Name="394" Text="N/A"/>
+    <String Name="395" Text="Mist"/>
+    <String Name="798" Text="low"/>
+    <String Name="799" Text="high"/>
+    <String Name="543" Text="Thunder"/>
+    <String Name="553" Text="Late"/>
+    <String Name="535" Text="N"/>
+    <String Name="536" Text="E"/>
+    <String Name="537" Text="S"/>
+    <String Name="538" Text="W"/>
+    <String Name="539" Text="NE"/>
+    <String Name="540" Text="SE"/>
+    <String Name="541" Text="SW"/>
+    <String Name="542" Text="NW"/>
+    <String Name="543" Text="Thunder"/>
+    <String Name="544" Text="NNE"/>
+    <String Name="545" Text="ENE"/>
+    <String Name="546" Text="ESE"/>
+    <String Name="547" Text="SSE"/>
+    <String Name="548" Text="SSW"/>
+    <String Name="549" Text="WSW"/>
+    <String Name="551" Text="WNW"/>
+    <String Name="552" Text="NNW"/>
+    <String Name="555" Text="From {0} at {1} {2}"/>
+    <String Name="556" Text="various"/>
+    <String Name="557" Text="calm"/>
+    <String Name="558" Text="No wind"/>
+    <String Name="559" Text="in the vicinity"/>
+    <String Name="560" Text="Clearing"/>
+  </Section>
+  <Section Name="WeatherSetup">
+    <String Name="EnterCity" Text="Please enter the name of your City!"/>
+    <String Name="Search" Text="Search"/>
+    <String Name="Select" Text="Select..."/>
+    <String Name="AddCity" Text="Add city"/>
+    <String Name="RemoveCity" Text="Remove city"/>
+  </Section>
+</Language>

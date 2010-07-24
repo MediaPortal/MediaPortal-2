@@ -4,18 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_dialog.xaml"
     >
+
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weather.4]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weather.setup]"/>
 
-    <!-- DataContext -->
-    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherSetupModel"/>
-
+    <!-- WeatherSetup view model -->
+    <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
+    
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
-          DataContext="{Binding Source={StaticResource DataContext}}">
+          DataContext="{Binding Source={StaticResource Model}}">
 		  
 		<ListView Name="mainMenu"  Height="300" Width="400" Style="{ThemeResource MenuListViewStyle}" ItemsSource="{Binding SetupLocations}" >
         </ListView>

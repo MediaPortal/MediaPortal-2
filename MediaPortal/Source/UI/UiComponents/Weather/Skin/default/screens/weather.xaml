@@ -7,15 +7,28 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[weather.0]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[weather.title]"/>
 
-    <!-- DataContext -->
-    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherModel"/>
+    <!-- Weather view model -->
+    <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
-          DataContext="{Binding Source={StaticResource DataContext}}">
+          DataContext="{Binding Source={StaticResource Model}}">
+        <StackPanel Width="500" Orientation="Horizontal">
+          <Button x:Name="ButtonRefresh" Content="[weather.refresh]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+        HorizontalAlignment="Left" VerticalAlignment="Center"
+        Command="{Command Refresh}"/>
+        
+        <Button x:Name="ButtonSelectLocation" Content="[weather.location]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+        HorizontalAlignment="Left" VerticalAlignment="Center"
+        Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherLocations}"/>
+
+        <Button x:Name="ButtonWeatherSetup" Content="[weather.setup]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+        HorizontalAlignment="Left" VerticalAlignment="Center"
+        Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSetup}"/>
+      </StackPanel>
         <Grid x:Name="Grid1" HorizontalAlignment="Left">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -27,14 +40,14 @@
             <Label x:Name="LocName" FontSize="20"  Content="{Binding Path=CurrentLocation.Name}"/>
           </StackPanel>
           <StackPanel x:Name="S2" Margin="0,0,30,0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label x:Name="Txt1" FontSize="20" Content="[weather.6]" />
-            <Label x:Name="Txt2" FontSize="20" Content="[weather.7]" />
-            <Label x:Name="Txt3" FontSize="20" Content="[weather.8]" />
-            <Label x:Name="Txt4" FontSize="20" Content="[weather.9]" />
-            <Label x:Name="Txt5" FontSize="20" Content="[weather.10]" />
-            <Label x:Name="Txt6" FontSize="20" Content="[weather.11]" />
-            <Label x:Name="Txt7" FontSize="20" Content="[weather.12]" />
-            <Label x:Name="Txt8" FontSize="20" Content="[weather.13]" />
+            <Label x:Name="Txt1" FontSize="20" Content="[weather.temp]" />
+            <Label x:Name="Txt2" FontSize="20" Content="[weather.tempfeel]" />
+            <Label x:Name="Txt3" FontSize="20" Content="[weather.uvindex]" />
+            <Label x:Name="Txt4" FontSize="20" Content="[weather.wind]" />
+            <Label x:Name="Txt5" FontSize="20" Content="[weather.humidity]" />
+            <Label x:Name="Txt6" FontSize="20" Content="[weather.dewpoint]" />
+            <Label x:Name="Txt7" FontSize="20" Content="[weather.sunrise]" />
+            <Label x:Name="Txt8" FontSize="20" Content="[weather.sunset]" />
           </StackPanel>
           <StackPanel x:Name="S3" Margin="0,0,10,0" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Temperature}"/>
