@@ -54,8 +54,6 @@ namespace MediaPortal
     private static void Main(params string[] args)
     {
       System.Threading.Thread.CurrentThread.Name = "Main Thread";
-      Application.EnableVisualStyles();
-      Application.SetCompatibleTextRenderingDefault(false);
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
@@ -126,7 +124,7 @@ namespace MediaPortal
             // We have to handle some dependencies here in the start order:
             // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
             // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
-            // 3) After the workflow states and actions are loaded, the startup screen can be shown
+            // 3) After the workflow states and actions are loaded, the main window can be shown
             // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
             mediaAccessor.Initialize(); // Independent from other services
             localSharesManagement.Initialize(); // After media accessor was initialized
