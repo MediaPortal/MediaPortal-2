@@ -162,8 +162,8 @@ namespace UPnP.Infrastructure.CP
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
     private void BuildDeviceProxy(RootDescriptor rootDescriptor, string deviceUUID, DataTypeResolverDlgt dataTypeResolver)
     {
-      if (rootDescriptor.State == RootDescriptorState.Erroneous)
-        throw new ArgumentException("Cannot connect to an erroneous root descriptor");
+      if (rootDescriptor.State != RootDescriptorState.Ready)
+        throw new ArgumentException("Root descriptor is not ready - cannot connect");
       XPathNavigator nav = rootDescriptor.DeviceDescription.CreateNavigator();
       nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
