@@ -35,14 +35,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {
-    public const string RES_UPNPSERVER_SECTION = "UPnPFrontendServer";
-    public const string RES_DEFAULT_FRIENDLY_NAME = "DefaultFriendlyName";
-    public const string RES_MANUFACTURER = "Manufacturer";
-    public const string RES_MANUFACTURER_URL = "ManufacturerUrl";
-    public const string RES_MODEL_DESCRIPTION = "ModelDescription";
-    public const string RES_MODEL_NAME = "ModelName";
-    public const string RES_MODEL_NUMBER = "ModelNumber";
-    public const string RES_MODEL_URL = "ModelUrl";
+    public const string RES_DEFAULT_FRIENDLY_NAME = "[UPnPFrontendServer.DefaultFriendlyName]";
+    public const string RES_MANUFACTURER ="[UPnPFrontendServer.Manufacturer]";
+    public const string RES_MANUFACTURER_URL ="[UPnPFrontendServer.ManufacturerUrl]";
+    public const string RES_MODEL_DESCRIPTION ="[UPnPFrontendServer.ModelDescription]";
+    public const string RES_MODEL_NAME ="[UPnPFrontendServer.ModelName]";
+    public const string RES_MODEL_NUMBER ="[UPnPFrontendServer.ModelNumber]";
+    public const string RES_MODEL_URL ="[UPnPFrontendServer.ModelUrl]";
     
     public string GetFriendlyName(CultureInfo culture)
     {
@@ -52,7 +51,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       if (string.IsNullOrEmpty(result))
       {
         result = StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
+          RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
         settings.FriendlyName = result;
         settingsManager.Save(settings);
       }
@@ -61,38 +60,32 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public string GetManufacturer(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MANUFACTURER));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MANUFACTURER));
     }
 
     public string GetManufacturerURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MANUFACTURER_URL));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MANUFACTURER_URL));
     }
 
     public string GetModelDescription(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MODEL_DESCRIPTION));
     }
 
     public string GetModelName(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MODEL_NAME));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MODEL_NAME));
     }
 
     public string GetModelNumber(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MODEL_NUMBER));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MODEL_NUMBER));
     }
 
     public string GetModelURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_MODEL_URL));
+      return StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_MODEL_URL));
     }
 
     public string GetSerialNumber(CultureInfo culture)

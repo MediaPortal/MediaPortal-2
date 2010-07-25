@@ -130,9 +130,12 @@ namespace MediaPortal.Core.Services.Localization
       FireLanguageChange();
     }
 
-    public string ToString(string section, string name, params object[] parameters)
+    public string ToString(string label, params object[] parameters)
     {
-      string translation = _strings.ToString(section, name);
+      string section;
+      string name;
+      string translation = StringId.ExtractSectionAndName(label, out section, out name) ?
+          _strings.ToString(section, name) : label;
       if (translation == null || parameters == null || parameters.Length == 0)
         return translation;
       try

@@ -112,10 +112,10 @@ namespace Ui.Players.Video
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
     protected AspectRatioMode arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
-    private readonly StringId _subtitleLanguage = new StringId("playback", "3");
-    private readonly StringId _audioStreams = new StringId("playback", "4");
-    private readonly StringId _titles = new StringId("playback", "28");
-    private readonly StringId _chapters = new StringId("playback", "29");
+    private readonly StringId _subtitleLanguage = new StringId("[Playback.3]");
+    private readonly StringId _audioStreams = new StringId("[Playback.4]");
+    private readonly StringId _titles = new StringId("[Playback.28]");
+    private readonly StringId _chapters = new StringId("[Playback.29]");
 
     #endregion
 
@@ -920,13 +920,13 @@ namespace Ui.Players.Video
                 case DvdAudioLangExt.Captions:
                   break;
                 case DvdAudioLangExt.VisuallyImpaired:
-                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "27"); // " (Visually Impaired)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.27]"); // " (Visually Impaired)";
                   break;
                 case DvdAudioLangExt.DirectorComments1:
-                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "24"); // " (Director Comments)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.24]"); // " (Director Comments)";
                   break;
                 case DvdAudioLangExt.DirectorComments2:
-                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("playback", "28"); //" (Director Comments 2)";
+                  streams[i] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.28]"); //" (Director Comments 2)";
                   break;
               }
             }
@@ -945,7 +945,7 @@ namespace Ui.Players.Video
         bool isDisabled;
         _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
         string[] streams = new string[streamsAvailable + 1];
-        streams[0] = ServiceRegistration.Get<ILocalization>().ToString("playback", "17"); //off
+        streams[0] = ServiceRegistration.Get<ILocalization>().ToString("[Playback.17]"); //off
         for (int i = 0; i < streamsAvailable; ++i)
         {
           DvdSubpictureAttributes attr;
@@ -962,28 +962,28 @@ namespace Ui.Players.Video
                 case DvdSubPictureLangExt.CaptionNormal:
                   break;
                 case DvdSubPictureLangExt.CaptionBig:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "18"); //big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.18]"); //big
                   break;
                 case DvdSubPictureLangExt.CaptionChildren:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "19"); //Children
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.19]"); //Children
                   break;
                 case DvdSubPictureLangExt.CCNormal:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "20"); //CC
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.20]"); //CC
                   break;
                 case DvdSubPictureLangExt.CCBig:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "21"); //CC big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.21]"); //CC big
                   break;
                 case DvdSubPictureLangExt.CCChildren:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "22"); //CC Children
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.22]"); //CC Children
                   break;
                 case DvdSubPictureLangExt.Forced:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "23"); //Forced
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.23]"); //Forced
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsNormal:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "24"); //Director Comments
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.24]"); //Director Comments
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsBig:
-                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("playback", "25"); //Director Comments big
+                  streams[i + 1] += ServiceRegistration.Get<ILocalization>().ToString("[Playback.25]"); //Director Comments big
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsChildren:
                   streams[i + 1] += " (Directors Comments children)";
@@ -1185,7 +1185,7 @@ namespace Ui.Players.Video
 
     public override void Stop()
     {
-      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer:Stop");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
 
       base.Stop();
     }

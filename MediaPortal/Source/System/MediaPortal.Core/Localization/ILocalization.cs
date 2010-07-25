@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -92,16 +93,22 @@ namespace MediaPortal.Core.Localization
     void ChangeLanguage(CultureInfo culture);
 
     /// <summary>
-    /// Returns the translation for a given string resource (given by section name and name)
-    /// and format the string with the given parameters in the current language.
+    /// Returns the translation for a given string resource and formats the string with the given parameters
+    /// in the current language.
     /// </summary>
-    /// <param name="section">Section of the string resource in the resource file.</param>
-    /// <param name="name">Name of the string resource in the resource file.</param>
-    /// <param name="parameters">Parameters used in the formating.</param>
+    /// <remarks>
+    /// The given <paramref name="label"/> should be in the form <c>"[Section.Name]"</c>. In that case, the string
+    /// with the given name in the given section is looked up and the localization is returned. If no localized resource
+    /// is found for the given section/name combination or the label is not in the correct form, this method tries to
+    /// use the label itself as format string for the given <paramref name="parameters"/>.
+    /// </remarks>
+    /// <param name="label">Label specifying the localization resource. The label should be in the form
+    /// <c>"[Section.Name]"</c>.</param>
+    /// <param name="parameters">Parameters used in the formating of the localized resource string.</param>
     /// <returns>
     /// String containing the translated text.
     /// </returns>
-    string ToString(string section, string name, params object[] parameters);
+    string ToString(string label, params object[] parameters);
 
     /// <summary>
     /// Tries to guess the best language for that localization resources are available for the current system.

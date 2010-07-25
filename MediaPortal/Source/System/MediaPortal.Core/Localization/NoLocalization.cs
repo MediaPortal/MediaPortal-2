@@ -51,9 +51,9 @@ namespace MediaPortal.Core.Localization
 
     public void ChangeLanguage(CultureInfo culture) {}
 
-    public string ToString(string section, string name, params object[] parameters)
+    public string ToString(string label, params object[] parameters)
     {
-      return string.Format("{0}.{1}", section, name);
+      return label;
     }
 
     public CultureInfo GetBestAvailableLanguage()

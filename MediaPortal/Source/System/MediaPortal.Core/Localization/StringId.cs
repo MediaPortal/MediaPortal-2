@@ -99,6 +99,7 @@ namespace MediaPortal.Core.Localization
     /// <param name="section">The section in the language resource
     /// where the localized string will be searched.</param>
     /// <param name="name">The name of the string in the language resource.</param>
+    [Obsolete("Use StringId(string label) instead.")]
     public StringId(string section, string name)
     {
       _section = section;
@@ -134,7 +135,7 @@ namespace MediaPortal.Core.Localization
     public override string ToString()
     {
       if (_localized == null)
-        _localized = ServiceRegistration.Get<ILocalization>().ToString(_section, _name);
+        _localized = ServiceRegistration.Get<ILocalization>().ToString(string.Format("[{0}.{1}]", _section, _name));
 
       if (_localized == null)
         return Label;
@@ -168,8 +169,7 @@ namespace MediaPortal.Core.Localization
         name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
         return true;
       }
-      else
-        return false;
+      return false;
     }
 
     /// <summary>

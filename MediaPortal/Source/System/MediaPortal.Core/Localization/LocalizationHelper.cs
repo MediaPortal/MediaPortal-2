@@ -48,13 +48,8 @@ namespace MediaPortal.Core.Localization
     {
       string section;
       string name;
-      if (StringId.ExtractSectionAndName(maybeLocalizationResource, out section, out name))
-      {
-        ILocalization localization = ServiceRegistration.Get<ILocalization>();
-        return localization.ToString(section, name, parameters);
-      }
-      else
-        return string.Format(maybeLocalizationResource, parameters);
+      ILocalization localization = ServiceRegistration.Get<ILocalization>();
+      return localization.ToString(maybeLocalizationResource, parameters);
     }
   }
 }
