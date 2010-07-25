@@ -49,9 +49,9 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     // Private Variables
     private string _temperatureFarenheit = "C";
     private string _windSpeed = "K";
-    private string unitTemperature = String.Empty;
-    private string _unitSpeed = String.Empty;
-    private string _parsefileLocation = String.Empty;
+    private string unitTemperature = string.Empty;
+    private string _unitSpeed = string.Empty;
+    private string _parsefileLocation = string.Empty;
     private bool _skipConnectionTest;
 
     #endregion
@@ -93,7 +93,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       // begin getting the data
       string file;
       city.HasData = false;
-      file = String.Format(_parsefileLocation, city.Id);
+      file = string.Format(_parsefileLocation, city.Id);
       // download the xml file to the given location
       if (!Download(city.Id, file))
       {
@@ -128,7 +128,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       try
       {
         string searchURI =
-          String.Format("http://xoap.weather.com/search/search?where={0}", Helper.UrlEncode(locationName));
+          string.Format("http://xoap.weather.com/search/search?where={0}", Helper.UrlEncode(locationName));
 
         //
         // Create the request and fetch the response
@@ -219,7 +219,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       //we'll convert the speed later depending on what thats set to
       units = units == 'F' ? 's' : 'm';
 
-      string url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&dayf=5&link=xoap&prod=xoap&par={1}&key={2}&unit={3}", 
+      string url = string.Format("http://xoap.weather.com/weather/local/{0}?cc=*&dayf=5&link=xoap&prod=xoap&par={1}&key={2}&unit={3}", 
           locationCode, PARTNER_ID, PARTNER_KEY, units);
 
       using (WebClient client = new WebClient())
@@ -299,23 +299,23 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       if (xmlElement == null)
         return false;
       c.LocationInfo = new LocInfo();
-      c.LocationInfo.Time = GetString(xmlElement, "tm", String.Empty); // <tm>1:12 AM</tm>
-      c.LocationInfo.Lat = GetString(xmlElement, "lat", String.Empty); // <lat>49.02</lat>
-      c.LocationInfo.Lon = GetString(xmlElement, "lon", String.Empty); // <lon>12.1</lon>
+      c.LocationInfo.Time = GetString(xmlElement, "tm", string.Empty); // <tm>1:12 AM</tm>
+      c.LocationInfo.Lat = GetString(xmlElement, "lat", string.Empty); // <lat>49.02</lat>
+      c.LocationInfo.Lon = GetString(xmlElement, "lon", string.Empty); // <lon>12.1</lon>
       
-      c.LocationInfo.SunRise = GetString(xmlElement, "sunr", String.Empty); // <sunr>7:14 AM</sunr> 
+      c.LocationInfo.SunRise = GetString(xmlElement, "sunr", string.Empty); // <sunr>7:14 AM</sunr> 
       if (c.LocationInfo.SunRise == "N/A")
-        c.LocationInfo.SunRise = String.Empty;
+        c.LocationInfo.SunRise = string.Empty;
       else
-        c.LocationInfo.SunRise = String.Format("{0}", RelocalizeTime(c.LocationInfo.SunRise));
+        c.LocationInfo.SunRise = string.Format("{0}", RelocalizeTime(c.LocationInfo.SunRise));
 
-      c.LocationInfo.SunSet = GetString(xmlElement, "suns", String.Empty); // <suns>5:38 PM</suns>
+      c.LocationInfo.SunSet = GetString(xmlElement, "suns", string.Empty); // <suns>5:38 PM</suns>
       if (c.LocationInfo.SunSet == "N/A")
-        c.LocationInfo.SunSet = String.Empty;
+        c.LocationInfo.SunSet = string.Empty;
       else
-        c.LocationInfo.SunSet = String.Format("{0}", RelocalizeTime(c.LocationInfo.SunSet));
+        c.LocationInfo.SunSet = string.Format("{0}", RelocalizeTime(c.LocationInfo.SunSet));
       
-      c.LocationInfo.Zone = GetString(xmlElement, "zone", String.Empty); // <zone>1</zone>
+      c.LocationInfo.Zone = GetString(xmlElement, "zone", string.Empty); // <zone>1</zone>
       return true;
     }
 
@@ -330,21 +330,21 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       if (xmlElement == null)
         return false;
 
-      c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", String.Empty));
-      c.Condition.City = GetString(xmlElement, "obst", String.Empty);
-      c.Condition.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetIntegerDef(xmlElement, "icon", 0));
-      string condition = LocalizeOverview(GetString(xmlElement, "t", String.Empty));
+      c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", string.Empty));
+      c.Condition.City = GetString(xmlElement, "obst", string.Empty);
+      c.Condition.BigIcon = string.Format(@"Weather\128x128\{0}.png", GetIntegerDef(xmlElement, "icon", 0));
+      string condition = LocalizeOverview(GetString(xmlElement, "t", string.Empty));
       SplitLongString(ref condition, 8, 15); //split to 2 lines if needed
       c.Condition.Condition = condition;
       c.Condition.Temperature =
-        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "tmp", 0), DEGREE_CHARACTER, unitTemperature);
+        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "tmp", 0), DEGREE_CHARACTER, unitTemperature);
       c.Condition.FeelsLikeTemp =
-        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "flik", 0), DEGREE_CHARACTER, unitTemperature);
+        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "flik", 0), DEGREE_CHARACTER, unitTemperature);
       c.Condition.Wind = ParseWind(xmlElement.SelectSingleNode("wind"), _unitSpeed);
-      c.Condition.Humidity = String.Format("{0}%", GetIntegerDef(xmlElement, "hmid", 0));
+      c.Condition.Humidity = string.Format("{0}%", GetIntegerDef(xmlElement, "hmid", 0));
       c.Condition.UVIndex = ParseUVIndex(xmlElement.SelectSingleNode("uv"));
       c.Condition.DewPoint =
-        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "dewp", 0), DEGREE_CHARACTER, unitTemperature);
+        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "dewp", 0), DEGREE_CHARACTER, unitTemperature);
       return true;
     }
 
@@ -369,39 +369,39 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         {
           forecast.Day = LocalizeDay(element.Attributes.GetNamedItem("t").InnerText);
 
-          forecast.High = GetString(element, "hi", String.Empty); //string cause i've seen it return N/A
+          forecast.High = GetString(element, "hi", string.Empty); //string cause i've seen it return N/A
           forecast.High = forecast.High == "N/A" ? "N/A" :
-              String.Format("{0}{1}{2}", forecast.High, DEGREE_CHARACTER, unitTemperature);
+              string.Format("{0}{1}{2}", forecast.High, DEGREE_CHARACTER, unitTemperature);
 
-          forecast.Low = GetString(element, "low", String.Empty);
+          forecast.Low = GetString(element, "low", string.Empty);
           forecast.Low = forecast.Low == "N/A" ? "N/A" :
-              String.Format("{0}{1}{2}", forecast.Low, DEGREE_CHARACTER, unitTemperature);
+              string.Format("{0}{1}{2}", forecast.Low, DEGREE_CHARACTER, unitTemperature);
 
-          forecast.SunRise = GetString(element, "sunr", String.Empty);
-          forecast.SunRise = forecast.SunRise == "N/A" ? String.Empty :
-              String.Format("{0}", RelocalizeTime(forecast.SunRise));
+          forecast.SunRise = GetString(element, "sunr", string.Empty);
+          forecast.SunRise = forecast.SunRise == "N/A" ? string.Empty :
+              string.Format("{0}", RelocalizeTime(forecast.SunRise));
 
-          forecast.SunSet = GetString(element, "suns", String.Empty);
-          forecast.SunSet = forecast.SunSet == "N/A" ? String.Empty :
-              String.Format("{0}", RelocalizeTime(forecast.SunSet));
+          forecast.SunSet = GetString(element, "suns", string.Empty);
+          forecast.SunSet = forecast.SunSet == "N/A" ? string.Empty :
+              string.Format("{0}", RelocalizeTime(forecast.SunSet));
 
           XmlNode dayElement = element.SelectSingleNode("part"); //grab the first day/night part (should be day)
           if (dayElement != null && i == 0)
           {
             // If day forecast is not available (at the end of the day), show night forecast
-            if (GetString(dayElement, "t", String.Empty) == "N/A")
+            if (GetString(dayElement, "t", string.Empty) == "N/A")
               dayElement = dayElement.NextSibling;
           }
 
           if (dayElement != null)
           {
-            forecast.SmallIcon = String.Format(@"Weather\64x64\{0}.png", GetIntegerDef(dayElement, "icon", 0));
-            forecast.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetIntegerDef(dayElement, "icon", 0));
-            string overview = LocalizeOverview(GetString(dayElement, "t", String.Empty));
+            forecast.SmallIcon = string.Format(@"Weather\64x64\{0}.png", GetIntegerDef(dayElement, "icon", 0));
+            forecast.BigIcon = string.Format(@"Weather\128x128\{0}.png", GetIntegerDef(dayElement, "icon", 0));
+            string overview = LocalizeOverview(GetString(dayElement, "t", string.Empty));
             SplitLongString(ref overview, 6, 15);
             forecast.Overview = overview;
-            forecast.Humidity = String.Format("{0}%", GetIntegerDef(dayElement, "hmid", 0));
-            forecast.Precipitation = String.Format("{0}%", GetIntegerDef(dayElement, "ppcp", 0));
+            forecast.Humidity = string.Format("{0}%", GetIntegerDef(dayElement, "hmid", 0));
+            forecast.Precipitation = string.Format("{0}%", GetIntegerDef(dayElement, "ppcp", 0));
             forecast.Wind = ParseWind(dayElement.SelectSingleNode("wind"), _unitSpeed);
           }
           element = element.NextSibling; //Element("day");
@@ -506,7 +506,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
             now.Year,
             now.Month,
             now.Day,
-            Int32.Parse(timePart[0]) + (String.Compare(tokens[1], "PM", true) == 0 ? 12 : 0),
+            Int32.Parse(timePart[0]) + (string.Compare(tokens[1], "PM", true) == 0 ? 12 : 0),
             Int32.Parse(timePart[1]),
             0
             );
@@ -545,7 +545,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         case "Saturday":
           return ServiceRegistration.Get<ILocalization>().ToString("[Days.6]");
         default:
-          return String.Empty;
+          return string.Empty;
       }
     }
 
@@ -562,7 +562,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       // A safety check
       if ((tokens.Length == 5) &&
-          (String.Compare(tokens[3], "Local", true) == 0) && (String.Compare(tokens[4], "Time", true) == 0))
+          (string.Compare(tokens[3], "Local", true) == 0) && (string.Compare(tokens[4], "Time", true) == 0))
       {
         try
         {
@@ -572,7 +572,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
             2000 + Int32.Parse(datePart[2]),
             Int32.Parse(datePart[0]),
             Int32.Parse(datePart[1]),
-            Int32.Parse(timePart[0]) + (String.Compare(tokens[2], "PM", true) == 0 ? 12 : 0),
+            Int32.Parse(timePart[0]) + (string.Compare(tokens[2], "PM", true) == 0 ? 12 : 0),
             Int32.Parse(timePart[1]),
             0
             );
@@ -594,232 +594,125 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private static string LocalizeOverview(string token)
     {
       // TODO: Cleanup, also localization strings
-      string localizedLine = String.Empty;
+      string localizedLine = string.Empty;
 
       foreach (string tokenSplit in token.Split(' '))
       {
-        string localizedWord = String.Empty;
+        string localizedWord = string.Empty;
 
-        if (String.Compare(tokenSplit, "T-Storms", true) == 0 || String.Compare(tokenSplit, "T-Storm", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.370]");
-        }
-        else if (String.Compare(tokenSplit, "Partly", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.371]");
-        }
-        else if (String.Compare(tokenSplit, "Mostly", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.372]");
-        }
-        else if (String.Compare(tokenSplit, "Sunny", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.373]");
-        }
-        else if (String.Compare(tokenSplit, "Cloudy", true) == 0 || String.Compare(tokenSplit, "Clouds", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.374]");
-        }
-        else if (String.Compare(tokenSplit, "Snow", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.375]");
-        }
-        else if (String.Compare(tokenSplit, "Rain", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.376]");
-        }
-        else if (String.Compare(tokenSplit, "Light", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.377]");
-        }
-        else if (String.Compare(tokenSplit, "AM", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.378]");
-        }
-        else if (String.Compare(tokenSplit, "PM", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.379]");
-        }
-        else if (String.Compare(tokenSplit, "Showers", true) == 0 || String.Compare(tokenSplit, "Shower", true) == 0 ||
-                 String.Compare(tokenSplit, "T-Showers", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.380]");
-        }
-        else if (String.Compare(tokenSplit, "Few", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.381]");
-        }
-        else if (String.Compare(tokenSplit, "Scattered", true) == 0 || String.Compare(tokenSplit, "Isolated", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.382]");
-        }
-        else if (String.Compare(tokenSplit, "Wind", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.383]");
-        }
-        else if (String.Compare(tokenSplit, "Strong", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.384]");
-        }
-        else if (String.Compare(tokenSplit, "Fair", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.385]");
-        }
-        else if (String.Compare(tokenSplit, "Clear", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.386]");
-        }
-        else if (String.Compare(tokenSplit, "Early", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.387]");
-        }
-        else if (String.Compare(tokenSplit, "and", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.388]");
-        }
-        else if (String.Compare(tokenSplit, "Fog", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.389]");
-        }
-        else if (String.Compare(tokenSplit, "Haze", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.390]");
-        }
-        else if (String.Compare(tokenSplit, "Windy", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.391]");
-        }
-        else if (String.Compare(tokenSplit, "Drizzle", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.392]");
-        }
-        else if (String.Compare(tokenSplit, "Freezing", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.393]");
-        }
-        else if (String.Compare(tokenSplit, "N/A", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.394]");
-        }
-        else if (String.Compare(tokenSplit, "Mist", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.395]");
-        }
-        else if (String.Compare(tokenSplit, "High", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.799]");
-        }
-        else if (String.Compare(tokenSplit, "Low", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.798]");
-        }
-        else if (String.Compare(tokenSplit, "Moderate", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.534]");
-        }
-        else if (String.Compare(tokenSplit, "Late", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.553]");
-        }
-        else if (String.Compare(tokenSplit, "Very", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.554]");
-        }
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
+        if (string.Compare(tokenSplit, "T-Storms", true) == 0 || string.Compare(tokenSplit, "T-Storm", true) == 0)
+          localizedWord = localization.ToString("[Weather.370]");
+        else if (string.Compare(tokenSplit, "Partly", true) == 0)
+          localizedWord = localization.ToString("[Weather.371]");
+        else if (string.Compare(tokenSplit, "Mostly", true) == 0)
+          localizedWord = localization.ToString("[Weather.372]");
+        else if (string.Compare(tokenSplit, "Sunny", true) == 0)
+          localizedWord = localization.ToString("[Weather.373]");
+        else if (string.Compare(tokenSplit, "Cloudy", true) == 0 || string.Compare(tokenSplit, "Clouds", true) == 0)
+          localizedWord = localization.ToString("[Weather.374]");
+        else if (string.Compare(tokenSplit, "Snow", true) == 0)
+          localizedWord = localization.ToString("[Weather.375]");
+        else if (string.Compare(tokenSplit, "Rain", true) == 0)
+          localizedWord = localization.ToString("[Weather.376]");
+        else if (string.Compare(tokenSplit, "Light", true) == 0)
+          localizedWord = localization.ToString("[Weather.377]");
+        else if (string.Compare(tokenSplit, "AM", true) == 0)
+          localizedWord = localization.ToString("[Weather.378]");
+        else if (string.Compare(tokenSplit, "PM", true) == 0)
+          localizedWord = localization.ToString("[Weather.379]");
+        else if (string.Compare(tokenSplit, "Showers", true) == 0 || string.Compare(tokenSplit, "Shower", true) == 0 ||
+                 string.Compare(tokenSplit, "T-Showers", true) == 0)
+          localizedWord = localization.ToString("[Weather.380]");
+        else if (string.Compare(tokenSplit, "Few", true) == 0)
+          localizedWord = localization.ToString("[Weather.381]");
+        else if (string.Compare(tokenSplit, "Scattered", true) == 0 || string.Compare(tokenSplit, "Isolated", true) == 0)
+          localizedWord = localization.ToString("[Weather.382]");
+        else if (string.Compare(tokenSplit, "Wind", true) == 0)
+          localizedWord = localization.ToString("[Weather.383]");
+        else if (string.Compare(tokenSplit, "Strong", true) == 0)
+          localizedWord = localization.ToString("[Weather.384]");
+        else if (string.Compare(tokenSplit, "Fair", true) == 0)
+          localizedWord = localization.ToString("[Weather.385]");
+        else if (string.Compare(tokenSplit, "Clear", true) == 0)
+          localizedWord = localization.ToString("[Weather.386]");
+        else if (string.Compare(tokenSplit, "Early", true) == 0)
+          localizedWord = localization.ToString("[Weather.387]");
+        else if (string.Compare(tokenSplit, "and", true) == 0)
+          localizedWord = localization.ToString("[Weather.388]");
+        else if (string.Compare(tokenSplit, "Fog", true) == 0)
+          localizedWord = localization.ToString("[Weather.389]");
+        else if (string.Compare(tokenSplit, "Haze", true) == 0)
+          localizedWord = localization.ToString("[Weather.390]");
+        else if (string.Compare(tokenSplit, "Windy", true) == 0)
+          localizedWord = localization.ToString("[Weather.391]");
+        else if (string.Compare(tokenSplit, "Drizzle", true) == 0)
+          localizedWord = localization.ToString("[Weather.392]");
+        else if (string.Compare(tokenSplit, "Freezing", true) == 0)
+          localizedWord = localization.ToString("[Weather.393]");
+        else if (string.Compare(tokenSplit, "N/A", true) == 0)
+          localizedWord = localization.ToString("[Weather.394]");
+        else if (string.Compare(tokenSplit, "Mist", true) == 0)
+          localizedWord = localization.ToString("[Weather.395]");
+        else if (string.Compare(tokenSplit, "High", true) == 0)
+          localizedWord = localization.ToString("[Weather.799]");
+        else if (string.Compare(tokenSplit, "Low", true) == 0)
+          localizedWord = localization.ToString("[Weather.798]");
+        else if (string.Compare(tokenSplit, "Moderate", true) == 0)
+          localizedWord = localization.ToString("[Weather.534]");
+        else if (string.Compare(tokenSplit, "Late", true) == 0)
+          localizedWord = localization.ToString("[Weather.553]");
+        else if (string.Compare(tokenSplit, "Very", true) == 0)
+          localizedWord = localization.ToString("[Weather.554]");
           // wind directions
-        else if (String.Compare(tokenSplit, "N", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.535]");
-        }
-        else if (String.Compare(tokenSplit, "E", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.536]");
-        }
-        else if (String.Compare(tokenSplit, "S", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.537]");
-        }
-        else if (String.Compare(tokenSplit, "W", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.538]");
-        }
-        else if (String.Compare(tokenSplit, "NE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.539]");
-        }
-        else if (String.Compare(tokenSplit, "SE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.540]");
-        }
-        else if (String.Compare(tokenSplit, "SW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.541]");
-        }
-        else if (String.Compare(tokenSplit, "NW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.542]");
-        }
-        else if (String.Compare(tokenSplit, "Thunder", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.543]");
-        }
-        else if (String.Compare(tokenSplit, "NNE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.544]");
-        }
-        else if (String.Compare(tokenSplit, "ENE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.545]");
-        }
-        else if (String.Compare(tokenSplit, "ESE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.546]");
-        }
-        else if (String.Compare(tokenSplit, "SSE", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.547]");
-        }
-        else if (String.Compare(tokenSplit, "SSW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.548]");
-        }
-        else if (String.Compare(tokenSplit, "WSW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.549]");
-        }
-        else if (String.Compare(tokenSplit, "WNW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.551]");
-        }
-        else if (String.Compare(tokenSplit, "NNW", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.552]");
-        }
-        else if (String.Compare(tokenSplit, "VAR", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.556]");
-        }
-        else if (String.Compare(tokenSplit, "CALM", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.557]");
-        }
-        else if (String.Compare(tokenSplit, "Storm", true) == 0 || String.Compare(tokenSplit, "Gale", true) == 0 ||
-                 String.Compare(tokenSplit, "Tempest", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.599]");
-        }
-        else if (String.Compare(tokenSplit, "in the Vicinity", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.559]");
-        }
-        else if (String.Compare(tokenSplit, "Clearing", true) == 0)
-        {
-          localizedWord = ServiceRegistration.Get<ILocalization>().ToString("[Weather.560]");
-        }
+        else if (string.Compare(tokenSplit, "N", true) == 0)
+          localizedWord = localization.ToString("[Weather.535]");
+        else if (string.Compare(tokenSplit, "E", true) == 0)
+          localizedWord = localization.ToString("[Weather.536]");
+        else if (string.Compare(tokenSplit, "S", true) == 0)
+          localizedWord = localization.ToString("[Weather.537]");
+        else if (string.Compare(tokenSplit, "W", true) == 0)
+          localizedWord = localization.ToString("[Weather.538]");
+        else if (string.Compare(tokenSplit, "NE", true) == 0)
+          localizedWord = localization.ToString("[Weather.539]");
+        else if (string.Compare(tokenSplit, "SE", true) == 0)
+          localizedWord = localization.ToString("[Weather.540]");
+        else if (string.Compare(tokenSplit, "SW", true) == 0)
+          localizedWord = localization.ToString("[Weather.541]");
+        else if (string.Compare(tokenSplit, "NW", true) == 0)
+          localizedWord = localization.ToString("[Weather.542]");
+        else if (string.Compare(tokenSplit, "Thunder", true) == 0)
+          localizedWord = localization.ToString("[Weather.543]");
+        else if (string.Compare(tokenSplit, "NNE", true) == 0)
+          localizedWord = localization.ToString("[Weather.544]");
+        else if (string.Compare(tokenSplit, "ENE", true) == 0)
+          localizedWord = localization.ToString("[Weather.545]");
+        else if (string.Compare(tokenSplit, "ESE", true) == 0)
+          localizedWord = localization.ToString("[Weather.546]");
+        else if (string.Compare(tokenSplit, "SSE", true) == 0)
+          localizedWord = localization.ToString("[Weather.547]");
+        else if (string.Compare(tokenSplit, "SSW", true) == 0)
+          localizedWord = localization.ToString("[Weather.548]");
+        else if (string.Compare(tokenSplit, "WSW", true) == 0)
+          localizedWord = localization.ToString("[Weather.549]");
+        else if (string.Compare(tokenSplit, "WNW", true) == 0)
+          localizedWord = localization.ToString("[Weather.551]");
+        else if (string.Compare(tokenSplit, "NNW", true) == 0)
+          localizedWord = localization.ToString("[Weather.552]");
+        else if (string.Compare(tokenSplit, "VAR", true) == 0)
+          localizedWord = localization.ToString("[Weather.556]");
+        else if (string.Compare(tokenSplit, "CALM", true) == 0)
+          localizedWord = localization.ToString("[Weather.557]");
+        else if (string.Compare(tokenSplit, "Storm", true) == 0 || string.Compare(tokenSplit, "Gale", true) == 0 ||
+                 string.Compare(tokenSplit, "Tempest", true) == 0)
+          localizedWord = localization.ToString("[Weather.599]");
+        else if (string.Compare(tokenSplit, "in the Vicinity", true) == 0)
+          localizedWord = localization.ToString("[Weather.559]");
+        else if (string.Compare(tokenSplit, "Clearing", true) == 0)
+          localizedWord = localization.ToString("[Weather.560]");
 
-        if (localizedWord == String.Empty)
-        {
+        if (localizedWord == string.Empty)
           localizedWord = tokenSplit; //if not found, let fallback
-        }
 
         localizedLine = localizedLine + localizedWord;
         localizedLine += " ";
@@ -837,33 +730,13 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       //we might not need to convert at all
       if ((_temperatureFarenheit[0] == 'C' && _windSpeed[0] == 'K') ||
           (_temperatureFarenheit[0] == 'F' && _windSpeed[0] == 'M'))
-      {
         return curSpeed;
-      }
 
       //got through that so if temp is C, speed must be M or S
       if (_temperatureFarenheit[0] == 'C')
-      {
-        if (_windSpeed[0] == 'S')
-        {
-          return (int) (curSpeed*(1000.0/3600.0) + 0.5); //mps
-        }
-        else
-        {
-          return (int) (curSpeed/(8.0/5.0)); //mph
-        }
-      }
+        return _windSpeed[0] == 'S' ? (int) (curSpeed*(1000.0/3600.0) + 0.5) : (int) (curSpeed/(8.0/5.0));
       else
-      {
-        if (_windSpeed[0] == 'S')
-        {
-          return (int) (curSpeed*(8.0/5.0)*(1000.0/3600.0) + 0.5); //mps
-        }
-        else
-        {
-          return (int) (curSpeed*(8.0/5.0)); //kph
-        }
-      }
+        return _windSpeed[0] == 'S' ? (int) (curSpeed*(8.0/5.0)*(1000.0/3600.0) + 0.5) : (int) (curSpeed*(8.0/5.0));
     }
 
     /// <summary>
@@ -874,8 +747,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private static string ParseUVIndex(XmlNode element)
     {
       if (element == null)
-        return String.Empty;
-      return String.Format("{0} {1}", GetIntegerDef(element, "i", 0), LocalizeOverview(GetString(element, "t", String.Empty)));
+        return string.Empty;
+      return string.Format("{0} {1}", GetIntegerDef(element, "i", 0), LocalizeOverview(GetString(element, "t", string.Empty)));
     }
 
     /// <summary>
@@ -887,9 +760,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private string ParseWind(XmlNode node, string unitSpeed)
     {
       if (node == null)
-      {
-        return String.Empty;
-      }
+        return string.Empty;
 
       string wind;
       int tempInteger = ConvertSpeed(GetIntegerDef(node, "s", 0)); //convert speed if needed
@@ -900,18 +771,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         //From <dir eg NW> at <speed> km/h	
         string format = ServiceRegistration.Get<ILocalization>().ToString("[Weather.555]");
         if (format == "")
-        {
           format = "From {0} at {1} {2}";
-        }
-        wind = String.Format(format, tempString, tempInteger, unitSpeed);
+        wind = string.Format(format, tempString, tempInteger, unitSpeed);
       }
       else // Calm
       {
         wind = ServiceRegistration.Get<ILocalization>().ToString("[Weather.558]");
         if (wind == "")
-        {
           wind = "No wind";
-        }
       }
       return wind;
     }
