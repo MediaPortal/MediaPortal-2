@@ -32,11 +32,8 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
 
-namespace MediaPortal.UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather.Models
 {
-  /// <summary>
-  /// ViewModel Class for weather.xml
-  /// </summary>
   public class WeatherViewModel 
   {
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
@@ -84,7 +81,7 @@ namespace MediaPortal.UiComponents.Weather
           // Copy the data to the skin property.
           CurrentLocation.Copy(_locations[0]);
         }
-        // no locations have been setup yet, guide to setup
+            // no locations have been setup yet, guide to setup
         else
         {
           //ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSetup");
@@ -101,11 +98,10 @@ namespace MediaPortal.UiComponents.Weather
     {
       if (loc != null)
       {
-        ListItem buffItem;
         City buffLoc = new City(loc);
         _locations.Add(buffLoc);
 
-        buffItem = new ListItem();
+        ListItem buffItem = new ListItem();
         buffItem.SetLabel("Name", loc.Name);
         buffItem.SetLabel("Id", loc.Id);
         _locationsList.Add(buffItem);
@@ -119,6 +115,35 @@ namespace MediaPortal.UiComponents.Weather
           CurrentLocation.Copy(buffLoc);
         }
       }
+    }
+
+    public AbstractProperty CurrentLocationProperty
+    {
+      get { return _currentLocation; }
+    }
+
+    /// <summary>
+    /// Exposes the current location to the skin.
+    /// </summary>
+    public City CurrentLocation
+    {
+      get { return (City) _currentLocation.GetValue(); }
+    }
+
+    /// <summary>
+    /// Gets the list of loaded locations.
+    /// </summary>
+    public List<City> Locations
+    {
+      get { return _locations; }
+    }
+
+    /// <summary>
+    /// Exposes the loaded locations to the skin (Name, Id).
+    /// </summary>
+    public ItemsList LocationsList
+    {
+      get { return _locationsList; }
     }
 
     /// <summary>
@@ -183,35 +208,6 @@ namespace MediaPortal.UiComponents.Weather
         ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
 
-    }
-
-    /// <summary>
-    /// exposes the current location to the skin
-    /// </summary>
-    public City CurrentLocation
-    {
-      get { return (City)_currentLocation.GetValue(); }
-    }
-
-    public AbstractProperty CurrentLocationProperty
-    {
-      get { return _currentLocation; }
-    }
-
-    /// <summary>
-    /// gets a list of loaded locations
-    /// </summary>
-    public List<City> Locations
-    {
-      get { return _locations; }
-    }
-
-    /// <summary>
-    /// exposes the loaded locations to the skin (Name, Id)
-    /// </summary>
-    public ItemsList LocationsList
-    {
-      get { return _locationsList; }
     }
   }
 }

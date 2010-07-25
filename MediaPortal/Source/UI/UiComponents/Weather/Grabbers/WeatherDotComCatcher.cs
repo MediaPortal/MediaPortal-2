@@ -39,9 +39,7 @@ using MediaPortal.Core.Settings;
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
   /// <summary>
-  /// Implementation of the IWeatherCatcher
-  /// Interface which grabs the Data from
-  /// www.weather.com
+  /// Implementation of the IWeatherCatcher which grabs weather data from www.weather.com
   /// TODO: Replace usage of XmlDocument by XPathDocument
   /// </summary>
   public class WeatherDotComCatcher : IWeatherCatcher
@@ -334,19 +332,19 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       c.Condition.LastUpdate = RelocalizeDateTime(GetString(xmlElement, "lsup", String.Empty));
       c.Condition.City = GetString(xmlElement, "obst", String.Empty);
-      c.Condition.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetInteger(xmlElement, "icon"));
+      c.Condition.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetIntegerDef(xmlElement, "icon", 0));
       string condition = LocalizeOverview(GetString(xmlElement, "t", String.Empty));
       SplitLongString(ref condition, 8, 15); //split to 2 lines if needed
       c.Condition.Condition = condition;
       c.Condition.Temperature =
-        String.Format("{0}{1}{2}", GetInteger(xmlElement, "tmp"), DEGREE_CHARACTER, unitTemperature);
+        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "tmp", 0), DEGREE_CHARACTER, unitTemperature);
       c.Condition.FeelsLikeTemp =
-        String.Format("{0}{1}{2}", GetInteger(xmlElement, "flik"), DEGREE_CHARACTER, unitTemperature);
+        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "flik", 0), DEGREE_CHARACTER, unitTemperature);
       c.Condition.Wind = ParseWind(xmlElement.SelectSingleNode("wind"), _unitSpeed);
-      c.Condition.Humidity = String.Format("{0}%", GetInteger(xmlElement, "hmid"));
+      c.Condition.Humidity = String.Format("{0}%", GetIntegerDef(xmlElement, "hmid", 0));
       c.Condition.UVIndex = ParseUVIndex(xmlElement.SelectSingleNode("uv"));
       c.Condition.DewPoint =
-        String.Format("{0}{1}{2}", GetInteger(xmlElement, "dewp"), DEGREE_CHARACTER, unitTemperature);
+        String.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "dewp", 0), DEGREE_CHARACTER, unitTemperature);
       return true;
     }
 
@@ -397,14 +395,13 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
           if (dayElement != null)
           {
-            string overview;
-            forecast.SmallIcon = String.Format(@"Weather\64x64\{0}.png", GetInteger(dayElement, "icon"));
-            forecast.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetInteger(dayElement, "icon"));
-            overview = LocalizeOverview(GetString(dayElement, "t", String.Empty));
+            forecast.SmallIcon = String.Format(@"Weather\64x64\{0}.png", GetIntegerDef(dayElement, "icon", 0));
+            forecast.BigIcon = String.Format(@"Weather\128x128\{0}.png", GetIntegerDef(dayElement, "icon", 0));
+            string overview = LocalizeOverview(GetString(dayElement, "t", String.Empty));
             SplitLongString(ref overview, 6, 15);
             forecast.Overview = overview;
-            forecast.Humidity = String.Format("{0}%", GetInteger(dayElement, "hmid"));
-            forecast.Precipitation = String.Format("{0}%", GetInteger(dayElement, "ppcp"));
+            forecast.Humidity = String.Format("{0}%", GetIntegerDef(dayElement, "hmid", 0));
+            forecast.Precipitation = String.Format("{0}%", GetIntegerDef(dayElement, "ppcp", 0));
             forecast.Wind = ParseWind(dayElement.SelectSingleNode("wind"), _unitSpeed);
           }
           element = element.NextSibling; //Element("day");
@@ -416,56 +413,61 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     #region Helper Methods
 
     /// <summary>
-    /// helper function
+    /// Helper function returning the text inside the child element of the given <paramref name="element"/>
+    /// of the name <paramref name="tagName"/>.
     /// </summary>
-    /// <param name="xmlElement"></param>
-    /// <param name="tagName"></param>
-    /// <param name="defaultValue"></param>
-    /// <returns></returns>
-    private static string GetString(XmlNode xmlElement, string tagName, string defaultValue)
+    /// <param name="element">Element where to search the child element.</param>
+    /// <param name="tagName">Child element name to search</param>
+    /// <param name="defaultValue">Value to be returned if there is no child element of the given <paramref name="tagName"/>
+    /// or if the text inside the child element is empty or equal to <c>"-"</c>.</param>
+    /// <returns>String which was read.</returns>
+    private static string GetString(XmlNode element, string tagName, string defaultValue)
     {
-      string value = String.Empty;
-
+      string value = null;
       try
       {
-        XmlNode node = xmlElement.SelectSingleNode(tagName);
+        XmlNode node = element.SelectSingleNode(tagName);
         if (node != null)
-        {
-          if (node.InnerText != null)
-            if (node.InnerText != "-")
-              value = node.InnerText;
-        }
+          value = node.InnerText;
+        if (value == "-")
+          value = null;
       }
-      catch {}
-      if (value.Length == 0)
-      {
-        return defaultValue;
-      }
-      return value;
+      catch (XPathException) {}
+      return string.IsNullOrEmpty(value) ? defaultValue : value;
     }
 
     /// <summary>
-    /// helper function
+    /// Helper function returning an integer from inside the child element of the given <paramref name="element"/>
+    /// of the name <paramref name="tagName"/>.
     /// </summary>
-    /// <param name="xmlElement"></param>
-    /// <param name="tagName"></param>
-    /// <returns></returns>
-    private static int GetInteger(XmlNode xmlElement, string tagName)
+    /// <param name="element">Element where to search the child element.</param>
+    /// <param name="tagName">Child element name to search</param>
+    /// <param name="defaultValue">Default value to be returned if the child element of the given <paramref name="tagName"/>
+    /// could not be read or could not be parsed as an <c>int</c>.</param>
+    /// <returns>Integer value which was read.</returns>
+    private static int GetIntegerDef(XmlNode element, string tagName, int defaultValue)
     {
-      int value = 0;
-      XmlNode node = xmlElement.SelectSingleNode(tagName);
-      if (node != null)
-      {
-        if (node.InnerText != null)
-        {
-          try
-          {
-            value = Int32.Parse(node.InnerText);
-          }
-          catch {}
-        }
-      }
-      return value;
+      int value;
+      if (GetInteger(element, tagName, out value))
+        return value;
+      return defaultValue;
+    }
+
+    /// <summary>
+    /// Helper function returning an integer from inside the child element of the given <paramref name="element"/>
+    /// which of the name <paramref name="tagName"/>.
+    /// </summary>
+    /// <param name="element">Element where to search the child element.</param>
+    /// <param name="tagName">Child element name to search</param>
+    /// <param name="value">Integer value which was read.</param>
+    /// <returns><c>true</c>, if the value could be read. <c>false</c> if there is no child element of the given
+    /// <paramref name="tagName"/> or the text inside that element could not be parsed as <c>int</c>.</returns>
+    private static bool GetInteger(XmlNode element, string tagName, out int value)
+    {
+      value = 0;
+      XmlNode node = element.SelectSingleNode(tagName);
+      string text = node == null ? null : node.InnerText;
+      return !string.IsNullOrEmpty(text) && int.TryParse(text, out value);
     }
 
     //splitStart + End are the chars to search between for a space to replace with a \n
@@ -872,10 +874,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private static string ParseUVIndex(XmlNode element)
     {
       if (element == null)
-      {
         return String.Empty;
-      }
-      return String.Format("{0} {1}", GetInteger(element, "i"), LocalizeOverview(GetString(element, "t", String.Empty)));
+      return String.Format("{0} {1}", GetIntegerDef(element, "i", 0), LocalizeOverview(GetString(element, "t", String.Empty)));
     }
 
     /// <summary>
@@ -892,7 +892,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
 
       string wind;
-      int tempInteger = ConvertSpeed(GetInteger(node, "s")); //convert speed if needed
+      int tempInteger = ConvertSpeed(GetIntegerDef(node, "s", 0)); //convert speed if needed
       string tempString = LocalizeOverview(GetString(node, "t", "N")); //current wind direction
 
       if (tempInteger != 0) // Have wind

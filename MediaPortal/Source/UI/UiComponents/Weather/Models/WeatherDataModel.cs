@@ -27,19 +27,13 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
-namespace MediaPortal.UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather.Models
 {
   /// <summary>
   ///  WeatherDataModel
   /// </summary>
   public class WeatherDataModel
   {
-    /// <summary>
-    /// construct the datamodel
-    /// </summary>
-    /// <param name="catcher"></param>
-    public WeatherDataModel() {}
-
     /// <summary>
     /// this will retrieve data for all locations
     /// that can be found in the configuration file

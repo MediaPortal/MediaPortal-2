@@ -30,7 +30,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
 
-namespace MediaPortal.UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather.Models
 {
   public class WeatherSetupViewModel 
   {
@@ -117,14 +117,10 @@ namespace MediaPortal.UiComponents.Weather
     /// <param name="item"></param>
     public void AddLocation(ListItem item)
     {
-      // we don't add it if it's already in there
+      // Don't add it if it's already in there
       foreach (ListItem i in _locationsExposed)
-      {
         if (i["Id"].Equals(item["Id"]))
-        {
           return;
-        }
-      }
       _locationsExposed.Add(item);
       // create a CitySetupObject and add it to the loctions list
       CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]);
@@ -160,14 +156,11 @@ namespace MediaPortal.UiComponents.Weather
     public List<CitySetupInfo> Locations
     {
       get { return _locations; }
-
       set
       {
         _locations = value;
         if (_locations == null)
-        {
           return;
-        }
 
         _locationsExposed.Clear();
         ListItem buff;
@@ -196,9 +189,7 @@ namespace MediaPortal.UiComponents.Weather
       {
         _locationsSearch = value;
         if (_locationsSearch == null)
-        {
           return;
-        }
 
         _locationsSearchExposed.Clear();
         ListItem buff;

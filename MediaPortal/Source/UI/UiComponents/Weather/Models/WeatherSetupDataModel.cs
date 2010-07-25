@@ -26,11 +26,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace MediaPortal.UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather.Models
 {
-
-  #region WeatherSetupDataModel
-
   /// <summary>
   /// Datamodel which holds a list of locations,
   /// either for the Cities that have been found while searching
@@ -134,6 +131,4 @@ namespace MediaPortal.UiComponents.Weather
       }
     }
   }
-
-  #endregion
 }
