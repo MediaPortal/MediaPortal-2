@@ -18,17 +18,10 @@
           DataContext="{Binding Source={StaticResource Model}}">
         <StackPanel Width="500" Orientation="Horizontal">
           <Button x:Name="ButtonRefresh" Content="[weather.refresh]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-        HorizontalAlignment="Left" VerticalAlignment="Center"
-        Command="{Command Refresh}"/>
+            HorizontalAlignment="Left" VerticalAlignment="Center"
+            Command="{Command Refresh}"/>
+        </StackPanel>
         
-        <Button x:Name="ButtonSelectLocation" Content="[weather.location]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-        HorizontalAlignment="Left" VerticalAlignment="Center"
-        Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherLocations}"/>
-
-        <Button x:Name="ButtonWeatherSetup" Content="[weather.setup]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-        HorizontalAlignment="Left" VerticalAlignment="Center"
-        Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSetup}"/>
-      </StackPanel>
         <Grid x:Name="Grid1" HorizontalAlignment="Left">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -36,7 +29,7 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <StackPanel x:Name="S1" Margin="0,0,10,0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIcon}"/>
+            <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
             <Label x:Name="LocName" FontSize="20"  Content="{Binding Path=CurrentLocation.Name}"/>
           </StackPanel>
           <StackPanel x:Name="S2" Margin="0,0,30,0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -60,8 +53,9 @@
             <Label FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
           </StackPanel>
         </Grid>
-        <Grid x:Name="Grid2" HorizontalAlignment="Left">
+        <Grid x:Name="Grid2" HorizontalAlignment="Left" Margin="0,30,0,0">
           <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -69,19 +63,33 @@
           </Grid.ColumnDefinitions>
           <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" x:Name="Day1" Content="{Binding CurrentLocation.ForecastCollection[0].Day}" />
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[0].SmallIcon}"/>
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[0].SmallIconProperty}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[0].High}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[0].Low}"/>
           </StackPanel>
           <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Top">
             <Label FontSize="20" x:Name="Day2" Content="{Binding CurrentLocation.ForecastCollection[1].Day}" />
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIcon}"/>
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIconProperty}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[1].High}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[1].Low}"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" x:Name="Day3" Content="{Binding CurrentLocation.ForecastCollection[2].Day}" />
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[2].SmallIcon}"/>
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[2].SmallIconProperty}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[2].High}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[2].Low}"/>
           </StackPanel>
           <StackPanel Grid.Column="3" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" x:Name="Day4" Content="{Binding CurrentLocation.ForecastCollection[3].Day}" />
-            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[3].SmallIcon}"/>
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[3].SmallIconProperty}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[3].High}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[3].Low}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="4" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label FontSize="20" x:Name="Day5" Content="{Binding CurrentLocation.ForecastCollection[4].Day}" />
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[4].SmallIconProperty}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[4].High}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[4].Low}"/>
           </StackPanel>
         </Grid>
       </StackPanel>

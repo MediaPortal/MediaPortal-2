@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="Weather">
+    <String Name="Title" Text="Wetter"/>
+    <String Name="Location" Text="Ort"/>
+    <String Name="Refresh" Text="Aktualisieren"/>
+    <String Name="Weather" Text="Wetter"/>
+    <String Name="Setup" Text="Einstellungen"/>
+    <String Name="NoData" Text="Keine Daten"/>
+    <String Name="Temp" Text="Temperatur"/>
+    <String Name="TempFeel" Text="Gefühlt"/>
+    <String Name="UVIndex" Text="UV Index"/>
+    <String Name="Wind" Text="Wind"/>
+    <String Name="Humidity" Text="Luftfeuchte"/>
+    <String Name="DewPoint" Text="Taupunkt"/>
+    <String Name="Sunrise" Text="Sonnenaufgang"/>
+    <String Name="Sunset" Text="Sonnenuntergang"/>
+
+    <!-- Forecast names are mostly assigned 1:1 -->
+    <String Name="TStorms" Text="Gewitter"/>
+    <String Name="Partly" Text="Teilweise"/>
+    <String Name="Mostly" Text="Meist"/>
+    <String Name="Sunny" Text="sonnig"/>
+    <String Name="Cloudy" Text="bewölkt"/>
+    <String Name="Snow" Text="Schnee"/>
+    <String Name="Rain" Text="Regen"/>
+    <String Name="Light" Text="Light"/>
+    <String Name="AM" Text="AM"/>
+    <String Name="PM" Text="PM"/>
+    <String Name="Showers" Text="Schauer"/>
+    <String Name="Few" Text="Wenig"/>
+    <String Name="Scattered" Text="aufgelockert"/>
+    <String Name="Wind" Text="Wind"/>
+    <String Name="Strong" Text="Stark"/>
+    <String Name="Clear" Text="Klar"/>
+    <String Name="Early" Text="Früh"/>
+    <String Name="Fog" Text="Nebel"/>
+    <String Name="Haze" Text="Trüb"/>
+    <String Name="Windy" Text="Windig"/>
+    <String Name="Drizzle" Text="Sprühregen"/>
+    <String Name="Freezing" Text="Gefrierender"/>
+    <String Name="NA" Text="k.A."/>
+    <String Name="Mist" Text="Nebel"/>
+    <String Name="Low" Text="niedrigste"/>
+    <String Name="High" Text="höchste"/>
+    <String Name="Thunder" Text="Donner"/>
+    <String Name="Late" Text="Spät"/>
+    <String Name="N" Text="N"/>
+    <String Name="E" Text="O"/>
+    <String Name="S" Text="S"/>
+    <String Name="W" Text="W"/>
+    <String Name="NE" Text="NO"/>
+    <String Name="SE" Text="SO"/>
+    <String Name="SW" Text="SW"/>
+    <String Name="NW" Text="NW"/>
+    <String Name="NNE" Text="NNO"/>
+    <String Name="ENE" Text="ONO"/>
+    <String Name="ESE" Text="OSO"/>
+    <String Name="SSE" Text="SSO"/>
+    <String Name="SSW" Text="SSW"/>
+    <String Name="WSW" Text="WSW"/>
+    <String Name="WNW" Text="WNW"/>
+    <String Name="NNW" Text="NNW"/>
+    <String Name="From" Text="Aus {0} mit {1} {2}"/>
+    <String Name="Various" Text="verschiedene"/>
+    <String Name="Calm" Text="ruhig"/>
+    <String Name="NoWind" Text="Kein wind"/>
+    <String Name="InTheVicinity" Text="Im Umkreis"/>
+    <String Name="Clearing" Text="aufklarend"/>
+  </Section>
+  <Section Name="WeatherSetup">
+    <String Name="EnterCity" Text="Geben Sie den Namen der Stadt ein."/>
+    <String Name="Search" Text="Suche"/>
+    <String Name="Select" Text="Bitte wählen..."/>
+    <String Name="AddCity" Text="Stadt hinzufügen"/>
+    <String Name="RemoveCity" Text="Stadt entfernen"/>
+  </Section>
+</Language>

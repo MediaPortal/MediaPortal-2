@@ -33,11 +33,11 @@ namespace MediaPortal.UiComponents.Weather
     /// <summary>
     /// dll Import to check Internet Connection
     /// </summary>
-    /// <param name="Description"></param>
-    /// <param name="ReservedValue"></param>
+    /// <param name="description"></param>
+    /// <param name="reservedValue"></param>
     /// <returns></returns>
     [DllImport("wininet.dll")]
-    private static extern bool InternetGetConnectedState(out int Description, int ReservedValue);
+    private static extern bool InternetGetConnectedState(out int description, int reservedValue);
 
     /// <summary>
     /// check if we have an Internetconnection

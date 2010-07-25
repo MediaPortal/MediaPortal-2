@@ -3,6 +3,11 @@
 <Workflow DescriptorVersion="1.0">
   <States>
     <WorkflowState Id="44E1CF89-66D0-4850-A076-E1B602432983" Name="Weather" MainScreen="Weather" DisplayLabel="Weather"/> <!-- No workflow model -->
-    <!--<WorkflowState Id="F1CE62B4-32CA-46e8-BCFB-250FE07911B2" Name="Weather" MainScreen="WeatherSetup" DisplayLabel="WeatherSetup"/>--> <!-- No workflow model -->
+    <DialogState Id="F1CE62B4-32CA-46e8-BCFB-250FE07911B2" Name="Weather" DialogScreen="dialogWeatherSetup" 
+                 DisplayLabel="WeatherSetup"
+                 WorkflowModel="92BDB53F-4159-4dc2-B212-6083C820A214"/> <!-- Weather View Model -->
+    <DialogState Id="9A20A26F-2EF0-4a45-8F92-42D911AE1D8F" Name="Weather" DialogScreen="dialogWeatherLocations" 
+                 DisplayLabel="WeatherLocation"
+                 WorkflowModel="92BDB53F-4159-4dc2-B212-6083C820A214"/> <!-- Weather View Model -->
   </States>
 </Workflow>

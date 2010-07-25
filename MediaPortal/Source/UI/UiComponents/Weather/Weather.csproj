@@ -65,10 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper Classes\City.cs" />
+    <Compile Include="Helper Classes\CitySetupInfo.cs" />
+    <Compile Include="Helper Classes\CurrentCondition.cs" />
+    <Compile Include="Helper Classes\DayForeCast.cs" />
     <Compile Include="Helper Classes\Helper.cs" />
     <Compile Include="Helper Classes\IWeatherCatcher.cs" />
     <Compile Include="Grabbers\WeatherDotComCatcher.cs" />
-    <Compile Include="Models\WeatherSetupDataModel.cs" />
+    <Compile Include="Helper Classes\LocInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -97,7 +100,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Models\WeatherDataModel.cs" />
     <Compile Include="WeatherSettings.cs" />
     <Compile Include="Models\WeatherSetupViewModel.cs" />
     <AppDesigner Include="Properties\" />
@@ -120,6 +122,7 @@
     <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_de.xml" />
     <Content Include="Skin\default\media\Weather\128x128\0.png" />
     <Content Include="Skin\default\media\Weather\128x128\1.png" />
     <Content Include="Skin\default\media\Weather\128x128\10.png" />

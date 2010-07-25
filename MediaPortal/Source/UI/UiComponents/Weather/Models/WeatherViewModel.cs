@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.Weather.Models
           // Copy the data to the skin property.
           CurrentLocation.Copy(_locations[0]);
         }
-            // no locations have been setup yet, guide to setup
+        // no locations have been setup yet, guide to setup
         else
         {
           //ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSetup");
@@ -94,7 +94,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
     }
 
-    private void AddCityToLocations(CitySetupInfo loc, String LocationCode)
+    private void AddCityToLocations(CitySetupInfo loc, String locationCode)
     {
       if (loc != null)
       {
@@ -107,7 +107,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         _locationsList.Add(buffItem);
 
         // Is this the setting?
-        if (loc.Id.Equals(LocationCode))
+        if (loc.Id.Equals(locationCode))
         {
           // Fetch data
           RefreshData(buffLoc);
