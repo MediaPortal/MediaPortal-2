@@ -8,6 +8,6 @@
         SortOrder="a"
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="44E1CF89-66D0-4850-A076-E1B602432983"
-        DisplayTitle="[Weather.title]"/>
+        DisplayTitle="[Weather.Title]"/>
   </MenuActions>
 </Workflow>
