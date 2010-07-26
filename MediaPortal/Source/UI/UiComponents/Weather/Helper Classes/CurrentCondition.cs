@@ -45,17 +45,17 @@ namespace MediaPortal.UiComponents.Weather
       DewPoint = "30%";
     }
 
-    private AbstractProperty _city = new WProperty(typeof(string), ""); // <obst>
-    private AbstractProperty _lastUpdate = new WProperty(typeof(string), ""); // <lsup>
-    private AbstractProperty _temperature = new WProperty(typeof(string), ""); // <temp> 
-    private AbstractProperty _feelsLikeTemp = new WProperty(typeof(string), ""); // <flik>
-    private AbstractProperty _condition = new WProperty(typeof(string), ""); // <t>
-    private AbstractProperty _bigIcon = new WProperty(typeof(string), ""); // <icon> 
-    private AbstractProperty _smallIcon = new WProperty(typeof(string), ""); // <icon> 
-    private AbstractProperty _humidity = new WProperty(typeof(string), ""); // <hmid>
-    private AbstractProperty _wind = new WProperty(typeof(string), ""); // <wind>
-    private AbstractProperty _uVindex = new WProperty(typeof(string), ""); // <uv> 
-    private AbstractProperty _dewPoint = new WProperty(typeof(string), ""); // <dewp>
+    private AbstractProperty _city = new WProperty(typeof(string), string.Empty); // <obst>
+    private AbstractProperty _lastUpdate = new WProperty(typeof(string), string.Empty); // <lsup>
+    private AbstractProperty _temperature = new WProperty(typeof(string), string.Empty); // <temp> 
+    private AbstractProperty _feelsLikeTemp = new WProperty(typeof(string), string.Empty); // <flik>
+    private AbstractProperty _condition = new WProperty(typeof(string), string.Empty); // <t>
+    private AbstractProperty _bigIcon = new WProperty(typeof(string), string.Empty); // <icon> 
+    private AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty); // <icon> 
+    private AbstractProperty _humidity = new WProperty(typeof(string), string.Empty); // <hmid>
+    private AbstractProperty _wind = new WProperty(typeof(string), string.Empty); // <wind>
+    private AbstractProperty _uVindex = new WProperty(typeof(string), string.Empty); // <uv> 
+    private AbstractProperty _dewPoint = new WProperty(typeof(string), string.Empty); // <dewp>
     // Getters :P
     public string City
     {

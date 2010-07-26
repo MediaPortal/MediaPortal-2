@@ -668,14 +668,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       {
         //From <dir eg NW> at <speed> km/h	
         string format = ServiceRegistration.Get<ILocalization>().ToString("[Weather.From]");
-        if (format == "")
+        if (format == string.Empty)
           format = "From {0} at {1} {2}";
         wind = string.Format(format, tempString, tempInteger, unitSpeed);
       }
       else // Calm
       {
         wind = ServiceRegistration.Get<ILocalization>().ToString("[Weather.Calm]");
-        if (wind == "")
+        if (wind == string.Empty)
           wind = "No wind";
       }
       return wind;

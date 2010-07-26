@@ -53,7 +53,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public WeatherSetupViewModel()
     {
-      _searchCity = new WProperty(typeof(string), "");
+      _searchCity = new WProperty(typeof(string), string.Empty);
       // see if we already have a weather catcher in servicescope, if not, add one (for testing purposes)
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
       {

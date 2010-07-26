@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Weather
   public class CitySetupInfo
   {
     private string _id, _grabber;
-    protected AbstractProperty _name = new WProperty(typeof(string), "");
+    protected AbstractProperty _name = new WProperty(typeof(string), string.Empty);
 
     public CitySetupInfo(string name, string id, string grabber)
     {

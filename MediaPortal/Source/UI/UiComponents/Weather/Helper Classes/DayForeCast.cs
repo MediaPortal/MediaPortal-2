@@ -31,17 +31,17 @@ namespace MediaPortal.UiComponents.Weather
   /// </summary>
   public class DayForeCast
   {
-    private AbstractProperty _smallIcon = new WProperty(typeof(string), "");
-    private AbstractProperty _bigIcon= new WProperty(typeof(string), ""); 
-    private AbstractProperty _overview = new WProperty(typeof(string), ""); 
-    private AbstractProperty _day = new WProperty(typeof(string), "");
-    private AbstractProperty _high = new WProperty(typeof(string), "");
-    private AbstractProperty _low = new WProperty(typeof(string), ""); 
-    private AbstractProperty _sunRise = new WProperty(typeof(string), "");
-    private AbstractProperty _sunSet = new WProperty(typeof(string), "");
-    private AbstractProperty _precipitation = new WProperty(typeof(string), "");
-    private AbstractProperty _humidity = new WProperty(typeof(string), "");
-    private AbstractProperty _wind = new WProperty(typeof(string), ""); 
+    private AbstractProperty _smallIcon = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _bigIcon= new WProperty(typeof(string), string.Empty); 
+    private AbstractProperty _overview = new WProperty(typeof(string), string.Empty); 
+    private AbstractProperty _day = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _high = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _low = new WProperty(typeof(string), string.Empty); 
+    private AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _precipitation = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
+    private AbstractProperty _wind = new WProperty(typeof(string), string.Empty); 
 
 
    

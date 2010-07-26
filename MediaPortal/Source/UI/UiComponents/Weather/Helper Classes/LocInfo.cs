@@ -31,12 +31,12 @@ namespace MediaPortal.UiComponents.Weather
   /// </summary>
   public class LocInfo // <loc>
   {
-    private AbstractProperty _time = new WProperty(typeof(string), ""); // <tm>1:12 AM</tm>
-    private AbstractProperty _lat = new WProperty(typeof(string), ""); // <lat>49.02</lat>
-    private AbstractProperty _lon = new WProperty(typeof(string), ""); // <lon>12.1</lon>
-    private AbstractProperty _sunRise = new WProperty(typeof(string), ""); // <sunr>7:14 AM</sunr> 
-    private AbstractProperty _sunSet = new WProperty(typeof(string), ""); // <suns>5:38 PM</suns>
-    private AbstractProperty _zone = new WProperty(typeof(string), ""); // <zone>1</zone>
+    private AbstractProperty _time = new WProperty(typeof(string), string.Empty); // <tm>1:12 AM</tm>
+    private AbstractProperty _lat = new WProperty(typeof(string), string.Empty); // <lat>49.02</lat>
+    private AbstractProperty _lon = new WProperty(typeof(string), string.Empty); // <lon>12.1</lon>
+    private AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty); // <sunr>7:14 AM</sunr> 
+    private AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty); // <suns>5:38 PM</suns>
+    private AbstractProperty _zone = new WProperty(typeof(string), string.Empty); // <zone>1</zone>
     // Getters
 
     public string Time
