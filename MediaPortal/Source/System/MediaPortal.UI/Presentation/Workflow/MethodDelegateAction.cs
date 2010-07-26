@@ -28,6 +28,10 @@ using MediaPortal.Core.Localization;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
+  /// <summary>
+  /// Workflow action that calls the specified method when invoked. In contrast to <see cref="MethodCallAction"/>,
+  /// the specified to-be-executed method is more general.
+  /// </summary>
   public class MethodDelegateAction : WorkflowAction
   {
     protected bool _isEnabled = true;

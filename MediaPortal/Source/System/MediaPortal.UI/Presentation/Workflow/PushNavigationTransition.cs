@@ -40,9 +40,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public PushNavigationTransition(Guid actionId, string name, string navigationContextDisplayLabel,
-        Guid? sourceStateId, Guid targetStateId, IResourceString displayTitle) :
-        base(actionId, name, sourceStateId, displayTitle)
+    public PushNavigationTransition(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
+        Guid targetStateId, string navigationContextDisplayLabel) : base(actionId, name, sourceStateId, displayTitle)
     {
       _navigationContextDisplayLabel = navigationContextDisplayLabel;
       _targetStateId = targetStateId;
@@ -72,7 +71,10 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      ServiceRegistration.Get<IWorkflowManager>().NavigatePush(TargetStateId, new NavigationContextConfig { NavigationContextDisplayLabel = _navigationContextDisplayLabel });
+      ServiceRegistration.Get<IWorkflowManager>().NavigatePush(TargetStateId, new NavigationContextConfig
+        {
+            NavigationContextDisplayLabel = _navigationContextDisplayLabel
+        });
     }
   }
 }

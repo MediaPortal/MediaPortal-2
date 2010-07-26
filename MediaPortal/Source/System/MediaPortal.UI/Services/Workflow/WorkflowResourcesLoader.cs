@@ -175,7 +175,10 @@ namespace MediaPortal.UI.Services.Workflow
             case "WorkflowContributorAction":
               yield return LoadWorkflowContributorAction(childNav.Clone());
               break;
-            // TODO: More actions - show screen, show dialog, call model method, ...
+            case "MethodCallAction":
+              yield return LoadMethodCallAction(childNav.Clone());
+              break;
+            // TODO: More actions - show screen, show dialog, ...
             default:
               throw new ArgumentException("'" + actionsNav.Name + "' element doesn't support a child element '" + childNav.Name + "'");
           }
@@ -289,12 +292,12 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
-      string navigationContextDisplayLabel = null;
+      string displayTitle = null;
       string displayCategory = null;
       string sortOrder = null;
       string sourceState = null;
       string targetState = null;
-      string displayTitle = null;
+      string navigationContextDisplayLabel = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -337,9 +340,9 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
-      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, navigationContextDisplayLabel,
-          sourceState == "*" ? new Guid?() : new Guid(sourceState), new Guid(targetState),
-          LocalizationHelper.CreateResourceString(displayTitle))
+      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name,
+          sourceState == "*" ? new Guid?() : new Guid(sourceState),
+          LocalizationHelper.CreateResourceString(displayTitle), new Guid(targetState), navigationContextDisplayLabel)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder
@@ -351,11 +354,11 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayTitle = null;
       string displayCategory = null;
       string sortOrder = null;
       string sourceState = null;
       int numPop = -1;
-      string displayTitle = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -396,8 +399,8 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
       if (numPop == -1)
         throw new ArgumentException(string.Format("{0} '{1}': 'NumPop' attribute missing", actionNav.Name, name));
-      PopNavigationTransition result = new PopNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
-          numPop, LocalizationHelper.CreateResourceString(displayTitle))
+      PopNavigationTransition result = new PopNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() :
+          new Guid(sourceState), LocalizationHelper.CreateResourceString(displayTitle), numPop)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder
@@ -409,11 +412,11 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayTitle = null;
       string displayCategory = null;
       string sortOrder = null;
       string sourceState = null;
       string contributorModel = null;
-      string displayTitle = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -453,8 +456,71 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(contributorModel))
         throw new ArgumentException(string.Format("{0} '{1}': 'ContributorModelId' attribute missing", actionNav.Name, name));
-      WorkflowContributorAction result = new WorkflowContributorAction(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
-          new Guid(contributorModel), LocalizationHelper.CreateResourceString(displayTitle))
+      WorkflowContributorAction result = new WorkflowContributorAction(new Guid(id), name, sourceState == "*" ? new Guid?() :
+          new Guid(sourceState), LocalizationHelper.CreateResourceString(displayTitle), new Guid(contributorModel))
+        {
+            DisplayCategory = displayCategory,
+            SortOrder = sortOrder
+        };
+      return result;
+    }
+
+    protected static WorkflowAction LoadMethodCallAction(XPathNavigator actionNav)
+    {
+      string id = null;
+      string name = null;
+      string displayTitle = null;
+      string displayCategory = null;
+      string sortOrder = null;
+      string sourceState = null;
+      string modelId = null;
+      string methodName = null;
+      XPathNavigator attrNav = actionNav.Clone();
+      if (attrNav.MoveToFirstAttribute())
+        do
+        {
+          switch (attrNav.Name)
+          {
+            case "Id":
+              id = attrNav.Value;
+              break;
+            case "Name":
+              name = attrNav.Value;
+              break;
+            case "DisplayTitle":
+              displayTitle = attrNav.Value;
+              break;
+            case "DisplayCategory":
+              displayCategory = attrNav.Value;
+              break;
+            case "SortOrder":
+              sortOrder = attrNav.Value;
+              break;
+            case "SourceState":
+              sourceState = attrNav.Value;
+              break;
+            case "ModelId":
+              modelId = attrNav.Value;
+              break;
+            case "MethodName":
+              methodName = attrNav.Value;
+              break;
+            default:
+              throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
+          }
+        } while (attrNav.MoveToNextAttribute());
+      if (string.IsNullOrEmpty(id))
+        throw new ArgumentException(string.Format("{0} '{1}': Id attribute is missing", actionNav.Name, name));
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", actionNav.Name, id));
+      if (string.IsNullOrEmpty(sourceState))
+        throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
+      if (string.IsNullOrEmpty(modelId))
+        throw new ArgumentException(string.Format("{0} '{1}': 'ModelId' attribute missing", actionNav.Name, name));
+      if (string.IsNullOrEmpty(methodName))
+        throw new ArgumentException(string.Format("{0} '{1}': 'MethodName' attribute missing", actionNav.Name, name));
+      MethodCallAction result = new MethodCallAction(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+          LocalizationHelper.CreateResourceString(displayTitle), new Guid(modelId), methodName)
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder

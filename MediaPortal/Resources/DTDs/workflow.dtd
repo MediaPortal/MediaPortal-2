@@ -4,7 +4,7 @@
 
 <!ELEMENT States (WorkflowState | DialogState)*>
 
-<!ELEMENT MenuActions (PushNavigationTransition | PopNavigationTransition | WorkflowContributorAction)*>
+<!ELEMENT MenuActions (PushNavigationTransition | PopNavigationTransition | WorkflowContributorAction | MethodCallAction)*>
 
 <!ELEMENT WorkflowState EMPTY>
 <!ATTLIST WorkflowState
@@ -29,29 +29,40 @@
 <!ATTLIST PushNavigationTransition
           Id                            CDATA #REQUIRED
           Name                          CDATA #REQUIRED
+          DisplayTitle                  CDATA #IMPLIED
           DisplayCategory               CDATA #IMPLIED
           SortOrder                     CDATA #IMPLIED
           SourceState                   CDATA #REQUIRED
           TargetState                   CDATA #REQUIRED
-          DisplayTitle                  CDATA #IMPLIED
           NavigationContextDisplayLabel CDATA #IMPLIED>
 
 <!ELEMENT PopNavigationTransition EMPTY>
 <!ATTLIST PopNavigationTransition
           Id              CDATA #REQUIRED
           Name            CDATA #REQUIRED
+          DisplayTitle    CDATA #IMPLIED
           DisplayCategory CDATA #IMPLIED
           SortOrder       CDATA #IMPLIED
           SourceState     CDATA #REQUIRED
-          NumPop          CDATA #REQUIRED
-          DisplayTitle    CDATA #IMPLIED>
+          NumPop          CDATA #REQUIRED>
 
 <!ELEMENT WorkflowContributorAction EMPTY>
 <!ATTLIST WorkflowContributorAction
           Id                 CDATA #REQUIRED
           Name               CDATA #REQUIRED
+          DisplayTitle       CDATA #IMPLIED
           DisplayCategory    CDATA #IMPLIED
           SortOrder          CDATA #IMPLIED
           SourceState        CDATA #REQUIRED
-          ContributorModelId CDATA #REQUIRED
-          DisplayTitle       CDATA #IMPLIED>
+          ContributorModelId CDATA #REQUIRED>
+
+<!ELEMENT MethodCallAction EMPTY>
+<!ATTLIST MethodCallAction
+          Id                 CDATA #REQUIRED
+          Name               CDATA #REQUIRED
+          DisplayTitle       CDATA #IMPLIED
+          DisplayCategory    CDATA #IMPLIED
+          SortOrder          CDATA #IMPLIED
+          SourceState        CDATA #REQUIRED
+          ModelId            CDATA #REQUIRED
+          MethodName         CDATA #REQUIRED>

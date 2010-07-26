@@ -95,9 +95,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public WorkflowContributorAction(Guid actionId, string name, Guid? sourceStateId, Guid contributorModelId,
-        IResourceString displayTitle) :
-        base(actionId, name, sourceStateId, displayTitle)
+    public WorkflowContributorAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
+        Guid contributorModelId) : base(actionId, name, sourceStateId, displayTitle)
     {
       _modelItemStateTracker = new ModelItemStateTracker(this);
       _contributorModelId = contributorModelId;
