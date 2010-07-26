@@ -123,6 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ContentManager.Remove(_image);
         _image = null;
       }
+      InvalidateLayout();
     }
 
     void OnFallbackImageChanged(AbstractProperty property, object oldValue)
@@ -133,6 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ContentManager.Remove(_fallbackImage);
         _fallbackImage = null;
       }
+      InvalidateLayout();
     }
 
     public AbstractProperty StretchProperty
