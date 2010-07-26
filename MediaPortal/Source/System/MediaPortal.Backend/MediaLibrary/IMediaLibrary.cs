@@ -72,7 +72,7 @@ namespace MediaPortal.Backend.MediaLibrary
         IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs, bool caseSensitive);
 
     /// <summary>
-    /// Starts a search of media items.
+    /// Starts a search for media items.
     /// </summary>
     /// <param name="query">Query object which specifies the search parameters.</param>
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
@@ -220,9 +220,25 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #region Client online registration
 
+    /// <summary>
+    /// Returns a dictionary of clients which are currently online.
+    /// </summary>
+    /// <value>Dictionary with (system id; system name) mappings of all clients which are known to be online.</value>
     IDictionary<string, SystemName> OnlineClients { get; }
 
+    /// <summary>
+    /// Notifies the media library that the client with the specified <paramref name="systemId"/> appeared online at the
+    /// given <paramref name="currentSystemName"/>. This has to be done to make the media librarie's online filters work.
+    /// </summary>
+    /// <param name="systemId">System id of the client which appeared online.</param>
+    /// <param name="currentSystemName">System name of the client.</param>
     void NotifySystemOnline(string systemId, SystemName currentSystemName);
+
+    /// <summary>
+    /// Notifies the media library that the client with the specified <paramref name="systemId"/> switched offline.
+    /// This has to be done to make the media librarie's online filters work.
+    /// </summary>
+    /// <param name="systemId">System id of the client which switched offline.</param>
     void NotifySystemOffline(string systemId);
 
     #endregion
