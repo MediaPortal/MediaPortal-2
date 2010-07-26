@@ -28,9 +28,6 @@ using System.Threading;
 
 namespace MediaPortal.UiComponents.Weather
 {
-
-  #region City class
-
   /// <summary>
   /// holds Information on the City
   /// </summary>
@@ -171,6 +168,4 @@ namespace MediaPortal.UiComponents.Weather
 
     #endregion
   }
-
-  #endregion
 }
