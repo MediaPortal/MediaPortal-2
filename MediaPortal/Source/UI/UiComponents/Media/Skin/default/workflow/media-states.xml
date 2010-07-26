@@ -56,6 +56,7 @@
         Name="ShowPlaylist"
         MainScreen="ShowPlaylist"
         DisplayLabel="[Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/> <!-- Workflow model = ShowPlaylist model -->
     <WorkflowState Id="078DCC03-AE75-4347-8C07-183605CDB1B7"
         Name="EditPlaylist"
