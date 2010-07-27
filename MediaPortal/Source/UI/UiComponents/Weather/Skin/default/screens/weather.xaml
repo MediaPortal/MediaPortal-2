@@ -16,12 +16,6 @@
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
           DataContext="{Binding Source={StaticResource Model}}">
-        <StackPanel Width="500" Orientation="Horizontal">
-          <Button x:Name="ButtonRefresh" Content="[weather.refresh]" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-            HorizontalAlignment="Left" VerticalAlignment="Center"
-            Command="{Command Refresh}"/>
-        </StackPanel>
-        
         <Grid x:Name="Grid1" HorizontalAlignment="Left">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>

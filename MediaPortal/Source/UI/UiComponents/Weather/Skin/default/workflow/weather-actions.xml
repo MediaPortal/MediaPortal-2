@@ -9,8 +9,7 @@
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="44E1CF89-66D0-4850-A076-E1B602432983"
         DisplayTitle="[Weather.Title]"/>
-  </MenuActions>
-  <MenuActions>
+
     <PushNavigationTransition Id="523E09FE-122A-46f6-AA49-F6FBF5922A04"
         Name="Settings->WeatherSetup"
         DisplayCategory="x-WeatherSetup"
@@ -18,8 +17,7 @@
         SourceState="E7422BB8-2779-49ab-BC99-E3F56138061B"
         TargetState="F1CE62B4-32CA-46e8-BCFB-250FE07911B2"
         DisplayTitle="[Weather.Title]"/>
-  </MenuActions>  
-  <MenuActions>
+
     <PushNavigationTransition Id="65A9A5F6-CA50-4459-8E49-0DC614B7A2E8"
         Name="Weather->WeatherLocations"
         DisplayCategory="a-WeatherLocations"
@@ -27,5 +25,13 @@
         SourceState="44E1CF89-66D0-4850-A076-E1B602432983"
         TargetState="9A20A26F-2EF0-4a45-8F92-42D911AE1D8F"
         DisplayTitle="[Weather.Location]"/>
+
+    <MethodCallAction Id="7AEB11DE-BA40-40a2-933A-B00BBD151B08" 
+        Name="Weather" 
+        DisplayTitle="[Weather.Refresh]"
+        SourceState="44E1CF89-66D0-4850-A076-E1B602432983"
+        ModelId="92BDB53F-4159-4dc2-B212-6083C820A214"
+        MethodName="Refresh"/>
+    
   </MenuActions>
 </Workflow>

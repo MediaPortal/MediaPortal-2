@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
@@ -31,91 +32,40 @@ using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
-
 namespace MediaPortal.UiComponents.Weather.Models
 {
-  public class WeatherViewModel 
+  /// <summary>
+  /// Main view model of the Weather plugin.
+  /// </summary>
+  public class WeatherViewModel
   {
+    #region Private/protected fields
+
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
 
-    //private readonly City _currentLocation;
-    private readonly AbstractProperty _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
+    private readonly AbstractProperty _currentLocation;
     private readonly ItemsList _locationsList = new ItemsList();
-    // Used to select a city... Items hold Name and ID
+
+    private String _preferredLocationCode;
+
+    #endregion
+
+    #region Constructor 
 
     public WeatherViewModel()
     {
-      _currentLocation = new WProperty(typeof(City), new City("No Data", "No Data"));
+      _currentLocation = new WProperty(typeof (City), new City("No Data", "No Data"));
       // for testing purposes add a weathercatcher
       ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       // add citys from settings to the locations list
       GetLocationsFromSettings(true);
     }
 
-    /// <summary>
-    /// this gets the locations from settings
-    /// </summary>
-    protected void GetLocationsFromSettings(bool shouldFire)
-    {
-      // empty lists
-      _locationsList.Clear();
-      _locations.Clear();
-      // add citys from settings to the locations list
-      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+    #endregion
 
-      if (settings == null || settings.LocationsList == null)
-        return;
-
-      foreach (CitySetupInfo loc in settings.LocationsList)
-        AddCityToLocations(loc, settings.LocationCode);
-
-      // if there is no city selected until yet, choose the first one
-      if (settings.LocationCode.Equals("<none>"))
-      {
-        if (_locations.Count > 0)
-        {
-          // Fetch data
-          RefreshData(_locations[0]);
-          // Copy the data to the skin property.
-          CurrentLocation.Copy(_locations[0]);
-        }
-        // no locations have been setup yet, guide to setup
-        else
-        {
-          //ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSetup");
-        }
-      }
-      // we've added new citys, so update the locations collection
-      if (shouldFire)
-      {
-        _locationsList.FireChange();
-      }
-    }
-
-    private void AddCityToLocations(CitySetupInfo loc, String locationCode)
-    {
-      if (loc != null)
-      {
-        City buffLoc = new City(loc);
-        _locations.Add(buffLoc);
-
-        ListItem buffItem = new ListItem();
-        buffItem.SetLabel("Name", loc.Name);
-        buffItem.SetLabel("Id", loc.Id);
-        _locationsList.Add(buffItem);
-
-        // Is this the setting?
-        if (loc.Id.Equals(locationCode))
-        {
-          // Fetch data
-          RefreshData(buffLoc);
-          // Copy the data to the skin property.
-          CurrentLocation.Copy(buffLoc);
-        }
-      }
-    }
+    #region Public Properties
 
     public AbstractProperty CurrentLocationProperty
     {
@@ -146,25 +96,10 @@ namespace MediaPortal.UiComponents.Weather.Models
       get { return _locationsList; }
     }
 
-    /// <summary>
-    /// updates the location with new data
-    /// </summary>
-    /// <returns></returns>
-    public void RefreshData(City loc)
-    {
-      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
+    #endregion
 
-      if (ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(loc))
-      {
-        ServiceRegistration.Get<ILogger>().Info("Loaded Weather Data for " + loc.Name + ", " + loc.Id);
-      }
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Info("Failed to load Weather Data for " + loc.Name + ", " + loc.Id);
-      }
+    #region Public Methods
 
-      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
-    }
 
     /// <summary>
     /// provides command for the skin to update the location with new data
@@ -172,7 +107,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <returns></returns>
     public void Refresh()
     {
-      RefreshData(CurrentLocation);
+      StartBackgroundRefresh(CurrentLocation);
     }
 
     /// <summary>
@@ -181,33 +116,112 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="item">The item.</param>
     public void ChangeLocation(ListItem item)
     {
-      City found = null;
       // we need to find the correct city now... do this by searching for the id in the 
       // locations list
       string strLoc = item["Id"];
 
-      foreach (City c in Locations)
-      {
-        if (c != null)
-        {
-          if (c.Id.Equals(strLoc))
-          {
-            found = c;
-            break;
-          }
-        }
-      }
+      City found = Locations.Find(currentItem => currentItem.Id.Equals(strLoc));
+
+      if (found == null) return;
+
       // okay, if we found the correct location, update the lists
-      if (found != null)
+      _preferredLocationCode = found.Id;
+      StartBackgroundRefresh(found);
+
+      // also save the last selected city to settings
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+      settings.LocationCode = found.Id;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+    }
+
+    #endregion
+
+    #region Private Members
+
+    /// <summary>
+    /// this gets the locations from settings
+    /// </summary>
+    protected void GetLocationsFromSettings(bool shouldFire)
+    {
+      // empty lists
+      _locationsList.Clear();
+      _locations.Clear();
+      // add citys from settings to the locations list
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+
+      if (settings == null || settings.LocationsList == null)
+        return;
+
+      _preferredLocationCode = settings.LocationCode;
+
+      foreach (CitySetupInfo loc in settings.LocationsList)
+        AddCityToLocations(loc);
+
+      // if there is no city selected until yet, choose the first one
+      if (settings.LocationCode.Equals("<none>") && _locations.Count > 0)
       {
-        RefreshData(found);
-        CurrentLocation.Copy(found);
-        // also save the last selected city to settings
-        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-        settings.LocationCode = found.Id;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+        // Fetch data in background
+        _preferredLocationCode = _locations[0].Id;
+        StartBackgroundRefresh(_locations[0]);
       }
 
+      // we've added new citys, so update the locations collection
+      if (shouldFire)
+        _locationsList.FireChange();
     }
+
+    /// <summary>
+    /// Starts the refresh of weather data in a background thread.
+    /// </summary>
+    /// <param name="cityToRefresh">City</param>
+    private void StartBackgroundRefresh(City cityToRefresh)
+    {
+      ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
+    }
+
+
+    /// <summary>
+    /// Updates the location with new data.
+    /// </summary>
+    /// <param name="threadArgument">City</param>
+    private void BackgroundRefresh(object threadArgument)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("Weather: background refresh start");
+
+      City cityToRefresh = (City) threadArgument;
+
+      bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
+
+      ServiceRegistration.Get<ILogger>().Info(
+        result ? "Loaded Weather Data for {0}, {1}" : "Failed to load Weather Data for {0}, {1}",
+        cityToRefresh.Name,
+        cityToRefresh.Id);
+
+      // Copy the data to the skin property.
+      if (cityToRefresh.Id.Equals(_preferredLocationCode))
+        CurrentLocation.Copy(cityToRefresh);
+
+      ServiceRegistration.Get<ILogger>().Debug("Weather: background refresh end");
+    }
+
+    /// <summary>
+    /// Adds a single city to locations list.
+    /// </summary>
+    /// <param name="loc">city setup info</param>
+    private void AddCityToLocations(CitySetupInfo loc)
+    {
+      if (loc == null) return;
+
+      City buffLoc = new City(loc);
+      _locations.Add(buffLoc);
+
+      ListItem buffItem = new ListItem();
+      buffItem.SetLabel("Name", loc.Name);
+      buffItem.SetLabel("Id", loc.Id);
+      _locationsList.Add(buffItem);
+
+      StartBackgroundRefresh(buffLoc);
+    }
+    #endregion
   }
 }
