@@ -102,7 +102,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result = new IndexerDataDescriptor(value, convertedIndices);
         return true;
       }
-      else if (ReflectionHelper.ConvertTypes(_indices, new Type[] { typeof(int) },
+      if (ReflectionHelper.ConvertTypes(_indices, new Type[] { typeof(int) },
           out convertedIndices))
       { // Collection index
         if (!ReflectionHelper.GetEnumerationEntryByIndex(value, (int) convertedIndices[0], out result))
@@ -218,7 +218,17 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
       MemberInfo[] members = type.GetMember(memberName);
       if (members.Length == 0)
+      { // Check access problems
+        members = type.GetMember(memberName,
+            BindingFlags.NonPublic |
+            BindingFlags.Instance |
+            BindingFlags.Static |
+            BindingFlags.FlattenHierarchy |
+            BindingFlags.IgnoreCase);
+        if (members.Length > 0)
+          ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public");
         return false;
+      }
       mi = members[0];
       return true;
     }
@@ -251,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result = new FieldDataDescriptor(obj, (FieldInfo) mi);
         return true;
       }
-      else if (mi is PropertyInfo)
+      if (mi is PropertyInfo)
       { // Property access
         PropertyInfo pi = (PropertyInfo) mi;
         // Handle indexed property
@@ -278,12 +288,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           return new IndexerPathSegment(_indices).Evaluate(result, out result);
         return true;
       }
-      else if (mi is MethodInfo)
+      if (mi is MethodInfo)
         // Method invocation is not supported in evaluation
         return false;
-      else
-        // Unsupported member type
-        return false;
+      // Unsupported member type
+      return false;
     }
 
     public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
@@ -556,7 +565,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result = new IndexerPathSegment(indices);
         return pos;
       }
-      else if (path[pos] == '(')
+      if (path[pos] == '(')
       { // Attached property
         int bracket = path.IndexOf(")", pos);
         if (bracket == -1)
@@ -571,21 +580,19 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result = new AttachedPropertyPathSegment(context, propertyProvider, propertyName, namespaceURI);
         return bracket + 1;
       }
-      else
-      { // Member
-        int end = path.IndexOfAny(new char[] { '.', '[' }, pos);
-        if (end == -1)
-          end = path.Length;
-        result = new MemberPathSegment(path.Substring(pos, end - pos));
+      // Member
+      int end = path.IndexOfAny(new char[] { '.', '[' }, pos);
+      if (end == -1)
+        end = path.Length;
+      result = new MemberPathSegment(path.Substring(pos, end - pos));
 
-        if (path.IndexOf('[', pos) == end)
-        { // Index follows member name
-          object[] indices;
-          end = ParseIndices(context, path, end, out indices);
-          ((MemberPathSegment) result).SetIndices(indices);
-        }
-        return end;
+      if (path.IndexOf('[', pos) == end)
+      { // Index follows member name
+        object[] indices;
+        end = ParseIndices(context, path, end, out indices);
+        ((MemberPathSegment) result).SetIndices(indices);
       }
+      return end;
     }
 
     #endregion

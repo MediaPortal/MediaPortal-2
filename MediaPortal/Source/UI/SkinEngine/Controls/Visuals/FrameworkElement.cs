@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _opacityProperty.Attach(OnOpacityChanged);
       _opacityMaskProperty.Attach(OnOpacityChanged);
-      _acutalPositionProperty.Attach(OnActualBoundsChanged);
+      _actualPositionProperty.Attach(OnActualBoundsChanged);
     }
 
     void Detach()
@@ -188,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _opacityProperty.Detach(OnOpacityChanged);
       _opacityMaskProperty.Detach(OnOpacityChanged);
-      _acutalPositionProperty.Detach(OnActualBoundsChanged);
+      _actualPositionProperty.Detach(OnActualBoundsChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

@@ -210,7 +210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected AbstractProperty _nameProperty;
-    protected AbstractProperty _acutalPositionProperty;
+    protected AbstractProperty _actualPositionProperty;
     protected AbstractProperty _marginProperty;
     protected AbstractProperty _triggerProperty;
     protected AbstractProperty _renderTransformProperty;
@@ -245,7 +245,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _nameProperty = new SProperty(typeof(string), string.Empty);
-      _acutalPositionProperty = new SProperty(typeof(PointF), new PointF(0, 0));
+      _actualPositionProperty = new SProperty(typeof(PointF), new PointF(0, 0));
       _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
@@ -458,13 +458,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public AbstractProperty ActualPositionProperty
     {
-      get { return _acutalPositionProperty; }
+      get { return _actualPositionProperty; }
     }
 
     public PointF ActualPosition
     {
-      get { return (PointF) _acutalPositionProperty.GetValue(); }
-      set { _acutalPositionProperty.SetValue(value); }
+      get { return (PointF) _actualPositionProperty.GetValue(); }
+      set { _actualPositionProperty.SetValue(value); }
     }
 
     public AbstractProperty NameProperty
