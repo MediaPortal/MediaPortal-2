@@ -22,30 +22,15 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Navigation
+using MediaPortal.Core.MediaManagement;
+
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  /// <summary>
-  /// Represents different modes, the media model can look for the user. Basically, each of those modes determines
-  /// which screen to show, for example to show media items of a special type or to show a choice of values for a
-  /// special filter criterion.
-  /// </summary>
-  public enum MediaNavigationMode
+  public class MovieItem : PlayableItem
   {
-    LocalMedia,
-    MusicShowItems,
-    MusicFilterByArtist,
-    MusicFilterByAlbum,
-    MusicFilterByGenre,
-    MusicFilterByDecade,
-    MusicSimpleSearch,
-    MoviesShowItems,
-    MoviesFilterByActor,
-    MoviesFilterByGenre,
-    MoviesFilterByYear,
-    MoviesSimpleSearch,
-    PicturesShowItems,
-    PicturesFilterByYear,
-    PicturesFilterBySize,
-    PicturesSimpleSearch,
+    public MovieItem(MediaItem mediaItem) : base(mediaItem)
+    {
+      // TODO: Add more properties for movie media item to ListItem
+    }
   }
 }

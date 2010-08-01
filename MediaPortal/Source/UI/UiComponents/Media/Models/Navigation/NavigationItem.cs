@@ -25,10 +25,10 @@
 using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace MediaPortal.UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
-  /// Holds a GUI item which encapsulates a view to navigate to.
+  /// Holds a GUI item which represents a view to navigate to.
   /// </summary>
   /// <remarks>
   /// Instances of this class represent view items to be displayed in a GUI view's items list.
@@ -45,15 +45,13 @@ namespace MediaPortal.UiComponents.Media.Navigation
 
     #region Protected fields
 
-    protected MediaNavigationMode _navigationMode;
     protected View _view;
     protected string _overrideName;
 
     #endregion
 
-    public NavigationItem(MediaNavigationMode navigationMode, View view, string overrideName)
+    public NavigationItem(View view, string overrideName)
     {
-      _navigationMode = navigationMode;
       _view = view;
       _overrideName = overrideName;
       UpdateData();
@@ -70,11 +68,6 @@ namespace MediaPortal.UiComponents.Media.Navigation
     public View View
     {
       get { return _view; }
-    }
-
-    public MediaNavigationMode NavigationMode
-    {
-      get { return _navigationMode; }
     }
   }
 }

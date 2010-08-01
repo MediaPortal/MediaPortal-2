@@ -32,7 +32,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Navigation;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -162,7 +162,7 @@ namespace MediaPortal.UiComponents.Media.Models
           }
         }
         IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
+        NumItemsStr = General.Utils.BuildNumItemsStr(_items.Count);
       }
       _items.FireChange();
     }

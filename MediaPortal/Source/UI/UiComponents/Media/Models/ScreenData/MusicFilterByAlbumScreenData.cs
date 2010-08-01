@@ -22,15 +22,18 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class PictureItem : PlayableItem
+  public class MusicFilterByAlbumScreenData : AbstractMusicFilterScreenData
   {
-    public PictureItem(MediaItem mediaItem) : base(mediaItem)
+    public MusicFilterByAlbumScreenData() :
+        base(Consts.MUSIC_FILTER_BY_ALBUM_SCREEN, Consts.FILTER_BY_ALBUM_MENU_ITEM_RES,
+        new SimpleMLFilterCriterion(AudioAspect.ATTR_ALBUM))
     {
-      // TODO: Add more properties for picture media item to ListItem
     }
   }
 }

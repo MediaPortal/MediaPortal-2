@@ -12,7 +12,7 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid DataContext="{Binding Source={StaticResource MediaModel}}">
+      <Grid DataContext="{Binding Source={StaticResource MediaModel},Path=NavigationData.CurrentScreenData}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -27,44 +27,21 @@
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom"
-              Content="{Binding ItemsListTitle}"/>
+          <Control Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MediaItemsListHeader.inc"/>
+            </Control.TemplateControl>
+          </Control>
 
-          <!-- .. button will be replaced by navbar -->
-          <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource ButtonStyle}"
-              Content=".."
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
-              IsVisible="{Binding HasParentDirectory}"/>
-          <TextBox Grid.Row="1" Style="{ThemeResource TextBoxStyle}"
+          <TextBox Grid.Column="0" Grid.Row="1" Style="{ThemeResource TextBoxStyle}"
               Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <!-- To support all properties of the media items (e.g. artist, album, etc.), we need to use a special ListView style -->
-          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ListView.Resources>
-              <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
-            </ListView.Resources>
-          </ListView>
-          <Label IsVisible="{Binding IsItemsEmpty}"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
-        </Grid>
-        <Label Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsItemsValid}"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
+        <Control Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+        </Control>
       </Grid>
     </ResourceWrapper>
 

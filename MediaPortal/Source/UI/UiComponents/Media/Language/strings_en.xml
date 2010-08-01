@@ -1,27 +1,74 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
-    <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
-    <String Name="MusicNavigationRootWorkflowNavigationContextDisplayLabel" Text="Music library"/>
-    <String Name="MoviesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Movies library"/>
-    <String Name="PicturesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Pictures library"/>
-    <String Name="RootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
-
+    <!-- Menu items for the four Media navigation parts -->
     <String Name="LocalMediaMenuItem" Text="Local media"/>
     <String Name="MusicMenuItem" Text="Music"/>
     <String Name="MoviesMenuItem" Text="Movies"/>
     <String Name="PicturesMenuItem" Text="Pictures"/>
-    <String Name="LocalMediaTitle" Text="Local media"/>
-    <String Name="MusicTitle" Text="Music"/>
-    <String Name="MoviesTitle" Text="Movies"/>
-    <String Name="PicturesTitle" Text="Pictures"/>
-    <String Name="SimpleSearchTitle" Text="Simple search"/>
+
+    <String Name="FilterByArtistMenuItem" Text="Filter by artist"/>
+    <String Name="FilterByAlbumMenuItem" Text="Filter by album"/>
+    <String Name="FilterByMusicGenreMenuItem" Text="Filter by genre"/>
+    <String Name="FilterByDecadeMenuItem" Text="Filter by decade"/>
+    <String Name="FilterByActorMenuItem" Text="Filter by actor"/>
+    <String Name="FilterByMovieGenreMenuItem" Text="Filter by genre"/>
+    <String Name="FilterByMovieYearMenuItem" Text="Filter by year"/>
+    <String Name="FilterByPictureSizeMenuItem" Text="Filter by size"/>
+    <String Name="FilterByPictureYearMenuItem" Text="Filter by year"/>
+    <String Name="SimpleSearchFilterMenuItem" Text="Search"/>
+    <String Name="ShowAllMusicItemsMenuItem" Text="Show all"/> <!-- Menu entry to show all currently filtered music items -->
+    <String Name="ShowAllMovieItemsMenuItem" Text="Show all"/> <!-- Menu entry to show all currently filtered movie items -->
+    <String Name="ShowAllPictureItemsMenuItem" Text="Show all"/> <!-- Menu entry to show all currently filtered picture items -->
+
+    <!-- Display labels for workflow navigation contexts -->
+    <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
+    <String Name="MusicNavigationRootWorkflowNavigationContextDisplayLabel" Text="Music library"/>
+    <String Name="MoviesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Movies library"/>
+    <String Name="PicturesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Pictures library"/>
+    <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
+    <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
+    <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
+    <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
+    <String Name="ShowPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Playlist"/>
+    <String Name="EditPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Edit Playlist"/>
+
+    <!-- Screen headers -->
+    <String Name="LocalMediaHeader" Text="Local media"/>
+    <String Name="MusicHeader" Text="Music"/>
+    <String Name="MoviesHeader" Text="Movies"/>
+    <String Name="PicturesHeader" Text="Pictures"/>
+    
+    <!-- View titles (shown in the skin) -->    
+    <String Name="LocalMediaNavigationViewTitle" Text="Local media navigation"/>
+    <String Name="MediaItemsViewTitle" Text="Media items"/>
+    <String Name="MovieItemsViewTitle" Text="Movies"/>
+    <String Name="MusicItemsViewTitle" Text="Music items"/>
+    <String Name="PictureItemsViewTitle" Text="Pictures"/>
+    <String Name="SimpleSearchViewTitle" Text="Simple search"/>
+    <String Name="ChooseActorViewTitle" Text="Choose an actor"/>
+    <String Name="ChooseMovieGenreViewTitle" Text="Choose a genre"/>
+    <String Name="ChooseMovieYearViewTitle" Text="Choose a year"/>
+    <String Name="ChooseMusicDecadeViewTitle" Text="Choose a decade"/>
+    <String Name="ChooseAlbumViewTitle" Text="Choose an album"/>
+    <String Name="ChooseArtistViewTitle" Text="Choose an artist"/>
+    <String Name="ChooseMusicGenreViewTitle" Text="Choose a genre"/>
+    <String Name="ChoosePictureYearViewTitle" Text="Choose a year"/>
+    <String Name="ChoosePictureSizeViewTitle" Text="Choose a size"/>
+
+    <!-- View names (names for the view instances) -->
+    <String Name="LocalMediaRootViewName" Text="Local media"/>
+    <String Name="MusicRootViewName" Text="Music"/>
+    <String Name="MoviesRootViewName" Text="Movies"/>
+    <String Name="PicturesRootViewName" Text="Pictures"/>
+    <String Name="SimpleSearchViewName" Text="Simple search"/>
+
     <String Name="ViewInvalid" Text="This view could not be built"/>
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
     <String Name="NoItems" Text="No items"/> <!-- Shown in the header of an items list -->
     <String Name="OneItem" Text="One item"/> <!-- Shown in the header of an items list -->
     <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list and elsewhere, e.g. "15 items" -->
-    <String Name="MediaItemsViewTitle" Text="Media items"/>
+    <String Name="MoreThanMaxItems" Text="This view contains more than {0} items. Please restrict the number of items by adding more filters."/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
@@ -53,13 +100,6 @@
     <String Name="AudioYearLabel" Text="Year: "/>
     <String Name="AudioDurationLabel" Text="Duration: "/>
 
-    <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
-    <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
-    <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
-    <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
-    <String Name="ShowPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Playlist"/>
-    <String Name="EditPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Edit Playlist"/>
-
     <String Name="ShowAudioPlaylist" Text="Show audio playlist"/>
     <String Name="ShowVideoPlaylist" Text="Show video playlist"/>
     <String Name="ShowPiPPlaylist" Text="Show PiP playlist"/>
@@ -71,24 +111,6 @@
     <String Name="PlaylistEmpty" Text="&lt;No items in playlist&gt;"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
-
-    <String Name="LocalMediaRootViewName" Text="Local media"/>
-    <String Name="MusicRootViewName" Text="Music"/>
-    <String Name="MoviesRootViewName" Text="Movies"/>
-    <String Name="PicturesRootViewName" Text="Pictures"/>
-
-    <String Name="FilterByArtistMode" Text="Filter by artist"/>
-    <String Name="FilterByAlbumMode" Text="Filter by album"/>
-    <String Name="FilterByMusicGenreMode" Text="Filter by genre"/>
-    <String Name="FilterByDecadeMode" Text="Filter by decade"/>
-    <String Name="FilterByYearMode" Text="Filter by year"/>
-    <String Name="FilterByActorMode" Text="Filter by actor"/>
-    <String Name="FilterByMovieGenreMode" Text="Filter by genre"/>
-    <String Name="FilterByPictureSizeMode" Text="Filter by size"/>
-    <String Name="SimpleSearchFilterMode" Text="Search"/>
-    <String Name="ShowAllMusicItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered music items -->
-    <String Name="ShowAllMovieItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered movie items -->
-    <String Name="ShowAllPictureItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered picture items -->
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
   </Section>

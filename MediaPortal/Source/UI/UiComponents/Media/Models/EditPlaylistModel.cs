@@ -32,7 +32,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Navigation;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -187,7 +187,7 @@ namespace MediaPortal.UiComponents.Media.Models
         _focusedDownButton = -1;
         _focusedUpButton = -1;
         IsPlaylistEmpty = _relItems.Count == 0;
-        NumItemsStr = Utils.Utils.BuildNumItemsStr(_relItems.Count);
+        NumItemsStr = General.Utils.BuildNumItemsStr(_relItems.Count);
       }
       _relItems.FireChange();
     }

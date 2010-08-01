@@ -22,15 +22,17 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MusicItem : PlayableItem
+  public class MoviesFilterByYearScreenData : AbstractMoviesFilterScreenData
   {
-    public MusicItem(MediaItem mediaItem) : base(mediaItem)
+    public MoviesFilterByYearScreenData() :
+        base(Consts.MOVIES_FILTER_BY_YEAR_SCREEN, Consts.FILTER_BY_MOVIE_YEAR_MENU_ITEM_RES,
+        new FilterByYearCriterion())
     {
-      // TODO: Add more properties for music media item to ListItem
     }
   }
 }

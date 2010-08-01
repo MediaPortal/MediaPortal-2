@@ -22,20 +22,18 @@
 
 #endregion
 
-using MediaPortal.Core.Localization;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UiComponents.Media.Utils
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class Utils
+  public class MusicFilterByGenreScreenData : AbstractMusicFilterScreenData
   {
-    public const string NO_ITEMS_RESOURCE = "[Media.NoItems]";
-    public const string ONE_ITEM_RESOURCE = "[Media.OneItem]";
-    public const string N_ITEMS_RESOURCE = "[Media.NItems]";
-
-    public static string BuildNumItemsStr(int numItems)
+    public MusicFilterByGenreScreenData() :
+        base(Consts.MUSIC_FILTER_BY_GENRE_SCREEN, Consts.FILTER_BY_MUSIC_GENRE_MENU_ITEM_RES,
+        new SimpleMLFilterCriterion(AudioAspect.ATTR_GENRES))
     {
-      return numItems == 0 ? NO_ITEMS_RESOURCE : (numItems == 1 ? ONE_ITEM_RESOURCE :
-          LocalizationHelper.Translate(N_ITEMS_RESOURCE, numItems));
     }
   }
 }

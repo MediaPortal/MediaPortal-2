@@ -22,15 +22,13 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.UiComponents.Media.FilterCriteria;
 
-namespace MediaPortal.UiComponents.Media.Navigation
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MovieItem : PlayableItem
+  public class AbstractPicturesFilterScreenData : FiltersScreenData
   {
-    public MovieItem(MediaItem mediaItem) : base(mediaItem)
-    {
-      // TODO: Add more properties for movie media item to ListItem
-    }
+    public AbstractPicturesFilterScreenData(string screen, string menuItemLabel, MLFilterCriterion filterCriterion) :
+        base(screen, menuItemLabel, filterCriterion) { }
   }
 }
