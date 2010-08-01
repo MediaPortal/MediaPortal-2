@@ -18,4 +18,8 @@
     <String Name="ModelNumber" Text="1"/>
 <!--    <String Name="ModelUrl" Text="..."/> -->
   </Section>
+  <Section Name="MediaLibrary">
+    <String Name="EmptyGroupName" Text="&lt;Empty&gt;"/>
+    <String Name="SpecialCharacterGroupName" Text="&lt;Special Character&gt;"/>
+  </Section>
 </Language>
