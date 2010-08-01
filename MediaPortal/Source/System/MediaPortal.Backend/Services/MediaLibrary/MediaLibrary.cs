@@ -326,6 +326,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    public IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+        bool filterOnlyOnline, GroupingFunction groupingFunction)
+    {
+      IDictionary<string, ValueGroup> groups = new Dictionary<string, ValueGroup>();
+      IGroupingFunctionImpl groupingFunctionImpl;
+      switch (groupingFunction)
+      {
+        case GroupingFunction.FirstLetter:
+          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          break;
+        default:
+          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          break;
+      }
+      Guid groupingAspectId = groupingAttributeType.ParentMIAM.AspectId;
+      MediaItemQuery innerQuery = new MediaItemQuery(query);
+      innerQuery.NecessaryRequestedMIATypeIDs.Add(MediaAspect.ASPECT_ID);
+      foreach (MediaItem item in Search(innerQuery, filterOnlyOnline))
+      {
+        string groupName = groupingFunctionImpl.GetGroup(string.Format("{0}", item[groupingAspectId][groupingAttributeType]));
+        ValueGroup vg;
+        if (groups.TryGetValue(groupName, out vg))
+          vg.NumItemsInGroup++;
+        else
+          groups[groupName] = new ValueGroup(groupName, 1);
+      }
+      List<ValueGroup> result = new List<ValueGroup>(groups.Values);
+      result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
+      return result;
+    }
+
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline)
     {
@@ -346,6 +377,44 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           });
       MediaItemQuery query = new MediaItemQuery(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, filter);
       return Search(query, filterOnlyOnline);
+    }
+
+    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter)
+    {
+      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(
+          _miaManagement, necessaryMIATypeIDs, attributeType, filter);
+      return cdavq.Execute();
+    }
+
+    public IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction)
+    {
+      IDictionary<string, ValueGroup> groups = new Dictionary<string, ValueGroup>();
+      IGroupingFunctionImpl groupingFunctionImpl;
+      switch (groupingFunction)
+      {
+        case GroupingFunction.FirstLetter:
+          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          break;
+        default:
+          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          break;
+      }
+      foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, necessaryMIATypeIDs, filter))
+      {
+        string valueGroupItemName = (string) resultItem.Key;
+        long valueGroupItemCount = (long) resultItem.Value;
+        string groupName = groupingFunctionImpl.GetGroup(valueGroupItemName);
+        ValueGroup vg;
+        if (groups.TryGetValue(groupName, out vg))
+          vg.NumItemsInGroup += valueGroupItemCount;
+        else
+          groups[groupName] = new ValueGroup(groupName, valueGroupItemCount);
+      }
+      List<ValueGroup> result = new List<ValueGroup>(groups.Values);
+      result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
+      return result;
     }
 
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
@@ -417,14 +486,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
-    }
-
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter)
-    {
-      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(
-          _miaManagement, necessaryMIATypeIDs, attributeType, filter);
-      return cdavq.Execute();
     }
 
     public bool MediaItemAspectStorageExists(Guid aspectId)

@@ -45,6 +45,7 @@ namespace MediaPortal.Core.UPnP
     public static readonly UPnPExtendedDataType DtResourcePathMetadataEnumeration = new UPnPDtResourcePathMetadataEnumeration();
     public static readonly UPnPExtendedDataType DtMediaProviderMetadata = new UPnPDtMediaProviderMetadata();
     public static readonly UPnPExtendedDataType DtMediaProviderMetadataEnumeration = new UPnPDtMediaProviderMetadataEnumeration();
+    public static readonly UPnPExtendedDataType DtValueGroupEnumeration = new UPnPDtValueGroupEnumeration();
 
     protected static IDictionary<string, UPnPExtendedDataType> _dataTypes = new Dictionary<string, UPnPExtendedDataType>();
 
@@ -62,6 +63,7 @@ namespace MediaPortal.Core.UPnP
       AddDataType(DtResourcePathMetadataEnumeration);
       AddDataType(DtMediaProviderMetadata);
       AddDataType(DtMediaProviderMetadataEnumeration);
+      AddDataType(DtValueGroupEnumeration);
     }
 
     protected static void AddDataType(UPnPExtendedDataType type)

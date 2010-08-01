@@ -36,6 +36,11 @@ namespace MediaPortal.UI.ServerCommunication
     ConnectedShares
   }
 
+  public enum  GroupingFunction
+  {
+    FirstLetter
+  }
+
   /// <summary>
   /// Interface of the MediaPortal 2 server's ContentDirectory service. This interface is implemented by the
   /// MediaPortal 2 server.
@@ -69,12 +74,16 @@ namespace MediaPortal.UI.ServerCommunication
 
     // Media query
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+        bool onlyOnline, GroupingFunction groupingFunction);
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
     ICollection<MediaItem> Browse(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline);
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter);
+    IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction);
 
     // Media import
     void AddOrUpdateMediaItem(string systemId, ResourcePath path,

@@ -248,6 +248,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_ResourcePathString);
 
+      // Used to transport an enumeration of value group instances
+      DvStateVariable A_ARG_TYPE_ValueGroupEnumeration = new DvStateVariable("A_ARG_TYPE_ValueGroupEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtValueGroupEnumeration))
+          {
+            SendEvents = false,
+          };
+      AddStateVariable(A_ARG_TYPE_ValueGroupEnumeration);
+
+      DvStateVariable A_ARG_TYPE_GroupingFunction = new DvStateVariable("A_ARG_TYPE_GroupingFunction", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = false,
+            AllowedValueList = new List<string> {"FirstLetter"}
+        };
+      AddStateVariable(A_ARG_TYPE_GroupingFunction);
+
       // More state variables go here
 
       // Shares management
@@ -434,6 +448,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(searchAction);
 
+      DvAction groupSearchAction = new DvAction("GroupSearch", OnGroupSearch,
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("GroupingMIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("GroupingAttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+            new DvArgument("GroupingFunction", A_ARG_TYPE_GroupingFunction, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("ValueGroups", A_ARG_TYPE_ValueGroupEnumeration, ArgumentDirection.Out, true),
+          });
+      AddAction(groupSearchAction);
+
       DvAction textSearchAction = new DvAction("SimpleTextSearch", OnTextSearch,
           new DvArgument[] {
             new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
@@ -473,6 +500,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("ValueGroups", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
           });
       AddAction(getValueGroupsAction);
+
+      DvAction groupValueGroupsAction = new DvAction("GroupValueGroups", OnGroupValueGroups,
+          new DvArgument[] {
+            new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+            new DvArgument("GroupingFunction", A_ARG_TYPE_GroupingFunction, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("ValueGroups", A_ARG_TYPE_ValueGroupEnumeration, ArgumentDirection.Out, true),
+          });
+      AddAction(groupValueGroupsAction);
 
       // Media import
 
@@ -545,6 +585,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         default:
           caseSensitive = true;
           return new UPnPError(600, string.Format("Argument '{0}' must be of value 'CaseSensitive' or 'CaseInsensitive'", argumentName));
+      }
+      return null;
+    }
+
+    static UPnPError ParseGroupingFunction(string argumentName, string groupingFunctionStr, out GroupingFunction groupingFunction)
+    {
+      switch (groupingFunctionStr)
+      {
+        case "FirstLetter":
+          groupingFunction = GroupingFunction.FirstLetter;
+          break;
+        default:
+          groupingFunction = GroupingFunction.FirstLetter;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'FirstLetter'", argumentName));
       }
       return null;
     }
@@ -856,6 +910,35 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
+    static UPnPError OnGroupSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      MediaItemQuery query = (MediaItemQuery) inParams[0];
+      Guid groupingMIAType = (Guid) inParams[1];
+      string groupingAttributeName = (string) inParams[2];
+      string onlineStateStr = (string) inParams[3];
+      string groupingFunctionStr = (string) inParams[4];
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      MediaItemAspectMetadata groupingMIAM;
+      outParams = null;
+      if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(groupingMIAType, out groupingMIAM))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' is unknown", groupingMIAType));
+      MediaItemAspectMetadata.AttributeSpecification groupingAttributeType;
+      if (!groupingMIAM.AttributeSpecifications.TryGetValue(groupingAttributeName, out groupingAttributeType))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
+            groupingMIAType, groupingAttributeName));
+      bool all;
+      GroupingFunction groupingFunction = GroupingFunction.FirstLetter;
+      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all) ??
+          ParseGroupingFunction("GroupingFunction", groupingFunctionStr, out groupingFunction);
+      if (error != null)
+        return error;
+      IList<ValueGroup> valueGroups = ServiceRegistration.Get<IMediaLibrary>().GroupSearch(query, groupingAttributeType,
+          !all, groupingFunction);
+      outParams = new List<object> {valueGroups};
+      return null;
+    }
+
     static UPnPError OnTextSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -924,6 +1007,33 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             aspectId, attributeName));
       HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType,
           necessaryMIATypes, filter);
+      outParams = new List<object> {values};
+      return null;
+    }
+
+    static UPnPError OnGroupValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      string attributeName = (string) inParams[1];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IFilter filter = (IFilter) inParams[3];
+      string groupingFunctionStr = (string) inParams[4];
+      outParams = null;
+      GroupingFunction groupingFunction;
+      UPnPError error = ParseGroupingFunction("GroupingFunction", groupingFunctionStr, out groupingFunction);
+      if (error != null)
+        return error;
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      MediaItemAspectMetadata miam;
+      if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectId, out miam))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' is unknown", aspectId));
+      MediaItemAspectMetadata.AttributeSpecification attributeType;
+      if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
+            aspectId, attributeName));
+      IList<ValueGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
+          necessaryMIATypes, filter, groupingFunction);
       outParams = new List<object> {values};
       return null;
     }

@@ -175,8 +175,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public ICollection<Guid> NecessaryRequestedMIATypeIDs
     {
       get { return _necessaryRequestedMIATypeIDs; }
-      set
-      { _necessaryRequestedMIATypeIDs = new HashSet<Guid>(value); }
+      set { _necessaryRequestedMIATypeIDs = new HashSet<Guid>(value); }
     }
 
     [XmlIgnore]

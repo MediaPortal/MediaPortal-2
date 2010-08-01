@@ -36,6 +36,14 @@ namespace MediaPortal.Backend.MediaLibrary
     Remove
   }
 
+  public enum GroupingFunction
+  {
+    /// <summary>
+    /// Values are grouped together by their first letter.
+    /// </summary>
+    FirstLetter,
+  }
+
   /// <summary>
   /// The media library is a "dumb" data store. It provides search/update methods for all kinds of content stored.
   /// All media-related management functions (re-imports triggered by a special situation etc.) are handled by the
@@ -83,6 +91,17 @@ namespace MediaPortal.Backend.MediaLibrary
     IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline);
 
     /// <summary>
+    /// Executes a <see cref="Search"/> and groups the resulting media items by the given <paramref name="groupingFunction"/>.
+    /// </summary>
+    /// <param name="query">Query to execute. See method <see cref="Search"/>.</param>
+    /// <param name="groupingAttributeType">Attribute type whose value is used to build the result groups.</param>
+    /// <param name="filterOnlyOnline">Filters only online media. See method <see cref="Search"/>.</param>
+    /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <returns>List of value groups for the given query.</returns>
+    IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+        bool filterOnlyOnline, GroupingFunction groupingFunction);
+
+    /// <summary>
     /// Lists all media items of the given location.
     /// </summary>
     /// <param name="systemId">ID of the system whose location is to browse.</param>
@@ -105,9 +124,20 @@ namespace MediaPortal.Backend.MediaLibrary
     /// whose attribute values are part of the result collection.</param>
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
-    /// <paramref name="attributeType"/>.</returns>
+    /// <paramref name="attributeType"/> (long).</returns>
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter);
+
+    /// <summary>
+    /// Executes a <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="necessaryMIATypeIDs">Necessary media item types. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <returns>List of value groups for the given query.</returns>
+    IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction);
 
     #endregion
 
