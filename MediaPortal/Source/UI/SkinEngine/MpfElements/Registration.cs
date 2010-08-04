@@ -539,12 +539,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (coords.Length > 2)
       {
         TypeConverter.Convert(coords[2], typeof(float), out obj);
-        vec.W = (float) obj;
+        vec.Z = (float) obj;
       }
       if (coords.Length > 3)
       {
         TypeConverter.Convert(coords[3], typeof(float), out obj);
-        vec.Z = (float) obj;
+        vec.W = (float) obj;
       }
       return vec;
     }
