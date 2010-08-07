@@ -143,13 +143,13 @@
   <Rectangle Grid.Row="3" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="cherries.png"/>
+      <ImageBrush ImageSource="Cherries.jpg"/>
     </Rectangle.Fill>
   </Rectangle>
   <Rectangle Grid.Row="3" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="cherries.png">
+      <ImageBrush ImageSource="Cherries.jpg">
         <ImageBrush.RelativeTransform>
           <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
         </ImageBrush.RelativeTransform>
@@ -159,7 +159,7 @@
   <Rectangle Grid.Row="3" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="cherries.png">
+      <ImageBrush ImageSource="Cherries.jpg">
         <ImageBrush.Transform>
           <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
               Angle="45"/>

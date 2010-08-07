@@ -128,7 +128,7 @@
                 Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
                 RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
               <Rectangle.Fill>
-                <ImageBrush ImageSource="cherries.png"/>
+                <ImageBrush ImageSource="Cherries.jpg"/>
               </Rectangle.Fill>
             </Rectangle>
             <ControlTemplate.Triggers>

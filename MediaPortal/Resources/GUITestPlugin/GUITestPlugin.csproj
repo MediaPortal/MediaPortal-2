@@ -55,9 +55,9 @@
     <Content Include="Skin\default\screens\test-text-transforms.xaml" />
     <Content Include="Skin\default\screens\test-transforms.xaml" />
     <Content Include="Skin\default\screens\test-treeview.xaml" />
-    <Content Include="Skin\default\media\cherries.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\media\Cherries.jpg" />
     <Content Include="Skin\default\workflow\gui-test-actions.xml" />
     <Content Include="Skin\default\workflow\gui-test-states.xml" />
   </ItemGroup>
