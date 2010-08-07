@@ -172,18 +172,15 @@
   <Rectangle Grid.Row="4" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <!-- TODO: Tiled -->
-      <ImageBrush ImageSource="cherries.png"/>
+      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile"/>
     </Rectangle.Fill>
   </Rectangle>
   <Rectangle Grid.Row="4" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="cherries.png">
-        <!-- TODO: Tiled -->
+      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile">
         <ImageBrush.RelativeTransform>
-          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
-              Angle="45"/>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
         </ImageBrush.RelativeTransform>
       </ImageBrush>
     </Rectangle.Fill>
@@ -191,8 +188,7 @@
   <Rectangle Grid.Row="4" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="cherries.png">
-        <!-- TODO: Tiled -->
+      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile">
         <ImageBrush.Transform>
           <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
               Angle="45"/>
