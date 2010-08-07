@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- TODO: Changes in WF descriptors:
+  - Workflow -> WorkflowItems
+  - True/False -> true/false
+  - WorkflowModel -> WorkflowModelId
+  - SourceState -> SourceStateId
+  - TargetState -> TargetStateId
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ct="www.team-mediaportal.com/2010/datatypes/common">
+
+  <!-- Import of common data types. -->
+  <xs:import schemaLocation="CommonTypes.xsd" namespace="www.team-mediaportal.com/2010/datatypes/common"/>
+
+  <!-- Root element of each workflow descriptor file. -->
+  <xs:element name="WorkflowItems">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="States" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MenuActions" minOccurs="0" maxOccurs="1"/>
+      </xs:all>
+
+      <!-- Version of the descriptor file syntax. Must be "1.0". -->
+      <xs:attribute name="DescriptorVersion" type="xs:string" fixed="1.0" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Parent element of all workflow state definitions. -->
+  <xs:element name="States">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="WorkflowState"/>
+        <xs:element ref="DialogState"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Parent element of all menu action definitions. -->
+  <xs:element name="MenuActions">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="PushNavigationTransition"/>
+        <xs:element ref="PopNavigationTransition"/>
+        <xs:element ref="WorkflowContributorAction"/>
+  
+        <!-- More menu actions TBD. -->
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="BaseWorkflowStateType">
+    <!-- Guid of the workflow state. Must be unique and must not contain
+         curly brackets ({} characters). -->
+    <xs:attribute name="Id" type="ct:GuidWithoutBrackets" use="required"/>
+
+    <!-- Short, human-readable name for the workflow state. This property is
+         only a hint for developers and designers to identify the state. Doesn't
+         need to be unique. -->
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+
+    <!-- Label which gets used for the workflow navigation history in the GUI.
+         May be localized. -->
+    <xs:attribute name="DisplayLabel" type="xs:string" use="required"/>
+  
+    <!-- Defines the workflow state to be a temporary state, i.e. the state
+         will be removed as soon as another workflow state of type "Workflow"
+         is pushed onto the workflow navigation stack. -->
+    <xs:attribute name="Temporary" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+
+  <!-- Defines a workflow state which is displayed using a full screen. -->
+  <xs:element name="WorkflowState">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseWorkflowStateType">
+          <!-- Defines an UI screen which will automatically be displayed when the
+               workflow engine switches to the workflow state.
+               Either MainScreen or WorkflowModel must be given. -->
+          <xs:attribute name="MainScreen" type="xs:string" use="optional"/>
+
+          <!-- Defines the id of a workflow model to be used in the workflow state.
+               Either MainScreen or WorkflowModel must be given. -->
+          <xs:attribute name="WorkflowModelId" type="ct:GuidWithoutBrackets" use="optional"/>
+  
+          <!-- Tells the workflow engine that for this state, the menu of the parent
+               state should be automatically inherited. -->
+          <xs:attribute name="InheritMenu" type="xs:boolean" use="optional" default="false"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines a workflow state which is displayed using a dialog screen. -->
+  <xs:element name="DialogState">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseWorkflowStateType">
+          <!-- Defines an UI dialog screen which will automatically be
+               displayed when the workflow engine switches to the dialog state.
+               Either DialogScreen or WorkflowModel must be given. -->
+          <xs:attribute name="DialogScreen" type="xs:string" use="optional"/>
+
+          <!-- Defines the id of a workflow model to be used in the dialog state.
+               Either DialogScreen or WorkflowModel must be given. -->
+          <xs:attribute name="WorkflowModelId" type="ct:GuidWithoutBrackets" use="optional"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="BaseMenuActionType">
+    <!-- Guid of the menu action. Must be unique and must not contain
+         curly brackets ({} characters). -->
+    <xs:attribute name="Id" type="ct:GuidWithoutBrackets" use="required"/>
+
+    <!-- Short, human-readable name for the menu action. This property is only a
+         hint for developers and designers to identify the action. Doesn't need
+         to be unique. -->
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+
+    <!-- Label which gets used in the menu. May be localized. -->
+    <xs:attribute name="DisplayTitle" type="xs:string" use="optional"/>
+
+    <!-- String-type category to group actions together. Different groups of actions
+         will be sorted by this category string. -->
+    <xs:attribute name="DisplayCategory" type="xs:string" use="optional"/>
+
+    <!-- String which is used to sort the actions inside a display category. -->
+    <xs:attribute name="SortOrder" type="xs:string" use="optional"/>
+
+    <!-- Id of the workflow state where the action is displayed. If the action
+         should be displayed in each workflow state, use a "*" character here. -->
+    <xs:attribute name="SourceStateId" type="ct:GuidWithoutBracketsOrStar" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="PushNavigationTransition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseMenuActionType">
+          <!-- Id of the target workflow state which should be pushed onto the
+               workflow navigation bar when this action is executed. -->
+          <xs:attribute name="TargetStateId" type="ct:GuidWithoutBrackets" use="required"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="PopNavigationTransition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseMenuActionType">
+          <!-- Number of workflow navigation contexts to be popped from the
+               workflow navigation stack when this action is executed. -->
+          <xs:attribute name="NumPop" type="xs:string" use="required"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="WorkflowContributorAction">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseMenuActionType">
+          <!-- Id of the workflow contributor model which provides the runtime
+               data to the action. The model must implement the
+               IWorkflowContributor interface. -->
+          <xs:attribute name="ContributorModelId" type="xs:string" use="required"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

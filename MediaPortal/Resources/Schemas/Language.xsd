@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- TODO: Changes in language descriptors:
+  - DescriptorVersion="1.0" einfügen
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- Root element of a MediaPortal 2 language file. -->
+  <xs:element name="Language">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Section" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+
+      <!-- Version of the descriptor file syntax. Must be "1.0". -->
+      <xs:attribute name="DescriptorVersion" type="xs:string" use="required" fixed="1.0"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines a string section. A section is a logical group of strings. -->
+  <xs:element name="Section">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="String" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+
+      <!-- Defines the name of a string section. Strings in different files but
+           which are located in sections of the same name are merged internally.
+           The name must not contain a dot ("."). -->
+      <xs:attribute name="Name" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Definition of a localization string. -->
+  <xs:element name="String">
+    <xs:complexType>
+      <!-- Name of the locatlization string. The string name may contain dots ("."). -->
+      <xs:attribute name="Name" type="xs:string" use="required"/>
+
+      <!-- Localized text string. May contain placeholders of the form "{0}", "{1}" etc. -->
+      <xs:attribute name="Text" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

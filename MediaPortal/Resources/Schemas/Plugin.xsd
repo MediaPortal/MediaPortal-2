@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+ TODO: Check:
+  - DeploymentType: Is "Frontend,Backend" really a valid deployment type?
+  - Must comments be written at the referencing or at the referenced elements?
+
+ TODO: Changes in the plugin descriptors:
+  - Plugin -> MediaPortalPlugin
+  - True/False -> true/false
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ct="www.team-mediaportal.com/2010/datatypes/common">
+
+  <!-- Import of common data types. -->
+  <xs:import schemaLocation="CommonTypes.xsd" namespace="www.team-mediaportal.com/2010/datatypes/common"/>
+
+  <!-- Root element of a MediaPortal 2 plugin descriptor file -->
+  <xs:element name="MediaPortalPlugin">
+    <xs:complexType>
+      <xs:sequence>
+        <!-- Declares dependencies of the plugin. The plugin manager will ensure
+             that referenced plugins are present and started before the plugin
+             is started. -->
+        <xs:element name="DependsOn" type="PluginReferencesContainerType" minOccurs="0" maxOccurs="1"/>
+
+        <!-- Declares conflicting plugins. The plugin manager will ensure that
+             none of the referenced plugins is enabled. -->
+        <xs:element name="ConflictsWith" type="PluginReferencesContainerType" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element ref="Runtime" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element ref="Builder" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element ref="Register" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+
+      <!-- Version of the descriptor file syntax. Must be "1.0". -->
+      <xs:attribute name="DescriptorVersion" type="xs:string" use="required" fixed="1.0"/>
+
+      <!-- Guid of the plugin. Must be unique and may contain curly brackets ({} characters). -->
+      <xs:attribute name="PluginId" type="ct:GuidWithOptionalBrackets" use="required"/>
+
+      <!-- Short, human-readable name for the plugin. This property is only a
+           hint for developers to identify the plugin. Doesn't need to be unique. -->
+      <xs:attribute name="Name" type="xs:string" use="required"/>
+
+      <!-- Defines, in which MediaPortal 2 applications the plugin can run. -->
+      <xs:attribute name="DeploymentType" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <!-- The plugin can only run in the MediaPortal 2 frontend (GUI application). -->
+            <xs:enumeration value="Frontend"/>
+
+            <!-- The plugin can only run in the MediaPortal 2 backend (server application). -->
+            <xs:enumeration value="Backend"/>
+
+            <!-- The plugin can run in both the MediaPortal 2 frontend and backend. -->
+            <xs:enumeration value="Frontend,Backend"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+
+      <!-- Defines the author of the plugin. -->
+      <xs:attribute name="Author" type="xs:string" use="optional"/>
+
+      <!-- Description of the job of the plugin. -->
+      <xs:attribute name="Description" type="xs:string" use="optional"/>
+
+      <!-- Copyright statement. -->
+      <xs:attribute name="Copyright" type="xs:string" use="optional"/>
+
+      <!-- Custom version stamp of the plugin. -->
+      <xs:attribute name="PluginVersion" type="xs:string" use="required"/>
+
+      <!-- Sets the auto activation for the plugin. If set to "true", the plugin will
+           be started automatically on system startup. -->
+      <xs:attribute name="AutoActivate" use="optional" type="xs:boolean" default="false"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines runtime information for the plugin like assemblies to be loaded
+       and the plugin state tracker. -->
+  <xs:element name="Runtime">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Assembly" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PluginStateTracker" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines an assembly to be loaded when the plugin is started. -->
+  <xs:element name="Assembly">
+    <xs:complexType>
+      <!-- File name of the assembly relative to the plugin directory/plugin descriptor. -->
+      <xs:attribute name="FileName" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines a plugin item builder which makes new item types available. -->
+  <xs:element name="Builder">
+    <xs:complexType>
+      <!-- Name of the items which are built by the builder. -->
+      <xs:attribute name="Name" type="xs:string" use="required"/>
+
+      <!-- Class name of the builder. The given class must implement the interface
+           IPluginItemBuilder. -->
+      <xs:attribute name="ClassName" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Defines a plugin state tracker class. The plugin state tracker is able
+       to watch the runtime state of the plugin. The class must implement the
+       interface IPluginStateTracker. -->
+  <xs:element name="PluginStateTracker">
+    <xs:complexType>
+      <!-- Class name of the plugin state tracker to load. -->
+      <xs:attribute name="ClassName" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Registers several items in the plugin item tree. -->
+  <xs:element name="Register">
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <!-- Any plugin items can be defined here. -->
+        <xs:any processContents="skip"/>
+      </xs:choice>
+
+      <!-- Defines the location inside the plugin item tree where the plugin
+           item should be placed. -->
+      <xs:attribute name="Location" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Data types -->
+
+  <!-- An element containing one or more "PluginReference" elements. -->
+  <xs:complexType name="PluginReferencesContainerType">
+    <xs:sequence>
+      <!-- An element declaring a reference to another plugin. -->
+      <xs:element name="PluginReference" type="PluginReferenceType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- An element containing a reference to another plugin. -->
+  <xs:complexType name="PluginReferenceType">
+    <!-- An attribute containing the id of another plugin. -->
+    <xs:attribute name="PluginId" type="ct:GuidWithOptionalBrackets" use="required"/>
+  </xs:complexType>
+
+</xs:schema>
