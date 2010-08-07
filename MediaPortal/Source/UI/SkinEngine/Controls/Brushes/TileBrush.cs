@@ -22,11 +22,13 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
+using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
@@ -40,19 +42,46 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     // Content is tiled and flipped around x-axis
     FlipX,
     // Content is tiled and flipped around y-axis
-    FlipY
+    FlipY,
+    // Content is tiled and flipped around both x and y-axis
+    FlipXY
   };
 
   public abstract class TileBrush : Brush
   {
-    #region Private fields
+    #region Consts
 
-    AbstractProperty _alignmentXProperty;
-    AbstractProperty _alignmentYProperty;
-    AbstractProperty _stretchProperty;
-    AbstractProperty _viewPortProperty;
-    AbstractProperty _tileModeProperty;
+    protected const string EFFECT_TILE = "tile";
+    protected const string EFFECT_TILEOPACITY = "tileopacity";
 
+    protected const string PARAM_TRANSFORM = "g_transform";
+    protected const string PARAM_OPACITY = "g_opacity";
+
+    protected const string PARAM_TEXTURE = "g_texture";
+    protected const string PARAM_ALPHATEX = "g_alphatex";
+    protected const string PARAM_TEXTURE_VIEWPORT = "g_textureviewport";
+    protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
+    protected const string PARAM_BRUSH_TRANSFORM = "g_brushtransform";
+
+    protected const string PARAM_U_OFFSET = "g_uoffset";
+    protected const string PARAM_V_OFFSET = "g_voffset";
+    protected const string PARAM_TILE_U = "g_tileu";
+    protected const string PARAM_TILE_V = "g_tilev";
+
+    #endregion
+
+    #region Protected fields
+
+    protected AbstractProperty _alignmentXProperty;
+    protected AbstractProperty _alignmentYProperty;
+    protected AbstractProperty _stretchProperty;
+    protected AbstractProperty _viewPortProperty;
+    protected AbstractProperty _tileModeProperty;
+
+    protected bool _refresh = true;
+    protected EffectAsset _effect;
+    protected Vector4 _textureViewport;
+    protected Vector4 _brushTransform;
     #endregion
 
     #region Ctor
@@ -107,6 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Tile = b.Tile;
       ViewPort = copyManager.GetCopy(b.ViewPort);
       Attach();
+      _refresh = true;
     }
 
     #endregion
@@ -170,71 +200,213 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    protected virtual Vector2 TextureMaxUV
     {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      // todo here:
-      ///   - stretchmode
-      ///   - tilemode  : none,tile,flipx,flipy
-      ///   - alignmentx/alignmenty
-      ///   - viewport  : dimensions of a single tile
-      ///   
-      switch (Stretch)
+      get { return new Vector2(1.0f, 1.0f); }
+    }
+
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
+    {
+      _refresh = true;
+      FireChanged();
+    }
+
+    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    {
+      if (Texture == null)
+        return false;
+
+      Matrix finalTransform = renderContext.Transform.Clone();
+   
+      if (_refresh) 
       {
-        case Stretch.None:
-          // Center, original size
-          break;
+        _effect = ContentManager.GetEffect(EFFECT_TILE);
+        RefreshEffectParameters();
 
-        case Stretch.Uniform:
-          // Center, keep aspect ratio and show borders
-          break;
-
-        case Stretch.UniformToFill:
-          // Keep aspect ratio, zoom in to avoid borders
-          break;
-
-        case Stretch.Fill:
-          // Stretch to fill
-          break;
+        _refresh = false;
       }
 
-      float xoff = _vertsBounds.X;
-      float yoff = _vertsBounds.Y;
+      SetEffectParameters(renderContext, finalTransform);   
+      _effect.StartRender(Texture, finalTransform);
+
+      return true;
+    }
+
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      if (Texture == null)
+        return;
+
+      Matrix finalTransform = renderContext.Transform.Clone();
+
+      if (_refresh)
+      {
+        _effect = ContentManager.GetEffect(EFFECT_TILEOPACITY);
+        RefreshEffectParameters();
+
+        _refresh = false;
+      }
+
+      SetEffectParameters(renderContext, finalTransform);
+      _effect.Parameters[PARAM_ALPHATEX] = Texture;
+
+      _effect.StartRender(tex, finalTransform);
+
+      return;
+    }
+
+    public override void EndRender()
+    {
+      if (_effect != null)
+        _effect.EndRender();
+    }
+
+    protected void RefreshEffectParameters()
+    {
       float w = _vertsBounds.Width;
       float h = _vertsBounds.Height;
 
-      for (int i = 0; i < verts.Length; ++i)
+      Vector4 brushRect = ViewPort;
+      // Determine image rect in viewport space
+      if (Stretch != Stretch.Fill)
       {
-        float x1 = verts[i].X;
-        float u = x1 - xoff;
-        u /= w * ViewPort.Z;
-        u += ViewPort.X;
-
-        float y1 = verts[i].Y;
-        float v = y1 - yoff;
-        v /= h * ViewPort.W;
-        v += ViewPort.Y;
-
-        Scale(ref u, ref v);
-
-        if (u < 0) u = 0;
-        if (u > 1) u = 1;
-        if (v < 0) v = 0;
-        if (v > 1) v = 1;
-        unchecked
+        // Convert brush dimensions to viewport space
+        Vector2 brushSize = BrushDimensions;
+        brushSize.X /= w;
+        brushSize.Y /= h;
+        switch (Stretch)
         {
-          Color4 color = ColorConverter.FromColor(Color.White);
-          color.Alpha *= (float) Opacity;
-          verts[i].Color = color.ToArgb();
+          case Stretch.None:
+            // Center (or alignment), original size
+            break;
+
+          case Stretch.Uniform:
+            // Center (or alignment), keep aspect ratio and show borders
+            {
+              float ratio = System.Math.Min(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
+              brushSize.X *= ratio;
+              brushSize.Y *= ratio;
+            }
+            break;
+
+          case Stretch.UniformToFill:
+            // Center (or alignment), keep aspect ratio, zoom in to avoid borders
+            {
+              float ratio = System.Math.Max(ViewPort.Z / brushSize.X, ViewPort.W / brushSize.Y);
+              brushSize.X *= ratio;
+              brushSize.Y *= ratio;
+            }
+            break;
         }
-        verts[i].Tu1 = u;
-        verts[i].Tv1 = v;
-        verts[i].Z = zOrder;
+        // Align brush in viewport
+        brushRect = AlignBrushInViewport(brushSize);
       }
+
+      // Compensate for any texture borders and subtract an additonal texel to avoid ugly filtering border
+      Vector2 maxuv = TextureMaxUV;
+      brushRect.Z /= maxuv.X;
+      brushRect.W /= maxuv.Y;
+
+      float repeatx = 1.0f / brushRect.Z;
+      float repeaty = 1.0f / brushRect.W;
+      
+      // Transform ViewPort into Texture-space and store for later use in tiling
+      _textureViewport = new Vector4
+        {
+            X = ViewPort.X*repeatx - brushRect.X*repeatx,
+            Y = ViewPort.Y*repeaty - brushRect.Y*repeaty,
+            Z = ViewPort.Z*repeatx,
+            W = ViewPort.W*repeaty
+        };
+
+      // This structure is used for modifying vertex texture coords to position the brush texture
+      _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
     }
 
-    protected virtual void Scale(ref float u, ref float v)
-    { }
+    protected void SetEffectParameters(RenderContext renderContext, Matrix finalTransform)
+    {
+      Vector2 uvoffset = new Vector2(0.0f, 0.0f);
+      switch (Tile)
+      {
+        case TileMode.Tile:
+          // Tile both directions
+          _effect.Parameters[PARAM_TILE_U] = 1; // D3DTADDRESS_WRAP
+          _effect.Parameters[PARAM_TILE_V] = 1; // D3DTADDRESS_WRAP
+          break;
+        case TileMode.FlipX:
+          // Tile both directions but mirror texture on alterate repeats in u/x direction
+          _effect.Parameters[PARAM_TILE_U] = 2; // D3DTADDRESS_MIRROR
+          _effect.Parameters[PARAM_TILE_V] = 1; // D3DTADDRESS_WRAP
+          uvoffset.X = 1.0f - TextureMaxUV.X;
+          break;
+        case TileMode.FlipY:
+          // Tile both directions but mirror texture on alterate repeats in v/y direction
+          _effect.Parameters[PARAM_TILE_U] = 1; // D3DTADDRESS_WRAP
+          _effect.Parameters[PARAM_TILE_V] = 2; // D3DTADDRESS_MIRROR
+          uvoffset.Y = 1.0f - TextureMaxUV.Y;
+          break;
+        case TileMode.FlipXY:
+          // Tile and mirror texture in both directions
+          _effect.Parameters[PARAM_TILE_U] = 2; // D3DTADDRESS_MIRROR
+          _effect.Parameters[PARAM_TILE_V] = 2; // D3DTADDRESS_MIRROR
+          uvoffset = TextureMaxUV;
+          uvoffset.X = 1.0f - uvoffset.X;
+          uvoffset.Y = 1.0f - uvoffset.Y;
+          break;
+        case TileMode.None:
+        default:
+          // No tiling
+          _effect.Parameters[PARAM_TILE_U] = 4; // D3DTADDRESS_BORDER
+          _effect.Parameters[PARAM_TILE_V] = 4; // D3DTADDRESS_BORDER
+          break;
+      }
+
+      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+      _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
+      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
+      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+      _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
+      _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
+    }
+
+    protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)
+    {
+      Vector4 rect = new Vector4();
+      switch (AlignmentX)
+      {
+        case AlignmentX.Left:
+          rect.X = ViewPort.X;
+          break;
+
+        case AlignmentX.Right:
+          rect.X = ViewPort.X + ViewPort.Z - brush_size.X;
+          break;
+
+        case AlignmentX.Center:
+        default:
+          rect.X = ViewPort.X + (ViewPort.Z - brush_size.X) / 2;
+          break;
+      }
+      switch (AlignmentY)
+      {
+        case AlignmentY.Top:
+          rect.Y = ViewPort.Y;
+          break;
+
+        case AlignmentY.Bottom:
+          rect.Y = ViewPort.Y + ViewPort.W - brush_size.Y;
+          break;
+
+        case AlignmentY.Center:
+        default:
+          rect.Y = ViewPort.Y + (ViewPort.W - brush_size.Y) / 2;
+          break;
+      }
+      rect.Z = brush_size.X;
+      rect.W = brush_size.Y;
+      return rect;
+    }
 
     protected virtual Vector2 BrushDimensions
     {

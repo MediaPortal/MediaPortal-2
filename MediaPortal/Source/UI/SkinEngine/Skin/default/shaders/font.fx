@@ -1,4 +1,4 @@
-half4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
+float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture  g_texture; // Color texture 
  
 sampler textureSampler = sampler_state
@@ -12,23 +12,23 @@ sampler textureSampler = sampler_state
 // application to vertex structure
 struct a2v
 {
-  half4 Position  : POSITION0;
-  half4 Color     : COLOR0;
-  half2 Texcoord  : TEXCOORD0;  // vertex texture coords 
+  float4 Position  : POSITION0;
+  float4 Color     : COLOR0;
+  float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
 struct v2p
 {
-  half4 Position   : POSITION;
-  half4 Color      : COLOR0;
-  half2 Texcoord   : TEXCOORD0;
+  float4 Position   : POSITION;
+  float4 Color      : COLOR0;
+  float2 Texcoord   : TEXCOORD0;
 };
 
 // pixel shader to frame
 struct p2f
 {
-  half4 Color : COLOR0;
+  float4 Color : COLOR0;
 };
 
 void renderVertexShader(in a2v IN, out v2p OUT)
@@ -40,8 +40,8 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  half val = tex2D(textureSampler, IN.Texcoord);
-  half4 pixel; 
+  float val = tex2D(textureSampler, IN.Texcoord);
+  float4 pixel; 
   pixel.rgb = 1.0;
   pixel.a   = val;
   OUT.Color = pixel * IN.Color;

@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -34,13 +33,13 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  // TODO: Implement
   public class ImageBrush : TileBrush
   {
     #region Private fields
 
     AbstractProperty _imageSourceProperty;
     AbstractProperty _downloadProgressProperty;
+    AbstractProperty _thumbnailProperty;
     TextureAsset _tex;
 
     #endregion
@@ -64,16 +63,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _imageSourceProperty = new SProperty(typeof(string), null);
       _downloadProgressProperty = new SProperty(typeof(double), 0.0);
+      _thumbnailProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
     {
       _imageSourceProperty.Attach(OnPropertyChanged);
+      _downloadProgressProperty.Attach(OnPropertyChanged);
+      _thumbnailProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
     {
       _imageSourceProperty.Detach(OnPropertyChanged);
+      _downloadProgressProperty.Detach(OnPropertyChanged);
+      _thumbnailProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -83,6 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       ImageBrush b = (ImageBrush) source;
       ImageSource = b.ImageSource;
       DownloadProgress = b.DownloadProgress;
+      Thumbnail = b.Thumbnail;
       Attach();
     }
 
@@ -112,29 +117,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _downloadProgressProperty.SetValue(value); }
     }
 
+    public override Texture Texture
+    {
+      get
+      {
+        if (_tex == null)
+          Allocate();
+        return (_tex == null) ? null : _tex.Texture;
+      }
+    }
+
+    public AbstractProperty ThumbnailProperty
+    {
+      get { return _thumbnailProperty; }
+    }
+
+    public bool Thumbnail
+    {
+      get { return (bool) _thumbnailProperty.GetValue(); }
+      set { _thumbnailProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Protected methods
+
+    protected override Vector2 TextureMaxUV
+    {
+      get
+      {
+        if (_tex == null)
+          Allocate();
+        return _tex == null ? new Vector2(1.0f, 1.0f) : new Vector2(_tex.MaxU, _tex.MaxV);
+      }
+    }
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Free();
     }
 
-    protected override void Scale(ref float u, ref float v)
-    {
-      if (_tex == null) return;
-      u *= _tex.MaxU;
-      v *= _tex.MaxV;
-    }
-
     protected override Vector2 BrushDimensions
     {
       get
       {
-        if (_tex == null)
-          return base.BrushDimensions;
-        return new Vector2(_tex.Width, _tex.Height);
+        return _tex == null ? base.BrushDimensions : new Vector2(_tex.Width, _tex.Height);
       }
     }
 
@@ -149,38 +176,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void Allocate()
     {
-      _tex = ContentManager.GetTexture(ImageSource, true);
+      _tex = ContentManager.GetTexture(ImageSource, Thumbnail);
       _tex.Allocate();
     }
 
     public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       if (_tex == null)
-      {
         Allocate();
-        base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      }
+      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
     }
 
     public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
-      // TODO: Implement and use method in TileBrush
-      // TODO: Transform, RelativeTransform
       if (_tex == null)
         Allocate();
       _tex.Set(0);
-      return true;
+      return base.BeginRenderBrush(primitiveContext, renderContext);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
-      // TODO: Create method in TileBrush to render an image as opacity brush and use that method here
-      throw new NotImplementedException();
-    }
-
-    public override void EndRender()
-    {
-      // TODO: Create method in TileBrush and call from here
+      if (_tex == null)
+        Allocate();
+      _tex.Set(0);
+      base.BeginRenderOpacityBrush(tex, renderContext);
     }
 
     #endregion

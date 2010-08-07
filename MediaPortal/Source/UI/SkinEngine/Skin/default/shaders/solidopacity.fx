@@ -40,8 +40,8 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
+  float4 texPos = float4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
+  OUT.Color = tex2D(textureSampler, float2(texPos.x, texPos.y));
 
   OUT.Color[3] *= g_solidcolor[3];
 }

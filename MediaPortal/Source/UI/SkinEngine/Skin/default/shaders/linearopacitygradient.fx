@@ -1,11 +1,11 @@
-half4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
+float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
-half4x4  g_transform;
+float4x4  g_transform;
 float    g_opacity;
-half2    g_startpoint = {0.5f, 0.0f};
-half2    g_endpoint = {0.5f, 1.0f};
-half2    g_uppervertsbounds;
-half2    g_lowervertsbounds;
+float2    g_startpoint = {0.5f, 0.0f};
+float2    g_endpoint = {0.5f, 1.0f};
+float2    g_uppervertsbounds;
+float2    g_lowervertsbounds;
 texture  g_texture; // Color texture 
 texture  g_alphatex; // Alpha gradient texture 
 
@@ -28,28 +28,28 @@ sampler alphaSampler = sampler_state
 // application to vertex structure
 struct a2v
 {
-  half4 Position  : POSITION0;
-  half2 Texcoord  : TEXCOORD0;  // vertex texture coords 
+  float4 Position  : POSITION0;
+  float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
 struct v2p
 {
-  half4 Position   : POSITION;
-  half2 Texcoord   : TEXCOORD0;
+  float4 Position   : POSITION;
+  float2 Texcoord   : TEXCOORD0;
 };
 
 // pixel shader to frame
 struct p2f
 {
-  half4 Color : COLOR0;
+  float4 Color : COLOR0;
 };
 
-half GetColor(half2 pos)
+float GetColor(float2 pos)
 {
-  half2 vPos = pos-g_startpoint;
-  half2 vDist = g_endpoint-g_startpoint;
-  half dist = dot(vPos, vDist) / dot(vDist, vDist);
+  float2 vPos = pos-g_startpoint;
+  float2 vDist = g_endpoint-g_startpoint;
+  float dist = dot(vPos, vDist) / dot(vDist, vDist);
 
   return dist;
 }
@@ -62,18 +62,18 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  half4 texPos = half4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
+  float4 texPos = float4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
   texPos = mul(texPos, g_transform);
-  OUT.Color = tex2D(textureSampler, half2(texPos.x, texPos.y));
+  OUT.Color = tex2D(textureSampler, float2(texPos.x, texPos.y));
 
-  half4 alphaPos = half4(
+  float4 alphaPos = float4(
       (IN.Texcoord.x - g_lowervertsbounds.x)/(g_uppervertsbounds.x - g_lowervertsbounds.x),
       (IN.Texcoord.y - g_lowervertsbounds.y)/(g_uppervertsbounds.y - g_lowervertsbounds.y), 0, 1);
   alphaPos = mul(alphaPos, g_transform);
-  half dist = GetColor(half2(alphaPos.x, alphaPos.y));
+  float dist = GetColor(float2(alphaPos.x, alphaPos.y));
   dist = clamp(dist, 0, 0.9999);
 
-  half4 alphaColor = tex1D(alphaSampler, dist);
+  float4 alphaColor = tex1D(alphaSampler, dist);
   OUT.Color[3] *= alphaColor[3] * g_opacity;
 }
 
