@@ -729,14 +729,26 @@ namespace MediaPortal.UI.Services.Workflow
       {
         if (!IsStateContainedInNavigationStack(stateId))
           return false;
+        bool removed = false;
         while (CurrentNavigationContext.WorkflowState.StateId != stateId)
+        {
+          removed = true;
           if (!DoPopNavigationContext(1))
             break;
+        }
         if (inclusive)
+        {
+          removed = true;
           DoPopNavigationContext(1);
-        UpdateScreen_NeedsLock();
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
-        return true;
+        }
+        if (removed)
+        {
+          UpdateScreen_NeedsLock();
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+          return true;
+        }
+        else
+          return false;
       }
       finally
       {
