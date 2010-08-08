@@ -398,7 +398,7 @@ namespace MediaPortal.UiComponents.Media.Models
               new MusicSimpleSearchScreenData(picd),
             };
         navigationData = new NavigationData(Consts.MUSIC_VIEW_NAME_RESOURCE, currentStateId,
-            rootViewSpecification, sd, availableScreens);
+            currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else if (currentStateId == MOVIES_NAVIGATION_ROOT_STATE)
       {
@@ -419,7 +419,7 @@ namespace MediaPortal.UiComponents.Media.Models
               new MoviesSimpleSearchScreenData(picd),
           };
         navigationData = new NavigationData(Consts.MOVIES_VIEW_NAME_RESOURCE, currentStateId,
-            rootViewSpecification, sd, availableScreens);
+            currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else if (currentStateId == PICTURES_NAVIGATION_ROOT_STATE)
       {
@@ -439,7 +439,7 @@ namespace MediaPortal.UiComponents.Media.Models
               new PicturesSimpleSearchScreenData(picd),
           };
         navigationData = new NavigationData(Consts.PICTURES_VIEW_NAME_RESOURCE, currentStateId,
-            rootViewSpecification, sd, availableScreens);
+            currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else
       { // If we were called with a supported root state, we should be in state LOCAL_MEDIA_NAVIGATION_ROOT_STATE here
@@ -483,7 +483,7 @@ namespace MediaPortal.UiComponents.Media.Models
                 });
         // Dynamic screens remain null - local media doesn't provide dynamic filters
         navigationData = new NavigationData(Consts.LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE, currentStateId,
-            rootViewSpecification, new LocalMediaNavigationScreenData(picd), null);
+            currentStateId, rootViewSpecification, new LocalMediaNavigationScreenData(picd), null);
       }
       SetNavigationData(navigationData, _currentNavigationContext);
     }

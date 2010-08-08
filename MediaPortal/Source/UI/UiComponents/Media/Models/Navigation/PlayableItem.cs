@@ -28,6 +28,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -42,13 +43,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </remarks>
   public class PlayableItem : ListItem
   {
-    #region Public consts
-
-    public const string KEY_NAME = "Name";
-    public const string KEY_LENGTH = "Length";
-
-    #endregion
-
     #region Protected fields
 
     protected MediaItem _mediaItem;
@@ -74,8 +68,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
       if (!length.HasValue)
         length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
-      SetLabel(KEY_NAME, name);
-      SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) length.Value)) : string.Empty);
+      SetLabel(Consts.NAME_KEY, name);
+      SetLabel(Consts.LENGTH_KEY, length.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) length.Value)) : string.Empty);
       // TODO: Open ListItem to store ints (rating), dates (Date) and other objects in ListItems
     }
 
@@ -86,14 +80,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
     public string Name
     {
-      get { return this[KEY_NAME]; }
-      set { SetLabel(KEY_NAME, value); }
+      get { return this[Consts.NAME_KEY]; }
+      set { SetLabel(Consts.NAME_KEY, value); }
     }
 
     public string Length
     {
-      get { return this[KEY_LENGTH]; }
-      set { SetLabel(KEY_LENGTH, value); }
+      get { return this[Consts.LENGTH_KEY]; }
+      set { SetLabel(Consts.LENGTH_KEY, value); }
     }
   }
 }

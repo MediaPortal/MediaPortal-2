@@ -101,8 +101,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                       {
                         WorkflowState newState = WorkflowState.CreateTransientState(filterTitle, filterTitle, false, null, false,
                             WorkflowType.Workflow);
-                        NavigationData newNavigationData = new NavigationData(filterTitle, newState.StateId, subVS,
-                            remainingScreens.FirstOrDefault(), remainingScreens);
+                        NavigationData newNavigationData = new NavigationData(filterTitle, newState.StateId, newState.StateId,
+                            subVS, remainingScreens.FirstOrDefault(), remainingScreens);
                         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                         workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
                           {

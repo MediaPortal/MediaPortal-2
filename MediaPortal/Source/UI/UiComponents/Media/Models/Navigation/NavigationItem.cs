@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -37,12 +38,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </remarks>
   public class NavigationItem : ListItem
   {
-    #region Public consts
-
-    public const string KEY_NAME = "Name";
-
-    #endregion
-
     #region Protected fields
 
     protected View _view;
@@ -60,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public void UpdateData()
     {
       string name = string.IsNullOrEmpty(_overrideName) ? _view.DisplayName : _overrideName;
-      SetLabel(KEY_NAME, name);
+      SetLabel(Consts.NAME_KEY, name);
 
       // TODO: Other properties
     }

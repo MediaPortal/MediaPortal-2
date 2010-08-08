@@ -105,6 +105,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string NAME_KEY = "Name";
     public const string MEDIA_ITEM_KEY = "MediaItem";
     public const string NUM_ITEMS_KEY = "NumItems";
+    public const string LENGTH_KEY = "Length";
 
     public static readonly Guid[] NECESSARY_MOVIE_MIAS = new Guid[]
       {

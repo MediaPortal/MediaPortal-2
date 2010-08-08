@@ -47,7 +47,8 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected properties
 
     protected string _navigationContextName;
-    protected Guid _workflowStateId;
+    protected Guid _currentWorkflowStateId;
+    protected Guid _baseWorkflowStateId;
     protected ViewSpecification _baseViewSpecification;
     protected AbstractScreenData _currentScreenData;
     protected ICollection<AbstractScreenData> _availableScreens;
@@ -55,11 +56,22 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #endregion
 
-    public NavigationData(string navigationContextName, Guid workflowStateId,
+    /// <summary>
+    /// Creates a new navigation data structure for a new media navigation step.
+    /// </summary>
+    /// <param name="navigationContextName">Name, which is used for the corresponding workflow navigation context.</param>
+    /// <param name="currentWorkflowStateId">Id of the workflow state which corresponds to the new media navigation step.</param>
+    /// <param name="baseWorkflowStateId">Id of the workflow state to which the workflow navigation should be reverted when
+    /// another filter is choosen.</param>
+    /// <param name="baseViewSpecification">View specification for the media items of the new media navigation step.</param>
+    /// <param name="defaultScreen">Screen which should present the new navigation step by default.</param>
+    /// <param name="availableScreens">Available set of screen descriptions which can present the new media navigation step.</param>
+    public NavigationData(string navigationContextName, Guid baseWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens)
     {
       _navigationContextName = navigationContextName;
-      _workflowStateId = workflowStateId;
+      _currentWorkflowStateId = currentWorkflowStateId;
+      _baseWorkflowStateId = baseWorkflowStateId;
       _baseViewSpecification = baseViewSpecification;
       _currentScreenData = defaultScreen;
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
@@ -74,6 +86,22 @@ namespace MediaPortal.UiComponents.Media.Models
     public ViewSpecification BaseViewSpecification
     {
       get { return _baseViewSpecification; }
+    }
+
+    /// <summary>
+    /// Returns the id of the workflow state to which we must revert when a different view presentation screen is choosen.
+    /// </summary>
+    public Guid BaseWorkflowStateId
+    {
+      get { return _baseWorkflowStateId; }
+    }
+
+    /// <summary>
+    /// Returns the id of the corresponding workflow state.
+    /// </summary>
+    public Guid CurrentWorkflowStateId
+    {
+      get { return _currentWorkflowStateId; }
     }
 
     public AbstractScreenData CurrentScreenData
@@ -120,13 +148,19 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         AbstractScreenData newScreen = screen; // Necessary to be used in closure
         WorkflowAction action = new MethodDelegateAction(Guid.NewGuid(),
-            _navigationContextName + "->" + newScreen.MenuItemLabel, _workflowStateId,
+            _navigationContextName + "->" + newScreen.MenuItemLabel, _currentWorkflowStateId,
             LocalizationHelper.CreateResourceString(newScreen.MenuItemLabel), () =>
               {
                 _currentScreenData.ReleaseScreenData();
                 _currentScreenData = newScreen;
                 _currentScreenData.CreateScreenData(this);
-                SwitchToCurrentScreen();
+                IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+                // The last screen could have stepped into a deeper media navigation context when it had produced
+                // sub views. But when a different screen is choosen to represent the underlaying view, we
+                // need to revert our workflow to the base workflow id before going into the new screen.
+                if (!workflowManager.NavigatePopToState(_baseWorkflowStateId, false))
+                  // If the WF manager didn't change the state, still update the screen
+                  SwitchToCurrentScreen();
               })
           {
               DisplayCategory = FILTERS_WORKFLOW_CATEGORY,

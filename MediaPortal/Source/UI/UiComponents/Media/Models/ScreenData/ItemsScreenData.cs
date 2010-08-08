@@ -29,6 +29,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
 
@@ -123,7 +124,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             IsItemsValid = true;
             IsItemsEmpty = false;
             TooManyItems = true;
-            NumItemsStr = General.Utils.BuildNumItemsStr(subViews.Count + mediaItems.Count);
+            NumItemsStr = Utils.BuildNumItemsStr(subViews.Count + mediaItems.Count);
           }
           else
           {
@@ -135,7 +136,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               item.Command = new MethodDelegateCommand(() => NavigateToView(sv.Specification));
               viewsList.Add(item);
             }
-            viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
+            viewsList.Sort((v1, v2) => string.Compare(v1[Consts.NAME_KEY], v2[Consts.NAME_KEY]));
             CollectionUtils.AddAll(items, viewsList);
 
             PlayableItemCreatorDelegate picd = PlayableItemCreator;
@@ -147,13 +148,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 continue;
               itemsList.Add(item);
             }
-            itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
+            itemsList.Sort((i1, i2) => string.Compare(i1[Consts.NAME_KEY], i2[Consts.NAME_KEY]));
             CollectionUtils.AddAll(items, itemsList);
 
             IsItemsValid = true;
             IsItemsEmpty = items.Count == 0;
             TooManyItems = false;
-            NumItemsStr = General.Utils.BuildNumItemsStr(items.Count);
+            NumItemsStr = Utils.BuildNumItemsStr(items.Count);
           }
         }
       }
@@ -180,8 +181,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           false, null, true, WorkflowType.Workflow);
       ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(_navigationData.AvailableScreens);
       remainingScreens.Remove(this);
-      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName, newState.StateId,
-          subViewSpecification, Derive(), remainingScreens);
+      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName,
+          _navigationData.BaseWorkflowStateId, newState.StateId, subViewSpecification, Derive(), remainingScreens);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {
