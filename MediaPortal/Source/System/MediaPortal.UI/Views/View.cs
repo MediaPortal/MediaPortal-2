@@ -40,16 +40,14 @@ namespace MediaPortal.UI.Views
     protected IList<View> _subViews = null; // Initialized = _subViews != null
 
     protected ViewSpecification _viewSpecification;
-    protected View _parentView;
     protected string _displayName;
 
     #endregion
 
     #region Ctor
 
-    internal View(View parentView, ViewSpecification viewSpecification)
+    internal View(ViewSpecification viewSpecification)
     {
-      _parentView = parentView;
       _viewSpecification = viewSpecification;
       _displayName = viewSpecification.ViewDisplayName;
     }
@@ -87,14 +85,6 @@ namespace MediaPortal.UI.Views
     public ViewSpecification Specification
     {
       get { return _viewSpecification; }
-    }
-
-      /// <summary>
-    /// Returns the parent view of this view.
-    /// </summary>
-    public View ParentView
-    {
-      get { return _parentView; }
     }
 
     /// <summary>
@@ -168,7 +158,7 @@ namespace MediaPortal.UI.Views
       _subViews = new List<View>();
       foreach (ViewSpecification vs in subViewSpecifications)
       {
-        View subView = new View(this, vs) {_displayName = vs.ViewDisplayName};
+        View subView = new View(vs) {_displayName = vs.ViewDisplayName};
         _subViews.Add(subView);
       }
     }

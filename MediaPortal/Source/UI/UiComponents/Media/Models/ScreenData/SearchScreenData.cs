@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     protected AbstractProperty _simpleSearchTextProperty;
     protected Timer _searchTimer;
-    protected View _baseView = null;
+    protected StackedFiltersMLVS _baseViewSpecification = null;
 
     #endregion
 
@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void  CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      InitializeSearch(navigationData.BaseView);
+      InitializeSearch(navigationData.BaseViewSpecification);
     }
 
     public override void ReleaseScreenData()
@@ -85,21 +85,17 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         return;
       if (string.IsNullOrEmpty(SimpleSearchText))
         return;
-      View cv = _baseView;
-      if (cv == null)
-        return;
-      StackedFiltersMLVS sfmlvs = cv.Specification as StackedFiltersMLVS;
-      if (sfmlvs == null)
-        // Should never occur because the search should only present when we are in a mode which copes with StackedFilterMLVSs
-        return;
       View view = new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, sfmlvs.Filters), sfmlvs.NecessaryMIATypeIds, sfmlvs.OptionalMIATypeIds, true, true).BuildRootView();
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _baseViewSpecification.Filters),
+          _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds, true, true).BuildView();
       ReloadMediaItems(view, false);
     }
 
-    protected void InitializeSearch(View baseView)
+    protected void InitializeSearch(ViewSpecification baseViewSpecification)
     {
-      _baseView = baseView;
+      _baseViewSpecification = baseViewSpecification as StackedFiltersMLVS;
+      if (_baseViewSpecification == null)
+        return;
       if (_simpleSearchTextProperty == null)
       {
         _simpleSearchTextProperty = new WProperty(typeof(string), string.Empty);

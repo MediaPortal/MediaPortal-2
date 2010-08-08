@@ -40,7 +40,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public class FiltersScreenData : AbstractScreenData
   {
-    protected View _baseView;
     protected MLFilterCriterion _filterCriterion;
 
     public FiltersScreenData(string screen, string menuItemLabel, MLFilterCriterion filterCriterion) :
@@ -52,22 +51,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      _baseView = navigationData.BaseView;
-      StackedFiltersMLVS sfmlvs = _baseView.Specification as StackedFiltersMLVS;
+      StackedFiltersMLVS sfmlvs = navigationData.BaseViewSpecification as StackedFiltersMLVS;
       if (sfmlvs == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("FilterScreenData: Wrong type of media library view '{0}'", _baseView.Specification);
+        ServiceRegistration.Get<ILogger>().Error("FilterScreenData: Wrong type of media library view '{0}'", navigationData.BaseViewSpecification);
         return;
       }
       ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(navigationData.AvailableScreens);
       remainingScreens.Remove(this);
       CreateFilterValuesList(sfmlvs, remainingScreens);
-    }
-
-    public override void ReleaseScreenData()
-    {
-      base.ReleaseScreenData();
-      _baseView = null;
     }
 
     /// <summary>
@@ -109,7 +101,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                       {
                         WorkflowState newState = WorkflowState.CreateTransientState(filterTitle, filterTitle, false, null, false,
                             WorkflowType.Workflow);
-                        NavigationData newNavigationData = new NavigationData(filterTitle, newState.StateId, subVS.BuildRootView(),
+                        NavigationData newNavigationData = new NavigationData(filterTitle, newState.StateId, subVS,
                             remainingScreens.FirstOrDefault(), remainingScreens);
                         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                         workflowManager.NavigatePushTransient(newState, new NavigationContextConfig

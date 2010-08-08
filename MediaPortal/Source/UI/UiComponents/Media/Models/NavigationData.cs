@@ -48,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected string _navigationContextName;
     protected Guid _workflowStateId;
-    protected View _baseView;
+    protected ViewSpecification _baseViewSpecification;
     protected AbstractScreenData _currentScreenData;
     protected ICollection<AbstractScreenData> _availableScreens;
     protected ICollection<WorkflowAction> _dynamicWorkflowActions;
@@ -56,11 +56,11 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     public NavigationData(string navigationContextName, Guid workflowStateId,
-        View baseView, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens)
+        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens)
     {
       _navigationContextName = navigationContextName;
       _workflowStateId = workflowStateId;
-      _baseView = baseView;
+      _baseViewSpecification = baseViewSpecification;
       _currentScreenData = defaultScreen;
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
       BuildWorkflowActions();
@@ -71,9 +71,9 @@ namespace MediaPortal.UiComponents.Media.Models
       _currentScreenData.ReleaseScreenData();
     }
 
-    public View BaseView
+    public ViewSpecification BaseViewSpecification
     {
-      get { return _baseView; }
+      get { return _baseViewSpecification; }
     }
 
     public AbstractScreenData CurrentScreenData

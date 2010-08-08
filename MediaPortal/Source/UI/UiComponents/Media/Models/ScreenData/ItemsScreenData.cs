@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      _view = navigationData.BaseView;
+      _view = navigationData.BaseViewSpecification.BuildView();
       ReloadMediaItems(_view, true);
     }
 
@@ -132,7 +132,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             {
               NavigationItem item = new NavigationItem(subView, null);
               View sv = subView;
-              item.Command = new MethodDelegateCommand(() => NavigateToView(sv));
+              item.Command = new MethodDelegateCommand(() => NavigateToView(sv.Specification));
               viewsList.Add(item);
             }
             viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
@@ -172,15 +172,16 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Does the actual work of navigating to the specifield sub view. This will create a new <see cref="NavigationData"/>
     /// instance for the new screen and push a new transient workflow state onto the workflow navigation stack.
     /// </summary>
-    /// <param name="subView">View to navigate to.</param>
-    protected void NavigateToView(View subView)
+    /// <param name="subViewSpecification">Specification of the sub view to navigate to.</param>
+    protected void NavigateToView(ViewSpecification subViewSpecification)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
-          "View: " + subView.DisplayName, subView.DisplayName, false, null, true, WorkflowType.Workflow);
+          "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
+          false, null, true, WorkflowType.Workflow);
       ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(_navigationData.AvailableScreens);
       remainingScreens.Remove(this);
-      NavigationData newNavigationData = new NavigationData(subView.DisplayName, newState.StateId, subView, Derive(),
-          remainingScreens);
+      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName, newState.StateId,
+          subViewSpecification, Derive(), remainingScreens);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {

@@ -36,13 +36,13 @@ namespace MediaPortal.UI.Views
   /// <para>
   /// A view specification is an abstract construct which will be implemented concrete in subclasses.
   /// It specifies a list of media items, for example by a database query, or by a hard disc location.
-  /// A view specification can create n concrete views, which then will reference to their view specification.
+  /// A view specification can be instantiated to a concrete view, which then will reference to its view specification.
   /// This view specification itself doesn't hold any references to its created views.
   /// The view contents may be ordered or not.<br/>
   /// </para>
   /// <para>
   /// Views are built on demand from a <see cref="ViewSpecification"/> which comes from a media module. Some media
-  /// modules might persist their configured <see cref="ViewSpecification"/> structure by their own.
+  /// modules might persist their configured <see cref="ViewSpecification"/> structures by their own.
   /// </para>
   /// </remarks>
   public abstract class ViewSpecification
@@ -62,11 +62,11 @@ namespace MediaPortal.UI.Views
     }
 
     /// <summary>
-    /// Builds a new rooted view from this view specification (i.e. without a parent view).
+    /// Instantiates this view specification to a new view.
     /// </summary>
-    public View BuildRootView()
+    public View BuildView()
     {
-      return new View(null, this);
+      return new View(this);
     }
 
     /// <summary>
