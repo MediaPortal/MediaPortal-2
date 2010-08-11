@@ -50,7 +50,7 @@
     <Resource Id="DefaultSkinBaseSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
-  <!-- Root Sections -->
+  <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Appearance"
@@ -74,6 +74,10 @@
         Id="Shares"
         Redundant="true"
         Text="[Settings.Shares]"/>
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->
