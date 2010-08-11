@@ -169,20 +169,17 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
     /// </summary>
     /// <param name="filePath">Absolute or relative music file name.</param>
     /// <returns>Guessed artist(s) enumeration.</returns>
-    protected static IEnumerable<string> GuessArtists(string filePath)
+    protected static string GuessArtist(string filePath)
     {
       string fileName = Path.GetFileName(filePath);
       // Test form Artist - Title
       int start = fileName.IndexOf('-');
       if (start > -1)
-        yield return fileName.Substring(0, start).Trim();
-      else
-      { // Test form Title (Artist)
-        start = fileName.IndexOf('(');
-        int end = fileName.IndexOf(')', start);
-        if (start > -1 && end > -1)
-          yield return fileName.Substring(start + 1, end - start - 1);
-      }
+        return fileName.Substring(0, start).Trim();
+      // Test form Title (Artist)
+      start = fileName.IndexOf('(');
+      int end = start == -1 ? -1 : fileName.IndexOf(')', start);
+      return end > -1 ? fileName.Substring(start + 1, end - start - 1) : null;
     }
 
     #endregion
@@ -228,7 +225,8 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         }
 
         string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
-        IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(humanReadablePath) : tag.Tag.Performers;
+        IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ?
+            new string[] {GuessArtist(humanReadablePath)} : tag.Tag.Performers;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
