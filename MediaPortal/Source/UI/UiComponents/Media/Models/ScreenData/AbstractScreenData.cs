@@ -205,6 +205,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     #endregion
 
+    public abstract void Reload();
+
     /// <summary>
     /// Updates all data which is needed by the skin. That is all properties in the region "Lazy initialized properties"
     /// and all properties from sub classes. After calling this method, the UI screen will be shown.

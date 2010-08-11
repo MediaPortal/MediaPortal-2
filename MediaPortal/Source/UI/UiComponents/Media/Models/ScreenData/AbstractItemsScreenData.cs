@@ -108,6 +108,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Screen data instance which looks the same as this view.</returns>
     public abstract AbstractItemsScreenData Derive();
 
+    public override void Reload()
+    {
+      lock (_syncObj)
+        if (_view != null)
+          _view.Invalidate();
+      ReloadMediaItems(false);
+    }
+
     public void ReloadMediaItems(View view, bool createNewList)
     {
       lock (_syncObj)

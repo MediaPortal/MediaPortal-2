@@ -80,25 +80,30 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Screen data instance which looks the same as this view.</returns>
     public abstract AbstractFiltersScreenData Derive();
 
+    public override void Reload()
+    {
+      lock (_syncObj)
+      CreateFilterValuesList();
+    }
+
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      MediaLibraryViewSpecification mlvs = navigationData.BaseViewSpecification as MediaLibraryViewSpecification;
-      if (mlvs == null)
-      { // Should never happen
-        ServiceRegistration.Get<ILogger>().Error("FilterScreenData: Wrong type of media library view '{0}'", navigationData.BaseViewSpecification);
-        return;
-      }
-      CreateFilterValuesList(mlvs);
+      CreateFilterValuesList();
     }
 
     /// <summary>
-    /// Updates the GUI data for a filter values selection screen which reflects the available filter values of
-    /// the given view specification <paramref name="currentVS"/> for our <see cref="_filterCriterion"/>.
+    /// Updates the GUI data for a filter values selection screen which reflects the available filter values for
+    /// the current base view specification of our <see cref="AbstractScreenData._navigationData"/>.
     /// </summary>
-    /// <param name="currentVS">View specification of the view to be filtered in the current screen.</param>
-    protected void CreateFilterValuesList(MediaLibraryViewSpecification currentVS)
+    protected void CreateFilterValuesList()
     {
+      MediaLibraryViewSpecification currentVS = _navigationData.BaseViewSpecification as MediaLibraryViewSpecification;
+      if (currentVS == null)
+      { // Should never happen
+        ServiceRegistration.Get<ILogger>().Error("FilterScreenData: Wrong type of media library view '{0}'", _navigationData.BaseViewSpecification);
+        return;
+      }
       // Control other threads reentering this method
       lock (_syncObj)
       {
@@ -168,7 +173,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           lock (_syncObj)
             _buildingList = false;
-          CreateFilterValuesList(currentVS);
+          CreateFilterValuesList();
         }
         else
         {

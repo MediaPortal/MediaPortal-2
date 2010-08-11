@@ -83,6 +83,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       get { return _simpleSearchTextProperty; }
     }
 
+    public override void Reload()
+    {
+      DoSearch();
+    }
+
     void OnSimpleSearchTextChanged(AbstractProperty prop, object oldValue)
     {
       _searchTimer.Change(Consts.SEARCH_TEXT_TYPE_TIMESPAN, Consts.INFINITE_TIMESPAN);
@@ -91,8 +96,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     void OnSearchTimerElapsed(object sender)
     {
       if (_searchTimer == null)
-        // Already disposed
+          // Already disposed
         return;
+      DoSearch();
+    }
+
+    protected void DoSearch()
+    {
       if (string.IsNullOrEmpty(SimpleSearchText))
         return;
       View view = new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
