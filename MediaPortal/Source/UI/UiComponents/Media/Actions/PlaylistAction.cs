@@ -63,8 +63,9 @@ namespace MediaPortal.UiComponents.Media.Actions
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           PlayerContextManagerMessaging.CHANNEL,
-           WorkflowManagerMessaging.CHANNEL,
+            PlayerManagerMessaging.CHANNEL,
+            PlayerContextManagerMessaging.CHANNEL,
+            WorkflowManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -86,6 +87,17 @@ namespace MediaPortal.UiComponents.Media.Actions
         switch (messageType)
         {
           case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            Update();
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
             Update();
             break;
         }
