@@ -132,9 +132,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
-            if (cd != null)
+            if (cd == null)
+            {
+              ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+              ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
+              RelocationMode oldMode;
+              if (settings.CachedSharesUpdates.TryGetValue(share.ShareId, out oldMode) && oldMode == RelocationMode.ClearAndReImport)
+                // ClearAndReimport is stronger than Relocate, use ClearAndReImport
+                relocationMode = oldMode;
+              settings.CachedSharesUpdates[share.ShareId] = relocationMode;
+              settingsManager.Save(settings);
+            }
+            else
+            {
               cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories, relocationMode);
-            importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+              if (relocationMode == RelocationMode.ClearAndReImport)
+                importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+              else
+                importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+            }
             break;
           case SharesMessaging.MessageType.ReImportShare:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
@@ -222,12 +238,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e, HomeServerSystemId);
           return; // As this is a real error case, we don't need to try any other service calls
         }
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
       IContentDirectory cd = ContentDirectory;
       if (cd != null)
       {
         try
         {
+          ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+          ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
           ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
           IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
           foreach (Share share in cd.GetShares(systemResolver.LocalSystemId, SharesFilter.All))
@@ -238,11 +257,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
             if (!localShares.ContainsKey(serverShareId))
               cd.RemoveShare(serverShareId);
           foreach (Share localShare in localShares.Values)
+          {
+            RelocationMode relocationMode;
             if (!serverShares.ContainsKey(localShare.ShareId))
             {
               cd.RegisterShare(localShare);
               newShares.Add(localShare);
             }
+            else if (settings.CachedSharesUpdates.TryGetValue(localShare.ShareId, out relocationMode))
+            {
+              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.MediaCategories,
+                  relocationMode);
+              if (relocationMode == RelocationMode.ClearAndReImport)
+                importerWorker.ScheduleImport(localShare.BaseResourcePath, localShare.MediaCategories, true);
+              else
+                importerWorker.ScheduleRefresh(localShare.BaseResourcePath, localShare.MediaCategories, true);
+            }
+          }
+          settings.CachedSharesUpdates.Clear();
+          settingsManager.Save(settings);
         }
         catch (Exception e)
         {
@@ -267,7 +300,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
 
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
-        IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
         ImporterCallback ic = new ImporterCallback(cd);
         importerWorker.Activate(ic, ic);
         foreach (Share share in newShares)

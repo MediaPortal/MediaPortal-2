@@ -22,7 +22,11 @@
 
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.UI.ServerCommunication.Settings
@@ -32,6 +36,7 @@ namespace MediaPortal.UI.ServerCommunication.Settings
     protected string _homeServerSystemId = null;
     protected string _lastHomeServerName;
     protected SystemName _lastHomeServerSystem;
+    protected Dictionary<Guid, RelocationMode> _cachedSharesUpdates = new Dictionary<Guid, RelocationMode>();
 
     /// <summary>
     /// UUID of our home server. The server connection manager will always try to connect to a home server
@@ -62,6 +67,43 @@ namespace MediaPortal.UI.ServerCommunication.Settings
     {
       get { return _lastHomeServerSystem; }
       set { _lastHomeServerSystem = value; }
+    }
+
+    /// <summary>
+    /// Contains a collection of update commands of local shares, which have been received while the server was not connected.
+    /// The update commands will be executed the next time when the server is connected.
+    /// </summary>
+    /// <remarks>
+    /// Settings serialization will be done by property <see cref="CachedSharesUpdates_Values"/> because XML serializer cannot
+    /// serialize <see cref="Dictionary{TKey,TValue}"/>.
+    /// </remarks>
+    public Dictionary<Guid, RelocationMode> CachedSharesUpdates
+    {
+      get { return _cachedSharesUpdates; }
+      set { _cachedSharesUpdates = value; }
+    }
+
+    /// <summary>
+    /// Workaround property to enable automatic serialization because the <see cref="Dictionary{TKey,TValue}"/> of property
+    /// <see cref="CachedSharesUpdates"/> cannot be serialized.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public DictionaryEntry[] CachedSharesUpdates_Values
+    {
+      get
+      {
+        DictionaryEntry[] entries = new DictionaryEntry[_cachedSharesUpdates.Count];
+        int count = 0;
+        foreach (KeyValuePair<Guid, RelocationMode> entry in _cachedSharesUpdates)
+          entries[count++] = new DictionaryEntry(entry.Key, entry.Value.ToString());
+        return entries;
+      }
+      set
+      {
+        _cachedSharesUpdates = new Dictionary<Guid, RelocationMode>(value.Length);
+        foreach (DictionaryEntry entry in value)
+          _cachedSharesUpdates.Add((Guid) entry.Key, (RelocationMode) Enum.Parse(typeof(RelocationMode), (string) entry.Value));
+      }
     }
   }
 }
