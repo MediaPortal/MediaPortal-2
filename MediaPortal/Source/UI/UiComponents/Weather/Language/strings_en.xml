@@ -2,10 +2,9 @@
 <Language>
   <Section Name="Weather">
     <String Name="Title" Text="Weather"/>
-    <String Name="Location" Text="Location"/>
+    <String Name="ChooseLocation" Text="Choose location"/>
     <String Name="Refresh" Text="Refresh"/>
     <String Name="Weather" Text="Weather"/>
-    <String Name="Setup" Text="Set-up"/>
     <String Name="NoData" Text="no data"/>
     <String Name="Temp" Text="Temp"/>
     <String Name="TempFeel" Text="Feels Like"/>
@@ -68,10 +67,15 @@
     <String Name="InTheVicinity" Text="in the vicinity"/>
     <String Name="Clearing" Text="Clearing"/>
   </Section>
+  <Section Name="Settings">
+    <String Name="Plugins.Weather" Text="Weather"/>
+    <String Name="Plugins.Weather.LocationSetup" Text="Setup locations"/>
+    <String Name="Plugins.Weather.LocationSetup.Help" Text="Configures cities to be available for the weather screen"/>
+  </Section>
   <Section Name="WeatherSetup">
-    <String Name="EnterCity" Text="Please enter the name of your City!"/>
-    <String Name="Search" Text="Search"/>
-    <String Name="Select" Text="Select..."/>
+    <String Name="Title" Text="Configure cities"/>
+    <String Name="EnterCity" Text="Please enter the name of the city to add:"/>
+    <String Name="SearchCity" Text="Search city"/>
     <String Name="AddCity" Text="Add city"/>
     <String Name="RemoveCity" Text="Remove city"/>
   </Section>

@@ -9,7 +9,7 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.removecity]"/>
 
-    <!-- WeatherSetup view model -->
+    <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
 
     <!-- Menu -->

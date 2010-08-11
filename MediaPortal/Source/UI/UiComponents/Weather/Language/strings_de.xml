@@ -2,10 +2,9 @@
 <Language>
   <Section Name="Weather">
     <String Name="Title" Text="Wetter"/>
-    <String Name="Location" Text="Ort"/>
+    <String Name="ChooseLocation" Text="Stadt wählen"/>
     <String Name="Refresh" Text="Aktualisieren"/>
     <String Name="Weather" Text="Wetter"/>
-    <String Name="Setup" Text="Einstellungen"/>
     <String Name="NoData" Text="Keine Daten"/>
     <String Name="Temp" Text="Temperatur"/>
     <String Name="TempFeel" Text="Gefühlt"/>
@@ -68,10 +67,15 @@
     <String Name="InTheVicinity" Text="Im Umkreis"/>
     <String Name="Clearing" Text="aufklarend"/>
   </Section>
+  <Section Name="Settings">
+    <String Name="Plugins.Weather" Text="Wetter"/>
+    <String Name="Plugins.Weather.LocationSetup" Text="Städte konfigurieren"/>
+    <String Name="Plugins.Weather.LocationSetup.Help" Text="Wählt die Städte aus, die im Wetter-Bereich angezeigt werden"/>
+  </Section>
   <Section Name="WeatherSetup">
-    <String Name="EnterCity" Text="Geben Sie den Namen der Stadt ein."/>
-    <String Name="Search" Text="Suche"/>
-    <String Name="Select" Text="Bitte wählen..."/>
+    <String Name="Title" Text="Städte konfigurieren"/>
+    <String Name="EnterCity" Text="Geben Sie den Namen der Stadt ein, die Sie hinzufügen möchten:"/>
+    <String Name="SearchCity" Text="Stadt suchen"/>
     <String Name="AddCity" Text="Stadt hinzufügen"/>
     <String Name="RemoveCity" Text="Stadt entfernen"/>
   </Section>

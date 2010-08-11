@@ -7,9 +7,9 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.addcity]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[WeatherSetup.AddCity]"/>
 
-    <!-- WeatherSetup view model -->
+    <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
 
     <!-- Contents -->
@@ -30,8 +30,8 @@
           </ListView.Resources>
         </ListView>
         <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
-          <Button Name="ButtonCancel" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.back]"
-              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
+          <Button Name="ButtonCancel" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Back]"
+              Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
         </StackPanel>
       </StackPanel>
     </ResourceWrapper>

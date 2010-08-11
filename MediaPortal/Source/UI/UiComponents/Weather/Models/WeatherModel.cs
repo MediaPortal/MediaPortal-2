@@ -30,14 +30,16 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
   /// <summary>
-  /// Main view model of the Weather plugin.
+  /// Main model of the Weather plugin.
   /// </summary>
-  public class WeatherModel
+  public class WeatherModel : IWorkflowModel
   {
     #region Private/protected fields
 
@@ -222,6 +224,55 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       StartBackgroundRefresh(buffLoc);
     }
+    #endregion
+
+    #region IWorkflowModel implementation
+
+    public Guid ModelId
+    {
+      get { return new Guid(WEATHER_MODEL_ID_STR); }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // TODO
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // TODO
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      // TODO
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do here
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // TODO
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+      // Nothing to do here
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
     #endregion
   }
 }

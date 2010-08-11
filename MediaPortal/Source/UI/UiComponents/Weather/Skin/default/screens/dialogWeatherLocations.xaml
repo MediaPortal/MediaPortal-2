@@ -7,9 +7,9 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weather.location]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Weather.ChooseLocation]"/>
 
-    <!-- Weather view model -->
+    <!-- Weather model -->
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
 
     <!-- Menu -->
@@ -18,10 +18,6 @@
     </ResourceWrapper>
 
     <!-- Command -->
-    <!--<ResourceWrapper x:Key="Execute_Command_Stencil">
-      <CommandStencil Source="{StaticResource Model}" Path="ChangeLocation"/>
-    </ResourceWrapper>-->
-  
     <CommandStencil x:Key="Execute_Command_Stencil"
         Source="{StaticResource Model}" Path="ChangeLocation"/>
 

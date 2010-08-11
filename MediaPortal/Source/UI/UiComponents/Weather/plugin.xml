@@ -28,4 +28,29 @@
     <Resource Id = "WeatherSkin" Directory = "Skin" Type = "Skin"/>
   </Register>
 
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+  </Register>
+
+  <!-- Contents of '/Plugins' section -->
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="Weather"
+        Redundant="true"
+        Text="[Settings.Plugins.Weather]"/>
+  </Register>
+
+  <!-- Contents of '/Plugins/Weather' section -->
+  <Register Location="/Configuration/Settings/Plugins/Weather">
+    <CustomConfigSetting
+        Id="WeatherConfiguration"
+        Text="[Settings.Plugins.Weather.LocationSetup]"
+        HelpText="[Settings.Plugins.Weather.LocationSetup.Help]"
+        ClassName="MediaPortal.UiComponents.Weather.Settings.Configuration.WeatherConfigSetting"
+        AdditionalData="WorkflowState=F1CE62B4-32CA-46e8-BCFB-250FE07911B2,ConfAppPanel=..."/>
+  </Register>
 </Plugin>

@@ -22,17 +22,20 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Grabbers;
 
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
-  public class WeatherSetupModel 
+  public class WeatherSetupModel  : IWorkflowModel
   {
     public const string WEATHER_SETUP_MODEL_ID_STR = "CF0434F2-B319-48ff-A700-0BB7F0C2CD2A";
 
@@ -56,8 +59,6 @@ namespace MediaPortal.UiComponents.Weather.Models
       // See if we already have a weather catcher in ServiceRegistration, if not, add one
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
         ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
-      // Load settings
-      GetLocationsFromSettings();
     }
 
     /// <summary>
@@ -97,13 +98,11 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public void SaveSettings()
     {
-      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = true;
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      // apply new locations list
+      // Apply new locations list
       settings.LocationsList = Locations;
-      // save
+      // Save
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
-      //ServiceRegistration.Get<IScreenManager>().CurrentWindow.WaitCursorVisible = false;
     }
 
     /// <summary>
@@ -219,5 +218,54 @@ namespace MediaPortal.UiComponents.Weather.Models
       get { return _locationsSearchExposed; }
     }
 
+    #region IWorkflowModel implementation
+
+    public Guid ModelId
+    {
+      get { return new Guid(WEATHER_SETUP_MODEL_ID_STR); }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Load settings
+      GetLocationsFromSettings();
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // TODO
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      // TODO
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do here
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do here
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+      // Nothing to do here
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
+    #endregion
   }
 }

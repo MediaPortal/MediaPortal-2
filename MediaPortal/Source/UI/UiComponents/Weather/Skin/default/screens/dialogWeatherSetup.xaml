@@ -8,9 +8,9 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weather.setup]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[WeatherSetup.Title]"/>
 
-    <!-- WeatherSetup view model -->
+    <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
     
     <!-- Contents -->
@@ -18,19 +18,19 @@
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
           DataContext="{Binding Source={StaticResource Model}}">
 		  
-		<ListView Name="mainMenu"  Height="300" Width="400" Style="{ThemeResource MenuListViewStyle}" ItemsSource="{Binding SetupLocations}" >
-        </ListView>
+		<ListView Name="CitiesList"  Height="300" Width="400" Style="{ThemeResource MenuListViewStyle}"
+            ItemsSource="{Binding SetupLocations}"/>
 		
         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-		  <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.add]"
+		  <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
-    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.remove]"
+    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
         </StackPanel>
 		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.cancel]"
+    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Cancel]"
               Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
-		   <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.done]">
+		   <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Done]">
 		     <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings"/>
