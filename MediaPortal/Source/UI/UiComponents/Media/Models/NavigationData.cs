@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Screens;
@@ -67,7 +68,15 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="defaultScreen">Screen which should present the new navigation step by default.</param>
     /// <param name="availableScreens">Available set of screen descriptions which can present the new media navigation step.</param>
     public NavigationData(string navigationContextName, Guid baseWorkflowStateId, Guid currentWorkflowStateId,
-        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens)
+        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens) :
+        this(navigationContextName, baseWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens, false) { }
+
+    // If the suppressActions parameter is set to <c>true</c>, no actions will be built. Instead, they will be inherited from
+    // the parent navigation step. That is used for subview navigation where the navigation step doesn't produce own
+    // workflow actions.
+    protected NavigationData(string navigationContextName, Guid baseWorkflowStateId, Guid currentWorkflowStateId,
+        ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
+        bool suppressActions)
     {
       _navigationContextName = navigationContextName;
       _currentWorkflowStateId = currentWorkflowStateId;
@@ -75,7 +84,10 @@ namespace MediaPortal.UiComponents.Media.Models
       _baseViewSpecification = baseViewSpecification;
       _currentScreenData = defaultScreen;
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
-      BuildWorkflowActions();
+      if (suppressActions)
+        _dynamicWorkflowActions = null;
+      else
+        BuildWorkflowActions();
     }
 
     public void Dispose()
@@ -140,6 +152,59 @@ namespace MediaPortal.UiComponents.Media.Models
       _currentScreenData.CreateScreenData(this);
     }
 
+    /// <summary>
+    /// Enters a new media navigation context by inheriting all currently available screens. This is used for
+    /// presenting the contents of a media items or filter group, where the current menu should remain available.
+    /// Only the current visible screen can be exchanged to configure another presentation mode for the group to
+    /// be stepped-in.
+    /// </summary>
+    /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
+    /// <param name="visibleScreen">Screen which should be visible in the new navigation context.</param>
+    /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
+    public void StackSubordinateNavigationContext(ViewSpecification subViewSpecification, AbstractScreenData visibleScreen,
+        string navbarDisplayLabel)
+    {
+      WorkflowState newState = WorkflowState.CreateTransientState(
+          "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
+          false, null, true, WorkflowType.Workflow);
+      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName,
+          _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, true);
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
+        {
+          AdditionalContextVariables = new Dictionary<string, object>
+            {
+              {MediaModel.NAVIGATION_DATA_KEY, newNavigationData}
+            },
+          NavigationContextDisplayLabel = navbarDisplayLabel
+        });
+    }
+
+    /// <summary>
+    /// Enters a new media navigation context by modifying the list of available screens. This is used for
+    /// presenting a the result of a filter, where the menu must be changed.
+    /// </summary>
+    /// <param name="subViewSpecification">Specification for the sub view to be shown in the new navigation context.</param>
+    /// <param name="remainingScreens">New collection of remaining available screens.</param>
+    /// <param name="navbarDisplayLabel">Display label to be shown in the navigation bar for the new navigation context.</param>
+    public void StackAutonomousNavigationContext(ViewSpecification subViewSpecification,
+        ICollection<AbstractScreenData> remainingScreens, string navbarDisplayLabel)
+    {
+      WorkflowState newState = WorkflowState.CreateTransientState(
+          "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
+          false, null, false, WorkflowType.Workflow);
+      NavigationData newNavigationData = new NavigationData(subViewSpecification.ViewDisplayName,
+          newState.StateId, newState.StateId, subViewSpecification, remainingScreens.FirstOrDefault(), remainingScreens);
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
+        {
+          AdditionalContextVariables = new Dictionary<string, object>
+            {
+              {MediaModel.NAVIGATION_DATA_KEY, newNavigationData}
+            },
+          NavigationContextDisplayLabel = navbarDisplayLabel
+        });
+    }
     protected void BuildWorkflowActions()
     {
       _dynamicWorkflowActions = new List<WorkflowAction>(_availableScreens.Count);
@@ -153,14 +218,15 @@ namespace MediaPortal.UiComponents.Media.Models
               {
                 _currentScreenData.ReleaseScreenData();
                 _currentScreenData = newScreen;
-                _currentScreenData.CreateScreenData(this);
                 IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                 // The last screen could have stepped into a deeper media navigation context when it had produced
-                // sub views. But when a different screen is choosen to represent the underlaying view, we
-                // need to revert our workflow to the base workflow id before going into the new screen.
+                // sub views. So we first have to revert our workflow to the base workflow id before moving to the new screen.
                 if (!workflowManager.NavigatePopToState(_baseWorkflowStateId, false))
-                  // If the WF manager didn't change the state, still update the screen
+                {
+                  // If the WF manager didn't change the state, update the screen manually
+                  _currentScreenData.CreateScreenData(this);
                   SwitchToCurrentScreen();
+                }
               })
           {
               DisplayCategory = FILTERS_WORKFLOW_CATEGORY,

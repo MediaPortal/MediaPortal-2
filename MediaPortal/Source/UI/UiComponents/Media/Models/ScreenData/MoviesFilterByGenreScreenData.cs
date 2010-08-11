@@ -32,8 +32,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MoviesFilterByGenreScreenData() :
         base(Consts.MOVIES_FILTER_BY_GENRE_SCREEN, Consts.FILTER_BY_MOVIE_GENRE_MENU_ITEM_RES,
-        new SimpleMLFilterCriterion(VideoAspect.ATTR_GENRE))
+        Consts.FILTER_MOVIE_GENRE_NAVBAR_DISPLAY_LABEL_RES, new SimpleMLFilterCriterion(VideoAspect.ATTR_GENRE))
     {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new MoviesFilterByGenreScreenData();
     }
   }
 }

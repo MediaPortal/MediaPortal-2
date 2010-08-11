@@ -54,21 +54,49 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         return new List<FilterValue>();
       HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);
-      ICollection<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        if (group.Key == null || string.Empty == group.Key as string)
-          result.Add(new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), this));
+        string name = group.Key as string ?? string.Empty;
+        name = name.Trim();
+        if (name == string.Empty)
+          numEmptyEntries += (int) group.Value;
         else
           result.Add(new FilterValue(group.Key.ToString(),
               new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), (int) group.Value, this));
       }
+      if (numEmptyEntries > 0)
+        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
       return result;
     }
 
     public override IFilter CreateFilter(FilterValue filterValue)
     {
       return (IFilter) filterValue.Value;
+    }
+
+    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<FilterValue>();
+      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, necessaryMIATypeIds, filter,
+          GroupingFunction.FirstCharacter);
+      IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      int numEmptyEntries = 0;
+      foreach (MLQueryResultGroup group in valueGroups)
+      {
+        string name = group.GroupName ?? string.Empty;
+        name = name.Trim();
+        if (name == string.Empty)
+          numEmptyEntries += group.NumItemsInGroup;
+        else
+          result.Add(new FilterValue(group.GroupName, group.AdditionalFilter, group.NumItemsInGroup, this));
+      }
+      if (numEmptyEntries > 0)
+        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+      return result;
     }
 
     #endregion

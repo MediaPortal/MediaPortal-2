@@ -27,11 +27,12 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Represents a group of objects, identified by a group name.
+  /// Represents a group of results in a media library query, identified by a group name.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -39,19 +40,21 @@ namespace MediaPortal.Core.MediaManagement
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class ValueGroup
+  public class MLQueryResultGroup
   {
     protected string _groupName;
-    protected long _numItemsInGroup;
+    protected int _numItemsInGroup;
+    protected IFilter _additionalFilter;
 
     // We could use some cache for this instance, if we would have one...
     [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
     
-    public ValueGroup(string groupName, long numItemsInGroup)
+    public MLQueryResultGroup(string groupName, int numItemsInGroup, IFilter additionalFilter)
     {
       _groupName = groupName;
       _numItemsInGroup = numItemsInGroup;
+      _additionalFilter = additionalFilter;
     }
 
     [XmlIgnore]
@@ -61,10 +64,16 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     [XmlIgnore]
-    public long NumItemsInGroup
+    public int NumItemsInGroup
     {
       get { return _numItemsInGroup; }
       set { _numItemsInGroup = value; }
+    }
+
+    [XmlIgnore]
+    public IFilter AdditionalFilter
+    {
+      get { return _additionalFilter; }
     }
 
     /// <summary>
@@ -99,12 +108,12 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="str">XML fragment containing a serialized value group instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static ValueGroup Deserialize(string str)
+    public static MLQueryResultGroup Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       lock (xs)
         using (StringReader reader = new StringReader(str))
-          return xs.Deserialize(reader) as ValueGroup;
+          return xs.Deserialize(reader) as MLQueryResultGroup;
     }
 
     /// <summary>
@@ -112,21 +121,21 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="reader">XML reader containing a serialized value group instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static ValueGroup Deserialize(XmlReader reader)
+    public static MLQueryResultGroup Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       lock (xs)
-        return xs.Deserialize(reader) as ValueGroup;
+        return xs.Deserialize(reader) as MLQueryResultGroup;
     }
 
     #region Additional members for the XML serialization
 
-    internal ValueGroup() { }
+    internal MLQueryResultGroup() { }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
       if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(ValueGroup));
+        _xmlSerializer = new XmlSerializer(typeof(MLQueryResultGroup), new Type[] {typeof(FilterWrapper)});
       return _xmlSerializer;
     }
 
@@ -144,10 +153,20 @@ namespace MediaPortal.Core.MediaManagement
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlAttribute("NumItems")]
-    public long XML_NumItems
+    public int XML_NumItems
     {
       get { return _numItemsInGroup; }
       set { _numItemsInGroup = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("AdditionalFilter")]
+    public FilterWrapper XML_AdditionalFilter
+    {
+      get { return new FilterWrapper(_additionalFilter); }
+      set { _additionalFilter = value.Filter; }
     }
 
     #endregion

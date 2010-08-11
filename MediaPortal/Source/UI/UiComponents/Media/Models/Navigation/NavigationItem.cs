@@ -38,31 +38,19 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </remarks>
   public class NavigationItem : ListItem
   {
-    #region Protected fields
-
-    protected View _view;
-    protected string _overrideName;
-
-    #endregion
-
-    public NavigationItem(View view, string overrideName)
+    public NavigationItem(View view, string overrideName, int? absNumItems)
     {
-      _view = view;
-      _overrideName = overrideName;
-      UpdateData();
+      UpdateData(view, overrideName, absNumItems);
     }
 
-    public void UpdateData()
+    public void UpdateData(View view, string overrideName, int? absNumItems)
     {
-      string name = string.IsNullOrEmpty(_overrideName) ? _view.DisplayName : _overrideName;
+      string name = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
       SetLabel(Consts.NAME_KEY, name);
+      if (absNumItems.HasValue)
+        SetLabel(Consts.NUM_ITEMS_KEY, "(" + absNumItems.Value + ")");
 
       // TODO: Other properties
-    }
-
-    public View View
-    {
-      get { return _view; }
     }
   }
 }

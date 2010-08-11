@@ -26,12 +26,13 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class LocalMediaNavigationScreenData : ItemsScreenData
+  public class LocalMediaNavigationScreenData : AbstractItemsScreenData
   {
     public LocalMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.LOCAL_MEDIA_NAVIGATION_SCREEN, null, playableItemCreator) { }
+        base(Consts.LOCAL_MEDIA_NAVIGATION_SCREEN, null, Consts.LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL_RES,
+        playableItemCreator, true) { }
 
-    public override AbstractScreenData Derive()
+    public override AbstractItemsScreenData Derive()
     {
       return new LocalMediaNavigationScreenData(PlayableItemCreator);
     }

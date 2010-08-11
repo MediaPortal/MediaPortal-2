@@ -41,7 +41,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <summary>
     /// Values are grouped together by their first letter.
     /// </summary>
-    FirstLetter,
+    FirstCharacter,
   }
 
   /// <summary>
@@ -98,7 +98,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filterOnlyOnline">Filters only online media. See method <see cref="Search"/>.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
     /// <returns>List of value groups for the given query.</returns>
-    IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+    IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
         bool filterOnlyOnline, GroupingFunction groupingFunction);
 
     /// <summary>
@@ -136,7 +136,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
     /// <returns>List of value groups for the given query.</returns>
-    IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction);
 
     #endregion

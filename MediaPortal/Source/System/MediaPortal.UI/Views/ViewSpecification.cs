@@ -101,6 +101,14 @@ namespace MediaPortal.UI.Views
     public abstract bool CanBeBuilt { get; }
 
     /// <summary>
+    /// Returns the absolute number of items and child items to this view specification.
+    /// </summary>
+    public virtual int? AbsNumItems
+    {
+      get { return null; }
+    }
+
+    /// <summary>
     /// Loads or reloads the items and sub view specifications for a view to this specification.
     /// This will re-request the media database or datastore.
     /// </summary>

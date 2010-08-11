@@ -20,6 +20,6 @@
   </Section>
   <Section Name="MediaLibrary">
     <String Name="EmptyGroupName" Text="&lt;Empty&gt;"/>
-    <String Name="SpecialCharacterGroupName" Text="&lt;Special Character&gt;"/>
+    <String Name="MiscCharacterGroupName" Text="&lt;Misc. Character&gt;"/>
   </Section>
 </Language>

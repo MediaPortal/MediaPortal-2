@@ -73,8 +73,8 @@
     <Compile Include="Models\ScreenData\AbstractScreenData.cs" />
     <Compile Include="Models\BasePlaylistModel.cs" />
     <Compile Include="Models\EditPlaylistModel.cs" />
-    <Compile Include="Models\ScreenData\ItemsScreenData.cs" />
-    <Compile Include="Models\ScreenData\FiltersScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractFiltersScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMoviesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
@@ -94,7 +94,7 @@
     <Compile Include="Models\ScreenData\MoviesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\MusicShowItemsScreenData.cs" />
-    <Compile Include="Models\ScreenData\SearchScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractSearchScreenData.cs" />
     <Compile Include="Models\MediaModel.cs" />
     <Compile Include="Models\ShowPlaylistModel.cs" />
     <Compile Include="Models\Navigation\PictureItem.cs" />
@@ -123,6 +123,8 @@
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
+    <Content Include="Skin\default\screens\MediaItemsList.inc" />
+    <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\default\screens\MusicShowItems.xaml" />
     <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
     <Content Include="Skin\default\screens\PicturesShowItems.xaml" />

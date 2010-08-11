@@ -32,10 +32,10 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   public abstract class AbstractExpressionFilter : AbstractAttributeFilter
   {
     protected string _expression;
-    protected char _escapeChar;
+    protected char? _escapeChar;
 
     protected AbstractExpressionFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar) : base(attributeType)
+        string expression, char? escapeChar) : base(attributeType)
     {
       _expression = expression;
       _escapeChar = escapeChar;
@@ -48,7 +48,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     }
 
     [XmlIgnore]
-    public char EscapeChar
+    public char? EscapeChar
     {
       get { return _escapeChar; }
     }
@@ -71,7 +71,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlElement("EscapeChar")]
-    public char XML_EscapeChar
+    public char? XML_EscapeChar
     {
       get { return _escapeChar; }
       set { _escapeChar = value; }

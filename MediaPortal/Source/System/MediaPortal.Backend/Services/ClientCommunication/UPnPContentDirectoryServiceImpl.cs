@@ -249,16 +249,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddStateVariable(A_ARG_TYPE_ResourcePathString);
 
       // Used to transport an enumeration of value group instances
-      DvStateVariable A_ARG_TYPE_ValueGroupEnumeration = new DvStateVariable("A_ARG_TYPE_ValueGroupEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtValueGroupEnumeration))
+      DvStateVariable A_ARG_TYPE_MLQueryResultGroupEnumeration = new DvStateVariable("A_ARG_TYPE_MLQueryResultGroupEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtMLQueryResultGroupEnumeration))
           {
             SendEvents = false,
           };
-      AddStateVariable(A_ARG_TYPE_ValueGroupEnumeration);
+      AddStateVariable(A_ARG_TYPE_MLQueryResultGroupEnumeration);
 
       DvStateVariable A_ARG_TYPE_GroupingFunction = new DvStateVariable("A_ARG_TYPE_GroupingFunction", new DvStandardDataType(UPnPStandardDataType.String))
         {
             SendEvents = false,
-            AllowedValueList = new List<string> {"FirstLetter"}
+            AllowedValueList = new List<string> {"FirstCharacter"}
         };
       AddStateVariable(A_ARG_TYPE_GroupingFunction);
 
@@ -457,7 +457,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("GroupingFunction", A_ARG_TYPE_GroupingFunction, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("ValueGroups", A_ARG_TYPE_ValueGroupEnumeration, ArgumentDirection.Out, true),
+            new DvArgument("ResultGroups", A_ARG_TYPE_MLQueryResultGroupEnumeration, ArgumentDirection.Out, true),
           });
       AddAction(groupSearchAction);
 
@@ -510,7 +510,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("GroupingFunction", A_ARG_TYPE_GroupingFunction, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("ValueGroups", A_ARG_TYPE_ValueGroupEnumeration, ArgumentDirection.Out, true),
+            new DvArgument("ResultGroups", A_ARG_TYPE_MLQueryResultGroupEnumeration, ArgumentDirection.Out, true),
           });
       AddAction(groupValueGroupsAction);
 
@@ -593,12 +593,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       switch (groupingFunctionStr)
       {
-        case "FirstLetter":
-          groupingFunction = GroupingFunction.FirstLetter;
+        case "FirstCharacter":
+          groupingFunction = GroupingFunction.FirstCharacter;
           break;
         default:
-          groupingFunction = GroupingFunction.FirstLetter;
-          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'FirstLetter'", argumentName));
+          groupingFunction = GroupingFunction.FirstCharacter;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'FirstCharacter'", argumentName));
       }
       return null;
     }
@@ -914,7 +914,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       MediaItemQuery query = (MediaItemQuery) inParams[0];
-      Guid groupingMIAType = (Guid) inParams[1];
+      Guid groupingMIAType = MarshallingHelper.DeserializeGuid((string) inParams[1]);
       string groupingAttributeName = (string) inParams[2];
       string onlineStateStr = (string) inParams[3];
       string groupingFunctionStr = (string) inParams[4];
@@ -928,14 +928,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             groupingMIAType, groupingAttributeName));
       bool all;
-      GroupingFunction groupingFunction = GroupingFunction.FirstLetter;
+      GroupingFunction groupingFunction = GroupingFunction.FirstCharacter;
       UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all) ??
           ParseGroupingFunction("GroupingFunction", groupingFunctionStr, out groupingFunction);
       if (error != null)
         return error;
-      IList<ValueGroup> valueGroups = ServiceRegistration.Get<IMediaLibrary>().GroupSearch(query, groupingAttributeType,
+      IList<MLQueryResultGroup> resultGroups = ServiceRegistration.Get<IMediaLibrary>().GroupSearch(query, groupingAttributeType,
           !all, groupingFunction);
-      outParams = new List<object> {valueGroups};
+      outParams = new List<object> {resultGroups};
       return null;
     }
 
@@ -1032,7 +1032,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      IList<ValueGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
+      IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
           necessaryMIATypes, filter, groupingFunction);
       outParams = new List<object> {values};
       return null;

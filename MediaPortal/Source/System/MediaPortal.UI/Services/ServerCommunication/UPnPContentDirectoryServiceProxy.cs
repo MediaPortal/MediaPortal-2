@@ -270,16 +270,16 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+    public IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
         bool onlyOnline, GroupingFunction groupingFunction)
     {
-      CpAction action = GetAction("Search");
+      CpAction action = GetAction("GroupSearch");
       string onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
       string groupingFunctionStr;
       switch (groupingFunction)
       {
-        case GroupingFunction.FirstLetter:
-          groupingFunctionStr = "FirstLetter";
+        case GroupingFunction.FirstCharacter:
+          groupingFunctionStr = "FirstCharacter";
           break;
         default:
           throw new NotImplementedException(string.Format("GroupingFunction '{0}' is not implemented", groupingFunction));
@@ -288,7 +288,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           MarshallingHelper.SerializeGuid(groupingAttributeType.ParentMIAM.AspectId),
           groupingAttributeType.AttributeName, onlineStateStr, groupingFunctionStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (IList<ValueGroup>) outParameters[0];
+      return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
     public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
@@ -328,15 +328,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (HomogenousMap) outParameters[0];
     }
 
-    public IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction)
     {
       CpAction action = GetAction("GroupValueGroups");
       string groupingFunctionStr;
       switch (groupingFunction)
       {
-        case GroupingFunction.FirstLetter:
-          groupingFunctionStr = "FirstLetter";
+        case GroupingFunction.FirstCharacter:
+          groupingFunctionStr = "FirstCharacter";
           break;
         default:
           throw new NotImplementedException(string.Format("GroupingFunction '{0}' is not implemented", groupingFunction));
@@ -344,7 +344,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
           attributeType.AttributeName, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, groupingFunctionStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (IList<ValueGroup>) outParameters[0];
+      return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
     // Media import

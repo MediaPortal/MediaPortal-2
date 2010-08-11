@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -31,12 +32,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class FilterItem : ListItem
   {
-    #region Public consts
+    public FilterItem(string name, int? numItems)
+    {
+      UpdateData(name, numItems);
+    }
 
-    public const string KEY_NAME = "Name";
-
-    #endregion
-
-    public FilterItem(string name) : base(KEY_NAME, name) { }
+    public void UpdateData(string name, int? numItems)
+    {
+      SetLabel(Consts.NAME_KEY, name);
+      if (numItems.HasValue)
+        SetLabel(Consts.NUM_ITEMS_KEY, "(" + numItems.Value + ")");
+    }
   }
 }

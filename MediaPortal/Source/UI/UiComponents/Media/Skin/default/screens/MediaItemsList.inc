@@ -21,20 +21,16 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <!-- TODO: To support all properties of the media items (e.g. artist, album, etc.), we need to use a special ListView style -->
-    <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding !TooManyItems}">
+    <ListView Style="{ThemeResource MediaItemsListViewStyle}" ItemsSource="{Binding Items}"
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
       <ListView.Resources>
         <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
       </ListView.Resources>
     </ListView>
-    <Label IsVisible="{Binding IsItemsEmpty}"
-        HorizontalAlignment="Center" VerticalAlignment="Center"
-        Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
-    <Label IsVisible="{Binding TooManyItems}"
+    <Label IsVisible="{Binding ShowListHint}"
         HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-        Content="{Binding MoreThanMaxItems}" Color="{ThemeResource HintTextColor}"/>
+        Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
   </Grid>
   <Label IsVisible="{Binding !IsItemsValid}"
       HorizontalAlignment="Center" VerticalAlignment="Center"

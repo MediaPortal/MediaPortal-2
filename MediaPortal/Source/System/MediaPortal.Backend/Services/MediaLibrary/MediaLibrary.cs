@@ -326,18 +326,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+    public IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
         bool filterOnlyOnline, GroupingFunction groupingFunction)
     {
-      IDictionary<string, ValueGroup> groups = new Dictionary<string, ValueGroup>();
+      IDictionary<string, MLQueryResultGroup> groups = new Dictionary<string, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
       switch (groupingFunction)
       {
-        case GroupingFunction.FirstLetter:
-          groupingFunctionImpl = new FirstLetterGroupingFunction();
+        case GroupingFunction.FirstCharacter:
+          groupingFunctionImpl = new FirstCharGroupingFunction();
           break;
         default:
-          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction();
           break;
       }
       Guid groupingAspectId = groupingAttributeType.ParentMIAM.AspectId;
@@ -345,14 +345,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       innerQuery.NecessaryRequestedMIATypeIDs.Add(MediaAspect.ASPECT_ID);
       foreach (MediaItem item in Search(innerQuery, filterOnlyOnline))
       {
-        string groupName = groupingFunctionImpl.GetGroup(string.Format("{0}", item[groupingAspectId][groupingAttributeType]));
-        ValueGroup vg;
-        if (groups.TryGetValue(groupName, out vg))
-          vg.NumItemsInGroup++;
+        string groupName;
+        IFilter additionalFilter;
+        groupingFunctionImpl.GetGroup(groupingAttributeType, string.Format("{0}", item[groupingAspectId][groupingAttributeType]),
+            out groupName, out additionalFilter);
+        MLQueryResultGroup rg;
+        if (groups.TryGetValue(groupName, out rg))
+          rg.NumItemsInGroup++;
         else
-          groups[groupName] = new ValueGroup(groupName, 1);
+          groups[groupName] = new MLQueryResultGroup(groupName, 1, additionalFilter);
       }
-      List<ValueGroup> result = new List<ValueGroup>(groups.Values);
+      List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
       result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
       return result;
     }
@@ -387,32 +390,34 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return cdavq.Execute();
     }
 
-    public IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction)
     {
-      IDictionary<string, ValueGroup> groups = new Dictionary<string, ValueGroup>();
+      IDictionary<string, MLQueryResultGroup> groups = new Dictionary<string, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
       switch (groupingFunction)
       {
-        case GroupingFunction.FirstLetter:
-          groupingFunctionImpl = new FirstLetterGroupingFunction();
+        case GroupingFunction.FirstCharacter:
+          groupingFunctionImpl = new FirstCharGroupingFunction();
           break;
         default:
-          groupingFunctionImpl = new FirstLetterGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction();
           break;
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, necessaryMIATypeIDs, filter))
       {
         string valueGroupItemName = (string) resultItem.Key;
-        long valueGroupItemCount = (long) resultItem.Value;
-        string groupName = groupingFunctionImpl.GetGroup(valueGroupItemName);
-        ValueGroup vg;
-        if (groups.TryGetValue(groupName, out vg))
-          vg.NumItemsInGroup += valueGroupItemCount;
+        int resultGroupItemCount = (int) resultItem.Value;
+        string groupName;
+        IFilter additionalFilter;
+        groupingFunctionImpl.GetGroup(attributeType, valueGroupItemName, out groupName, out additionalFilter);
+        MLQueryResultGroup rg;
+        if (groups.TryGetValue(groupName, out rg))
+          rg.NumItemsInGroup += resultGroupItemCount;
         else
-          groups[groupName] = new ValueGroup(groupName, valueGroupItemCount);
+          groups[groupName] = new MLQueryResultGroup(groupName, resultGroupItemCount, additionalFilter);
       }
-      List<ValueGroup> result = new List<ValueGroup>(groups.Values);
+      List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
       result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
       return result;
     }

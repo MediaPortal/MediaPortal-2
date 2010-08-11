@@ -90,6 +90,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       return (IFilter) filterValue.Value;
     }
 
+    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)
+    {
+      return null;
+    }
+
     #endregion
   }
 }

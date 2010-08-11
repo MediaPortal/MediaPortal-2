@@ -72,7 +72,7 @@
     <Compile Include="Services\ClientCommunication\UPnPServerControlPoint.cs" />
     <Compile Include="Services\ClientCommunication\UPnPClientControllerServiceProxy.cs" />
     <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
-    <Compile Include="Services\MediaLibrary\FirstLetterGroupingFunction.cs" />
+    <Compile Include="Services\MediaLibrary\FirstCharGroupingFunction.cs" />
     <Compile Include="Services\MediaLibrary\IGroupingFunctionImpl.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />

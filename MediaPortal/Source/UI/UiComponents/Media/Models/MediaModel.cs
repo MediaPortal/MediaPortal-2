@@ -136,7 +136,6 @@ namespace MediaPortal.UiComponents.Media.Models
     public NavigationData NavigationData
     {
       get { return GetNavigationData(_currentNavigationContext); }
-      set  { SetNavigationData(value, _currentNavigationContext); }
     }
 
     protected NavigationData GetNavigationData(NavigationContext navigationContext)
@@ -381,12 +380,15 @@ namespace MediaPortal.UiComponents.Media.Models
       if (currentStateId == MUSIC_NAVIGATION_ROOT_STATE)
       {
         Mode = MediaNavigationMode.Music;
-        ItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MusicItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MusicItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(Consts.MUSIC_VIEW_NAME_RESOURCE,
-            Consts.NECESSARY_MUSIC_MIAS, null, null, true);
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.MUSIC_VIEW_NAME_RESOURCE,
+            null, Consts.NECESSARY_MUSIC_MIAS, null, true)
+          {
+              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          };
         AbstractScreenData sd = new MusicFilterByAlbumScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
@@ -403,12 +405,15 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (currentStateId == MOVIES_NAVIGATION_ROOT_STATE)
       {
         Mode = MediaNavigationMode.Movies;
-        ItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(Consts.MOVIES_VIEW_NAME_RESOURCE,
-            Consts.NECESSARY_MOVIE_MIAS, null, null, true);
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.MOVIES_VIEW_NAME_RESOURCE,
+            null, Consts.NECESSARY_MOVIE_MIAS, null, true)
+          {
+              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          };
         AbstractScreenData sd = new MoviesFilterByGenreScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
@@ -424,12 +429,15 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (currentStateId == PICTURES_NAVIGATION_ROOT_STATE)
       {
         Mode = MediaNavigationMode.Pictures;
-        ItemsScreenData.PlayableItemCreatorDelegate picd = mi => new PictureItem(mi)
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new PictureItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(Consts.PICTURES_VIEW_NAME_RESOURCE,
-            Consts.NECESSARY_PICTURE_MIAS, null, null, true);
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.PICTURES_VIEW_NAME_RESOURCE,
+            null, Consts.NECESSARY_PICTURE_MIAS, null, true)
+          {
+              MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+          };
         AbstractScreenData sd = new PicturesFilterByYearScreenData();
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
@@ -450,7 +458,7 @@ namespace MediaPortal.UiComponents.Media.Models
           // We simply use the local media mode as fallback for this case, so we go on
         }
         Mode = MediaNavigationMode.LocalMedia;
-        ItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
+        AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
           {
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
               return new MusicItem(mi)

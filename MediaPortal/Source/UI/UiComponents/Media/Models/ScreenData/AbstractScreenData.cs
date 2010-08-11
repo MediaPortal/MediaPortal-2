@@ -32,8 +32,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public abstract class AbstractScreenData
   {
-    public const int MAX_NUM_ITEMS = 500;
-
     #region Protected fields
 
     protected string _menuItemLabel;
@@ -45,6 +43,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _isItemsValidProperty = null;
     protected AbstractProperty _isItemsEmptyProperty = null;
     protected AbstractProperty _tooManyItemsProperty = null;
+    protected AbstractProperty _showListProperty = null;
+    protected AbstractProperty _showListHintProperty = null;
+    protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
 
     #endregion
@@ -71,9 +72,22 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       get { return _screen; }
     }
 
-    public string MoreThanMaxItems
+    /// <summary>
+    /// Returns a hint text that more than our maximum number of shown items should be preented.
+    /// Can be overridden in sub classes to modify the text to be shown.
+    /// </summary>
+    public virtual string MoreThanMaxItemsHint
     {
-      get { return LocalizationHelper.Translate(Consts.MORE_THAN_MAX_ITEMS_RES, MAX_NUM_ITEMS); }
+      get { return LocalizationHelper.Translate(Consts.MORE_THAN_MAX_ITEMS_HINT_RES, Consts.MAX_NUM_ITEMS_VISIBLE); }
+    }
+
+    /// <summary>
+    /// Returns a hint text notifying the user that the items list is currently being built (and not ready yet).
+    /// Can be overridden in sub classes to modify the text to be shown.
+    /// </summary>
+    public virtual string ListBeingBuiltHint
+    {
+      get { return Consts.LIST_BEING_BUILT_HINT_RES; }
     }
 
     #region Lazy initialized properties
@@ -118,6 +132,49 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       protected set { _isItemsValidProperty.SetValue(value); }
     }
 
+    public AbstractProperty ShowListProperty
+    {
+      get { return _showListProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information whether the skin should show the items list.
+    /// </summary>
+    public bool ShowList
+    {
+      get { return (bool) _showListProperty.GetValue(); }
+      protected set { _showListProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ShowListHintProperty
+    {
+      get { return _showListHintProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information whether the skin should show a hint text.
+    /// </summary>
+    public bool ShowListHint
+    {
+      get { return (bool) _showListHintProperty.GetValue(); }
+      protected set { _showListHintProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ListHintProperty
+    {
+      get { return _listHintProperty; }
+    }
+
+    /// <summary>
+    /// Gets a string like "Blabla too many items, please add filters, blabla" to be shown by the skin if
+    /// <see cref="ShowListHint"/> is set to <c>true</c>.
+    /// </summary>
+    public string ListHint
+    {
+      get { return (string) _listHintProperty.GetValue(); }
+      protected set { _listHintProperty.SetValue(value); }
+    }
+
     public AbstractProperty IsItemsEmptyProperty
     {
       get { return _isItemsEmptyProperty; }
@@ -132,7 +189,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       protected set { _isItemsEmptyProperty.SetValue(value); }
     }
 
-    public AbstractProperty TooManyTimesProperty
+    public AbstractProperty TooManyItemsProperty
     {
       get { return _tooManyItemsProperty; }
     }
@@ -161,6 +218,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _isItemsValidProperty = new WProperty(typeof(bool), true);
       _isItemsEmptyProperty = new WProperty(typeof(bool), true);
       _tooManyItemsProperty = new WProperty(typeof(bool), false);
+      _showListProperty = new WProperty(typeof(bool), true);
+      _showListHintProperty = new WProperty(typeof(bool), false);
+      _listHintProperty = new WProperty(typeof(string), string.Empty);
     }
 
     /// <summary>
@@ -175,9 +235,65 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _isItemsValidProperty = null;
       _isItemsEmptyProperty = null;
       _tooManyItemsProperty = null;
+      _showListProperty = null;
+      _showListHintProperty = null;
+      _listHintProperty = null;
       if (_items != null)
         _items.Clear();
       _items = null;
+    }
+
+    protected virtual void Display_ListBeingBuilt()
+    {
+      ShowList = false;
+      TooManyItems = false;
+      IsItemsEmpty = false;
+      ListHint = ListBeingBuiltHint;
+      ShowListHint = true;
+      IsItemsValid = true;
+      NumItemsStr = "?";
+    }
+
+    protected virtual void Display_TooManyItems(int numItems)
+    {
+      ShowList = false;
+      TooManyItems = true;
+      IsItemsEmpty = false;
+      ListHint = MoreThanMaxItemsHint;
+      ShowListHint = true;
+      IsItemsValid = true;
+      NumItemsStr = Utils.BuildNumItemsStr(numItems);
+    }
+
+    protected virtual void Display_Normal(int numItems)
+    {
+      ShowList = true;
+      TooManyItems = false;
+      if (numItems == 0)
+      {
+        IsItemsEmpty = true;
+        ListHint = Consts.VIEW_EMPTY_RES;
+        ShowListHint = true;
+      }
+      else
+      {
+        IsItemsEmpty = false;
+        ListHint = string.Empty;
+        ShowListHint = false;
+      }
+      IsItemsValid = true;
+      NumItemsStr = Utils.BuildNumItemsStr(numItems);
+    }
+
+    protected virtual void Display_ItemsInvalid()
+    {
+      IsItemsValid = false;
+      IsItemsEmpty = false;
+      TooManyItems = false;
+      ShowList = false;
+      ShowListHint = false;
+      ListHint = string.Empty;
+      NumItemsStr = "-";
     }
   }
 }

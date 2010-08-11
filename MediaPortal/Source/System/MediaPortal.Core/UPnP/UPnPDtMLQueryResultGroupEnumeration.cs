@@ -36,11 +36,11 @@ namespace MediaPortal.Core.UPnP
   /// <summary>
   /// Data type serializing and deserializing <see cref="IEnumerable"/> sequences of <see cref="Share"/> objects.
   /// </summary>
-  public class UPnPDtValueGroupEnumeration : UPnPExtendedDataType
+  public class UPnPDtMLQueryResultGroupEnumeration : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtValueGroupEnumeration";
+    public const string DATATYPE_NAME = "DtMLQueryResultGroupEnumeration";
 
-    internal UPnPDtValueGroupEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMLQueryResultGroupEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
@@ -61,18 +61,18 @@ namespace MediaPortal.Core.UPnP
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable valueGroups = (IEnumerable) value;
-      foreach (ValueGroup valueGroup in valueGroups)
-        valueGroup.Serialize(writer);
+      IEnumerable resultGroups = (IEnumerable) value;
+      foreach (MLQueryResultGroup resultGroup in resultGroups)
+        resultGroup.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<ValueGroup> result = new List<ValueGroup>();
+      ICollection<MLQueryResultGroup> result = new List<MLQueryResultGroup>();
       if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(ValueGroup.Deserialize(reader));
+        result.Add(MLQueryResultGroup.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

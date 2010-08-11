@@ -26,9 +26,9 @@ using MediaPortal.UiComponents.Media.FilterCriteria;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AbstractMusicFilterScreenData : FiltersScreenData
+  public abstract class AbstractMusicFilterScreenData : AbstractFiltersScreenData
   {
-    public AbstractMusicFilterScreenData(string screen, string menuItemLabel, MLFilterCriterion filterCriterion) :
-        base(screen, menuItemLabel, filterCriterion) { }
+    protected AbstractMusicFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
+        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }
   }
 }

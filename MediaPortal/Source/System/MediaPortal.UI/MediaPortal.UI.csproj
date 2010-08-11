@@ -165,7 +165,6 @@
     <Compile Include="UserManagement\IUserService.cs" />
     <Compile Include="Presentation\Players\Playlists.cs" />
     <Compile Include="Views\SimpleTextSearchViewSpecification.cs" />
-    <Compile Include="Views\StackedFiltersMLVS.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
     <Compile Include="Views\LocalDirectoryViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryViewSpecification.cs" />

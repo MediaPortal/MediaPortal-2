@@ -31,8 +31,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MusicFilterByDecadeScreenData() :
         base(Consts.MUSIC_FILTER_BY_DECADE_SCREEN, Consts.FILTER_BY_DECADE_MENU_ITEM_RES,
-        new FilterByDecadeCriterion())
+        Consts.FILTER_DECADE_NAVBAR_DISPLAY_LABEL_RES, new FilterByDecadeCriterion())
     {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new MusicFilterByDecadeScreenData();
     }
   }
 }

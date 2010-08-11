@@ -26,14 +26,15 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MusicShowItemsScreenData : ItemsScreenData
+  public class MusicShowItemsScreenData : AbstractItemsScreenData
   {
     public MusicShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.MUSIC_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MUSIC_ITEMS_MENU_ITEM_RES, playableItemCreator)
+        base(Consts.MUSIC_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MUSIC_ITEMS_MENU_ITEM_RES,
+        Consts.FILTER_MUSIC_ITEMS_NAVBAR_DISPLAY_LABEL_RES, playableItemCreator, true)
     {
     }
 
-    public override AbstractScreenData Derive()
+    public override AbstractItemsScreenData Derive()
     {
       return new MusicShowItemsScreenData(PlayableItemCreator);
     }

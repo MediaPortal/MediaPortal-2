@@ -38,6 +38,7 @@ namespace MediaPortal.UI.Views
 
     protected IList<MediaItem> _items = null; // Initialized = _items != null
     protected IList<View> _subViews = null; // Initialized = _subViews != null
+    protected int? _absNumItems = null;
 
     protected ViewSpecification _viewSpecification;
     protected string _displayName;
@@ -50,6 +51,7 @@ namespace MediaPortal.UI.Views
     {
       _viewSpecification = viewSpecification;
       _displayName = viewSpecification.ViewDisplayName;
+      _absNumItems = viewSpecification.AbsNumItems;
     }
 
     #endregion
@@ -128,6 +130,14 @@ namespace MediaPortal.UI.Views
           RefreshItemsAndSubViews();
         return _subViews;
       }
+    }
+
+    /// <summary>
+    /// Returns the number of items and child items of this view, if present.
+    /// </summary>
+    public int? AbsNumItems
+    {
+      get { return _absNumItems; }
     }
 
     /// <summary>

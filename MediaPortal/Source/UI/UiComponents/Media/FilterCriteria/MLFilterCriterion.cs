@@ -52,5 +52,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <returns>Filter instance. The returned filter instance doesn't inculde the filter used when calling method
     /// <see cref="GetAvailableValues"/>, i.e. the return value should be combined with that filter.</returns>
     public abstract IFilter CreateFilter(FilterValue filterValue);
+
+    /// <summary>
+    /// Builds value groups for the values created by this filter criterion.
+    /// </summary>
+    /// <param name="necessaryMIATypeIds">Media item aspects which need to be available in the media items, from which
+    /// the available values will be collected.</param>
+    /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
+    /// <returns>Collection of filter value objects which hold a title for the particular filter value group and which can
+    /// create the actual filter to be used in a media item query.</returns>
+    public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter);
   }
 }

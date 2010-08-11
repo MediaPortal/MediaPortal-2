@@ -26,14 +26,14 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MusicSimpleSearchScreenData : SearchScreenData
+  public class MusicSimpleSearchScreenData : AbstractSearchScreenData
   {
     public MusicSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.MUSIC_SIMPLE_SEARCH_SCREEN, Consts.SIMPLE_SEARCH_FILTER_MENU_ITEM_RES, playableItemCreator)
     {
     }
 
-    public override AbstractScreenData Derive()
+    public override AbstractItemsScreenData Derive()
     {
       return new MusicShowItemsScreenData(PlayableItemCreator);
     }

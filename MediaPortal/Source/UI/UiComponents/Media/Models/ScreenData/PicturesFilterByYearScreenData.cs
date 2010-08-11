@@ -31,8 +31,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public PicturesFilterByYearScreenData() :
         base(Consts.PICTURES_FILTER_BY_YEAR_SCREEN, Consts.FILTER_BY_PICTURE_YEAR_MENU_ITEM_RES,
-        new FilterByYearCriterion())
+        Consts.FILTER_PICTURE_YEAR_NAVBAR_DISPLAY_LABEL_RES, new FilterByYearCriterion())
     {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new PicturesFilterByYearScreenData();
     }
   }
 }

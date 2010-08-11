@@ -249,7 +249,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       if (groupByValues)
       {
-        result.Append("GROUP BY ");
+        result.Append(" GROUP BY ");
         result.Append(StringUtils.Join(", ", attributeAliases.Values));
       }
       else

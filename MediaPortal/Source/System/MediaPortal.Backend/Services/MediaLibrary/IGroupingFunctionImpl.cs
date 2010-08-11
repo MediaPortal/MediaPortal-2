@@ -22,10 +22,14 @@
 
 #endregion
 
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
+
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
   public interface IGroupingFunctionImpl
   {
-    string GetGroup(string elementName);
+    void GetGroup(MediaItemAspectMetadata.AttributeSpecification attributeType, string elementName,
+        out string groupName, out IFilter additionalFilter);
   }
 }

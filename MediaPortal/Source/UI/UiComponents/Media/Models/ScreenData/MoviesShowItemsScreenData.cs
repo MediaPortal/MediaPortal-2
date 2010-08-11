@@ -26,14 +26,15 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MoviesShowItemsScreenData : ItemsScreenData
+  public class MoviesShowItemsScreenData : AbstractItemsScreenData
   {
     public MoviesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.MOVIES_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MOVIE_ITEMS_MENU_ITEM_RES, playableItemCreator)
+        base(Consts.MOVIES_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MOVIE_ITEMS_MENU_ITEM_RES,
+        Consts.FILTER_MOVIE_ITEMS_NAVBAR_DISPLAY_LABEL_RES, playableItemCreator, true)
     {
     }
 
-    public override AbstractScreenData Derive()
+    public override AbstractItemsScreenData Derive()
     {
       return new MoviesShowItemsScreenData(PlayableItemCreator);
     }

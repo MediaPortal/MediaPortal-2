@@ -52,7 +52,6 @@ namespace MediaPortal.UiComponents.Media.General
     public const string PICTURES_VIEW_NAME_RESOURCE = "[Media.PicturesRootViewName]";
     public const string SIMPLE_SEARCH_VIEW_NAME_RESOURCE = "[Media.SimpleSearchViewName]";
 
-    // TODO: Rename XXXMode resource names to XXXMenu
     public const string FILTER_BY_ARTIST_MENU_ITEM_RES = "[Media.FilterByArtistMenuItem]";
     public const string FILTER_BY_ALBUM_MENU_ITEM_RES = "[Media.FilterByAlbumMenuItem]";
     public const string FILTER_BY_MUSIC_GENRE_MENU_ITEM_RES = "[Media.FilterByMusicGenreMenuItem]";
@@ -67,7 +66,25 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SHOW_ALL_MOVIE_ITEMS_MENU_ITEM_RES = "[Media.ShowAllMovieItemsMenuItem]";
     public const string SHOW_ALL_PICTURE_ITEMS_MENU_ITEM_RES = "[Media.ShowAllPictureItemsMenuItem]";
 
-    public const string MORE_THAN_MAX_ITEMS_RES = "[Media.MoreThanMaxItems]";
+    public const string LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL_RES = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
+    public const string FILTER_ARTIST_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterArtistNavbarDisplayLabel]";
+    public const string FILTER_ALBUM_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterAlbumNavbarDisplayLabel]";
+    public const string FILTER_MUSIC_GENRE_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMusicGenreNavbarDisplayLabel]";
+    public const string FILTER_DECADE_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterDecadeNavbarDisplayLabel]";
+    public const string FILTER_PICTURE_YEAR_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterPictureYearNavbarDisplayLabel]";
+    public const string FILTER_MOVIE_YEAR_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMovieYearNavbarDisplayLabel]";
+    public const string FILTER_ACTOR_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterActorNavbarDisplayLabel]";
+    public const string FILTER_MOVIE_GENRE_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMovieGenreNavbarDisplayLabel]";
+    public const string FILTER_PICTURE_SIZE_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterPictureSizeNavbarDisplayLabel]";
+    public const string FILTER_MUSIC_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMusicItemsNavbarDisplayLabel]";
+    public const string FILTER_MOVIE_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMovieItemsNavbarDisplayLabel]";
+    public const string FILTER_PICTURE_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterPictureItemsNavbarDisplayLabel]";
+
+    public const string MORE_THAN_MAX_ITEMS_HINT_RES = "[Media.MoreThanMaxItemsHint]";
+    public const string MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT_RES = "[Media.MoreThanMaxItemsSearchResultHint]";
+    public const string LIST_BEING_BUILT_HINT_RES = "[Media.ListIsBeingBuiltHint]";
+    public const string SEARCH_RESULT_BEING_BUILT_HINT_RES = "[Media.SearchResultIsBeingBuiltHint]";
+    public const string VIEW_EMPTY_RES = "[Media.ViewEmpty]";
 
     public const string NO_ITEMS_RES = "[Media.NoItems]";
     public const string ONE_ITEM_RES = "[Media.OneItem]";
@@ -127,5 +144,7 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           PictureAspect.ASPECT_ID,
       };
+
+    public const int MAX_NUM_ITEMS_VISIBLE = 500;
   }
 }

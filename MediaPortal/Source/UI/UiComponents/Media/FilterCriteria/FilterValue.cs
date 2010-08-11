@@ -30,7 +30,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected string _title;
     protected object _value;
-    protected int _numItems = -1;
+    protected int? _numItems = null;
     protected MLFilterCriterion _criterion;
 
     public FilterValue(string title, object value, MLFilterCriterion criterion)
@@ -58,12 +58,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       get { return _value; }
     }
 
-    public bool HasNumItems
-    {
-      get { return _numItems > -1; }
-    }
-
-    public int NumItems
+    public int? NumItems
     {
       get { return _numItems; }
     }

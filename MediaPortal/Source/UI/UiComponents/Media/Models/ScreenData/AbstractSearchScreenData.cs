@@ -24,27 +24,37 @@
 
 using System.Threading;
 using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Views;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public abstract class SearchScreenData : ItemsScreenData
+  public abstract class AbstractSearchScreenData : AbstractItemsScreenData
   {
     #region Protected fields
 
     protected AbstractProperty _simpleSearchTextProperty;
     protected Timer _searchTimer;
-    protected StackedFiltersMLVS _baseViewSpecification = null;
+    protected MediaLibraryViewSpecification _baseViewSpecification = null;
 
     #endregion
 
-    protected SearchScreenData(string screen, string menuItemLabel, PlayableItemCreatorDelegate playableItemCreator) :
-        base(screen, menuItemLabel, playableItemCreator)
+    protected AbstractSearchScreenData(string screen, string menuItemLabel, PlayableItemCreatorDelegate playableItemCreator) :
+        base(screen, menuItemLabel, null, playableItemCreator, false)
     {
       _searchTimer = new Timer(OnSearchTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+    }
+
+    public override string MoreThanMaxItemsHint
+    {
+      get { return LocalizationHelper.Translate(Consts.MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT_RES, Consts.MAX_NUM_ITEMS_VISIBLE); }
+    }
+
+    public override string ListBeingBuiltHint
+    {
+      get { return Consts.SEARCH_RESULT_BEING_BUILT_HINT_RES; }
     }
 
     public override void  CreateScreenData(NavigationData navigationData)
@@ -86,14 +96,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (string.IsNullOrEmpty(SimpleSearchText))
         return;
       View view = new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _baseViewSpecification.Filters),
-          _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds, true, true).BuildView();
+          _baseViewSpecification.Filter, _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds,
+          true, true).BuildView();
       ReloadMediaItems(view, false);
     }
 
     protected void InitializeSearch(ViewSpecification baseViewSpecification)
     {
-      _baseViewSpecification = baseViewSpecification as StackedFiltersMLVS;
+      _baseViewSpecification = baseViewSpecification as MediaLibraryViewSpecification;
       if (_baseViewSpecification == null)
         return;
       if (_simpleSearchTextProperty == null)
@@ -102,10 +112,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _simpleSearchTextProperty.Attach(OnSimpleSearchTextChanged);
       }
       SimpleSearchText = string.Empty;
+
+      // Initialize data manually which would have been initialized by AbstractItemsScreenData.ReloadMediaItems else
       IsItemsValid = true;
       IsItemsEmpty = false;
       TooManyItems = false;
       NumItemsStr = "-";
+      lock (_syncObj)
+        _view = null;
       _items = new ItemsList();
       _searchTimer = new Timer(OnSearchTimerElapsed, null, Consts.SEARCH_TEXT_TYPE_TIMESPAN, Consts.INFINITE_TIMESPAN);
     }

@@ -23,32 +23,51 @@
 #endregion
 
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
-  public class FirstLetterGroupingFunction : IGroupingFunctionImpl
+  public class FirstCharGroupingFunction : IGroupingFunctionImpl
   {
     #region Consts
 
     public const string EMPTY_GROUP_NAME_RES = "[MediaLibrary.EmptyGroupName]";
-    public const string SPECIAL_CHARACTER_GROUP_NAME_RES = "[MediaLibrary.SpecialCharacterGroupName]";
+    public const string SPECIAL_CHARACTER_GROUP_NAME_RES = "[MediaLibrary.MiscCharacterGroupName]";
 
     #endregion
 
     protected string _emptyGroupName;
-    protected string _specialCharacterGroupName;
-    public FirstLetterGroupingFunction()
+    protected string _miscCharacterGroupName;
+
+    public FirstCharGroupingFunction()
     {
       _emptyGroupName = LocalizationHelper.Translate(EMPTY_GROUP_NAME_RES);
-      _specialCharacterGroupName = LocalizationHelper.Translate(SPECIAL_CHARACTER_GROUP_NAME_RES);
+      _miscCharacterGroupName = LocalizationHelper.Translate(SPECIAL_CHARACTER_GROUP_NAME_RES);
     }
 
-    public string GetGroup(string elementName)
+    public void GetGroup(MediaItemAspectMetadata.AttributeSpecification attributeType, string elementName,
+        out string groupName, out IFilter additionalFilter)
     {
-      if (string.IsNullOrEmpty(elementName))
-        return _emptyGroupName;
+      elementName = elementName == null ? string.Empty : elementName.Trim();
+      if (elementName == string.Empty)
+      {
+        groupName = _emptyGroupName;
+        additionalFilter = null;
+        return;
+      }
       char firstChar = elementName[0];
-      return char.IsLetterOrDigit(firstChar) ? firstChar.ToString() : _specialCharacterGroupName;
+      if (char.IsLetterOrDigit(firstChar))
+      {
+        string fcs = firstChar.ToString().ToUpperInvariant();
+        groupName = fcs + "*";
+        additionalFilter = new LikeFilter(attributeType, fcs + "%", null, false);
+      }
+      else
+      {
+        groupName = _miscCharacterGroupName;
+        additionalFilter = new NotFilter(new SimilarToFilter(attributeType, "[^A-Za-z0-9].*", null));
+      }
     }
   }
 }

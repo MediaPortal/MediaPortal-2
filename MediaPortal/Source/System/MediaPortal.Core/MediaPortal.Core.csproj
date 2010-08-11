@@ -138,7 +138,7 @@
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="MediaManagement\ResourcePath.cs" />
     <Compile Include="MediaManagement\ResourcePathMetadata.cs" />
-    <Compile Include="MediaManagement\ValueGroup.cs" />
+    <Compile Include="MediaManagement\MLQueryResultGroup.cs" />
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
@@ -251,7 +251,7 @@
     <Compile Include="UPnP\UPnPDtMediaItems.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
     <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
-    <Compile Include="UPnP\UPnPDtValueGroupEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtMLQueryResultGroupEnumeration.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />

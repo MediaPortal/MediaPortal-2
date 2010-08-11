@@ -38,7 +38,7 @@ namespace MediaPortal.UI.ServerCommunication
 
   public enum  GroupingFunction
   {
-    FirstLetter
+    FirstCharacter
   }
 
   /// <summary>
@@ -74,7 +74,7 @@ namespace MediaPortal.UI.ServerCommunication
 
     // Media query
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
-    IList<ValueGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
+    IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
         bool onlyOnline, GroupingFunction groupingFunction);
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.ServerCommunication
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline);
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter);
-    IList<ValueGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction);
 
     // Media import

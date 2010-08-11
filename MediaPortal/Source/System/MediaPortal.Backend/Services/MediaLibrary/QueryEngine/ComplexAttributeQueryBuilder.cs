@@ -154,7 +154,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Selected attributes
       result.Append(valueAttribute.GetDeclarationWithAlias(ns, out valueAlias));
       result.Append(", ");
-      string countAttribute = "COUNT(" + valueAttribute.GetQualifiedName(ns) + ") ";
+      string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ") ";
       result.Append(countAttribute);
       groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
       result.Append(groupSizeAlias);

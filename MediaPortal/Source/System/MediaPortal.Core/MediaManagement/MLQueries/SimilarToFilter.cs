@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Text;
+
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
@@ -30,7 +32,21 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   public class SimilarToFilter : AbstractExpressionFilter
   {
     public SimilarToFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar) : base(attributeType, expression, escapeChar) { }
+        string expression, char? escapeChar) : base(attributeType, expression, escapeChar) { }
+
+    public override string ToString()
+    {
+      StringBuilder result = new StringBuilder(_attributeType.AttributeName);
+      result.Append(" SIMILAR TO ");
+      result.Append(_expression);
+      if (_escapeChar.HasValue)
+      {
+        result.Append(" ESCAPE '");
+        result.Append(_escapeChar.Value);
+        result.Append("'");
+      }
+      return result.ToString();
+    }
 
     #region Additional members for the XML serialization
 

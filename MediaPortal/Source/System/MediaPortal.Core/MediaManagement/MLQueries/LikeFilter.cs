@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Text;
+
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
@@ -29,16 +31,16 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// </summary>
   public class LikeFilter : AbstractExpressionFilter
   {
-    private bool _caseSensitive = true;
+    private readonly bool _caseSensitive = true;
 
     public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar, bool caseSensitive) : base(attributeType, expression, escapeChar) 
+        string expression, char? escapeChar, bool caseSensitive) : base(attributeType, expression, escapeChar) 
     {
       _caseSensitive = caseSensitive;
     }
 
     public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar) : this(attributeType, expression, escapeChar, true) { }
+        string expression, char? escapeChar) : this(attributeType, expression, escapeChar, true) { }
 
     /// <summary>
     /// Returns the information if this filter uses a case sensitive comparison.
@@ -46,6 +48,31 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public bool CaseSensitive
     {
       get { return _caseSensitive; }
+    }
+
+    public override string ToString()
+    {
+      StringBuilder result = new StringBuilder();
+      if (!_caseSensitive)
+        result.Append("UPPER(");
+      result.Append("[");
+      result.Append(_attributeType.AttributeName);
+      result.Append("]");
+      if (!_caseSensitive)
+        result.Append(")");
+      result.Append(" LIKE ");
+      if (!_caseSensitive)
+        result.Append("UPPER(");
+      result.Append(_expression);
+      if (!_caseSensitive)
+        result.Append(")");
+      if (_escapeChar.HasValue)
+      {
+        result.Append(" ESCAPE '");
+        result.Append(_escapeChar.Value);
+        result.Append("'");
+      }
+      return result.ToString();
     }
 
     #region Additional members for the XML serialization

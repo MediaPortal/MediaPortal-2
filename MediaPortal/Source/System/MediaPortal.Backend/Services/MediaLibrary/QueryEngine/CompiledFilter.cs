@@ -295,8 +295,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         else
           resultParts.Add("UPPER(?)");
         resultValues.Add(likeFilter.Expression);
-        resultParts.Add(" ESCAPE ?");
-        resultValues.Add(likeFilter.EscapeChar);
+        if (likeFilter.EscapeChar.HasValue)
+        {
+          resultParts.Add(" ESCAPE ?");
+          resultValues.Add(likeFilter.EscapeChar);
+        }
         return;
       }
 
@@ -306,9 +309,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(attributeOperand);
         resultParts.Add(" SIMILAR TO ?");
         resultValues.Add(similarToFilter.Expression);
-        resultParts.Add(" ESCAPE '");
-        resultParts.Add(similarToFilter.EscapeChar);
-        resultParts.Add("'");
+        if (similarToFilter.EscapeChar.HasValue)
+        {
+          resultParts.Add(" ESCAPE ?");
+          resultValues.Add(similarToFilter.EscapeChar);
+        }
         return;
       }
 

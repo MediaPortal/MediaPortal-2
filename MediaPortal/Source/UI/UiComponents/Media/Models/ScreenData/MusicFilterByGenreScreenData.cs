@@ -32,8 +32,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MusicFilterByGenreScreenData() :
         base(Consts.MUSIC_FILTER_BY_GENRE_SCREEN, Consts.FILTER_BY_MUSIC_GENRE_MENU_ITEM_RES,
-        new SimpleMLFilterCriterion(AudioAspect.ATTR_GENRES))
+        Consts.FILTER_MUSIC_GENRE_NAVBAR_DISPLAY_LABEL_RES, new SimpleMLFilterCriterion(AudioAspect.ATTR_GENRES))
     {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new MusicFilterByGenreScreenData();
     }
   }
 }
