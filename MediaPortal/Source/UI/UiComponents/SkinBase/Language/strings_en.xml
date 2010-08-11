@@ -103,6 +103,8 @@
     <String Name="Shares.Configure" Text="Configure shares"/>
     <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/>
     <String Name="Shares.ConfigureShares.SharesConfiguration.Help" Text="Configure all local shares"/>
+
+    <String Name="Plugins" Text="Plugins"/>
   </Section>
   <!-- Shares configuration workflow -->
   <Section Name="SharesConfig">
