@@ -603,6 +603,23 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
+    static UPnPError ParseRelocationMode(string argumentName, string relocateMediaItemsStr, out RelocationMode relocationMode)
+    {
+      switch (relocateMediaItemsStr)
+      {
+        case "Relocate":
+          relocationMode = RelocationMode.Relocate;
+          break;
+        case "ClearAndReImport":
+          relocationMode = RelocationMode.Remove;
+          break;
+        default:
+          relocationMode = RelocationMode.Remove;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'Relocate' or 'ClearAndReImport'", argumentName));
+      }
+      return null;
+    }
+
     static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -628,19 +645,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath baseResourcePath = ResourcePath.Deserialize((string) inParams[1]);
       string shareName = (string) inParams[2];
       string[] mediaCategories = ((string) inParams[3]).Split(',');
-      string relocateMediaItems = (string) inParams[4];
+      string relocateMediaItemsStr = (string) inParams[4];
       RelocationMode relocationMode;
-      switch (relocateMediaItems)
+      UPnPError error = ParseRelocationMode("RelocateMediaItems", relocateMediaItemsStr, out relocationMode);
+      if (error != null)
       {
-        case "Relocate":
-          relocationMode = RelocationMode.Relocate;
-          break;
-        case "ClearAndReImport":
-          relocationMode = RelocationMode.Remove;
-          break;
-        default:
-          outParams = null;
-          return new UPnPError(600, "Argument 'RelocateMediaItems' must be of value 'Relocate' or 'ClearAndReImport'");
+        outParams = null;
+        return error;
       }
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, mediaCategories, relocationMode);
