@@ -43,6 +43,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected string _navbarSubViewNavigationDisplayLabel;
     protected bool _avoidClustering = false;
 
+    protected object _syncObj = new object();
+    // Variables to be synchronized for multithreading access
+    protected bool _buildingList = false;
+    protected bool _listDirty = false;
+
     /// <summary>
     /// Creates a new instance of <see cref="AbstractFiltersScreenData"/>.
     /// </summary>
@@ -94,52 +99,88 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <param name="currentVS">View specification of the view to be filtered in the current screen.</param>
     protected void CreateFilterValuesList(MediaLibraryViewSpecification currentVS)
     {
-      ItemsList items = new ItemsList();
-
+      // Control other threads reentering this method
+      lock (_syncObj)
+      {
+        if (_buildingList)
+        { // Another thread is already building the items list - mark it as dirty and let the other thread
+          // rebuild it.
+          _listDirty = true;
+          return;
+        }
+        // Mark the list as being built
+        _buildingList = true;
+        _listDirty = false;
+      }
       try
       {
-        Display_ListBeingBuilt();
-        bool grouping = true;
-        int numItems = 0;
-        ICollection<FilterValue> fv = _avoidClustering ? null :
-            _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
-        if (fv != null)
-          foreach (FilterValue filterValue in fv)
-            numItems += filterValue.NumItems.Value;
-        if (fv == null || numItems <= Consts.MAX_NUM_ITEMS_VISIBLE)
+        ItemsList items = new ItemsList();
+
+        try
         {
-          fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
-          grouping = false;
+          Display_ListBeingBuilt();
+          bool grouping = true;
+          int numItems = 0;
+          ICollection<FilterValue> fv = _avoidClustering ? null :
+              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
+          if (fv != null)
+            foreach (FilterValue filterValue in fv)
+              numItems += filterValue.NumItems.Value;
+          if (fv == null || numItems <= Consts.MAX_NUM_ITEMS_VISIBLE)
+          {
+            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
+            grouping = false;
+          }
+          if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
+            Display_TooManyItems(fv.Count);
+          else
+          {
+            lock (_syncObj)
+              if (_listDirty)
+                goto RebuildView;
+
+            List<FilterValue> filterValues = new List<FilterValue>(fv);
+            ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(_navigationData.AvailableScreens);
+            remainingScreens.Remove(this);
+            filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
+            foreach (FilterValue filterValue in filterValues)
+            {
+              string filterTitle = filterValue.Title;
+              IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { currentVS.Filter, filterValue.Filter});
+              MediaLibraryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
+              ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
+                {
+                    Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS)) :
+                        new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
+                };
+              items.Add(filterValueItem);
+            }
+            Display_Normal(items.Count);
+          }
         }
-        if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
-          Display_TooManyItems(fv.Count);
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("AbstractFiltersScreenData: Error creating filter values list", e);
+          Display_ItemsInvalid();
+        }
+        RebuildView:
+        if (_listDirty)
+        {
+          lock (_syncObj)
+            _buildingList = false;
+          CreateFilterValuesList(currentVS);
+        }
         else
         {
-          List<FilterValue> filterValues = new List<FilterValue>(fv);
-          ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(_navigationData.AvailableScreens);
-          remainingScreens.Remove(this);
-          filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
-          foreach (FilterValue filterValue in filterValues)
-          {
-            string filterTitle = filterValue.Title;
-            IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { currentVS.Filter, filterValue.Filter});
-            MediaLibraryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
-            ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
-              {
-                  Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS)) :
-                      new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
-              };
-            items.Add(filterValueItem);
-          }
-          Display_Normal(items.Count);
+          _items = items;
+          _items.FireChange();
         }
       }
-      catch (Exception e)
+      finally
       {
-        ServiceRegistration.Get<ILogger>().Warn("AbstractFiltersScreenData: Error creating filter values list", e);
-        Display_ItemsInvalid();
+        lock (_syncObj)
+          _buildingList = false;
       }
-      _items = items;
     }
 
     protected void NavigateToGroup(ViewSpecification subViewSpecification)
