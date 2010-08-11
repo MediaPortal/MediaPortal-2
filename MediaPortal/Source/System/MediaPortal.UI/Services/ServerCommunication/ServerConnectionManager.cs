@@ -133,9 +133,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
             if (cd != null)
-              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories,
-                  relocationMode == RelocationMode.Relocate ? RelocationMode.Relocate :
-                  RelocationMode.ClearAndReImport);
+              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories, relocationMode);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
           case SharesMessaging.MessageType.ReImportShare:
