@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Weather.Models
   /// <summary>
   /// Main view model of the Weather plugin.
   /// </summary>
-  public class WeatherViewModel
+  public class WeatherModel
   {
     #region Private/protected fields
 
@@ -52,9 +52,9 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Constructor 
+    #region Ctor 
 
-    public WeatherViewModel()
+    public WeatherModel()
     {
       _currentLocation = new WProperty(typeof (City), new City("No Data", "No Data"));
       // for testing purposes add a weathercatcher
@@ -65,7 +65,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Public Properties
+    #region Public properties
 
     public AbstractProperty CurrentLocationProperty
     {
@@ -98,7 +98,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Public Methods
+    #region Public methods
 
 
     /// <summary>
@@ -136,7 +136,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Private Members
+    #region Private members
 
     /// <summary>
     /// this gets the locations from settings

@@ -14,40 +14,62 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
+      <StackPanel Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
-        <Grid x:Name="Grid1" HorizontalAlignment="Left">
+        <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <StackPanel x:Name="S1" Margin="0,0,10,0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <StackPanel x:Name="CurrentConditionOverview" Margin="0,0,50,0" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
             <Label x:Name="LocName" FontSize="20"  Content="{Binding Path=CurrentLocation.Name}"/>
           </StackPanel>
-          <StackPanel x:Name="S2" Margin="0,0,30,0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label x:Name="Txt1" FontSize="20" Content="[weather.temp]" />
-            <Label x:Name="Txt2" FontSize="20" Content="[weather.tempfeel]" />
-            <Label x:Name="Txt3" FontSize="20" Content="[weather.uvindex]" />
-            <Label x:Name="Txt4" FontSize="20" Content="[weather.wind]" />
-            <Label x:Name="Txt5" FontSize="20" Content="[weather.humidity]" />
-            <Label x:Name="Txt6" FontSize="20" Content="[weather.dewpoint]" />
-            <Label x:Name="Txt7" FontSize="20" Content="[weather.sunrise]" />
-            <Label x:Name="Txt8" FontSize="20" Content="[weather.sunset]" />
-          </StackPanel>
-          <StackPanel x:Name="S3" Margin="0,0,10,0" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Temperature}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Wind}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Humidity}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
-            <Label FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
-          </StackPanel>
+          <Grid x:Name="CurrentConditionDetail" Grid.Column="1" Grid.Row="0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="30"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" FontSize="20" Content="[Weather.Temp]" />
+            <Label Grid.Column="2" Grid.Row="0" FontSize="20" Content="{Binding CurrentLocation.Condition.Temperature}"/>
+
+            <Label Grid.Column="0" Grid.Row="1" FontSize="20" Content="[Weather.Tempfeel]" />
+            <Label Grid.Column="2" Grid.Row="1" FontSize="20" Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
+
+            <Label Grid.Column="0" Grid.Row="2" FontSize="20" Content="[Weather.UVIndex]" />
+            <Label Grid.Column="2" Grid.Row="2" FontSize="20" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
+
+            <Label Grid.Column="0" Grid.Row="3" FontSize="20" Content="[Weather.Wind]" />
+            <Label Grid.Column="2" Grid.Row="3" FontSize="20" Content="{Binding CurrentLocation.Condition.Wind}"/>
+
+            <Label Grid.Column="0" Grid.Row="4" FontSize="20" Content="[Weather.Humidity]" />
+            <Label Grid.Column="2" Grid.Row="4" FontSize="20" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+
+            <Label Grid.Column="0" Grid.Row="5" FontSize="20" Content="[Weather.Dewpoint]" />
+            <Label Grid.Column="2" Grid.Row="5" FontSize="20" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
+
+            <Label Grid.Column="0" Grid.Row="6" FontSize="20" Content="[Weather.Sunrise]" />
+            <Label Grid.Column="2" Grid.Row="6" FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
+
+            <Label Grid.Column="0" Grid.Row="7" FontSize="20" Content="[Weather.Sunset]" />
+            <Label Grid.Column="2" Grid.Row="7" FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
+          </Grid>
         </Grid>
-        <Grid x:Name="Grid2" HorizontalAlignment="Left" Margin="0,30,0,0">
+        <Grid x:Name="ForecastPanel" Margin="30"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -61,7 +83,7 @@
             <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[0].High}"/>
             <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[0].Low}"/>
           </StackPanel>
-          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Top">
+          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Label FontSize="20" x:Name="Day2" Content="{Binding CurrentLocation.ForecastCollection[1].Day}" />
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIconProperty}"/>
             <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[1].High}"/>

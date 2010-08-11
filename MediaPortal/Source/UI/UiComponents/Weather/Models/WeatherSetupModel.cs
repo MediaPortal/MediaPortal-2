@@ -32,34 +32,31 @@ using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
-  public class WeatherSetupViewModel 
+  public class WeatherSetupModel 
   {
     public const string WEATHER_SETUP_MODEL_ID_STR = "CF0434F2-B319-48ff-A700-0BB7F0C2CD2A";
 
-    // locations that are already in the list
+    // Locations that are already in the list
     private List<CitySetupInfo> _locations;
-    // locations that return as result of searching for a city
+    // Locations that return as result of searching for a city
     private List<CitySetupInfo> _locationsSearch; 
 
-    // vatiants of the above that is exposed to the skin
+    // Variants of the above that is exposed to the skin
     private readonly ItemsList _locationsExposed = new ItemsList(); 
     private readonly ItemsList _locationsSearchExposed = new ItemsList();
-
 
     private readonly AbstractProperty _searchCity;
 
     /// <summary>
     /// constructor
     /// </summary>
-    public WeatherSetupViewModel()
+    public WeatherSetupModel()
     {
       _searchCity = new WProperty(typeof(string), string.Empty);
-      // see if we already have a weather catcher in servicescope, if not, add one (for testing purposes)
+      // See if we already have a weather catcher in ServiceRegistration, if not, add one
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
-      {
         ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
-      }
-      // load settings
+      // Load settings
       GetLocationsFromSettings();
     }
 
@@ -78,7 +75,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// load settings
+    /// Loads all locations from the settings.
     /// </summary>
     private void GetLocationsFromSettings()
     {
@@ -87,14 +84,13 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// search for a location name and fill up the _locationsSearch list
+    /// Search for a location name and fill up the _locationsSearch list.
     /// </summary>
     /// <param name="name"></param>
     public void SearchLocations(string name)
     {
       LocationsSearch = ServiceRegistration.Get<IWeatherCatcher>().FindLocationsByName(name);
     }
-
 
     /// <summary>
     /// saves the current state to the settings

@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\WeatherViewModel.cs" />
+    <Compile Include="Models\WeatherModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper Classes\City.cs" />
@@ -101,7 +101,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="WeatherSettings.cs" />
-    <Compile Include="Models\WeatherSetupViewModel.cs" />
+    <Compile Include="Models\WeatherSetupModel.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
