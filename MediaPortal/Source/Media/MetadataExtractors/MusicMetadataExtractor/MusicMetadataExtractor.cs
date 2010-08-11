@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 using TagLib;
 using File = TagLib.File;
 using MediaPortal.Core.Logging;
@@ -171,9 +172,17 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
     protected static IEnumerable<string> GuessArtists(string filePath)
     {
       string fileName = Path.GetFileName(filePath);
-      int i = fileName.IndexOf('-');
-      if (i > -1)
-        yield return fileName.Substring(0, i).Trim();
+      // Test form Artist - Title
+      int start = fileName.IndexOf('-');
+      if (start > -1)
+        yield return fileName.Substring(0, start).Trim();
+      else
+      { // Test form Title (Artist)
+        start = fileName.IndexOf('(');
+        int end = fileName.IndexOf(')', start);
+        if (start > -1 && end > -1)
+          yield return fileName.Substring(start + 1, end - start - 1);
+      }
     }
 
     #endregion
@@ -225,10 +234,10 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         // mimetype handling in the BASS player, which expects audio/xxx.
         //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
         musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, artists);
-        musicAspect.SetAttribute(AudioAspect.ATTR_ALBUM, tag.Tag.Album);
+        musicAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
         musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, tag.Tag.AlbumArtists);
         musicAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, tag.Tag.Comment);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
         musicAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, tag.Tag.Composers);
         // The following code gets cover art images - and there is no cover art attribute in any media item aspect
         // defined yet. (Albert, 2008-11-19)
