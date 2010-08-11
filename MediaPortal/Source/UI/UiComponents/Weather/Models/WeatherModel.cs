@@ -45,10 +45,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
 
-    private readonly List<City> _locations = new List<City>();
+    protected List<City> _locations = null;
 
-    private readonly AbstractProperty _currentLocation;
-    private readonly ItemsList _locationsList = new ItemsList();
+    protected AbstractProperty _currentLocation = null;
+    protected ItemsList _locationsList = null;
+    protected AbstractProperty _isRefreshingProperty = null;
+
 
     private String _preferredLocationCode;
 
@@ -58,11 +60,9 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public WeatherModel()
     {
-      _currentLocation = new WProperty(typeof (City), new City("No Data", "No Data"));
-      // for testing purposes add a weathercatcher
-      ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
-      // add citys from settings to the locations list
-      GetLocationsFromSettings(true);
+      // See if we already have a weather catcher in ServiceRegistration, if not, add one
+      if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
+        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
     }
 
     #endregion
@@ -96,6 +96,17 @@ namespace MediaPortal.UiComponents.Weather.Models
     public ItemsList LocationsList
     {
       get { return _locationsList; }
+    }
+
+    public AbstractProperty IsRefreshingProperty
+    {
+      get { return _isRefreshingProperty; }
+    }
+
+    public bool IsRefreshing
+    {
+      get { return (bool) _isRefreshingProperty.GetValue(); }
+      set { _isRefreshingProperty.SetValue(value); }
     }
 
     #endregion
@@ -175,7 +186,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <summary>
     /// Starts the refresh of weather data in a background thread.
     /// </summary>
-    /// <param name="cityToRefresh">City</param>
+    /// <param name="cityToRefresh">City which should be refreshed.</param>
     private void StartBackgroundRefresh(City cityToRefresh)
     {
       ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
@@ -183,27 +194,37 @@ namespace MediaPortal.UiComponents.Weather.Models
 
 
     /// <summary>
-    /// Updates the location with new data.
+    /// Updates the given location with new data.
     /// </summary>
-    /// <param name="threadArgument">City</param>
+    /// <param name="threadArgument">City which should be refreshed.</param>
     private void BackgroundRefresh(object threadArgument)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Weather: background refresh start");
+      ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh");
+      IsRefreshing = true;
+      try
+      {
+        City cityToRefresh = (City) threadArgument;
 
-      City cityToRefresh = (City) threadArgument;
+        bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
 
-      bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
+        ServiceRegistration.Get<ILogger>().Info(
+            result ? "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
+            cityToRefresh.Name, cityToRefresh.Id);
 
-      ServiceRegistration.Get<ILogger>().Info(
-        result ? "Loaded Weather Data for {0}, {1}" : "Failed to load Weather Data for {0}, {1}",
-        cityToRefresh.Name,
-        cityToRefresh.Id);
+        // Copy the data to the skin property.
+        if (cityToRefresh.Id.Equals(_preferredLocationCode))
+          CurrentLocation.Copy(cityToRefresh);
 
-      // Copy the data to the skin property.
-      if (cityToRefresh.Id.Equals(_preferredLocationCode))
-        CurrentLocation.Copy(cityToRefresh);
-
-      ServiceRegistration.Get<ILogger>().Debug("Weather: background refresh end");
+        ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh end");
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Weather: Error refreshing city '{0}'", e, threadArgument);
+      }
+      finally
+      {
+        IsRefreshing = false;
+      }
     }
 
     /// <summary>
@@ -214,15 +235,15 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       if (loc == null) return;
 
-      City buffLoc = new City(loc);
-      _locations.Add(buffLoc);
+      City city = new City(loc);
+      _locations.Add(city);
 
-      ListItem buffItem = new ListItem();
-      buffItem.SetLabel("Name", loc.Name);
-      buffItem.SetLabel("Id", loc.Id);
-      _locationsList.Add(buffItem);
+      ListItem item = new ListItem();
+      item.SetLabel("Name", loc.Name);
+      item.SetLabel("Id", loc.Id);
+      _locationsList.Add(item);
 
-      StartBackgroundRefresh(buffLoc);
+      StartBackgroundRefresh(city);
     }
     #endregion
 
@@ -240,17 +261,26 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _currentLocation = new WProperty(typeof (City), new City("No Data", "No Data"));
+      _locations = new List<City>();
+      _locationsList = new ItemsList();
+      _isRefreshingProperty = new WProperty(typeof(bool), false);
+
+      // Add citys from settings to the locations list
+      GetLocationsFromSettings(true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _currentLocation = null;
+      _locations = null;
+      _locationsList = null;
+      _isRefreshingProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      // TODO
+      // Nothing to do here
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -260,7 +290,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      // Nothing to do here
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

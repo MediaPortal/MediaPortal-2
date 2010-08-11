@@ -4,6 +4,7 @@
     <String Name="Title" Text="Wetter"/>
     <String Name="ChooseLocation" Text="Stadt wählen"/>
     <String Name="Refresh" Text="Aktualisieren"/>
+    <String Name="Refreshing" Text="Aktualisieren..."/>
     <String Name="Weather" Text="Wetter"/>
     <String Name="NoData" Text="Keine Daten"/>
     <String Name="Temp" Text="Temperatur"/>

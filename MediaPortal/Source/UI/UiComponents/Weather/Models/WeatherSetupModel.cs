@@ -35,34 +35,33 @@ using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
-  public class WeatherSetupModel  : IWorkflowModel
+  /// <summary>
+  /// Workflow model for the weather setup.
+  /// </summary>
+  public class WeatherSetupModel : IWorkflowModel
   {
     public const string WEATHER_SETUP_MODEL_ID_STR = "CF0434F2-B319-48ff-A700-0BB7F0C2CD2A";
 
     // Locations that are already in the list
-    private List<CitySetupInfo> _locations;
+    private List<CitySetupInfo> _locations = null;
     // Locations that return as result of searching for a city
-    private List<CitySetupInfo> _locationsSearch; 
+    private List<CitySetupInfo> _locationsSearch = null; 
 
     // Variants of the above that is exposed to the skin
-    private readonly ItemsList _locationsExposed = new ItemsList(); 
-    private readonly ItemsList _locationsSearchExposed = new ItemsList();
+    private ItemsList _locationsExposed = null; 
+    private ItemsList _locationsSearchExposed = null;
 
-    private readonly AbstractProperty _searchCity;
+    private AbstractProperty _searchCity = null;
 
-    /// <summary>
-    /// constructor
-    /// </summary>
     public WeatherSetupModel()
     {
-      _searchCity = new WProperty(typeof(string), string.Empty);
       // See if we already have a weather catcher in ServiceRegistration, if not, add one
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
         ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
     }
 
     /// <summary>
-    /// exposes the current search parameter to the skin
+    /// Exposes the current search string to the skin.
     /// </summary>
     public string SearchCity
     {
@@ -94,14 +93,13 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// saves the current state to the settings
+    /// Saves the current state to the settings file.
     /// </summary>
     public void SaveSettings()
     {
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
       // Apply new locations list
       settings.LocationsList = Locations;
-      // Save
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
@@ -117,7 +115,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         if (i["Id"].Equals(item["Id"]))
           return;
       _locationsExposed.Add(item);
-      // create a CitySetupObject and add it to the loctions list
+      // Create a CitySetupObject and add it to the loctions list
       CitySetupInfo c = new CitySetupInfo(item["Name"], item["Id"]);
       _locations.Add(c);
       _locationsExposed.FireChange();
@@ -158,16 +156,16 @@ namespace MediaPortal.UiComponents.Weather.Models
           return;
 
         _locationsExposed.Clear();
-        ListItem buff;
+        ListItem item;
 
         foreach (CitySetupInfo c in _locations)
         {
           if (c != null)
           {
-            buff = new ListItem();
-            buff.SetLabel("Name", c.Name);
-            buff.SetLabel("Id", c.Id);
-            _locationsExposed.Add(buff);
+            item = new ListItem();
+            item.SetLabel("Name", c.Name);
+            item.SetLabel("Id", c.Id);
+            _locationsExposed.Add(item);
           }
         }
         _locationsExposed.FireChange();
@@ -175,7 +173,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// gets or sets the found Locations
+    /// Gets or sets the locations which were found.
     /// </summary>
     public List<CitySetupInfo> LocationsSearch
     {
@@ -187,15 +185,15 @@ namespace MediaPortal.UiComponents.Weather.Models
           return;
 
         _locationsSearchExposed.Clear();
-        ListItem buff;
+        ListItem item;
         foreach (CitySetupInfo c in _locationsSearch)
         {
           if (c != null)
           {
-            buff = new ListItem();
-            buff.SetLabel("Name", c.Name);
-            buff.SetLabel("Id", c.Id);
-            _locationsSearchExposed.Add(buff);
+            item = new ListItem();
+            item.SetLabel("Name", c.Name);
+            item.SetLabel("Id", c.Id);
+            _locationsSearchExposed.Add(item);
           }
         }
         _locationsSearchExposed.FireChange();
@@ -203,7 +201,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// exposes the available locations
+    /// Exposes the available locations.
     /// </summary>
     public ItemsList SetupLocations
     {
@@ -211,7 +209,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
 
     /// <summary>
-    /// exposes the search result
+    /// Exposes the search result.
     /// </summary>
     public ItemsList SetupSearchLocations
     {
@@ -232,13 +230,26 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _searchCity = new WProperty(typeof(string), string.Empty);
+      _locations = new List<CitySetupInfo>();
+      _locationsExposed = new ItemsList();
+      _locationsSearch = new List<CitySetupInfo>();
+      _locationsSearchExposed = new ItemsList();
       // Load settings
       GetLocationsFromSettings();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _locations.Clear();
+      _locations = null;
+      _locationsExposed.Clear();
+      _locationsExposed = null;
+      _locationsSearch.Clear();
+      _locationsSearch = null;
+      _locationsSearchExposed.Clear();
+      _locationsSearchExposed = null;
+      _searchCity = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

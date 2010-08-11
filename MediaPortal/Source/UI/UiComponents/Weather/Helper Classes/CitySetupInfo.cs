@@ -26,9 +26,7 @@ using MediaPortal.Core.General;
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
-  /// this is a basic field where
-  /// the information for the provider
-  /// are stored (usually the location name and unique id)
+  /// This is a basic class where the information for the provider are stored (usually the location name and unique id).
   /// </summary>
   public class CitySetupInfo
   {
@@ -38,14 +36,14 @@ namespace MediaPortal.UiComponents.Weather
     public CitySetupInfo(string name, string id, string grabber)
     {
       Name = name;
-      this._id = id;
-      this._grabber = grabber;
+      _id = id;
+      _grabber = grabber;
     }
 
     public CitySetupInfo(string name, string id)
     {
       Name = name;
-      this._id = id;
+      _id = id;
       _grabber = "Weather.com";
     }
 

@@ -4,6 +4,7 @@
     <String Name="Title" Text="Weather"/>
     <String Name="ChooseLocation" Text="Choose location"/>
     <String Name="Refresh" Text="Refresh"/>
+    <String Name="Refreshing" Text="Refreshing..."/>
     <String Name="Weather" Text="Weather"/>
     <String Name="NoData" Text="no data"/>
     <String Name="Temp" Text="Temp"/>

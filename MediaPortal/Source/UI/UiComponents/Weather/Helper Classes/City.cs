@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.Weather
       Thread.Sleep(2000);
     }
 
-    #region properties
+    #region Properties
 
     public AbstractProperty NameProperty
     {
