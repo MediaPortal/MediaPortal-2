@@ -108,7 +108,7 @@
             <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[4].Low}"/>
           </StackPanel>
         </Grid>
-        <Label x:Name="RefreshingHintLabel" Content="[Weather.Refreshing]" IsVisible="{Binding IsRefreshing}"
+        <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
             HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
             Color="{ThemeResource HintTextColor}"/>
       </StackPanel>

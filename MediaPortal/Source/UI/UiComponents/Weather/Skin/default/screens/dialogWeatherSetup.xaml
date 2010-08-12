@@ -17,11 +17,12 @@
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
           DataContext="{Binding Source={StaticResource Model}}">
-		  
-		<ListView Name="CitiesList"  Height="300" Width="400" Style="{ThemeResource MenuListViewStyle}"
-            ItemsSource="{Binding SetupLocations}"/>
+
+      <Label Content="[WeatherSetup.ConfiguredCities]"/>		  
+      <ListView Name="CitiesList"  Height="300" Width="400" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
+          ItemsSource="{Binding SetupLocations}"/>
 		
-        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+      <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
 		  <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
     	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"

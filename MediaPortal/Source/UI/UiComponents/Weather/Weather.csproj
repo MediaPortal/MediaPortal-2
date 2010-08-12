@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -80,12 +80,8 @@
     </EmbeddedResource>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\workflow\weather-actions.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Skin\default\workflow\weather-states.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Skin\default\workflow\weather-actions.xml"/>
+    <Content Include="Skin\default\workflow\weather-states.xml"/>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -121,6 +117,8 @@
     <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
+    <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml"/>
+    <Content Include="Skin\default\themes\default\styles\WeatherStyles.xaml"/>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_de.xml" />
@@ -229,9 +227,6 @@
     <Content Include="Skin\default\media\Weather\Logos\TWClogo_32px.png" />
     <Content Include="Skin\default\media\Weather\Logos\TWClogo_64px.png" />
     <Content Include="Skin\default\media\Weather\Logos\weather48x48.gif" />
-    <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

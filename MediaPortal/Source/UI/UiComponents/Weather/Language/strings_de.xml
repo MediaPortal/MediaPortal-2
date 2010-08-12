@@ -4,7 +4,7 @@
     <String Name="Title" Text="Wetter"/>
     <String Name="ChooseLocation" Text="Stadt wählen"/>
     <String Name="Refresh" Text="Aktualisieren"/>
-    <String Name="Refreshing" Text="Aktualisieren..."/>
+    <String Name="Updating" Text="Aktualisieren..."/>
     <String Name="Weather" Text="Wetter"/>
     <String Name="NoData" Text="Keine Daten"/>
     <String Name="Temp" Text="Temperatur"/>
@@ -75,6 +75,7 @@
   </Section>
   <Section Name="WeatherSetup">
     <String Name="Title" Text="Städte konfigurieren"/>
+    <String Name="ConfiguredCities" Text="Verfügbare Städte"/>
     <String Name="EnterCity" Text="Geben Sie den Namen der Stadt ein, die Sie hinzufügen möchten:"/>
     <String Name="SearchCity" Text="Stadt suchen"/>
     <String Name="AddCity" Text="Stadt hinzufügen"/>

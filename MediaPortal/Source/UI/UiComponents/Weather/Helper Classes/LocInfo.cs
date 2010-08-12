@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
-  /// provides info of the Location
+  /// Provides data of the location.
   /// </summary>
   public class LocInfo // <loc>
   {
@@ -37,7 +37,6 @@ namespace MediaPortal.UiComponents.Weather
     private AbstractProperty _sunRise = new WProperty(typeof(string), string.Empty); // <sunr>7:14 AM</sunr> 
     private AbstractProperty _sunSet = new WProperty(typeof(string), string.Empty); // <suns>5:38 PM</suns>
     private AbstractProperty _zone = new WProperty(typeof(string), string.Empty); // <zone>1</zone>
-    // Getters
 
     public string Time
     {

@@ -4,7 +4,7 @@
     <String Name="Title" Text="Weather"/>
     <String Name="ChooseLocation" Text="Choose location"/>
     <String Name="Refresh" Text="Refresh"/>
-    <String Name="Refreshing" Text="Refreshing..."/>
+    <String Name="Updating" Text="Updating..."/>
     <String Name="Weather" Text="Weather"/>
     <String Name="NoData" Text="no data"/>
     <String Name="Temp" Text="Temp"/>
@@ -75,6 +75,7 @@
   </Section>
   <Section Name="WeatherSetup">
     <String Name="Title" Text="Configure cities"/>
+    <String Name="ConfiguredCities" Text="Configured cities"/>
     <String Name="EnterCity" Text="Please enter the name of the city to add:"/>
     <String Name="SearchCity" Text="Search city"/>
     <String Name="AddCity" Text="Add city"/>

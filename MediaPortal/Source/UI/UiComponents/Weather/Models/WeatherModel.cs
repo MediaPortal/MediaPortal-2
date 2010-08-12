@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected AbstractProperty _currentLocationProperty = null;
     protected ItemsList _locationsList = null;
-    protected AbstractProperty _isRefreshingProperty = null;
+    protected AbstractProperty _isUpdatingProperty = null;
 
 
     private String _preferredLocationCode;
@@ -99,15 +99,15 @@ namespace MediaPortal.UiComponents.Weather.Models
       get { return _locationsList; }
     }
 
-    public AbstractProperty IsRefreshingProperty
+    public AbstractProperty IsUpdatingProperty
     {
-      get { return _isRefreshingProperty; }
+      get { return _isUpdatingProperty; }
     }
 
-    public bool IsRefreshing
+    public bool IsUpdating
     {
-      get { return (bool) _isRefreshingProperty.GetValue(); }
-      set { _isRefreshingProperty.SetValue(value); }
+      get { return (bool) _isUpdatingProperty.GetValue(); }
+      set { _isUpdatingProperty.SetValue(value); }
     }
 
     #endregion
@@ -202,17 +202,17 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh");
       City currentLocation;
-      AbstractProperty isRefreshingProperty;
+      AbstractProperty isUpdatingProperty;
       lock (_syncObj)
       {
         // Don't use properties outside this lock as the underlaying instances might have been asynchronously set to null
         currentLocation = _currentLocationProperty == null ? null : (City) _currentLocationProperty.GetValue();
-        isRefreshingProperty = _isRefreshingProperty;
-        if (currentLocation == null || isRefreshingProperty == null)
+        isUpdatingProperty = _isUpdatingProperty;
+        if (currentLocation == null || isUpdatingProperty == null)
           // Asynchronously already disposed
           return;
       }
-      isRefreshingProperty.SetValue(true);
+      isUpdatingProperty.SetValue(true);
       try
       {
         City cityToRefresh = (City) threadArgument;
@@ -235,7 +235,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
       finally
       {
-        isRefreshingProperty.SetValue(false);
+        isUpdatingProperty.SetValue(false);
       }
     }
 
@@ -278,7 +278,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         _currentLocationProperty = new WProperty(typeof(City), new City("No Data", "No Data"));
         _locations = new List<City>();
         _locationsList = new ItemsList();
-        _isRefreshingProperty = new WProperty(typeof(bool), false);
+        _isUpdatingProperty = new WProperty(typeof(bool), false);
       }
 
       // Add citys from settings to the locations list
@@ -292,7 +292,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         _currentLocationProperty = null;
         _locations = null;
         _locationsList = null;
-        _isRefreshingProperty = null;
+        _isUpdatingProperty = null;
       }
     }
 
