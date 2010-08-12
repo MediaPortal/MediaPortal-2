@@ -193,13 +193,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       AbstractFiltersScreenData childScreenData = Derive();
       childScreenData.AvoidClustering = true; // We already showed the clusters in the current screen - avoid clusters again else we would present the same grouped screen contents again
       _navigationData.StackSubordinateNavigationContext(subViewSpecification, childScreenData,
-          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, subViewSpecification.ViewDisplayName));
+          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
+              LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
     }
 
     protected void NavigateToSubView(ViewSpecification subViewSpecification, ICollection<AbstractScreenData> remainingScreens)
     {
       _navigationData.StackAutonomousNavigationContext(subViewSpecification, remainingScreens,
-          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, subViewSpecification.ViewDisplayName));
+          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
+              LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
     }
   }
 }

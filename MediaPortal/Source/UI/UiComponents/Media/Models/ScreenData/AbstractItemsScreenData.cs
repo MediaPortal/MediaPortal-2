@@ -242,7 +242,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected void NavigateToView(ViewSpecification subViewSpecification)
     {
       _navigationData.StackSubordinateNavigationContext(subViewSpecification, Derive(),
-          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, subViewSpecification.ViewDisplayName));
+          LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel,
+              LocalizationHelper.Translate(subViewSpecification.ViewDisplayName)));
     }
   }
 }
