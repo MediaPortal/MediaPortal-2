@@ -45,9 +45,10 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
 
+    protected object _syncObj = new object();
     protected List<City> _locations = null;
 
-    protected AbstractProperty _currentLocation = null;
+    protected AbstractProperty _currentLocationProperty = null;
     protected ItemsList _locationsList = null;
     protected AbstractProperty _isRefreshingProperty = null;
 
@@ -71,7 +72,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public AbstractProperty CurrentLocationProperty
     {
-      get { return _currentLocation; }
+      get { return _currentLocationProperty; }
     }
 
     /// <summary>
@@ -79,7 +80,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public City CurrentLocation
     {
-      get { return (City) _currentLocation.GetValue(); }
+      get { return (City) _currentLocationProperty.GetValue(); }
     }
 
     /// <summary>
@@ -200,7 +201,18 @@ namespace MediaPortal.UiComponents.Weather.Models
     private void BackgroundRefresh(object threadArgument)
     {
       ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh");
-      IsRefreshing = true;
+      City currentLocation;
+      AbstractProperty isRefreshingProperty;
+      lock (_syncObj)
+      {
+        // Don't use properties outside this lock as the underlaying instances might have been asynchronously set to null
+        currentLocation = _currentLocationProperty == null ? null : (City) _currentLocationProperty.GetValue();
+        isRefreshingProperty = _isRefreshingProperty;
+        if (currentLocation == null || isRefreshingProperty == null)
+          // Asynchronously already disposed
+          return;
+      }
+      isRefreshingProperty.SetValue(true);
       try
       {
         City cityToRefresh = (City) threadArgument;
@@ -213,7 +225,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
         // Copy the data to the skin property.
         if (cityToRefresh.Id.Equals(_preferredLocationCode))
-          CurrentLocation.Copy(cityToRefresh);
+          currentLocation.Copy(cityToRefresh);
 
         ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh end");
       }
@@ -223,7 +235,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
       finally
       {
-        IsRefreshing = false;
+        isRefreshingProperty.SetValue(false);
       }
     }
 
@@ -261,10 +273,13 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _currentLocation = new WProperty(typeof (City), new City("No Data", "No Data"));
-      _locations = new List<City>();
-      _locationsList = new ItemsList();
-      _isRefreshingProperty = new WProperty(typeof(bool), false);
+      lock (_syncObj)
+      {
+        _currentLocationProperty = new WProperty(typeof(City), new City("No Data", "No Data"));
+        _locations = new List<City>();
+        _locationsList = new ItemsList();
+        _isRefreshingProperty = new WProperty(typeof(bool), false);
+      }
 
       // Add citys from settings to the locations list
       GetLocationsFromSettings(true);
@@ -272,10 +287,13 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _currentLocation = null;
-      _locations = null;
-      _locationsList = null;
-      _isRefreshingProperty = null;
+      lock (_syncObj)
+      {
+        _currentLocationProperty = null;
+        _locations = null;
+        _locationsList = null;
+        _isRefreshingProperty = null;
+      }
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
