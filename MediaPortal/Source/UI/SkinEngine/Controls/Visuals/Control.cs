@@ -23,13 +23,17 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
+using SlimDX;
+using SlimDX.Direct3D9;
 using SizeF = System.Drawing.SizeF;
-using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
+using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -45,6 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _cornerRadiusProperty;
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
+    protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
+    protected PrimitiveContext _backgroundContext;
 
     #endregion
 
@@ -213,10 +219,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
+      PerformLayout(localRenderContext);
+
+      if (_backgroundContext != null)
+      {
+        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
+        {
+          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, 2);
+          Background.EndRender();
+        }
+      }
+
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
       templateControl.Render(localRenderContext);
+    }
+
+    public void PerformLayout(RenderContext localRenderContext)
+    {
+      if (!_performLayout)
+        return;
+      _performLayout = false;
+
+      // Setup background brush
+      DisposePrimitiveContext(ref _backgroundContext);
+      if (Background != null)
+      {
+        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
+
+        RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
+            actualSize.Width + 0.5f, actualSize.Height + 0.5f);
+
+        PositionColored2Textured[] verts = new PositionColored2Textured[6];
+        unchecked
+        {
+          verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+          verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
+          verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
+          verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+          verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
+          verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
+        }
+        Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
+        _backgroundContext = new PrimitiveContext(2, ref verts, PrimitiveType.TriangleList);
+      }
     }
 
     #endregion
@@ -234,7 +283,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void ArrangeOverride()
     {
+      PointF oldPosition = ActualPosition;
+      double oldWidth = ActualWidth;
+      double oldHeight = ActualHeight;
       base.ArrangeOverride();
+      if (ActualWidth != 0 && ActualHeight != 0 &&
+          (ActualWidth != oldWidth || ActualHeight != oldHeight || oldPosition != ActualPosition))
+        _performLayout = true;
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
