@@ -196,6 +196,9 @@
   <!-- Black, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#20000000"/>
 
+  <!-- Dark gray, almost transparent -->
+  <ResourceWrapper x:Key="ItemsControlDialogShadowBackgroundColor" Resource="#20111111"/>
+
   <!-- White -->
   <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="White"/>
 
