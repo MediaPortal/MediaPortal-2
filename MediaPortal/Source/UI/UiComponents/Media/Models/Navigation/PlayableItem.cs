@@ -63,7 +63,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         videoAspect = null;
       string title = mediaAspect == null ? null : mediaAspect[MediaAspect.ATTR_TITLE] as string;
 
-      string artists = audioAspect == null ? null : StringUtils.Join(", ", (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS]);
+      IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
+      string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
       string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
       long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
       if (!length.HasValue)
