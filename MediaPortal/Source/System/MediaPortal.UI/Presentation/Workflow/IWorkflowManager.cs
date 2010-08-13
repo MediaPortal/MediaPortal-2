@@ -154,6 +154,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     bool NavigatePopToState(Guid stateId, bool inclusive);
 
     /// <summary>
+    /// Removes all workflow states while the model with the given <paramref name="modelId"/> is present as workflowModel
+    /// on the workflow navigation stack.
+    /// </summary>
+    /// <param name="modelId">Id of the workflow model whose workflow states are to be removed from the navigation stack.</param>
+    /// <returns><c>true</c>, if the given model was present as workflow model on the workflow navigation stack and
+    /// its states were removed, else <c>false</c>.</returns>
+    bool NavigatePopModel(Guid modelId);
+
+    /// <summary>
     /// Avoids screen updates during a batch workflow navigation.
     /// </summary>
     /// <remarks>

@@ -756,6 +756,33 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    public bool NavigatePopModel(Guid modelId)
+    {
+      EnterWriteLock("NavigatePopModel");
+      try
+      {
+        bool removed = false;
+        while (IsModelContainedInNavigationStack(modelId))
+        {
+          removed = true;
+          if (!DoPopNavigationContext(1))
+            break;
+        }
+        if (removed)
+        {
+          UpdateScreen_NeedsLock();
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+          return true;
+        }
+        else
+          return false;
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
     public void StartBatchUpdate()
     {
       // We delegate the update lock for screens to the screen manager because it is easier to do it there.
