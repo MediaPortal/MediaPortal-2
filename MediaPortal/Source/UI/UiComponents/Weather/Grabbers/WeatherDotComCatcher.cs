@@ -247,33 +247,42 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       if (!File.Exists(weatherFile))
         return false;
-      XmlDocument doc = new XmlDocument();
-      doc.Load(weatherFile);
-      if (doc.DocumentElement == null)
-        return false;
-      XmlNode xmlElement = doc.DocumentElement;
-
-      if (doc.DocumentElement.Name == "error")
+      try
       {
-        ParseError(xmlElement);
+        XmlDocument doc = new XmlDocument();
+        doc.Load(weatherFile);
+        if (doc.DocumentElement == null)
+          return false;
+        XmlNode xmlElement = doc.DocumentElement;
+
+        if (doc.DocumentElement.Name == "error")
+        {
+          ParseError(xmlElement);
+          return false;
+        }
+
+        _unitTemperature = _temperatureFarenheit;
+        if (_windSpeed[0] == 'M')
+          _unitSpeed = "mph";
+        else if (_windSpeed[0] == 'K')
+          _unitSpeed = "km/h";
+        else
+          _unitSpeed = "m/s";
+
+        if (!ParseLocation(c, xmlElement.SelectSingleNode("loc")))
+          return false;
+        if (!ParseCurrentCondition(c, xmlElement.SelectSingleNode("cc")))
+          return false;
+        if (!ParseDayForeCast(c, xmlElement.SelectSingleNode("dayf")))
+          return false;
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document:{0} {1} {2}", ex.Message,
+                                         ex.Source, ex.StackTrace);
         return false;
       }
-
-      _unitTemperature = _temperatureFarenheit;
-      if (_windSpeed[0] == 'M')
-        _unitSpeed = "mph";
-      else if (_windSpeed[0] == 'K')
-        _unitSpeed = "km/h";
-      else
-        _unitSpeed = "m/s";
-
-      if (!ParseLocation(c, xmlElement.SelectSingleNode("loc")))
-        return false;
-      if (!ParseCurrentCondition(c, xmlElement.SelectSingleNode("cc")))
-        return false;
-      if (!ParseDayForeCast(c, xmlElement.SelectSingleNode("dayf")))
-        return false;
-      return true;
     }
 
     /// <summary>

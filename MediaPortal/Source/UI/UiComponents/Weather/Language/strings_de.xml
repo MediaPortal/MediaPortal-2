@@ -15,6 +15,7 @@
     <String Name="DewPoint" Text="Taupunkt"/>
     <String Name="Sunrise" Text="Sonnenaufgang"/>
     <String Name="Sunset" Text="Sonnenuntergang"/>
+    <String Name="LastUpdateTime" Text="Letzte Aktualisierung"/>
 
     <!-- Forecast names are mostly assigned 1:1 -->
     <String Name="TStorms" Text="Gewitter"/>

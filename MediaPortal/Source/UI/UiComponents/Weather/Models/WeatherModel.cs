@@ -28,11 +28,13 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Grabbers;
+using MediaPortal.Core.TaskScheduler;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -44,6 +46,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     #region Private/protected fields
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
+    public const string WEATHER_MESSAGE_CHANNEL = "WeatherMessageChannel";
 
     protected object _syncObj = new object();
     protected List<City> _locations = null;
@@ -51,9 +54,13 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected AbstractProperty _currentLocationProperty = null;
     protected ItemsList _locationsList = null;
     protected AbstractProperty _isUpdatingProperty = null;
+    protected AbstractProperty _lastUpdateTimeProperty = null;
 
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     private String _preferredLocationCode;
+    private int? _refreshInterval;
+    private int _refreshTaskId;
 
     #endregion
 
@@ -70,6 +77,9 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #region Public properties
 
+    /// <summary>
+    /// Exposes the current location to the skin.
+    /// </summary>
     public AbstractProperty CurrentLocationProperty
     {
       get { return _currentLocationProperty; }
@@ -99,15 +109,38 @@ namespace MediaPortal.UiComponents.Weather.Models
       get { return _locationsList; }
     }
 
+    /// <summary>
+    /// Exposes the IsUpdating property.
+    /// </summary>
     public AbstractProperty IsUpdatingProperty
     {
       get { return _isUpdatingProperty; }
     }
 
+    /// <summary>
+    /// Indicates if a background-update is in progress.
+    /// </summary>
     public bool IsUpdating
     {
       get { return (bool) _isUpdatingProperty.GetValue(); }
       set { _isUpdatingProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the LastUpdateTimeProperty property.
+    /// </summary>
+    public AbstractProperty LastUpdateTimeProperty
+    {
+      get { return _lastUpdateTimeProperty; }
+    }
+
+    /// <summary>
+    /// Indicates the time of last successful update.
+    /// </summary>
+    public DateTime? LastUpdateTime
+    {
+      get { return (DateTime?)_lastUpdateTimeProperty.GetValue(); }
+      set { _lastUpdateTimeProperty.SetValue(value); }
     }
 
     #endregion
@@ -157,9 +190,6 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     protected void GetLocationsFromSettings(bool shouldFire)
     {
-      // empty lists
-      _locationsList.Clear();
-      _locations.Clear();
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
 
@@ -167,6 +197,8 @@ namespace MediaPortal.UiComponents.Weather.Models
         return;
 
       _preferredLocationCode = settings.LocationCode;
+      _refreshInterval = settings.RefreshInterval;
+      _lastUpdateTimeProperty.SetValue(settings.LastUpdate);
 
       foreach (CitySetupInfo loc in settings.LocationsList)
         AddCityToLocations(loc);
@@ -227,6 +259,17 @@ namespace MediaPortal.UiComponents.Weather.Models
         if (cityToRefresh.Id.Equals(_preferredLocationCode))
           currentLocation.Copy(cityToRefresh);
 
+        // also save the last selected city to settings
+        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+        settings.LastUpdate = DateTime.Now;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+        lock (_syncObj)
+        {
+          if (_lastUpdateTimeProperty != null)
+            _lastUpdateTimeProperty.SetValue(settings.LastUpdate);
+        }
+
         ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh end");
       }
       catch (Exception e)
@@ -259,6 +302,66 @@ namespace MediaPortal.UiComponents.Weather.Models
     }
     #endregion
 
+    #region Message and Tasks handling
+
+    /// <summary>
+    /// Subscribes to the TaskScheduler messaging to use Tasks for background refreshing.
+    /// </summary>
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+           TaskSchedulerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    /// <summary>
+    /// Unsubscribes from TaskScheduler messaging.
+    /// </summary>
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
+      {
+        if ((TaskSchedulerMessaging.MessageType)message.MessageType == TaskSchedulerMessaging.MessageType.DUE)
+        {
+          Refresh();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Creates a task for background refresh that gets executed every n seconds (refresh interval).
+    /// </summary>
+    void StartRefreshTask()
+    {
+      if (_refreshInterval == null)
+        return;
+
+      _refreshTaskId = ServiceRegistration.Get<ITaskScheduler>().AddTask(
+        new Task("Weather", TimeSpan.FromSeconds((int) _refreshInterval))
+        );
+    }
+
+    /// <summary>
+    /// Deletes the created task.
+    /// </summary>
+    void EndRefreshTask()
+    {
+      ServiceRegistration.Get<ITaskScheduler>().RemoveTask(_refreshTaskId);
+    }
+
+    #endregion
+
     #region IWorkflowModel implementation
 
     public Guid ModelId
@@ -279,20 +382,26 @@ namespace MediaPortal.UiComponents.Weather.Models
         _locations = new List<City>();
         _locationsList = new ItemsList();
         _isUpdatingProperty = new WProperty(typeof(bool), false);
+        _lastUpdateTimeProperty = new WProperty(typeof(DateTime?), null);
       }
 
       // Add citys from settings to the locations list
       GetLocationsFromSettings(true);
+      SubscribeToMessages();
+      StartRefreshTask();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      EndRefreshTask();
+      UnsubscribeFromMessages();
       lock (_syncObj)
       {
         _currentLocationProperty = null;
         _locations = null;
         _locationsList = null;
         _isUpdatingProperty = null;
+        _lastUpdateTimeProperty = null;
       }
     }
 
