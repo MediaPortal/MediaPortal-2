@@ -161,7 +161,8 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      UpdatePlaylistHeader(pc == null ? null : (PlayerContextType?) pc.MediaType, pc.PlayerSlotController.SlotIndex);
+      if (pc != null)
+        UpdatePlaylistHeader(pc.MediaType, pc.PlayerSlotController.SlotIndex);
       lock (_syncObj)
       {
         // TODO: If playlist objects differ, leave state EditPlaylist?
