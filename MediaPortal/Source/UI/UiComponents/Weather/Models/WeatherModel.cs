@@ -265,7 +265,6 @@ namespace MediaPortal.UiComponents.Weather.Models
       ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
     }
 
-
     /// <summary>
     /// Updates the given location with new data.
     /// </summary>
@@ -332,6 +331,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       StartBackgroundRefresh(city);
     }
+
     #endregion
 
     #region Message and Tasks handling
@@ -343,7 +343,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           TaskSchedulerMessaging.CHANNEL
+           TaskSchedulerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -364,10 +364,9 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
       {
-        if ((TaskSchedulerMessaging.MessageType)message.MessageType == TaskSchedulerMessaging.MessageType.DUE)
-        {
+        if ((TaskSchedulerMessaging.MessageType) message.MessageType == TaskSchedulerMessaging.MessageType.DUE &&
+            ((Task) message.MessageData[TaskSchedulerMessaging.TASK]).ID == _refreshTaskId)
           Refresh();
-        }
       }
     }
 
@@ -380,8 +379,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         return;
 
       _refreshTaskId = ServiceRegistration.Get<ITaskScheduler>().AddTask(
-        new Task("Weather", TimeSpan.FromSeconds((int) _refreshInterval))
-        );
+          new Task("Weather plugin", TimeSpan.FromSeconds((int) _refreshInterval)));
     }
 
     /// <summary>
