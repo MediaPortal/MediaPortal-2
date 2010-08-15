@@ -20,10 +20,12 @@
 
     <MethodCallAction Id="7AEB11DE-BA40-40a2-933A-B00BBD151B08" 
         Name="Weather" 
+        DisplayCategory="b-Refresh"
+        SortOrder="b"
         DisplayTitle="[Weather.Refresh]"
         SourceState="44E1CF89-66D0-4850-A076-E1B602432983"
         ModelId="92BDB53F-4159-4dc2-B212-6083C820A214"
-        MethodName="Refresh"/>
+        MethodName="Refresh"/> <!-- Model = WeatherModel -->
     
   </MenuActions>
 </Workflow>
