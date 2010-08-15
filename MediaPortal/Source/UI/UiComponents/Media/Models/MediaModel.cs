@@ -417,7 +417,7 @@ namespace MediaPortal.UiComponents.Media.Models
       return pc;
     }
 
-    protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction);
+    protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
 
     /// <summary>
     /// Depending on parameter <paramref name="play"/>, plays or enqueues the media items of type <paramref name="avType"/>
@@ -444,14 +444,16 @@ namespace MediaPortal.UiComponents.Media.Models
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
       AsyncAddToPlaylistDelegate dlgt = AsyncAddToPlaylist;
-      dlgt.BeginInvoke(pc, getMediaItemsFunction, null, null);
+      dlgt.BeginInvoke(pc, getMediaItemsFunction, play, null, null);
     }
 
-    protected static void AsyncAddToPlaylist(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction)
+    protected static void AsyncAddToPlaylist(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play)
     {
       pc.Playlist.AddAll(getMediaItemsFunction());
+      if (!play)
+        return;
       pc.Play();
-      if (pc.AVType== AVType.Video)
+      if (pc.AVType == AVType.Video)
       {
         IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
         pcm.ShowFullscreenContent();
