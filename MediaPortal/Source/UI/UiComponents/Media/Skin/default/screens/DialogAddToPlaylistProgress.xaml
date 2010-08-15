@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.AddToPlaylistProgressDialogHeader]"/>
+
+    <!-- MediaModel -->
+    <Model x:Key="Model" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Label Content="[Media.AddToPlaylistProgressText]"/>
+        <Label Margin="20" Content="{Binding NumItemsAddedToPlaylistText}" HorizontalAlignment="Center"/>
+        <Button Style="{ThemeResource ButtonStyle}" Content="[System.Cancel]"
+            Command="{Command Source={StaticResource Model},Path=CancelAddToPlaylist}"/>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

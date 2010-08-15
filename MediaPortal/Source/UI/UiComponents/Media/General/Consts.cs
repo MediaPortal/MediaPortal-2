@@ -131,6 +131,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string ADD_ALL_VIDEOS_RES = "[Media.AddAllVideo]";
     public const string ADD_ALL_IMAGES_RES = "[Media.AddAllImages]";
     public const string ADD_VIDEOS_AND_IMAGES_RES = "[Media.AddAllVideosAndImages]";
+    public const string N_ITEMS_ADDED_RES = "[Media.NItemsAdded]";
 
     // Screens
     public const string LOCAL_MEDIA_NAVIGATION_SCREEN = "LocalMediaNavigation";
@@ -152,18 +153,22 @@ namespace MediaPortal.UiComponents.Media.General
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
     public const string CHOOSE_AV_TYPE_DIALOG_SCREEN = "DialogChooseAVType";
 
-    public const string FULLSCREEN_AUDIO_SCREEN_NAME = "FullscreenContentAudio";
-    public const string CURRENTLY_PLAYING_AUDIO_SCREEN_NAME = "CurrentlyPlayingAudio";
+    public const string FULLSCREEN_AUDIO_SCREEN = "FullscreenContentAudio";
+    public const string CURRENTLY_PLAYING_AUDIO_SCREEN = "CurrentlyPlayingAudio";
 
-    public const string FULLSCREEN_VIDEO_SCREEN_NAME = "FullscreenContentVideo";
-    public const string CURRENTLY_PLAYING_VIDEO_SCREEN_NAME = "CurrentlyPlayingVideo";
+    public const string FULLSCREEN_VIDEO_SCREEN = "FullscreenContentVideo";
+    public const string CURRENTLY_PLAYING_VIDEO_SCREEN = "CurrentlyPlayingVideo";
 
-    public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
+    public const string VIDEOCONTEXTMENU_DIALOG_SCREEN = "DialogVideoContextMenu";
+
+    public const string ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN = "DialogAddToPlaylistProgress";
 
     // Timespans
     public static TimeSpan SEARCH_TEXT_TYPE_TIMESPAN = TimeSpan.FromMilliseconds(300);
 
     public static TimeSpan VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
+
+    public static TimeSpan ADD_TO_PLAYLIST_UPDATE_DIALOG_THRESHOLD = TimeSpan.FromSeconds(3);
 
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
@@ -183,6 +188,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static float DEFAULT_PIP_HEIGHT = 108;
     public static float DEFAULT_PIP_WIDTH = 192;
+
+    public static int ADD_TO_PLAYLIST_UPDATE_INTERVAL = 50;
 
     public static readonly Guid[] NECESSARY_MOVIE_MIAS = new Guid[]
       {

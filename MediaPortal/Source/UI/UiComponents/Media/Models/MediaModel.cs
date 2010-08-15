@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -74,6 +76,10 @@ namespace MediaPortal.UiComponents.Media.Models
     // Choice dialog for media type for LocalMedia navigation
     protected ItemsList _mediaTypeChoiceMenuItems = null;
 
+    protected AbstractProperty _numItemsAddedToPlaylistTextProperty = new WProperty(typeof(string), string.Empty);
+
+    protected bool _cancelAddToPlaylist;
+
     #endregion
 
     /// <summary>
@@ -115,6 +121,21 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    public AbstractProperty NumItemsAddedToPlaylistTextProperty
+    {
+      get { return _numItemsAddedToPlaylistTextProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the number of items already added to playlist for screen <c>DialogAddToPlaylistProgress</c>.
+    /// The text is of the form "57 items added".
+    /// </summary>
+    public string NumItemsAddedToPlaylistText
+    {
+      get { return (string) _numItemsAddedToPlaylistTextProperty.GetValue(); }
+      set { _numItemsAddedToPlaylistTextProperty.SetValue(value); }
+    }
+
     /// <summary>
     /// Gets the navigation data which is set in the current workflow navigation context.
     /// </summary>
@@ -123,36 +144,7 @@ namespace MediaPortal.UiComponents.Media.Models
       get { return GetNavigationData(_currentNavigationContext); }
     }
 
-    protected internal static NavigationData GetNavigationData(NavigationContext navigationContext)
-    {
-      return navigationContext.GetContextVariable(Consts.NAVIGATION_DATA_KEY, false) as NavigationData;
-    }
-
-    protected static void SetNavigationData(NavigationData navigationData, NavigationContext navigationContext)
-    {
-      navigationContext.SetContextVariable(Consts.NAVIGATION_DATA_KEY, navigationData);
-    }
-
-    /// <summary>
-    /// Provides a callable method for the skin to select an item of the media contents view.
-    /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
-    /// </summary>
-    /// <param name="item">The choosen item. This item should be one of the items in the
-    /// <see cref="AbstractScreenData.Items"/> list from the <see cref="Models.NavigationData.CurrentScreenData"/> screen
-    /// data.</param>
-    public void Select(ListItem item)
-    {
-      if (item == null)
-        return;
-      if (item.Command != null)
-        item.Command.Execute();
-    }
-
-    #region Protected members
-
-    protected delegate IEnumerable<MediaItem> GetMediaItemsDlgt();
-
-    protected internal void AddCurrentViewToPlaylist()
+    public void AddCurrentViewToPlaylist()
     {
       MediaNavigationMode mode = Mode;
       switch (mode)
@@ -197,22 +189,73 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    /// <summary>
+    /// Provides a callable method for the skin to select an item of the media contents view.
+    /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be one of the items in the
+    /// <see cref="AbstractScreenData.Items"/> list from the <see cref="Models.NavigationData.CurrentScreenData"/> screen
+    /// data.</param>
+    public void Select(ListItem item)
+    {
+      if (item == null)
+        return;
+      if (item.Command != null)
+        item.Command.Execute();
+    }
+
+    public void CancelAddToPlaylist()
+    {
+      _cancelAddToPlaylist = true;
+    }
+
+    #region Protected members
+
+    protected delegate IEnumerable<MediaItem> GetMediaItemsDlgt();
+
+    protected internal static NavigationData GetNavigationData(NavigationContext navigationContext)
+    {
+      return navigationContext.GetContextVariable(Consts.NAVIGATION_DATA_KEY, false) as NavigationData;
+    }
+
+    protected static void SetNavigationData(NavigationData navigationData, NavigationContext navigationContext)
+    {
+      navigationContext.SetContextVariable(Consts.NAVIGATION_DATA_KEY, navigationData);
+    }
+
     protected IEnumerable<MediaItem> FilterMediaItemsFromCurrentView(ICollection<Guid> necessaryMediaItemAspectTypes)
     {
       NavigationData navigationData = NavigationData;
       if (navigationData == null)
         yield break;
-      foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
+      int numItems = 0;
+      SetNumItemsAddedToPlaylist(0);
+      _cancelAddToPlaylist = false;
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, dialogName => CancelAddToPlaylist());
+      try
       {
-        bool matches = true;
-        foreach (Guid aspectType in necessaryMediaItemAspectTypes)
-          if (!mediaItem.Aspects.ContainsKey(aspectType))
+        foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
+        {
+          if (_cancelAddToPlaylist)
+            yield break;
+          bool matches = true;
+          foreach (Guid aspectType in necessaryMediaItemAspectTypes)
+            if (!mediaItem.Aspects.ContainsKey(aspectType))
+            {
+              matches = false;
+              break;
+            }
+          if (matches)
           {
-            matches = false;
-            break;
+            SetNumItemsAddedToPlaylist(numItems++);
+            yield return mediaItem;
           }
-        if (matches)
-          yield return mediaItem;
+        }
+      }
+      finally
+      {
+        screenManager.CloseDialog();
       }
     }
 
@@ -221,8 +264,29 @@ namespace MediaPortal.UiComponents.Media.Models
       NavigationData navigationData = NavigationData;
       if (navigationData == null)
         yield break;
-      foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
-        yield return mediaItem;
+      int numItems = 0;
+      SetNumItemsAddedToPlaylist(0);
+      _cancelAddToPlaylist = false;
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, dialogName => CancelAddToPlaylist());
+      try
+      {
+        foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
+        {
+          SetNumItemsAddedToPlaylist(numItems++);
+          yield return mediaItem;
+        }
+      }
+      finally
+      {
+        screenManager.CloseDialog();
+      }
+    }
+
+    protected void SetNumItemsAddedToPlaylist(int numItems)
+    {
+      if (numItems % Consts.ADD_TO_PLAYLIST_UPDATE_INTERVAL == 0)
+        NumItemsAddedToPlaylistText = LocalizationHelper.Translate(Consts.N_ITEMS_ADDED_RES, numItems);
     }
 
     /// <summary>
@@ -353,6 +417,8 @@ namespace MediaPortal.UiComponents.Media.Models
       return pc;
     }
 
+    protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction);
+
     /// <summary>
     /// Depending on parameter <paramref name="play"/>, plays or enqueues the media items of type <paramref name="avType"/>
     /// returned by the given <paramref name="getMediaItemsFunction"/>.
@@ -367,19 +433,29 @@ namespace MediaPortal.UiComponents.Media.Models
     protected static void PlayOrEnqueueItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
         bool play, bool concurrent, bool subordinatedVideo)
     {
-      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = PreparePlayerContext(avType, play, concurrent, subordinatedVideo);
       if (pc == null)
         return;
 
-      // Always add items to playlist. This allows audio playlists as well as video playlists.
-      pc.Playlist.AddAll(getMediaItemsFunction());
       // TODO: Save playlist in this model instance so that they are still able to be accessed later,
       // after the player has closed
       pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
+
+      // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
+      // to block the input thread.
+      AsyncAddToPlaylistDelegate dlgt = AsyncAddToPlaylist;
+      dlgt.BeginInvoke(pc, getMediaItemsFunction, null, null);
+    }
+
+    protected static void AsyncAddToPlaylist(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction)
+    {
+      pc.Playlist.AddAll(getMediaItemsFunction());
       pc.Play();
-      if (avType == AVType.Video)
+      if (pc.AVType== AVType.Video)
+      {
+        IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
         pcm.ShowFullscreenContent();
+      }
     }
 
     /// <summary>

@@ -145,10 +145,10 @@ namespace MediaPortal.UiComponents.Media.Models
       switch (_currentMediaWorkflowStateType)
       {
         case MediaWorkflowStateType.CurrentlyPlaying:
-          screen = Consts.CURRENTLY_PLAYING_AUDIO_SCREEN_NAME;
+          screen = Consts.CURRENTLY_PLAYING_AUDIO_SCREEN;
           break;
         case MediaWorkflowStateType.FullscreenContent:
-          screen = Consts.FULLSCREEN_AUDIO_SCREEN_NAME;
+          screen = Consts.FULLSCREEN_AUDIO_SCREEN;
           break;
       }
       return ScreenUpdateMode.AutoWorkflowManager;
