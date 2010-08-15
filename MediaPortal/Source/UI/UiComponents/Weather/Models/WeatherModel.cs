@@ -24,9 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
@@ -43,10 +45,15 @@ namespace MediaPortal.UiComponents.Weather.Models
   /// </summary>
   public class WeatherModel : IWorkflowModel
   {
-    #region Private/protected fields
+    #region Consts
 
     public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
-    public const string WEATHER_MESSAGE_CHANNEL = "WeatherMessageChannel";
+    public const string LAST_UPDATE_TIME_RES = "[Weather.LastUpdateTime]";
+    public const string NOT_UPDATED_YET_RES = "[Weather.NotUpdatedYet]";
+
+    #endregion
+
+    #region Private/protected fields
 
     protected object _syncObj = new object();
     protected List<City> _locations = null;
@@ -137,9 +144,9 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <summary>
     /// Indicates the time of last successful update.
     /// </summary>
-    public DateTime? LastUpdateTime
+    public string LastUpdateTime
     {
-      get { return (DateTime?)_lastUpdateTimeProperty.GetValue(); }
+      get { return (string) _lastUpdateTimeProperty.GetValue(); }
       set { _lastUpdateTimeProperty.SetValue(value); }
     }
 
@@ -185,6 +192,32 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #region Private members
 
+    protected void SetLastUpdateTime(DateTime? updateTime)
+    {
+      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+      settings.LastUpdate = updateTime;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+      AbstractProperty lastUpdateTimeProperty;
+      lock (_syncObj)
+      {
+        if (_lastUpdateTimeProperty == null)
+          return;
+        lastUpdateTimeProperty = _lastUpdateTimeProperty;
+      }
+      ILocalization localization = ServiceRegistration.Get<ILocalization>();
+      CultureInfo culture = localization.CurrentCulture;
+
+      string lastUpdate;
+      if (updateTime.HasValue)
+        lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES,
+            updateTime.Value.ToString(culture));
+      else
+        lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES,
+            LocalizationHelper.Translate(NOT_UPDATED_YET_RES));
+      lastUpdateTimeProperty.SetValue(lastUpdate);
+    }
+
     /// <summary>
     /// this gets the locations from settings
     /// </summary>
@@ -198,7 +231,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       _preferredLocationCode = settings.LocationCode;
       _refreshInterval = settings.RefreshInterval;
-      _lastUpdateTimeProperty.SetValue(settings.LastUpdate);
+      SetLastUpdateTime(settings.LastUpdate);
 
       foreach (CitySetupInfo loc in settings.LocationsList)
         AddCityToLocations(loc);
@@ -260,15 +293,7 @@ namespace MediaPortal.UiComponents.Weather.Models
           currentLocation.Copy(cityToRefresh);
 
         // also save the last selected city to settings
-        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-        settings.LastUpdate = DateTime.Now;
-        ServiceRegistration.Get<ISettingsManager>().Save(settings);
-
-        lock (_syncObj)
-        {
-          if (_lastUpdateTimeProperty != null)
-            _lastUpdateTimeProperty.SetValue(settings.LastUpdate);
-        }
+        SetLastUpdateTime(DateTime.Now);
 
         ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh end");
       }
@@ -382,7 +407,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         _locations = new List<City>();
         _locationsList = new ItemsList();
         _isUpdatingProperty = new WProperty(typeof(bool), false);
-        _lastUpdateTimeProperty = new WProperty(typeof(DateTime?), null);
+        _lastUpdateTimeProperty = new WProperty(typeof(string), null);
       }
 
       // Add citys from settings to the locations list

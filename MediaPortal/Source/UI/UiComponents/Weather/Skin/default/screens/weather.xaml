@@ -108,12 +108,10 @@
             <Label FontSize="20" Content="{Binding CurrentLocation.ForecastCollection[4].Low}"/>
           </StackPanel>
         </Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-          <Label FontSize="20" Content="[Weather.LastUpdateTime]" Color="{ThemeResource HintTextColor}"/>
-          <Label FontSize="20" Content="{Binding LastUpdateTimeProperty}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
+        <StackPanel Margin="20" HorizontalAlignment="Left">
+          <Label FontSize="20" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
           <Label FontSize="20" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
-            HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-            Color="{ThemeResource HintTextColor}"/>
+            HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
         </StackPanel>
       </StackPanel>
     </ResourceWrapper>
