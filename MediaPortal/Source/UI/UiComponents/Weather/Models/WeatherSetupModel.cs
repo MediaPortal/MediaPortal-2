@@ -53,7 +53,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     private ItemsList _locationsExposed = null; 
     private ItemsList _locationsSearchExposed = null;
 
-    private AbstractProperty _searchCity = null;
+    private AbstractProperty _searchCityProperty = null;
 
     public WeatherSetupModel()
     {
@@ -67,18 +67,18 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
     }
 
+    public AbstractProperty SearchCityProperty
+    {
+      get { return _searchCityProperty; }
+    }
+
     /// <summary>
     /// Exposes the current search string to the skin.
     /// </summary>
     public string SearchCity
     {
-      get { return _searchCity.GetValue() as string; }
-      set { _searchCity.SetValue(value); }
-    }
-
-    public AbstractProperty SearchCityProperty
-    {
-      get { return _searchCity; }
+      get { return (string) _searchCityProperty.GetValue(); }
+      set { _searchCityProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -238,7 +238,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _searchCity = new WProperty(typeof(string), string.Empty);
+      _searchCityProperty = new WProperty(typeof(string), string.Empty);
       _locations = new List<CitySetupInfo>();
       _locationsExposed = new ItemsList();
       _locationsSearch = new List<CitySetupInfo>();
@@ -249,15 +249,11 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _locations.Clear();
-      _locations = null;
       _locationsExposed.Clear();
       _locationsExposed = null;
-      _locationsSearch.Clear();
-      _locationsSearch = null;
       _locationsSearchExposed.Clear();
       _locationsSearchExposed = null;
-      _searchCity = null;
+      _searchCityProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
