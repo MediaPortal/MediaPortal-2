@@ -268,9 +268,9 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
-        return false;
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
       }
+      return false;
     }
 
     #endregion

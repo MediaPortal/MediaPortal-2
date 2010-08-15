@@ -302,11 +302,11 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           return true;
         }
       }
-      catch
+      catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}'", mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
       }
       return false;
     }
