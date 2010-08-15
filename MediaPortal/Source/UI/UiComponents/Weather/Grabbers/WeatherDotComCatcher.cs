@@ -279,8 +279,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document:{0} {1} {2}", ex.Message,
-                                         ex.Source, ex.StackTrace);
+        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document", ex);
         return false;
       }
     }
