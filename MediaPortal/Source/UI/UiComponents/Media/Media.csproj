@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -119,6 +119,8 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />

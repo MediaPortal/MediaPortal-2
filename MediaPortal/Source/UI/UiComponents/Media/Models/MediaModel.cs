@@ -223,7 +223,7 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.NAVIGATION_DATA_KEY, navigationData);
     }
 
-    protected IEnumerable<MediaItem> FilterMediaItemsFromCurrentView(ICollection<Guid> necessaryMediaItemAspectTypes)
+    protected IEnumerable<MediaItem> FilterMediaItemsFromCurrentView(ICollection<Guid> consideredMediaItemAspectTypes)
     {
       NavigationData navigationData = NavigationData;
       if (navigationData == null)
@@ -239,11 +239,11 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           if (_cancelAddToPlaylist)
             yield break;
-          bool matches = true;
-          foreach (Guid aspectType in necessaryMediaItemAspectTypes)
-            if (!mediaItem.Aspects.ContainsKey(aspectType))
+          bool matches = false;
+          foreach (Guid aspectType in consideredMediaItemAspectTypes)
+            if (mediaItem.Aspects.ContainsKey(aspectType))
             {
-              matches = false;
+              matches = true;
               break;
             }
           if (matches)
