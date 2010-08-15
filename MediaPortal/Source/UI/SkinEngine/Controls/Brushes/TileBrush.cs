@@ -52,7 +52,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Consts
 
     protected const string EFFECT_TILE = "tile";
-    protected const string EFFECT_TILEOPACITY = "tileopacity";
+    protected const string EFFECT_TILE_OPACITY = "tileopacity";
+    protected const string EFFECT_TILE_SIMPLE = "tilesimple";
+    protected const string EFFECT_TILE_OPACITY_SIMPLE = "tilesimpleopacity";
 
     protected const string PARAM_TRANSFORM = "g_transform";
     protected const string PARAM_OPACITY = "g_opacity";
@@ -79,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _tileModeProperty;
 
     protected bool _refresh = true;
+    protected bool _simplemode = false;
     protected EffectAsset _effect;
     protected Vector4 _textureViewport;
     protected Vector4 _brushTransform;
@@ -142,12 +145,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #endregion
 
     #region Public properties
-
     public AbstractProperty AlignmentXProperty
     {
       get { return _alignmentXProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the horizontal alignment of the image within the viewport.
+    /// </summary>
     public AlignmentX AlignmentX
     {
       get { return (AlignmentX) _alignmentXProperty.GetValue(); }
@@ -159,6 +164,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return _alignmentYProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the vertical alignment of the image within the viewport.
+    /// </summary>
     public AlignmentY AlignmentY
     {
       get { return (AlignmentY) _alignmentYProperty.GetValue(); }
@@ -170,6 +178,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return _stretchProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="Stretch"/> scaling used to fit the image within the viewport.
+    /// </summary>
     public Stretch Stretch
     {
       get { return (Stretch) _stretchProperty.GetValue(); }
@@ -181,6 +192,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return _viewPortProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the viewport sub-rect that the image is displayed in. Coordinates are in the 0-1 range.
+    /// </summary>
     public Vector4 ViewPort
     {
       get { return (Vector4) _viewPortProperty.GetValue(); }
@@ -192,6 +206,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return _tileModeProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="TileMode"/> used when the <see cref="ViewPort"/> is smaller than the drawing target.
+    /// </summary>
     public TileMode Tile
     {
       get { return (TileMode) _tileModeProperty.GetValue(); }
@@ -200,6 +217,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
+    /// <summary>
+    /// Gets the actual limits of the image within it's texture.
+    /// </summary>
     protected virtual Vector2 TextureMaxUV
     {
       get { return new Vector2(1.0f, 1.0f); }
@@ -220,13 +240,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
    
       if (_refresh) 
       {
-        _effect = ContentManager.GetEffect(EFFECT_TILE);
         RefreshEffectParameters();
-
+        _effect = ContentManager.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
         _refresh = false;
       }
 
-      SetEffectParameters(renderContext, finalTransform);   
+      if (_simplemode)
+        SetSimpleEffectParameters(renderContext);   
+      else
+        SetEffectParameters(renderContext);  
+
       _effect.StartRender(Texture, finalTransform);
 
       return true;
@@ -241,15 +264,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       if (_refresh)
       {
-        _effect = ContentManager.GetEffect(EFFECT_TILEOPACITY);
         RefreshEffectParameters();
-
+        _effect = ContentManager.GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
         _refresh = false;
       }
 
-      SetEffectParameters(renderContext, finalTransform);
-      _effect.Parameters[PARAM_ALPHATEX] = Texture;
+      if (_simplemode)
+        SetSimpleEffectParameters(renderContext);
+      else
+        SetEffectParameters(renderContext);   
 
+      _effect.Parameters[PARAM_ALPHATEX] = Texture;
       _effect.StartRender(tex, finalTransform);
 
       return;
@@ -265,6 +290,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       float w = _vertsBounds.Width;
       float h = _vertsBounds.Height;
+      Vector2 maxuv = TextureMaxUV;
 
       Vector4 brushRect = ViewPort;
       // Determine image rect in viewport space
@@ -272,8 +298,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         // Convert brush dimensions to viewport space
         Vector2 brushSize = BrushDimensions;
-        brushSize.X /= w;
-        brushSize.Y /= h;
+        brushSize.X /= w * maxuv.X;
+        brushSize.Y /= h * maxuv.Y;
         switch (Stretch)
         {
           case Stretch.None:
@@ -301,11 +327,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         // Align brush in viewport
         brushRect = AlignBrushInViewport(brushSize);
       }
-
-      // Compensate for any texture borders and subtract an additonal texel to avoid ugly filtering border
-      Vector2 maxuv = TextureMaxUV;
-      brushRect.Z /= maxuv.X;
-      brushRect.W /= maxuv.Y;
+      else
+      {
+        // Compensate for any texture borders
+        brushRect.Z /= maxuv.X;
+        brushRect.W /= maxuv.Y;
+      }
 
       float repeatx = 1.0f / brushRect.Z;
       float repeaty = 1.0f / brushRect.W;
@@ -321,9 +348,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       // This structure is used for modifying vertex texture coords to position the brush texture
       _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
+
+      // Determine if we can use the simpler, more optimised effects
+      if (Tile == TileMode.None && Stretch != Stretch.UniformToFill)
+        _simplemode = true;
+      else if (ViewPort.X <= 0.0f && ViewPort.Z >= 1.0f && ViewPort.Y <= 0.0f && ViewPort.W >= 1.0f)
+        _simplemode = true;
+      else
+        _simplemode = false;
     }
 
-    protected void SetEffectParameters(RenderContext renderContext, Matrix finalTransform)
+    protected void SetEffectParameters(RenderContext renderContext)
     {
       Vector2 uvoffset = new Vector2(0.0f, 0.0f);
       switch (Tile)
@@ -360,14 +395,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _effect.Parameters[PARAM_TILE_V] = 4; // D3DTADDRESS_BORDER
           break;
       }
+      // Do a partial matrix inverse to reverse the direction of rotation
+      Matrix relativeTransform = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
+      Swap(ref relativeTransform.M11, ref relativeTransform.M22);
+      Swap(ref relativeTransform.M12, ref relativeTransform.M21);
+      Swap(ref relativeTransform.M41, ref relativeTransform.M42);
 
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = relativeTransform;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
       _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
       _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
+    }
+
+    protected void SetSimpleEffectParameters(RenderContext renderContext)
+    {
+      // Do a partial matrix inverse to reverse the direction of rotation
+      Matrix relativeTransform = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
+      Swap(ref relativeTransform.M11, ref relativeTransform.M22);
+      Swap(ref relativeTransform.M12, ref relativeTransform.M21);
+      Swap(ref relativeTransform.M41, ref relativeTransform.M42);
+
+      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
+      _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = relativeTransform;
+      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+    }
+
+    private void Swap(ref float a, ref float b)
+    {
+      float c = a;
+      a = b;
+      b = c;
     }
 
     protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)

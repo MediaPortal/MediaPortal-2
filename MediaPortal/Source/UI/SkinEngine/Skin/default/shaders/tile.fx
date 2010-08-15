@@ -1,3 +1,8 @@
+/*
+ * SkinEngine Shader - tile.fx
+ * This effect implements general TileBrush functionality. Some simple cases 
+ * are handled in an optimised way by tilesimple.fx
+*/
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
@@ -46,9 +51,14 @@ void renderVertexShader(in a2v IN, out v2p OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
 
+  // Apply relative transform
+  float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
+
   // Transform vertex coords to place brush texture
-  OUT.Texcoord = float2(IN.Texcoord.x*g_brushtransform.z, IN.Texcoord.y*g_brushtransform.w) 
-                 - g_brushtransform.xy;
+  pos = pos * g_brushtransform.zw - g_brushtransform.xy;
+
+  // Apply other transformation
+  OUT.Texcoord = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
 }
 
 float2 wrapTextureCoord(float2 pos, float2 offset, float2 size)
@@ -68,16 +78,16 @@ float2 wrapTextureCoord(float2 pos, float2 offset, float2 size)
   fraction += isnegative;
 
   // Also increment (and make positive) wrap number for negative coords to ensure correct sampler tiling in MIRROR mode
-  wrap = (1.0f - wrap) * isnegative + (1.0 - isnegative) * wrap;
+  wrap -= isnegative;
 
-  // Apply relative transform
-  fraction = mul(float4(fraction.x, fraction.y, 0.0, 1.0), g_relativetransform).xy;
+  // Clamp to slightly within viewport to prevent rounding errors creating borderes when tiling
+  fraction = clamp(fraction, 0.01, 0.99);
 
   // Convert back to texture coords
-  fraction = float2(fraction.x*size.x, fraction.y*size.y) + offset;
+  fraction = fraction*size + offset;
 
   // Account for texture borders
-  isnegative = wrap % 2;
+  isnegative = abs(wrap) % 2;
   fraction += float2(isnegative.x*g_uoffset, isnegative.y*g_voffset);
 
   // Discard pixels outside of texture (outside 0-1 range)
@@ -90,10 +100,7 @@ float2 wrapTextureCoord(float2 pos, float2 offset, float2 size)
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  float2 pos = wrapTextureCoord(IN.Texcoord, g_textureviewport.xy, g_textureviewport.zw);
-  pos = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
-
-  OUT.Color = tex2D(textureSampler, pos);
+  OUT.Color = tex2D(textureSampler, wrapTextureCoord(IN.Texcoord, g_textureviewport.xy, g_textureviewport.zw));
   OUT.Color[3] *= g_opacity;
 }
 
