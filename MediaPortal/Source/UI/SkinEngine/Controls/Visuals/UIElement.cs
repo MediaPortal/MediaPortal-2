@@ -833,6 +833,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    public virtual void OnMouseWheel(int numDetents)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnMouseWheel(numDetents);
+      }
+    }
+
     /// <summary>
     /// Will be called when a key is pressed before the registered shortcuts are checked.
     /// Derived classes may override this method to implement special priority key handling code.

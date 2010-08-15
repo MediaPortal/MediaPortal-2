@@ -134,6 +134,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_scrollIndexX == scrollIndexX && _scrollIndexY == scrollIndexY)
         return;
+      if (scrollIndexX < 0)
+        scrollIndexX = 0;
+      if (scrollIndexY < 0)
+        scrollIndexY = 0;
       _scrollIndexX = scrollIndexX;
       _scrollIndexY = scrollIndexY;
       InvalidateLayout();
@@ -474,6 +478,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public bool FocusEnd()
     {
       return MoveFocusN(MoveFocusDirection.Down) && MoveFocusN(MoveFocusDirection.Right);
+    }
+
+    public bool ScrollDown(int numLines)
+    {
+      if (IsViewPortAtBottom)
+        return false;
+      SetScrollIndex(_scrollIndexX, _scrollIndexY + numLines);
+      return true;
+    }
+
+    public bool ScrollUp(int numLines)
+    {
+      if (IsViewPortAtTop)
+        return false;
+      SetScrollIndex(_scrollIndexX, _scrollIndexY - numLines);
+      return true;
     }
 
     #endregion

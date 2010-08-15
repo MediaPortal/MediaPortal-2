@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
-
-namespace MediaPortal.UI.SkinEngine.Controls
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// This interface supports focus movements inside a scroll viewer.
@@ -36,8 +34,8 @@ namespace MediaPortal.UI.SkinEngine.Controls
   /// movements. Implementors of this interface provide the functionality to scroll not only
   /// with the normal arrow keys, but also by focus movement of a complete "page" and by moving the focus
   /// to the "home" position or to the "end".
-  /// This interface is related to the <see cref="IScrollInfo"/> interface.
-  /// <see cref="IScrollViewerFocusSupport"/> contains the extended focus movement methods, which are
+  /// This interface is related to the <see cref="IScrollViewerFocusSupport"/> interface.
+  /// <see cref="IScrollInfo"/> contains the extended focus movement methods, which are
   /// only indirectly related to scrolling, while <see cref="IScrollInfo"/> contains methods directly
   /// related to the scrolling. Typically, both interfaces are implemented by scrollable controls.
   /// </remarks>
@@ -102,5 +100,21 @@ namespace MediaPortal.UI.SkinEngine.Controls
     /// </summary>
     /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusEnd();
+
+    // TODO: Those two methods don't really fit into this interface (don't have anything to do with focus...).
+    // We should move them somewhere else.
+
+    /// <summary>
+    /// Scrolls down the specified number of items. When the number of items is bigger than what can be scrolled, scrolling will perform the maximum number possible.
+    /// </summary>
+    /// <returns><c>true</c>, if scrolling could be performed, else <c>false</c>.</returns>
+    bool ScrollDown(int numLines);
+
+    /// <summary>
+    /// Scrolls up the specified number of items. When the number of items is bigger than what can be scrolled, it will scroll the maximum number possible.
+    /// </summary>
+    /// <param name="numLines">Number of detents the mousewheel was moved.</param>
+    /// <returns><c>true</c>, if scrolling could be performed, else <c>false</c>.</returns>
+    bool ScrollUp(int numLines);
   }
 }

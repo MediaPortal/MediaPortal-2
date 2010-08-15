@@ -305,6 +305,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.KeyPreview += OnKeyPreview;
         inputManager.KeyPressed += OnKeyPressed;
         inputManager.MouseMoved += OnMouseMove;
+        inputManager.MouseWheeled += OnMouseWheel;
         _attachedInput = true;
       }
     }
@@ -317,6 +318,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.KeyPreview -= OnKeyPreview;
         inputManager.KeyPressed -= OnKeyPressed;
         inputManager.MouseMoved -= OnMouseMove;
+        inputManager.MouseWheeled -= OnMouseWheel;
         _attachedInput = false;
         RemoveCurrentFocus();
       }
@@ -389,6 +391,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _visual.OnKeyPressed(ref key);
       if (key != Key.None)
         UpdateFocus(ref key);
+    }
+
+    private void OnMouseWheel(int numberOfDeltas)
+    {
+      if (!_attachedInput)
+        return;
+      _visual.OnMouseWheel(numberOfDeltas);
     }
 
     private void OnMouseMove(float x, float y)

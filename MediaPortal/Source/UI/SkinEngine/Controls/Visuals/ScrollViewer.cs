@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
@@ -263,6 +264,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (bool) _canContentScrollProperty.GetValue(); }
       set { _canContentScrollProperty.SetValue(value); }
+    }
+
+    public override void OnMouseWheel(int numDetents)
+    {
+      base.OnMouseWheel(numDetents);
+
+      if (!IsMouseOver)
+        return;
+
+      int numLines = numDetents * SystemInformation.MouseWheelScrollLines;
+      if (numLines < 0)
+      {
+        IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+        if (svfs != null)
+          svfs.ScrollDown(-1 * numLines);
+      }
+      else if (numLines > 0)
+      {
+        IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
+        if (svfs != null)
+          svfs.ScrollUp(numLines);
+      }
     }
 
     public override void OnKeyPressed(ref Key key)

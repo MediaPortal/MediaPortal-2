@@ -75,6 +75,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
       this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseMove);
+      this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseWheel);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
       this.ResumeLayout(false);
 
@@ -85,4 +86,5 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private System.Windows.Forms.Timer timer;
   }
 }
+
 

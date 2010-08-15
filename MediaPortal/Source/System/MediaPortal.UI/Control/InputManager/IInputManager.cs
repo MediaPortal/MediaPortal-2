@@ -62,6 +62,12 @@ namespace MediaPortal.UI.Control.InputManager
     void MouseMove(float x, float y);
 
     /// <summary>
+    /// Called to handle mouse wheel events.
+    /// </summary>
+    /// <param name="numDetents">Number of mousewheel detents. A detent is one notch of the mouse wheel.</param>
+    void MouseWheel(int numDetents);
+
+    /// <summary>
     /// Called to handle a mouse click event.
     /// </summary>
     /// <param name="mouseButtons">The buttons which were pressed.</param>

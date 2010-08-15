@@ -113,6 +113,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (_scrollIndex == scrollIndex)
         return;
+      if (scrollIndex < 0)
+        scrollIndex = 0;
       _scrollIndex = scrollIndex;
       InvalidateLayout();
       InvokeScrolled();
@@ -596,6 +598,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public bool FocusEnd()
     {
       return MoveFocusN(Orientation == Orientation.Horizontal ? MoveFocusDirection.Right : MoveFocusDirection.Down);
+    }
+
+    public bool ScrollDown(int numLines)
+    {
+      if (Orientation == Orientation.Vertical)
+      {
+        if (IsViewPortAtBottom)
+          return false;
+        SetScrollIndex(_scrollIndex + numLines);
+        return true;
+      }
+      return false;
+    }
+
+    public bool ScrollUp(int numLines)
+    {
+      if (Orientation == Orientation.Vertical)
+      {
+        if (IsViewPortAtTop)
+          return false;
+        SetScrollIndex(_scrollIndex - numLines);
+        return true;
+      }
+      return false;
     }
 
     #endregion

@@ -385,6 +385,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
       Application.ExitThread();
     }
 
+    private void MainForm_MouseWheel(object sender, MouseEventArgs e)
+    {
+      if (_renderThreadStopped)
+        return;
+      int numDetents = e.Delta / 120;
+      if (numDetents == 0)
+        return;
+
+      ServiceRegistration.Get<IInputManager>().MouseWheel(numDetents);
+    }
+
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {
       try

@@ -38,6 +38,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// <param name="y">Y coordinate of the new mouse position.</param>
   public delegate void MouseMoveHandler(float x, float y);
 
+  public delegate void MouseWheelHandler(int numDetents);
+
   /// <summary>
   /// Delegate for a key handler.
   /// </summary>
@@ -86,6 +88,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     /// </summary>
     public event MouseMoveHandler MouseMoved;
 
+    public event MouseWheelHandler MouseWheeled;
+
     /// <summary>
     /// Can be registered by classes of the skin engine to be informed about key events.
     /// </summary>
@@ -128,6 +132,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _mousePosition = new PointF(x, y);
       if (MouseMoved != null)
         MouseMoved(x, y);
+    }
+
+    public void MouseWheel(int numDetents)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      MouseWheeled(numDetents);
     }
 
     public void MouseClick(MouseButtons mouseButtons)

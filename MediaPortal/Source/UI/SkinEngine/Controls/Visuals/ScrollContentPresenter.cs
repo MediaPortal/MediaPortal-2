@@ -305,6 +305,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return true;
     }
 
+    public bool ScrollDown(int numLines)
+    {
+      if (IsViewPortAtBottom)
+        return false;
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY + numLines * NUM_SCROLL_PIXEL);
+      return true;
+    }
+
+    public bool ScrollUp(int numLines)
+    {
+      if (IsViewPortAtTop)
+        return false;
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY - numLines * NUM_SCROLL_PIXEL);
+      return true;
+    }
+
     #endregion
 
     #region IScrollInfo implementation
