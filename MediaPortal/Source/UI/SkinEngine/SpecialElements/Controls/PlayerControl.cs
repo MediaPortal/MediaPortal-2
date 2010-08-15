@@ -413,20 +413,34 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           CurrentTime = string.Empty;
           Duration = string.Empty;
           PlayerStateText = string.Empty;
-          CanPlay = false;
-          CanPause = false;
-          CanStop = false;
-          CanSkipBack = false;
-          CanSkipForward = false;
-          CanSeekBackward = false;
-          CanSeekForward = false;
+          if (playerContext == null)
+          {
+            CanPlay = false;
+            CanPause = false;
+            CanStop = false;
+            CanSkipBack = false;
+            CanSkipForward = false;
+            CanSeekBackward = false;
+            CanSeekForward = false;
+          }
+          else
+          {
+            CanPlay = playerContext.CurrentMediaItem != null || playerContext.Playlist.ItemList.Count > 0;
+            CanPause = false;
+            CanStop = false;
+            IPlaylist pl = playerContext.Playlist;
+            CanSkipBack = false;
+            CanSkipForward = false;
+            CanSeekBackward = false;
+            CanSeekForward = false;
+          }
           IsPlayerActive = false;
           IsPip = false;
         }
         else
         {
           IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
-          string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
+          string pcName = playerContext == null ? NO_PLAYER_RESOURCE : LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
           Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;
           if (mit == null)
@@ -437,8 +451,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
           }
           MediaItemTitle = mit;
-          IPlaylist pl = playerContext.Playlist;
-          MediaItem nextMediaItem = pl[1];
+          MediaItem nextMediaItem = playerContext == null ? null : playerContext.Playlist[1];
           if (nextMediaItem == null)
           {
             NextMediaItemTitle = null;

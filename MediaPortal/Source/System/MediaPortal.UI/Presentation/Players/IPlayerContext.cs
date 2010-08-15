@@ -101,7 +101,7 @@ namespace MediaPortal.UI.Presentation.Players
     AVType AVType { get; }
 
     /// <summary>
-    /// Returns the playlist of this player context.
+    /// Returns the playlist of this player context. The playlist is always not-null.
     /// </summary>
     IPlaylist Playlist { get; }
 
