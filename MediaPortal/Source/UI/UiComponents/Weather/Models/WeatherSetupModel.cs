@@ -26,11 +26,13 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Grabbers;
+using MediaPortal.UiComponents.Weather.Settings;
 
 
 namespace MediaPortal.UiComponents.Weather.Models
@@ -57,7 +59,12 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       // See if we already have a weather catcher in ServiceRegistration, if not, add one
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
-        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
+      {
+        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher(
+            settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
+            settings.SkipConnectionTest));
+      }
     }
 
     /// <summary>
@@ -97,10 +104,11 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public void SaveSettings()
     {
-      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      WeatherSettings settings = settingsManager.Load<WeatherSettings>();
       // Apply new locations list
       settings.LocationsList = Locations;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      settingsManager.Save(settings);
     }
 
     /// <summary>

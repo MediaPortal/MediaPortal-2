@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.UiComponents.Weather
+namespace MediaPortal.UiComponents.Weather.Settings
 {
   /// <summary>
   /// Weather settings class.
@@ -62,8 +62,8 @@ namespace MediaPortal.UiComponents.Weather
     /// <summary>
     /// Preferred temperature unit.
     /// </summary>
-    [Setting(SettingScope.User, "C")]
-    public string TemperatureFahrenheit { get; set; }
+    [Setting(SettingScope.User, 'C')]
+    public char TemperatureUnit { get; set; }
 
     /// <summary>
     /// Preferred speed unit.

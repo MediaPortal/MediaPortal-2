@@ -37,6 +37,8 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Weather.Grabbers;
 using MediaPortal.Core.TaskScheduler;
+using MediaPortal.UiComponents.Weather.Settings;
+using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -77,7 +79,12 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       // See if we already have a weather catcher in ServiceRegistration, if not, add one
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
-        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher());
+      {
+        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
+        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher(
+            settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
+            settings.SkipConnectionTest));
+      }
     }
 
     #endregion

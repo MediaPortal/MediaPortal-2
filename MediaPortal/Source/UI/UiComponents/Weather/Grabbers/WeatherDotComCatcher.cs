@@ -33,8 +33,6 @@ using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Settings;
 
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
@@ -47,9 +45,9 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     #region Private Variables
 
     // Private Variables
-    private string _temperatureFarenheit = "C";
+    private char _temperatureFarenheit = 'C';
     private string _windSpeed = "K";
-    private string _unitTemperature = string.Empty;
+    private char _unitTemperature;
     private string _unitSpeed = string.Empty;
     private string _parsefileLocation = string.Empty;
     private bool _skipConnectionTest;
@@ -64,6 +62,22 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private const string PARTNER_KEY = "079f24145f208494"; //weather.com partner key
 
     #endregion
+
+    /// <summary>
+    /// Creates a new instance of this class
+    /// </summary>
+    /// <param name="temperatureFahrenheit">Celsius or Fahrenheit, values <c>'C'</c> or <c>'F'</c>. TODO: Use enum, document values.</param>
+    /// <param name="windSpeed">Windspeed, values <c>'K'</c>, <c>'M'</c> or <c>'S'</c>. TODO: Use enum, document values.</param>
+    /// <param name="parseFilePath">Local file path where the downloaded file will be saved.</param>
+    /// <param name="skipConnectionTest">If set to <c>true</c>, the download procedure will skip the connection test before
+    /// downloading new data.</param>
+    public WeatherDotComCatcher(char temperatureFahrenheit, string windSpeed, string parseFilePath, bool skipConnectionTest)
+    {
+      _temperatureFarenheit = temperatureFahrenheit;
+      _windSpeed = windSpeed;
+      _skipConnectionTest = skipConnectionTest;
+      _parsefileLocation = parseFilePath;
+    }
 
     #region IWeatherCatcher Members
 
@@ -87,8 +101,6 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     /// <returns>true if successful, false otherwise</returns>
     public bool GetLocationData(City city)
     {
-      // update variables from settings
-      LoadSettings();
       // begin getting the data
       string file;
       city.HasData = false;
@@ -175,18 +187,6 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     #region Private Methods
 
     /// <summary>
-    /// Load Settings needed for this catcher
-    /// </summary>
-    private void LoadSettings()
-    {
-      WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-      _temperatureFarenheit = settings.TemperatureFahrenheit;
-      _windSpeed = settings.WindSpeed;
-      _skipConnectionTest = settings.SkipConnectionTest;
-      _parsefileLocation = ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation);
-    }
-
-    /// <summary>
     /// download weather information to an xml file
     /// </summary>
     /// <param name="locationCode"></param>
@@ -194,27 +194,20 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     /// <returns>success status</returns>
     private bool Download(string locationCode, string weatherFile)
     {
-      // update variables from the settings
-      LoadSettings();
-
       int code = 0;
 
       if (!Helper.IsConnectedToInternet(ref code))
       {
         if (File.Exists(weatherFile))
-        {
           return true;
-        }
 
         ServiceRegistration.Get<ILogger>().Info("Models.Weather.WeatherDotComCatcher.Download: No internet connection {0}", code);
 
-        if (_skipConnectionTest == false)
-        {
+        if (!_skipConnectionTest)
           return false;
-        }
       }
 
-      char units = _temperatureFarenheit[0]; //convert from temp units to metric/standard
+      char units = _temperatureFarenheit; //convert from temp units to metric/standard
       //we'll convert the speed later depending on what thats set to
       units = units == 'F' ? 's' : 'm';
 
@@ -279,7 +272,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document", ex);
+        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document:{0} {1} {2}", ex.Message,
+                                         ex.Source, ex.StackTrace);
         return false;
       }
     }
@@ -634,12 +628,12 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private int ConvertSpeed(int curSpeed)
     {
       //we might not need to convert at all
-      if ((_temperatureFarenheit[0] == 'C' && _windSpeed[0] == 'K') ||
-          (_temperatureFarenheit[0] == 'F' && _windSpeed[0] == 'M'))
+      if ((_temperatureFarenheit == 'C' && _windSpeed[0] == 'K') ||
+          (_temperatureFarenheit == 'F' && _windSpeed[0] == 'M'))
         return curSpeed;
 
       //got through that so if temp is C, speed must be M or S
-      if (_temperatureFarenheit[0] == 'C')
+      if (_temperatureFarenheit == 'C')
         return _windSpeed[0] == 'S' ? (int) (curSpeed*(1000.0/3600.0) + 0.5) : (int) (curSpeed/(8.0/5.0));
       else
         return _windSpeed[0] == 'S' ? (int) (curSpeed*(8.0/5.0)*(1000.0/3600.0) + 0.5) : (int) (curSpeed*(8.0/5.0));
