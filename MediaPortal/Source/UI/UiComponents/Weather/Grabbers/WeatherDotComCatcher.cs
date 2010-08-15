@@ -176,8 +176,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         //
         // Failed to perform search
         //
-        ServiceRegistration.Get<ILogger>().Error(
-          "Failed to perform city search, make sure you are connected to the internet... Error: {0}", e.Message);
+        ServiceRegistration.Get<ILogger>().Error("Failed to perform city search, make sure you are connected to the internet... Error: {0}",
+            e.Message);
         return locations;
       }
     }
@@ -223,8 +223,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to download weather:{0} {1} {2}", ex.Message,
-                                           ex.Source, ex.StackTrace);
+          ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to download weather data", ex);
         }
       }
       return false;
@@ -272,8 +271,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document:{0} {1} {2}", ex.Message,
-                                         ex.Source, ex.StackTrace);
+        ServiceRegistration.Get<ILogger>().Info("WeatherDotComCatcher: Failed to parse weather document", ex);
         return false;
       }
     }
@@ -285,8 +283,8 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     /// <param name="xmlElement"></param>
     private static void ParseError(XmlNode xmlElement)
     {
-      ServiceRegistration.Get<ILogger>().Info("WeatherForecast.ParseFile: Error = " +
-                                       GetString(xmlElement, "err", "Unknown Error"));
+      ServiceRegistration.Get<ILogger>().Info("WeatherForecast.ParseFile: Error = '{0}'",
+          GetString(xmlElement, "err", "Unknown Error"));
     }
 
     /// <summary>
