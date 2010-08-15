@@ -499,7 +499,7 @@ namespace MediaPortal.UI.Services.Players
       UnsubscribeFromMessages();
     }
 
-    public int NumPlayerContextsOfMediaType(PlayerContextType mediaType)
+    public int NumPlayerContextsOfType(AVType avType)
     {
       lock (SyncObj)
       {
@@ -507,7 +507,7 @@ namespace MediaPortal.UI.Services.Players
         for (int i = 0; i < 2; i++)
         {
           IPlayerContext pc = GetPlayerContext(i);
-          if (pc != null && pc.MediaType == mediaType)
+          if (pc != null && pc.AVType == avType)
             result++;
         }
         return result;
@@ -526,7 +526,7 @@ namespace MediaPortal.UI.Services.Players
           // Solve conflicts - close conflicting slots
           if (numActive > 1)
             playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-          if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
+          if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
             playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
         }
         else // !concurrent
@@ -537,7 +537,7 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController slotController;
         playerManager.OpenSlot(out slotIndex, out slotController);
         playerManager.AudioSlotIndex = slotController.SlotIndex;
-        return new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Audio,
+        return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Audio,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
       }
     }
@@ -554,7 +554,7 @@ namespace MediaPortal.UI.Services.Players
         if (concurrent)
           // Solve conflicts - close conflicting slots
           if (numActive > 1)
-            if (GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).MediaType == PlayerContextType.Audio)
+            if (GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).AVType == AVType.Audio)
               if (subordinatedVideo)
               {
                 playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
@@ -577,7 +577,7 @@ namespace MediaPortal.UI.Services.Players
               playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
           else if (numActive == 1)
-            if (GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
+            if (GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
             {
               playerManager.OpenSlot(out slotIndex, out slotController);
               // Make new video slot the primary slot
@@ -603,7 +603,7 @@ namespace MediaPortal.UI.Services.Players
           playerManager.OpenSlot(out slotIndex, out slotController);
           playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
         }
-        return new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Video,
+        return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Video,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
       }
     }
@@ -616,6 +616,19 @@ namespace MediaPortal.UI.Services.Players
         {
           IPlayerContext pc = GetPlayerContext(i);
           if (pc != null && pc.MediaModuleId == mediaModuleId)
+            yield return pc;
+        }
+      }
+    }
+
+    public IEnumerable<IPlayerContext> GetPlayerContextsByAVType(AVType avType)
+    {
+      lock (SyncObj)
+      {
+        for (int i = 0; i < 2; i++)
+        {
+          IPlayerContext pc = GetPlayerContext(i);
+          if (pc != null && pc.AVType == avType)
             yield return pc;
         }
       }
@@ -653,16 +666,15 @@ namespace MediaPortal.UI.Services.Players
       workflowManager.NavigatePush(fullscreenContentStateId);
     }
 
-    public PlayerContextType GetTypeOfMediaItem(MediaItem item)
+    public AVType GetTypeOfMediaItem(MediaItem item)
     {
       // No locking necessary
       if (item.Aspects.ContainsKey(VideoAspect.Metadata.AspectId) ||
           item.Aspects.ContainsKey(PictureAspect.Metadata.AspectId))
-        return PlayerContextType.Video;
-      else if (item.Aspects.ContainsKey(AudioAspect.Metadata.AspectId))
-        return PlayerContextType.Audio;
-      else
-        return PlayerContextType.None;
+        return AVType.Video;
+      if (item.Aspects.ContainsKey(AudioAspect.Metadata.AspectId))
+        return AVType.Audio;
+      return AVType.None;
     }
 
     public IPlayerContext GetPlayerContext(PlayerChoice player)
@@ -815,8 +827,8 @@ namespace MediaPortal.UI.Services.Players
       {
         int numActive = playerManager.NumActiveSlots;
         if (numActive > 1 &&
-            GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).MediaType == PlayerContextType.Video &&
-            GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Video)
+            GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).AVType == AVType.Video &&
+            GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Video)
           playerManager.SwitchSlots();
       }
     }

@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public MusicAction() :
-        base(true, MediaModel.MUSIC_NAVIGATION_ROOT_STATE, MUSIC_RESOURCE) { }
+        base(true, Consts.MUSIC_NAVIGATION_ROOT_STATE, MUSIC_RESOURCE) { }
   }
 }

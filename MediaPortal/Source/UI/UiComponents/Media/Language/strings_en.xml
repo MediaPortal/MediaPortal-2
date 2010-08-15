@@ -88,19 +88,34 @@
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>
     <String Name="SearchResultIsBeingBuiltHint" Text="Searching..."/>
 
+    <String Name="AddAllToPlaylist" Text="Add all to playlist"/>
+    <String Name="ChooseAVTypeDialogHeader" Text="Choose type of items"/>
+    <String Name="AddAllAudio" Text="Add audio items"/>
+    <String Name="AddAllVideo" Text="Add video items"/>
+    <String Name="AddAllImages" Text="Add image items"/>
+    <String Name="AddAllVideosAndImages" Text="Add video and image items"/>
+
+    <String Name="PlayAudioItems" Text="Play audio items"/>
+    <String Name="EnqueueAudioItems" Text="Enqueue audio items"/>
+    <String Name="MuteVideoAndPlayAudioItems" Text="Play audio items concurrently"/>
+
+    <String Name="PlayVideoItems" Text="Play video items"/>
+    <String Name="EnqueueVideoItems" Text="Enqueue video items"/>
+    <String Name="PlayVideoItemsMutedConcurrentAudio" Text="Play video items in background &amp; continue concurrent audio item"/>
+    <String Name="PlayVideoItemsPiP" Text="Play video items in PiP mode"/>
+
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
-    <String Name="MuteVideoAndPlayAudioItem" Text="Mute video &amp; play audio item concurrently"/>
+    <String Name="MuteVideoAndPlayAudioItem" Text="Play audio item concurrently"/>
 
     <String Name="PlayVideoItem" Text="Play video item"/>
     <String Name="EnqueueVideoItem" Text="Enqueue video item"/>
-    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item muted &amp; continue concurrent music item"/>
-    <String Name="PlayVideoItemPiP" Text="Play video item concurrently in PiP mode"/>
+    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item in background &amp; continue concurrent audio item"/>
+    <String Name="PlayVideoItemPiP" Text="Play video item in PiP mode"/>
     <String Name="PlayItemDialogHeader" Text="Play item"/>
 
-    <String Name="VideoPlayerContextName" Text="Video"/>
-    <String Name="PicturePlayerContextName" Text="Picture"/>
-    <String Name="AudioPlayerContextName" Text="Audio"/>
+    <String Name="VideoPictureContextName" Text="Video/Picture"/>
+    <String Name="AudioContextName" Text="Audio"/>
 
     <String Name="VideoCurrentlyPlayingHeader" Text="Currently playing"/>
     <String Name="VideoCurrentlyPlayingInformationHeader" Text="Video information"/>
@@ -125,10 +140,12 @@
     <String Name="VideoPlaylist" Text="Video playlist"/>
     <String Name="PiPPlaylist" Text="PiP playlist"/>
     <String Name="EditPlaylist" Text="Edit playlist"/>
+    <String Name="ClearPlaylist" Text="Clear playlist"/>
 
     <String Name="PlaylistEmpty" Text="&lt;No items in playlist&gt;"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
+    <String Name="CannotPlayItemsDialogText" Text="Unable to play media items"/>
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
   </Section>

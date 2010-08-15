@@ -215,11 +215,11 @@ namespace MediaPortal.UI.Presentation.Players
     IPlayerContext GetPlayerContext(int slotIndex);
 
     /// <summary>
-    /// Returns the number of player contexts playing the specified <paramref name="mediaType"/>.
+    /// Returns the number of player contexts playing the specified <paramref name="avType"/>.
     /// </summary>
-    /// <param name="mediaType">Type of the player contexts to search.</param>
+    /// <param name="avType">Type of the player contexts to search.</param>
     /// <returns>Number of player contexts, will be in the range 0-2.</returns>
-    int NumPlayerContextsOfMediaType(PlayerContextType mediaType);
+    int NumPlayerContextsOfType(AVType avType);
 
     /// <summary>
     /// Opens an audio player context. This will replace a running audio player context, if present. If a video player is
@@ -306,6 +306,13 @@ namespace MediaPortal.UI.Presentation.Players
     IEnumerable<IPlayerContext> GetPlayerContextsByMediaModuleId(Guid mediaModuleId);
 
     /// <summary>
+    /// Returns all player contexts with the specified <paramref name="avType"/>.
+    /// </summary>
+    /// <param name="avType">The type of media which is playing in the to-be-returned player contexts.</param>
+    /// <returns>Enumeration of player contexts playing the specified <paramref name="avType"/>.</returns>
+    IEnumerable<IPlayerContext> GetPlayerContextsByAVType(AVType avType);
+
+    /// <summary>
     /// Switches to the "currently playing" workflow state for the current player.
     /// </summary>
     /// <remarks>
@@ -326,13 +333,13 @@ namespace MediaPortal.UI.Presentation.Players
     void ShowFullscreenContent();
 
     /// <summary>
-    /// Returns the player context type of the specified media <paramref name="item"/>. The player context type of a media
-    /// item determines if a player context of audio type (<see cref="PlayerContextType.Audio"/>) or of video type
-    /// (<see cref="PlayerContextType.Video"/>) is needed to play the given <paramref name="item"/>.
+    /// Returns the audio/video type of the specified media <paramref name="item"/>. The audio/video type of a media
+    /// item determines if a player context of audio type (<see cref="AVType.Audio"/>) or of video type
+    /// (<see cref="AVType.Video"/>) is needed to play the given <paramref name="item"/>.
     /// </summary>
     /// <param name="item">The media item to examine.</param>
-    /// <returns>Player context type of the given media <paramref name="item"/>.</returns>
-    PlayerContextType GetTypeOfMediaItem(MediaItem item);
+    /// <returns>Audio/video type of the given media <paramref name="item"/>.</returns>
+    AVType GetTypeOfMediaItem(MediaItem item);
 
     /// <summary>
     /// Returns all audio streams which are available from the currently active players.

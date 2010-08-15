@@ -140,7 +140,7 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      UpdatePlaylistHeader(pc == null ? null : (PlayerContextType?) pc.MediaType,
+      UpdatePlaylistHeader(pc == null ? null : (AVType?) pc.AVType,
           pc == null ? PlayerManagerConsts.PRIMARY_SLOT : pc.PlayerSlotController.SlotIndex);
       lock (_syncObj)
       {
@@ -213,7 +213,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      return pc != null && (pc.MediaType == PlayerContextType.Audio || pc.MediaType == PlayerContextType.Video);
+      return pc != null && (pc.AVType == AVType.Audio || pc.AVType == AVType.Video);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

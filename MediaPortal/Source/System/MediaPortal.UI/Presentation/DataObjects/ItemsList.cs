@@ -35,6 +35,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
   public class ItemsList : IList<ListItem>, IObservable, ISynchronizable
   {
     protected SynchronizedCollection<ListItem> _backingList = new SynchronizedCollection<ListItem>();
+
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>

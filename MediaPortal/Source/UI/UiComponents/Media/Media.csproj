@@ -61,6 +61,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\PicturesAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\MusicAction.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Models\ScreenData\AbstractMoviesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractShowMLItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\LocalMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesFilterBySizeScreenData.cs" />

@@ -125,19 +125,19 @@ namespace MediaPortal.UiComponents.Media.Models
       return false;
     }
 
-    protected void UpdatePlaylistHeader(PlayerContextType? mediaType, int slotIndex)
+    protected void UpdatePlaylistHeader(AVType? avType, int slotIndex)
     {
-      if (!mediaType.HasValue)
+      if (!avType.HasValue)
       {
         PlaylistHeader = null;
         return;
       }
-      switch (mediaType.Value)
+      switch (avType.Value)
       {
-        case PlayerContextType.Audio:
+        case AVType.Audio:
           PlaylistHeader = AUDIO_PLAYLIST_RES;
           break;
-        case PlayerContextType.Video:
+        case AVType.Video:
           PlaylistHeader = slotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
               VIDEO_PLAYLIST_RES : PIP_PLAYLIST_RES;
           break;

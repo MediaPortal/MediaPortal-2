@@ -29,7 +29,7 @@ using MediaPortal.UI.Presentation.Geometries;
 
 namespace MediaPortal.UI.Presentation.Players
 {
-  public enum PlayerContextType
+  public enum AVType
   {
     /// <summary>
     /// No media type.
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// player slot.
     /// The type is also used to find conflicts (A-A, V-V).
     /// </summary>
-    PlayerContextType MediaType { get; }
+    AVType AVType { get; }
 
     /// <summary>
     /// Returns the playlist of this player context.

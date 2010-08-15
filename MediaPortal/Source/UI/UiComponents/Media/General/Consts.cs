@@ -29,6 +29,34 @@ namespace MediaPortal.UiComponents.Media.General
 {
   public class Consts
   {
+    public const string MEDIA_MODULE_ID_STR = "53130C0E-D19C-4972-92F4-DB6665E51CBC";
+
+    public const string LOCAL_MEDIA_NAVIGATION_ROOT_STATE_STR = "B393C6D8-9F37-4481-B403-0D5B17F52EC8";
+    public const string MUSIC_NAVIGATION_ROOT_STATE_STR = "F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB";
+    public const string MOVIES_NAVIGATION_ROOT_STATE_STR = "22ED8702-3887-4acb-ACB4-30965220AFF0";
+    public const string PICTURES_NAVIGATION_ROOT_STATE_STR = "76019AEB-3445-4da9-9A10-63A87549A7CF";
+
+    public const string ADD_TO_PLAYLIST_WORKFLOW_STATE_ID_STR = "76CDF664-F49C-40a4-8108-E478AB199595";
+
+    public const string AUDIO_CURRENTLY_PLAYING_STATE_ID_STR = "4596B758-CE2B-4e31-9CB9-6C30215831ED";
+    public const string AUDIO_FULLSCREEN_CONTENT_STATE_ID_STR = "82E8C050-0318-41a3-86B8-FC14FB85338B";
+
+    public const string CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
+    public const string FULLSCREEN_VIDEO_WORKFLOW_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
+
+    public static readonly Guid MEDIA_MODULE_ID = new Guid(MEDIA_MODULE_ID_STR);
+
+    public static readonly Guid LOCAL_MEDIA_NAVIGATION_ROOT_STATE = new Guid(LOCAL_MEDIA_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid MUSIC_NAVIGATION_ROOT_STATE = new Guid(MUSIC_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid MOVIES_NAVIGATION_ROOT_STATE = new Guid(MOVIES_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid PICTURES_NAVIGATION_ROOT_STATE = new Guid(PICTURES_NAVIGATION_ROOT_STATE_STR);
+
+    public static readonly Guid CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID = new Guid(CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID_STR);
+    public static readonly Guid FULLSCREEN_VIDEO_WORKFLOW_STATE_ID = new Guid(FULLSCREEN_VIDEO_WORKFLOW_STATE_ID_STR);
+
+    public static readonly Guid CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID = new Guid(AUDIO_CURRENTLY_PLAYING_STATE_ID_STR);
+    public static readonly Guid FULLSCREEN_AUDIO_WORKFLOW_STATE_ID = new Guid(AUDIO_FULLSCREEN_CONTENT_STATE_ID_STR);
+
     // Localization resource identifiers
     public const string PLAY_AUDIO_ITEM_RESOURCE = "[Media.PlayAudioItem]";
     public const string ENQUEUE_AUDIO_ITEM_RESOURCE = "[Media.EnqueueAudioItem]";
@@ -39,12 +67,21 @@ namespace MediaPortal.UiComponents.Media.General
     public const string PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE = "[Media.PlayVideoItemMutedConcurrentAudio]";
     public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPiP]";
 
-    public const string VIDEO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.VideoPlayerContextName]";
-    public const string PICTURE_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.PicturePlayerContextName]";
-    public const string AUDIO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.AudioPlayerContextName]";
+    public const string PLAY_AUDIO_ITEMS_RESOURCE = "[Media.PlayAudioItems]";
+    public const string ENQUEUE_AUDIO_ITEMS_RESOURCE = "[Media.EnqueueAudioItems]";
+    public const string MUTE_VIDEO_PLAY_AUDIO_ITEMS_RESOURCE = "[Media.MuteVideoAndPlayAudioItems]";
+
+    public const string PLAY_VIDEO_ITEMS_RESOURCE = "[Media.PlayVideoItems]";
+    public const string ENQUEUE_VIDEO_ITEMS_RESOURCE = "[Media.EnqueueVideoItem]";
+    public const string PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO_RESOURCE = "[Media.PlayVideoItemsMutedConcurrentAudio]";
+    public const string PLAY_VIDEO_ITEMS_PIP_RESOURCE = "[Media.PlayVideoItemsPiP]";
+
+    public const string VIDEO_PICTURE_CONTEXT_NAME_RESOURCE = "[Media.VideoPictureContextName]";
+    public const string AUDIO_CONTEXT_NAME_RESOURCE = "[Media.AudioContextName]";
 
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
-    public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
+    public const string CANNOT_PLAY_ITEM_DIALOG_TEXT_RES = "[Media.CannotPlayItemDialogText]";
+    public const string CANNOT_PLAY_ITEMS_DIALOG_TEXT_RES = "[Media.CannotPlayItemsDialogText]";
 
     public const string LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE = "[Media.LocalMediaRootViewName]";
     public const string MUSIC_VIEW_NAME_RESOURCE = "[Media.MusicRootViewName]";
@@ -90,6 +127,11 @@ namespace MediaPortal.UiComponents.Media.General
     public const string ONE_ITEM_RES = "[Media.OneItem]";
     public const string N_ITEMS_RES = "[Media.NItems]";
 
+    public const string ADD_ALL_AUDIO_RES = "[Media.AddAllAudio]";
+    public const string ADD_ALL_VIDEOS_RES = "[Media.AddAllVideo]";
+    public const string ADD_ALL_IMAGES_RES = "[Media.AddAllImages]";
+    public const string ADD_VIDEOS_AND_IMAGES_RES = "[Media.AddAllVideosAndImages]";
+
     // Screens
     public const string LOCAL_MEDIA_NAVIGATION_SCREEN = "LocalMediaNavigation";
     public const string MUSIC_SHOW_ITEMS_SCREEN = "MusicShowItems";
@@ -108,9 +150,20 @@ namespace MediaPortal.UiComponents.Media.General
     public const string PICTURES_FILTER_BY_SIZE_SCREEN = "PicturesFilterBySize";
     public const string PICTURES_SIMPLE_SEARCH_SCREEN = "PicturesSimpleSearch";
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
+    public const string CHOOSE_AV_TYPE_DIALOG_SCREEN = "DialogChooseAVType";
+
+    public const string FULLSCREEN_AUDIO_SCREEN_NAME = "FullscreenContentAudio";
+    public const string CURRENTLY_PLAYING_AUDIO_SCREEN_NAME = "CurrentlyPlayingAudio";
+
+    public const string FULLSCREEN_VIDEO_SCREEN_NAME = "FullscreenContentVideo";
+    public const string CURRENTLY_PLAYING_VIDEO_SCREEN_NAME = "CurrentlyPlayingVideo";
+
+    public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
 
     // Timespans
-    public static readonly TimeSpan SEARCH_TEXT_TYPE_TIMESPAN = new TimeSpan(0, 0, 0, 0, 300);
+    public static TimeSpan SEARCH_TEXT_TYPE_TIMESPAN = TimeSpan.FromMilliseconds(300);
+
+    public static TimeSpan VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
 
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
@@ -123,6 +176,13 @@ namespace MediaPortal.UiComponents.Media.General
     public const string MEDIA_ITEM_KEY = "MediaItem";
     public const string NUM_ITEMS_KEY = "NumItems";
     public const string LENGTH_KEY = "Length";
+
+    // Keys for workflow state variables
+    public const string NAVIGATION_MODE_KEY = "MediaModel: NAVIGATION_MODE";
+    public const string NAVIGATION_DATA_KEY = "MediaModel: NAVIGATION_DATA";
+
+    public static float DEFAULT_PIP_HEIGHT = 108;
+    public static float DEFAULT_PIP_WIDTH = 192;
 
     public static readonly Guid[] NECESSARY_MOVIE_MIAS = new Guid[]
       {

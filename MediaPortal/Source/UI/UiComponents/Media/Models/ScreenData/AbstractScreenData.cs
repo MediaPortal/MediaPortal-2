@@ -22,8 +22,10 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities.Exceptions;
@@ -244,6 +246,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _items.Clear();
       _items = null;
     }
+
+    public abstract IEnumerable<MediaItem> GetAllMediaItems();
 
     protected virtual void Display_ListBeingBuilt()
     {

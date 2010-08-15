@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public PicturesAction() :
-        base(true, MediaModel.PICTURES_NAVIGATION_ROOT_STATE, PICTURES_RESOURCE) { }
+        base(true, Consts.PICTURES_NAVIGATION_ROOT_STATE, PICTURES_RESOURCE) { }
   }
 }

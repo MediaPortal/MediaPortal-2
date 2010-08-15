@@ -26,7 +26,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MoviesShowItemsScreenData : AbstractItemsScreenData
+  public class MoviesShowItemsScreenData : AbstractShowMLItemsScreenData
   {
     public MoviesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.MOVIES_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MOVIE_ITEMS_MENU_ITEM_RES,

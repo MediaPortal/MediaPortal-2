@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public MoviesAction() :
-        base(true, MediaModel.MOVIES_NAVIGATION_ROOT_STATE, MOVIES_RESOURCE) { }
+        base(true, Consts.MOVIES_NAVIGATION_ROOT_STATE, MOVIES_RESOURCE) { }
   }
 }

@@ -28,6 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Views;
@@ -90,6 +91,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       base.CreateScreenData(navigationData);
       CreateFilterValuesList();
+    }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return _navigationData.BaseViewSpecification.BuildView().MediaItems;
     }
 
     /// <summary>

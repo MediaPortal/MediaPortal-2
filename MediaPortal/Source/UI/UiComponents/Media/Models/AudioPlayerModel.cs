@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -39,15 +40,6 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     public const string MODEL_ID_STR = "D8998340-DA2D-42be-A29B-6D7A72AEA2DC";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    public const string CURRENTLY_PLAYING_STATE_ID_STR = "4596B758-CE2B-4e31-9CB9-6C30215831ED";
-    public const string FULLSCREEN_CONTENT_STATE_ID_STR = "82E8C050-0318-41a3-86B8-FC14FB85338B";
-
-    public static readonly Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
-    public static readonly Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
-
-    public const string FULLSCREENAUDIO_SCREEN_NAME = "FullscreenContentAudio"; // TODO: Create screen
-    public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingAudio";
 
     protected MediaWorkflowStateType _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
 
@@ -73,9 +65,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void UpdateAudioStateType(NavigationContext newContext)
     {
-      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID)
         _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
-      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID)
         _currentMediaWorkflowStateType = MediaWorkflowStateType.FullscreenContent;
       else
         _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
@@ -107,10 +99,10 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = null;
-      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID)
         // The "currently playing" screen is always bound to the "current player"
         pc = playerContextManager.CurrentPlayerContext;
-      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID)
         // The "fullscreen content" screen is always bound to the "primary player"
         pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       return pc != null && CanHandlePlayer(pc.CurrentPlayer);
@@ -153,10 +145,10 @@ namespace MediaPortal.UiComponents.Media.Models
       switch (_currentMediaWorkflowStateType)
       {
         case MediaWorkflowStateType.CurrentlyPlaying:
-          screen = CURRENTLY_PLAYING_SCREEN_NAME;
+          screen = Consts.CURRENTLY_PLAYING_AUDIO_SCREEN_NAME;
           break;
         case MediaWorkflowStateType.FullscreenContent:
-          screen = FULLSCREENAUDIO_SCREEN_NAME;
+          screen = Consts.FULLSCREEN_AUDIO_SCREEN_NAME;
           break;
       }
       return ScreenUpdateMode.AutoWorkflowManager;

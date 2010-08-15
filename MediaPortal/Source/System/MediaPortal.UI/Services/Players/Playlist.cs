@@ -277,9 +277,11 @@ namespace MediaPortal.UI.Services.Players
 
     public void AddAll(IEnumerable<MediaItem> mediaItems)
     {
+      StartBatchUpdate();
       lock (_syncObj)
         foreach (MediaItem mediaItem in mediaItems)
           Add(mediaItem);
+      EndBatchUpdate();
     }
 
     public void Remove(MediaItem mediaItem)

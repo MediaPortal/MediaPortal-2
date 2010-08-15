@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Services.Players
     protected readonly IPlaylist _playlist;
     protected readonly Guid _mediaModuleId;
     protected readonly string _name;
-    protected readonly PlayerContextType _type;
+    protected readonly AVType _type;
     protected readonly Guid _currentlyPlayingWorkflowStateId;
     protected readonly Guid _fullscreenContentWorkflowStateId;
 
@@ -62,7 +62,7 @@ namespace MediaPortal.UI.Services.Players
     #region Ctor
 
     internal PlayerContext(PlayerContextManager contextManager, IPlayerSlotController slotController,
-        Guid mediaModuleId, string name, PlayerContextType type,
+        Guid mediaModuleId, string name, AVType type,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
       _contextManager = contextManager;
@@ -218,7 +218,7 @@ namespace MediaPortal.UI.Services.Players
        get { return _mediaModuleId; }
     }
 
-    public PlayerContextType MediaType
+    public AVType AVType
     {
       get { return _type; }
     }

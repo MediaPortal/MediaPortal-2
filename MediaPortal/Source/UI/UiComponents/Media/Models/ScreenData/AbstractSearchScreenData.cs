@@ -22,9 +22,11 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Views;
 using MediaPortal.UiComponents.Media.General;
@@ -88,6 +90,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       DoSearch();
     }
 
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return BuildAllItemsView().MediaItems;
+    }
+
     void OnSimpleSearchTextChanged(AbstractProperty prop, object oldValue)
     {
       _searchTimer.Change(Consts.SEARCH_TEXT_TYPE_TIMESPAN, Consts.INFINITE_TIMESPAN);
@@ -105,10 +112,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       if (string.IsNullOrEmpty(SimpleSearchText))
         return;
-      View view = new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
+      View view = BuildAllItemsView();
+      ReloadMediaItems(view, false);
+    }
+
+    protected View BuildAllItemsView()
+    {
+      return new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
           _baseViewSpecification.Filter, _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds,
           true, true).BuildView();
-      ReloadMediaItems(view, false);
     }
 
     protected void InitializeSearch(ViewSpecification baseViewSpecification)

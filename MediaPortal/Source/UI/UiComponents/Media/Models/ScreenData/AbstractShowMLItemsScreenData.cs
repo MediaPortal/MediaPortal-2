@@ -25,16 +25,17 @@
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.UI.Presentation.Players
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public static class Playlists
+  public abstract class AbstractShowMLItemsScreenData : AbstractItemsScreenData
   {
-    public static void AddToPlaylist(this IEnumerable<MediaItem> items, IPlaylist playlist)
+    protected AbstractShowMLItemsScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
+        PlayableItemCreatorDelegate playableItemCreator, bool presentsBaseView) :
+        base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, playableItemCreator, presentsBaseView) { }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      playlist.StartBatchUpdate();
-      foreach (MediaItem mediaItem in items)
-        playlist.Add(mediaItem);
-      playlist.EndBatchUpdate();
+      return _navigationData.BaseViewSpecification.BuildView().MediaItems;
     }
   }
 }

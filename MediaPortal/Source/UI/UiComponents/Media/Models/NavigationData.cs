@@ -30,6 +30,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -62,25 +63,25 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </summary>
     /// <param name="navigationContextName">Name, which is used for the corresponding workflow navigation context.</param>
     /// <param name="currentWorkflowStateId">Id of the workflow state which corresponds to the new media navigation step.</param>
-    /// <param name="baseWorkflowStateId">Id of the workflow state to which the workflow navigation should be reverted when
+    /// <param name="parentWorkflowStateId">Id of the workflow state to which the workflow navigation should be reverted when
     /// another filter is choosen.</param>
     /// <param name="baseViewSpecification">View specification for the media items of the new media navigation step.</param>
     /// <param name="defaultScreen">Screen which should present the new navigation step by default.</param>
     /// <param name="availableScreens">Available set of screen descriptions which can present the new media navigation step.</param>
-    public NavigationData(string navigationContextName, Guid baseWorkflowStateId, Guid currentWorkflowStateId,
+    public NavigationData(string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens) :
-        this(navigationContextName, baseWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens, false) { }
+        this(navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens, false) { }
 
     // If the suppressActions parameter is set to <c>true</c>, no actions will be built. Instead, they will be inherited from
     // the parent navigation step. That is used for subview navigation where the navigation step doesn't produce own
     // workflow actions.
-    protected NavigationData(string navigationContextName, Guid baseWorkflowStateId, Guid currentWorkflowStateId,
+    protected NavigationData(string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
         bool suppressActions)
     {
       _navigationContextName = navigationContextName;
       _currentWorkflowStateId = currentWorkflowStateId;
-      _baseWorkflowStateId = baseWorkflowStateId;
+      _baseWorkflowStateId = parentWorkflowStateId;
       _baseViewSpecification = baseViewSpecification;
       _currentScreenData = defaultScreen;
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
@@ -103,7 +104,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <summary>
     /// Returns the id of the workflow state to which we must revert when a different view presentation screen is choosen.
     /// </summary>
-    public Guid BaseWorkflowStateId
+    public Guid ParentWorkflowStateId
     {
       get { return _baseWorkflowStateId; }
     }
@@ -174,7 +175,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-              {MediaModel.NAVIGATION_DATA_KEY, newNavigationData}
+              {Consts.NAVIGATION_DATA_KEY, newNavigationData}
             },
           NavigationContextDisplayLabel = navbarDisplayLabel
         });
@@ -200,11 +201,12 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-              {MediaModel.NAVIGATION_DATA_KEY, newNavigationData}
+              {Consts.NAVIGATION_DATA_KEY, newNavigationData}
             },
           NavigationContextDisplayLabel = navbarDisplayLabel
         });
     }
+
     protected void BuildWorkflowActions()
     {
       _dynamicWorkflowActions = new List<WorkflowAction>(_availableScreens.Count);

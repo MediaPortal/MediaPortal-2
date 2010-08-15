@@ -122,12 +122,12 @@ namespace MediaPortal.UiComponents.Media.Actions
       bool visible = pc != null;
       string displayTitleRes = null;
       if (pc != null)
-        switch (pc.MediaType)
+        switch (pc.AVType)
         {
-          case PlayerContextType.Audio:
+          case AVType.Audio:
             displayTitleRes = SHOW_AUDIO_PLAYLIST_RES;
             break;
-          case PlayerContextType.Video:
+          case AVType.Video:
             displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
                 SHOW_VIDEO_PLAYLIST_RES : SHOW_PIP_PLAYLIST_RES;
             break;

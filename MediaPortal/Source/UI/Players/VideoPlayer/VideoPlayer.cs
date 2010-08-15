@@ -519,6 +519,7 @@ namespace Ui.Players.Video
     protected virtual void AddFileSource()
     {
       // Render the file
+      // TODO/FIXME: Don't open the file in exclusive mode (we cannot extract metadata from the file any more when it is played)
       int hr = _graphBuilder.RenderFile(_resourceAccessor.LocalFileSystemPath, null);
       DsError.ThrowExceptionForHR(hr);
     }

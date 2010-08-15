@@ -26,6 +26,12 @@
         SortOrder="c"
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="7190C5BB-430E-48be-A6B2-C651A840C54A"/> <!-- Pictures action -->
+    <WorkflowContributorAction Id="09243059-EE44-460d-8412-2E994CCB5A98"
+        Name="*->AddToPlaylist"
+        DisplayCategory="a-Media"
+        SortOrder="d"
+        SourceState="*"
+        ContributorModelId="E6E42CDB-07F7-4055-8EF9-0AA35904FAB5"/> <!-- AddToPlaylist action -->
     <WorkflowContributorAction Id="985AD907-0EDB-4feb-AA99-2B52DDEADE6F"
         Name="*->ShowPlaylist"
         DisplayCategory="z-WorkflowContributors"
@@ -39,5 +45,21 @@
         SourceState="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
         TargetState="078DCC03-AE75-4347-8C07-183605CDB1B7"
         DisplayTitle="[Media.EditPlaylist]"/>
+    <MethodCallAction Id="D5D980B9-EB3C-4f07-AB20-0684C35D2764"
+        Name="ShowPlaylist->Clear PL"
+        DisplayCategory="a-Media"
+        SortOrder="b"
+        DisplayTitle="[Media.ClearPlaylist]"
+        SourceState="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
+        ModelId="0AFD5E3A-2CB6-44d6-827F-72A7193595E2"
+        MethodName="ClearPlaylist"/>
+    <MethodCallAction Id="39B15FC7-07BE-497d-9669-A9A155519F52"
+        Name="EditPlaylist->Clear PL"
+        DisplayCategory="a-Media"
+        SortOrder="a"
+        DisplayTitle="[Media.ClearPlaylist]"
+        SourceState="078DCC03-AE75-4347-8C07-183605CDB1B7"
+        ModelId="0AFD5E3A-2CB6-44d6-827F-72A7193595E2"
+        MethodName="ClearPlaylist"/>
   </MenuActions>
 </Workflow>

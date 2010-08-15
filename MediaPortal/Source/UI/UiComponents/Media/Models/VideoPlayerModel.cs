@@ -31,6 +31,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -42,22 +43,6 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
-    public const string FULLSCREEN_CONTENT_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
-
-    public static readonly Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
-    public static readonly Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
-
-    public const string FULLSCREENVIDEO_SCREEN_NAME = "FullscreenContentVideo";
-    public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingVideo";
-
-    public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
-
-    protected static TimeSpan VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
-
-    public static float DEFAULT_PIP_HEIGHT = 108;
-    public static float DEFAULT_PIP_WIDTH = 192;
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
     protected bool _inactive = false;
@@ -86,10 +71,10 @@ namespace MediaPortal.UiComponents.Media.Models
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
-      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
+      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < Consts.VIDEO_INFO_TIMEOUT || _inactive;
       IsPip = pipPlayer != null;
-      PipHeight = DEFAULT_PIP_HEIGHT;
-      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
+      PipHeight = Consts.DEFAULT_PIP_HEIGHT;
+      PipWidth = pipPlayer == null ? Consts.DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
       CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
@@ -101,12 +86,12 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void UpdateVideoStateType(NavigationContext newContext)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID)
       {
         screenManager.BackgroundDisabled = false;
         _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
       }
-      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
       {
         screenManager.BackgroundDisabled = true;
         _currentMediaWorkflowStateType = MediaWorkflowStateType.FullscreenContent;
@@ -204,10 +189,10 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = null;
-      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID)
         // The "currently playing" screen is always bound to the "current player"
         pc = playerContextManager.CurrentPlayerContext;
-      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
         // The "fullscreen content" screen is always bound to the "primary player"
         pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       return pc != null && CanHandlePlayer(pc.CurrentPlayer);
@@ -250,10 +235,10 @@ namespace MediaPortal.UiComponents.Media.Models
       switch (_currentMediaWorkflowStateType)
       {
         case MediaWorkflowStateType.CurrentlyPlaying:
-          screen = CURRENTLY_PLAYING_SCREEN_NAME;
+          screen = Consts.CURRENTLY_PLAYING_VIDEO_SCREEN_NAME;
           break;
         case MediaWorkflowStateType.FullscreenContent:
-          screen = FULLSCREENVIDEO_SCREEN_NAME;
+          screen = Consts.FULLSCREEN_VIDEO_SCREEN_NAME;
           break;
       }
       return ScreenUpdateMode.AutoWorkflowManager;
