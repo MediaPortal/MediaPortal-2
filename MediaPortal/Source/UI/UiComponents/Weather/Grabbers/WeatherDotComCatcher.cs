@@ -28,6 +28,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Web;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Core;
@@ -139,8 +140,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
 
       try
       {
-        string searchURI =
-          string.Format("http://xoap.weather.com/search/search?where={0}", Helper.UrlEncode(locationName));
+        string searchURI = string.Format("http://xoap.weather.com/search/search?where={0}", HttpUtility.UrlEncode(locationName));
 
         //
         // Create the request and fetch the response
