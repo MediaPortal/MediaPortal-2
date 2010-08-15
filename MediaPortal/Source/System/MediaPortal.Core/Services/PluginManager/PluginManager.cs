@@ -116,7 +116,7 @@ namespace MediaPortal.Core.Services.PluginManager
         ServiceRegistration.Get<ILogger>().Info("PluginManager: Initialize");
         _state = PluginManagerState.Initializing;
         ServiceRegistration.Get<ILogger>().Debug("PluginManager: Loading plugins");
-        IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
+        IDictionary<Guid, IPluginMetadata> loadedPlugins = LoadPluginsData();
         foreach (IPluginMetadata pm in loadedPlugins.Values)
           AddPlugin(pm);
         ServiceRegistration.Get<ILogger>().Debug("PluginManager: Initialized");
@@ -1048,9 +1048,9 @@ namespace MediaPortal.Core.Services.PluginManager
     /// Loads all available plugin descriptors from all known plugin directories.
     /// </summary>
     /// <returns>Mapping of plugin names to metadata descriptors.</returns>
-    public IDictionary<string, IPluginMetadata> LoadPluginsData()
+    public IDictionary<Guid, IPluginMetadata> LoadPluginsData()
     {
-      IDictionary<string, IPluginMetadata> result = new Dictionary<string, IPluginMetadata>();
+      IDictionary<Guid, IPluginMetadata> result = new Dictionary<Guid, IPluginMetadata>();
       String pluginsDirectoryPath = ServiceRegistration.Get<IPathManager>().GetPath("<PLUGINS>");
       foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
       {
@@ -1059,10 +1059,10 @@ namespace MediaPortal.Core.Services.PluginManager
         try
         {
           IPluginMetadata pm = new PluginDirectoryDescriptor(pluginDirectoryPath);
-          if (result.ContainsKey(pm.Name))
+          if (result.ContainsKey(pm.PluginId))
             throw new ArgumentException(string.Format(
-                "Duplicate plugin '{0}'", pm.Name));
-          result.Add(pm.Name, pm);
+                "Duplicate: plugin '{0}' has the same plugin id as {1}", pm.Name, result[pm.PluginId]));
+          result.Add(pm.PluginId, pm);
         }
         catch (Exception e)
         {
