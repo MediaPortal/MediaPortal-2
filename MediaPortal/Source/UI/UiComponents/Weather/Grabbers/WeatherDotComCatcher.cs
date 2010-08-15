@@ -37,8 +37,9 @@ using MediaPortal.Core.Logging;
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {
   /// <summary>
-  /// Implementation of the IWeatherCatcher which grabs weather data from www.weather.com
+  /// Implementation of the IWeatherCatcher which grabs weather data from www.weather.com.
   /// TODO: Replace usage of XmlDocument by XPathDocument
+  /// TODO: Rework completely.
   /// </summary>
   public class WeatherDotComCatcher : IWeatherCatcher
   {
