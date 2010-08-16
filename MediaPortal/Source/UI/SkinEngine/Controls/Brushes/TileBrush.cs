@@ -145,6 +145,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #endregion
 
     #region Public properties
+
     public AbstractProperty AlignmentXProperty
     {
       get { return _alignmentXProperty; }
@@ -395,16 +396,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _effect.Parameters[PARAM_TILE_V] = 4; // D3DTADDRESS_BORDER
           break;
       }
-      // Do a partial matrix inverse to reverse the direction of rotation
-      Matrix relativeTransform = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
-      Swap(ref relativeTransform.M11, ref relativeTransform.M22);
-      Swap(ref relativeTransform.M12, ref relativeTransform.M21);
-      Swap(ref relativeTransform.M41, ref relativeTransform.M42);
+
+      if (RelativeTransform != null)
+        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Invert(RelativeTransform.GetTransform());
+      else
+        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Identity;
 
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = relativeTransform;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
       _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
       _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
@@ -412,23 +412,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void SetSimpleEffectParameters(RenderContext renderContext)
     {
-      // Do a partial matrix inverse to reverse the direction of rotation
-      Matrix relativeTransform = (RelativeTransform == null) ? Matrix.Identity : RelativeTransform.GetTransform();
-      Swap(ref relativeTransform.M11, ref relativeTransform.M22);
-      Swap(ref relativeTransform.M12, ref relativeTransform.M21);
-      Swap(ref relativeTransform.M41, ref relativeTransform.M42);
+      if (RelativeTransform != null)
+        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Invert(RelativeTransform.GetTransform());
+      else
+        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Identity;
 
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = relativeTransform;
+      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
-    }
-
-    private void Swap(ref float a, ref float b)
-    {
-      float c = a;
-      a = b;
-      b = c;
     }
 
     protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)

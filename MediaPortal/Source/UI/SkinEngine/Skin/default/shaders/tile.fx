@@ -55,10 +55,12 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
 
   // Transform vertex coords to place brush texture
-  pos = pos * g_brushtransform.zw - g_brushtransform.xy;
+  pos = pos * g_brushtransform.zw;
 
   // Apply other transformation
-  OUT.Texcoord = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
+  pos = (pos - g_textureviewport.xy) / g_textureviewport.zw;
+  pos = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
+  OUT.Texcoord = pos * g_textureviewport.zw + g_textureviewport.xy;
 }
 
 float2 wrapTextureCoord(float2 pos, float2 offset, float2 size)

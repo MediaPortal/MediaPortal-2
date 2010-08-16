@@ -10,6 +10,7 @@ texture   g_texture; // Color texture
 texture   g_alphatex; // Alpha texture 
 float     g_opacity;
 float4x4  g_relativetransform;
+float4	  g_textureviewport;
 float4    g_brushtransform;
 
 sampler alphaSampler : register (s1) = sampler_state
@@ -63,7 +64,9 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   pos = pos * g_brushtransform.zw - g_brushtransform.xy;
 
   // Apply other transformation
-  OUT.Texcoord0 = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
+  pos = (pos - g_textureviewport.xy) / g_textureviewport.zw;
+  pos = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
+  OUT.Texcoord0 = pos * g_textureviewport.zw + g_textureviewport.xy;
   OUT.Texcoord1 = IN.Texcoord;
 }
 
