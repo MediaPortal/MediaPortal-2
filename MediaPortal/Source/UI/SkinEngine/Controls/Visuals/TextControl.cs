@@ -47,7 +47,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _textAlignProperty;
     protected FontBufferAsset _asset;
     protected int _fontSizeCache;
-    protected bool _performLayout;
 
     // Are we editing the text?
     bool _editText = false; 
