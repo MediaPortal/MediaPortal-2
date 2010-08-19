@@ -517,6 +517,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       screen.FrameworkElementLostFocus(this);
     }
 
+    /// <summary>
+    /// Checks if the currently focused control is contained in this virtual keyboard control.
+    /// </summary>
+    public bool IsInFocusRootPath()
+    {
+      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
+      while (focusPath != null)
+      {
+        if (focusPath == this)
+          // Focused control is located in our focus scope
+          return true;
+        focusPath = focusPath.VisualParent;
+      }
+      return false;
+    }
+
     #region Replacing methods for the == operator which evaluate two float.NaN values to equal
 
     public static bool SameValue(float val1, float val2)
@@ -968,31 +984,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void OnMouseMove(float x, float y)
     {
-      float xTrans = x;
-      float yTrans = y;
-      TransformMouseCoordinates(ref xTrans, ref yTrans);
-      if (ActualBounds.Contains(xTrans, yTrans))
+      if (IsVisible)
       {
-        if (!IsMouseOver)
+        float xTrans = x;
+        float yTrans = y;
+        TransformMouseCoordinates(ref xTrans, ref yTrans);
+        if (ActualBounds.Contains(xTrans, yTrans))
         {
-          IsMouseOver = true;
-          FireEvent(MOUSEENTER_EVENT);
+          if (!IsMouseOver)
+          {
+            IsMouseOver = true;
+            FireEvent(MOUSEENTER_EVENT);
+          }
+          bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
+          if (!HasFocus && inVisibleArea)
+            TrySetFocus(false);
+          if (HasFocus && !inVisibleArea)
+            ResetFocus();
         }
-        bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
-        if (!HasFocus && inVisibleArea)
-          TrySetFocus(false);
-        if (HasFocus && !inVisibleArea)
-          ResetFocus();
-      }
-      else
-      {
-        if (IsMouseOver)
+        else
         {
-          IsMouseOver = false;
-          FireEvent(MOUSELEAVE_EVENT);
+          if (IsMouseOver)
+          {
+            IsMouseOver = false;
+            FireEvent(MOUSELEAVE_EVENT);
+          }
+          if (HasFocus)
+            ResetFocus();
         }
-        if (HasFocus)
-          ResetFocus();
       }
       base.OnMouseMove(x, y);
     }
