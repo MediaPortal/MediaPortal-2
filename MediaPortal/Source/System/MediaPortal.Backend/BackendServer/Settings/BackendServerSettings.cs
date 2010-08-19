@@ -29,7 +29,7 @@ namespace MediaPortal.Backend.BackendServer.Settings
   public class BackendServerSettings
   {
     protected string _friendlyName = null;
-    protected int _httpServerPort = 80;
+    protected int _httpServerPort = 8081;
     protected bool _useIPv4 = true;
     protected bool _useIPv6 = true;
 

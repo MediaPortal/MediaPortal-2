@@ -190,9 +190,15 @@ namespace MediaPortal.Backend.Services.BackendServer
     {
       BackendServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackendServerSettings>();
       if (settings.UseIPv4)
+      {
         _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
+        ServiceRegistration.Get<ILogger>().Info("BackendServer: Started HTTP server (IPv4) at address {0}", new IPEndPoint(IPAddress.Any, settings.HttpServerPort));
+      }
       if (settings.UseIPv6)
+      {
         _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
+        ServiceRegistration.Get<ILogger>().Info("BackendServer: Started HTTP server (IPv6) at address {0}", new IPEndPoint(IPAddress.IPv6Any, settings.HttpServerPort));
+      }
       _upnpServer.Start();
     }
 
