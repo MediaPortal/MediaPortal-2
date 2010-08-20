@@ -104,7 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     /// <summary>
     /// Given a parameter list returned by method
-    /// <see cref="AttributeValueInstantiationParser.ParseInstantiationExpression(string,out string,out List<KeyValuePair<string, string>>,bool)"/>,
+    /// <see cref="AttributeValueInstantiationParser.ParseInstantiationExpression(string,out string,out IList{KeyValuePair{string, string}},out bool)"/>,
     /// this method separates the value parts of the named parameter list and returns it.
     /// </summary>
     /// <param name="parameters">Parameter list in a name=value form.</param>
@@ -186,8 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// </summary>
     /// <remarks>
     /// The parser handles the {} escape syntax at the beginning of the name
-    /// expression to escape all curly braces, as well as the \ escape syntax
-    /// to escape the next character.
+    /// expression to escape all curly braces.
     /// The method maintains a level counter which matches opening to
     /// closing curly braces ({ and }), and returns only if the parsing
     /// position reached the expression end or is not inside a { and } pair.
@@ -225,13 +224,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           case ' ':
             if (level == 0)
               goto Finished;
-            break;
-          case '\\':
-            if (index+1 == expr.Length || expr[index+1] == ' ')
-              // No next character to escape
-              throw new XamlParserException("Object instantiation expression '{0}': escaped sequence termination error at position {1}", expr, index);
-            // Escape the next character
-            index++;
             break;
         }
         index++;
