@@ -22,41 +22,37 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Core.Localization
 {
   /// <summary>
-  /// Dummy class which implements the <see cref="ILocalization"/> interface, but
-  /// doesn't provide any localized strings.
+  /// This class provides an interface for the messages sent by the localization strings manager.
+  /// This class is part of the localization API.
   /// </summary>
-  internal class NoLocalization : ILocalization
+  public class LocalizationMessaging
   {
-    public ICollection<CultureInfo> AvailableLanguages
+    // Message channel name
+    public const string CHANNEL = "Localization";
+
+    // Message type
+    public enum MessageType
     {
-      get { return new List<CultureInfo>(new CultureInfo[] {CultureInfo.CurrentUICulture}); }
+      /// <summary>
+      /// This message will be sent after the <see cref="ILocalization.CurrentCulture"/> is changed.
+      /// </summary>
+      LanguageChanged,
     }
 
-    public CultureInfo CurrentCulture
+    // Message data
+    public const string NEW_CULTURE = "NewCulture"; // The new culture which was set
+
+    public static void SendLanguageChangedMessage(CultureInfo newCulture)
     {
-      get { return CultureInfo.CurrentUICulture; }
-    }
-
-    public void Startup() { }
-
-    public void AddLanguageDirectory(string directory) {}
-
-    public void ChangeLanguage(CultureInfo culture) {}
-
-    public string ToString(string label, params object[] parameters)
-    {
-      return label;
-    }
-
-    public CultureInfo GetBestAvailableLanguage()
-    {
-      return CultureInfo.CurrentUICulture;
+      SystemMessage msg = new SystemMessage(MessageType.LanguageChanged);
+      msg.MessageData[NEW_CULTURE] = newCulture;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -46,18 +45,6 @@ namespace MediaPortal.Core.Localization
   /// </remarks>
   public interface ILocalization
   {
-    #region Events
-
-    /// <summary>
-    /// Will be called if the language changes, which makes all former returned localized
-    /// strings invalid.
-    /// </summary>
-    event LanguageChangeHandler LanguageChange;
-
-    #endregion
-
-    #region Properties
-
     /// <summary>
     /// Returns the <see cref="CultureInfo"/>s for all installed languages.
     /// </summary>
@@ -65,11 +52,10 @@ namespace MediaPortal.Core.Localization
     /// application.</returns>
     ICollection<CultureInfo> AvailableLanguages { get; }
 
+    /// <summary>
+    /// Gets the currently activated culture.
+    /// </summary>
     CultureInfo CurrentCulture { get; }
-
-    #endregion
-
-    #region Methods
 
     /// <summary>
     /// Starts loading all language resources. Must be called after plugins were enabled by the plugin manager.
@@ -120,7 +106,5 @@ namespace MediaPortal.Core.Localization
     /// </remarks>
     /// <returns>Best language for this system, for that language resources are available.</returns>
     CultureInfo GetBestAvailableLanguage();
-
-    #endregion
   }
 }

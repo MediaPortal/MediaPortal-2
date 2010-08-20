@@ -93,6 +93,7 @@
     <Compile Include="Localization\ILocalization.cs" />
     <Compile Include="Localization\IResourceString.cs" />
     <Compile Include="Localization\LocalizationHelper.cs" />
+    <Compile Include="Localization\LocalizationMessaging.cs" />
     <Compile Include="Localization\LocalizedStringBuilder.cs" />
     <Compile Include="Localization\NoLocalization.cs" />
     <Compile Include="Localization\RegionSettings.cs" />

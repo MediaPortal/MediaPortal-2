@@ -84,13 +84,6 @@ namespace MediaPortal.Core.Services.Localization
       return null;
     }
 
-    protected void FireLanguageChange()
-    {
-      LanguageChangeHandler dlgt = LanguageChange;
-      if (dlgt != null)
-        dlgt(this, _currentCulture);
-    }
-
     protected override void ReLoad()
     {
       base.ReLoad();
@@ -101,8 +94,6 @@ namespace MediaPortal.Core.Services.Localization
     #endregion
 
     #region ILocalization implementation
-
-    public event LanguageChangeHandler LanguageChange;
 
     // ICollection<CultureInfo> AvailableLanguages { get; } -> implemented by base class
 
@@ -127,7 +118,7 @@ namespace MediaPortal.Core.Services.Localization
         ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
 
-      FireLanguageChange();
+      LocalizationMessaging.SendLanguageChangedMessage(culture);
     }
 
     public string ToString(string label, params object[] parameters)
