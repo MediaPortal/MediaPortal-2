@@ -39,6 +39,8 @@ using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
+  public delegate void ClosedEventDlgt(Screen screen);
+
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
@@ -129,6 +131,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected int _skinHeight;
     protected State _state = State.Running;
     protected RectangleF? _lastFocusRect = null;
+    protected AbstractProperty _virtualKeyboardControlProperty = new SProperty(typeof(VirtualKeyboardControl), null);
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -141,7 +144,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected FrameworkElement _focusedElement = null;
 
     protected AbstractProperty _opened;
-    public event EventHandler Closed;
     protected FrameworkElement _visual;
     protected Animator _animator;
     protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
@@ -166,6 +168,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SkinContext.WindowSizeProperty.Attach(OnWindowSizeChanged);
       InitializeRenderContext();
     }
+
+    public event ClosedEventDlgt Closed;
 
     public Animator Animator
     {
@@ -230,6 +234,42 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public bool HasInputFocus
     {
       get { return _attachedInput; }
+    }
+
+    public AbstractProperty VirtualKeyboardControlProperty
+    {
+      get { return _virtualKeyboardControlProperty; }
+    }
+
+    public VirtualKeyboardControl VirtualKeyboardControl
+    {
+      get { return (VirtualKeyboardControl) _virtualKeyboardControlProperty.GetValue(); }
+      private set { _virtualKeyboardControlProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Called from the (single) virtual keyboard control instance in this screen during initialization.
+    /// </summary>
+    /// <param name="virtualKeyboardControl">The single virtual keyboard control to be used this screen.</param>
+    public void SetVirtalKeyboardControl(VirtualKeyboardControl virtualKeyboardControl)
+    {
+      VirtualKeyboardControl = virtualKeyboardControl;
+      if (virtualKeyboardControl != null)
+        virtualKeyboardControl.IsVisible = false;
+    }
+
+    /// <summary>
+    /// Shows a virtual keyboard input control which fills the given <paramref name="textProperty"/>.
+    /// </summary>
+    /// <param name="textProperty">String property instance which will be filled by the virtual keyboard.</param>
+    /// <param name="settings">Settings to be used to configure the to-be-shown virtual keyboard.</param>
+    public void ShowVirtualKeyboard(AbstractProperty textProperty, VirtualKeyboardSettings settings)
+    {
+      VirtualKeyboardControl virtualKeyboardControl = VirtualKeyboardControl;
+      if (virtualKeyboardControl == null)
+        return;
+      virtualKeyboardControl.Show(textProperty, settings);
+      virtualKeyboardControl.IsVisible = true;
     }
 
     /// <summary>
@@ -350,9 +390,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         Animator.StopAll();
         _visual.Deallocate();
       }
-      if (Closed != null)
-        Closed(this, null);
+      FireClosed();
       _visual.Dispose();
+    }
+
+    protected void FireClosed()
+    {
+      ClosedEventDlgt dlgt = Closed;
+      if (dlgt != null)
+        dlgt(this);
     }
 
     protected void PretendMouseMove()

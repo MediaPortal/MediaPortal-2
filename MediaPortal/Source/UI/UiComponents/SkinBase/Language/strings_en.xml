@@ -17,6 +17,10 @@
     <String Name="Warning" Text="Warning"/>
     <String Name="Error" Text="Error"/>
   </Section>
+  <Section Name="Keys">
+    <String Name="Shift" Text="Shift"/>
+    <String Name="AltGr" Text="Alt Gr"/>
+  </Section>
   <Section Name="Home">
     <String Name="Title" Text="MediaPortal 2"/>
     <String Name="HomeStateDisplayLabel" Text="Home"/>

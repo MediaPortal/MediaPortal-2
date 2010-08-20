@@ -25,58 +25,67 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Client_Element (Any UI element): Element to be shown in the client area
 -->
 
-<DockPanel
+<Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    Context="{DynamicResource DataContext}"
-    LastChildFill="True">
-  <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
-    <Grid.Resources>
-      <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-    </Grid.Resources>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="Auto"/>
-    </Grid.ColumnDefinitions>
-    <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="60,0,0,0">
-      <Label x:Name="HeaderLabel"
-          FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
-          Color="{ThemeResource WindowHeaderColor}"
-          Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
-      <Label x:Name="MirrorHeaderLabel"
-          FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
-          Color="{ThemeResource WindowHeaderColor}"
-          Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
-        <Label.LayoutTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
-          </TransformGroup>
-        </Label.LayoutTransform>
-        <Label.OpacityMask>
-          <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-            <GradientStop Offset="0.0" Color="#00000000" />
-            <GradientStop Offset="1.0" Color="#A0000000" />
-          </LinearGradientBrush>
-        </Label.OpacityMask>
-      </Label>
-    </StackPanel>
-    <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-      <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
-      <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
-    </StackPanel>
-  </Grid>
-  <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Top" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
-
+    Context="{DynamicResource DataContext}">
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      LastChildFill="True">
+    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
+      <Grid.Resources>
+        <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+      </Grid.Resources>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="60,0,0,0">
+        <Label x:Name="HeaderLabel"
+            FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
+            Color="{ThemeResource WindowHeaderColor}"
+            Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
+        <Label x:Name="MirrorHeaderLabel"
+            FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
+            Color="{ThemeResource WindowHeaderColor}"
+            Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+          <Label.LayoutTransform>
+            <TransformGroup>
+              <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+            </TransformGroup>
+          </Label.LayoutTransform>
+          <Label.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#00000000" />
+              <GradientStop Offset="1.0" Color="#A0000000" />
+            </LinearGradientBrush>
+          </Label.OpacityMask>
+        </Label>
+      </StackPanel>
+      <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
+        <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
+      </StackPanel>
+    </Grid>
+    <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Top" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
+  
 <!-- Not sure if and how we should show shortcuts...
-  <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
-      Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
+    <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
+        Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
 -->
-
-  <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
-  <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" SetFocus="true"
-      Content="{DynamicResource Client_Element}"/>
-</DockPanel>
+  
+    <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
+    <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" SetFocus="true"
+        Content="{DynamicResource Client_Element}"/>
+  </DockPanel>
+  <VirtualKeyboardControl Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Style="{ThemeResource VirtualKeyboardControlStyle}"/>
+</Grid>

@@ -27,6 +27,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.FontBufferAsset;
@@ -263,6 +264,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    public override void OnKeyPressed(ref Key key)
+    {
+      base.OnKeyPressed(ref key);
+      if (HasFocus && key == Key.Ok)
+      {
+        key = Key.None;
+        Screen screen = Screen;
+        if (screen != null)
+          screen.ShowVirtualKeyboard(_textProperty, new VirtualKeyboardSettings
+            {
+                ElementArrangeBounds = ActualBounds,
+                KeyboardStyle = VirtualKeyboardStyle.Full,
+                TextStyle = VirtualKeyboardTextStyle.None
+            });
+      }
+    }
+
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       _fontSizeCache = GetFontSizeOrInherited();
@@ -271,7 +289,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SizeF childSize = _asset == null ? new SizeF() :
           new SizeF(_asset.Font.Width(Text, _fontSizeCache), _asset.Font.LineHeight(_fontSizeCache));
 
-      if (PreferredTextLength.HasValue)
+      if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction
         childSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache);
 

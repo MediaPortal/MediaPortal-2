@@ -208,6 +208,9 @@
   <!-- Yellow -->
   <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="Yellow"/>
 
+  <ResourceWrapper x:Key="VirtualKeyboardBackgroundColor" Resource="LightGray"/>
+  <ResourceWrapper x:Key="VirtualKeyboardBorderColor" Resource="DarkGray"/>
+
   <!-- White, a bit transparent -->
   <ResourceWrapper x:Key="ContentGroupBoxBorderColor" Resource="#88FFFFFF"/>
 
