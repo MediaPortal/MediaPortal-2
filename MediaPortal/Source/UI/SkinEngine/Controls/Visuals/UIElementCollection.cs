@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _parent = parent;
       foreach (UIElement element in _elements)
       {
-        element.Screen = _parent == null ? null : _parent.Screen;
+        element.SetScreen(_parent == null ? null : _parent.Screen);
         element.VisualParent = _parent;
       }
       InvalidateParent();
@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // TODO: Allocate if we are already allocated
       element.VisualParent = _parent;
-      element.Screen = _parent == null ? null : _parent.Screen;
+      element.SetScreen(_parent == null ? null : _parent.Screen);
       _elements.Add(element);
       InvalidateParent();
     }
