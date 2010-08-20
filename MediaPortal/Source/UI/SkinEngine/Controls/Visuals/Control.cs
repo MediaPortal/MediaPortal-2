@@ -290,6 +290,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (ActualWidth != 0 && ActualHeight != 0 &&
           (ActualWidth != oldWidth || ActualHeight != oldHeight || oldPosition != ActualPosition))
         _performLayout = true;
+      ArrangeTemplateControl();
+    }
+
+    protected virtual void ArrangeTemplateControl()
+    {
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
