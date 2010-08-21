@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,6 +55,7 @@
     <Content Include="Skin\default\screens\test-text-transforms.xaml" />
     <Content Include="Skin\default\screens\test-transforms.xaml" />
     <Content Include="Skin\default\screens\test-treeview.xaml" />
+    <Content Include="Skin\default\screens\test-virtualkeyboardcontrol.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\media\Cherries.jpg" />

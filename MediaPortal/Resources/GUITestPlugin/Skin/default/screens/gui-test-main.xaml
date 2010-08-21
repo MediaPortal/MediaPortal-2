@@ -46,6 +46,9 @@
           <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonStyle}" Content="TreeView test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9233F320-F0D3-4511-84F0-4575CC9F6A55}"/>
+          <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonStyle}" Content="VirtualKeyboard test"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-virtualkeyboardcontrol}"/>
         </Grid>
       </DockPanel>
     </ResourceWrapper>
