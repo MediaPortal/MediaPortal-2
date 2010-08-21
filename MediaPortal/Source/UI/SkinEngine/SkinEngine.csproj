@@ -83,6 +83,8 @@
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\UniformGrid.cs" />
+    <Compile Include="Controls\Visuals\DefaultTextInputHandler.cs" />
+    <Compile Include="Controls\Visuals\CellPhoneTextInputHandler.cs" />
     <Compile Include="Controls\Visuals\ObservableUIElementCollection.cs" />
     <Compile Include="Controls\Visuals\Templates\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\GroupBox.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
     <Compile Include="Controls\Visuals\Templates\TemplateWithTriggers.cs" />
     <Compile Include="Controls\Visuals\TextControl.cs" />
+    <Compile Include="Controls\Visuals\AbstractTextInputHandler.cs" />
     <Compile Include="Controls\Visuals\TreeView.cs" />
     <Compile Include="Controls\Visuals\Triggers\DataTrigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />

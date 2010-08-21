@@ -23,11 +23,14 @@
 #endregion
 
 using System.Drawing;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Settings;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.FontBufferAsset;
@@ -48,8 +51,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _textAlignProperty;
     protected FontBufferAsset _asset;
     protected int _fontSizeCache;
+    protected AbstractTextInputHandler _textInputHandler = null;
 
-    // Are we editing the text?
+    // Use to avoid change handlers during text updates
     bool _editText = false; 
 
     #endregion
@@ -81,6 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
       _textAlignProperty.Attach(OnTextAlignChanged);
+
+      _hasFocusProperty.Attach(OnHasFocusChanged);
     }
 
     void Detach()
@@ -89,6 +95,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
       _textAlignProperty.Detach(OnTextAlignChanged);
+
+      _hasFocusProperty.Attach(OnHasFocusChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -112,9 +120,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
+    void OnHasFocusChanged(AbstractProperty prop, object oldValue)
+    {
+      AbstractTextInputHandler oldTextInputHandler = _textInputHandler;
+      _textInputHandler = HasFocus ? CreateTextInputHandler() : null;
+      if (oldTextInputHandler != null)
+        oldTextInputHandler.Dispose();
+    }
+
     void OnTextChanged(AbstractProperty prop, object oldValue)
     {
-      // The skin is setting the text, also update the caret
+      // The skin is setting the text, so update the caret
       if (!_editText)
         CaretIndex = Text.Length;
     }
@@ -123,6 +139,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       InvalidateLayout();
       InvalidateParentLayout();
+    }
+
+    protected AbstractTextInputHandler CreateTextInputHandler()
+    {
+      AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      return settings.CellPhoneInputStyle ?
+          (AbstractTextInputHandler) new CellPhoneTextInputHandler(_textProperty, _caretIndexProperty) :
+          new DefaultTextInputHandler(_textProperty, _caretIndexProperty);
     }
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
@@ -138,60 +162,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void OnKeyPreview(ref Key key)
     {
-      if (!HasFocus)
-        return;
-      // TODO: Move this code to an input handler class, which is also capable of CellPhone input style
-      if (key == Key.None)
-        return;
-     
-      _editText = true;
-      if (key == Key.BackSpace)
+      AbstractTextInputHandler textInputHandler = _textInputHandler;
+      if (textInputHandler != null)
       {
-        if (CaretIndex > 0)
-        {
-          Text = Text.Remove(CaretIndex - 1, 1);
-          CaretIndex--;
-        }
-        key = Key.None;
+        _editText = true;
+        textInputHandler.HandleInput(ref key);
+        _editText = false;
       }
-      else if (key == Key.Left)
-      {
-        if (CaretIndex > 0)
-        {
-          CaretIndex--;
-          // Only consume the key if we can move the cared - else the key can be used by
-          // the focus management, for example
-          key = Key.None;
-        }
-      }
-      else if (key == Key.Right)
-      {
-        if (CaretIndex < Text.Length)
-        {
-          CaretIndex++;
-          // Only consume the key if we can move the cared - else the key can be used by
-          // the focus management, for example
-          key = Key.None;
-        }
-      }
-      else if (key == Key.Home)
-      {
-        CaretIndex = 0;
-        key = Key.None;
-      }
-      else if (key == Key.End)
-      {
-        CaretIndex = Text.Length;
-        key = Key.None;
-      } 
-      else if (key.IsPrintableKey)
-      {
-        Text = Text.Insert(CaretIndex, key.RawCode.Value.ToString());
-        CaretIndex++;
-        key = Key.None;
-      }
-
-      _editText = false;
+      base.OnKeyPreview(ref key);
     }
 
     public AbstractProperty PreferredTextLengthProperty
