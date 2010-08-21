@@ -29,7 +29,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
   public class AppSettings
   {
     protected bool _fullScreen;
-    protected bool _virtualKeyboardCellPhoneStyle;
+    protected bool _cellPhoneInputStyle;
 
     [Setting(SettingScope.User, false)]
     public bool FullScreen
@@ -39,10 +39,10 @@ namespace MediaPortal.UI.SkinEngine.Settings
     }
 
     [Setting(SettingScope.User, false)]
-    public bool VirtualKeyboardCellPhoneStyle
+    public bool CellPhoneInputStyle
     {
-      get { return _virtualKeyboardCellPhoneStyle; }
-      set { _virtualKeyboardCellPhoneStyle = value; }
+      get { return _cellPhoneInputStyle; }
+      set { _cellPhoneInputStyle = value; }
     }
   }
 }

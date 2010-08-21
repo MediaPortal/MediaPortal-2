@@ -59,10 +59,10 @@
         HelpText="[Settings.Appearance.System.Fullscreen.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
     <ConfigSetting
-        Id="VirtualKeyboardStyle"
-        Text="[Settings.Appearance.System.VirtualKeyboardStyle]"
-        HelpText="[Settings.Appearance.System.VirtualKeyboardCellPhoneStyle.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.VirtualKeyboardCellPhoneStyle"/>
+        Id="CellPhoneInputStyle"
+        Text="[Settings.Appearance.System.CellPhoneInputStyle]"
+        HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.CellPhoneInputStyle"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

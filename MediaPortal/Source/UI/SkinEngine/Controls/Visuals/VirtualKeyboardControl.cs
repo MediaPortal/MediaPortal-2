@@ -40,12 +40,6 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public enum VirtualKeyboardStyle
-  {
-    Full,
-    CellPhoneStyle,
-  }
-
   public enum VirtualKeyboardTextStyle
   {
     /// <summary>

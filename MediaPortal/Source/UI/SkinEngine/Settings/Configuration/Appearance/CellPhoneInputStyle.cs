@@ -28,22 +28,22 @@ using MediaPortal.Core.Configuration.ConfigurationClasses;
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration setting class to change the virtual keyboard style setting.
+  /// Configuration setting class to change the inut style setting for text controls.
   /// </summary>
-  public class VirtualKeyboardCellPhoneStyle : YesNo
+  public class CellPhoneInputStyle : YesNo
   {
     #region Public Methods
 
     public override void Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().VirtualKeyboardCellPhoneStyle;
+      _yes = SettingsManager.Load<AppSettings>().CellPhoneInputStyle;
     }
 
     public override void Save()
     {
       base.Save();
       AppSettings settings = SettingsManager.Load<AppSettings>();
-      settings.VirtualKeyboardCellPhoneStyle = _yes;
+      settings.CellPhoneInputStyle = _yes;
       SettingsManager.Save(settings);
     }
 

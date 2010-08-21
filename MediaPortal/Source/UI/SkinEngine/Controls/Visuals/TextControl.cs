@@ -140,6 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!HasFocus)
         return;
+      // TODO: Move this code to an input handler class, which is also capable of CellPhone input style
       if (key == Key.None)
         return;
      
