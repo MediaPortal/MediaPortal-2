@@ -96,19 +96,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Consts
 
-    public const string VIRTUAL_KEYBOARD_FULL_RESOURCE_PREFIX = "VirtualKeyboardLayoutFull";
-    public const string VIRTUAL_KEYBOARD_CELLPHONESTYLE_RESOURCE_PREFIX = "VirtualKeyboardLayoutCellPhoneStyle";
+    public const string VIRTUAL_KEYBOARD_RESOURCE_PREFIX = "VirtualKeyboardLayout";
 
     #endregion
 
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
-    protected VirtualKeyboardStyle _keyboardStyle = VirtualKeyboardStyle.Full;
     protected AbstractProperty _textProperty = null;
     protected VirtualKeyboardSettings _settings = null;
-    protected IDictionary<VirtualKeyboardStyle, FrameworkElement> _keyboardControlCache =
-        new Dictionary<VirtualKeyboardStyle, FrameworkElement>();
+    protected bool _updateKeyboardControl = true;
 
     protected AbstractProperty _visibleTextProperty = new SProperty(typeof(string), string.Empty);
     protected AbstractProperty _shiftStateProperty = new SProperty(typeof(bool), false);
@@ -127,7 +124,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       UnsubscribeFromMessages();
-      ClearKeyboardControlCache();
     }
 
     void Attach()
@@ -175,7 +171,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (((LocalizationMessaging.MessageType) message.MessageType) ==
             LocalizationMessaging.MessageType.LanguageChanged)
-          ClearKeyboardControlCache(); // Discard former cached keyboard layout controls because we now need controls for another language
+          _updateKeyboardControl = true; // Discard former cached keyboard layout controls because we now need controls for another language
       }
     }
 
@@ -291,31 +287,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = oldText.Substring(0, oldText.Length - 1);
     }
 
-    public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings, VirtualKeyboardStyle style)
+    public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
     {
       InitializeStates();
       _settings = settings;
       _textProperty = textProperty;
-      _keyboardStyle = style;
-      FrameworkElement keyboardControl;
-      FinishBindingsDlgt finishDlgt;
-      if (!_keyboardControlCache.TryGetValue(_keyboardStyle, out keyboardControl))
+      if (_updateKeyboardControl)
       {
-        ControlTemplate keyboardLayout = FindKeyboardLayout(_keyboardStyle);
-        if (keyboardLayout == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard style {0}", style);
-          return;
-        }
-        IList<TriggerBase> triggers;
-        keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
-        AddToKeyboardControlCache(_keyboardStyle, keyboardControl);
+        _updateKeyboardControl = false;
+        UpdateKeyboardControl();
       }
-      else
-        finishDlgt = () => { };
-      SetKeyboardControl(keyboardControl);
       IsVisible = true;
-      finishDlgt();
       TrySetFocus(true);
     }
 
@@ -332,48 +314,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       AltGrState = false;
     }
 
-    protected void AddToKeyboardControlCache(VirtualKeyboardStyle style, FrameworkElement element)
+    protected ControlTemplate FindKeyboardLayout()
     {
-      _keyboardControlCache[style] = element;
-      element.Allocate();
-    }
-
-    protected void ClearKeyboardControlCache()
-    {
-      foreach (FrameworkElement keyboardControl in _keyboardControlCache.Values)
-      {
-        keyboardControl.Deallocate();
-        keyboardControl.Dispose();
-      }
-      _keyboardControlCache.Clear();
-    }
-
-    protected ControlTemplate FindKeyboardLayout(VirtualKeyboardStyle style)
-    {
-      string styleResourcePrefix;
-      switch (_keyboardStyle)
-      {
-        case VirtualKeyboardStyle.CellPhoneStyle:
-          styleResourcePrefix = VIRTUAL_KEYBOARD_CELLPHONESTYLE_RESOURCE_PREFIX;
-          break;
-        default:
-          styleResourcePrefix = VIRTUAL_KEYBOARD_FULL_RESOURCE_PREFIX;
-          break;
-      }
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
-      return FindKeyboardLayout(styleResourcePrefix, localization.CurrentCulture);
+      return FindKeyboardLayout(localization.CurrentCulture);
     }
 
-    protected ControlTemplate FindKeyboardLayout(string styleResourcePrefix, CultureInfo culture)
+    protected ControlTemplate FindKeyboardLayout(CultureInfo culture)
     {
       // Try culture specific keyboard layouts
-      ControlTemplate result = FindResourceInTheme(styleResourcePrefix + '_' + culture.TwoLetterISOLanguageName) as ControlTemplate;
+      ControlTemplate result = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX + '_' + culture.TwoLetterISOLanguageName) as ControlTemplate;
       if (result != null)
         return result;
       if (!culture.IsNeutralCulture)
-        return FindKeyboardLayout(styleResourcePrefix, culture.Parent);
+        return FindKeyboardLayout(culture.Parent);
       // Fallback: Take default keyboard
-      return FindResourceInTheme(styleResourcePrefix) as ControlTemplate;
+      return FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX) as ControlTemplate;
     }
 
     protected object FindResourceInTheme(string resourceKey)
@@ -394,12 +350,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeFinder(typeof(VirtualKeyboardPresenter))) as VirtualKeyboardPresenter;
     }
 
-    protected void SetKeyboardControl(FrameworkElement keyboardControl)
+    protected void UpdateKeyboardControl()
     {
       VirtualKeyboardPresenter presenter = FindVirtualKeyboardPresenter();
       if (presenter == null)
         return;
-      presenter.SetKeyboardControl(this, keyboardControl);
+      ControlTemplate keyboardLayout = FindKeyboardLayout();
+      if (keyboardLayout == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard");
+        return;
+      }
+      FinishBindingsDlgt finishDlgt;
+      IList<TriggerBase> triggers;
+      FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
+      presenter.SetKeyboardLayoutControl(this, keyboardControl);
+      finishDlgt();
     }
 
     protected override void ArrangeTemplateControl()

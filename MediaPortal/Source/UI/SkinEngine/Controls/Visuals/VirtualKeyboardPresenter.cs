@@ -30,32 +30,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class VirtualKeyboardPresenter : FrameworkElement
   {
-    protected FrameworkElement _currentKeyboardControl = null;
+    protected FrameworkElement _keyboardLayoutControl = null;
 
-    public FrameworkElement CurrentKeyboardControl
+    public FrameworkElement KeyboardLayoutControl
     {
-      get { return _currentKeyboardControl; }
+      get { return _keyboardLayoutControl; }
     }
 
-    public void SetKeyboardControl(VirtualKeyboardControl parent, FrameworkElement keyboardControl)
+    public void SetKeyboardLayoutControl(VirtualKeyboardControl parent, FrameworkElement keyboardLayoutControl)
     {
-      FrameworkElement oldKeyboardControl = _currentKeyboardControl;
-      _currentKeyboardControl = null;
+      FrameworkElement oldKeyboardControl = _keyboardLayoutControl;
+      _keyboardLayoutControl = null;
       if (oldKeyboardControl != null)
         oldKeyboardControl.VisualParent = null;
-      if (keyboardControl == null)
+      if (keyboardLayoutControl == null)
         return;
-      keyboardControl.Context = parent;
-      keyboardControl.SetScreen(Screen);
-      keyboardControl.VisualParent = this;
-      _currentKeyboardControl = keyboardControl;
+      keyboardLayoutControl.Context = parent;
+      keyboardLayoutControl.SetScreen(Screen);
+      keyboardLayoutControl.VisualParent = this;
+      _keyboardLayoutControl = keyboardLayoutControl;
       InvalidateLayout();
     }
 
     public override void DoRender(RenderContext localRenderContext)
     {
       base.DoRender(localRenderContext);
-      FrameworkElement keyboardControl = _currentKeyboardControl;
+      FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
         return;
       keyboardControl.Render(localRenderContext);
@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      FrameworkElement keyboardControl = _currentKeyboardControl;
+      FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
         return new SizeF();
       keyboardControl.Measure(ref totalSize);
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override void ArrangeOverride()
     {
       base.ArrangeOverride();
-      FrameworkElement keyboardControl = _currentKeyboardControl;
+      FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
         return;
       keyboardControl.Arrange(_innerRect);
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      FrameworkElement keyboardControl = _currentKeyboardControl;
+      FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl != null)
         childrenOut.Add(keyboardControl);
     }

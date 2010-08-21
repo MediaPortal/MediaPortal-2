@@ -23,7 +23,7 @@
     </Setter>
   </Style>
 
-  <ControlTemplate x:Key="VirtualKeyboardLayoutFull">
+  <ControlTemplate x:Key="VirtualKeyboardLayout">
     <Grid x:Name="FullKeyboardLayout">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/> <!-- Control buttons -->

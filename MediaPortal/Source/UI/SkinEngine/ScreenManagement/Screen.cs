@@ -271,8 +271,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (virtualKeyboardControl == null)
         return;
       AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
-      virtualKeyboardControl.Show(textProperty, settings,
-          appSettings.VirtualKeyboardCellPhoneStyle ? VirtualKeyboardStyle.CellPhoneStyle : VirtualKeyboardStyle.Full);
+      virtualKeyboardControl.Show(textProperty, settings);
     }
 
     /// <summary>
