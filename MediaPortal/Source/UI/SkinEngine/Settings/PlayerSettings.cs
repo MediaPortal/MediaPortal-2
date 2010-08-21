@@ -28,7 +28,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
 {
   public class PlayerSettings
   {
-    string _defaultGeometry;
+    protected string _defaultGeometry;
 
     [Setting(SettingScope.User, Geometry.GeometryNormal.NAME)]
     public string DefaultGeometry

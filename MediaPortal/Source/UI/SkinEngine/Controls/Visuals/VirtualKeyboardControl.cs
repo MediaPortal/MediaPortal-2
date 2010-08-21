@@ -28,6 +28,7 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
@@ -42,8 +43,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public enum VirtualKeyboardStyle
   {
     Full,
-    Text,
-    Numbers,
     CellPhoneStyle,
   }
 
@@ -67,18 +66,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public class VirtualKeyboardSettings
   {
-    protected VirtualKeyboardStyle _keyboardStyle = VirtualKeyboardStyle.Full;
     protected VirtualKeyboardTextStyle _textStyle = VirtualKeyboardTextStyle.None;
     protected RectangleF? _elementArrangeBounds = null;
-
-    /// <summary>
-    /// Gets or sets the style of the virtual keyboard.
-    /// </summary>
-    public VirtualKeyboardStyle KeyboardStyle
-    {
-      get { return _keyboardStyle; }
-      set { _keyboardStyle = value; }
-    }
 
     /// <summary>
     /// Gets or sets a value indicating how the virtual keyboard shows the edited text.
@@ -108,8 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Consts
 
     public const string VIRTUAL_KEYBOARD_FULL_RESOURCE_PREFIX = "VirtualKeyboardLayoutFull";
-    public const string VIRTUAL_KEYBOARD_TEXT_RESOURCE_PREFIX = "VirtualKeyboardLayoutText";
-    public const string VIRTUAL_KEYBOARD_NUMBERS_RESOURCE_PREFIX = "VirtualKeyboardLayoutNumbers";
     public const string VIRTUAL_KEYBOARD_CELLPHONESTYLE_RESOURCE_PREFIX = "VirtualKeyboardLayoutCellPhoneStyle";
 
     #endregion
@@ -140,6 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       UnsubscribeFromMessages();
+      ClearKeyboardControlCache();
     }
 
     void Attach()
@@ -164,6 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             LocalizationMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     void UnsubscribeFromMessages()
@@ -302,19 +291,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = oldText.Substring(0, oldText.Length - 1);
     }
 
-    public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
+    public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings, VirtualKeyboardStyle style)
     {
       InitializeStates();
       _settings = settings;
       _textProperty = textProperty;
-      _keyboardStyle = settings.KeyboardStyle;
+      _keyboardStyle = style;
       FrameworkElement keyboardControl;
       FinishBindingsDlgt finishDlgt;
       if (!_keyboardControlCache.TryGetValue(_keyboardStyle, out keyboardControl))
       {
         ControlTemplate keyboardLayout = FindKeyboardLayout(_keyboardStyle);
         if (keyboardLayout == null)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard style {0}", style);
           return;
+        }
         IList<TriggerBase> triggers;
         keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
         AddToKeyboardControlCache(_keyboardStyle, keyboardControl);
@@ -361,12 +353,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       string styleResourcePrefix;
       switch (_keyboardStyle)
       {
-        case VirtualKeyboardStyle.Text:
-          styleResourcePrefix = VIRTUAL_KEYBOARD_TEXT_RESOURCE_PREFIX;
-          break;
-        case VirtualKeyboardStyle.Numbers:
-          styleResourcePrefix = VIRTUAL_KEYBOARD_NUMBERS_RESOURCE_PREFIX;
-          break;
         case VirtualKeyboardStyle.CellPhoneStyle:
           styleResourcePrefix = VIRTUAL_KEYBOARD_CELLPHONESTYLE_RESOURCE_PREFIX;
           break;
@@ -434,7 +420,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         keyboardRect = new RectangleF(new PointF( 
             elementArrangeBounds.Value.Left + elementArrangeBounds.Value.Width / 2 - keyboardSize.Width / 2,
             elementArrangeBounds.Value.Bottom + keyboardSize.Height > actualBounds.Bottom ?
-            actualBounds.Bottom - keyboardSize.Height : elementArrangeBounds.Value.Bottom),
+            elementArrangeBounds.Value.Top - keyboardSize.Height : elementArrangeBounds.Value.Bottom),
             keyboardSize);
       else
         // Center in actualBounds

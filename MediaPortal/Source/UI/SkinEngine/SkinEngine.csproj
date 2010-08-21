@@ -182,6 +182,7 @@
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
+    <Compile Include="Settings\Configuration\Appearance\VirtualKeyboardCellPhoneStyle.cs" />
     <Compile Include="Settings\Configuration\Players\DefaultGeometry.cs" />
     <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />

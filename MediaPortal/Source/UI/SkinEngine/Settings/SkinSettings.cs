@@ -28,8 +28,8 @@ namespace MediaPortal.UI.SkinEngine.Settings
 {
   public class SkinSettings
   {
-    string _skin;
-    string _theme;
+    protected string _skin;
+    protected string _theme;
 
     [Setting(SettingScope.User, "default")]
     public string Skin

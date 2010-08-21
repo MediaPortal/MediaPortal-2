@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -32,6 +33,7 @@ using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -268,8 +270,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       VirtualKeyboardControl virtualKeyboardControl = VirtualKeyboardControl;
       if (virtualKeyboardControl == null)
         return;
-      virtualKeyboardControl.Show(textProperty, settings);
-      virtualKeyboardControl.IsVisible = true;
+      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      virtualKeyboardControl.Show(textProperty, settings,
+          appSettings.VirtualKeyboardCellPhoneStyle ? VirtualKeyboardStyle.CellPhoneStyle : VirtualKeyboardStyle.Full);
     }
 
     /// <summary>

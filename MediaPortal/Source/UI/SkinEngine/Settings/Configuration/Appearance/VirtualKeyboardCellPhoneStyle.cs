@@ -24,31 +24,27 @@
 #endregion
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
-using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration setting class to change the fullscreen setting.
+  /// Configuration setting class to change the virtual keyboard style setting.
   /// </summary>
-  public class Fullscreen : YesNo
+  public class VirtualKeyboardCellPhoneStyle : YesNo
   {
     #region Public Methods
 
     public override void Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().FullScreen;
+      _yes = SettingsManager.Load<AppSettings>().VirtualKeyboardCellPhoneStyle;
     }
 
     public override void Save()
     {
-      IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-      // The called methods will change the entry in the setting
-      if (_yes)
-        sc.SwitchMode(ScreenMode.FullScreen);
-      else
-        sc.SwitchMode(ScreenMode.NormalWindowed);
+      base.Save();
+      AppSettings settings = SettingsManager.Load<AppSettings>();
+      settings.VirtualKeyboardCellPhoneStyle = _yes;
+      SettingsManager.Save(settings);
     }
 
     #endregion

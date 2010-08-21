@@ -58,6 +58,11 @@
         Text="[Settings.Appearance.System.Fullscreen]"
         HelpText="[Settings.Appearance.System.Fullscreen.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
+    <ConfigSetting
+        Id="VirtualKeyboardStyle"
+        Text="[Settings.Appearance.System.VirtualKeyboardStyle]"
+        HelpText="[Settings.Appearance.System.VirtualKeyboardCellPhoneStyle.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.VirtualKeyboardCellPhoneStyle"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

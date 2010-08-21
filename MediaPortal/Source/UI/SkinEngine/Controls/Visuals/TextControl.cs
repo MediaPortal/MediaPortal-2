@@ -275,7 +275,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           screen.ShowVirtualKeyboard(_textProperty, new VirtualKeyboardSettings
             {
                 ElementArrangeBounds = ActualBounds,
-                KeyboardStyle = VirtualKeyboardStyle.Full,
                 TextStyle = VirtualKeyboardTextStyle.None
             });
       }

@@ -28,13 +28,21 @@ namespace MediaPortal.UI.SkinEngine.Settings
 {
   public class AppSettings
   {
-    private bool _fullScreen;
+    protected bool _fullScreen;
+    protected bool _virtualKeyboardCellPhoneStyle;
 
     [Setting(SettingScope.User, false)]
     public bool FullScreen
     {
       get { return _fullScreen; }
       set { _fullScreen = value; }
+    }
+
+    [Setting(SettingScope.User, false)]
+    public bool VirtualKeyboardCellPhoneStyle
+    {
+      get { return _virtualKeyboardCellPhoneStyle; }
+      set { _virtualKeyboardCellPhoneStyle = value; }
     }
   }
 }
