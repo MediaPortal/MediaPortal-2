@@ -299,7 +299,7 @@ namespace MediaPortal.UI.Services.Workflow
         while (IsModelContainedInNavigationStack(modelId))
           if (!DoPopNavigationContext(1))
             break;
-        UpdateScreen_NeedsLock();
+        UpdateScreen_NeedsLock(false);
       }
       finally
       {
@@ -561,7 +561,7 @@ namespace MediaPortal.UI.Services.Workflow
     /// <remarks>
     /// If the batch update mode is set, this method will just cache the screen update.
     /// </remarks>
-    protected void UpdateScreen_NeedsLock()
+    protected void UpdateScreen_NeedsLock(bool push)
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
@@ -590,8 +590,21 @@ namespace MediaPortal.UI.Services.Workflow
       }
       else if (workflowType == WorkflowType.Dialog)
       {
-        logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
-        result = screenManager.ShowDialog(screen, dialogName => NavigatePopToState(currentContext.WorkflowState.StateId, true));
+        if (push)
+        {
+          logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
+          result = screenManager.ShowDialog(screen, dialogName => NavigatePopToState(currentContext.WorkflowState.StateId, true));
+        }
+        else
+        {
+          // When states were popped, remove all screens on top of our workflow state dialog screen
+          while (screenManager.IsDialogVisible && screenManager.ActiveScreenName != screen)
+          {
+            logger.Info("WorkflowManager: Closing dialog screen '{0}' to make current workflow state dialog screen '{1}' visible", screenManager.ActiveScreenName, screen);
+            screenManager.CloseDialog();
+          }
+          result = true;
+        }
       }
       else
         throw new NotImplementedException(string.Format("WorkflowManager: WorkflowType '{0}' is not implemented", workflowType));
@@ -678,7 +691,7 @@ namespace MediaPortal.UI.Services.Workflow
           throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
         if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock();
+          UpdateScreen_NeedsLock(true);
         WorkflowManagerMessaging.SendNavigationCompleteMessage();
       }
       finally
@@ -698,7 +711,7 @@ namespace MediaPortal.UI.Services.Workflow
       try
       {
         if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock();
+          UpdateScreen_NeedsLock(true);
         WorkflowManagerMessaging.SendNavigationCompleteMessage();
       }
       finally
@@ -713,7 +726,7 @@ namespace MediaPortal.UI.Services.Workflow
       try
       {
         DoPopNavigationContext(count);
-        UpdateScreen_NeedsLock();
+        UpdateScreen_NeedsLock(false);
         WorkflowManagerMessaging.SendNavigationCompleteMessage();
       }
       finally
@@ -743,7 +756,7 @@ namespace MediaPortal.UI.Services.Workflow
         }
         if (removed)
         {
-          UpdateScreen_NeedsLock();
+          UpdateScreen_NeedsLock(false);
           WorkflowManagerMessaging.SendNavigationCompleteMessage();
           return true;
         }
@@ -770,7 +783,7 @@ namespace MediaPortal.UI.Services.Workflow
         }
         if (removed)
         {
-          UpdateScreen_NeedsLock();
+          UpdateScreen_NeedsLock(false);
           WorkflowManagerMessaging.SendNavigationCompleteMessage();
           return true;
         }
