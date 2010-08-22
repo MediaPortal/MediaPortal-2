@@ -25,6 +25,9 @@
 using System.Data;
 using FirebirdSql.Data.FirebirdClient;
 using MediaPortal.Backend.Database;
+#if DEBUG
+using MediaPortal.Backend.Services.Database;
+#endif
 
 namespace MediaPortal.BackendComponents.Database.Firebird
 {
@@ -102,12 +105,10 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public IDbCommand CreateCommand()
     {
-      IDbCommand result;
+      IDbCommand result = _connection.CreateCommand();
 #if DEBUG
-      // return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-      result = new LoggingDbCommandWrapper(_connection.CreateCommand());
-#else
-      result =_connection.CreateCommand();
+      // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+      result = new LoggingDbCommandWrapper(result);
 #endif
       result.Transaction = _transaction;
       return result;

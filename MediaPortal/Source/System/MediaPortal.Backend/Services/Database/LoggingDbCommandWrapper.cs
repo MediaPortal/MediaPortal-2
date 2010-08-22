@@ -23,18 +23,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
-using FirebirdSql.Data.FirebirdClient;
-using MediaPortal.Core;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Core.Services.Logging;
 using MediaPortal.Core.Services.PathManager;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.BackendComponents.Database.Firebird
+namespace MediaPortal.Backend.Services.Database
 {
   /// <summary>
   /// Wrapper class for DB commands to support debug logging.
@@ -43,14 +39,14 @@ namespace MediaPortal.BackendComponents.Database.Firebird
   {
     #region Private variables
 
-    private static FileLogger sqlDebugLog = FileLogger.CreateFileLogger(new PathManager().GetPath(@"<LOG>\SQLDebug.log"), MediaPortal.Core.Logging.LogLevel.Debug, false, true);
-    private FbCommand _command = null;
+    private static readonly FileLogger sqlDebugLog = FileLogger.CreateFileLogger(new PathManager().GetPath(@"<LOG>\SQLDebug.log"), Core.Logging.LogLevel.Debug, false, true);
+    private readonly IDbCommand _command = null;
 
     #endregion
 
     #region Constructor
 
-    public LoggingDbCommandWrapper(FbCommand command)
+    public LoggingDbCommandWrapper(IDbCommand command)
     {
       _command = command;
     }
@@ -59,13 +55,12 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     #region Member
 
-
-    private void DumpCommand()
+    protected void DumpCommand()
     {
       DumpCommand(false, 0);
     }
 
-    private void DumpCommand(bool includeParameters, int timeSpanMs)
+    protected void DumpCommand(bool includeParameters, int timeSpanMs)
     {
       StringBuilder sbLogText = new StringBuilder();
       sbLogText.Append("\r\n-------------------------------------------------------");
@@ -133,7 +128,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       }
       set
       {
-        _command.Connection = (FbConnection)value;
+        _command.Connection = value;
       }
     }
 
@@ -212,7 +207,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       }
       set
       {
-        _command.Transaction = (FbTransaction)value;
+        _command.Transaction = value;
       }
     }
 

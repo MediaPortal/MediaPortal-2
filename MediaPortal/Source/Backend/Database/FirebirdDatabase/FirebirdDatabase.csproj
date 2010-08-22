@@ -53,7 +53,6 @@
   <ItemGroup>
     <Compile Include="FirebirdSQLDatabase.cs" />
     <Compile Include="FirebirdTransaction.cs" />
-    <Compile Include="LoggingDbCommandWrapper.cs" />
     <Compile Include="Settings\FirebirdSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
