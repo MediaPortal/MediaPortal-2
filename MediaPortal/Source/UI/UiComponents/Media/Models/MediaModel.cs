@@ -318,7 +318,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_AUDIO_ITEMS_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, false, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None))
             };
           _playMenuItems.Add(enqueueItem);
         }
@@ -326,7 +326,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItemConcurrently = new ListItem(Consts.NAME_KEY, Consts.MUTE_VIDEO_PLAY_AUDIO_ITEMS_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, true, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
           _playMenuItems.Add(playItemConcurrently);
         }
@@ -342,7 +342,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_VIDEO_ITEMS_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, false, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None))
             };
           _playMenuItems.Add(enqueueItem);
         }
@@ -350,7 +350,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItem_A = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, true, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio))
             };
           _playMenuItems.Add(playItem_A);
         }
@@ -358,7 +358,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItem_V = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEMS_PIP_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, true, true))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
           _playMenuItems.Add(playItem_V);
         }
@@ -383,10 +383,10 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-      PlayOrEnqueueItems(getMediaItemsFunction, avType, true, false, false);
+      PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.None);
     }
 
-    protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, bool concurrent, bool subordinatedVideo)
+    protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       string contextName;
@@ -399,16 +399,16 @@ namespace MediaPortal.UiComponents.Media.Models
         IList<IPlayerContext> playerContexts = new List<IPlayerContext>(
             pcm.GetPlayerContextsByMediaModuleId(Consts.MEDIA_MODULE_ID).Where(playerContext => playerContext.AVType == avType));
         // In case the media type is audio, we have max. one player context of that type. In case media type is
-        // video, we might have two. Which one is the correct one depends on parameter subordinatedVideo.
-        pc = subordinatedVideo ? playerContexts.LastOrDefault() : playerContexts.FirstOrDefault();
+        // video, we might have two. But we handle enqueue only for the first video player context.
+        pc = playerContexts.FirstOrDefault();
       }
       if (pc == null)
         // No player context to reuse - so open a new one
         if (avType == AVType.Video)
-          pc = pcm.OpenVideoPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrent, subordinatedVideo,
+          pc = pcm.OpenVideoPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrencyMode,
               Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID);
         else if (avType == AVType.Audio)
-          pc = pcm.OpenAudioPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrent,
+          pc = pcm.OpenAudioPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrencyMode == PlayerContextConcurrencyMode.ConcurrentVideo,
               Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID);
       if (pc == null)
         return null;
@@ -426,19 +426,15 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="getMediaItemsFunction">Function returning the media items to be played.</param>
     /// <param name="avType">AV type of media items returned.</param>
     /// <param name="play">If <c>true</c>, plays the specified items, else enqueues it.</param>
-    /// <param name="concurrent">If set to <c>true</c>, the items will be played concurrently to
-    /// an already playing player. Else, all other players will be stopped first.</param>
-    /// <param name="subordinatedVideo">If set to <c>true</c>, a video item will be played in PiP mode, if
-    /// applicable.</param>
+    /// <param name="concurrencyMode">Determines if the media item will be played or enqueued in concurrency mode.</param>
     protected static void PlayOrEnqueueItems(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
-        bool play, bool concurrent, bool subordinatedVideo)
+        bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
-      IPlayerContext pc = PreparePlayerContext(avType, play, concurrent, subordinatedVideo);
+      IPlayerContext pc = PreparePlayerContext(avType, play, concurrencyMode);
       if (pc == null)
         return;
 
-      // TODO: Save playlist in this model instance so that they are still able to be accessed later,
-      // after the player has closed
+      // TODO: Save playlist here so that we are still able access it later, after the player has closed
       pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
@@ -489,7 +485,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_AUDIO_ITEM_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None))
             };
           _playMenuItems.Add(enqueueItem);
         }
@@ -497,7 +493,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItemConcurrently = new ListItem(Consts.NAME_KEY, Consts.MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
           _playMenuItems.Add(playItemConcurrently);
         }
@@ -513,7 +509,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_VIDEO_ITEM_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None))
             };
           _playMenuItems.Add(enqueueItem);
         }
@@ -521,7 +517,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItem_A = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio))
             };
           _playMenuItems.Add(playItem_A);
         }
@@ -529,7 +525,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           ListItem playItem_V = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEM_PIP_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, true))
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
           _playMenuItems.Add(playItem_V);
         }
@@ -566,7 +562,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-      PlayOrEnqueueItem(item, true, false, false);
+      PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.None);
     }
 
     public static bool GetPlayerContextNameForMediaType(AVType avType, out string contextName)
@@ -591,15 +587,12 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </summary>
     /// <param name="item">Media item to be played.</param>
     /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
-    /// <param name="concurrent">If set to <c>true</c>, the <paramref name="item"/> will be played concurrently to
-    /// an already playing player. Else, all other players will be stopped first.</param>
-    /// <param name="subordinatedVideo">If set to <c>true</c>, a video item will be played in PiP mode, if
-    /// applicable.</param>
-    protected static void PlayOrEnqueueItem(MediaItem item, bool play, bool concurrent, bool subordinatedVideo)
+    /// <param name="concurrencyMode">Determines if the media item will be played or enqueued in concurrency mode.</param>
+    protected static void PlayOrEnqueueItem(MediaItem item, bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       AVType avType = pcm.GetTypeOfMediaItem(item);
-      IPlayerContext pc = PreparePlayerContext(avType, play, concurrent, subordinatedVideo);
+      IPlayerContext pc = PreparePlayerContext(avType, play, concurrencyMode);
       if (pc == null)
         return;
 

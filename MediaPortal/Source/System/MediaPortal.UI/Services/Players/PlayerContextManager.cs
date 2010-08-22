@@ -514,14 +514,14 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrent, Guid currentlyPlayingWorkflowStateId,
+    public IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrentVideo, Guid currentlyPlayingWorkflowStateId,
         Guid fullscreenContentWorkflowStateId)
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         int numActive = playerManager.NumActiveSlots;
-        if (concurrent)
+        if (concurrentVideo)
         {
           // Solve conflicts - close conflicting slots
           if (numActive > 1)
@@ -529,7 +529,7 @@ namespace MediaPortal.UI.Services.Players
           if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
             playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
         }
-        else // !concurrent
+        else // !concurrentVideo
           // Don't enable concurrent controllers: Close all except the primary slot controller
           playerManager.CloseAllSlots();
         // Open new slot
@@ -542,7 +542,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, bool concurrent, bool subordinatedVideo,
+    public IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, PlayerContextConcurrencyMode concurrencyMode,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
@@ -551,57 +551,51 @@ namespace MediaPortal.UI.Services.Players
         int numActive = playerManager.NumActiveSlots;
         IPlayerSlotController slotController;
         int slotIndex;
-        if (concurrent)
-          // Solve conflicts - close conflicting slots
-          if (numActive > 1)
-            if (GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).AVType == AVType.Audio)
-              if (subordinatedVideo)
-              {
-                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-                playerManager.OpenSlot(out slotIndex, out slotController);
-                playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-              }
-              else
-              {
-                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
-                playerManager.OpenSlot(out slotIndex, out slotController);
-                playerManager.SwitchSlots();
-                playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-              }
-            else // PC(SECONDARY).Type != Audio
-            {
-              playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-              if (!subordinatedVideo)
-                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+        switch (concurrencyMode)
+        {
+          case PlayerContextConcurrencyMode.ConcurrentAudio:
+            if (numActive > 1 && GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).AVType == AVType.Audio)
+            { // The secondary slot is an audio player slot
+              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
               playerManager.OpenSlot(out slotIndex, out slotController);
-              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              playerManager.SwitchSlots();
+              playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
-          else if (numActive == 1)
-            if (GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
-            {
+            else if (numActive == 1 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
+            { // The primary slot is an audio player slot
               playerManager.OpenSlot(out slotIndex, out slotController);
               // Make new video slot the primary slot
               playerManager.SwitchSlots();
               playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
-            else // PC(PRIMARY).Type != Audio
-            {
-              if (!subordinatedVideo)
-                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+            else
+            { // No audio slot available
+              playerManager.CloseAllSlots();
               playerManager.OpenSlot(out slotIndex, out slotController);
               playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
-          else // numActive == 0
-          {
+            break;
+          case PlayerContextConcurrencyMode.ConcurrentVideo:
+            if (numActive >= 1 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Video)
+            { // The primary slot is a video player slot
+              if (numActive > 1)
+                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+              playerManager.OpenSlot(out slotIndex, out slotController);
+              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+            }
+            else
+            {
+              playerManager.CloseAllSlots();
+              playerManager.OpenSlot(out slotIndex, out slotController);
+              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+            }
+            break;
+            default:
+            // Don't enable concurrent controllers: Close all except the primary slot controller
+            playerManager.CloseAllSlots();
             playerManager.OpenSlot(out slotIndex, out slotController);
             playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-          }
-        else // !concurrent
-        {
-          // Don't enable concurrent controllers: Close all except the primary slot controller
-          playerManager.CloseAllSlots();
-          playerManager.OpenSlot(out slotIndex, out slotController);
-          playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+            break;
         }
         return new PlayerContext(this, slotController, mediaModuleId, name, AVType.Video,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);

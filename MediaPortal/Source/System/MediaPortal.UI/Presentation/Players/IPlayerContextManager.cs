@@ -61,6 +61,27 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
+  /// Tells the called method, which player type should be played concurrently.
+  /// </summary>
+  public enum PlayerContextConcurrencyMode
+  {
+    /// <summary>
+    /// No concurrent playing - all open player slots will be closed.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// An already playing audio player will be left open and played concurrently.
+    /// </summary>
+    ConcurrentAudio,
+
+    /// <summary>
+    /// An already playing video player will be left open (as primary player) and played concurrently.
+    /// </summary>
+    ConcurrentVideo,
+  }
+
+  /// <summary>
   /// Used as a parameter for methods which can work on either player to describe which player is meant.
   /// </summary>
   public enum PlayerChoice
@@ -223,20 +244,20 @@ namespace MediaPortal.UI.Presentation.Players
 
     /// <summary>
     /// Opens an audio player context. This will replace a running audio player context, if present. If a video player is
-    /// active, it depends on the parameter <paramref name="concurrent"/> whether the video player context will be
+    /// active, it depends on the parameter <paramref name="concurrentVideo"/> whether the video player context will be
     /// deactivated or not.
     /// </summary>
     /// <remarks>
     /// The returned player context off course does not play yet; its playlist first has to be filled. For a streaming
     /// player, the playlist will typically be filled with one single URL entry, while for resource based players, the
     /// playlist typically will contain multiple entries.
-    /// After the playlist was filled, the player context has to be started.
+    /// After the playlist was filled, the player context can be started.
     /// </remarks>
     /// <param name="mediaModuleId">Id of the requesting media module. The new player context will be sticked to the specified
     /// module.</param>
     /// <param name="name">A name for the new player context. The name will be shown in each skin control which
     /// represents the player context.</param>
-    /// <param name="concurrent">If set to <c>true</c>, an already active video player will continue to play muted.
+    /// <param name="concurrentVideo">If set to <c>true</c>, an already active video player will continue to play muted.
     /// If set to <c>false</c>, an active video player context will be deactivated.</param>
     /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing
     /// workflow state for the new player context.</param>
@@ -244,33 +265,32 @@ namespace MediaPortal.UI.Presentation.Players
     /// workflow state for the new player context.</param>
     /// <returns>Descriptor object for the new audio player context. The returned player context will be installed
     /// into the system but is not playing yet.</returns>
-    IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrent,
+    IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrentVideo,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
 
     /// <summary>
-    /// Opens a video player context. If there is already an active player, it depends on the parameter
-    /// <paramref name="concurrent"/> whether the already active player context will be deactivated or not.
-    /// If there is already a video player active, it depends on the <paramref name="subordinatedVideo"/> parameter
-    /// whether the new video player will be run in picture-in-picture mode (PiP) or whether the active player will
-    /// be replaced by the new player.
+    /// Opens a video player context. If there are already active players, the parameter
+    /// 
+    /// 
+    /// If there is already an active player, it depends on the parameter <paramref name="concurrencyMode"/> determines
+    /// if and which of the open player contexts will be left open.
     /// </summary>
     /// <remarks>
     /// <para>
     /// This method has to handle many conflict situations with already running players. Almost all conflict situations
-    /// can be controlled by setting the parameters <paramref name="concurrent"/> and <paramref name="subordinatedVideo"/>.
-    /// The situation where there are already a primary and a secondary (PiP) video player is a very complicated situation,
-    /// where not every possible combination can be achieved by this method; you cannot automatically preserve the PiP
-    /// player, as always the PiP video player will be removed:
-    /// If <paramref name="concurrent"/> is set to <c>false</c>, all active players will be deactivated first.
-    /// If <paramref name="concurrent"/> is set to <c>true</c>, always the secondary active player (which is used for
-    /// PiP) will be deactivated. So to exchange the primary player with a new player, while the secondary (PiP) player
-    /// should be preserved, you need to do this manually (switching the players).
+    /// can be controlled by setting the parameter <paramref name="concurrencyMode"/>.
+    /// The situation where there are already a primary as well as a secondary (PiP) video player cannot be controlled
+    /// by that parameter completely; In that case, the secondary (PiP) player will be closed in every case while the
+    /// primary player will be left open when parameter <paramref name="concurrencyMode"/> is set to
+    /// <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>.
+    /// So to exchange the primary player with a new player, while the secondary (PiP) player
+    /// should be preserved, you need to do this manually (switching the players first).
     /// </para>
     /// <para>
     /// The returned player context off course does not play yet; its playlist first has to be filled. For a streaming
     /// player, the playlist will typically be filled with one single URL entry, while for resource based players, the
     /// playlist typically will contain multiple entries.
-    /// After the playlist was filled, the player context has to be started.
+    /// After the playlist was filled, the player context can be started.
     /// </para>
     /// <para>
     /// If the audio signal should be taken from the new video player context, the audio slot index should to be changed
@@ -281,21 +301,17 @@ namespace MediaPortal.UI.Presentation.Players
     /// module.</param>
     /// <param name="name">A name for the new player context. The name will be shown in each skin control which
     /// represents the player context.</param>
-    /// <param name="concurrent">If set to <c>true</c>, an already active player will continue to play and the new
-    /// video player context will be muted if the active player provides an audio signal.
-    /// If set to <c>false</c>, an active player context will be deactivated.</param>
-    /// <param name="subordinatedVideo">This parameter is only evaluated when the <paramref name="concurrent"/> parameter
-    /// is set to <c>true</c>. If <paramref name="subordinatedVideo"/> is set to <c>true</c>, an already active primary
-    /// video player will continue playing in the primary player slot, and the new player context will be created as
-    /// secondary player/PiP.
-    /// If set to <c>false</c>, an already active primary video player context will be replaced by the new player
-    /// context.</param>
+    /// <param name="concurrencyMode">If set to <see cref="PlayerContextConcurrencyMode.ConcurrentAudio"/>, an already
+    /// active audio player will continue to play and the new video player context will be muted.
+    /// If set to <see cref="PlayerContextConcurrencyMode.ConcurrentVideo"/>, an already active audio player context will be
+    /// deactivated while an already active video player context will continue to play. If a video player context was
+    /// available, the new player context will be used as secondary (PiP) player and be muted.</param>
     /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing
     /// workflow state for the new player context.</param>
     /// <param name="fullscreenContentWorkflowStateId">The id of the workflow state to be used as fullscreen content
     /// workflow state for the new player context.</param>
     /// <returns>Descriptor object for the new video player context.</returns>
-    IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, bool concurrent, bool subordinatedVideo,
+    IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, PlayerContextConcurrencyMode concurrencyMode,
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
 
     /// <summary>
