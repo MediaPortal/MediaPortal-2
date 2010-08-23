@@ -95,7 +95,14 @@ namespace MediaPortal.UI.Services.Players
           ResetPlayerEvents();
           SetSlotState(PlayerSlotState.Stopped);
           if (_player.State != PlayerState.Stopped)
-            _player.Stop();
+            try
+            {
+              _player.Stop();
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("Error stopping player '{0}'", e, _player);
+            }
           IDisposable d = _player as IDisposable;
           if (d != null)
             try
