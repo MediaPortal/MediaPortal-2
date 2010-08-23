@@ -147,7 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Indices in the <paramref name="types"/> array correspond to indices
     /// of the <paramref name="objects"/> array. The <paramref name="types"/>
     /// array may contain more elements than the <paramref name="objects"/> array.</param>
-    /// <param name="convertedIndices">Returns the array of converted objects.
+    /// <param name="convertedObjects">Returns the array of converted objects.
     /// The size of this returned array is the same as the size of the
     /// <paramref name="objects"/> array.</param>
     /// <returns><c>true</c>, if the conversion was successful for all objects
@@ -155,19 +155,23 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <exception cref="XamlBindingException">If the number of objects given is greater than
     /// the number of types given.</exception>
     public static bool ConvertTypes(IEnumerable<object> objects, Type[] types,
-        out object[] convertedIndices)
+        out object[] convertedObjects)
     {
       // Convert objects to index types
-      convertedIndices = new object[types.Length];
+      convertedObjects = null;
+      List<object> result = new List<object>(types.Length);
       int current = 0;
       foreach (object obj in objects)
       {
         if (current >= types.Length)
           return false;
-        if (!TypeConverter.Convert(obj, types[current], out convertedIndices[current]))
+        object converted;
+        if (!TypeConverter.Convert(obj, types[current], out converted))
           return false;
+        result.Add(converted);
         current++;
       }
+      convertedObjects = result.ToArray();
       return true;
     }
 
