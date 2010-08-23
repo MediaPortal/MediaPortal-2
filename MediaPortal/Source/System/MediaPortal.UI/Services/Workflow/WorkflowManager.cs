@@ -471,11 +471,12 @@ namespace MediaPortal.UI.Services.Workflow
           if (oldContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
           {
             IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-            if (screenManager.IsDialogVisible && screenManager.ActiveScreenName == oldContext.WorkflowState.MainScreen)
-              // In fact this will trigger our close dialog delegate which we attached in the UpdateScreen_NeedsLock method,
-              // but the anonymous close event delegate checks the current navigation context, which has already been
-              // removed here (see method UpdateScreen_NeedsLock)
-              screenManager.CloseDialog();
+            // In fact this will trigger our close dialog delegate which we attached in the UpdateScreen_NeedsLock method,
+            // but the anonymous close event delegate checks the current navigation context, which has already been
+            // removed here (see method UpdateScreen_NeedsLock)
+            Guid? dialogInstanceId = oldContext.DialogInstanceId;
+            if (dialogInstanceId.HasValue)
+              screenManager.CloseDialogs(oldContext.DialogInstanceId.Value, false);
           }
           NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
           Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
@@ -586,23 +587,27 @@ namespace MediaPortal.UI.Services.Workflow
       if (workflowType == WorkflowType.Workflow)
       {
         logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
-        result = screenManager.ShowScreen(screen);
+        result = screenManager.ShowScreen(screen).HasValue;
       }
       else if (workflowType == WorkflowType.Dialog)
       {
         if (push)
         {
           logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
-          result = screenManager.ShowDialog(screen, dialogName => NavigatePopToState(currentContext.WorkflowState.StateId, true));
+          Guid? dialogInstanceId = screenManager.ShowDialog(screen, (dialogName, instanceId) => NavigatePopToState(currentContext.WorkflowState.StateId, true));
+          if (dialogInstanceId.HasValue)
+          {
+            currentContext.DialogInstanceId = dialogInstanceId.Value;
+            result = true;
+          }
+          else
+            result = false;
         }
         else
-        {
-          // When states were popped, remove all screens on top of our workflow state dialog screen
-          while (screenManager.IsDialogVisible && screenManager.ActiveScreenName != screen)
-          {
-            logger.Info("WorkflowManager: Closing dialog screen '{0}' to make current workflow state dialog screen '{1}' visible", screenManager.ActiveScreenName, screen);
-            screenManager.CloseDialog();
-          }
+        { // When states were popped, remove all screens on top of our workflow state dialog screen
+          Guid? dialogInstanceId = currentContext.DialogInstanceId;
+          if (dialogInstanceId.HasValue)
+            screenManager.CloseDialogs(currentContext.DialogInstanceId.Value, false);
           result = true;
         }
       }

@@ -45,9 +45,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Menu_Command -->
     <CommandList x:Key="Menu_Command">
       <!-- We close the dialog before executing the Execute_Command_Stencil, because if the command
-           shows another dialog, we would close the new dialog at once if we would execute the CloseDialog
+           shows another dialog, we would close the new dialog at once if we would execute the CloseTopmostDialog
            after the Execute_Command_Stencil -->
-      <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+      <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
       <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
         <InvokeCommand.CommandParameters>
           <LateBoundValue BindingValue="{Binding}"/>

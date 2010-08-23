@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
+        ServiceRegistration.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}' (Message: '{1}')", this, e.Message);
       }
     }
 

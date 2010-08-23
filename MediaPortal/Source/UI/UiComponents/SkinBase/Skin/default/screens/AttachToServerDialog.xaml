@@ -28,7 +28,7 @@
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">
             <Button Margin="10" x:Name="NoServersOkButton" Style="{ThemeResource ButtonWideStyle}"
                 Content="[System.Ok]"
-                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+                Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>
         </Grid>
         <Grid IsVisible="{Binding IsSingleServerAvailable}"> <!-- Visible if a single server is available -->
@@ -52,7 +52,7 @@
                 Content="[ServerConnection.AttachButton]" Command="{Command Source={StaticResource Model},Path=ConnectToSingleServerAndClose}"/>
             <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
                 Content="[System.Cancel]"
-                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+                Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>
         </Grid>
         <Grid IsVisible="{Binding IsMultipleServersAvailable}"> <!-- Visible if multiple servers are available -->
@@ -76,7 +76,7 @@
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Center">
             <Button Margin="10" x:Name="MultipleServersCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
                 Content="[System.Cancel]"
-                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+                Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>
         </Grid>
       </Grid>

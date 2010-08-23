@@ -27,7 +27,7 @@
             <RadioButton.Command>
               <CommandList>
                 <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
-                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
               </CommandList>
             </RadioButton.Command>
           </RadioButton>
@@ -36,7 +36,7 @@
             <RadioButton.Command>
               <CommandList>
                 <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
-                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
               </CommandList>
             </RadioButton.Command>
           </RadioButton>

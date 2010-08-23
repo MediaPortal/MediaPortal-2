@@ -22,9 +22,9 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -50,15 +50,22 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       /// <summary>
       /// Internal message to show a dialog asynchronously. The dialog to be shown will be given in the
-      /// parameter <see cref="SCREEN"/>.
+      /// parameter <see cref="DIALOG_DATA"/>.
       /// </summary>
       ShowDialog,
 
       /// <summary>
-      /// Internal message to close a dialog asynchronously. The dialog data structure of the dialog to close is
-      /// given in the parameter <see cref="DIALOG_DATA"/>.
+      /// Internal message to close a dialog asynchronously. The dialog instance id of the dialog to close is
+      /// given in the parameter <see cref="DIALOG_INSTANCE_ID"/>.
       /// </summary>
       CloseDialog,
+
+      /// <summary>
+      /// Internal message to close multiple dialogs asynchronously. The instance id of the dialog is given in the
+      /// parameter <see cref="DIALOG_INSTANCE_ID"/>. The parameter <see cref="ScreenManagerMessaging.CLOSE_DIALOGS_MODE"/>
+      /// is set to the desired close mode.
+      /// </summary>
+      CloseDialogs,
 
       /// <summary>
       /// Internal message to reload the screen and all open dialogs.
@@ -70,7 +77,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string SCREEN = "Screen"; // Type Screen
     public const string CLOSE_DIALOGS = "CloseDialogs"; // Type bool
     public const string DIALOG_DATA = "DialogData"; // Type DialogData
-    public const string DIALOG_CLOSE_CALLBACK = "DialogCloseCallback"; // Type DialogCloseCallbackDlgt
+    public const string DIALOG_INSTANCE_ID = "DialogInstanceId"; // Type Guid
+    public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
 
     internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
@@ -80,18 +88,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
-    internal static void SendMessageShowDialog(Screen dialog, DialogCloseCallbackDlgt dialogCloseCallback)
+    internal static void SendMessageShowDialog(DialogData dialogData)
     {
       SystemMessage msg = new SystemMessage(MessageType.ShowDialog);
-      msg.MessageData[SCREEN] = dialog;
-      msg.MessageData[DIALOG_CLOSE_CALLBACK] = dialogCloseCallback;
+      msg.MessageData[DIALOG_DATA] = dialogData;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
-    internal static void SendMessageCloseDialog(DialogData dd)
+    internal static void SendMessageCloseDialogs(Guid dialogInstanceId, CloseDialogsMode mode)
     {
-      SystemMessage msg = new SystemMessage(MessageType.CloseDialog);
-      msg.MessageData[DIALOG_DATA] = dd;
+      SystemMessage msg = new SystemMessage(MessageType.CloseDialogs);
+      msg.MessageData[DIALOG_INSTANCE_ID] = dialogInstanceId;
+      msg.MessageData[CLOSE_DIALOGS_MODE] = mode;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

@@ -29,6 +29,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -67,15 +68,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       protected AbstractProperty _textProperty;
       protected ItemsList _dialogButtonsList;
       protected Guid _dialogHandle;
+      protected Guid _dialogInstanceId;
 
       #endregion
 
-      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle)
+      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle, Guid dialogInstanceId)
       {
         _headerTextProperty = new SProperty(typeof(string), headerText);
         _textProperty = new SProperty(typeof(string), text);
         _dialogButtonsList = dialogButtons;
         _dialogHandle = dialogHandle;
+        _dialogInstanceId = dialogInstanceId;
       }
 
       public AbstractProperty HeaderTextProperty
@@ -108,6 +111,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public Guid DialogHandle
       {
         get { return _dialogHandle; }
+      }
+
+      public Guid DialogInstanceId
+      {
+        get { return _dialogInstanceId; }
       }
     }
 
@@ -146,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       IList<ICommand> commands = new List<ICommand>
           {
               new DialogResultCommand(dialogHandle, dialogResult),
-              new MethodDelegateCommand(screenManager.CloseDialog)
+              new MethodDelegateCommand(screenManager.CloseTopmostDialog)
           };
       result.Command = new CommandList(commands);
       if (isDefault)
@@ -159,9 +167,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _dialogData = null;
     }
 
-    protected void OnDialogClosed(string dialogName)
+    protected void OnDialogClosed(string dialogName, Guid dialogInstanceId)
     {
-      if (_dialogData != null && dialogName == GENERIC_DIALOG_SCREEN)
+      if (_dialogData != null && dialogInstanceId == _dialogData.DialogInstanceId)
       {
         DialogManagerMessaging.SendDialogManagerMessage(_dialogData.DialogHandle, DialogResult.Cancel);
         _dialogData = null;
@@ -192,9 +200,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (showCancelButton)
         buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, focusedButton == DialogButtonType.Cancel));
 
-      CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogClosed);
+      Guid? dialogInstanceId = screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogClosed);
+      if (!dialogInstanceId.HasValue)
+        throw new InvalidDataException("Generic dialog could not be shown");
+      CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle, dialogInstanceId.Value);
       return dialogHandle;
     }
 

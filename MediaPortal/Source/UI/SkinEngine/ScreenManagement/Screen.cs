@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -33,7 +32,6 @@ using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -128,12 +126,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Protected fields
 
+    protected AbstractProperty _virtualKeyboardControlProperty = new SProperty(typeof(VirtualKeyboardControl), null);
+    protected AbstractProperty _opened = new SProperty(typeof(bool), true);
+    protected State _state = State.Running;
+    protected Guid _screenInstanceId = Guid.NewGuid();
     protected string _name;
     protected int _skinWidth;
     protected int _skinHeight;
-    protected State _state = State.Running;
-    protected RectangleF? _lastFocusRect = null;
-    protected AbstractProperty _virtualKeyboardControlProperty = new SProperty(typeof(VirtualKeyboardControl), null);
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -144,8 +143,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Always contains the currently focused element in this screen.
     /// </summary>
     protected FrameworkElement _focusedElement = null;
+    protected RectangleF? _lastFocusRect = null;
 
-    protected AbstractProperty _opened;
     protected FrameworkElement _visual;
     protected Animator _animator;
     protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
@@ -162,7 +161,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="skinHeight">Native height of the skin providing this screen.</param>
     public Screen(string name, int skinWidth, int skinHeight)
     {
-      _opened = new SProperty(typeof(bool), true);
       _name = name;
       _skinWidth = skinWidth;
       _skinHeight = skinHeight;
@@ -270,7 +268,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       VirtualKeyboardControl virtualKeyboardControl = VirtualKeyboardControl;
       if (virtualKeyboardControl == null)
         return;
-      AppSettings appSettings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
       virtualKeyboardControl.Show(textProperty, settings);
     }
 
@@ -489,6 +486,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public FrameworkElement FocusedElement
     {
       get { return _focusedElement; }
+    }
+
+    /// <summary>
+    /// Dialog/screen instance id. With this id, this screen can uniquely be identified.
+    /// </summary>
+    public Guid ScreenInstanceId
+    {
+      get { return _screenInstanceId; }
+      internal set { _screenInstanceId = value; }
     }
 
     /// <summary>

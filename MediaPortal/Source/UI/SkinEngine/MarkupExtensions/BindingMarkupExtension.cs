@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <see cref="BindingMarkupExtension.UpdateSourceTrigger"/>.
   /// </para>
   /// </remarks>
-  public class BindingMarkupExtension: BindingBase
+  public class BindingMarkupExtension : BindingBase
   {
     #region Enums
 

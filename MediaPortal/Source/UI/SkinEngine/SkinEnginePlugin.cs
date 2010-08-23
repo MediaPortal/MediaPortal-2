@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine
           // Close dialog or switch to previous workflow state
           IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
           if (screenManager.IsDialogVisible)
-            screenManager.CloseDialog();
+            screenManager.CloseTopmostDialog();
           else
             ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
           return true;

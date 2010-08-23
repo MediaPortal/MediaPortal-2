@@ -582,7 +582,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         case NavigationMode.SimpleChoice:
           IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-          screenManager.CloseDialog();
+          screenManager.CloseTopmostDialog();
           break;
         case NavigationMode.ExitPCWorkflow:
           IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();

@@ -30,12 +30,12 @@
         </StackPanel>
 		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
     	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Cancel]"
-              Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+              Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
 		   <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Done]">
 		     <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings"/>
-                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
               </CommandList>
              </Button.Command>
           </Button>

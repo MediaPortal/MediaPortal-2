@@ -47,6 +47,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected IDictionary<Guid, WorkflowAction> _menuActions = new Dictionary<Guid, WorkflowAction>();
     protected Guid? _workflowModelId = null;
+    protected Guid? _dialogInstanceId = null;
     protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
 
     #endregion
@@ -199,6 +200,16 @@ namespace MediaPortal.UI.Presentation.Workflow
     public object SyncRoot
     {
       get { return _syncObj; }
+    }
+
+    /// <summary>
+    /// If the workflow state of this navigation context is a dialog workflow state, this property returns the unique
+    /// dialog instance id from ScreenManager.
+    /// </summary>
+    public Guid? DialogInstanceId
+    {
+      get { return _dialogInstanceId; }
+      set { _dialogInstanceId = value; }
     }
 
     /// <summary>

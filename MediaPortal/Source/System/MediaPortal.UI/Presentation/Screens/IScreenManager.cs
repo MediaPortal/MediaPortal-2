@@ -22,9 +22,28 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace MediaPortal.UI.Presentation.Screens
 {
-  public delegate void DialogCloseCallbackDlgt(string dialogName);
+  public delegate void DialogCloseCallbackDlgt(string dialogName, Guid dialogInstanceId);
+
+  /// <summary>
+  /// Descriptor of an open dialog of the ScreenManager.
+  /// </summary>
+  public interface IDialogData
+  {
+    /// <summary>
+    /// Name of the dialog.
+    /// </summary>
+    string DialogName { get; }
+
+    /// <summary>
+    /// Unique id of this dialog instance.
+    /// </summary>
+    Guid DialogInstanceId { get; }
+  }
 
   /// <summary>
   /// External interface for the screen manager. The screen manager is responsible
@@ -60,6 +79,17 @@ namespace MediaPortal.UI.Presentation.Screens
     bool IsDialogVisible { get; }
 
     /// <summary>
+    /// Gets the descriptors to all dialogs of the current dialog stack. The first element in the result list represents
+    /// the topmost dialog.
+    /// </summary>
+    IList<IDialogData> DialogStack { get; }
+
+    /// <summary>
+    /// Gets the instance id of the topmost dialog.
+    /// </summary>
+    Guid? TopmostDialogInstanceId { get; }
+
+    /// <summary>
     /// Gets or sets the flag which disables the screenmanager from rendering the background screen.
     /// This can be used for temporary providing another background in some screens.
     /// </summary>
@@ -81,8 +111,9 @@ namespace MediaPortal.UI.Presentation.Screens
     /// Shows the screen with the given <paramref name="screenName"/>. All dialogs will be closed.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
-    /// <returns><c>true</c>, if the screen could successfully be prepared, else <c>false</c>.</returns>
-    bool ShowScreen(string screenName);
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new screen, if the screen could
+    /// successfully be shown, else <c>null</c>.</returns>
+    Guid? ShowScreen(string screenName);
 
     /// <summary>
     /// Exchanges the current screen with the screen with the given <paramref name="screenName"/>.
@@ -95,9 +126,9 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <summary>
     /// Shows the dialog screen with the specified name.
     /// </summary>
-    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
-    /// <returns><c>true</c>, if the dialog screen could successfully be shown, else <c>false</c>.</returns>
-    bool ShowDialog(string dialogName);
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new dialog, if the dialog screen could
+    /// successfully be shown, else <c>null</c>.</returns>
+    Guid? ShowDialog(string dialogName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name and calls the specified notification
@@ -109,8 +140,9 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <param name="dialogName">The logical screen name of the dialog to show.</param>
     /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
     /// gets closed, or <c>null</c>.</param>
-    /// <returns><c>true</c>, if the dialog screen could successfully be shown, else <c>false</c>.</returns>
-    bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new dialog, if the dialog screen could
+    /// successfully be shown, else <c>null</c>.</returns>
+    Guid? ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
 
     /// <summary>
     /// Shows the specified screen as background layer.
@@ -121,9 +153,26 @@ namespace MediaPortal.UI.Presentation.Screens
     bool SetBackgroundLayer(string backgroundName);
 
     /// <summary>
+    /// Closes the dialog with the given instance id.
+    /// </summary>
+    /// <param name="dialogInstanceId">Instance id of the dialog to close.</param>
+    void CloseDialog(Guid dialogInstanceId);
+
+    /// <summary>
+    /// Closes all dialogs until a dialog with the given instance id is found.
+    /// </summary>
+    /// <remarks>
+    /// If no dialog with the given <paramref name="dialogInstanceId"/> is found, no dialogs are removed from the dialog stack.
+    /// </remarks>
+    /// <param name="dialogInstanceId">Instance id of the dialog to close.</param>
+    /// <param name="inclusive">If set to <c>true</c>, the dialog with the given <paramref name="dialogInstanceId"/>
+    /// will be removed too, else only dialogs on top of it are removed.</param>
+    void CloseDialogs(Guid dialogInstanceId, bool inclusive);
+
+    /// <summary>
     /// Closes the topmost dialog.
     /// </summary>
-    void CloseDialog();
+    void CloseTopmostDialog();
 
     /// <summary>
     /// Reloads background, current screen and all dialogs.

@@ -246,7 +246,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected void ShowAttachToServerDialog()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(ATTACH_TO_SERVER_DIALOG, dialogName =>
+      screenManager.ShowDialog(ATTACH_TO_SERVER_DIALOG, (dialogName, instanceId) =>
           {
             if (_attachInfoDialogHandle == null)
               LeaveConfiguration();
@@ -262,7 +262,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       _attachInfoDialogHandle = Guid.Empty; // Set this to value != null here to make the attachment dialog's close handler know we are not finished in our WF-state
-      screenManager.CloseDialog();
+      screenManager.CloseTopmostDialog();
       string header = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_HEADER_RES);
       string text = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_TEXT_RES, sd.ServerName, sd.GetPreferredLink().HostName);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);

@@ -40,10 +40,16 @@ using MediaPortal.Core.Settings;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
+  public enum CloseDialogsMode
+  {
+    CloseSingleDialog,
+    CloseAllOnTopIncluding,
+    CloseAllOnTopExcluding
+  }
+
   public class ScreenManager : IScreenManager
   {
     #region Consts
@@ -60,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #endregion
 
-    #region Classes & Delegates
+    #region Classes, delegates & enums
 
     protected delegate void ScreenExecutor(Screen screen);
 
@@ -183,17 +189,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected class DialogSaveDescriptor
     {
       protected string _dialogName;
+      protected Guid _dialogId;
       protected DialogCloseCallbackDlgt _closeCallback;
 
-      public DialogSaveDescriptor(string dialogName, DialogCloseCallbackDlgt closeCallback)
+      public DialogSaveDescriptor(string dialogName, Guid dialogId, DialogCloseCallbackDlgt closeCallback)
       {
         _dialogName = dialogName;
+        _dialogId = dialogId;
         _closeCallback = closeCallback;
       }
 
       public string DialogName
       {
         get { return _dialogName; }
+      }
+
+      public Guid DialogId
+      {
+        get { return _dialogId; }
       }
 
       public DialogCloseCallbackDlgt CloseCallback
@@ -265,24 +278,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
       {
         ScreenManagerMessaging.MessageType messageType = (ScreenManagerMessaging.MessageType) message.MessageType;
-        Screen screen;
+        Guid dialogInstanceId;
         switch (messageType)
         {
           case ScreenManagerMessaging.MessageType.ShowScreen:
-            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
+            Screen screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
             DoShowScreen(screen, closeDialogs);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ShowDialog:
-            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
-            DialogCloseCallbackDlgt dialogCloseCallback = (DialogCloseCallbackDlgt) message.MessageData[ScreenManagerMessaging.DIALOG_CLOSE_CALLBACK];
-            DoShowDialog(screen, dialogCloseCallback);
+            DialogData dialogData = (DialogData) message.MessageData[ScreenManagerMessaging.DIALOG_DATA];
+            DoShowDialog(dialogData);
             DecPendingOperations();
             break;
-          case ScreenManagerMessaging.MessageType.CloseDialog:
-            DialogData dd = (DialogData) message.MessageData[ScreenManagerMessaging.DIALOG_DATA];
-            DoCloseDialog(dd, true);
+          case ScreenManagerMessaging.MessageType.CloseDialogs:
+            dialogInstanceId = (Guid) message.MessageData[ScreenManagerMessaging.DIALOG_INSTANCE_ID];
+            CloseDialogsMode mode = (CloseDialogsMode) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS_MODE];
+            DoCloseDialogs(dialogInstanceId, mode, true);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
@@ -396,8 +409,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
           if (skin == null)
             skin = defaultSkin;
-          if (skin == null)
-            throw new EnvironmentException(string.Format("Skin '{0}' not found", skinName));
           theme = themeName == null ? null :
               (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
           if (theme == null)
@@ -457,9 +468,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    protected internal void DoShowDialog(Screen dialog, DialogCloseCallbackDlgt dialogCloseCallback)
+    protected internal void DoShowDialog(DialogData dialogData)
     {
-      dialog.Prepare();
+      dialogData.DialogScreen.Prepare();
       lock (_syncObj)
       {
         if (_dialogStack.Count == 0)
@@ -470,68 +481,86 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else
           _dialogStack.Peek().DialogScreen.DetachInput();
 
-        DialogData dd = new DialogData(dialog, dialogCloseCallback);
+        DialogData dd = dialogData;
         _dialogStack.Push(dd);
 
-        dialog.AttachInput();
-        dialog.ScreenState = Screen.State.Running;
+        dialogData.DialogScreen.AttachInput();
+        dialogData.DialogScreen.ScreenState = Screen.State.Running;
       }
       // Don't hold the lock while showing the screen
-      dialog.Show();
+      dialogData.DialogScreen.Show();
     }
 
-    protected internal void DoCloseDialog(DialogData closeDD, bool fireCloseDelegate)
+    protected bool IsDialogPresent(Guid dialogInstanceId)
     {
-      DialogData oldDialogData = null;
+      lock (_syncObj)
+        foreach (DialogData data in _dialogStack)
+          if (data.DialogInstanceId == dialogInstanceId)
+            return true;
+      return false;
+    }
+
+    protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates)
+    {
+      ICollection<DialogData> oldDialogData = new List<DialogData>();
       lock(_syncObj)
       {
+        if (_dialogStack.Count == 0 || (dialogInstanceId.HasValue && !IsDialogPresent(dialogInstanceId.Value)))
+        {
+          if (dialogInstanceId.HasValue)
+            ServiceRegistration.Get<ILogger>().Warn("ScreenManager.DoCloseDialogs: Dialog to close with dialog instance id '{0}' was not found on the dialog stack", dialogInstanceId.Value);
+          return;
+        }
+        // Remove input attachment
+        _dialogStack.Peek().DialogScreen.DetachInput();
+
         // Search the to-be-closed dialog in the dialog stack and close it.
         // It's a bit difficult because the Stack implementation doesn't provide methods to access elements in the
         // middle of the stack. That's why we need a help stack here.
         // We could also later use a more flexible stack implementation and simplify this method.
         Stack<DialogData> helpStack = new Stack<DialogData>();
-        while (_dialogStack.Count > 0 && !ReferenceEquals(_dialogStack.Peek(), closeDD))
-          helpStack.Push(_dialogStack.Pop());
-        if (_dialogStack.Count > 0)
-        { // We found our dialog to close
-          oldDialogData = _dialogStack.Pop();
-          Screen oldDialog = oldDialogData.DialogScreen;
-          oldDialog.ScreenState = Screen.State.Closing;
-          if (helpStack.Count == 0)
-            oldDialog.DetachInput();
-          ScheduleDisposeScreen(oldDialog);
-        }
-        if (helpStack.Count == 0)
-          // Topmost dialog was removed
-          if (_dialogStack.Count == 0)
-          { // Last dialog was removed, attach input to screen
-            if (_currentScreen != null)
-              _currentScreen.AttachInput();
-          }
+        while (_dialogStack.Count > 0 && _dialogStack.Peek().DialogInstanceId != dialogInstanceId)
+        {
+          DialogData dd = _dialogStack.Pop();
+          if (mode != CloseDialogsMode.CloseSingleDialog)
+            oldDialogData.Add(dd);
           else
-            _dialogStack.Peek().DialogScreen.AttachInput();
+            // Save dialog
+            helpStack.Push(dd);
+        }
+        if (mode != CloseDialogsMode.CloseAllOnTopExcluding && _dialogStack.Count > 0)
+          // Mark our dialog
+          oldDialogData.Add(_dialogStack.Pop());
+
+        // Restore dialogs on top of the removed dialog
+        foreach (DialogData data in helpStack)
+          _dialogStack.Push(data);
+
+        // Restore input attachment
+        if (_dialogStack.Count == 0)
+        { // Last dialog was removed, attach input to screen
+          if (_currentScreen != null)
+            _currentScreen.AttachInput();
+        }
         else
-          // There are still dialogs present
-          foreach (DialogData data in helpStack)
-            _dialogStack.Push(data);
+          _dialogStack.Peek().DialogScreen.AttachInput();
       }
-      if (fireCloseDelegate && oldDialogData != null && oldDialogData.CloseCallback != null)
-        oldDialogData.CloseCallback(oldDialogData.DialogScreen.Name);
+      foreach (DialogData dd in oldDialogData)
+        DoCloseDialog(dd, fireCloseDelegates);
+    }
+
+    protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates)
+    {
+      Screen oldDialog = dd.DialogScreen;
+      oldDialog.ScreenState = Screen.State.Closing;
+      ScheduleDisposeScreen(oldDialog);
+      if (fireCloseDelegates && dd.CloseCallback != null)
+        dd.CloseCallback(dd.DialogScreen.Name, dd.DialogInstanceId);
     }
 
     protected internal void DoCloseDialogs(bool fireCloseDelegates)
     {
-      while (true)
-      {
-        DialogData dd;
-        lock (_syncObj)
-        {
-          if (_dialogStack.Count == 0)
-            break;
-          dd = _dialogStack.Peek();
-        }
-        DoCloseDialog(dd, fireCloseDelegates);
-      }
+      DoCloseDialogs(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates);
     }
 
     protected internal void DoCloseScreen()
@@ -585,7 +614,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         foreach (DialogData dd in _dialogStack)
           // Remember all dialogs and their close callbacks
-          dialogsReverse.Add(new DialogSaveDescriptor(dd.DialogScreen.Name, dd.CloseCallback));
+          dialogsReverse.Add(new DialogSaveDescriptor(dd.DialogScreen.Name, dd.DialogInstanceId, dd.CloseCallback));
       }
 
       // Close all
@@ -606,7 +635,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
         Screen dialog = GetScreen(dialogDescriptor.DialogName, false);
-        DoShowDialog(dialog, dialogDescriptor.CloseCallback);
+        dialog.ScreenInstanceId = dialogDescriptor.DialogId;
+        DoShowDialog(new DialogData(dialog, dialogDescriptor.CloseCallback));
       }
     }
 
@@ -910,6 +940,32 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    public IList<IDialogData> DialogStack
+    {
+      get
+      {
+        IList<IDialogData> result = new List<IDialogData>();
+        lock (_syncObj)
+          // Albert: The copying procedure can be removed when we switch to .net 4.0
+          foreach (DialogData data in _dialogStack)
+            result.Add(data);
+          return result;
+      }
+    }
+
+    public Guid? TopmostDialogInstanceId
+    {
+      get
+      {
+        lock (_syncObj)
+        {
+          if (_dialogStack.Count == 0)
+            return null;
+          return _dialogStack.Peek().DialogScreen.ScreenInstanceId;
+        }
+      }
+    }
+
     public bool BackgroundDisabled
     {
       get
@@ -940,17 +996,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SwitchSkinAndTheme(newSkinName, null);
     }
 
-    public bool ShowScreen(string screenName)
+    public Guid? ShowScreen(string screenName)
     {
       IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, false);
       if (newScreen == null)
           // Error message was shown in GetScreen()
-        return false;
+        return null;
 
       ScreenManagerMessaging.SendMessageShowScreen(newScreen, true);
-      return true;
+      return newScreen.ScreenInstanceId;
     }
 
     public bool ExchangeScreen(string screenName)
@@ -966,27 +1022,47 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return true;
     }
 
-    public bool ShowDialog(string dialogName)
+    public Guid? ShowDialog(string dialogName)
     {
       return ShowDialog(dialogName, null);
     }
 
-    public bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    public Guid? ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
       Screen newDialog = GetScreen(dialogName, false);
       if (newDialog == null)
-        return false;
-      ScreenManagerMessaging.SendMessageShowDialog(newDialog, dialogCloseCallback);
-      return true;
+        return null;
+      ScreenManagerMessaging.SendMessageShowDialog(new DialogData(newDialog, dialogCloseCallback));
+      return newDialog.ScreenInstanceId;
     }
 
-    public void CloseDialog()
+    public void CloseDialog(Guid dialogInstanceId)
     {
       IncPendingOperations();
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close topmost dialog");
-      ScreenManagerMessaging.SendMessageCloseDialog(CurrentDialogData);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+      ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, CloseDialogsMode.CloseSingleDialog);
+    }
+
+    public void CloseDialogs(Guid dialogInstanceId, bool inclusive)
+    {
+      IncPendingOperations();
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}' and all dialogs on top of it", dialogInstanceId);
+      ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, inclusive ? CloseDialogsMode.CloseAllOnTopIncluding : CloseDialogsMode.CloseAllOnTopExcluding);
+    }
+
+    public void CloseTopmostDialog()
+    {
+      IncPendingOperations();
+      Guid? dialogInstanceId = TopmostDialogInstanceId;
+      if (dialogInstanceId.HasValue)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+        ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId.Value, CloseDialogsMode.CloseSingleDialog);
+      }
+      else
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: No dialog found to close");
     }
 
     public bool SetBackgroundLayer(string backgroundName)

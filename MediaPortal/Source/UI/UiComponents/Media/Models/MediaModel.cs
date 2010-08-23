@@ -232,7 +232,8 @@ namespace MediaPortal.UiComponents.Media.Models
       SetNumItemsAddedToPlaylist(0);
       _cancelAddToPlaylist = false;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, dialogName => CancelAddToPlaylist());
+      Guid? dialogInstanceId = screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN,
+          (dialogName, instanceId) => CancelAddToPlaylist());
       try
       {
         foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
@@ -255,7 +256,8 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       finally
       {
-        screenManager.CloseDialog();
+        if (dialogInstanceId.HasValue)
+          screenManager.CloseDialog(dialogInstanceId.Value);
       }
     }
 
@@ -268,7 +270,7 @@ namespace MediaPortal.UiComponents.Media.Models
       SetNumItemsAddedToPlaylist(0);
       _cancelAddToPlaylist = false;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, dialogName => CancelAddToPlaylist());
+      Guid? dialogInstanceid = screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, (dialogName, instanceId) => CancelAddToPlaylist());
       try
       {
         foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
@@ -279,7 +281,8 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       finally
       {
-        screenManager.CloseDialog();
+        if (dialogInstanceid.HasValue)
+          screenManager.CloseDialog(dialogInstanceid.Value);
       }
     }
 
