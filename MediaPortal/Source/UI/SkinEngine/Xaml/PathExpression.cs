@@ -60,6 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// represents.
     /// </summary>
     /// <param name="source">Source data for the method query.</param>
+    /// <param name="numParameters">Number of parameters which are present for the method call.</param>
     /// <param name="obj">Target object on which the returned
     /// <paramref name="mi"/> can be applied.</param>
     /// <param name="mi">Method info object which can be applied on the
@@ -70,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// parameters <paramref name="obj"/> and <paramref name="mi"/> can be
     /// used to call the method. In case the return value is <c>false</c>,
     /// the values of those two parameters are undefined.</returns>
-    bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi);
+    bool GetMethod(IDataDescriptor source, int numParameters, out object obj, out MethodInfo mi);
   }
 
   /// <summary>
@@ -113,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return false;
     }
 
-    public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
+    public bool GetMethod(IDataDescriptor source, int numParameters, out object obj, out MethodInfo mi)
     {
       obj = null;
       mi = null;
@@ -170,7 +171,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return true;
     }
 
-    public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
+    public bool GetMethod(IDataDescriptor source, int numParameters, out object obj, out MethodInfo mi)
     {
       obj = null;
       mi = null;
@@ -203,10 +204,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     }
 
     protected static bool ExtractWorkingData(IDataDescriptor source, string memberName,
-        out Type type, out object obj, out MemberInfo mi)
+        out Type type, out object obj, out MemberInfo[] mis)
     {
       obj = source.Value;
-      mi = null;
+      mis = null;
       if (obj is Type)
       {
         type = (Type) obj;
@@ -229,7 +230,19 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public");
         return false;
       }
-      mi = members[0];
+      mis = members;
+      return true;
+    }
+
+    protected static bool ExtractWorkingData(IDataDescriptor source, string memberName,
+        out Type type, out object obj, out MemberInfo mi)
+    {
+      mi = null;
+      MemberInfo[] mis;
+      bool result = ExtractWorkingData(source, memberName, out type, out obj, out mis);
+      if (!result)
+        return false;
+      mi = mis[0];
       return true;
     }
 
@@ -295,15 +308,36 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return false;
     }
 
-    public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
+    public bool GetMethod(IDataDescriptor source, int numParameters, out object obj, out MethodInfo mi)
     {
       mi = null;
       Type type;
-      MemberInfo memberInfo;
-      if (!ExtractWorkingData(source, _memberName, out type, out obj, out memberInfo))
+      MemberInfo[] mis;
+      if (!ExtractWorkingData(source, _memberName, out type, out obj, out mis))
         return false;
-      mi = memberInfo as MethodInfo;
-      return mi != null;
+      foreach (MemberInfo info in mis)
+      {
+        mi = info as MethodInfo;
+        if (mi == null)
+          continue;
+        ParameterInfo[] parameters = mi.GetParameters();
+        if (NumParamsCompatible(parameters, numParameters))
+          return true;
+      }
+      mi = null;
+      return false;
+    }
+
+    protected bool NumParamsCompatible(ParameterInfo[] parameters, int numParameters)
+    {
+      int ctParams = numParameters;
+      foreach (ParameterInfo parameter in parameters)
+      {
+        if (ctParams == 0 && !parameter.IsOptional)
+          return false;
+        ctParams--;
+      }
+      return ctParams == 0;
     }
 
     public override string ToString()
@@ -343,7 +377,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return true;
     }
 
-    public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
+    public bool GetMethod(IDataDescriptor source, int numParameters, out object obj, out MethodInfo mi)
     {
       obj = null;
       mi = null;
@@ -510,6 +544,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// </remarks>
     /// <param name="start">Object used as starting point for the path evaluation.
     /// This may be an <see cref="object"/> or a <see cref="Type"/>.</param>
+    /// <param name="numParameters">Number of parameters to be used for the method call.</param>
     /// <param name="obj">Reflected object on which the <paramref name="mi"/> may be
     /// evaluated. This parameter is only valid if the return value us <c>true</c>.</param>
     /// <param name="mi">Reflected method info to be evaluated on <paramref name="obj"/>.
@@ -518,8 +553,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// and the last path segment is a method invocation expression, else <c>false</c>.</returns>
     /// <exception cref="XamlBindingException">If this path could not be evaluated
     /// on object <paramref name="start"/>.</exception>
-    public bool GetMethod(IDataDescriptor start,
-        out object obj, out MethodInfo mi)
+    public bool GetMethod(IDataDescriptor start, int numParameters, out object obj, out MethodInfo mi)
     {
       obj = null;
       mi = null;
@@ -532,7 +566,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         if (value == null)
           return false;
       }
-      return _pathSegments[_pathSegments.Count - 1].GetMethod(value, out obj, out mi);
+      return _pathSegments[_pathSegments.Count - 1].GetMethod(value, numParameters, out obj, out mi);
     }
 
     #endregion

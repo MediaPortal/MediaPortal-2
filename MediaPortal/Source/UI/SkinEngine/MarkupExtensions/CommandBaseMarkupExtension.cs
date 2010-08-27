@@ -150,9 +150,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             ToString());
         return;
       }
+      IList<object> paramsList = LateBoundValue.ConvertLateBoundValues(parameters);
       object obj;
       MethodInfo mi;
-      _compiledPath.GetMethod(start, out obj, out mi);
+      _compiledPath.GetMethod(start, paramsList.Count, out obj, out mi);
       if (mi == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find method, could not execute command ({0})",
@@ -160,7 +161,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       }
       ParameterInfo[] parameterInfos = mi.GetParameters();
-      IList<object> paramsList = LateBoundValue.ConvertLateBoundValues(parameters);
       try
       {
         object[] convertedParameters;

@@ -110,6 +110,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// returns a value of <c>true</c>.</param>
     /// <returns><c>true</c>, if the parameter conversion could be done successfully, else
     /// <c>false</c>.</returns>
+    /// <exception cref="XamlBindingException">If <paramref name="mustMatchSignature"/> is set to <c>true</c> and
+    /// the given <paramref name="parameters"/> don't match the given signature.</exception>
     public static bool ConsumeParameters(IEnumerable<object> parameters,
         ParameterInfo[] parameterInfos, bool mustMatchSignature,
         out object[] convertedParameters)
