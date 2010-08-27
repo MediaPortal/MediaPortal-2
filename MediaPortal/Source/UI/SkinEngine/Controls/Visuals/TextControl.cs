@@ -133,7 +133,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // The skin is setting the text, so update the caret
       if (!_editText)
         CaretIndex = text.Length;
-      ClearAsset();
+      if (_asset != null)
+        _asset.Text = text;
     }
 
     void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
