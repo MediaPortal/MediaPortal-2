@@ -34,6 +34,7 @@
           </ListView.Resources>
         </ListView>
         <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
+            HorizontalAlignment="Stretch"
             DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
             Content="{Binding [Help]}" Wrap="True"
             IsVisible="{Binding Converter={StaticResource RefToBoolConverter}}"/>
