@@ -22,15 +22,16 @@
 
 #endregion
 
-using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class DefaultTextInputHandler : AbstractTextInputHandler
   {
-    public DefaultTextInputHandler(AbstractProperty textProperty, AbstractProperty caretIndexProperty) :
-        base(textProperty, caretIndexProperty) { }
+    public DefaultTextInputHandler(UIElement parentElement, SimplePropertyDataDescriptor textDataDescriptor,
+        SimplePropertyDataDescriptor caretIndexDataDescriptor) :
+        base(parentElement, textDataDescriptor, caretIndexDataDescriptor) { }
 
     public override void HandleInput(ref Key key)
     {

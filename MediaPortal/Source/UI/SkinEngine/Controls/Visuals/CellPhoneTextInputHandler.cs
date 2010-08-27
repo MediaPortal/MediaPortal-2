@@ -27,6 +27,7 @@ using System.Text;
 using System.Timers;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -99,8 +100,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _currentCharacterChoiceListProperty = new SProperty(typeof(IList<char>), null);
     protected AbstractProperty _currentCharacterChoiceIndexProperty = new SProperty(typeof(int), 0);
 
-    public CellPhoneTextInputHandler(AbstractProperty textProperty, AbstractProperty caretIndexProperty) :
-        base(textProperty, caretIndexProperty)
+    public CellPhoneTextInputHandler(UIElement parentElement, SimplePropertyDataDescriptor textDataDescriptor,
+        SimplePropertyDataDescriptor caretIndexDataDescriptor) :
+        base(parentElement, textDataDescriptor, caretIndexDataDescriptor)
     {
       _timer = new Timer(CURSOR_ADVANCE_TIMESPAN_MS);
       _timer.Elapsed += OnTimerElapsed;

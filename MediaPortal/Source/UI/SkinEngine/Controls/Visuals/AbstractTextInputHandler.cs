@@ -23,44 +23,37 @@
 #endregion
 
 using System;
-using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public abstract class AbstractTextInputHandler : IDisposable
   {
-    protected AbstractProperty _textProperty;
-    protected AbstractProperty _caretIndexProperty;
+    protected UIElement _parentElement;
+    protected SimplePropertyDataDescriptor _textDataDescriptor;
+    protected SimplePropertyDataDescriptor _caretIndexDataDescriptor;
 
-    protected AbstractTextInputHandler(AbstractProperty textProperty, AbstractProperty caretIndexProperty)
+    protected AbstractTextInputHandler(UIElement parentElement, SimplePropertyDataDescriptor textDataDescriptor,
+        SimplePropertyDataDescriptor caretIndexDataDescriptor)
     {
-      _textProperty = textProperty;
-      _caretIndexProperty = caretIndexProperty;
+      _parentElement = parentElement;
+      _textDataDescriptor = textDataDescriptor;
+      _caretIndexDataDescriptor = caretIndexDataDescriptor;
     }
 
     public virtual void Dispose() { }
 
-    public AbstractProperty CaretIndexProperty
-    {
-      get { return _caretIndexProperty; }
-    }
-
     public int CaretIndex
     {
-      get { return (int) _caretIndexProperty.GetValue(); }
-      set { _caretIndexProperty.SetValue(value); }
-    }
-
-    public AbstractProperty TextProperty
-    {
-      get { return _textProperty; }
+      get { return (int) _caretIndexDataDescriptor.Value; }
+      set { _parentElement.SetValueInRenderThread(_caretIndexDataDescriptor, value); }
     }
 
     public string Text
     {
-      get { return (string) _textProperty.GetValue(); }
-      set { _textProperty.SetValue(value); }
+      get { return (string) _textDataDescriptor.Value; }
+      set { _parentElement.SetValueInRenderThread(_textDataDescriptor, value); }
     }
 
     public abstract void HandleInput(ref Key key);

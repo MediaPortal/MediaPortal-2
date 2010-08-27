@@ -31,6 +31,8 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.Utilities.Exceptions;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.TextBufferAsset;
@@ -151,9 +153,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractTextInputHandler CreateTextInputHandler()
     {
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
+      SimplePropertyDataDescriptor textPropertyDataDescriptor;
+      SimplePropertyDataDescriptor caretIndexDataDescriptor;
+      if (!SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(
+          this, "Text", out textPropertyDataDescriptor) ||
+          !SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(
+          this, "CaretIndex", out caretIndexDataDescriptor))
+        throw new FatalException("One of the properties 'Text' or 'CaretIndex' was not found");
       return settings.CellPhoneInputStyle ?
-          (AbstractTextInputHandler) new CellPhoneTextInputHandler(_textProperty, _caretIndexProperty) :
-          new DefaultTextInputHandler(_textProperty, _caretIndexProperty);
+          (AbstractTextInputHandler) new CellPhoneTextInputHandler(this, textPropertyDataDescriptor, caretIndexDataDescriptor) :
+          new DefaultTextInputHandler(this, textPropertyDataDescriptor, caretIndexDataDescriptor);
     }
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
