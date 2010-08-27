@@ -424,7 +424,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding [Name]}" Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding [Name]}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
 

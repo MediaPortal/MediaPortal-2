@@ -38,7 +38,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Grid.ColumnDefinitions>
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
-    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
+    <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
       <Grid.Resources>
         <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       </Grid.Resources>
@@ -49,7 +49,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="60,0,0,0">
+      <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="50,0,0,0">
         <Label x:Name="HeaderLabel"
             FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
             Color="{ThemeResource WindowHeaderColor}"
@@ -71,7 +71,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Label.OpacityMask>
         </Label>
       </StackPanel>
-      <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+      <StackPanel x:Name="DateTimePanel" Margin="5" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
         <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
         <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
       </StackPanel>
