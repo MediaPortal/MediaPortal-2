@@ -55,16 +55,23 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Returns the Font object for the specified <paramref name="fontFamily"/> and
-    /// <paramref name="fontSize"/>.
+    /// Returns the default rendering resolution (Dots-Per-Inch).
     /// </summary>
-    public static Font GetScript(string fontFamily, int fontSize)
+    public static uint DefaultDPI
+    {
+      get { return 96; }
+    }
+
+    /// <summary>
+    /// Returns the FontFamily object for the specified <paramref name="fontFamily"/> name.
+    /// </summary>
+    public static FontFamily GetFontFamily(string fontFamily)
     {
       FontFamily family;
-      if (!_families.TryGetValue(fontFamily, out family) || family == null)
+      if (!_families.TryGetValue(fontFamily, out family))
         return null;
 
-      return family.Addfont(fontSize, 96);
+      return family;
     }
 
     /// <summary>

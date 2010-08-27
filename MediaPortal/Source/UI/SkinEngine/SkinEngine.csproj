@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -56,8 +56,8 @@
     <Compile Include="Commands\ICommandStencil.cs" />
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
-    <Compile Include="ContentManagement\FontBufferAsset.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
+    <Compile Include="ContentManagement\TextBufferAsset.cs" />
     <Compile Include="ContentManagement\VertexBufferAsset.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
@@ -121,6 +121,7 @@
     <Compile Include="DirectX\D3DSettings.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
+    <Compile Include="Fonts\FontFamily.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
     <Compile Include="Geometry\GeometryLetterBox.cs" />
     <Compile Include="Geometry\GeometryManager.cs" />
@@ -328,8 +329,6 @@
     <Compile Include="ContentManagement\TextureAsset.cs" />
     <Compile Include="Fonts\Font.cs" />
     <Compile Include="Fonts\FontManager.cs" />
-    <Compile Include="Fonts\FontQuad.cs" />
-    <Compile Include="Fonts\Quad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\PrimitiveContext.cs" />
     <Compile Include="Settings\AppSettings.cs" />

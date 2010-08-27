@@ -32,7 +32,7 @@
             <Label x:Name="ArtistLabel" Grid.Row="0" Grid.Column="0" Content="[Media.AudioArtistLabel]"/>
             <Label x:Name="Artist" Grid.Row="0" Grid.Column="1" Content="{Binding AudioArtist}"/>
             <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Content="[Media.AudioTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="true" Content="{Binding MediaItemTitle}"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
             <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.AudioYearLabel]"/>
             <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding AudioYear}"/>
             <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.AudioDurationLabel]"/>

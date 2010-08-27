@@ -33,10 +33,8 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
-using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.FontBufferAsset;
-using FontManager = MediaPortal.UI.SkinEngine.Fonts.FontManager;
+using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.TextBufferAsset;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -50,7 +48,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _preferredTextLengthProperty;
     protected AbstractProperty _textAlignProperty;
     protected FontBufferAsset _asset;
-    protected int _fontSizeCache;
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
@@ -130,15 +127,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnTextChanged(AbstractProperty prop, object oldValue)
     {
+      string text = Text ?? string.Empty;
       // The skin is setting the text, so update the caret
       if (!_editText)
-        CaretIndex = Text.Length;
+        CaretIndex = text.Length;
+      ClearAsset();
     }
 
     void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
     {
       InvalidateLayout();
       InvalidateParentLayout();
+    }
+
+    protected void ClearAsset()
+    {
+      TextBufferAsset asset = _asset;
+      _asset = null;
+      if (asset != null)
+        asset.Free(true);
     }
 
     protected AbstractTextInputHandler CreateTextInputHandler()
@@ -151,13 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
     {
-      if (_asset != null)
-      {
-        _asset.Free(true);
-        ContentManager.Remove(_asset);
-      }
-
-      _asset = null;
+      ClearAsset();
     }
 
     public override void OnKeyPreview(ref Key key)
@@ -237,9 +238,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int) (_fontSizeCache * SkinContext.MaxZoomHeight));
-        if (font != null)
-          _asset = ContentManager.GetFont(font);
+        _asset = ContentManager.GetTextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited(), true);
+        _asset.Text = Text;
       }
     }
 
@@ -261,53 +261,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
-      SizeF childSize = _asset == null ? new SizeF() :
-          new SizeF(_asset.Font.Width(Text, _fontSizeCache), _asset.Font.LineHeight(_fontSizeCache));
+      SizeF childSize = _asset == null ? new SizeF() : new SizeF(_asset.TextWidth(Text), _asset.LineHeight);
 
       if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction
-        childSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache);
+        childSize.Width = PreferredTextLength.Value * _asset.TextWidth("W");
 
       return childSize;
     }
 
     public override void DoRender(RenderContext localRenderContext)
     {
+      base.DoRender(localRenderContext);
+
+      AllocFont();
       if (_asset == null)
         return;
-      Color4 color = ColorConverter.FromColor(Color);
 
-      base.DoRender(localRenderContext);
-      float totalWidth;
-
-      float y = ActualPosition.Y;
-      float x = ActualPosition.X;
-      float w = (float) ActualWidth;
-      float h = (float) ActualHeight;
-
-      Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
       else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
+      Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
-      _asset.Draw(Text, rect, align, _fontSizeCache, color, false, out totalWidth, localRenderContext.Transform);
+
+      _asset.Render(_innerRect, align, color, false, localRenderContext.ZOrder, TextScrollMode.None, 0.0f, localRenderContext.Transform);
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
       if (_asset != null)
-      {
-        ContentManager.Remove(_asset);
         _asset.Free(true);
-        _asset = null;
-      }
+      _asset = null;
     }
   }
 }

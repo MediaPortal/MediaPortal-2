@@ -30,99 +30,11 @@ using System.IO;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using Tao.FreeType;
 
 namespace MediaPortal.UI.SkinEngine.Fonts
 {
-  public class FontLibrary 
-  {
-    /// <summary>
-    /// Singleton instance variable.
-    /// </summary>
-    private static FontLibrary _instance;
-    private static IntPtr _library;
-
-    private FontLibrary() 
-    {
-      FT.FT_Init_FreeType(out _library);
-    }
-
-    /// <summary>
-    /// Returns the Singleton FontLibrary instance.
-    /// </summary>
-    /// <value>The Singleton FontLibrary instance.</value>
-    public static FontLibrary Instance
-    {
-      get
-      {
-        if (_instance == null)
-          _instance = new FontLibrary();
-        return _instance;
-      }
-    }
-
-    public IntPtr Library
-    {
-      get { return _library; }
-    }
-  }
-
-  /// <summary>
-  /// Represents a font family.
-  /// </summary>
-  public class FontFamily : IDisposable
-  {
-    private string _name;
-    private IntPtr _library;
-    private IntPtr _face;
-
-    public List<Font> _fontList = new List<Font>();
-
-    public FontFamily(string name, string filePathName)
-    {
-      _name = name;
-
-      _library = FontLibrary.Instance.Library;
- 
-      // Load the requested font.
-      if (FT.FT_New_Face(_library, filePathName, 0, out _face) != 0)
-        throw new ArgumentException("Failed to load face.");
-    }
-
-    /// <summary>
-    /// Name of font family.
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-    }
-
-    /// <summary>
-    /// Adds a font set to the font family.
-    /// </summary>
-    public Font Addfont(int fontSize, uint resolution)
-    {
-      // Do we already have this font?
-      foreach (Font font in _fontList)
-        if (font.Size == fontSize)
-          return font;
-      Font newFont = new Font(_library, _face, fontSize, resolution);
-      _fontList.Add(newFont);
-      return newFont;
-    }
-
-    public void Dispose()
-    {
-      if (_face != IntPtr.Zero)
-        FT.FT_Done_Face(_face);
-      foreach (Font font in _fontList)
-        font.Free(true);
-    }
-  }
-
   /// <summary>
   /// Represents a font set (of glyphs).
   /// </summary>
@@ -135,59 +47,113 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       Right
     }
 
-    private const int MAX_WIDTH = 1024;
-    private const int MAX_HEIGHT = 1024;
-    private const int PAD = 1;
+    protected const int MAX_WIDTH = 1024;
+    protected const int MAX_HEIGHT = 1024;
+    protected const int PAD = 1;
 
-    private IntPtr _face;
-    private IntPtr _library;
+    protected FontFamily _family;
+    private readonly BitmapCharacterSet _charSet;
+    protected Texture _texture = null;
 
-    private BitmapCharacterSet _charSet;
-    private List<FontQuad> _quads;
-    private List<StringBlock> _strings;
-    private Texture _texture = null;
-    public const int MaxVertices = 4096;
-    private int _nextChar;
+    protected uint _resolution;
+    protected int _currentX = 0;
+    protected int _rowHeight = 0;
+    protected int _currentY = 0;
 
-    private uint _resolution;
-    private int _currentX = 0;
-    private int _rowHeight = 0;
-    private int _currentY = 0;
-
-    private float _firstCharWidth = 0;
-    EffectAsset _effect;
-
+    #region Ctor
     /// <summary>Creates a new font set.</summary>
-    /// <param name="library">The free type library ptr.</param>
-    /// <param name="face">The face ptr.</param>
+    /// <param name="family">The font family.</param>
     /// <param name="size">Size in pixels.</param>
     /// <param name="resolution">Resolution in dpi.</param>
-    public Font(IntPtr library, IntPtr face, int size, uint resolution)
+    public Font(FontFamily family, int size, uint resolution)
     {
-      _quads = new List<FontQuad>();
-      _strings = new List<StringBlock>();
-      _library = library;
-      _face = face;
-
+      _family = family;
       _resolution = resolution;
 
-      _charSet = new BitmapCharacterSet();
-      _charSet.RenderedSize = size;
-      _charSet.LineHeight = size;
+      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
 
-      _charSet.Width = MAX_WIDTH;
-      _charSet.Height = MAX_HEIGHT;
-
-      FT_FaceRec Face = (FT_FaceRec) Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
-
-      _charSet.Base = _charSet.RenderedSize * Face.ascender / Face.height;
-
-      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
-
-      // Add 'not defined' glyph
-      AddGlyph(0);
-      _effect = ContentManager.GetEffect("font");
+      _charSet = new BitmapCharacterSet
+        {
+            RenderedSize = size,
+            LineHeight = size,
+            Width = MAX_WIDTH,
+            Height = MAX_HEIGHT
+        };
+      _charSet.Base = _charSet.RenderedSize * face.ascender / face.height;
     }
+
+    #endregion
+
+    #region Public properties
+
+    /// <summary>
+    /// Get the size of this <see cref="Font"/>.
+    /// </summary>
+    public float Size
+    {
+      get { return _charSet.RenderedSize; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="Font"/>'s base.
+    /// </summary>
+    public float Base
+    {
+      get { return _charSet.Base; }
+    }
+
+    /// <summary>
+    /// Gets the height of the <see cref="Font"/> if scaled to a different size.
+    /// </summary>
+    /// <param name="fontSize">The scale size.</param>
+    /// <returns>The height of the scaled font.</returns>
+    public float LineHeight(float fontSize)
+    {
+      return fontSize / _charSet.RenderedSize * _charSet.LineHeight;
+    }
+
+    /// <summary>
+    /// Gets the width of a string if rendered with this <see cref="Font"/> as a particular size.
+    /// </summary>
+    /// <param name="text">The string to measure.</param>
+    /// <param name="fontSize">The size of font to use for measurement.</param>
+    /// <param name="kerning">Whether kerning is used to improve font spacing.</param>
+    /// <returns>The width of the passed text.</returns>
+    public float TextWidth(string text, float fontSize, bool kerning)
+    {
+      if (!IsAllocated)
+        Allocate();
+
+      float width = 0;
+      float sizeScale = fontSize / _charSet.RenderedSize;
+      BitmapCharacter lastChar = null;
+
+      foreach (char character in text)
+      {
+        BitmapCharacter c = Character(character);
+
+        width += c.XAdvance;
+        if (kerning && lastChar != null)
+          width += GetKerningAmount(lastChar, character);
+        lastChar = c;
+      }
+      return width * sizeScale;
+    }
+
+    /// <summary>Gets the font texture.</summary>
+    public Texture Texture
+    {
+      get 
+      {
+        if (!IsAllocated)
+          Allocate();        
+        return _texture; 
+      }
+    }
+
+    #endregion
+
+    #region Font map initialization
 
     /// <summary>Adds a glyph to the font set.</summary>
     /// <param name="charIndex">The char to add.</param>
@@ -195,24 +161,23 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     {
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
+      float point_size = 64.0f * _charSet.RenderedSize * 72.0f / _resolution;
+      FT.FT_Set_Char_Size(_family.Face, (int) point_size, 0, _resolution, 0);
+      uint glyphIndex = FT.FT_Get_Char_Index(_family.Face, charIndex);
 
-      float point_size = 64.0f*_charSet.RenderedSize * 72.0f / _resolution;
-      FT.FT_Set_Char_Size(_face, (int) point_size, 0, _resolution, 0);
-      uint glyphIndex = FT.FT_Get_Char_Index(_face, charIndex);
-      
       // Font does not contain glyph
       if (glyphIndex == 0 && charIndex != 0)
       {
         // Copy 'not defined' glyph
-        _charSet.SetCharacter(charIndex,_charSet.GetCharacter(0));
+        _charSet.SetCharacter(charIndex, _charSet.GetCharacter(0));
         return true;
       }
 
       // Load the glyph for the current character.
-      if (FT.FT_Load_Glyph(_face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
+      if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
         return false;
-        
-      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
+
+      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
 
       IntPtr glyph;
       // Load the glyph data into our local array.
@@ -233,40 +198,59 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       // Width/height of char including padding
       int pwidth = cwidth + 3 * PAD;
       int pheight = cheight + 3 * PAD;
-  
+
+      // Check glyph fits in our texture
       if (_currentX + pwidth > MAX_WIDTH)
       {
         _currentX = 0;
         _currentY += _rowHeight;
-        _rowHeight = 0; 
+        _rowHeight = 0;
       }
-
-      if (_currentY  + pheight > MAX_HEIGHT)
+      if (_currentY + pheight > MAX_HEIGHT)
         return false;
 
-      BitmapCharacter Character = new BitmapCharacter(); 
-  
-      Character.Width = cwidth + PAD;
-      Character.Height = cheight + PAD;
+      // Create and store a BitmapCharacter for this glyph
+      CreateCharacter(charIndex, Glyph);
 
-      Character.X = _currentX;
-      Character.Y = _currentY;
-      Character.XOffset = Glyph.left;
-      Character.YOffset = _charSet.Base - Glyph.top;
-
-      // Convert fixed point 16.16 to float by divison with 2^16
-      Character.XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
-
-      _charSet.SetCharacter(charIndex, Character);
       // Copy the glyph bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
-
       if (Glyph.bitmap.buffer != IntPtr.Zero)
         Marshal.Copy(Glyph.bitmap.buffer, BitmapBuffer, 0, cwidth * cheight);
 
+      // Write glyph bitmap to our texture
+      WriteGlyphToTexture(Glyph, pwidth, pheight, BitmapBuffer);
+
+      _currentX += pwidth;
+      _rowHeight = Math.Max(_rowHeight, pheight);
+
+      // Free the glyph
+      FT.FT_Done_Glyph(glyph);
+      return true;
+    }
+
+    private FT_BitmapGlyph CreateCharacter(uint charIndex, FT_BitmapGlyph Glyph)
+    {
+      BitmapCharacter Character = new BitmapCharacter
+        {
+            Width = Glyph.bitmap.width + PAD,
+            Height = Glyph.bitmap.rows + PAD,
+            X = _currentX,
+            Y = _currentY,
+            XOffset = Glyph.left,
+            YOffset = _charSet.Base - Glyph.top,
+            XAdvance = (int) (Glyph.root.advance.x/65536.0f)
+        };
+
+      // Convert fixed point 16.16 to float by divison with 2^16
+
+      _charSet.SetCharacter(charIndex, Character);
+      return Glyph;
+    }
+
+    private void WriteGlyphToTexture(FT_BitmapGlyph Glyph, int pwidth, int pheight, Byte[] BitmapBuffer)
+    {
       // Lock the the area we intend to update
       Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
-
       DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
 
       // Copy FreeType glyph bitmap into our font texture.
@@ -278,22 +262,14 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       // Write the first padding row
       rect.Data.Write(PadPixels, 0, pwidth);
       rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
-
       // Write the glyph
       for (int y = 0; y < Glyph.bitmap.rows; y++)
       {
         for (int x = 0; x < Glyph.bitmap.width; x++)
-          if (Glyph.bitmap.buffer == IntPtr.Zero || x >= Glyph.bitmap.width || y >= Glyph.bitmap.rows)
-            // If we're outside the bounds of the FreeType bitmap
-            // then fill with black.
-            FontPixels[x + PAD] = 0;
-          else
-            // Otherwise copy the FreeType bits.
-            FontPixels[x + PAD] = BitmapBuffer[y * Pitch + x]; 
+          FontPixels[x + PAD] = BitmapBuffer[y * Pitch + x];
         rect.Data.Write(FontPixels, 0, pwidth);
         rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
       }
-
       // Write the last padding row
       rect.Data.Write(PadPixels, 0, pwidth);
       rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
@@ -301,670 +277,126 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       _texture.UnlockRectangle(0);
 
       rect.Data.Dispose();
-
-      _currentX += pwidth;
-      _rowHeight = Math.Max(_rowHeight, pheight);
-
-      // Free the glyph
-      FT.FT_Done_Glyph(glyph);
-      return true;
     }
 
-    public float FirstCharWidth
-    {
-      get { return _firstCharWidth; }
-    }
+    #endregion
 
-    public float Size
-    {
-      get { return _charSet.RenderedSize; }
-    }
-
-    public float Base
-    {
-      get { return _charSet.Base; }
-    }
-
-    public float LineHeight(float fontSize)
-    {
-      return fontSize / _charSet.RenderedSize * _charSet.LineHeight;
-    }
-
-    public float Width(string text, float fontSize)
-    {
-      float width = 0;
-      float sizeScale = fontSize / _charSet.RenderedSize;
-      
-      for (int i = 0; i < text.Length; i++)
-      {
-        char chk = text[i];
-
-        BitmapCharacter c = Character(chk);
-
-        width += c.XAdvance * sizeScale;
-        if (i != text.Length - 1)
-        {
-          _nextChar = text[i+1];
-          Kerning kern = c.KerningList.Find(FindKerningNode);
-          if (kern != null)
-            width += kern.Amount*sizeScale;
-        }
-      }
-      return width;
-    }
-
-    /// <summary>
-    /// Calculates the maximum substring of the specified <paramref name="text"/>
-    /// starting at index <paramref name="startIndex"/> which fits into the specified
-    /// <paramref name="maxWidth"/>.
-    /// </summary>
-    /// <param name="text">Text string whose substring should be calculated.</param>
-    /// <param name="fontSize">Size of the font to be used for the calculation.</param>
-    /// <param name="startIndex">First index in string which denotes the character from which
-    /// the width calculation starts.</param>
-    /// <param name="maxWidth">Maximum width the substring is allowed to take.</param>
-    /// <returns>Index of the first character in <paramref name="text"/> which doesn't
-    /// fit any more into the specified <paramref name="maxWidth"/>.</returns>
-    public int CalculateMaxSubstring(string text, float fontSize, int startIndex, float maxWidth)
-    {
-      if (double.IsNaN(maxWidth))
-        return text.Length;
-      float sizeScale = fontSize / _charSet.RenderedSize;
-      
-      for (int i = startIndex; i < text.Length; i++)
-      {
-        char chk = text[i];
-
-        BitmapCharacter c = Character(chk);
-
-        float charWidth = c.XAdvance * sizeScale;
-        if (i != text.Length - 1)
-        {
-          _nextChar = text[i+1];
-          Kerning kern = c.KerningList.Find(FindKerningNode);
-          if (kern != null)
-            charWidth += kern.Amount*sizeScale;
-        }
-        if (maxWidth >= charWidth)
-          maxWidth -= charWidth;
-        else
-          return i+1;
-      }
-      return text.Length;
-    }
-
-    public float Height
-    {
-      get { return _charSet.Height; }
-    }
-
-    public List<FontQuad> Quads
-    {
-      get { return _quads; }
-      set { _quads = value; }
-    }
-
-    FontQuad createQuad(BitmapCharacter c, Color4 Color, float x, float y, float z, float xOffset, float yOffset,
-        float width, float height, Matrix finalTransform)
-    {
-      //float u2, v2;
-      //u2 = v2 = 1;
-      Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-      Vector3 finalScale = new Vector3(finalTransform.M11, finalTransform.M22, finalTransform.M33);
-      Vector3 finalTranslation = new Vector3(finalTransform.M41, finalTransform.M42, finalTransform.M43);
-
-      uvPos.X *= finalScale.X;
-      uvPos.Y *= finalScale.Y;
-      uvPos.Z *= finalScale.Z;
-      uvPos.X += finalTranslation.X;
-      uvPos.Y += finalTranslation.Y;
-      uvPos.Z += finalTranslation.Z;
-      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-      // Create the vertices
-      PositionColored2Textured topLeft = new PositionColored2Textured(
-        x + xOffset, 
-        y + yOffset, 
-        z,
-        c.X / (float)_charSet.Width,
-        c.Y / (float)_charSet.Height,
-        Color.ToArgb());
-
-      uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
-      uvPos.X *= finalScale.X;
-      uvPos.Y *= finalScale.Y;
-      uvPos.Z *= finalScale.Z;
-      uvPos.X += finalTranslation.X;
-      uvPos.Y += finalTranslation.Y;
-      uvPos.Z += finalTranslation.Z;
-      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-
-      PositionColored2Textured topRight = new PositionColored2Textured(
-        topLeft.X + width,
-        y + yOffset, 
-        z ,
-        (c.X + c.Width) / (float)_charSet.Width,
-        c.Y / (float)_charSet.Height,
-        Color.ToArgb());
-
-      uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
-      uvPos.X *= finalScale.X;
-      uvPos.Y *= finalScale.Y;
-      uvPos.Z *= finalScale.Z;
-      uvPos.X += finalTranslation.X;
-      uvPos.Y += finalTranslation.Y;
-      uvPos.Z += finalTranslation.Z;
-      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-      PositionColored2Textured bottomRight = new PositionColored2Textured(
-        topLeft.X + width, 
-        topLeft.Y + height, 
-        z,
-        (c.X + c.Width) / (float)_charSet.Width,
-        (c.Y + c.Height) / (float)_charSet.Height,
-        Color.ToArgb());
-
-      uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
-      uvPos.X *= finalScale.X;
-      uvPos.Y *= finalScale.Y;
-      uvPos.Z *= finalScale.Z;
-      uvPos.X += finalTranslation.X;
-      uvPos.Y += finalTranslation.Y;
-      uvPos.Z += finalTranslation.Z;
-      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-      PositionColored2Textured bottomLeft = new PositionColored2Textured(
-        x + xOffset, 
-        topLeft.Y + height, 
-        z,
-        c.X / (float)_charSet.Width,
-        (c.Y + c.Height) / (float)_charSet.Height,
-        Color.ToArgb());
-
-      return new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
-    }
+    #region Text creation
 
     /// <summary>Adds a new string to the list to render.</summary>
-    /// <param name="text">Text to render</param>
-    /// <param name="textBox">Rectangle to constrain text</param>
-    /// <param name="alignment">Font alignment</param>
-    /// <param name="size">Font size</param>
-    /// <param name="color">Color</param>
-    /// <param name="kerning">true to use kerning, false otherwise.</param>
-    /// <returns>The index of the added StringBlock</returns>
-    /// <param name="scroll"></param>
-    /// <param name="textFits"></param>
-    public int AddString(string text, RectangleF textBox, float zOrder, Align alignment, float size,
-        Color4 color, bool kerning, bool scroll, Matrix finalTransform, out bool textFits, out float totalWidth)
+    /// <param name="text">Text to render.</param>
+    /// <param name="size">Font size.</param>
+    /// <param name="kerning">True to use kerning, false otherwise.</param>
+    /// <param name="textSize">Output size of the created text.</param>
+    /// <param name="lineIndex">Output indices of the first vertex for of each line of text.</param>
+    /// <returns>An array of vertices representing a triangle list.</returns>
+    public PositionColored2Textured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
     {
-      StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
-      _strings.Add(b);
-      _quads.AddRange(GetProcessedQuads(b, scroll, finalTransform, out textFits));
-      if (_quads.Count > 0)
-        totalWidth = _quads[_quads.Count - 1].TopRight.X - textBox.X;
-      else
-        totalWidth = 0;
-      return _strings.Count-1;
-    }
+      if (!IsAllocated)
+        Allocate();
 
-    /// <summary>Removes a string from the list of strings.</summary>
-    /// <param name="i">Index to remove</param>
-    public void ClearString(int i)
-    {
-      _strings.RemoveAt(i);
-    }
+      List<PositionColored2Textured> verts = new List<PositionColored2Textured>();
+      float[] lineWidth = new float[text.Length];
+      int liney = 0;
+      float sizeScale = size / _charSet.RenderedSize;
 
-    /// <summary>Clears the list of strings</summary>
-    public void ClearStrings()
-    {
-      _strings.Clear();
-      _quads.Clear();
-    }
+      lineIndex = new int[text.Length];
 
-    public void Render(Device device, int count, Matrix finalTransform)
-    {
-      // Render
-      _effect.StartRender(_texture, finalTransform);
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
-      _effect.EndRender();
-    }
-
-    public PositionColored2Textured[] Vertices
-    {
-      get
+      for (int i = 0; i < text.Length; ++i)
       {
-        PositionColored2Textured[] verts = new PositionColored2Textured[6 * _quads.Count];
-        int x = 0;
-        foreach (FontQuad q in _quads)
-        {
-          verts[x++] = q.Vertices[0];
-          verts[x++] = q.Vertices[1];
-          verts[x++] = q.Vertices[2];
-          verts[x++] = q.Vertices[3];
-          verts[x++] = q.Vertices[4];
-          verts[x++] = q.Vertices[5];
-        }
-        return verts;
-      }
-    }
+        int ix = verts.Count;
 
-    public int PrimitiveCount
-    {
-      get { return (_quads.Count * 2); }
-    }
-
-    public void Render(Device device, VertexBuffer buffer, Matrix finalTransform, out int count)
-    {
-      count = _quads.Count;
-      if (buffer == null || _texture == null || count <= 0)
-        return;
-       
-      // Add vertices to the buffer
-      //GraphicsBuffer<SkinEngine.DirectX.PositionColored2Textured> gb =
-      //GraphicsStream gb = buffer.Lock(0, 6 * count * PositionColored2Textured.StrideSize, LockFlags.Discard);
-
-      using (DataStream stream = buffer.Lock(0, 0, LockFlags.None))
-      {
-        foreach (FontQuad q in _quads)
-          stream.WriteRange(q.Vertices);
+        lineWidth[i] = CreateTextLine(text[i], liney, sizeScale, kerning, ref verts);
+        lineIndex[i] = ix; 
+        liney += _charSet.LineHeight;
       }
 
-      buffer.Unlock();
+      textSize = new SizeF(0.0f, verts[verts.Count-1].Y);
 
-      _effect.StartRender(_texture, finalTransform);
-
-      GraphicsDevice.Device.SetTexture(0, _texture);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(0, buffer, 0, PositionColored2Textured.StrideSize);
-      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
-
-      _effect.EndRender();
-    }
-
-    private void doFadeOut(ref List<FontQuad> quads, bool scroll, string text)
-    {
-      float alpha = 1.0f;
-      int startIndex = (int)(text.Length * 0.5f);
-      float step = 0.9f / ((float)text.Length - startIndex);
-      if (scroll)
-        step = 1.0f / ((float)text.Length - startIndex);
-      for (int i = 0; i < quads.Count; ++i)
+      /// Stores the line widths as the Z coordinate of the verices. This means alignment
+      ///     can be performed by a vertex shader durng rendering
+      PositionColored2Textured[] vertArray = verts.ToArray();
+      for (int i = 0; i < lineIndex.Length; ++i)
       {
-        if (quads[i].CharacterIndex < startIndex)
-          continue;
-        float charIndex = quads[i].CharacterIndex - startIndex;
-        float charAlphaStart = alpha - (step * charIndex);
-        float charAlphaEnd = alpha - (step * (1 + charIndex));
-        for (int v = 0; v < quads[i].Vertices.Length; v++)
-        {
-          float newAlpha = charAlphaStart;
-          if (v == 1 || v == 4 || v == 5)
-            newAlpha = charAlphaEnd;
-          uint color = (uint)quads[i].Vertices[v].Color;
-          float colorA = color >> 24;
-          colorA /= 255.0f;
-
-          colorA *= newAlpha;
-          uint alphaHex = (uint)((colorA * 255.0f));
-          unchecked
-          {
-            alphaHex <<= 24;
-            color = color & 0xffffff;
-            color |= alphaHex;
-          }
-
-          quads[i].Vertices[v].Color = (int)color;
-        }
+        float width = lineWidth[i];
+        int end = (i < lineIndex.Length - 1) ? lineIndex[i + 1] : vertArray.Length;
+        for (int j = lineIndex[i]; j < end; ++j)
+          vertArray[j].Z = width;
+        textSize.Width = Math.Max(lineWidth[i], textSize.Width);
       }
+
+      return vertArray;
     }
 
-    private BitmapCharacter Character(char c)
+    protected float CreateTextLine(string line, float y, float sizeScale, bool kerning, ref List<PositionColored2Textured> verts)
+    {
+      int x = 0;
+
+      BitmapCharacter lastChar = null;
+      foreach (char character in line)
+      {
+        BitmapCharacter c = Character(character);
+        // Adjust for kerning
+        if (kerning && lastChar != null)
+          x += GetKerningAmount(lastChar, character);
+        lastChar = c;
+        if (!char.IsWhiteSpace(character))
+          CreateQuad(c, sizeScale, x + c.XOffset, y + c.YOffset, ref verts);
+        x += c.XAdvance;
+      }
+      return x * sizeScale;
+    }
+
+    protected void CreateQuad(BitmapCharacter c, float sizeScale, float x, float y, ref List<PositionColored2Textured> verts)
+    {
+      PositionColored2Textured tl = new PositionColored2Textured(
+        x * sizeScale, y * sizeScale, 1.0f,
+        c.X / (float) _charSet.Width,
+        c.Y / (float) _charSet.Height,
+        0
+      );
+      PositionColored2Textured br = new PositionColored2Textured(
+        (x + c.Width) * sizeScale,
+        (y + c.Height) * sizeScale,
+        1.0f,
+        tl.Tu1 + c.Width / (float) _charSet.Width,
+        tl.Tv1 + c.Height / (float) _charSet.Height,
+        0
+      );
+      PositionColored2Textured bl = new PositionColored2Textured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
+      PositionColored2Textured tr = new PositionColored2Textured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, 0);
+
+      verts.Add(tl);
+      verts.Add(bl);
+      verts.Add(tr);
+
+      verts.Add(tr);
+      verts.Add(bl);
+      verts.Add(br);
+    }
+
+    protected BitmapCharacter Character(char c)
     {
       if (_charSet.GetCharacter(c) == null)
         AddGlyph(c);
       return _charSet.GetCharacter(c);
     }
 
-    /// <summary>Gets the list of Quads from a StringBlock all ready to render.</summary>
-    /// <param name="b">The string block</param>
-    /// <param name="scroll">true if text should scroll</param>
-    /// <param name="textFits"></param>
-    /// <returns>List of Quads</returns>
-    private List<FontQuad> GetProcessedQuads(StringBlock b, bool scroll, Matrix finalTransform, out bool textFits)
+    protected int GetKerningAmount(BitmapCharacter first, char second)
     {
-      textFits = true;
-
-      List<FontQuad> quads = new List<FontQuad>();
-
-      string text = b.Text;
-      double x = b.TextBox.X;
-      double y = b.TextBox.Y;
-      float maxWidth = b.TextBox.Width;
-      float maxHeight = b.TextBox.Bottom;
-      Align alignment = b.Alignment;
-      double lineWidth = 0f;
-      float sizeScale = b.Size / _charSet.RenderedSize;
-      char lastChar = new char();
-      int lineNumber = 1;
-      int wordNumber = 1;
-      double wordWidth = 0.0;
-      bool firstCharOfLine = true;
-      float z = b.ZOrder;
-      bool fadeOut = false;
-      if (text == null)
-        return quads;
-
-      for (int i = 0; i < text.Length; i++)
-      {
-        char chk = text[i];
-
-        BitmapCharacter c = Character(chk);
-
-        double xOffset = c.XOffset * sizeScale;
-        double yOffset = c.YOffset * sizeScale;
-        double xAdvance = c.XAdvance * sizeScale;
-        double width = c.Width * sizeScale;
-        double height = c.Height * sizeScale;
-
-        // TODO: We need to rework this complicated Font code.
-
-        // Albert: The following check makes texts disappear under certain circumstances, see Mantis #1676.
-        // Check vertical bounds
-        //if (y + yOffset + height > b.TextBox.Bottom)
-        //  break;
-
-        // Newline
-        if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance  > Math.Ceiling(maxWidth)))
-        {
-          //Trace.WriteLine("lineWidth xAdvance maxWidth " + lineWidth + " " + xAdvance + " " + maxWidth);
-          if (y + yOffset + height + _charSet.LineHeight * sizeScale > Math.Ceiling(maxHeight))
-          {
-            textFits = false;
-            fadeOut = true;
-
-            if (scroll)
-            {
-              text = text.Substring(0, i);
-              break;
-            }
-            else
-            { // Line does not fit...
-              // change last 3 chars to ...
-              if (text.Length > 4)
-              {
-                while (true)
-                {
-                  int off = quads.Count - 1;
-                  if (off >= 0 && quads[off].CharacterIndex >= i - 3)
-                  {
-                    x -= quads[off].XAdvance;
-                    lineWidth -= quads[off].XAdvance;
-                    quads.RemoveAt(off);
-                  }
-                  else
-                    break;
-                }
-                if (i - 3 >= 1 & i - 3 < text.Length)
-                {
-                  text = text.Substring(0, i - 3) + "...";
-                  i -= 4;
-                }
-              }
-              continue;
-            }
-          }
-          if (alignment == Align.Left)
-            // Start at left
-            x = b.TextBox.X;
-          if (alignment == Align.Center)
-            // Start in center
-            x = b.TextBox.X + (maxWidth / 2f);
-          else if (alignment == Align.Right)
-            // Start at right
-            x = b.TextBox.Right;
-
-          y += _charSet.LineHeight * sizeScale;
-          float offset = 0f;
-
-          if ((lineWidth + xAdvance >= maxWidth) && (wordNumber != 1))
-          {
-            // Next character extends past text box width
-            // We have to move the last word down one line
-            char newLineLastChar = new char();
-            lineWidth = 0f;
-            for (int j = 0; j < quads.Count; j++)
-            {
-              if (alignment == Align.Left)
-              {
-                // Move current word to the left side of the text box
-                if ((quads[j].LineNumber == lineNumber) &&
-                    (quads[j].WordNumber == wordNumber))
-                {
-                  quads[j].LineNumber++;
-                  quads[j].WordNumber = 1;
-                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
-                  x += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  if (b.Kerning)
-                  {
-                    _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
-                    if (kern != null)
-                    {
-                      x += kern.Amount * sizeScale;
-                      lineWidth += kern.Amount * sizeScale;
-                    }
-                  }
-                }
-              }
-              else if (alignment == Align.Center)
-              {
-                if ((quads[j].LineNumber == lineNumber) &&
-                    (quads[j].WordNumber == wordNumber))
-                {
-                  // First move word down to next line
-                  quads[j].LineNumber++;
-                  quads[j].WordNumber = 1;
-                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
-                  x += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  offset += quads[j].BitmapCharacter.XAdvance * sizeScale / 2f;
-                  if (b.Kerning)
-                  {
-                    _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
-                    if (kern != null)
-                    {
-                      float kerning = kern.Amount * sizeScale;
-                      x += kerning;
-                      lineWidth += kerning;
-                      offset += kerning / 2f;
-                    }
-                  }
-                }
-              }
-              else if (alignment == Align.Right)
-              {
-                if ((quads[j].LineNumber == lineNumber) &&
-                    (quads[j].WordNumber == wordNumber))
-                {
-                  // Move character down to next line
-                  quads[j].LineNumber++;
-                  quads[j].WordNumber = 1;
-                  quads[j].X = (float)x + (quads[j].BitmapCharacter.XOffset * sizeScale);
-                  quads[j].Y = (float)y + (quads[j].BitmapCharacter.YOffset * sizeScale);
-                  lineWidth += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  x += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  offset += quads[j].BitmapCharacter.XAdvance * sizeScale;
-                  if (b.Kerning)
-                  {
-                    _nextChar = quads[j].Character;
-                    Kerning kern = _charSet.GetCharacter(newLineLastChar).KerningList.Find(FindKerningNode);
-                    if (kern != null)
-                    {
-                      float kerning = kern.Amount * sizeScale;
-                      x += kerning;
-                      lineWidth += kerning;
-                      offset += kerning;
-                    }
-                  }
-                }
-              }
-              newLineLastChar = quads[j].Character;
-            }
-
-            // Make post-newline justifications
-            if (alignment == Align.Center || alignment == Align.Right)
-            {
-              // Justify the new line
-              for (int k = 0; k < quads.Count; k++)
-                if (quads[k].LineNumber == lineNumber + 1)
-                  quads[k].X -= offset;
-              x -= offset;
-
-              // Rejustify the line it was moved from
-              for (int k = 0; k < quads.Count; k++)
-                if (quads[k].LineNumber == lineNumber)
-                  quads[k].X += offset;
-            }
-          }
-          else
-          {
-            // New line without any "carry-down" word
-            firstCharOfLine = true;
-            lineWidth = 0f;
-          }
-
-          wordNumber = 1;
-          lineNumber++;
-        } // End new line check
-
-        // Don't print these
-        if (text[i] == '\n' || text[i] == '\r' || text[i] == '\t')
-          continue;
-
-        // Set starting cursor for alignment
-        if (firstCharOfLine)
-        {
-          if (alignment == Align.Left)
-            // Start at left
-            x = b.TextBox.Left;
-          if (alignment == Align.Center)
-            // Start in center
-            x = b.TextBox.Left + (maxWidth / 2f);
-          else if (alignment == Align.Right)
-            // Start at right
-            x = b.TextBox.Right;
-        }
-
-        // Adjust for kerning
-        float kernAmount = 0f;
-        if (b.Kerning && !firstCharOfLine)
-        {
-          _nextChar = text[i];
-          Kerning kern = _charSet.GetCharacter(lastChar).KerningList.Find(FindKerningNode);
-          if (kern != null)
-          {
-            kernAmount = kern.Amount * sizeScale;
-            x += kernAmount;
-            lineWidth += kernAmount;
-            wordWidth += kernAmount;
-          }
-        }
-
-        firstCharOfLine = false;
-        FontQuad q = createQuad(c, b.Color, (float) x, (float) y, z, (float) xOffset, (float) yOffset,
-            (float) width, (float) height, finalTransform);
-   
-        q.LineNumber = lineNumber;
-        if (text[i] == ' ' && alignment == Align.Right)
-        {
-          wordNumber++;
-          wordWidth = 0f;
-        }
-        q.WordNumber = wordNumber;
-        wordWidth += xAdvance;
-        q.WordWidth = (float)wordWidth;
-        q.BitmapCharacter = c;
-        q.SizeScale = sizeScale;
-        q.Character = text[i];
-        q.CharacterIndex = i;
-        q.XAdvance = (float)xAdvance;
-        quads.Add(q);
-
-        if (text[i] == ' ' && alignment == Align.Left)
-        {
-          wordNumber++;
-          wordWidth = 0f;
-        }
-
-        x += xAdvance;
-        lineWidth += xAdvance;
-        lastChar = text[i];
-
-        if (quads.Count == 1)
-          _firstCharWidth = (float) lineWidth;
-        // Rejustify text
-        if (alignment == Align.Center)
-        {
-          // We have to recenter all Quads since we addded a 
-          // new character
-          float offset = (float)xAdvance / 2f;
-          if (b.Kerning)
-            offset += kernAmount / 2f;
-          for (int j = 0; j < quads.Count; j++)
-            if (quads[j].LineNumber == lineNumber)
-              quads[j].X -= offset;
-          x -= offset;
-        }
-        else if (alignment == Align.Right)
-        {
-          // We have to rejustify all Quads since we addded a 
-          // new character
-          float offset = 0f;
-          if (b.Kerning)
-            offset += kernAmount;
-          for (int j = 0; j < quads.Count; j++)
-            if (quads[j].LineNumber == lineNumber)
-            {
-              offset = (float)xAdvance;
-              quads[j].X -= (float)xAdvance;
-            }
-          x -= offset;
-        }
-      }
-      if (fadeOut)
-        doFadeOut(ref quads, scroll, text);
-      return quads;
+      foreach (Kerning node in first.KerningList)
+        if (node.Second == second)
+          return node.Amount;
+      return 0;
     }
-
-    /// <summary>Gets the line height of a StringBlock.</summary>
-    public float GetLineHeight(int index)
-    {
-      if (index < 0 || index > _strings.Count)
-        throw new ArgumentException("StringBlock index out of range.");
-      return _charSet.LineHeight * (_strings[index].Size / _charSet.RenderedSize);
-    }
-
-    /// <summary>Search predicate used to find nodes in _kerningList</summary>
-    /// <param name="node">Current node.</param>
-    /// <returns>true if the node's name matches the desired node name, false otherwise.</returns>
-    private bool FindKerningNode(Kerning node)
-    {
-      return (node.Second == _nextChar);
-    }
-
-    /// <summary>Gets the font texture.</summary>
-    public Texture Texture
-    {
-      get { return _texture; }
-    }
+    #endregion
 
     #region ITextureAsset Members
-
-
     public void Allocate()
     {
+      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
+      // Add 'not defined' glyph
+      AddGlyph(0);
     }
 
     public void KeepAlive()
@@ -991,59 +423,44 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       {
         _texture.Dispose();
         _texture = null;
+        _charSet.Clear();
       }
-      _effect.Free(true);
     }
 
     #endregion
   }
 
-  internal class BitmapCharacterRow
-  {
-    public const int MAX_CHARS = 256;
-
-    public BitmapCharacter[] Characters;
-
-    /// <summary>Creates a new BitmapCharacterSet</summary>
-    public BitmapCharacterRow()
-    {
-      Characters = new BitmapCharacter[MAX_CHARS];
-    }
-  }
+  #region Internal classes
 
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
   {
-    public const int MAX_ROWS = 256;
+    public const int MAX_CHARS = 4096;
     public int LineHeight;
     public int Base;
     public int RenderedSize;
     public int Width;
     public int Height;
-    private readonly BitmapCharacterRow[] Rows;
-
-    /// <summary>Creates a new BitmapCharacterSet</summary>
-    public BitmapCharacterSet()
-    {
-      Rows = new BitmapCharacterRow[MAX_ROWS];
-    }
+    private BitmapCharacter[] _characters = new BitmapCharacter[MAX_CHARS];
 
     public BitmapCharacter GetCharacter(uint index)
     {
-      uint row = index / BitmapCharacterRow.MAX_CHARS;
-      if (Rows[row] == null)
-        Rows[row] = new BitmapCharacterRow();
-      return Rows[row].Characters[index % BitmapCharacterRow.MAX_CHARS];
+      if (index >= MAX_CHARS)
+        throw new ArgumentOutOfRangeException("Maximum character value is " + MAX_CHARS);
+      return _characters[index];
     }
 
     public void SetCharacter(uint index, BitmapCharacter character)
     {
-      uint row = index / BitmapCharacterRow.MAX_CHARS;
-      if (Rows[row] == null)
-        Rows[row] = new BitmapCharacterRow();
-      Rows[row].Characters[index % BitmapCharacterRow.MAX_CHARS] = character;  
+      if (index >= MAX_CHARS)
+        throw new ArgumentOutOfRangeException("Maximum character value is " + MAX_CHARS);
+      _characters[index] = character;
     }
 
+    public void Clear()
+    {
+      _characters = new BitmapCharacter[MAX_CHARS];
+    }
   }
 
   /// <summary>
@@ -1067,14 +484,16 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <returns>Cloned BitmapCharacter.</returns>
     public object Clone()
     {
-      BitmapCharacter result = new BitmapCharacter();
-      result.X = X;
-      result.Y = Y;
-      result.Width = Width;
-      result.Height = Height;
-      result.XOffset = XOffset;
-      result.YOffset = YOffset;
-      result.XAdvance = XAdvance;
+      BitmapCharacter result = new BitmapCharacter
+        {
+            X = X,
+            Y = Y,
+            Width = Width,
+            Height = Height,
+            XOffset = XOffset,
+            YOffset = YOffset,
+            XAdvance = XAdvance
+        };
       result.KerningList.AddRange(KerningList);
       result.Page = Page;
       return result;
@@ -1090,46 +509,5 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     public int Amount;
   }
 
-  internal class StringWord
-  {
-    string _text;
-    float _width;
-
-    public StringWord(string text, float width)
-    {
-      _text = text;
-      _width = width;
-    }
-  } 
-
-  /// <summary>Individual string to load into vertex buffer.</summary>
-  internal struct StringBlock
-  {
-    public string Text;
-    public RectangleF TextBox;
-    public Font.Align Alignment;
-    public float Size;
-    public float ZOrder;
-    public Color4 Color;
-    public bool Kerning;
-
-    /// <summary>Creates a new StringBlock</summary>
-    /// <param name="text">Text to render</param>
-    /// <param name="textBox">Text box to constrain text</param>
-    /// <param name="alignment">Font alignment</param>
-    /// <param name="size">Font size</param>
-    /// <param name="color">Color</param>
-    /// <param name="kerning">true to use kerning, false otherwise.</param>
-    public StringBlock(string text, RectangleF textBox, float zOrder, Font.Align alignment,
-        float size, Color4 color, bool kerning)
-    {
-      Text = text;
-      TextBox = textBox;
-      Alignment = alignment;
-      Size = size;
-      Color = color;
-      Kerning = kerning;
-      ZOrder = zOrder;
-    }
-  }
+  #endregion
 }

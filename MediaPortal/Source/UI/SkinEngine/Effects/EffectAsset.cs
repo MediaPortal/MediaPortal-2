@@ -258,6 +258,10 @@ namespace MediaPortal.UI.SkinEngine.Effects
           _effect.SetValue<float>(kvp.Key, (float[]) kvp.Value);
         else if (type == typeof(Matrix))
           _effect.SetValue(kvp.Key, (Matrix) kvp.Value);
+        else if (type == typeof(Vector2))
+          _effect.SetValue(kvp.Key, (Vector2) kvp.Value);
+        else if (type == typeof(Vector3))
+          _effect.SetValue(kvp.Key, (Vector3) kvp.Value);
         else if (type == typeof(Vector4))
           _effect.SetValue(kvp.Key, (Vector4) kvp.Value);
         else if (type == typeof(bool))

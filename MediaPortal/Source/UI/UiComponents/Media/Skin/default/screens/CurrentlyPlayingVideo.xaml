@@ -31,7 +31,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.VideoTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="true" Content="{Binding MediaItemTitle}"/>
+            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
             <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0" Content="[Media.VideoGenreLabel]"/>
             <Label x:Name="Genre" Grid.Row="1" Grid.Column="1" Content="{Binding VideoGenre}"/>
             <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.VideoYearLabel]"/>

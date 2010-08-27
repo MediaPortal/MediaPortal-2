@@ -31,16 +31,16 @@
         </Grid.ColumnDefinitions>
 
         <Label Grid.Row="0" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareNameInfo]"/>
-        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ShareName}" Scroll="True"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ShareName}" Scroll="Auto"/>
 
         <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareMediaProviderInfo]"/>
-        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.BaseMediaProvider.Name}" Scroll="True"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.BaseMediaProvider.Name}" Scroll="Auto"/>
 
         <Label Grid.Row="2" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareMediaCategoriesInfo]"/>
-        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.MediaCategories}" Scroll="True"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.MediaCategories}" Scroll="Auto"/>
 
         <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="[SharesConfig.SharePathInfo]"/>
-        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Scroll="True"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Scroll="Auto"/>
 
         <Label Grid.Row="4" Grid.Column="0" Margin="10" Content="[SharesConfig.ShareResourcePathInfo]"/>
         <!-- Attention: In the current implementation of the Grid's layouting code, the row for the following label might be layouted

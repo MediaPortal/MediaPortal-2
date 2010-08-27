@@ -135,13 +135,27 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     /// <param name="font">The font.</param>
     /// <returns></returns>
-    public static FontBufferAsset GetFont(Font font)
+    public static TextBufferAsset GetTextBuffer(string fontFamily, float fontSize, bool zoomToFullScreen)
     {
       lock (_vertexBuffers)
       {
-        FontBufferAsset vertex = new FontBufferAsset(font);
-        _vertexBuffers.Add(vertex);
-        return vertex;
+        FontFamily family = FontManager.GetFontFamily(fontFamily);
+        if (family == null)
+        {
+          family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
+          if (family == null)
+            return null;
+        }
+        int baseSize = (int) Math.Ceiling(zoomToFullScreen ? fontSize * SkinContext.MaxZoomHeight : fontSize);
+        string fontKey = family.Name + "::" + baseSize.ToString();
+        Font font;
+        if (!_assetsHigh.ContainsKey(fontKey))
+          _assetsHigh[fontKey] = new Font(family, baseSize, FontManager.DefaultDPI);
+        font = (Font)_assetsHigh[fontKey];
+
+        TextBufferAsset text = new TextBufferAsset(font, fontSize);
+        _unnamedAssets.Add(text);
+        return text;
       }
     }
 

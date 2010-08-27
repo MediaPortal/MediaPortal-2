@@ -78,7 +78,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
               </DockPanel>
@@ -104,7 +104,7 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="true"/>
+                    Content="{Binding PlayerStateText}" Scroll="Auto"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
                     IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
@@ -201,7 +201,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
+                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
                       MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
@@ -227,7 +227,7 @@
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
-                  Content="{Binding PlayerStateText}" Scroll="true" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -325,7 +325,7 @@
               Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemNameLabel" Property="Scroll" Value="True"/>
+                <Setter TargetName="ItemNameLabel" Property="Scroll" Value="Auto"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -397,7 +397,7 @@
             VerticalAlignment="Center"/>
         <Label x:Name="ItemNameLabel" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
             Content="{Binding [Name]}"
-            FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center">
+            FontSize="26" HorizontalAlignment="Left" VerticalAlignment="Center">
           <Label.Color>
             <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="AdditionalProperties[IsCurrentItem]"/>
@@ -406,7 +406,7 @@
             </MultiBinding>
           </Label.Color>
         </Label>
-        <Label x:Name="ItemLengthLabel" Grid.Column="2" Grid.Row="0" FontSize="22" VerticalAlignment="Center"
+        <Label x:Name="ItemLengthLabel" Grid.Column="2" Grid.Row="0" FontSize="20" VerticalAlignment="Center"
             Content="{Binding [Length]}" Color="{ThemeResource PlaylistItemColor}"/>
       </Grid>
     </Grid>
@@ -428,8 +428,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="28"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding [NumItems]}" FontSize="28"/>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="26"/>
+      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding [NumItems]}" FontSize="26"/>
     </Grid>
   </DataTemplate>
 

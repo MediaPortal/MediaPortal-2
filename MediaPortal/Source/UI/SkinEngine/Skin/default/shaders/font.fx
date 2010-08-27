@@ -1,6 +1,10 @@
-float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
-texture  g_texture; // Color texture 
- 
+float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
+texture	g_texture; // Color texture 
+float4 g_scrollpos;
+float4 g_textbox;
+float4 g_color;
+float4 g_alignment;
+
 sampler textureSampler = sampler_state
 {
   Texture = <g_texture>;
@@ -8,21 +12,20 @@ sampler textureSampler = sampler_state
   MinFilter = LINEAR;
   MagFilter = LINEAR;
 };
-                          
+
 // application to vertex structure
 struct a2v
 {
   float4 Position  : POSITION0;
-  float4 Color     : COLOR0;
   float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
 struct v2p
 {
-  float4 Position   : POSITION;
-  float4 Color      : COLOR0;
-  float2 Texcoord   : TEXCOORD0;
+  float4 Position     : POSITION;
+  float4 ClipPosition : COLOR0;
+  float2 Texcoord     : TEXCOORD0;
 };
 
 // pixel shader to frame
@@ -33,18 +36,32 @@ struct p2f
 
 void renderVertexShader(in a2v IN, out v2p OUT)
 {
-  OUT.Position = mul(IN.Position, worldViewProj);
-  OUT.Color = IN.Color;
+  float4 pos = IN.Position;
+  // Align text
+  pos.x += g_alignment.x + g_alignment.y * pos.z;
+  pos.z = g_alignment.z;
+  // Apply scroll position
+  pos.x += g_scrollpos.x;
+  pos.y += g_scrollpos.y;
+  // Store for clipping
+  OUT.ClipPosition = pos;
+  // Offset to layout position
+  pos.x += g_textbox.x;
+  pos.y += g_textbox.y;
+  // Apply transforms
+  pos = mul(pos, worldViewProj);
+
+  OUT.Position = pos;
   OUT.Texcoord = IN.Texcoord;
 }
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  float val = tex2D(textureSampler, IN.Texcoord);
-  float4 pixel; 
-  pixel.rgb = 1.0;
-  pixel.a   = val;
-  OUT.Color = pixel * IN.Color;
+  // Clip to textBox
+  clip(IN.ClipPosition.xy);
+  clip(g_textbox.zw - IN.ClipPosition.xy);
+  OUT.Color = g_color;
+  OUT.Color.a = tex2D(textureSampler, IN.Texcoord);
 }
 
 technique simple

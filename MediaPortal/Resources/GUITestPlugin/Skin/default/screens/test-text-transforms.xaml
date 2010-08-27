@@ -20,8 +20,9 @@
   <Grid.Resources>
     <ResourceWrapper x:Key="TestTextContent" Resource="Test-Text"/>
     <ResourceWrapper x:Key="TestTextColor" Resource="Blue"/>
-    <ResourceWrapper x:Key="SmallTextSize" Resource="30"/>
-    <ResourceWrapper x:Key="BigTextSize" Resource="60"/>
+    <ResourceWrapper x:Key="TextBackgroundColor" Resource="Black"/>
+    <ResourceWrapper x:Key="SmallTextSize" Resource="20"/>
+    <ResourceWrapper x:Key="BigTextSize" Resource="40"/>
 
     <ResourceWrapper x:Key="TestLabelRTAngle" Resource="10"/>
     <ResourceWrapper x:Key="TestLabelLTAngle" Resource="45"/>
@@ -44,8 +45,10 @@
   <!-- First row: All texts, no transformation -->
 
   <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Different text sizes, normal orientation"/>
-  <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource SmallTextStyle}"/>
-  <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource BigTextStyle}"/>
+  <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}"/>
+  <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource BigTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}"/>
 
   <!-- Second row: All texts, N degrees RenderTransform -->
 
@@ -54,14 +57,16 @@
     <Label Content="{StaticResource TestLabelRTAngle}"/>
     <Label Content=" degrees (RenderTransform)"/>
   </StackPanel>
-  <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallTextStyle}">
+  <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.RenderTransform>
       <TransformGroup>
         <RotateTransform Angle="{StaticResource TestLabelRTAngle}"/>
       </TransformGroup>
     </Label.RenderTransform>
   </Label>
-  <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource BigTextStyle}">
+  <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource BigTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.RenderTransform>
       <TransformGroup>
         <RotateTransform Angle="{StaticResource TestLabelRTAngle}"/>
@@ -76,14 +81,16 @@
     <Label Content="{StaticResource TestLabelLTAngle}"/>
     <Label Content=" degrees (LayoutTransform)"/>
   </StackPanel>
-  <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource SmallTextStyle}">
+  <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.LayoutTransform>
-      <TransformGroup>
-        <RotateTransform Angle="{StaticResource TestLabelLTAngle}"/>
-      </TransformGroup>
+    <TransformGroup>
+      <RotateTransform Angle="{StaticResource TestLabelLTAngle}"/>
+    </TransformGroup>
     </Label.LayoutTransform>
   </Label>
-  <Label Grid.Row="5" Grid.Column="1" Style="{StaticResource BigTextStyle}">
+  <Label Grid.Row="5" Grid.Column="1" Style="{StaticResource BigTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.LayoutTransform>
       <TransformGroup>
         <RotateTransform Angle="{StaticResource TestLabelLTAngle}"/>
@@ -100,7 +107,8 @@
     <Label Content="{StaticResource TestLabelLTAngle}"/>
     <Label Content=" degrees LayoutTransform"/>
   </StackPanel>
-  <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource SmallTextStyle}">
+  <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.RenderTransform>
       <TransformGroup>
         <RotateTransform Angle="{StaticResource TestLabelRTAngle}"/>
@@ -112,7 +120,8 @@
       </TransformGroup>
     </Label.LayoutTransform>
   </Label>
-  <Label Grid.Row="7" Grid.Column="1" Style="{StaticResource BigTextStyle}">
+  <Label Grid.Row="7" Grid.Column="1" Style="{StaticResource BigTextStyle}" Color="{StaticResource TestTextColor}"
+      Background="{StaticResource TextBackgroundColor}">
     <Label.RenderTransform>
       <TransformGroup>
         <RotateTransform Angle="{StaticResource TestLabelRTAngle}"/>
