@@ -309,7 +309,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsViewPortAtBottom)
         return false;
-      SetScrollOffset(_scrollOffsetX, _scrollOffsetY + numLines * NUM_SCROLL_PIXEL);
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY - numLines * NUM_SCROLL_PIXEL);
       return true;
     }
 
@@ -317,7 +317,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsViewPortAtTop)
         return false;
-      SetScrollOffset(_scrollOffsetX, _scrollOffsetY - numLines * NUM_SCROLL_PIXEL);
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY + numLines * NUM_SCROLL_PIXEL);
       return true;
     }
 
