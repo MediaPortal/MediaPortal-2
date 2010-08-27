@@ -818,6 +818,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height;
 
+      _innerDesiredSize = totalSize;
+
       if (layoutTransform.HasValue)
         layoutTransform.Value.TransformSize(ref totalSize);
 
@@ -849,6 +851,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Matrix layoutTransform = LayoutTransform.GetTransform().RemoveTranslation();
         if (!layoutTransform.IsIdentity)
         {
+          // FIXME Albert, 2010-08-27: Instead of calling FindMaxTransformedSize, which tries to maximize the area
+          // of the rect to the returned size, we need to take the aspect ratio of _innerDesiredSize into account.
           SizeF transformedSize = FindMaxTransformedSize(layoutTransform, rect.Size);
 
           rect = new RectangleF(

@@ -224,7 +224,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _templateNameScopeProperty;
     protected SizeF? _availableSize;
     protected RectangleF? _outerRect;
-    protected SizeF _desiredSize;
+    protected SizeF _innerDesiredSize; // Desiredd size in local coords
+    protected SizeF _desiredSize; // Desired size in parent coordinate system
     protected RectangleF _innerRect;
     protected ResourceDictionary _resources;
     protected IExecutableCommand _loaded;
