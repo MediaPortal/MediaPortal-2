@@ -190,9 +190,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       internal set
       {
         UIElementCollection oldChildren = Children;
-        _childrenProperty.SetValue(value);
         value.SetParent(this);
+        _childrenProperty.SetValue(value);
         _updateRenderOrder = true;
+        // FIXME: This is a potential threading problem: If we are still rendering the old children in the render thread,
+        // we would have to wait here until the render pass has finished.
         oldChildren.SetParent(null);
         oldChildren.Dispose();
         InvalidateLayout();
