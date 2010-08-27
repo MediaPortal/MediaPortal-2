@@ -638,7 +638,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Given the transform currently applied to child, this method finds (in axis-aligned local space)
-    /// the largest rectangle that, after transform, fits within transformSpaceBounds.
+    /// the largest rectangle that, after transform, fits within <paramref name="localBounds"/>.
     /// Largest rectangle means rectangle of the greatest area in local space (although maximal area in local space
     /// implies maximal area in transform space).
     /// </summary>
