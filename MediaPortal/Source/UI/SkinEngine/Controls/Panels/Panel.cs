@@ -287,9 +287,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (!_updateRenderOrder) return;
       _updateRenderOrder = false;
-      if (_renderOrder != null && Children != null)
+      Children.FixZIndex();
+      lock (_renderLock)
       {
-        Children.FixZIndex();
         _renderOrder.Clear();
         CollectionUtils.AddAll(_renderOrder, GetVisibleChildren());
         _renderOrder.Sort(new ZOrderComparer());
@@ -304,7 +304,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      List<UIElement> children = new List<UIElement>(_renderOrder);
+      List<UIElement> children;
+      lock (_renderLock)
+        children = new List<UIElement>(_renderOrder);
       // Iterate from last to first to find elements which are located on top
       for (int i = children.Count - 1; i >= 0; i--)
       {

@@ -232,6 +232,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _triggersInitialized;
     protected bool _fireLoaded = true;
     private string _tempName = null;
+    protected readonly object _renderLock = new object(); // Can be used to synchronize several accesses between render thread and other threads
 
     #endregion
 
