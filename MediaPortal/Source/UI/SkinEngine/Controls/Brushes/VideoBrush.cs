@@ -137,29 +137,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       float minU = sourceRect.X / (float) _videoSize.Width;
       float minV = sourceRect.Y / (float) _videoSize.Height;
-      float maxU = sourceRect.Width / (float) _videoSize.Width;
-      float maxV = sourceRect.Height / (float) _videoSize.Height;
+      float diffU = sourceRect.Width / (float) _videoSize.Width;
+      float diffV = sourceRect.Height / (float) _videoSize.Height;
 
-      float minX = destinationRect.X / _vertsBounds.Width;
-      float minY = destinationRect.Y / _vertsBounds.Height;
-
-      float maxX = destinationRect.Width / _vertsBounds.Width;
-      float maxY = destinationRect.Height / _vertsBounds.Height;
-
-      float diffU = maxU - minU;
-      float diffV = maxV - minV;
       PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
       for (int i = 0; i < _verts.Length; ++i)
       {
-        float x = (_verts[i].X / _vertsBounds.Width) * maxX + minX;
-        float y = (_verts[i].Y / _vertsBounds.Height) * maxY + minY;
-        verts[i].X = x*_vertsBounds.Width;
-        verts[i].Y = y*_vertsBounds.Height;
+        verts[i].X = _verts[i].X + destinationRect.X;
+        verts[i].Y = _verts[i].Y + destinationRect.Y;
 
-        float u = _verts[i].Tu1 * diffU + minU;
-        float v = _verts[i].Tv1 * diffV + minV;
-        verts[i].Tu1 = u;
-        verts[i].Tv1 = v;
+        verts[i].Tu1 = _verts[i].Tu1 * diffU + minU;
+        verts[i].Tv1 = _verts[i].Tv1 * diffV + minV;
         verts[i].Color = _verts[i].Color;
         verts[i].Z = zOrder;
       }

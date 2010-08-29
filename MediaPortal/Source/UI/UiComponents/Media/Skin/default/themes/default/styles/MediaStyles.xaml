@@ -206,7 +206,7 @@
                       MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
-              <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1"
+              <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Template>
