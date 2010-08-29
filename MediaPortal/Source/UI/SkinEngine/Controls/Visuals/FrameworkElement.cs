@@ -522,7 +522,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public bool IsInFocusRootPath()
     {
-      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
+      Screen screen = Screen;
+      Visual focusPath = screen == null ? null : screen.FocusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)
@@ -585,7 +586,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElement parent = VisualParent as UIElement;
       if (parent == null)
       {
-        SizeF size = new SizeF(Screen.SkinWidth, Screen.SkinHeight);
+        Screen screen = Screen;
+        SizeF screenSize = screen == null ? new SizeF() : new SizeF(screen.SkinWidth, screen.SkinHeight);
+        SizeF size = new SizeF(screenSize);
 
 #if DEBUG_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
@@ -596,7 +599,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so we arrange with screen size {2}", GetType().Name, Name, size));
 #endif
         // Ignore the measured size - arrange with screen size
-        Arrange(new RectangleF(0, 0, Screen.SkinWidth, Screen.SkinHeight));
+        Arrange(new RectangleF(new PointF(0, 0), screenSize));
       }
       else
       { // We have a visual parent, i.e parent != null
@@ -1032,7 +1035,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected FrameworkElement GetFocusedElementOrChild()
     {
-      FrameworkElement result = Screen == null ? null : Screen.FocusedElement;
+      Screen screen = Screen;
+      FrameworkElement result = screen == null ? null : screen.FocusedElement;
       if (result == null)
         foreach (UIElement child in GetChildren())
         {
@@ -1311,7 +1315,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (OpacityMask == null)
         return;
-      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext: " + Name, Screen.Name,
+      Screen screen = Screen;
+      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext: " + Name, screen == null ? string.Empty : screen.Name,
           new Texture(GraphicsDevice.Device, textureSize.Width, textureSize.Height, 1,
               Usage.RenderTarget, Format.A8R8G8B8, Pool.Default));
       ContentManager.Add(_opacityMaskContext);

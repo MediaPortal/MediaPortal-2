@@ -35,6 +35,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Core.Runtime;
@@ -334,7 +335,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected void CheckShowMouseControls()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      ShowMouseControls = inputManager.IsMouseUsed && Screen != null && Screen.HasInputFocus;
+      Screen screen = Screen;
+      ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
     protected void UpdateProperties()
@@ -428,7 +430,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             CanPlay = playerContext.CurrentMediaItem != null || playerContext.Playlist.ItemList.Count > 0;
             CanPause = false;
             CanStop = false;
-            IPlaylist pl = playerContext.Playlist;
             CanSkipBack = false;
             CanSkipForward = false;
             CanSeekBackward = false;

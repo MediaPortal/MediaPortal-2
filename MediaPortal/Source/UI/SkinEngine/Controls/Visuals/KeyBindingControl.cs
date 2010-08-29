@@ -107,9 +107,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Content = "[Undefined key binding]: " + Description;
         return;
       }
-      if (IsEnabled && Screen != null)
+      Screen screen = Screen;
+      if (IsEnabled && screen != null)
       {
-        _registeredScreen = Screen;
+        _registeredScreen = screen;
         _registeredKey = Key;
         _registeredScreen.AddKeyBinding(_registeredKey, () =>
         {

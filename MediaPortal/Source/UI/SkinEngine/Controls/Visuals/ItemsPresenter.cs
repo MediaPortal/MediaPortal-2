@@ -25,6 +25,7 @@
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -156,7 +157,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     private bool CheckFocusInScope()
     {
-      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
+      Screen screen = Screen;
+      Visual focusPath = screen == null ? null : screen.FocusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)

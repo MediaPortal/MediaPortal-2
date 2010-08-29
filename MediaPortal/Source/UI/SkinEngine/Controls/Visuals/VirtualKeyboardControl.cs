@@ -34,6 +34,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
@@ -155,8 +156,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnScreenChanged(AbstractProperty prop, object oldVal)
     {
-      if (Screen != null)
-        Screen.SetVirtalKeyboardControl(this);
+      Screen screen = Screen;
+      if (screen != null)
+        screen.SetVirtalKeyboardControl(this);
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)

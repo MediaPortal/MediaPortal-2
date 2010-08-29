@@ -87,6 +87,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool Remove(T element)
     {
       bool result = _elements.Remove(element);
+      element.Deallocate();
+      element.Dispose();
       FireCollectionChanged();
       return result;
     }

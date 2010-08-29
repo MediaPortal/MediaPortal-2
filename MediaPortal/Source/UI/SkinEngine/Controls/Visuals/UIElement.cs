@@ -733,8 +733,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void InvalidateLayout()
     {
-      if (Screen != null)
-        Screen.InvalidateLayout(this);
+      Screen screen = Screen;
+      if (screen != null)
+        screen.InvalidateLayout(this);
     }
 
     /// <summary>
@@ -776,30 +777,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
-      if (Screen == null)
+      Screen screen = Screen;
+      if (screen == null)
         return;
-      Screen.Animator.StartStoryboard(board, this, handoffBehavior);
+      screen.Animator.StartStoryboard(board, this, handoffBehavior);
     }
 
     public void StopStoryboard(Storyboard board)
     {
-      if (Screen == null)
+      Screen screen = Screen;
+      if (screen == null)
         return;
-      Screen.Animator.StopStoryboard(board, this);
+      screen.Animator.StopStoryboard(board, this);
     }
 
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
-      if (Screen == null || SkinContext.RenderThread == Thread.CurrentThread)
+      Screen screen = Screen;
+      if (screen == null || SkinContext.RenderThread == Thread.CurrentThread)
         dataDescriptor.Value = value;
       else
-        Screen.Animator.SetValue(dataDescriptor, value);
+        screen.Animator.SetValue(dataDescriptor, value);
     }
 
     public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)
     {
-      if (Screen != null)
-        return Screen.Animator.TryGetPendingValue(dataDescriptor, out value);
+      Screen screen = Screen;
+      if (screen != null)
+        return screen.Animator.TryGetPendingValue(dataDescriptor, out value);
       value = null;
       return false;
     }

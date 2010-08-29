@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
+using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -127,8 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return null;
       if (CanContentScroll)
         return scp.Content as IScrollInfo;
-      else
-        return scp;
+      return scp;
     }
 
     void UpdateScrollBars()
@@ -324,7 +324,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     bool CheckFocusInScope()
     {
-      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
+      Screen screen = Screen;
+      Visual focusPath = screen == null ? null : screen.FocusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)
