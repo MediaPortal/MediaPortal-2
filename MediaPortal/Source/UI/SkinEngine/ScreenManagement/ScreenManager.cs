@@ -977,6 +977,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         lock (_syncObj)
         {
+          if (_backgroundDisabled == value)
+            return;
           if (value)
             ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Disabling background screen rendering");
           else

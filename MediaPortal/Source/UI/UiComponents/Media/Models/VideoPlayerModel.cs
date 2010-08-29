@@ -23,14 +23,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 
@@ -39,33 +35,30 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for video players.
   /// </summary>
-  public class VideoPlayerModel : BaseTimerControlledUIModel, IWorkflowModel
+  public class VideoPlayerModel : BasePlayerModel
   {
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
-    protected bool _inactive = false;
-    protected MediaWorkflowStateType _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
 
     protected AbstractProperty _isOSDVisibleProperty;
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isPipProperty;
-    protected AbstractProperty _currentPlayerIndexProperty;
 
-    public VideoPlayerModel() : base(300)
+    public VideoPlayerModel() : base(Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
     {
       _isOSDVisibleProperty = new WProperty(typeof(bool), false);
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isPipProperty = new WProperty(typeof(bool), false);
-      _currentPlayerIndexProperty = new WProperty(typeof(int), 0);
       // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
     protected override void Update()
     {
+      base.Update();
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
@@ -78,29 +71,14 @@ namespace MediaPortal.UiComponents.Media.Models
       CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
-    protected static bool CanHandlePlayer(IPlayer player)
+    protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
     {
-      return player is IVideoPlayer;
-    }
-
-    protected void UpdateVideoStateType(NavigationContext newContext)
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID)
-      {
-        screenManager.BackgroundDisabled = false;
-        _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
-      }
-      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
-      {
-        screenManager.BackgroundDisabled = true;
-        _currentMediaWorkflowStateType = MediaWorkflowStateType.FullscreenContent;
-      }
-      else
-      {
-        screenManager.BackgroundDisabled = false;
-        _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
-      }
+      if (!(player is IVideoPlayer))
+        return null;
+      if (player is IDVDPlayer)
+        return typeof(DVDPlayerUIContributor);
+      // else TODO: More specific UI contributor implementations for specific players: Subtitle, ...
+      return typeof(DefaultVideoPlayerUIContributor);
     }
 
     #region Members to be accessed from the GUI
@@ -149,15 +127,9 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _pipHeightProperty.SetValue(value); }
     }
 
-    public AbstractProperty CurrentPlayerIndexProperty
+    public IPlayerUIContributor PlayerUIContributor
     {
-      get { return _currentPlayerIndexProperty; }
-    }
-
-    public int CurrentPlayerIndex
-    {
-      get { return (int) _currentPlayerIndexProperty.GetValue(); }
-      set { _currentPlayerIndexProperty.SetValue(value); }
+      get { return _playerUIContributor; }
     }
 
     public void ShowVideoInfo()
@@ -169,13 +141,6 @@ namespace MediaPortal.UiComponents.Media.Models
       Update();
     }
 
-    public void ShowZoomModeDialog()
-    {
-      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-      IPlayerContext pc = pcm.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
-    }
-
     #endregion
 
     #region IWorkflowModel implementation
@@ -183,65 +148,6 @@ namespace MediaPortal.UiComponents.Media.Models
     public override Guid ModelId
     {
       get { return MODEL_ID; }
-    }
-
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      IPlayerContext pc = null;
-      if (newContext.WorkflowState.StateId == Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID)
-        // The "currently playing" screen is always bound to the "current player"
-        pc = playerContextManager.CurrentPlayerContext;
-      else if (newContext.WorkflowState.StateId == Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
-        // The "fullscreen content" screen is always bound to the "primary player"
-        pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      return pc != null && CanHandlePlayer(pc.CurrentPlayer);
-    }
-
-    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      StartTimer(); // Lazily start our timer
-      UpdateVideoStateType(newContext);
-    }
-
-    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      StopTimer(); // Reduce workload when none of our states is used
-      UpdateVideoStateType(newContext);
-    }
-
-    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
-    {
-      UpdateVideoStateType(newContext);
-    }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      _inactive = true;
-    }
-
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      _inactive = false;
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-      // Nothing to do
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      switch (_currentMediaWorkflowStateType)
-      {
-        case MediaWorkflowStateType.CurrentlyPlaying:
-          screen = Consts.CURRENTLY_PLAYING_VIDEO_SCREEN;
-          break;
-        case MediaWorkflowStateType.FullscreenContent:
-          screen = Consts.FULLSCREEN_VIDEO_SCREEN;
-          break;
-      }
-      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

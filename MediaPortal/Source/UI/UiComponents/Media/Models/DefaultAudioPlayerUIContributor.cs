@@ -22,43 +22,42 @@
 
 #endregion
 
-using System;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  /// <summary>
-  /// Attends the CurrentlyPlaying and FullscreenContent states for audio players.
-  /// </summary>
-  public class AudioPlayerModel : BasePlayerModel
+  public class DefaultAudioPlayerUIContributor : IPlayerUIContributor
   {
-    public const string MODEL_ID_STR = "D8998340-DA2D-42be-A29B-6D7A72AEA2DC";
-    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    protected MediaWorkflowStateType _mediaWorkflowStateType;
 
-    public AudioPlayerModel() : base(Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID)
+    public void Dispose() { }
+
+    public MediaWorkflowStateType MediaWorkflowStateType
     {
+      get { return _mediaWorkflowStateType; }
     }
 
-    protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
+    public string Screen
     {
-      if (!(player is IAudioPlayer))
+      get
+      {
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
+          return Consts.CURRENTLY_PLAYING_AUDIO_SCREEN;
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
+          return Consts.FULLSCREEN_AUDIO_SCREEN;
         return null;
-      // TODO: Specific UI contributor implementations for specific players
-      return typeof(DefaultAudioPlayerUIContributor);
+      }
     }
 
-    #region Members to be accessed from the GUI
-
-    #endregion
-
-    #region IWorkflowModel implementation
-
-    public override Guid ModelId
+    public bool BackgroundDisabled
     {
-      get { return MODEL_ID; }
+      get { return true; }
     }
 
-    #endregion
+    public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
+    {
+      _mediaWorkflowStateType = stateType;
+    }
   }
 }

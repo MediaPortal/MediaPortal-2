@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -69,6 +69,11 @@
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\LocalMediaAction.cs" />
     <Compile Include="General\Consts.cs" />
+    <Compile Include="Models\BasePlayerModel.cs" />
+    <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
+    <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
+    <Compile Include="Models\IPlayerUIContributor.cs" />
+    <Compile Include="Models\DVDPlayerUIContributor.cs" />
     <Compile Include="Models\NavigationData.cs" />
     <Compile Include="Models\Navigation\FilterItem.cs" />
     <Compile Include="Models\ScreenData\AbstractScreenData.cs" />

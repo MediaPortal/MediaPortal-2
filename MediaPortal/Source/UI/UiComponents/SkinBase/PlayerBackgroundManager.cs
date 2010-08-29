@@ -208,8 +208,8 @@ namespace MediaPortal.UiComponents.SkinBase
                 return true;
               });
 
-        // Register player specific key bindings
-        // TODO: Register key bindings from current player
+        // Albert, 2010-08-25: I don't think we should register player specific key bindings here.
+        // They should only be available in the FSC/CP states.
       }
     }
 

@@ -58,5 +58,5 @@
     </DockPanel> <!-- OSD_RightPanel -->
   </DockPanel> <!-- OSD_LayoutPanel -->
   <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-  <KeyBinding Key="ZoomMode" Command="{Command ShowZoomModeDialog}"/>
+  <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
 </Grid>
