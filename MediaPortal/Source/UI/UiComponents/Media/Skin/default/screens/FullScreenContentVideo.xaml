@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     x:Name="FullscreenLayoutGrid"
-    DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
+    Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
     > <!-- DataContext model = VideoPlayerModel -->
   <Grid.Background>
     <VideoBrush Stream="0"/>
@@ -27,19 +27,8 @@
       <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
 
-    <Rectangle x:Name="PiP" Grid.Column="1" Grid.Row="1" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
-        Width="{Binding PipWidth}" Height="{Binding PipHeight}">
-      <Rectangle.IsVisible>
-        <!-- The background PiP will be replaced by the OSD PiP when the OSD is visible -->
-        <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-          <Binding Path="IsPip"/>
-          <Binding Path="!IsOSDVisible"/>
-        </MultiBinding>
-      </Rectangle.IsVisible>
-      <Rectangle.Fill>
-        <VideoBrush Stream="1"/>
-      </Rectangle.Fill>
-    </Rectangle> <!-- PiP -->
+    <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+        IsVisible="{Binding !IsOSDVisible}"/>
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">

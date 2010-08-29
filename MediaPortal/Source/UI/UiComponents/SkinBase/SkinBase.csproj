@@ -206,6 +206,7 @@
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
+    <Content Include="Skin\default\backgrounds\picture-background.xaml"/>
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />

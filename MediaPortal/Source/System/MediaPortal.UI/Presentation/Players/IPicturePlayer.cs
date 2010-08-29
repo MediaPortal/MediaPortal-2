@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Core.MediaManagement;
+
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
@@ -29,6 +31,6 @@ namespace MediaPortal.UI.Presentation.Players
   /// </summary>
   public interface IPicturePlayer : IPlayer
   {
-    // TODO
+    IResourceLocator CurrentPictureResourceLocator { get; }
   }
 }

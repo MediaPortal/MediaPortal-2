@@ -209,7 +209,7 @@
   <ResourceWrapper x:Key="PlayControlsStrokeColor" Resource="#FF000000"/>
 
   <!-- Transparent white -->
-  <ResourceWrapper x:Key="PipStrokeColor" Resource="#66FFFFFF"/>
+  <ResourceWrapper x:Key="PipBorderColor" Resource="#66FFFFFF"/>
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderColor" Resource="#FF999999"/>
   <ResourceWrapper x:Key="DefaultPlayerControlTitleColor" Resource="#FF999999"/>
@@ -233,7 +233,7 @@
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor3" Resource="#60608020"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Black"/>
   <ResourceWrapper x:Key="OSDPipStrokeColor" Resource="Black"/>
-  <ResourceWrapper x:Key="OSDPipStrokeFocusColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="Yellow"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient1Color" Resource="#48F2F2F2"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
 </ResourceDictionary>

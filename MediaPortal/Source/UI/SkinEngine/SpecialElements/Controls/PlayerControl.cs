@@ -93,6 +93,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     // Derived properties/fields
     protected MediaItem _currentMediaItem;
     protected AbstractProperty _isPlayerPresentProperty;
+    protected AbstractProperty _isVideoPlayerPresentProperty;
+    protected AbstractProperty _isPicturePlayerPresentProperty;
     protected AbstractProperty _titleProperty;
     protected AbstractProperty _mediaItemTitleProperty;
     protected AbstractProperty _nextMediaItemTitleProperty;
@@ -152,6 +154,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _slotIndexProperty = new SProperty(typeof(int), 0);
       _autoVisibilityProperty = new SProperty(typeof(bool), false);
       _isPlayerPresentProperty = new SProperty(typeof(bool), false);
+      _isVideoPlayerPresentProperty = new SProperty(typeof(bool), false);
+      _isPicturePlayerPresentProperty = new SProperty(typeof(bool), false);
       _titleProperty = new SProperty(typeof(string), null);
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
       _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
@@ -365,13 +369,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
+        IPicturePlayer pp = player as IPicturePlayer;
         if (vp == null)
         {
+          IsVideoPlayerPresent = false;
           VideoWidth = 0f;
           VideoHeight = 0f;
         }
         else
         {
+          IsVideoPlayerPresent = true;
           if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
           {
             VideoWidth = FixedVideoWidth;
@@ -388,6 +395,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
           }
         }
+        IsPicturePlayerPresent = pp != null;
+
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
         MediaItemAspect mediaAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
@@ -714,6 +723,34 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _isPlayerPresentProperty.GetValue(); }
       internal set { _isPlayerPresentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsVideoPlayerPresentProperty
+    {
+      get { return _isVideoPlayerPresentProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information if the underlaying player slot currently has a video player.
+    /// </summary>
+    public bool IsVideoPlayerPresent
+    {
+      get { return (bool) _isVideoPlayerPresentProperty.GetValue(); }
+      internal set { _isVideoPlayerPresentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsPicturePlayerPresentProperty
+    {
+      get { return _isPicturePlayerPresentProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information if the underlaying player slot currently has a picture player.
+    /// </summary>
+    public bool IsPicturePlayerPresent
+    {
+      get { return (bool) _isPicturePlayerPresentProperty.GetValue(); }
+      internal set { _isPicturePlayerPresentProperty.SetValue(value); }
     }
 
     public AbstractProperty TitleProperty

@@ -26,16 +26,17 @@ using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
-  /// This model attends the currently-playing and fullscreen-content workflow states for
-  /// Video, Audio and Image media players. It is also used as data model for some dialogs to configure
-  /// the players like "DialogPlayerConfiguration" and "DialogChooseAudioStream".
+  /// This model attends some screens for Video, Audio and Image media players.
+  /// It is also used as data model for media backgrounds.
   /// </summary>
   public class PlayerModel : BaseMessageControlledUIModel
   {
@@ -46,19 +47,34 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const float DEFAULT_PIP_WIDTH = 192;
 
     protected AbstractProperty _isPipVisibleProperty;
+    protected AbstractProperty _isPipVideoVisibleProperty;
+    protected AbstractProperty _isPipPictureVisibleProperty;
+    protected AbstractProperty _piPPictureSourcePathProperty;
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isMutedProperty;
 
+    protected IResourceLocator _currentPictureSourceLocator = null;
+    protected ILocalFsResourceAccessor _currentPictureResourceAccessor = null;
+
     public PlayerModel()
     {
       _isPipVisibleProperty = new WProperty(typeof(bool), false);
+      _isPipVideoVisibleProperty = new WProperty(typeof(bool), false);
+      _isPipPictureVisibleProperty = new WProperty(typeof(bool), false);
+      _piPPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isMutedProperty = new WProperty(typeof(bool), false);
 
       SubscribeToMessages();
       Update();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      DisposePictureResourceAccessor();
     }
 
     void SubscribeToMessages()
@@ -70,21 +86,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
-      {
-        PlayerManagerMessaging.MessageType messageType =
-            (PlayerManagerMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case PlayerManagerMessaging.MessageType.PlayerStarted:
-          case PlayerManagerMessaging.MessageType.PlayerStateReady:
-          case PlayerManagerMessaging.MessageType.PlayerEnded:
-          case PlayerManagerMessaging.MessageType.PlayerStopped:
-          case PlayerManagerMessaging.MessageType.PlayersMuted:
-          case PlayerManagerMessaging.MessageType.PlayersResetMute:
-            Update();
-            break;
-        }
-      }
+        Update();
     }
 
     protected void Update()
@@ -92,12 +94,42 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
-      IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
-      Size videoAspectRatio = pipPlayer == null ? new Size(4, 3) : pipPlayer.VideoAspectRatio;
+      IPlayer player = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer;
+      IVideoPlayer pipVideoPlayer = player as IVideoPlayer;
+      IPicturePlayer pipPicturePlayer = player as IPicturePlayer;
+      Size videoAspectRatio = pipVideoPlayer == null ? new Size(4, 3) : pipVideoPlayer.VideoAspectRatio;
       IsPipVisible = playerContextManager.IsPipActive;
+      IsPipVideoVisible = pipVideoPlayer != null;
+      IsPipPictureVisible = pipPicturePlayer != null;
+      PipPictureSourcePath = pipPicturePlayer == null ? string.Empty : CheckLocalResourcePath(pipPicturePlayer.CurrentPictureResourceLocator);
       IsMuted = playerManager.Muted;
-      PipHeight = DEFAULT_PIP_HEIGHT;
-      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*videoAspectRatio.Width/videoAspectRatio.Height;
+      PipWidth = DEFAULT_PIP_WIDTH;
+      PipHeight = pipVideoPlayer == null ? DEFAULT_PIP_HEIGHT : PipWidth*videoAspectRatio.Height/videoAspectRatio.Width;
+    }
+
+    protected string CheckLocalResourcePath(IResourceLocator resourceLocator)
+    {
+      if (_currentPictureSourceLocator != resourceLocator)
+      {
+        DisposePictureResourceAccessor();
+        try
+        {
+          _currentPictureResourceAccessor = resourceLocator.CreateLocalFsAccessor();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("PlayerModel: Error creating local filesystem accessor for picture '{0}'", e, resourceLocator);
+          return string.Empty;
+        }
+      }
+      return _currentPictureResourceAccessor.LocalFileSystemPath;
+    }
+
+    protected void DisposePictureResourceAccessor()
+    {
+      if (_currentPictureResourceAccessor != null)
+        _currentPictureResourceAccessor.Dispose();
+      _currentPictureResourceAccessor = null;
     }
 
     public override Guid ModelId
@@ -115,7 +147,40 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public bool IsPipVisible
     {
       get { return (bool) _isPipVisibleProperty.GetValue(); }
-      set { _isPipVisibleProperty.SetValue(value); }
+      internal set { _isPipVisibleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsPipVideoVisibleProperty
+    {
+      get { return _isPipVideoVisibleProperty; }
+    }
+
+    public bool IsPipVideoVisible
+    {
+      get { return (bool) _isPipVideoVisibleProperty.GetValue(); }
+      internal set { _isPipVideoVisibleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsPipPictureVisibleProperty
+    {
+      get { return _isPipPictureVisibleProperty; }
+    }
+
+    public bool IsPipPictureVisible
+    {
+      get { return (bool) _isPipPictureVisibleProperty.GetValue(); }
+      internal set { _isPipPictureVisibleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PiPPictureSourcePathProperty
+    {
+      get { return _piPPictureSourcePathProperty; }
+    }
+
+    public string PipPictureSourcePath
+    {
+      get { return (string) _piPPictureSourcePathProperty.GetValue(); }
+      internal set { _piPPictureSourcePathProperty.SetValue(value); }
     }
 
     public AbstractProperty PipWidthProperty
@@ -126,7 +191,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public float PipWidth
     {
       get { return (float) _pipWidthProperty.GetValue(); }
-      set { _pipWidthProperty.SetValue(value); }
+      internal set { _pipWidthProperty.SetValue(value); }
     }
 
     public AbstractProperty PipHeightProperty
@@ -137,7 +202,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public float PipHeight
     {
       get { return (float) _pipHeightProperty.GetValue(); }
-      set { _pipHeightProperty.SetValue(value); }
+      internal set { _pipHeightProperty.SetValue(value); }
     }
 
     public AbstractProperty IsMutedProperty
@@ -148,7 +213,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public bool IsMuted
     {
       get { return (bool) _isMutedProperty.GetValue(); }
-      set { _isMutedProperty.SetValue(value); }
+      internal set { _isMutedProperty.SetValue(value); }
     }
 
     public void SetCurrentPlayer(int playerIndex)

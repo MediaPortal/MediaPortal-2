@@ -1025,4 +1025,35 @@
     </Setter>
   </Style>
 
+  <!-- ****************************** Players ********************************** -->
+
+  <Style x:Key="PipControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border x:Name="PiPBorder" Grid.Column="1" Grid.Row="1"
+              Context="{Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}"
+              BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}"
+              IsVisible="{Binding IsPipVisible}"> <!-- DataContext model = PlayerBackgroundModel -->
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Control IsVisible="{Binding IsPipVideoVisible}" Width="{Binding PipWidth}" Height="{Binding PipHeight}">
+                <Control.Background>
+                  <VideoBrush Stream="1"/>
+                </Control.Background>
+              </Control>
+              <Image IsVisible="{Binding IsPipPictureVisible}" Width="{Binding PipWidth}" Stretch="Uniform"
+                  Source="{Binding PipPictureSourcePath}"/>
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

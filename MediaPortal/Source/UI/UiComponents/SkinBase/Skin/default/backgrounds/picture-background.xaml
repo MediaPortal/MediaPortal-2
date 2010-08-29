@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-Video background
+Picture background
 -->
-
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -24,5 +23,7 @@ Video background
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="50"/>
   </Grid.RowDefinitions>
+  <Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="3"
+      Source="{Binding Source={StaticResource PlayerBackgroundModel},Path=PipPictureSourcePath}"/>
   <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
 </Grid>

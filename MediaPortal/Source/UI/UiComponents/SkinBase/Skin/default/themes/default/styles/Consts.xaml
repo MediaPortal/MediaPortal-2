@@ -20,5 +20,5 @@
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="8"/>
-  <ResourceWrapper x:Key="OSDPipStrokeThickness" Resource="1"/>
+  <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
 </ResourceDictionary>

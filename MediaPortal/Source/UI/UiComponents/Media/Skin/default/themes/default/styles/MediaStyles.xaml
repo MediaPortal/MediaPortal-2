@@ -211,18 +211,12 @@
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Template>
                   <ControlTemplate TargetType="{x:Type Button}">
-                    <Rectangle x:Name="PiPRectangle" Grid.Column="0" Grid.Row="1" Stroke="{ThemeResource OSDPipStrokeColor}"
-                        StrokeThickness="{ThemeResource OSDPipStrokeThickness}"
-                        Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
-                      <Rectangle.Fill>
-                        <VideoBrush Stream="1"/>
-                      </Rectangle.Fill>
-                    </Rectangle>
+                    <Control x:Name="PiPControl" Grid.Column="0" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
                   </ControlTemplate>
                 </Button.Template>
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
-                    <Setter TargetName="PiPRectangle" Property="Stroke" Value="{ThemeResource OSDPipStrokeFocusColor}"/>
+                    <Setter TargetName="PiPBorder" Property="BorderBrush" Value="{ThemeResource OSDPipBorderFocusColor}"/>
                   </Trigger>
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
