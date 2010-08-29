@@ -281,27 +281,32 @@ namespace UPnP.Infrastructure.CP.SSDP
           // Multicast receiver socket - used for receiving multicast messages
           Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
 
-          // Albert, 2010-08-27: We seem to have a problem if the router, this computer is connected to, doesn't support
-          // the current IP address family. In that case, the Bind function doesn't fail but we fail in the socket.SendTo()
-          // method calls. To avoid that problem, we produce an early exception here to avoid the problematic address.
-          // THIS IS A WORKAROUND AND HAS TO BE CODED BETTER.
-          try
-          {
-            LingerOption lo = socket.LingerState;
-          }
-          catch (SocketException e)
-          {
-            if (e.SocketErrorCode != SocketError.ProtocolOption)
-              throw;
-            continue;
-          }
-          // End workaround.
-
           config.SSDP_UDP_MulticastReceiveSocket = socket;
           try
           {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
+
+            // Albert, 2010-08-27: We seem to have a problem if the router, this computer is connected to, doesn't support
+            // the current IP address family. In that case, the Bind function doesn't fail but we fail in the socket.SendTo()
+            // method calls with a SocketError.NoBufferSpaceAvailable socket exception. To avoid that problem, I'll produce
+            // an early exception here to avoid the problematic address.
+            // THIS IS A WORKAROUND AND HAS TO BE CODED BETTER.
+            try
+            {
+              socket.SendTo(new byte[] {}, new IPEndPoint(
+                 family == AddressFamily.InterNetwork ? UPnPConsts.SSDP_MULTICAST_ADDRESS_V4 : UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL,
+                 UPnPConsts.SSDP_MULTICAST_PORT));
+            }
+            catch (SocketException e)
+            {
+              if (e.SocketErrorCode != SocketError.NoBufferSpaceAvailable)
+                throw;
+              socket.Close();
+              continue;
+            }
+            // End workaround.
+
             StartMulticastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
           }
           catch (Exception) // SocketException, SecurityException
