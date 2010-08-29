@@ -38,7 +38,7 @@
   <ItemGroup>
     <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SkinEngine\References\DirectShowLib-2005.dll</HintPath>
+      <HintPath>References\DirectShowLib-2005.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=2.0.5.39, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -118,7 +118,9 @@
 robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /NP /XD .svn
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /NP /XD .svn
+@REM Reset RoboCopy's exit code which is different from 0
+IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

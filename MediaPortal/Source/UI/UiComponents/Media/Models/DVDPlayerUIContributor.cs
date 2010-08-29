@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -42,10 +43,15 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get
       {
+        // TODO: Use special screens for DVD player
         //if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
         //  return Consts.CURRENTLY_PLAYING_DVD_SCREEN;
         //if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
         //  return Consts.FULLSCREEN_DVD_SCREEN;
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
+          return Consts.CURRENTLY_PLAYING_VIDEO_SCREEN;
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
+          return Consts.FULLSCREEN_VIDEO_SCREEN;
         return null;
       }
     }
