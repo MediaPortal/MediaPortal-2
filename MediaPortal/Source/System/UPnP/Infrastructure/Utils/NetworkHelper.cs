@@ -66,19 +66,32 @@ namespace UPnP.Infrastructure.Utils
     }
 
     /// <summary>
-    /// Broadcasts the given message <paramref name="data"/> to the given SSDP multicast address over the given
-    /// <paramref name="socket"/>.
+    /// Broadcasts the given message <paramref name="data"/> to the given SSDP multicast address and SSDP multicast port
+    /// over the given <paramref name="socket"/>.
     /// </summary>
     /// <param name="socket">Socket to be used to send the data.</param>
     /// <param name="multicastAddress">Multicast address to use. The port will be <see cref="UPnPConsts.SSDP_MULTICAST_PORT"/>.</param>
     /// <param name="data">Message data to multicast.</param>
     public static void MulticastMessage(Socket socket, IPAddress multicastAddress, byte[] data)
     {
+      IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
+      SendData(socket, multicastEndpoint, data, 2);
+    }
+
+    /// <summary>
+    /// Sends the given <paramref name="data"/> over the given <paramref name="socket"/> to the given
+    /// <paramref name="endpoint"/> <paramref name="count"/> times. Exceptions will be catched and ignored.
+    /// </summary>
+    /// <param name="socket">Socket to send to.</param>
+    /// <param name="endpoint">Endpoint to send data to.</param>
+    /// <param name="data">Data to send.</param>
+    /// <param name="count">Number of times the data should be send.</param>
+    public static void SendData(Socket socket, IPEndPoint endpoint, byte[] data, int count)
+    {
       try
       {
-        IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
-        socket.SendTo(data, multicastEndpoint);
-        socket.SendTo(data, multicastEndpoint);
+        for (int i = 0; i < count; i++)
+          socket.SendTo(data, endpoint);
       }
       // Simply ignore if we cannot send a multicast message
       catch (SocketException) { }

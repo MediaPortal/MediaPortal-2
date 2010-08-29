@@ -287,26 +287,6 @@ namespace UPnP.Infrastructure.CP.SSDP
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
 
-            // Albert, 2010-08-27: We seem to have a problem if the router, this computer is connected to, doesn't support
-            // the current IP address family. In that case, the Bind function doesn't fail but we fail in the socket.SendTo()
-            // method calls with a SocketError.NoBufferSpaceAvailable socket exception. To avoid that problem, I'll produce
-            // an early exception here to avoid the problematic address.
-            // THIS IS A WORKAROUND AND HAS TO BE CODED BETTER.
-            try
-            {
-              socket.SendTo(new byte[] {}, new IPEndPoint(
-                 family == AddressFamily.InterNetwork ? UPnPConsts.SSDP_MULTICAST_ADDRESS_V4 : UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL,
-                 UPnPConsts.SSDP_MULTICAST_PORT));
-            }
-            catch (SocketException e)
-            {
-              if (e.SocketErrorCode != SocketError.NoBufferSpaceAvailable)
-                throw;
-              socket.Close();
-              continue;
-            }
-            // End workaround.
-
             StartMulticastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
           }
           catch (Exception) // SocketException, SecurityException
@@ -535,7 +515,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (socket == null)
             return;
           byte[] bytes = request.Encode();
-          socket.SendTo(bytes, endPoint); // The server will send the answer to the same socket as we use to send
+          NetworkHelper.SendData(socket, endPoint, bytes, 1); // The server will send the answer to the same socket as we use to send
           return;
         }
       }
@@ -558,7 +538,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (socket == null)
             continue;
           byte[] bytes = request.Encode();
-          socket.SendTo(bytes, ep); // The server will send the answer to the same socket as we use to send
+          NetworkHelper.MulticastMessage(socket, config.SSDPMulticastAddress, bytes); // The server will send the answer to the same socket as we use to send
         }
       }
     }

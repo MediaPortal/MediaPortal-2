@@ -588,7 +588,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             request.SetHeader("HOST", NetworkHelper.IPEndPointToString(ep));
             request.MessageBody = bodyData;
             byte[] bytes = request.Encode();
-            config.GENA_UDP_Socket.SendTo(bytes, bytes.Length, SocketFlags.None, ep);
+            NetworkHelper.SendData(config.GENA_UDP_Socket, ep, bytes, 1);
           }
         }
       }
