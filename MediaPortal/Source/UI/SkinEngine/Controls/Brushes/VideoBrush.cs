@@ -143,8 +143,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
       for (int i = 0; i < _verts.Length; ++i)
       {
-        verts[i].X = _verts[i].X + destinationRect.X;
-        verts[i].Y = _verts[i].Y + destinationRect.Y;
+        verts[i].X = ((_verts[i].X - _vertsBounds.Left) / _vertsBounds.Width) * destinationRect.Width + destinationRect.Left + _vertsBounds.Left;
+        verts[i].Y = ((_verts[i].Y - _vertsBounds.Top) / _vertsBounds.Height) * destinationRect.Height + destinationRect.Top + _vertsBounds.Top;
 
         verts[i].Tu1 = _verts[i].Tu1 * diffU + minU;
         verts[i].Tv1 = _verts[i].Tv1 * diffV + minV;
