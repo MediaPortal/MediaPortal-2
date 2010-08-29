@@ -18,4 +18,8 @@
   <Register Location="/Players/Builders">
     <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="Ui.Players.Video.VideoPlayerBuilder"/>
   </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="VideoPlayersLanguage" Directory="Language" Type="Language"/>
+  </Register>
 </Plugin>

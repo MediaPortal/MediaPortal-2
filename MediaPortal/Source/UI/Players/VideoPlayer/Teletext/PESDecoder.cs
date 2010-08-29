@@ -28,55 +28,55 @@ using MediaPortal.Core.Logging;
 
 namespace Ui.Players.Video.Teletext
 {
-  delegate void PESCallback(int streamid, byte[] header, int headerlen,
+  internal delegate void PESCallback(int streamid, byte[] header, int headerlen,
                                      byte[] data, int datalen, bool isStart, UInt64 presentTime);
 
-  class PESDecoder
+  internal class PESDecoder
   {
     public const byte TS_PACKET_SYNC = 0x47;
     public const int MAX_PES_PACKET = 65535;
 
-    private PESCallback cb = null;
-    bool m_bStart;
-    int m_iPesHeaderLen;
-    byte[] m_pesHeader = new byte[256];
-    int m_pid; // we dont need this i think..
-    byte[] m_pesBuffer;
-    int m_iWritePos; // next free position in buffer (and therefore also length of already written data)
-    int m_iStreamId;
-    int m_iPesLength;
-    bool hasPayloadStart; // do we have a packet in progress
+    private readonly PESCallback _cb;
+    private readonly byte[] _pesBuffer;
+    private readonly byte[] _pesHeader = new byte[256];
+    private bool _hasPayloadStart; // do we have a packet in progress
+    private bool _bStart;
+    private int _iPesHeaderLen;
+    private int _iPesLength;
+    private int _iStreamId;
+    private int _iWritePos; // next free position in buffer (and therefore also length of already written data)
+    private int _pid; // we dont need this i think..
 
     public PESDecoder(PESCallback cb)
     {
       ServiceRegistration.Get<ILogger>().Debug("PESDecoder ctor");
-      this.cb = cb;
-      m_pid = -1;
-      m_pesBuffer = new byte[MAX_PES_PACKET];
-      m_iWritePos = 0;
-      m_iStreamId = -1;
-      m_iPesHeaderLen = 0;
-      m_iPesLength = 0;
-      hasPayloadStart = false;
+      _cb = cb;
+      _pid = -1;
+      _pesBuffer = new byte[MAX_PES_PACKET];
+      _iWritePos = 0;
+      _iStreamId = -1;
+      _iPesHeaderLen = 0;
+      _iPesLength = 0;
+      _hasPayloadStart = false;
     }
 
     public void Reset()
     {
       ServiceRegistration.Get<ILogger>().Debug("PESDecoder.Reset");
-      m_iWritePos = 0;
-      m_iPesHeaderLen = 0;
-      hasPayloadStart = false;
+      _iWritePos = 0;
+      _iPesHeaderLen = 0;
+      _hasPayloadStart = false;
     }
 
 
-    public void SetPID(int pid)
+    public void SetPid(int pid)
     {
-      m_pid = pid;
+      _pid = pid;
     }
 
     public void SetStreamId(int streamId)
     {
-      m_iStreamId = streamId;
+      _iStreamId = streamId;
     }
 
     private bool SanityCheck(TSHeader header, byte[] tsPacket)
@@ -98,16 +98,16 @@ namespace Ui.Players.Video.Teletext
 
       if (header.SyncByte != TS_PACKET_SYNC)
       {
-        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x sync error", m_pid);
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x sync error", _pid);
         return false;
       }
 
       if (header.TransportError)
       {
-        m_bStart = false;
-        m_iWritePos = 0;
-        m_iPesLength = 0;
-        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x transport error", m_pid);
+        _bStart = false;
+        _iWritePos = 0;
+        _iPesLength = 0;
+        ServiceRegistration.Get<ILogger>().Debug("pesdecoder pid:%x transport error", _pid);
         return false;
       }
 
@@ -125,7 +125,7 @@ namespace Ui.Players.Video.Teletext
       return true;
     }
 
-    public void assert(bool b, string msg)
+    public void Assert(bool b, string msg)
     {
       if (!b)
       {
@@ -144,87 +144,88 @@ namespace Ui.Players.Video.Teletext
       if (header.PayloadUnitStart) // if this header starts a new PES packet
       {
         //ServiceRegistration.Get<ILogger>().Debug("PESDECODER: PayLoadUnitStart");
-        hasPayloadStart = true;
+        _hasPayloadStart = true;
         if (tsPacket[pos + 0] == 0 && tsPacket[pos + 1] == 0 && tsPacket[pos + 2] == 1)
         {
-          if (m_iStreamId < 0)
-          { //if stream id not set yet, get it from this 
-            m_iStreamId = tsPacket[pos + 3];
-            if (m_iStreamId < 0)
+          if (_iStreamId < 0)
+          {
+            //if stream id not set yet, get it from this 
+            _iStreamId = tsPacket[pos + 3];
+            if (_iStreamId < 0)
             {
-              throw new Exception("Stream id less than zero :" + m_iStreamId);
+              throw new Exception("Stream id less than zero :" + _iStreamId);
             }
           }
-          else assert(m_iStreamId == tsPacket[pos + 3], "Stream id changed!"); // stream id should not change!
+          else Assert(_iStreamId == tsPacket[pos + 3], "Stream id changed!"); // stream id should not change!
 
-          if (m_iWritePos != 0)
+          if (_iWritePos != 0)
           {
             //throw new Exception("Buffer is not empty, but new packet is being received!");
             ServiceRegistration.Get<ILogger>().Warn("PESDECODER: Buffer is not empty, but new packet is being received!");
           }
-          m_iWritePos = 0;
+          _iWritePos = 0;
 
-          m_iPesHeaderLen = tsPacket[pos + 8] + 9;
+          _iPesHeaderLen = tsPacket[pos + 8] + 9;
 
-          if (m_pesHeader.Length < m_iPesHeaderLen)
+          if (_pesHeader.Length < _iPesHeaderLen)
           {
-            ServiceRegistration.Get<ILogger>().Error("PESDecoder: Reported header length is bigger than header buffer! : {0} vs {1}", m_pesHeader.Length, m_iPesHeaderLen);
+            ServiceRegistration.Get<ILogger>().Error(
+              "PESDecoder: Reported header length is bigger than header buffer! : {0} vs {1}", _pesHeader.Length,
+              _iPesHeaderLen);
           }
-          Array.Copy(tsPacket, pos, m_pesHeader, 0, m_iPesHeaderLen);
+          Array.Copy(tsPacket, pos, _pesHeader, 0, _iPesHeaderLen);
           //above replaces -> memcpy(m_pesHeader,&tsPacket[pos],m_iPesHeaderLen);
 
-          pos += (m_iPesHeaderLen);
-          m_bStart = true;
+          pos += (_iPesHeaderLen);
+          _bStart = true;
 
-          int a = m_pesHeader[4];
-          int b = m_pesHeader[5];
+          int a = _pesHeader[4];
+          int b = _pesHeader[5];
 
-          m_iPesLength = (a << 8) + b - (m_iPesHeaderLen - 6); // calculate expected actual payload length
+          _iPesLength = (a << 8) + b - (_iPesHeaderLen - 6); // calculate expected actual payload length
         }
       }
-      else if (!hasPayloadStart)
+      else if (!_hasPayloadStart)
       {
         //ServiceRegistration.Get<ILogger>().Debug("PACKET DISCARDED: END OF PACKET FOR WHICH WE DONT HAVE START");
         return;
       }
 
-      if (m_iWritePos < 0)
+      if (_iWritePos < 0)
       {
         ServiceRegistration.Get<ILogger>().Debug("m_iWritePos < 0");
         return;
       }
-      if (m_iStreamId <= 0)
+      if (_iStreamId <= 0)
       {
         ServiceRegistration.Get<ILogger>().Debug("m_iStreamId <= 0");
         return;
       }
 
-      assert(pos > 0 && pos < 188, "Pos error : " + pos);
-      assert(m_iWritePos + 188 - pos <= MAX_PES_PACKET, "About to exceed buffer size!"); // check that the buffer is not overrunning
+      Assert(pos > 0 && pos < 188, "Pos error : " + pos);
+      Assert(_iWritePos + 188 - pos <= MAX_PES_PACKET, "About to exceed buffer size!");
+        // check that the buffer is not overrunning
 
       int bytesToWrite = 188 - pos;
-      assert(bytesToWrite < 188, "Bytes to write too big : " + bytesToWrite);
-      Array.Copy(tsPacket, pos, m_pesBuffer, m_iWritePos, bytesToWrite);
-      m_iWritePos += bytesToWrite;
+      Assert(bytesToWrite < 188, "Bytes to write too big : " + bytesToWrite);
+      Array.Copy(tsPacket, pos, _pesBuffer, _iWritePos, bytesToWrite);
+      _iWritePos += bytesToWrite;
 
-      if (m_iPesLength == m_iWritePos) // we have the expected data
+      if (_iPesLength == _iWritePos) // we have the expected data
       {
         // ServiceRegistration.Get<ILogger>().Debug("PESDECODER: GOT COMPLETE PACKET");
 
         // assert(cb != null, "cb is null!");
-        if (m_iWritePos > 0 && cb != null)
+        if (_iWritePos > 0 && _cb != null)
         {
           //ServiceRegistration.Get<ILogger>().Debug("PESDECODER: CALLING CALLBACK");
-          cb(m_iStreamId, m_pesHeader, m_iPesHeaderLen, m_pesBuffer, m_iWritePos, m_bStart, presentTime);
+          _cb(_iStreamId, _pesHeader, _iPesHeaderLen, _pesBuffer, _iWritePos, _bStart, presentTime);
 
-          m_bStart = false;
-          m_iWritePos = 0;
-          hasPayloadStart = false;
+          _bStart = false;
+          _iWritePos = 0;
+          _hasPayloadStart = false;
         }
       }
     }
   }
 }
-
-
-

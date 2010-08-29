@@ -26,7 +26,7 @@ namespace Ui.Players.Video.Teletext
 {
   public class Hamming
   {
-    private static byte[] unhamtab =
+    private static readonly byte[] Unhamtab =
         {
           0x01, 0xff, 0x81, 0x01, 0xff, 0x00, 0x01, 0xff, 
           0xff, 0x02, 0x01, 0xff, 0x0a, 0xff, 0xff, 0x07, 
@@ -63,9 +63,9 @@ namespace Ui.Players.Video.Teletext
         };
 
     // unham 2 bytes into 1
-    public static byte unham(byte low, byte high)
+    public static byte Unham(byte low, byte high)
     {
-      return (byte)((unhamtab[high] << 4) | (unhamtab[low] & 0x0F));
+      return (byte)((Unhamtab[high] << 4) | (Unhamtab[low] & 0x0F));
     }
   }
 }

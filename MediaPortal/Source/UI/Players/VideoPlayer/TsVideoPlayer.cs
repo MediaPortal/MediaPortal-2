@@ -27,59 +27,16 @@ using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Localization;
 using MediaPortal.UI.SkinEngine.Effects;
-using SlimDX;
+using Ui.Players.Video.Interfaces;
 using Ui.Players.Video.Subtitles;
-
-[ComVisible(true), ComImport,
-Guid("324FAA1F-4DA6-47B8-832B-3993D8FF4151"),
-InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-public interface ITSReaderCallback
-{
-  [PreserveSig]
-  int OnMediaTypeChanged();
-};
+using System.Collections.Generic;
+using SlimDX;
 
 namespace Ui.Players.Video
 {
-  public class TsVideoPlayer : VideoPlayer, ITSReaderCallback
+  public class TsVideoPlayer : VideoPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
   {
-    #region structs and interfaces
-    /// <summary>
-    /// Structure to pass the subtitle language data from TsReader to this class
-    /// </summary>
-    /// 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct SUBTITLE_LANGUAGE
-    {
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 4)]
-      public string lang;
-    }
-    /// <summary>
-    /// Interface to the TsReader filter wich provides information about the 
-    /// subtitle streams and allows us to change the current subtitle stream
-    /// </summary>
-    /// 
-    [Guid("43FED769-C5EE-46aa-912D-7EBDAE4EE93A"),
-    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    public interface ISubtitleStream
-    {
-      void SetSubtitleStream(Int32 stream);
-      void GetSubtitleStreamType(Int32 stream, ref Int32 type);
-      void GetSubtitleStreamCount(ref Int32 count);
-      void GetCurrentSubtitleStream(ref Int32 stream);
-      void GetSubtitleStreamLanguage(Int32 stream, ref SUBTITLE_LANGUAGE szLanguage);
-    }
-    [Guid("b9559486-E1BB-45D3-A2A2-9A7AFE49B24F"),
-    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    protected interface ITSReader
-    {
-      [PreserveSig]
-      int SetTsReaderCallback(ITSReaderCallback callback);
-    };
-    #endregion
-
     #region imports
 
     [ComImport, Guid("b9559486-E1BB-45D3-A2A2-9A7AFE49B23F")]
@@ -91,16 +48,23 @@ namespace Ui.Players.Video
 
     protected IBaseFilter _fileSource = null;
     protected bool _bMediaTypeChanged = false;
-    protected int _currentAudioStream = 0;
-    private readonly StringId _audioStreams = new StringId("playback", "4");
-    private readonly StringId _subtitleLanguage = new StringId("playback", "3");
+    protected bool _bRequestAudioChange = false;
     SubtitleRenderer _renderer;
     IBaseFilter _subtitleFilter;
+
     #endregion
 
+    #region constructor
+    /// <summary>
+    /// Constructs a TsReader player object.
+    /// </summary>
     public TsVideoPlayer()
+      : base()
     {
+      PlayerTitle = "TsVideoPlayer"; // for logging
+      _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
+    #endregion
 
     #region graph building
     /// <summary>
@@ -108,22 +72,10 @@ namespace Ui.Players.Video
     /// </summary>
     protected override void FreeCodecs()
     {
-      base.FreeCodecs();
-      if (_fileSource != null)
-      {
-        while (Marshal.ReleaseComObject(_fileSource) > 0) ;
-        _fileSource = null;
-      }
-
-      if (_subtitleFilter != null)
-      {
-        while (Marshal.ReleaseComObject(_subtitleFilter) > 0)
-          ;
-        _subtitleFilter = null;
-      }
       _renderer.Clear();
       _renderer.ReleaseResources();
       _renderer = null;
+      base.FreeCodecs();
     }
 
     /// <summary>
@@ -133,12 +85,17 @@ namespace Ui.Players.Video
     {
       // Render the file
       _fileSource = (IBaseFilter)new TsReader();
-      ((ITSReader)_fileSource).SetTsReaderCallback(this);
-      _graphBuilder.AddFilter((IBaseFilter)_fileSource, "TsReader");
+      ((ITsReader)_fileSource).SetTsReaderCallback(this);
+      ((ITsReader)_fileSource).SetRelaxedMode(1);
+
+      _graphBuilder.AddFilter(_fileSource, "TsReader");
 
       _renderer = new SubtitleRenderer();
       _subtitleFilter = _renderer.AddSubtitleFilter(_graphBuilder);
-      _renderer.RenderSubtitles = true;
+      if (_subtitleFilter != null)
+      {
+        _renderer.RenderSubtitles = true;
+      }
       _renderer.SetPlayer(this);
 
       IFileSourceFilter f = (IFileSourceFilter)_fileSource;
@@ -147,56 +104,72 @@ namespace Ui.Players.Video
 
     protected override void OnBeforeGraphRunning()
     {
-      RenderOutputPins(_fileSource);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
     }
 
     /// <summary>
-    /// Renders the output pins of the filter specified
+    /// no extension based changes
     /// </summary>
-    /// <param name="filter">The filter.</param>
-    private void RenderOutputPins(IBaseFilter filter)
-    {
-      IEnumPins enumer;
-      filter.EnumPins(out enumer);
-      IPin[] pins = new IPin[2];
-      IntPtr pFetched = Marshal.AllocCoTaskMem(4);
-      while (enumer.Next(1, pins, pFetched) == 0)
-      {
-        if (Marshal.ReadInt32(pFetched) == 1)
-        {
-          if (pins[0] != null)
-          {
-            PinDirection pinDir;
-            pins[0].QueryDirection(out pinDir);
-            if (pinDir == PinDirection.Output)
-            {
-              _graphBuilder.Render(pins[0]);
-            }
-            Marshal.ReleaseComObject(pins[0]);
-          }
-        }
-      }
-      Marshal.FreeCoTaskMem(pFetched);
-      Marshal.ReleaseComObject(enumer);
-    }
+    protected override void SetCapabilitiesByExtension()
+    { }
+
+
     #endregion
 
-    #region graph rebuilding
-    public int OnMediaTypeChanged()
+    #region ITSReaderCallback members
+    /// <summary>
+    /// Callback when MediaType has changed.
+    /// </summary>
+    /// <param name="mediaType">new MediaType</param>
+    /// <returns>0</returns>
+    public int OnMediaTypeChanged(int mediaType)
     {
-      _bMediaTypeChanged = true;
+      DoGraphRebuild();
       return 0;
     }
 
-    // FIXME: To be called
-    public void OnIdle()
+    /// <summary>
+    /// Callback when VideoFormat changed.
+    /// </summary>
+    /// <param name="streamType"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="aspectRatioX"></param>
+    /// <param name="aspectRatioY"></param>
+    /// <param name="bitrate"></param>
+    /// <param name="isInterlaced"></param>
+    /// <returns></returns>
+    public int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY,
+                                    int bitrate, int isInterlaced)
     {
-      if (_bMediaTypeChanged)
-      {
-        DoGraphRebuild();
-        _bMediaTypeChanged = false;
-      }
+      //_videoFormat.IsValid = true;
+      //_videoFormat.streamType = (VideoStreamType)streamType;
+      //_videoFormat.width = width;
+      //_videoFormat.height = height;
+      //_videoFormat.arX = aspectRatioX;
+      //_videoFormat.arY = aspectRatioY;
+      //_videoFormat.bitrate = bitrate;
+      //_videoFormat.isInterlaced = (isInterlaced == 1);
+      //Log.Info("TsReaderPlayer: OnVideoFormatChanged - {0}", _videoFormat.ToString());
+      return 0;
     }
+    #endregion
+
+    #region ITSReaderAudioCallback members
+
+    /// <summary>
+    /// Callback when Audio change is requested.
+    /// </summary>
+    /// <returns></returns>
+    public int OnRequestAudioChange()
+    {
+      _bRequestAudioChange = true;
+      return 0;
+    }
+
+    #endregion
+
+    #region graph rebuilding
 
     //check if the pin connections can be kept, or if a graph rebuilding is necessary!
     private bool GraphNeedsRebuild()
@@ -259,9 +232,9 @@ namespace Ui.Players.Video
           {
             ServiceRegistration.Get<ILogger>().Error("Error stopping graph: ({0:x})", hr);
           }
-          FilterState state;
           for (; ; )
           {
+            FilterState state;
             hr = mediaCtrl.GetState(200, out state);
             if (hr != 0)
             {
@@ -281,7 +254,7 @@ namespace Ui.Players.Video
           {
             ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
             DisconnectAllPins(_graphBuilder, _fileSource);
-            RenderOutputPins(_fileSource);
+            FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
           }
           else
           {
@@ -295,6 +268,7 @@ namespace Ui.Players.Video
       return;
     }
 
+    //FIXME: Move all pin connection methods to FilterGraphTools
     bool QueryConnect(IPin pin, IPin other)
     {
       IEnumMediaTypes enumTypes;
@@ -341,57 +315,60 @@ namespace Ui.Players.Video
         do
         {
           // Get the next pin
-          //ServiceRegistration.Get<ILogger>().Info("  get pin:{0}",iPinNo);
           iPinNo++;
           hr = pinEnum.Next(1, pins, ptrFetched);
+
+          // in case of error stop the pin enumeration
+          if (hr != 0)
+            break;
+
           iFetched = Marshal.ReadInt32(ptrFetched);
-          if (hr == 0)
+          if (iFetched == 1 && pins[0] != null)
           {
-            if (iFetched == 1 && pins[0] != null)
+            PinInfo pinInfo;
+            hr = pins[0].QueryPinInfo(out pinInfo);
+            if (hr == 0)
             {
-              PinInfo pinInfo = new PinInfo();
-              hr = pins[0].QueryPinInfo(out pinInfo);
-              if (hr == 0)
-              {
-                ServiceRegistration.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
-                Marshal.ReleaseComObject(pinInfo.filter);
-              }
-              else
-              {
-                ServiceRegistration.Get<ILogger>().Info("  got pin:?");
-              }
-              PinDirection pinDir;
-              pins[0].QueryDirection(out pinDir);
-              if (pinDir == PinDirection.Output)
-              {
-                IPin other;
-                hr = pins[0].ConnectedTo(out other);
-                if (hr == 0 && other != null)
-                {
-                  ServiceRegistration.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
-                  hr = graphBuilder.Reconnect(pins[0]);
-                  if (hr != 0)
-                  {
-                    ServiceRegistration.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName, pinInfo.name, hr);
-                  }
-                }
-              }
-              Marshal.ReleaseComObject(pins[0]);
+              ServiceRegistration.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
+              Marshal.ReleaseComObject(pinInfo.filter);
             }
             else
             {
-              iFetched = 0;
-              ServiceRegistration.Get<ILogger>().Info("no pins?");
-              break;
+              ServiceRegistration.Get<ILogger>().Info("  got pin:?");
             }
+            PinDirection pinDir;
+            pins[0].QueryDirection(out pinDir);
+            if (pinDir == PinDirection.Output)
+            {
+              IPin other;
+              hr = pins[0].ConnectedTo(out other);
+              if (hr == 0 && other != null)
+              {
+                ServiceRegistration.Get<ILogger>().Info("Reconnecting {0}:{1}", info.achName, pinInfo.name);
+                hr = graphBuilder.Reconnect(pins[0]);
+                if (hr != 0)
+                {
+                  ServiceRegistration.Get<ILogger>().Warn("Reconnect failed: {0}:{1}, code: 0x{2:x}", info.achName,
+                                                          pinInfo.name, hr);
+                  bAllConnected = false;
+                }
+              }
+            }
+            Marshal.ReleaseComObject(pins[0]);
           }
-          else iFetched = 0;
-        } while (iFetched == 1);
+          else
+          {
+            ServiceRegistration.Get<ILogger>().Info("no pins?");
+            break;
+          }
+        } 
+        while (iFetched == 1);
         Marshal.ReleaseComObject(pinEnum);
         Marshal.ReleaseComObject(ptrFetched);
       }
       return bAllConnected;
     }
+
     bool DisconnectAllPins(IGraphBuilder graphBuilder, IBaseFilter filter)
     {
       IEnumPins pinEnum;
@@ -405,7 +382,7 @@ namespace Ui.Players.Video
       for (; ; )
       {
         IPin[] pins = new IPin[1];
-        
+
         hr = pinEnum.Next(1, pins, ptrFetched);
         if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) break;
         PinInfo pinInfo;
@@ -421,6 +398,7 @@ namespace Ui.Players.Video
       Marshal.FreeCoTaskMem(ptrFetched);
       return allDisconnected;
     }
+
     bool DisconnectPin(IGraphBuilder graphBuilder, IPin pin)
     {
       IPin other;
@@ -454,96 +432,6 @@ namespace Ui.Players.Video
       }
       return allDisconnected;
     }
-    #endregion
-
-    #region audio streams
-
-    /// <summary>
-    /// sets the current audio stream
-    /// </summary>
-    /// <param name="audioStream">audio stream</param>
-    public override void SetAudioStream(string audioStream)
-    {
-      string[] streams = AudioStreams;
-      for (int i = 0; i < streams.Length; ++i)
-      {
-        if (audioStream == streams[i])
-        {
-          _currentAudioStream = i;
-          IAMStreamSelect pStrm = _fileSource as IAMStreamSelect;
-          if (pStrm != null)
-          {
-            pStrm.Enable(i, AMStreamSelectEnableFlags.Enable);
-          }
-        }
-      }
-    }
-
-    // FIXME: Remove this
-    //bool IsTimeShifting
-    //{
-    //  get
-    //  {
-    //    return (_fileName.LocalPath.ToLower().IndexOf(".tsbuffer") >= 0);
-    //  }
-    //}
-    ///// <summary>
-
-    /// Gets the current audio stream.
-    /// </summary>
-    /// <value>The current audio stream.</value>
-    public override string CurrentAudioStream
-    {
-      get
-      {
-        string[] streams = AudioStreams;
-        if (_currentAudioStream >= 0 && _currentAudioStream < streams.Length)
-        {
-          return streams[_currentAudioStream];
-        }
-        return "";
-      }
-    }
-
-    /// <summary>
-    /// returns list of available audio streams
-    /// </summary>
-    /// <value></value>
-    public override string[] AudioStreams
-    {
-      get
-      {
-        int streamCount = 0;
-        IAMStreamSelect pStrm = _fileSource as IAMStreamSelect;
-        if (pStrm != null)
-        {
-          pStrm.Count(out streamCount);
-        }
-
-        string[] streams = new string[streamCount];
-        for (int i = 0; i < streamCount; ++i)
-        {
-          AMMediaType sType; AMStreamSelectInfoFlags sFlag;
-          int sPDWGroup, sPLCid; string sName;
-          object pppunk, ppobject;
-
-          // FIXME: Fix the following commented-out code
-          //if (IsTimeShifting)
-          //{
-          //  // The offset +2 is necessary because the first 2 streams are always non-audio and the following are the audio streams
-          //  pStrm.Info(i + 2, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk, out ppobject);
-          //}
-          //else
-          {
-            pStrm.Info(i, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk, out ppobject);
-          }
-
-          streams[i] = sName.Trim();
-        }
-        return streams;
-      }
-    }
-
 
     #endregion
 
@@ -555,33 +443,34 @@ namespace Ui.Players.Video
       {
         ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
         int count = 0;
-        subtitleStream.GetSubtitleStreamCount(ref count);
-        string[] subs = new string[count];
-        for (int i = 0; i < count; ++i)
+        List<String> subs = new List<String>();
+        if (subtitleStream != null)
         {
-          SUBTITLE_LANGUAGE language = new SUBTITLE_LANGUAGE();
-          int type = 0;
-          subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-          subtitleStream.GetSubtitleStreamType(i, ref type);
-          if (type == 0)
-            subs[i] = String.Format("{0} (DVB)", language.lang);
-          else
-            subs[i] = String.Format("{0} (Teletext)", language.lang);
+          subtitleStream.GetSubtitleStreamCount(ref count);
+          for (int i = 0; i < count; ++i)
+          {
+            SubtitleLanguage language = new SubtitleLanguage();
+            int type = 0;
+            subtitleStream.GetSubtitleStreamLanguage(i, ref language);
+            subtitleStream.GetSubtitleStreamType(i, ref type);
+            subs.Add(type == 0
+                       ? String.Format("{0} (DVB)", language.lang)
+                       : String.Format("{0} (Teletext)", language.lang));
+          }
         }
-        return subs;
+        return subs.ToArray();
       }
     }
 
     public void SetSubtitle(string subtitle)
     {
-      string[] subs = Subtitles;
-      for (int i = 0; i < subs.Length; ++i)
+      for (int i = 0; i < Subtitles.Length; ++i)
       {
-        if (subtitle == subs[i])
+        if (subtitle == Subtitles[i])
         {
           ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
-          subtitleStream.SetSubtitleStream(i);
-
+          if (subtitleStream != null)
+            subtitleStream.SetSubtitleStream(i);
           return;
         }
       }
@@ -593,10 +482,10 @@ namespace Ui.Players.Video
       {
         ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
         int i = 0;
-        subtitleStream.GetCurrentSubtitleStream(ref i);
-        string[] subs = Subtitles;
-        if (i >= 0 && i < subs.Length)
-          return subs[i];
+        if (subtitleStream != null)
+          subtitleStream.GetCurrentSubtitleStream(ref i);
+        if (i >= 0 && i < Subtitles.Length)
+          return Subtitles[i];
         return "";
       }
     }
@@ -609,8 +498,6 @@ namespace Ui.Players.Video
       set
       {
         base.CurrentTime = value;
-
-        OnIdle();//update current position
         if (_renderer != null)
           _renderer.OnSeek(CurrentTime.TotalSeconds);
       }

@@ -41,25 +41,20 @@ namespace Ui.Players.Video.Subtitles
     public TeletextPageEntry entry; // only for teletext
     public int bitmapIndex; // index among bitmap subs, only for bitmap subs :)
     public string language;
-    public bool isAuto = false;
+    public bool isAuto;
 
     public override string ToString()
     {
-      if (type == SubtitleType.Bitmap)
+      switch (type)
       {
-        return "Bitmap Lang " + language;
-      }
-      else if (type == SubtitleType.Teletext)
-      {
-        return "Teletext Lang\t" + entry.language + "\tpage : " + entry.page;
-      }
-      else if (type == SubtitleType.None)
-      {
-        return "None";
-      }
-      else
-      {
-        return "???";
+        case SubtitleType.Bitmap:
+          return "Bitmap Lang " + language;
+        case SubtitleType.Teletext:
+          return "Teletext Lang\t" + entry.language + "\tpage : " + entry.page;
+        case SubtitleType.None:
+          return "None";
+        default:
+          return "???";
       }
     }
 
@@ -74,13 +69,13 @@ namespace Ui.Players.Video.Subtitles
       if (o is SubtitleOption)
       {
         SubtitleOption other = o as SubtitleOption;
-        if (other.type != this.type) return false;
-        else if (other.bitmapIndex != this.bitmapIndex) return false;
-        else if (!other.language.Equals(this.language)) return false;
-        else if ((this.entry != null && !this.entry.Equals(other.entry)) || this.entry == null && other.entry != null) return false;
-        else return true;
+        if (other.type != type) return false;
+        if (other.bitmapIndex != bitmapIndex) return false;
+        if (!other.language.Equals(language)) return false;
+        if ((entry != null && !entry.Equals(other.entry)) || entry == null && other.entry != null) return false;
+        return true;
       }
-      else return false;
+      return false;
     }
   }
 

@@ -24,106 +24,104 @@
 
 using System;
 using Ui.Players.Video.Teletext;
-using Ui.Players.Video.Teletext;
 
 namespace Ui.Players.Video.Subtitles
 {
   public class TeletextPageHeader
   {
+    private readonly bool _erasePage;
+    private readonly int _language;
+    private readonly int _magazine;
+    private readonly bool _magazineSerial;
+    private readonly int _pageNum;
+    private readonly bool _subtitle;
+    private readonly bool _timefiller;
+    private bool _inhibitDisplay;
+    private bool _interruptedSequence;
+    private bool _newsflash;
+    private bool _supressHeader;
+    private bool _updateIndicator;
+
     public TeletextPageHeader(short mag, byte[] data)
     {
       int offset = 0;
-      magazine = mag;
-      byte pageByte = Hamming.unham(data[offset], data[offset + 1]); // The lower two (hex) numbers of page
-      timefiller = (pageByte == 0xFF);
+      _magazine = mag;
+      byte pageByte = Hamming.Unham(data[offset], data[offset + 1]); // The lower two (hex) numbers of page
+      _timefiller = (pageByte == 0xFF);
 
-      if (!timefiller)
+      if (!_timefiller)
       {
-        pageNum = (mag * 100 + 10 * (pageByte >> 4) + (pageByte & 0x0F));
-        if (pageNum < 100 || pageNum > 966)
+        _pageNum = (mag*100 + 10*(pageByte >> 4) + (pageByte & 0x0F));
+        if (_pageNum < 100 || _pageNum > 966)
         {
-          throw new Exception("PageNumber out of range " + pageNum);
+          throw new Exception("PageNumber out of range " + _pageNum);
         }
       }
-      else pageNum = -1;
+      else _pageNum = -1;
 
       //Log.Debug("TeletextPageHeader page: {0}", pageNum);
       //int subpage = ((unham(data[offset + 4], data[offset+5]) << 8) | unham(data[offset+2], data[offset+3])) & 0x3F7F;
 
-      language = ((Hamming.unham(data[offset + 6], data[offset + 7]) >> 5) & 0x07);
+      _language = ((Hamming.Unham(data[offset + 6], data[offset + 7]) >> 5) & 0x07);
 
-      erasePage = (data[offset + 3] & 0x80) == 0x80; // Byte 9,  bit 8
-      newsflash = (data[offset + 5] & 0x20) == 0x20; // Byte 11, bit 6
-      subtitle = (data[offset + 5] & 0x80) == 0x80; // Byte 11, bit 8
+      _erasePage = (data[offset + 3] & 0x80) == 0x80; // Byte 9,  bit 8
+      _newsflash = (data[offset + 5] & 0x20) == 0x20; // Byte 11, bit 6
+      _subtitle = (data[offset + 5] & 0x80) == 0x80; // Byte 11, bit 8
 
-      supressHeader = (data[offset + 6] & 0x02) == 0x02; // Byte 12, bit 2
-      updateIndicator = (data[offset + 6] & 0x08) == 0x08; // Byte 12, bit 4
+      _supressHeader = (data[offset + 6] & 0x02) == 0x02; // Byte 12, bit 2
+      _updateIndicator = (data[offset + 6] & 0x08) == 0x08; // Byte 12, bit 4
 
-      interruptedSequence = (data[offset + 6] & 0x20) == 0x20; // Byte 12, bit 6
-      inhibitDisplay = (data[offset + 6] & 0x80) == 0x80; // Byte 12, bit 8
-      magazineSerial = (data[offset + 7] & 0x02) == 0x02; // Byte 13, bit 2
+      _interruptedSequence = (data[offset + 6] & 0x20) == 0x20; // Byte 12, bit 6
+      _inhibitDisplay = (data[offset + 6] & 0x80) == 0x80; // Byte 12, bit 8
+      _magazineSerial = (data[offset + 7] & 0x02) == 0x02; // Byte 13, bit 2
 
-      if (magazineSerial)
+      if (_magazineSerial)
       {
         // Log.Debug("Magazine {0} is in serial mode", mag);
       }
     }
 
-    public bool eraseBit()
+    public bool EraseBit()
     {
-      return erasePage;
+      return _erasePage;
     }
 
-    public bool isSubtitle()
+    public bool IsSubtitle()
     {
-      return this.subtitle;
+      return _subtitle;
     }
 
-    public bool isSerial()
+    public bool IsSerial()
     {
-      return this.magazineSerial;
+      return _magazineSerial;
     }
 
-    public bool isTimeFiller()
+    public bool IsTimeFiller()
     {
-      return this.timefiller;
+      return _timefiller;
     }
 
     public int PageNumber()
     {
-      if (timefiller)
+      if (_timefiller)
       {
         throw new Exception("PageNumber query not allowed on time filler header!");
       }
-      return this.pageNum;
+      return _pageNum;
     }
 
     public int Magazine()
     {
-      return this.magazine;
+      return _magazine;
     }
 
     public int Language()
     {
-      if (timefiller)
+      if (_timefiller)
       {
         throw new Exception("Language query not allowed on time filler header!");
       }
-      return this.language;
+      return _language;
     }
-
-    private int pageNum;
-    private int language;
-    private int magazine;
-    private bool timefiller;
-    private bool erasePage;
-    private bool newsflash;
-    private bool subtitle;
-    private bool supressHeader;
-    private bool updateIndicator;
-    private bool interruptedSequence;
-    private bool inhibitDisplay;
-    private bool magazineSerial;
-
   }
 }

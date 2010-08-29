@@ -55,7 +55,7 @@ namespace MediaPortal.UI.Presentation.Players
     IGeometry GeometryOverride { get; set; }
 
     /// <summary>
-    /// Returns a list of names of available audio streams. The list may be ordered by relevance or by some other criterion.
+    /// Returns the names of available audio streams. The list may be ordered by relevance or by some other criterion.
     /// </summary>
     string[] AudioStreams { get; }
 

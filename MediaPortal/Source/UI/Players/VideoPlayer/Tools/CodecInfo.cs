@@ -96,16 +96,16 @@ namespace Ui.Players.Video
 
     }
 
-    public CodecInfo(String CodecName, CodecHandler.CodecCapabilities CodecCapabilities)
+    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities)
     {
-      _name = CodecName;
-      _capabilities = CodecCapabilities;
+      _name = codecName;
+      _capabilities = codecCapabilities;
     }
 
-    public CodecInfo(String CodecName, CodecHandler.CodecCapabilities CodecCapabilities, String CodecCLSID)
-      : this(CodecName, CodecCapabilities)
+    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities, String codecClsid)
+      : this(codecName, codecCapabilities)
     {
-      _CLSID = CodecCLSID;
+      _CLSID = codecClsid;
     }
 
     #endregion
@@ -114,7 +114,7 @@ namespace Ui.Players.Video
 
     public override String ToString()
     {
-      return String.Format("{0} [{1}] preferred: {2}", _name, _capabilities.ToString(), _preferred);
+      return String.Format("{0} [{1}] preferred: {2}", _name, _capabilities, _preferred);
     }
 
     #endregion
@@ -125,8 +125,8 @@ namespace Ui.Players.Video
     public int CompareTo(object obj)
     {
       if (! (obj is CodecInfo) ) return -1;
-      if (this.Preferred && !((CodecInfo)obj).Preferred) return -1;
-      if (!this.Preferred && ((CodecInfo)obj).Preferred) return +1;
+      if (Preferred && !((CodecInfo)obj).Preferred) return -1;
+      if (!Preferred && ((CodecInfo)obj).Preferred) return +1;
       return 0;
     }
 

@@ -74,7 +74,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        return codecList;
+        return _codecList;
       }
     }
     
@@ -82,7 +82,7 @@ namespace Ui.Players.Video
 
     #region Variables
 
-    List<CodecInfo> codecList;
+    readonly List<CodecInfo> _codecList;
 
     #endregion
 
@@ -106,12 +106,12 @@ namespace Ui.Players.Video
     {
       if (DoesComObjectExists(newCodec.CLSID))
       {
-        codecList.Add(newCodec);
+        _codecList.Add(newCodec);
       }
     }
 
     // checks to see if a COM object is registered and exists on the filesystem
-    public static bool DoesComObjectExists(string CLSID)
+    public static bool DoesComObjectExists(string clsid)
     {
       using (RegistryKey myRegKey = Registry.LocalMachine)
       {
@@ -120,7 +120,7 @@ namespace Ui.Players.Video
         try
         {
           // get the pathname to the COM server DLL if the key exists
-          using (RegistryKey subKey = myRegKey.OpenSubKey(@"SOFTWARE\Classes\CLSID\" + CLSID + @"\InprocServer32"))
+          using (RegistryKey subKey = myRegKey.OpenSubKey(@"SOFTWARE\Classes\CLSID\" + clsid + @"\InprocServer32"))
           {
             if (subKey == null)
             {
@@ -153,31 +153,24 @@ namespace Ui.Players.Video
     /// <summary>
     /// Sets a codec as preferred for the Capability
     /// </summary>
-    /// <param name="CodecName">Name of codec</param>
-    /// <param name="Capability">Capability to prefer codec for</param>
-    public void SetPreferred(String CodecName, CodecCapabilities Capability)
+    /// <param name="codecName">Name of codec</param>
+    /// <param name="capability">Capability to prefer codec for</param>
+    public void SetPreferred(String codecName, CodecCapabilities capability)
     {
-      foreach (CodecInfo currentCodec in codecList)
+      foreach (CodecInfo currentCodec in _codecList)
       {
         // Does codec support this capability ?
-        if ((currentCodec.Capabilities & Capability) != 0)
+        if ((currentCodec.Capabilities & capability) != 0)
         {
-          if (currentCodec.Name == CodecName)
-          {
-            currentCodec.Preferred = true;
-          }
-          else
-          {
-            currentCodec.Preferred = false;
-          }
+          currentCodec.Preferred = currentCodec.Name == codecName;
         }
       }
       // sort list by "preferred" property
-      codecList.Sort(); 
+      _codecList.Sort(); 
     }
     public CodecHandler()
     {
-      codecList = new List<CodecInfo>();
+      _codecList = new List<CodecInfo>();
 
       // add known other audio and video codecs
       TryAdd(new CodecInfo("Microsoft DTV-DVD Video Decoder", CodecCapabilities.VideoH264 | CodecCapabilities.VideoMPEG2 | CodecCapabilities.SingleVideoCodecOnly, "{212690FB-83E5-4526-8FD7-74478B7939CD}"));

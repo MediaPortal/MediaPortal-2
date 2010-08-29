@@ -30,22 +30,22 @@ namespace MediaPortal.UI.Presentation.Players
   /// </summary>
   public interface ISubtitlePlayer
   {
-    // TODO: Tidy up from here
     /// <summary>
-    /// returns list of available subtitle streams
+    /// Returns list of available, localized names of subtitle streams. The list may be ordered
+    /// by relevance or by some other criterion.
     /// </summary>
     string[] Subtitles { get; }
 
     /// <summary>
-    /// sets the current subtitle
+    /// Sets the current subtitle.
     /// </summary>
-    /// <param name="subtitle">subtitle</param>
+    /// <param name="subtitle">The name of the subtitle to set. Must be one of the values in the
+    /// <see cref="Subtitles"/> list.</param>
     void SetSubtitle(string subtitle);
 
     /// <summary>
     /// Gets the current subtitle.
     /// </summary>
-    /// <value>The current subtitle.</value>
     string CurrentSubtitle { get; }
   }
 }

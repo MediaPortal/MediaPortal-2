@@ -43,12 +43,17 @@ namespace Ui.Players.Video
       EXTENSIONS2PLAYER.Add(".avi", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".ts", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ts", typeof(TsVideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
+      EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));
       // TODO: Go on with extensions mapping
 
       MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
+      MIMETYPES2PLAYER.Add("video/mp2t", typeof(TsVideoPlayer));
+      MIMETYPES2PLAYER.Add("video/dvd", typeof(DvdPlayer));
       // TODO: Go on with mime types mapping
     }
 
@@ -56,6 +61,7 @@ namespace Ui.Players.Video
     {
       string path = accessor.ResourcePathName;
       string extension = Path.GetExtension(path).ToLowerInvariant();
+
       Type playerType;
       if (mimeType != null)
       {

@@ -36,11 +36,9 @@ namespace Ui.Players.Video.Subtitles
     public string line;
   }
 
-  class TeletextMagazine
+  internal class TeletextMagazine
   {
-
-    private byte MSB3_NP(byte x) { return (byte)(x & 0x70); } // 3 most significant bits, removing parity bit
-    private byte LSB4(byte x) { return (byte)(x & 0x0F); } // 4 less significant bits (no parity)
+    // 4 less significant bits (no parity)
 
     public const int TELETEXT_LINES = 25;
     public const int TELETEXT_WIDTH = 40;
@@ -49,99 +47,124 @@ namespace Ui.Players.Video.Subtitles
     public const byte SPACE_ATTRIB_BOX_START = 0x0B;
     public const byte SPACE_ATTRIB_BOX_END = 0x0A;
 
-    public void assert(bool ok, string msg)
-    {
-      if (!ok) throw new Exception("Assertion failed in TeletextMagazine! : " + msg);
-    }
+    private static readonly Dictionary<int, string> LangInfo = new Dictionary<int, string>();
+                                                    // DVB SI language info for sub pages
+
+    private readonly byte[] _pageContent; // indexed by line and character (col)
+    private bool _isSerial;
+    private int _language; // encoding language
+    private int _magId;
+    private TeletextSubtitleDecoder _owner;
+    private int _pageNumInProgress;
+    private UInt64 _presentTime;
+
     public TeletextMagazine()
     {
       ServiceRegistration.Get<ILogger>().Debug("Magazine ctor");
-      pageContent = new byte[TELETEXT_LINES * TELETEXT_WIDTH];
-      pageNumInProgress = -1;
-      language = -1;
-      magID = -1;
+      _pageContent = new byte[TELETEXT_LINES*TELETEXT_WIDTH];
+      _pageNumInProgress = -1;
+      _language = -1;
+      _magId = -1;
     }
 
-    public static void OnServiceInfo(int page, byte type, string iso_lang)
+    private static byte MSB3_NP(byte x)
+    {
+      return (byte) (x & 0x70);
+    }
+
+    // 3 most significant bits, removing parity bit
+    private static byte LSB4(byte x)
+    {
+      return (byte) (x & 0x0F);
+    }
+
+    public void Assert(bool ok, string msg)
+    {
+      if (!ok) throw new Exception("Assertion failed in TeletextMagazine! : " + msg);
+    }
+
+    public static void OnServiceInfo(int page, byte type, string isoLang)
     {
       if (type != 0x02 && type != 0x03) return; // we only want subtitle language info
-      else
+      lock (LangInfo)
       {
-        lock (langInfo)
+        if (!LangInfo.ContainsKey(page))
         {
-          if (!langInfo.ContainsKey(page))
-          {
-            langInfo.Add(page, iso_lang);
-          }
+          LangInfo.Add(page, isoLang);
         }
       }
     }
 
     public void StartPage(TeletextPageHeader header, UInt64 presentTime)
     {
-      this.presentTime = presentTime;
+      _presentTime = presentTime;
       int mag = header.Magazine();
-      if (mag != magID)
+      if (mag != _magId)
       {
-        ServiceRegistration.Get<ILogger>().Debug("Magazine magid mag: {0}, {1}", magID, mag);
+        ServiceRegistration.Get<ILogger>().Debug("Magazine magid mag: {0}, {1}", _magId, mag);
       }
-      assert(mag == magID, "Inconsistent magazine id");
-      assert(pageNumInProgress == -1 || (pageNumInProgress >= 100 && pageNumInProgress <= 966), "PageNumInProgress out of range");
+      Assert(mag == _magId, "Inconsistent magazine id");
+      Assert(_pageNumInProgress == -1 || (_pageNumInProgress >= 100 && _pageNumInProgress <= 966),
+             "PageNumInProgress out of range");
 
-      if (header.isTimeFiller() || !header.isSubtitle())
-      { // time filling header to indicate end of page
-        if (pageNumInProgress != -1)
-        { // if we were working on a previous page its finished now
+      if (header.IsTimeFiller() || !header.IsSubtitle())
+      {
+        // time filling header to indicate end of page
+        if (_pageNumInProgress != -1)
+        {
+          // if we were working on a previous page its finished now
           EndPage();
         }
         //LogDebug("Mag %i FILLER ends page %i", magID, pageNumInProgress);
         Clear();
-        pageNumInProgress = -1;
+        _pageNumInProgress = -1;
         return;
       }
 
-      if (header.isSerial() && !this.isSerial)
+      if (header.IsSerial() && !_isSerial)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MagID {0} is in serial mode", magID);
-        this.isSerial = true;
+        ServiceRegistration.Get<ILogger>().Debug("MagID {0} is in serial mode", _magId);
+        _isSerial = true;
       }
-      int new_page_num = header.PageNumber();
-      language = header.Language();
+      int newPageNum = header.PageNumber();
+      _language = header.Language();
 
-      if (pageNumInProgress != new_page_num)
+      if (_pageNumInProgress != newPageNum)
       {
         //LogDebug("Mag %i, Page %i finished by new page %i", magID, pageNumInProgress, new_page_num);
-        if (pageNumInProgress != -1)
-        { // if we were working on a previous page its finished now
+        if (_pageNumInProgress != -1)
+        {
+          // if we were working on a previous page its finished now
           EndPage();
         }
         Clear();
-        pageNumInProgress = new_page_num;
+        _pageNumInProgress = newPageNum;
       }
 
-      if (header.eraseBit())
+      if (header.EraseBit())
       {
         Clear();
       }
-      assert(pageNumInProgress >= 100 && pageNumInProgress <= 966, "StartPage: pageNumInProgress out of range");
+      Assert(_pageNumInProgress >= 100 && _pageNumInProgress <= 966, "StartPage: pageNumInProgress out of range");
     }
 
-    public void SetLine(int l, byte[] line_data)
+    public void SetLine(int l, byte[] lineData)
     {
-      assert(line_data.Length == TELETEXT_WIDTH, "Line data length not equal to TELETEXT_WIDTH : " + line_data.Length);
-      Array.Copy(line_data, 0, pageContent, Math.Max(l - 1, 0) * TELETEXT_WIDTH, TELETEXT_WIDTH);
+      Assert(lineData.Length == TELETEXT_WIDTH, "Line data length not equal to TELETEXT_WIDTH : " + lineData.Length);
+      Array.Copy(lineData, 0, _pageContent, Math.Max(l - 1, 0)*TELETEXT_WIDTH, TELETEXT_WIDTH);
     }
 
     public void EndPage()
     {
-      if (pageNumInProgress == -1) return; // no page in progress
-      else if ((pageNumInProgress < 0 || pageNumInProgress >= 966))
+      if (_pageNumInProgress == -1) return; // no page in progress
+      if ((_pageNumInProgress < 0 || _pageNumInProgress >= 966))
       {
-        ServiceRegistration.Get<ILogger>().Debug("DANGER DANGER!, endpage with pageNumInProgress = %i", pageNumInProgress);
+        ServiceRegistration.Get<ILogger>().Debug("DANGER DANGER!, endpage with pageNumInProgress = %i",
+                                                 _pageNumInProgress);
         return;
       }
 
-      ServiceRegistration.Get<ILogger>().Debug("Finished Page {0}", pageNumInProgress);
+      ServiceRegistration.Get<ILogger>().Debug("Finished Page {0}", _pageNumInProgress);
       //bool hasContent = false;
 
       for (int i = 0; i < 25; i++)
@@ -177,7 +200,7 @@ namespace Ui.Players.Video.Subtitles
             // if we are not in boxed mode,
             // we dont want to keep the content
             lineContent[j] = TELETEXT_BLANK;
-            assert(!boxed, "EndPage: Boxed not set as expected");
+            Assert(true, "EndPage: Boxed not set as expected");
           }
         }
         SetLine(i, lineContent);
@@ -188,19 +211,19 @@ namespace Ui.Players.Video.Subtitles
         ServiceRegistration.Get<ILogger>().Debug("(BLANK PAGE)");
       }*/
 
-      byte[] text = new byte[TELETEXT_WIDTH * TELETEXT_LINES];
-      Array.Copy(pageContent, text, TELETEXT_LINES * TELETEXT_WIDTH);
-      TextConversion.Convert(language, text);
+      byte[] text = new byte[TELETEXT_WIDTH*TELETEXT_LINES];
+      Array.Copy(_pageContent, text, TELETEXT_LINES*TELETEXT_WIDTH);
+      TextConversion.Convert(_language, text);
 
       LineContent[] lc = new LineContent[TELETEXT_LINES];
 
       string realLang = "";
 
-      lock (langInfo)
+      lock (LangInfo)
       {
-        if (langInfo.ContainsKey(pageNumInProgress))
+        if (LangInfo.ContainsKey(_pageNumInProgress))
         {
-          realLang = langInfo[pageNumInProgress];
+          realLang = LangInfo[_pageNumInProgress];
         }
       }
 
@@ -209,7 +232,7 @@ namespace Ui.Players.Video.Subtitles
         StringBuilder lineBuilder = new StringBuilder();
         for (int c = 0; c < TELETEXT_WIDTH; c++)
         {
-          lineBuilder.Append((char)text[line * TELETEXT_WIDTH + c]);
+          lineBuilder.Append((char) text[line*TELETEXT_WIDTH + c]);
         }
         lc[line] = new LineContent();
         if (realLang != "")
@@ -227,40 +250,42 @@ namespace Ui.Players.Video.Subtitles
       for (int i = 0; i < text.Length; i++)
       {
         //sbuf.Append((char)text[i]);
-        textBuilder.Append((char)text[i]);
+        textBuilder.Append((char) text[i]);
 
         //sbuf.Append("" + ((int)pageContent[i]) + " ");
-        if (((i + 1) % 40) == 0)
+        if (((i + 1)%40) == 0)
         {
           textBuilder.Append('\n');
         }
       }
 
       // prepare subtitle
-      TEXT_SUBTITLE sub = new TEXT_SUBTITLE();
-      sub.encoding = language;
-      sub.page = pageNumInProgress;
+      TextSubtitle sub = new TextSubtitle();
+      sub.encoding = _language;
+      sub.page = _pageNumInProgress;
 
       sub.language = realLang;
 
       sub.text = textBuilder.ToString();
       sub.lc = lc;
       sub.timeOut = ulong.MaxValue; // never timeout (will be replaced by other page)
-      sub.timeStamp = presentTime;
-      assert(sub.text != null, "Sub.text == null!");
+      sub.timeStamp = _presentTime;
+      Assert(String.IsNullOrEmpty(sub.text), "Sub.text == null!");
 
-      if (owner.SubPageInfoCallback != null)
+      if (_owner.SubPageInfoCallback != null)
       {
-        TeletextPageEntry pageEntry = new TeletextPageEntry();
-        pageEntry.language = String.Copy(sub.language);
-        pageEntry.encoding = (TeletextCharTable)sub.encoding;
-        pageEntry.page = sub.page;
+        TeletextPageEntry pageEntry = new TeletextPageEntry
+                                        {
+                                          language = String.Copy(sub.language),
+                                          encoding = (TeletextCharTable) sub.encoding,
+                                          page = sub.page
+                                        };
 
-        owner.SubPageInfoCallback(pageEntry);
+        _owner.SubPageInfoCallback(pageEntry);
       }
 
-      owner.SubtitleRender.OnTextSubtitle(ref sub);
-      pageNumInProgress = -1;
+      _owner.SubtitleRender.OnTextSubtitle(ref sub);
+      _pageNumInProgress = -1;
     }
 
 
@@ -269,57 +294,46 @@ namespace Ui.Players.Video.Subtitles
     /// </summary>
     /// <param name="l"></param>
     /// <returns>A byte array containing the data</returns>
-    byte[] GetLine(int l)
+    private byte[] GetLine(int l)
     {
       SanityCheck();
-      byte[] line_data = new byte[TELETEXT_WIDTH];
-      Array.Copy(pageContent, Math.Max(l - 1, 0) * TELETEXT_WIDTH, line_data, 0, TELETEXT_WIDTH);
-      return line_data;
+      byte[] lineData = new byte[TELETEXT_WIDTH];
+      Array.Copy(_pageContent, Math.Max(l - 1, 0)*TELETEXT_WIDTH, lineData, 0, TELETEXT_WIDTH);
+      return lineData;
     }
 
     public void Clear()
     {
       SanityCheck();
-      for (int i = 0; i < pageContent.Length; i++)
+      for (int i = 0; i < _pageContent.Length; i++)
       {
-        pageContent[i] = TELETEXT_BLANK;
+        _pageContent[i] = TELETEXT_BLANK;
       }
     }
 
-    void SanityCheck()
+    private void SanityCheck()
     {
-      assert(magID == -1 || (magID <= 8 && magID >= 0), "SanityCheck: mag id out of range");
+      Assert(_magId == -1 || (_magId <= 8 && _magId >= 0), "SanityCheck: mag id out of range");
     }
 
     public bool PageInProgress()
     {
       //LogDebug("Mag %i in progress: %i", magID, (pageNumInProgress != -1));
-      return pageNumInProgress != -1;
+      return _pageNumInProgress != -1;
     }
 
     public void SetMag(int mag)
     {
       //assert(pageNumInProgress == -1 && language == -1);
       //assert(mag >= 1 && mag <= 8);
-      magID = mag;
+      _magId = mag;
       SanityCheck();
     }
 
     public void SetOwner(TeletextSubtitleDecoder owner)
     {
-      assert(owner != null, "TeletextSubtitleDecoder must not be null!");
-      this.owner = owner;
+      Assert(owner != null, "TeletextSubtitleDecoder must not be null!");
+      _owner = owner;
     }
-
-
-    private UInt64 presentTime;
-    private bool isSerial = false;
-    private int pageNumInProgress;
-    TeletextSubtitleDecoder owner;
-    private int language; // encoding language
-    private byte[] pageContent; // indexed by line and character (col)
-    private static Dictionary<int, string> langInfo = new Dictionary<int, string>(); // DVB SI language info for sub pages
-
-    int magID;
   }
 }

@@ -25,52 +25,52 @@
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// Interface of each DVD player.
+  /// Interface of a DVD player.
   /// </summary>
   public interface IDVDPlayer : IPlayer
   {
-    // TODO: Tidy up from here
     /// <summary>
-    /// Gets the DVD titles.
+    /// Gets an ordered list of localized DVD titles.
     /// </summary>
-    /// <value>The DVD titles.</value>
     string[] DvdTitles { get; }
 
     /// <summary>
-    /// Sets the DVD title.
+    /// Plays the given DVD title.
     /// </summary>
-    /// <param name="title">The title.</param>
+    /// <param name="title">The name of the title to set. Must be one of the title names from the
+    /// <see cref="DvdTitles"/> list.</param>
     void SetDvdTitle(string title);
 
     /// <summary>
     /// Gets the current DVD title.
     /// </summary>
-    /// <value>The current DVD title.</value>
     string CurrentDvdTitle { get; }
 
-
     /// <summary>
-    /// Gets the DVD chapters for current title
+    /// Gets an ordered list of localized DVD chapters for the current title.
     /// </summary>
-    /// <value>The DVD chapters.</value>
     string[] DvdChapters { get; }
 
     /// <summary>
-    /// Sets the DVD chapter.
+    /// Plays the given DVD chapter.
     /// </summary>
-    /// <param name="title">The title.</param>
-    void SetDvdChapter(string title);
+    /// <param name="chapter">Name of the chapter to set. Must be one of the chapter names from the
+    /// <see cref="DvdChapters"/> list.</param>
+    void SetDvdChapter(string chapter);
 
     /// <summary>
     /// Gets the current DVD chapter.
     /// </summary>
-    /// <value>The current DVD chapter.</value>
     string CurrentDvdChapter { get; }
 
     /// <summary>
-    /// Gets a value indicating whether we are in the in DVD menu.
+    /// Gets the information whether we are in the in DVD menu.
     /// </summary>
-    /// <value><c>true</c> if [in DVD menu]; otherwise, <c>false</c>.</value>
     bool InDvdMenu { get; }
+
+    /// <summary>
+    /// Enters the DVD menu.
+    /// </summary>
+    void ShowDvdMenu();
   }
 }

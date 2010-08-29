@@ -32,36 +32,36 @@ namespace Ui.Players.Video.Subtitles
 {
   class TextConversion
   {
-    private static Dictionary<string, Dictionary<char, char>> langSpecificMap;
+    private static readonly Dictionary<string, Dictionary<char, char>> LangSpecificMap;
 
 
     static TextConversion()
     {
-      langSpecificMap = new Dictionary<string, Dictionary<char, char>>();
-      langSpecificMap["dan"] = new Dictionary<char, char>();
-      langSpecificMap["dan"]['ö'] = 'ø';
-      langSpecificMap["dan"]['ä'] = 'æ';
+      LangSpecificMap = new Dictionary<string, Dictionary<char, char>>();
+      LangSpecificMap["dan"] = new Dictionary<char, char>();
+      LangSpecificMap["dan"]['ö'] = 'ø';
+      LangSpecificMap["dan"]['ä'] = 'æ';
     }
 
     public static string ConvertLineLangSpecific(string lang, string line)
     {
       ServiceRegistration.Get<ILogger>().Debug("ConvertLineLangSpecific {0} {1}", lang, line);
-      if (!langSpecificMap.ContainsKey(lang)) return line;
+      if (!LangSpecificMap.ContainsKey(lang)) return line;
 
       StringBuilder lineBuilder = new StringBuilder();
       for (int i = 0; i < line.Length; i++)
       {
         char c = line[i];
-        if (langSpecificMap[lang].ContainsKey(c))
+        if (LangSpecificMap[lang].ContainsKey(c))
         {
-          lineBuilder.Append(langSpecificMap[lang][c]);
+          lineBuilder.Append(LangSpecificMap[lang][c]);
         }
         else lineBuilder.Append(c);
       }
       return lineBuilder.ToString();
     }
 
-    private static byte[,] vtx2iso8559_1_table = new byte[8, 96]
+    private static readonly byte[,] Vtx2Iso85591Table = new byte[8, 96]
         {
           /* English */
           { 0x20,0x21,0x22,0xa3,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,   // 0x20-0x2f
@@ -123,16 +123,16 @@ namespace Ui.Players.Video.Subtitles
 
     public static void ConvertLine(int lang, char[] teletext, int len)
     {
-      assert(lang >= 0 && lang <= 7, "ConvertLine: Lang outside range!");
+      Assert(lang >= 0 && lang <= 7, "ConvertLine: Lang outside range!");
       for (int col = 0; col < len; col++)
       {
-        teletext[col] = (char)vtx2iso8559_1_table[lang, (teletext[col] & 0x7f) - 0x20];
+        teletext[col] = (char)Vtx2Iso85591Table[lang, (teletext[col] & 0x7f) - 0x20];
       }
     }
 
     public static void Convert(int lang, byte[] teletext)
     {
-      assert(lang >= 0 && lang <= 7, "Convert: Lang outside range!");
+      Assert(lang >= 0 && lang <= 7, "Convert: Lang outside range!");
       ServiceRegistration.Get<ILogger>().Debug("Convert: Input data length {0} teletext");
       for (int i = 0; i < teletext.Length; i++)
       {
@@ -146,11 +146,11 @@ namespace Ui.Players.Video.Subtitles
           ServiceRegistration.Get<ILogger>().Debug("Convert: About to index position [" + lang + ", " + charIndex + "] source pos is " + i + "( line " + (i % 25) + ")");
           continue;
         }
-        teletext[i] = vtx2iso8559_1_table[lang, charIndex];
+        teletext[i] = Vtx2Iso85591Table[lang, charIndex];
       }
     }
 
-    private static void assert(bool ok, string msg)
+    private static void Assert(bool ok, string msg)
     {
       if (!ok) throw new Exception("Assertion failed in TextConversion! " + msg);
     }

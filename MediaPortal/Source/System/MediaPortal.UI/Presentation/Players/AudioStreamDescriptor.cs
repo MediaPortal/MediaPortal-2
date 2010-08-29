@@ -68,7 +68,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     /// <summary>
     /// Returns the name of the audio stream described by this instance. This stream name is unique in the player
-    /// providing the stream, it might not be unique among all players. 
+    /// providing the stream, it might not be unique among all players.
     /// </summary>
     /// <remarks>
     /// To let the user choose between audio streams, to make the choice unique, the <see cref="PlayerName"/> should

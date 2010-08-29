@@ -37,21 +37,14 @@ using System.Security.Permissions;
 using DirectShowLib;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
-using DirectShowLib.Dvd;
-
-#if !USING_NET11
-
-#endif
 
 namespace Ui.Players.Video
 {
   /// <summary>
   /// A collection of methods to do common DirectShow tasks.
   /// </summary>
-  public sealed class FilterGraphTools
+  public static class FilterGraphTools
   {
-    private FilterGraphTools() { }
-
     /// <summary>
     /// Add a filter to a DirectShow Graph using its CLSID
     /// </summary>
@@ -132,18 +125,16 @@ namespace Ui.Players.Video
         return null;// throw new ArgumentNullException("graphBuilder");
       }
 
-      DsDevice[] devices = DsDevice.GetDevicesOfCat(deviceCategory);
-
-      for (int i = 0; i < devices.Length; i++)
+      foreach (DsDevice t in DsDevice.GetDevicesOfCat(deviceCategory))
       {
-        if (String.Compare(devices[i].Name, friendlyName, true) != 0)
+        if (String.Compare(t.Name, friendlyName, true) != 0)
         {
           continue;
         }
 
-        int hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(devices[i].Mon, null, friendlyName, out filter);
+        int hr = ((IFilterGraph2)graphBuilder).AddSourceFilterForMoniker(t.Mon, null, friendlyName, out filter);
         if (hr != 0 || filter == null)
-          return null;//DsError.ThrowExceptionForHR(hr);
+          return null; //DsError.ThrowExceptionForHR(hr);
 
         break;
       }
@@ -225,7 +216,6 @@ namespace Ui.Players.Video
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static IBaseFilter FindFilterByName(IGraphBuilder graphBuilder, string filterName)
     {
-      int hr;
       IBaseFilter filter = null;
       IEnumFilters enumFilters;
 
@@ -234,7 +224,7 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("graphBuilder");
       }
 
-      hr = graphBuilder.EnumFilters(out enumFilters);
+      int hr = graphBuilder.EnumFilters(out enumFilters);
       if (hr == 0)
       {
         IBaseFilter[] filters = new IBaseFilter[1];
@@ -278,7 +268,6 @@ namespace Ui.Players.Video
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static IBaseFilter FindFilterByClsid(IGraphBuilder graphBuilder, Guid filterClsid)
     {
-      int hr;
       IBaseFilter filter = null;
       IEnumFilters enumFilters;
 
@@ -287,7 +276,7 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("graphBuilder");
       }
 
-      hr = graphBuilder.EnumFilters(out enumFilters);
+      int hr = graphBuilder.EnumFilters(out enumFilters);
       if (hr == 0)
       {
         IBaseFilter[] filters = new IBaseFilter[1];
@@ -318,14 +307,12 @@ namespace Ui.Players.Video
     /// Find a filter in a DirectShow Graph using its CLSID
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
-    /// <param name="filterClsid">the CLSID to find</param>
     /// <returns>an instance of the filter if found, null if not</returns>
     /// <seealso cref="FindFilterByName"/>
     /// <exception cref="System.ArgumentNullException">Thrown if graphBuilder is null</exception>
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-    public static E FindFilterByInterface<E>(IGraphBuilder graphBuilder)
+    public static TE FindFilterByInterface<TE>(IGraphBuilder graphBuilder)
     {
-      int hr;
       IBaseFilter filter = null;
       IEnumFilters enumFilters;
 
@@ -334,7 +321,7 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("graphBuilder");
       }
 
-      hr = graphBuilder.EnumFilters(out enumFilters);
+      int hr = graphBuilder.EnumFilters(out enumFilters);
       if (hr == 0)
       {
         IBaseFilter[] filters = new IBaseFilter[1];
@@ -342,7 +329,7 @@ namespace Ui.Players.Video
 
         while (enumFilters.Next(filters.Length, filters, fetched) == 0)
         {
-          if (filters[0] is E)
+          if (filters[0] is TE)
           {
             filter = filters[0];
             break;
@@ -352,7 +339,7 @@ namespace Ui.Players.Video
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
       }
-      return (E)filter;
+      return (TE)filter;
     }
 
     /// <summary>
@@ -416,23 +403,20 @@ namespace Ui.Players.Video
       {
         while (enumer.Next(1, pins, pFetched) == 0)
         {
-          if (Marshal.ReadInt32(pFetched) == 1)
+          if (Marshal.ReadInt32(pFetched) == 1 && pins[0] != null)
           {
-            if (pins[0] != null)
+            try
             {
-              try
+              PinDirection pinDir;
+              pins[0].QueryDirection(out pinDir);
+              if (pinDir == PinDirection.Output)
               {
-                PinDirection pinDir;
-                pins[0].QueryDirection(out pinDir);
-                if (pinDir == PinDirection.Output)
-                {
-                  graphBuilder.Render(pins[0]);
-                }
+                int hr = graphBuilder.Render(pins[0]);
               }
-              finally
-              {
-                Marshal.ReleaseComObject(pins[0]);
-              }
+            }
+            finally
+            {
+              Marshal.ReleaseComObject(pins[0]);
             }
           }
         }
@@ -443,6 +427,89 @@ namespace Ui.Players.Video
         Marshal.ReleaseComObject(enumer);
       }
     }
+
+    /// <summary>
+    /// Enumerates the complete graph and renders all output pins that are not  automatically 
+    /// connected from GraphBuilder (starting with ~ sign).
+    /// </summary>
+    /// <param name="graphBuilder">GraphBuilder</param>
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static void RenderAllManualConnectPins(IGraphBuilder graphBuilder)
+    {
+      if (graphBuilder == null)
+        return;
+
+      IntPtr pFetched = Marshal.AllocCoTaskMem(4);
+      IEnumFilters enumFilters;
+      ArrayList filtersArray = new ArrayList();
+      int hr = graphBuilder.EnumFilters(out enumFilters);
+      try
+      {
+        DsError.ThrowExceptionForHR(hr);
+        IBaseFilter[] filters = new IBaseFilter[1];
+        while (enumFilters.Next(filters.Length, filters, pFetched) == 0)
+          filtersArray.Add(filters[0]);
+
+        foreach (IBaseFilter filter in filtersArray)
+        {
+          RenderManualConnectPins(graphBuilder, filter);
+          Marshal.ReleaseComObject(filter);
+        }
+        filtersArray.Clear();
+      }
+      finally
+      {
+        Marshal.FreeCoTaskMem(pFetched);        
+        Marshal.ReleaseComObject(enumFilters);
+      }
+    }
+
+    /// <summary>
+    /// Renders output pins that are not automatically connected from GraphBuilder (starting with ~ sign).
+    /// </summary>
+    /// <param name="graphBuilder">GraphBuilder</param>
+    /// <param name="baseFilter">Filter to render</param>
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static void RenderManualConnectPins(IGraphBuilder graphBuilder, IBaseFilter baseFilter)
+    {
+      if (baseFilter == null)
+        return;
+
+      IntPtr pFetched = Marshal.AllocCoTaskMem(4);
+      try
+      {
+        IEnumPins pinEnum;
+        int hr = baseFilter.EnumPins(out pinEnum);
+        DsError.ThrowExceptionForHR(hr);
+        if (hr == 0 && pinEnum != null)
+        {
+          pinEnum.Reset();
+          IPin[] pins = new IPin[1];
+          while (pinEnum.Next(1, pins, pFetched) == 0)
+          {
+            if (Marshal.ReadInt32(pFetched) == 1 && pins[0] != null)
+            {
+              PinDirection pinDir;
+              PinInfo pinInfo;
+              pins[0].QueryDirection(out pinDir);
+              pins[0].QueryPinInfo(out pinInfo);
+              if (pinDir == PinDirection.Output && pinInfo.name.StartsWith("~"))
+              {
+                hr = graphBuilder.Render(pins[0]);
+              }
+              DsUtils.FreePinInfo(pinInfo);
+              Marshal.ReleaseComObject(pins[0]);
+            }
+          }
+          Marshal.ReleaseComObject(pinEnum);
+        }
+      }
+      finally
+      {
+        Marshal.FreeCoTaskMem(pFetched);
+      }
+    }
+
     /// <summary>
     /// Disconnect all pins on a given filter
     /// </summary>
@@ -453,8 +520,6 @@ namespace Ui.Players.Video
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static void DisconnectPins(IBaseFilter filter)
     {
-      int hr;
-
       if (filter == null)
       {
         throw new ArgumentNullException("filter");
@@ -464,7 +529,7 @@ namespace Ui.Players.Video
       IPin[] pins = new IPin[1];
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
 
-      hr = filter.EnumPins(out enumPins);
+      int hr = filter.EnumPins(out enumPins);
       DsError.ThrowExceptionForHR(hr);
 
       try
@@ -499,7 +564,6 @@ namespace Ui.Players.Video
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static void DisconnectAllPins(IGraphBuilder graphBuilder)
     {
-      int hr;
       IEnumFilters enumFilters;
 
       if (graphBuilder == null)
@@ -507,7 +571,7 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("graphBuilder");
       }
 
-      hr = graphBuilder.EnumFilters(out enumFilters);
+      int hr = graphBuilder.EnumFilters(out enumFilters);
       DsError.ThrowExceptionForHR(hr);
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
 
@@ -541,7 +605,6 @@ namespace Ui.Players.Video
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static void RemoveAllFilters(IGraphBuilder graphBuilder)
     {
-      int hr;
       IEnumFilters enumFilters;
       ArrayList filtersArray = new ArrayList();
 
@@ -550,7 +613,7 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("graphBuilder");
       }
 
-      hr = graphBuilder.EnumFilters(out enumFilters);
+      int hr = graphBuilder.EnumFilters(out enumFilters);
       DsError.ThrowExceptionForHR(hr);
 
       IntPtr fetched = Marshal.AllocCoTaskMem(4);
@@ -571,7 +634,7 @@ namespace Ui.Players.Video
 
       foreach (IBaseFilter filter in filtersArray)
       {
-        hr = graphBuilder.RemoveFilter(filter);
+        graphBuilder.RemoveFilter(filter);
         Marshal.ReleaseComObject(filter);
       }
     }
@@ -824,34 +887,6 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// Check if the Video Mixing Renderer 9 Filter is available
-    /// <seealso cref="IsThisComObjectInstalled"/>
-    /// </summary>
-    /// <remarks>
-    /// This method uses <see cref="IsThisComObjectInstalled">IsThisComObjectInstalled</see> internally
-    /// </remarks>
-    /// <returns>true if VMR9 is present, false if not</returns>
-    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-    public static bool IsVMR9Present()
-    {
-      return IsThisComObjectInstalled(typeof(VideoMixingRenderer9).GUID);
-    }
-
-    /// <summary>
-    /// Check if the Video Mixing Renderer 7 Filter is available
-    /// <seealso cref="IsThisComObjectInstalled"/>
-    /// </summary>
-    /// <remarks>
-    /// This method uses <see cref="IsThisComObjectInstalled">IsThisComObjectInstalled</see> internally
-    /// </remarks>
-    /// <returns>true if VMR7 is present, false if not</returns>
-    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-    public static bool IsVMR7Present()
-    {
-      return IsThisComObjectInstalled(typeof(VideoMixingRenderer).GUID);
-    }
-
-    /// <summary>
     /// Connect pins from two filters
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
@@ -885,18 +920,16 @@ namespace Ui.Players.Video
         throw new ArgumentNullException("downFilter");
       }
 
-      IPin sourcePin, destPin;
-
-      sourcePin = DsFindPin.ByName(upFilter, sourcePinName);
+      IPin sourcePin = DsFindPin.ByName(upFilter, sourcePinName);
       if (sourcePin == null)
       {
-        throw new ArgumentException("The source filter has no pin called : " + sourcePinName, sourcePinName);
+        throw new ArgumentException(@"The source filter has no pin called : " + sourcePinName, sourcePinName);
       }
 
-      destPin = DsFindPin.ByName(downFilter, destPinName);
+      IPin destPin = DsFindPin.ByName(downFilter, destPinName);
       if (destPin == null)
       {
-        throw new ArgumentException("The downstream filter has no pin called : " + destPinName, destPinName);
+        throw new ArgumentException(@"The downstream filter has no pin called : " + destPinName, destPinName);
       }
 
       try
@@ -960,12 +993,11 @@ namespace Ui.Players.Video
     /// Checks and release filter as COM object.
     /// </summary>
     /// <param name="filterToRelease">any COM object to release</param>
-    public static bool TryRelease<TE>(ref TE filterToRelease)
+    public static bool TryRelease<TE>(ref TE filterToRelease) where TE : class
     {
-      int remainingReferences;
       if (filterToRelease != null)
       {
-        while ((remainingReferences = Marshal.ReleaseComObject(filterToRelease)) > 0) { ;}
+        while (Marshal.ReleaseComObject(filterToRelease) > 0) { ;}
         filterToRelease = default(TE);
         return true;
       }
@@ -1038,7 +1070,7 @@ namespace Ui.Players.Video
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
-      [Out] out IStream ppstm
+ [Out] out IStream ppstm
 #endif
 );
 
@@ -1051,7 +1083,7 @@ namespace Ui.Players.Video
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
-      [Out] out IStream ppstm
+ [Out] out IStream ppstm
 #endif
 );
 
@@ -1147,24 +1179,14 @@ namespace Ui.Players.Video
  );
   }
 
-  internal sealed class NativeMethods
+  internal static class NativeMethods
   {
-    private NativeMethods() { }
-
     [DllImport("ole32.dll")]
-#if USING_NET11
-		public static extern int CreateBindCtx(int reserved, out UCOMIBindCtx ppbc);
-#else
     public static extern int CreateBindCtx(int reserved, out IBindCtx ppbc);
-#endif
 
     [DllImport("ole32.dll")]
-#if USING_NET11
-		public static extern int MkParseDisplayName(UCOMIBindCtx pcb, [MarshalAs(UnmanagedType.LPWStr)] string szUserName, out int pchEaten, out UCOMIMoniker ppmk);
-#else
     public static extern int MkParseDisplayName(IBindCtx pcb, [MarshalAs(UnmanagedType.LPWStr)] string szUserName,
                                                 out int pchEaten, out IMoniker ppmk);
-#endif
 
     [DllImport("olepro32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int OleCreatePropertyFrame(
@@ -1175,7 +1197,7 @@ namespace Ui.Players.Video
       [In] int cObjects,
       [In, MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.IUnknown)] object[] ppUnk,
       [In] int cPages,
-      [In] IntPtr pPageClsID,
+      [In] IntPtr pPageClsId,
       [In] int lcid,
       [In] int dwReserved,
       [In] IntPtr pvReserved
