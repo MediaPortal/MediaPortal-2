@@ -206,6 +206,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         _vertexBufferLength = Math.Min(count * 2, Math.Max(4096, count));
         _vertexBuffer = PositionColored2Textured.Create(_vertexBufferLength);
+        ContentManager.VertexReferences++;
       }
       PositionColored2Textured.Set(_vertexBuffer, verts);
       _primitiveCount = count / 3;
