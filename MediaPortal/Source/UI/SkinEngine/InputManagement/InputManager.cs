@@ -130,8 +130,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       _mousePosition = new PointF(x, y);
-      if (MouseMoved != null)
-        MouseMoved(x, y);
+      MouseMoveHandler dlgt = MouseMoved;
+      if (dlgt != null)
+        dlgt(x, y);
     }
 
     public void MouseWheel(int numDetents)
@@ -139,7 +140,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
-      MouseWheeled(numDetents);
+      MouseWheelHandler dlgt = MouseWheeled;
+      if (dlgt != null)
+        dlgt(numDetents);
     }
 
     public void MouseClick(MouseButtons mouseButtons)
@@ -170,8 +173,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         keyAction.Action();
       else
       {
-        if (KeyPressed != null)
-          KeyPressed(ref key);
+        KeyPressedHandler dlgt = KeyPressed;
+        if (dlgt != null)
+          dlgt(ref key);
       }
     }
 
