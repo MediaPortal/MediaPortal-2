@@ -231,6 +231,8 @@ namespace MediaPortal.Core
           Get<ILogger>().Warn("ServiceRegistration: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
+        if (Instance._services.ContainsKey(item.RegistrationType))
+          throw new EnvironmentException("ServiceRegistration: A Service with registration type '{0}' is already registered", item.RegistrationType);
         Instance._services.Add(item.RegistrationType, item.ServiceInstance);
         Instance._pluginServices.Add(item.RegistrationType);
       }
