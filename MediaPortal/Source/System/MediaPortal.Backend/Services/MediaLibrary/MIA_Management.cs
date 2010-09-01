@@ -437,9 +437,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
           MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       IDataReader reader = command.ExecuteReader();
       try
@@ -465,9 +463,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " INNER JOIN " + miaTableName + " AS MAIN ON VAL." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
           " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       IDataReader reader = command.ExecuteReader();
       try
@@ -492,9 +488,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " INNER JOIN " + nmTableName + " AS NM ON VAL." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
           " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       IDataReader reader = command.ExecuteReader();
       try
@@ -549,17 +543,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       IDbCommand command = transaction.CreateCommand();
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       int numValues = 0;
       foreach (object value in values)
       {
         numValues++;
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, value);
       }
       command.CommandText = "DELETE FROM " + collectionAttributeTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND " +
           COLL_ATTR_VALUE_COL_NAME + " NOT IN(" + StringUtils.Join(", ", CollectionUtils.Fill("?", numValues)) + ")";
@@ -584,21 +574,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " WHERE NOT EXISTS(SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
             MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND " + COLL_ATTR_VALUE_COL_NAME + " = ?)";
 
-        IDbDataParameter param = command.CreateParameter();
-        param.Value = mediaItemId;
-        command.Parameters.Add(param);
-
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
-
-        param = command.CreateParameter();
-        param.Value = mediaItemId;
-        command.Parameters.Add(param);
-
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, mediaItemId);
+        DBUtils.AddParameter(command, value);
+        DBUtils.AddParameter(command, mediaItemId);
+        DBUtils.AddParameter(command, value);
 
         command.ExecuteNonQuery();
       }
@@ -657,13 +636,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " +
             collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = ?)";
 
-        IDbDataParameter param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
-            
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, value);
+        DBUtils.AddParameter(command, value);
 
         command.ExecuteNonQuery();
 
@@ -671,9 +645,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
             COLL_ATTR_VALUE_COL_NAME + " = ?";
 
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, value);
 
         valuePk = (Int64) command.ExecuteScalar();
       }
@@ -691,17 +663,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       IDbCommand command = transaction.CreateCommand();
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       int numValues = 0;
       foreach (object value in values)
       {
         numValues++;
-        param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, value);
       }
       string commandText = "DELETE FROM " + nmTableName + " AS NM WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND NOT EXISTS(" +
           "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " VAL WHERE VAL." +
@@ -741,14 +709,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           ", ? FROM " + databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
           " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = ?)";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = value;
-      command.Parameters.Add(param);
-          
-      param = command.CreateParameter();
-      param.Value = value;
-      command.Parameters.Add(param);
-
+      DBUtils.AddParameter(command, value);
+      DBUtils.AddParameter(command, value);
+      
       command.ExecuteNonQuery();
 
       // Check association: We do it here with a single statement to avoid roundtrips to the DB
@@ -762,21 +725,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " WHERE VAL." + COLL_ATTR_VALUE_COL_NAME + " = ? AND NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?" +
           ")";
 
-      param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
-          
-      param = command.CreateParameter();
-      param.Value = value;
-      command.Parameters.Add(param);
-
-      param = command.CreateParameter();
-      param.Value = value;
-      command.Parameters.Add(param);
-
-      param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
+      DBUtils.AddParameter(command, value);
+      DBUtils.AddParameter(command, value);
+      DBUtils.AddParameter(command, mediaItemId);
 
       command.ExecuteNonQuery();
     }
@@ -1257,9 +1209,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.CommandText = "SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + miaTableName +
           " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       return command.ExecuteScalar() != null;
     }
@@ -1309,9 +1259,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDbCommand command = transaction.CreateCommand();
       command.CommandText = mainQueryBuilder.ToString();
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       IDataReader reader = command.ExecuteReader();
       try
@@ -1440,11 +1388,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.CommandText = mainQueryBuilder.ToString();
 
       foreach (object value in sqlValues)
-      {
-        IDbDataParameter param = command.CreateParameter();
-        param.Value = value;
-        command.Parameters.Add(param);
-      }
+        DBUtils.AddParameter(command, value);
 
       command.ExecuteNonQuery();
 
@@ -1511,9 +1455,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDbCommand command = transaction.CreateCommand();
       command.CommandText = "DELETE FROM " + miaTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = mediaItemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, mediaItemId);
 
       bool result = command.ExecuteNonQuery() > 0;
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);

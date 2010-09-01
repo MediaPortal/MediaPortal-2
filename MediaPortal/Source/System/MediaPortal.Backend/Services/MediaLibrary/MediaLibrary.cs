@@ -140,13 +140,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.CommandText = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
           " WHERE " + systemIdAttribute + " = ? AND " + pathAttribute + " = ?";
 
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = systemId;
-      command.Parameters.Add(param);
-
-      param = command.CreateParameter();
-      param.Value = resourcePath.Serialize();
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, systemId);
+      DBUtils.AddParameter(command, resourcePath.Serialize());
 
       object result = command.ExecuteScalar();
       return result == null ? new Int64?() : (Int64) result;
@@ -200,18 +195,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               " WHERE " + systemIdAttribute + " = ?";
 
       IDbCommand command = transaction.CreateCommand();
-
-      IDbDataParameter param = command.CreateParameter();
-      param.Value = systemId;
-      command.Parameters.Add(param);
+      DBUtils.AddParameter(command, systemId);
 
       if (basePath != null)
       {
         commandStr = commandStr + " AND " + pathAttribute + " LIKE ? ESCAPE '\\'";
-
-        param = command.CreateParameter();
-        param.Value = SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%";
-        command.Parameters.Add(param);
+        DBUtils.AddParameter(command, SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%");
       }
 
       commandStr = commandStr + ")";

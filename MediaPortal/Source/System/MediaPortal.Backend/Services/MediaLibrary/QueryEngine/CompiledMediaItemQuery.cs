@@ -160,11 +160,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               out statementStr, out values);
           command.CommandText = statementStr;
           foreach (object value in values)
-          {
-            IDbDataParameter param = command.CreateParameter();
-            param.Value = value;
-            command.Parameters.Add(param);
-          }
+            DBUtils.AddParameter(command, value);
 
           IDataReader reader = command.ExecuteReader();
           try
@@ -203,11 +199,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             out statementStr, out values);
         command.CommandText = statementStr;
         foreach (object value in values)
-        {
-          IDbDataParameter param = command.CreateParameter();
-          param.Value = value;
-          command.Parameters.Add(param);
-        }
+          DBUtils.AddParameter(command, value);
 
         ICollection<MediaItemAspectMetadata> selectedMIAs = new HashSet<MediaItemAspectMetadata>();
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in CollectionUtils.UnionList(_mainSelectAttributes.Keys, _explicitSelectAttributes))

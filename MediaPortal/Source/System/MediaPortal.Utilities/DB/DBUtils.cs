@@ -47,23 +47,30 @@ namespace MediaPortal.Utilities.DB
         return null;
       if (type == typeof(string))
         return reader.GetString(colIndex);
-      else if (type == typeof(DateTime))
+      if (type == typeof(DateTime))
         return reader.GetDateTime(colIndex);
-      else if (type == typeof(Char))
+      if (type == typeof(Char))
         return reader.GetChar(colIndex);
-      else if (type == typeof(Boolean))
+      if (type == typeof(Boolean))
         return reader.GetBoolean(colIndex);
-      else if (type == typeof(Single))
+      if (type == typeof(Single))
         return reader.GetFloat(colIndex);
-      else if (type == typeof(Double))
+      if (type == typeof(Double))
         return reader.GetDouble(colIndex);
-      else if (type == typeof(Int32))
+      if (type == typeof(Int32))
         return reader.GetInt32(colIndex);
-      else if (type ==typeof(Int64))
+      if (type ==typeof(Int64))
         return reader.GetInt64(colIndex);
-      else
-        throw new ArgumentException(string.Format(
-            "The datatype '{0}' is not supported as a DB datatype", type.Name));
+      throw new ArgumentException(string.Format(
+          "The datatype '{0}' is not supported as a DB datatype", type.Name));
+    }
+
+    public static IDbDataParameter AddParameter(IDbCommand command, object value)
+    {
+      IDbDataParameter result = command.CreateParameter();
+      result.Value = value ?? DBNull.Value;
+      command.Parameters.Add(result);
+      return result;
     }
   }
 }

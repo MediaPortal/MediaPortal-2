@@ -124,11 +124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
         command.CommandText = statementStr;
         foreach (object value in values)
-        {
-          IDbDataParameter param = command.CreateParameter();
-          param.Value = value;
-          command.Parameters.Add(param);
-        }
+          DBUtils.AddParameter(command, value);
 
         IDataReader reader = command.ExecuteReader();
         HomogenousMap result = new HomogenousMap(_selectAttribute.AttributeType, typeof(int));

@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -77,19 +78,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO MIA_TYPES (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (?, ?, ?)";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = id.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = name;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = serialization;
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, id.ToString());
+      DBUtils.AddParameter(result, name);
+      DBUtils.AddParameter(result, serialization);
       return result;
     }
 
@@ -110,19 +101,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO MIA_NAME_ALIASES (MIAM_ID, IDENTIFIER, DATABASE_OBJECT_NAME) VALUES (?, ?, ?)";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = aspectId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = identifier;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = dbObjectName;
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, aspectId.ToString());
+      DBUtils.AddParameter(result, identifier);
+      DBUtils.AddParameter(result, dbObjectName);
       return result;
     }
 
@@ -130,11 +111,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM MIA_TYPES WHERE MIAM_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = aspectId.ToString();
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, aspectId.ToString());
       return result;
     }
 
@@ -143,14 +120,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_ID=? AND BASE_RESOURCE_PATH=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = systemId;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = baseResourcePath.Serialize();
-      result.Parameters.Add(param);
+      DBUtils.AddParameter(result, systemId);
+      DBUtils.AddParameter(result, baseResourcePath.Serialize());
 
       shareIdIndex = 0;
       return result;
@@ -174,10 +145,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
+      DBUtils.AddParameter(result, shareId.ToString());
 
       systemIdIndex = 0;
       baseResourcePathIndex = 1;
@@ -190,10 +158,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SYSTEM_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = systemId;
-      result.Parameters.Add(param);
+      DBUtils.AddParameter(result, systemId);
 
       shareIdIndex = 0;
       systemIdIndex = 1;
@@ -207,23 +172,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_ID, BASE_RESOURCE_PATH) VALUES (?, ?, ?, ?)";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = shareName;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = systemId;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = baseResourcePath.Serialize();
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, shareId.ToString());
+      DBUtils.AddParameter(result, shareName);
+      DBUtils.AddParameter(result, systemId);
+      DBUtils.AddParameter(result, baseResourcePath.Serialize());
       return result;
     }
 
@@ -231,10 +183,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "SELECT CATEGORYNAME FROM SHARES_CATEGORIES WHERE SHARE_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
+      DBUtils.AddParameter(result, shareId.ToString());
 
       categoryIndex = 0;
       return result;
@@ -244,15 +193,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO SHARES_CATEGORIES (SHARE_ID, CATEGORYNAME) VALUES (?, ?)";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = mediaCategory;
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, shareId.ToString());
+      DBUtils.AddParameter(result, mediaCategory);
       return result;
     }
 
@@ -260,15 +202,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM SHARES_CATEGORIES WHERE SHARE_ID=? AND CATEGORYNAME=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = mediaCategory;
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, shareId.ToString());
+      DBUtils.AddParameter(result, mediaCategory);
       return result;
     }
 
@@ -277,18 +212,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "UPDATE SHARES set NAME=?, BASE_RESOURCE_PATH=? WHERE SHARE_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareName;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = baseResourcePath.Serialize();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
+      DBUtils.AddParameter(result, shareName);
+      DBUtils.AddParameter(result, baseResourcePath.Serialize());
+      DBUtils.AddParameter(result, shareId.ToString());
 
       return result;
     }
@@ -300,10 +226,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ICollection<string> placeholders = new List<string>();
       foreach (Guid shareId in shareIds)
       {
-        IDbDataParameter param = result.CreateParameter();
-        param.Value = shareId.ToString();
-        result.Parameters.Add(param);
-
+        DBUtils.AddParameter(result, shareId.ToString());
         placeholders.Add("?");
       }
       result.CommandText = "DELETE FROM SHARES WHERE SHARE_ID in (" + StringUtils.Join(",", placeholders) + ")";
@@ -314,13 +237,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public static IDbCommand DeleteSharesOfSystemCommand(ITransaction transaction, string systemId)
     {
       IDbCommand result = transaction.CreateCommand();
-
       result.CommandText = "DELETE FROM SHARES WHERE SYSTEM_ID = ?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = systemId;
-      result.Parameters.Add(param);
-
+      DBUtils.AddParameter(result, systemId);
       return result;
     }
 
