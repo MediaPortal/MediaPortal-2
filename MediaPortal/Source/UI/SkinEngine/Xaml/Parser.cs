@@ -675,16 +675,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
       if (resultDict.Count > 0)
         return resultDict;
-      else
-        return resultList.Count == 0
-            ? null
-            : (
-                resultList.Count == 1 ? resultList[0] : resultList);
+      return resultList.Count == 0 ? null : (resultList.Count == 1 ? resultList[0] : resultList);
     }
 
     protected object ParseValue(string str)
     {
-      str = str.Trim();
       if (str.StartsWith("{}")) // {} = escape sequence
         return str.Substring(2);
       if (!str.StartsWith("{"))
@@ -842,9 +837,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         object result;
         if (TypeConverter.Convert(val, targetType, out result))
           return result;
-        else
-          throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
-
+        throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
       }
       catch (Exception e)
       {
