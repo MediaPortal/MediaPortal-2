@@ -35,7 +35,7 @@
     </Style>
 
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid>
+      <Grid x:Name="GenericDialogContent">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
