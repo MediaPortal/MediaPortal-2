@@ -27,6 +27,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
@@ -111,12 +112,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     void InstallAutomaticContentDataTemplate()
     {
-      if (Content == null)
+      object content = Content;
+      if (content == null)
       {
         SetTemplateControl(null);
         return;
       }
-      DataTemplate dt = FindResource(Content.GetType()) as DataTemplate;
+      DataTemplate dt = FindResource(content.GetType()) as DataTemplate;
       if (dt != null)
       {
         FinishBindingsDlgt finishDlgt;
@@ -126,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       }
       object templateControl;
-      if (TypeConverter.Convert(Content, typeof(FrameworkElement), out templateControl))
+      if (TypeConverter.Convert(content, typeof(FrameworkElement), out templateControl))
         SetTemplateControl((FrameworkElement) templateControl);
       // else: no content template to present the content
     }
