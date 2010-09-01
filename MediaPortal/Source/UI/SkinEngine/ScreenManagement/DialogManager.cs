@@ -72,13 +72,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       #endregion
 
-      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle, Guid dialogInstanceId)
+      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle)
       {
         _headerTextProperty = new SProperty(typeof(string), headerText);
         _textProperty = new SProperty(typeof(string), text);
         _dialogButtonsList = dialogButtons;
         _dialogHandle = dialogHandle;
-        _dialogInstanceId = dialogInstanceId;
       }
 
       public AbstractProperty HeaderTextProperty
@@ -116,6 +115,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public Guid DialogInstanceId
       {
         get { return _dialogInstanceId; }
+        internal set { _dialogInstanceId = value; }
       }
     }
 
@@ -201,10 +201,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, focusedButton == DialogButtonType.Cancel));
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      _dialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       Guid? dialogInstanceId = screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogClosed);
       if (!dialogInstanceId.HasValue)
         throw new InvalidDataException("Generic dialog could not be shown");
-      CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle, dialogInstanceId.Value);
+      _dialogData.DialogInstanceId = dialogInstanceId.Value;
       return dialogHandle;
     }
 
