@@ -179,7 +179,6 @@
     <Content Include="Skin\default\media\zoom_in_enabled.png" />
     <Content Include="Skin\default\media\zoom_out_disabled.png" />
     <Content Include="Skin\default\media\zoom_out_enabled.png" />
-    <Content Include="Skin\default\screens\batchtest.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
@@ -206,7 +205,7 @@
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
-    <Content Include="Skin\default\backgrounds\picture-background.xaml"/>
+    <Content Include="Skin\default\backgrounds\picture-background.xaml" />
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
