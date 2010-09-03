@@ -201,12 +201,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       mPath.AddRectangle(r);
       mPath.CloseFigure();
 
-      Matrix matrix = new Matrix();
-      matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
-
-
-      matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      mPath.Transform(matrix);
+      using (Matrix matrix = new Matrix())
+      {
+        matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
+        matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        mPath.Transform(matrix);
+      }
       mPath.Flatten();
 
       return mPath;
