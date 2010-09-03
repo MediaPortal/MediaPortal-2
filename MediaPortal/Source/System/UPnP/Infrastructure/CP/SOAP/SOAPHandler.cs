@@ -103,8 +103,8 @@ namespace UPnP.Infrastructure.CP.SOAP
           action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
           return;
         }
-        TextReader textReader = new StreamReader(body, contentEncoding);
-        outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
+        using (TextReader textReader = new StreamReader(body, contentEncoding))
+          outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
       }
       catch (Exception e)
       {

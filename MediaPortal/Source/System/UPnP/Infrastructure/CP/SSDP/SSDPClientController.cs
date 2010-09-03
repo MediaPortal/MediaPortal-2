@@ -119,16 +119,19 @@ namespace UPnP.Infrastructure.CP.SSDP
         return;
       try
       {
-        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar));
-        try
+        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar)))
         {
-          SimpleHTTPRequest header;
-          SimpleHTTPRequest.Parse(stream, out header);
-          HandleSSDPRequest(header, config);
-        }
-        catch (Exception e)
-        {
-          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'", e.Message);
+          try
+          {
+            SimpleHTTPRequest header;
+            SimpleHTTPRequest.Parse(stream, out header);
+            HandleSSDPRequest(header, config);
+          }
+          catch (Exception e)
+          {
+            UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'",
+                e.Message);
+          }
         }
         StartMulticastReceive(state);
       }

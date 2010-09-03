@@ -396,23 +396,27 @@ namespace UPnP.Infrastructure.CP
         HttpWebRequest request = state.Request;
         try
         {
-          WebResponse response = request.EndGetResponse(asyncResult);
-          try
+          using (WebResponse response = request.EndGetResponse(asyncResult))
           {
-            Stream body = response.GetResponseStream();
-            XPathDocument doc = new XPathDocument(body);
-            state.CurrentServiceDescriptor.ServiceDescription = doc;
-            state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
-          }
-          catch (Exception) // Don't log exceptions at this low protocol level
-          {
-            state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
-            lock (_cpData.SyncObj)
-              rd.State = RootDescriptorState.Erroneous;
-          }
-          finally
-          {
-            response.Close();
+            try
+            {
+              using (Stream body = response.GetResponseStream())
+              {
+                XPathDocument doc = new XPathDocument(body);
+                state.CurrentServiceDescriptor.ServiceDescription = doc;
+                state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
+              }
+            }
+            catch (Exception) // Don't log exceptions at this low protocol level
+            {
+              state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
+              lock (_cpData.SyncObj)
+                rd.State = RootDescriptorState.Erroneous;
+            }
+            finally
+            {
+              response.Close();
+            }
           }
         }
         catch (WebException e)

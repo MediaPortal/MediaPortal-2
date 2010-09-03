@@ -140,11 +140,13 @@ namespace MediaPortal.Core.Services.PathManager
       try
       {
         XmlSerializer s = new XmlSerializer(typeof(PathListFile));
-        TextReader r = new StreamReader(GetPath(@"<DEFAULTS>\Paths.xml"));
-        PathListFile defaults = (PathListFile)s.Deserialize(r);
+        using (TextReader r = new StreamReader(GetPath(@"<DEFAULTS>\Paths.xml")))
+        {
+          PathListFile defaults = (PathListFile) s.Deserialize(r);
 
-        foreach (PathDefinition path in defaults.Paths)
-          SetPath(path.Name, path.Value);
+          foreach (PathDefinition path in defaults.Paths)
+            SetPath(path.Name, path.Value);
+        }
       }
       catch (Exception e)
       {

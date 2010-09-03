@@ -115,17 +115,20 @@ namespace UPnP.Infrastructure.Dv.SSDP
             state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
             IPAddress.Any : IPAddress.IPv6Any, 0);
         // To retrieve the remote endpoint address, it is necessary that the SocketOptionName.PacketInformation is set to true on the socket
-        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP));
-        try
+        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP)))
         {
-          SimpleHTTPRequest header;
-          SimpleHTTPRequest.Parse(stream, out header);
-          HandleSSDPRequest(header, config, (IPEndPoint) remoteEP);
-        }
-        catch (Exception e)
-        {
-          UPnPConfiguration.LOGGER.Debug("SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'",
-              NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
+          try
+          {
+            SimpleHTTPRequest header;
+            SimpleHTTPRequest.Parse(stream, out header);
+            HandleSSDPRequest(header, config, (IPEndPoint) remoteEP);
+          }
+          catch (Exception e)
+          {
+            UPnPConfiguration.LOGGER.Debug(
+                "SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'",
+                NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
+          }
         }
         StartReceive(state);
       }

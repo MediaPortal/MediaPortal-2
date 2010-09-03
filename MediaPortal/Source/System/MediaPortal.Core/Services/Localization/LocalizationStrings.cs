@@ -167,18 +167,20 @@ namespace MediaPortal.Core.Services.Localization
         {
           XmlSerializer s = new XmlSerializer(typeof(StringFile));
           Encoding encoding = Encoding.UTF8;
-          TextReader r = new StreamReader(filePath, encoding);
-          strings = (StringFile) s.Deserialize(r);
-
-          foreach (StringSection section in strings.Sections)
+          using (TextReader r = new StreamReader(filePath, encoding))
           {
-            IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
-                _languageStrings[section.SectionName] : new Dictionary<string, StringLocalized>(
-                    StringComparer.Create(CultureInfo.InvariantCulture, true));
-            foreach (StringLocalized languageString in section.LocalizedStrings)
-              sectionContents[languageString.StringName] = languageString;
-            if (sectionContents.Count > 0)
-              _languageStrings[section.SectionName] = sectionContents;
+            strings = (StringFile) s.Deserialize(r);
+
+            foreach (StringSection section in strings.Sections)
+            {
+              IDictionary<string, StringLocalized> sectionContents = _languageStrings.ContainsKey(section.SectionName) ?
+                  _languageStrings[section.SectionName] : new Dictionary<string, StringLocalized>(
+                      StringComparer.Create(CultureInfo.InvariantCulture, true));
+              foreach (StringLocalized languageString in section.LocalizedStrings)
+                sectionContents[languageString.StringName] = languageString;
+              if (sectionContents.Count > 0)
+                _languageStrings[section.SectionName] = sectionContents;
+            }
           }
         }
         catch (Exception ex)
