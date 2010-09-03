@@ -310,21 +310,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (BorderBrush != null && BorderThickness > 0)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
-          GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-          PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-          GraphicsPath subPath = new GraphicsPath();
-          for (int i = 0; i < subPathVerts.Length; i++)
+          using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
           {
-            bool isClosed;
-            gpi.NextSubpath(subPath, out isClosed);
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
-                out subPathVerts[i], null);
+            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+            using (GraphicsPath subPath = new GraphicsPath())
+            {
+              for (int i = 0; i < subPathVerts.Length; i++)
+              {
+                bool isClosed;
+                gpi.NextSubpath(subPath, out isClosed);
+                TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
+                    out subPathVerts[i], null);
+              }
+            }
+            PositionColored2Textured[] verts;
+            GraphicsPathHelper.Flatten(subPathVerts, out verts);
+            BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
+            int numVertices = verts.Length/3;
+            _borderContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
           }
-          PositionColored2Textured[] verts;
-          GraphicsPathHelper.Flatten(subPathVerts, out verts);
-          BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
-          int numVertices = verts.Length / 3;
-          _borderContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
         }
     }
 

@@ -91,43 +91,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         {
           if (Fill != null && !_fillDisabled)
           {
-            GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-            GraphicsPath subPath = new GraphicsPath();
-            for (int i = 0; i < subPathVerts.Length; i++)
+            using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
             {
-              bool isClosed;
-              gpi.NextSubpath(subPath, out isClosed);
-              TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
-            }
-            PositionColored2Textured[] verts;
-            GraphicsPathHelper.Flatten(subPathVerts, out verts);
-            if (verts != null)
-            {
-              int numVertices = verts.Length / 3;
-              Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-              _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              using (GraphicsPath subPath = new GraphicsPath())
+              {
+                for (int i = 0; i < subPathVerts.Length; i++)
+                {
+                  bool isClosed;
+                  gpi.NextSubpath(subPath, out isClosed);
+                  TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
+                }
+              }
+              PositionColored2Textured[] verts;
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
+              if (verts != null)
+              {
+                int numVertices = verts.Length/3;
+                Fill.SetupBrush(this, ref verts, context.ZOrder, true);
+                _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              }
             }
           }
           if (Stroke != null && StrokeThickness > 0)
           {
-            GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-            GraphicsPath subPath = new GraphicsPath();
-            for (int i = 0; i < subPathVerts.Length; i++)
+            using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
             {
-              bool isClosed;
-              gpi.NextSubpath(subPath, out isClosed);
-              TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
-                  out subPathVerts[i], null);
-            }
-            PositionColored2Textured[] verts;
-            GraphicsPathHelper.Flatten(subPathVerts, out verts);
-            if (verts != null)
-            {
-              int numVertices = verts.Length/3;
-              Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-              _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              using (GraphicsPath subPath = new GraphicsPath())
+              {
+                for (int i = 0; i < subPathVerts.Length; i++)
+                {
+                  bool isClosed;
+                  gpi.NextSubpath(subPath, out isClosed);
+                  TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                                                                   out subPathVerts[i], null);
+                }
+              }
+              PositionColored2Textured[] verts;
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
+              if (verts != null)
+              {
+                int numVertices = verts.Length/3;
+                Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
+                _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              }
             }
           }
         }
@@ -297,44 +305,47 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected GraphicsPath CalculateTransformedPath(RectangleF baseRect)
     {
       GraphicsPath result = ParsePath();
-      Matrix m = new Matrix();
-      RectangleF bounds = result.GetBounds();
-      _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
-      if (Width > 0) baseRect.Width = (float) Width;
-      if (Height > 0) baseRect.Height = (float) Height;
-      float scaleW;
-      float scaleH;
-      if (Stretch == Stretch.Fill)
+      using (Matrix m = new Matrix())
       {
-        scaleW = baseRect.Width / bounds.Width;
-        scaleH = baseRect.Height / bounds.Height;
-        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-      }
-      else if (Stretch == Stretch.Uniform)
-      {
-        scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
-        scaleH = scaleW;
-        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-      }
-      else if (Stretch == Stretch.UniformToFill)
-      {
-        scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
-        scaleH = scaleW;
-        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-      }
-      else
-      { // Stretch == Stretch.None
-        scaleW = 1;
-        scaleH = 1;
-      }
-      // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
-      if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
-      if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
-      m.Scale(scaleW, scaleH, MatrixOrder.Append);
+        RectangleF bounds = result.GetBounds();
+        _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
+        if (Width > 0) baseRect.Width = (float) Width;
+        if (Height > 0) baseRect.Height = (float) Height;
+        float scaleW;
+        float scaleH;
+        if (Stretch == Stretch.Fill)
+        {
+          scaleW = baseRect.Width/bounds.Width;
+          scaleH = baseRect.Height/bounds.Height;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else if (Stretch == Stretch.Uniform)
+        {
+          scaleW = Math.Min(baseRect.Width/bounds.Width, baseRect.Height/bounds.Height);
+          scaleH = scaleW;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else if (Stretch == Stretch.UniformToFill)
+        {
+          scaleW = Math.Max(baseRect.Width/bounds.Width, baseRect.Height/bounds.Height);
+          scaleH = scaleW;
+          m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+        }
+        else
+        {
+          // Stretch == Stretch.None
+          scaleW = 1;
+          scaleH = 1;
+        }
+        // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
+        if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
+        if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
+        m.Scale(scaleW, scaleH, MatrixOrder.Append);
 
-      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      result.Transform(m);
-      result.Flatten();
+        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        result.Transform(m);
+        result.Flatten();
+      }
       return result;
     }
   }
