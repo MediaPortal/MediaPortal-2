@@ -624,8 +624,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_currentSuperLayer != null)
+        {
           _currentSuperLayer.ScreenState = Screen.State.Closing;
-        ScheduleDisposeScreen(_currentSuperLayer);
+          ScheduleDisposeScreen(_currentSuperLayer);
+        }
         _currentSuperLayer = screen;
       }
       if (screen != null)
@@ -664,7 +666,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Reload screen
       Screen screen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (screen == null)
-          // Error message was shown in GetScreen()
+        // Error message was shown in GetScreen()
         return;
       DoExchangeScreen(screen);
 
@@ -749,8 +751,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       UnsubscribeFromMessages();
       // Close all screens to make sure all SlimDX objects are correctly cleaned up
-      lock (_syncObj)
-        DoCloseCurrentScreenAndDialogs(true, true, false);
+      DoCloseCurrentScreenAndDialogs(true, true, false);
       _skinManager.Dispose();
       Fonts.FontManager.Unload();
     }
@@ -802,7 +803,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
-        string currentSuperLayer = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
+        string currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
         string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
 
@@ -827,9 +828,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
         DoExchangeScreen(screen);
 
-        if (currentBackgroundName != null)
+        if (currentSuperLayerName != null)
         {
-          Screen superLayer = GetScreen(currentSuperLayer, ScreenType.SuperLayer);
+          Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
           DoSetSuperLayer(superLayer);
         }
       }
