@@ -58,16 +58,6 @@ namespace MediaPortal.UI.Control.InputManager
     PointF MousePosition { get; }
 
     /// <summary>
-    /// Shows a busy screen. Remember to use a try/finally block to hide busy screen after usage.
-    /// </summary>
-    void ShowBusyScreen();
-
-    /// <summary>
-    /// Hides a formerly shown busy screen.
-    /// </summary>
-    void HideBusyScreen();
-
-    /// <summary>
     /// Called to handle a mouse move event.
     /// </summary>
     /// <param name="x">The x corrdinate.</param>

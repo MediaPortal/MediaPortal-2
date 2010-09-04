@@ -49,6 +49,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ShowScreen,
 
       /// <summary>
+      /// Internal message to set the super layer asynchronously. The screen to be shown will be given in the
+      /// parameter <see cref="SCREEN"/>.
+      /// </summary>
+      SetSuperLayer,
+
+      /// <summary>
       /// Internal message to show a dialog asynchronously. The dialog to be shown will be given in the
       /// parameter <see cref="DIALOG_DATA"/>.
       /// </summary>
@@ -85,6 +91,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SystemMessage msg = new SystemMessage(MessageType.ShowScreen);
       msg.MessageData[SCREEN] = screen;
       msg.MessageData[CLOSE_DIALOGS] = closeDialogs;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageSetSuperLayer(Screen screen)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.SetSuperLayer);
+      msg.MessageData[SCREEN] = screen;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

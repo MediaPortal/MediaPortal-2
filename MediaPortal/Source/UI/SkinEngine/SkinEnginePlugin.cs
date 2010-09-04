@@ -97,6 +97,9 @@ namespace MediaPortal.UI.SkinEngine
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
       ServiceRegistration.Add<IInputManager>(InputManager.Instance);
 
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISuperLayerManager service");
+      ServiceRegistration.Add<ISuperLayerManager>(SuperLayerManager.Instance);
+
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
       ServiceRegistration.Add<IScreenManager>(_screenManager);
@@ -128,6 +131,9 @@ namespace MediaPortal.UI.SkinEngine
     void ISkinEngine.Shutdown()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      InputManager.Instance.Dispose();
+      SuperLayerManager.Instance.Dispose();
 
       logger.Debug("SkinEnginePlugin: Unregistering default key bindings");
       UnregisterGlobalKeyBindings();

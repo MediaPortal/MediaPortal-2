@@ -91,6 +91,7 @@
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
     <Compile Include="Presentation\Screens\IDialogManager.cs" />
+    <Compile Include="Presentation\Screens\ISuperLayerManager.cs" />
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
     <Compile Include="Presentation\Screens\IScreenControl.cs" />
     <Compile Include="Presentation\Models\IWorkflowModel.cs" />

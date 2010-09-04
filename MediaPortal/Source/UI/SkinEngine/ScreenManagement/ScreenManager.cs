@@ -50,6 +50,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     CloseAllOnTopExcluding
   }
 
+    public enum ScreenType
+    {
+      ScreenOrDialog,
+      Background,
+      SuperLayer,
+    }
+
   public class ScreenManager : IScreenManager
   {
     #region Consts
@@ -60,7 +67,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string SCREEN_MISSING_TEXT_RES = "[ScreenManager.ScreenMissing]";
     public const string SCREEN_BROKEN_TEXT_RES = "[ScreenManager.ScreenBroken]";
     public const string BACKGROUND_SCREEN_MISSING_TEXT_RES = "[ScreenManager.BackgroundScreenMissing]";
+    public const string SUPER_LAYER_MISSING_TEXT_RES = "[ScreenManager.SuperLayerScreenMissing]";
     public const string BACKGROUND_SCREEN_BROKEN_TEXT_RES = "[ScreenManager.BackgroundScreenBroken]";
+    public const string SUPER_LAYER_BROKEN_TEXT_RES = "[ScreenManager.SuperLayerScreenBroken]";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
@@ -112,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public bool Load(string backgroundName)
       {
         Unload();
-        Screen background = GetScreen(backgroundName, this, true);
+        Screen background = GetScreen(backgroundName, this, ScreenType.Background);
         if (background == null)
           return false;
         background.Prepare();
@@ -224,7 +233,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected readonly BackgroundData _backgroundData;
     protected readonly Stack<DialogData> _dialogStack = new Stack<DialogData>();
-    protected Screen _currentScreen = null;
+    protected Screen _currentScreen = null; // "Normal" screen
+    protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
     protected int _numPendingAsyncOperations = 0;
 
     protected bool _backgroundDisabled = false;
@@ -278,13 +288,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
       {
         ScreenManagerMessaging.MessageType messageType = (ScreenManagerMessaging.MessageType) message.MessageType;
-        Guid dialogInstanceId;
+        Screen screen;
         switch (messageType)
         {
           case ScreenManagerMessaging.MessageType.ShowScreen:
-            Screen screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
+            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
             DoShowScreen(screen, closeDialogs);
+            DecPendingOperations();
+            break;
+          case ScreenManagerMessaging.MessageType.SetSuperLayer:
+            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
+            DoSetSuperLayer(screen);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ShowDialog:
@@ -293,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.CloseDialogs:
-            dialogInstanceId = (Guid) message.MessageData[ScreenManagerMessaging.DIALOG_INSTANCE_ID];
+            Guid dialogInstanceId = (Guid) message.MessageData[ScreenManagerMessaging.DIALOG_INSTANCE_ID];
             CloseDialogsMode mode = (CloseDialogsMode) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS_MODE];
             DoCloseDialogs(dialogInstanceId, mode, true);
             DecPendingOperations();
@@ -579,10 +594,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer, bool fireCloseDelegates)
+    protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer, bool closeSuperLayer, bool fireCloseDelegates)
     {
       if (closeBackgroundLayer)
         _backgroundData.Unload();
+      if (closeSuperLayer)
+        DoSetSuperLayer(null);
       DoCloseDialogs(fireCloseDelegates);
       DoCloseScreen();
     }
@@ -600,17 +617,37 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       screen.Show();
     }
 
+    protected internal void DoSetSuperLayer(Screen screen)
+    {
+      if (screen != null)
+        screen.Prepare();
+      lock (_syncObj)
+      {
+        if (_currentSuperLayer != null)
+          _currentSuperLayer.ScreenState = Screen.State.Closing;
+        ScheduleDisposeScreen(_currentSuperLayer);
+        _currentSuperLayer = screen;
+      }
+      if (screen != null)
+      {
+        screen.ScreenState = Screen.State.Running;
+        screen.Show();
+      }
+    }
+
     protected internal void DoReloadScreens()
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Reload");
       // Remember all open screens
       string backgroundName;
       string screenName;
+      string superLayerName;
       List<DialogSaveDescriptor> dialogsReverse;
       lock (_syncObj)
       {
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.Name;
         screenName = _currentScreen.Name;
+        superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
         dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         foreach (DialogData dd in _dialogStack)
           // Remember all dialogs and their close callbacks
@@ -618,14 +655,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
 
       // Close all
-      DoCloseCurrentScreenAndDialogs(true, false);
+      DoCloseCurrentScreenAndDialogs(true, true, false);
 
       // Reload background
       if (backgroundName != null)
         _backgroundData.Load(backgroundName);
 
       // Reload screen
-      Screen screen = GetScreen(screenName, false);
+      Screen screen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (screen == null)
           // Error message was shown in GetScreen()
         return;
@@ -634,18 +671,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Reload dialogs
       foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
-        Screen dialog = GetScreen(dialogDescriptor.DialogName, false);
+        Screen dialog = GetScreen(dialogDescriptor.DialogName, ScreenType.ScreenOrDialog);
         dialog.ScreenInstanceId = dialogDescriptor.DialogId;
         DoShowDialog(new DialogData(dialog, dialogDescriptor.CloseCallback));
+      }
+
+      if (superLayerName != null)
+      {
+        // Reload screen
+        Screen superLayer = GetScreen(screenName, ScreenType.SuperLayer);
+        if (superLayer == null)
+            // Error message was shown in GetScreen()
+          return;
+        DoSetSuperLayer(superLayer);
       }
     }
 
     protected IList<Screen> GetAllScreens()
     {
-      return GetScreens(true, true, true);
+      return GetScreens(true, true, true, true);
     }
 
-    protected IList<Screen> GetScreens(bool background, bool main, bool dialogs)
+    protected IList<Screen> GetScreens(bool background, bool main, bool dialogs, bool superLayer)
     {
       lock (_syncObj)
       {
@@ -667,6 +714,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           Array.Reverse(dialogsArray);
           foreach (DialogData data in dialogsArray)
             result.Add(data.DialogScreen);
+        }
+        if (superLayer)
+        {
+          if (_currentSuperLayer != null)
+            result.Add(_currentSuperLayer);
         }
         return result;
       }
@@ -698,7 +750,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       UnsubscribeFromMessages();
       // Close all screens to make sure all SlimDX objects are correctly cleaned up
       lock (_syncObj)
-        DoCloseCurrentScreenAndDialogs(true, false);
+        DoCloseCurrentScreenAndDialogs(true, true, false);
       _skinManager.Dispose();
       Fonts.FontManager.Unload();
     }
@@ -718,12 +770,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Render()
     {
-      IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false);
-      IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true);
+      IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
+      IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
       lock (_syncObj)
       {
         SkinContext.FrameRenderingStartTime = DateTime.Now;
         foreach (Screen screen in disabledScreens)
+          // Animation of screen is necessary to avoid an overrun of the async properties setter buffer
           screen.Animate();
         foreach (Screen screen in enabledScreens)
         {
@@ -749,13 +802,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
+        string currentSuperLayer = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
         string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
 
         UninstallBackgroundManager();
         _backgroundData.Unload();
 
-        DoCloseCurrentScreenAndDialogs(true, false);
+        DoCloseCurrentScreenAndDialogs(true, true, false);
 
         PlayersHelper.ReleaseGUIResources();
 
@@ -770,8 +824,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (!InstallBackgroundManager())
           _backgroundData.Load(currentBackgroundName);
 
-        Screen screen = GetScreen(currentScreenName, false);
+        Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
         DoExchangeScreen(screen);
+
+        if (currentBackgroundName != null)
+        {
+          Screen superLayer = GetScreen(currentSuperLayer, ScreenType.SuperLayer);
+          DoSetSuperLayer(superLayer);
+        }
       }
       SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
@@ -809,22 +869,35 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// loading the screen), an error dialog is shown to the user.
     /// </remarks>
     /// <param name="screenName">Name of the screen to return.</param>
-    /// <param name="isBackground"><c>true</c> if the desired screen is a background screen. In this case,
-    /// the screen will be searched in the directory for background screens. If set to <c>false</c>, the screen
-    /// will be searched in the directory for foreground screens.</param>
+    /// <param name="screenType">Type of the screen to load. Depending on that type, the screen will be searched
+    /// in the appropriate directory.</param>
     /// <returns>Root UI element of the desired screen or <c>null</c>, if an error occured while
     /// loading the screen.</returns>
-    public static Screen GetScreen(string screenName, bool isBackground)
+    public static Screen GetScreen(string screenName, ScreenType screenType)
     {
-      return GetScreen(screenName, new WorkflowManagerModelLoader(), isBackground);
+      return GetScreen(screenName, new WorkflowManagerModelLoader(), screenType);
     }
 
-    public static Screen GetScreen(string screenName, IModelLoader loader, bool isBackground)
+    public static Screen GetScreen(string screenName, IModelLoader loader, ScreenType screenType)
     {
       try
       {
-        string relativeScreenPath = (isBackground ? SkinResources.BACKGROUNDS_DIRECTORY : SkinResources.SCREENS_DIRECTORY) +
-            Path.DirectorySeparatorChar + screenName + ".xaml";
+        string relativeDirectory;
+        switch (screenType)
+        {
+          case ScreenType.ScreenOrDialog:
+            relativeDirectory = SkinResources.SCREENS_DIRECTORY;
+            break;
+          case ScreenType.Background:
+            relativeDirectory = SkinResources.BACKGROUNDS_DIRECTORY;
+            break;
+          case ScreenType.SuperLayer:
+            relativeDirectory = SkinResources.SUPER_LAYERS_DIRECTORY;
+            break;
+          default:
+            throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
+        }
+        string relativeScreenPath = relativeDirectory + Path.DirectorySeparatorChar + screenName + ".xaml";
         SkinResources resourceBundle;
         UIElement root = LoadScreen(relativeScreenPath, loader, out resourceBundle);
         FrameworkElement element = root as FrameworkElement;
@@ -833,14 +906,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (root != null)
             root.Dispose();
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
-          if (isBackground)
-            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-                LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
-          else
-            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-                LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
+          string errorText;
+          switch (screenType)
+          {
+            case ScreenType.ScreenOrDialog:
+              errorText = SCREEN_MISSING_TEXT_RES;
+              break;
+            case ScreenType.Background:
+              errorText = BACKGROUND_SCREEN_MISSING_TEXT_RES;
+              break;
+            case ScreenType.SuperLayer:
+              errorText = SUPER_LAYER_MISSING_TEXT_RES;
+              break;
+            default:
+              throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
+          }
+          ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
+              DialogType.OkDialog, false, null);
           return null;
         }
         Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = element};
@@ -851,14 +934,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
         try
         {
-          if (isBackground)
-            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-                LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
-          else
-            ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-                LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
+          string errorText;
+          switch (screenType)
+          {
+            case ScreenType.ScreenOrDialog:
+              errorText = SCREEN_BROKEN_TEXT_RES;
+              break;
+            case ScreenType.Background:
+              errorText = BACKGROUND_SCREEN_BROKEN_TEXT_RES;
+              break;
+            case ScreenType.SuperLayer:
+              errorText = SUPER_LAYER_BROKEN_TEXT_RES;
+              break;
+            default:
+              throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
+          }
+          ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
+              DialogType.OkDialog, false, null);
         }
         catch (Exception)
         {
@@ -940,6 +1033,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    public bool IsSuperLayerVisible
+    {
+      get
+      {
+        lock (_syncObj)
+          return _currentSuperLayer != null;
+      }
+    }
+
     public IList<IDialogData> DialogStack
     {
       get
@@ -1002,7 +1104,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
-      Screen newScreen = GetScreen(screenName, false);
+      Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return null;
@@ -1015,7 +1117,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
-      Screen newScreen = GetScreen(screenName, false);
+      Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
@@ -1033,7 +1135,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
-      Screen newDialog = GetScreen(dialogName, false);
+      Screen newDialog = GetScreen(dialogName, ScreenType.ScreenOrDialog);
       if (newDialog == null)
         return null;
       ScreenManagerMessaging.SendMessageShowDialog(new DialogData(newDialog, dialogCloseCallback));
@@ -1077,6 +1179,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return true;
       }
       return _backgroundData.Load(backgroundName);
+    }
+
+    public bool SetSuperLayer(string superLayerName)
+    {
+      IncPendingOperations();
+      if (superLayerName == null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to hide super layer...");
+        ScreenManagerMessaging.SendMessageSetSuperLayer(null);
+        return true;
+      }
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show super layer '{0}'...", superLayerName);
+      Screen newScreen = GetScreen(superLayerName, ScreenType.SuperLayer);
+      if (newScreen == null)
+          // Error message was shown in GetScreen()
+        return false;
+      ScreenManagerMessaging.SendMessageSetSuperLayer(newScreen);
+      return true;
     }
 
     public void Reload()

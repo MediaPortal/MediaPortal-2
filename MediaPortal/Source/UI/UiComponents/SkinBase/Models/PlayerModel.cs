@@ -246,8 +246,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       playerManager.SwitchSlots();
     }
 
-    #endregion
-
     #region Methods for general play controls
 
     public static void Play()
@@ -321,6 +319,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       playerContextManager.ToggleCurrentPlayer();
     }
+
+    #endregion
 
     #endregion
   }
