@@ -222,16 +222,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       while (currentElement != null &&
           (currentElement.ActualPosition.Y >= ActualPosition.Y))
         currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up);
-      if (currentElement == null)
-      {
-        // No element to focus - fallback: move physical scrolling offset
-        if (IsViewPortAtTop)
-          return false;
-        SetScrollOffset(_scrollOffsetX, _scrollOffsetY + (float) ActualHeight);
-        return true;
-      }
-      else
+      if (currentElement != null)
         return currentElement.TrySetFocus(true);
+      // No element to focus - fallback: move physical scrolling offset
+      if (IsViewPortAtTop)
+        return false;
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY + (float) ActualHeight);
+      return true;
     }
 
     public bool FocusPageDown()
@@ -241,16 +238,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       while (currentElement != null &&
           (currentElement.ActualPosition.Y + currentElement.ActualHeight <= ActualPosition.Y + ActualHeight))
         currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down);
-      if (currentElement == null)
-      {
-        // No element to focus - fallback: move physical scrolling offset
-        if (IsViewPortAtBottom)
-          return false;
-        SetScrollOffset(_scrollOffsetX, _scrollOffsetY - (float) ActualHeight);
-        return true;
-      }
-      else
+      if (currentElement != null)
         return currentElement.TrySetFocus(true);
+      // No element to focus - fallback: move physical scrolling offset
+      if (IsViewPortAtBottom)
+        return false;
+      SetScrollOffset(_scrollOffsetX, _scrollOffsetY - (float) ActualHeight);
+      return true;
     }
 
     public bool FocusPageLeft()
@@ -260,16 +254,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       while (currentElement != null &&
           (currentElement.ActualPosition.X >= ActualPosition.X))
         currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left);
-      if (currentElement == null)
-      {
-        // No element to focus - fallback: move physical scrolling offset
-        if (IsViewPortAtTop)
-          return false;
-        SetScrollOffset(_scrollOffsetX + (float) ActualWidth, _scrollOffsetY);
-        return true;
-      }
-      else
+      if (currentElement != null)
         return currentElement.TrySetFocus(true);
+      // No element to focus - fallback: move physical scrolling offset
+      if (IsViewPortAtTop)
+        return false;
+      SetScrollOffset(_scrollOffsetX + (float) ActualWidth, _scrollOffsetY);
+      return true;
     }
 
     public bool FocusPageRight()
@@ -279,16 +270,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       while (currentElement != null &&
           (currentElement.ActualPosition.X + currentElement.ActualWidth <= ActualPosition.X + ActualWidth))
         currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right);
-      if (currentElement == null)
-      {
-        // No element to focus - fallback: move physical scrolling offset
-        if (IsViewPortAtRight)
-          return false;
-        SetScrollOffset(_scrollOffsetX - (float) ActualWidth, _scrollOffsetY);
-        return true;
-      }
-      else
+      if (currentElement != null)
         return currentElement.TrySetFocus(true);
+      // No element to focus - fallback: move physical scrolling offset
+      if (IsViewPortAtRight)
+        return false;
+      SetScrollOffset(_scrollOffsetX - (float) ActualWidth, _scrollOffsetY);
+      return true;
     }
 
     public bool FocusHome()
