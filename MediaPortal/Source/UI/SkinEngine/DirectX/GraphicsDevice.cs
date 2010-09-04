@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -85,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         MPDirect3D.Load();
         _setup.SetupDirectX(window);
         _backBuffer = _device.GetRenderTarget(0);
-        int ordinal = Device.Capabilities.AdapterOrdinal;
+        int ordinal = _device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
             Height, adapterInfo.CurrentDisplayMode.Format,
@@ -131,10 +132,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _device.Capabilities.DeviceType, _device.GetDisplayMode(0).Format,
           Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
           ResourceType.Surface, Format.A8R8G8B8);
-      int vertexShaderVersion = Device.Capabilities.VertexShaderVersion.Major;
-      int pixelShaderVersion = Device.Capabilities.PixelShaderVersion.Major;
-      ServiceRegistration.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.Capabilities.PixelShaderVersion.Major, Device.Capabilities.PixelShaderVersion.Minor);
-      ServiceRegistration.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.Capabilities.VertexShaderVersion.Major, Device.Capabilities.VertexShaderVersion.Minor);
+      int vertexShaderVersion = _device.Capabilities.VertexShaderVersion.Major;
+      int pixelShaderVersion = _device.Capabilities.PixelShaderVersion.Major;
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", _device.Capabilities.PixelShaderVersion.Major, _device.Capabilities.PixelShaderVersion.Minor);
+      ServiceRegistration.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", _device.Capabilities.VertexShaderVersion.Major, _device.Capabilities.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
         _supportsShaders = true;
       else
@@ -150,6 +151,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
 
+    private static void ResetDxDevice()
+    {
+      _setup.BuildPresentParamsFromSettings();
+
+      Result result = _device.Reset(_setup.PresentParameters);
+
+      if (result == ResultCode.DeviceLost)
+      {
+        result = _device.TestCooperativeLevel();
+        // Loop until it's ok to reset
+        while (result == ResultCode.DeviceLost)
+        {
+          Thread.Sleep(10);
+          result = _device.TestCooperativeLevel();
+        }
+        _device.Reset(_setup.PresentParameters);
+      }
+    }
+
     /// <summary>
     /// Resets the DirectX device.
     /// </summary>
@@ -161,8 +181,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         if (_backBuffer != null)
           _backBuffer.Dispose();
         _backBuffer = null;
-        _setup.ResetDevice();
-        int ordinal = Device.Capabilities.AdapterOrdinal;
+        _setup.BuildPresentParamsFromSettings();
+        ResetDxDevice();
+        int ordinal = _device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
             adapterInfo.CurrentDisplayMode.Format,
@@ -215,35 +236,35 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static void SetRenderState()
     {
-      Device.SetRenderState(RenderState.CullMode, Cull.None);
-      Device.SetRenderState(RenderState.Lighting, false);
+      _device.SetRenderState(RenderState.CullMode, Cull.None);
+      _device.SetRenderState(RenderState.Lighting, false);
 
-      Device.SetRenderState(RenderState.ZEnable, false);
-      Device.SetRenderState(RenderState.ZWriteEnable, false);
+      _device.SetRenderState(RenderState.ZEnable, false);
+      _device.SetRenderState(RenderState.ZWriteEnable, false);
 
-      Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
-      Device.SetRenderState(RenderState.AlphaBlendEnable, true);
-      Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
-      Device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
-      Device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
-      Device.SetTextureStageState(0, TextureStage.ColorArg0, TextureArgument.Texture);
-      Device.SetTextureStageState(0, TextureStage.ColorArg1, TextureArgument.Diffuse);
-      Device.SetTextureStageState(0, TextureStage.AlphaOperation, TextureOperation.Modulate);
-      Device.SetTextureStageState(0, TextureStage.AlphaArg0, TextureArgument.Texture);
-      Device.SetTextureStageState(0, TextureStage.AlphaArg1, TextureArgument.Diffuse);
+      _device.SetRenderState(RenderState.FillMode, FillMode.Solid);
+      _device.SetRenderState(RenderState.AlphaBlendEnable, true);
+      _device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+      _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
+      _device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
+      _device.SetTextureStageState(0, TextureStage.ColorArg0, TextureArgument.Texture);
+      _device.SetTextureStageState(0, TextureStage.ColorArg1, TextureArgument.Diffuse);
+      _device.SetTextureStageState(0, TextureStage.AlphaOperation, TextureOperation.Modulate);
+      _device.SetTextureStageState(0, TextureStage.AlphaArg0, TextureArgument.Texture);
+      _device.SetTextureStageState(0, TextureStage.AlphaArg1, TextureArgument.Diffuse);
 
-      //Device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
-      //Device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
-      //Device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
-      //Device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
-      //Device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
-      //Device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
+      //_device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
+      //_device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
+      //_device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
+      //_device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
+      //_device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
+      //_device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
 
       if (_supportsAlphaBlend)
       {
-        Device.SetRenderState(RenderState.AlphaTestEnable, true);
-        Device.SetRenderState(RenderState.AlphaRef, 0x01);
-        Device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
+        _device.SetRenderState(RenderState.AlphaTestEnable, true);
+        _device.SetRenderState(RenderState.AlphaRef, 0x01);
+        _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
       if (_supportsFiltering)
       {
@@ -258,10 +279,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
          */
         try
         {
-          Device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Anisotropic);
-          Device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Anisotropic);
-          Device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
-          Device.SetSamplerState(0, SamplerState.MaxAnisotropy, _anisotropy);
+          _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Anisotropic);
+          _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Anisotropic);
+          _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
+          _device.SetSamplerState(0, SamplerState.MaxAnisotropy, _anisotropy);
         }
         catch (Exception)
         {
@@ -270,9 +291,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       else
       {
-        Device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Point);
-        Device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Point);
-        Device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
+        _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Point);
+        _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Point);
+        _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
       }
 
       int gw = Width;
@@ -282,7 +303,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
 
       // Grab the viewport dimensions and location
-      Viewport viewport = Device.Viewport;
+      Viewport viewport = _device.Viewport;
       float w = Width * 0.5f; // viewport.Width * 0.5f;
       float h = Height * 0.5f; // viewport.Height * 0.5f;
 
@@ -364,8 +385,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         try
         {
           ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Device reset");
-          _setup.ResetDevice();
-          int ordinal = Device.Capabilities.AdapterOrdinal;
+          ResetDxDevice();
+          int ordinal = _device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
               adapterInfo.CurrentDisplayMode.Format,

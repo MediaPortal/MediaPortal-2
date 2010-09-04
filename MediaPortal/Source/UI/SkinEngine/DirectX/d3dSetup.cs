@@ -26,16 +26,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
@@ -86,7 +83,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private PresentParameters _presentParams = new PresentParameters();
     protected string _deviceStats; // String to hold D3D device stats
     private Form _window;
-    private CancelEventHandler _cancelEventHandler;
     bool _usingPerfHud = false;
 
     protected System.Windows.Forms.Control RenderTarget
@@ -153,7 +149,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <returns><c>true</c>, if a good device was found, <c>false</c> otherwise.</returns>
     public bool SetupDirectX(Form form)
     {
-      _cancelEventHandler = CancelAutoResizeEvent;
       _window = form;
       RenderTarget = form;
       _enumerationSettings.ConfirmDeviceCallback = ConfirmDevice;
@@ -168,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       try
       {
         if (!FindBestModes())
-          System.Environment.Exit(0);
+          Environment.Exit(0);
 
         /*
 
@@ -334,11 +329,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // display mode, or any display mode if HAL is not compatible with the desktop mode, or 
       // non-HAL if no HAL is available
       DisplayMode adapterDesktopDisplayMode;
-      DisplayMode bestAdapterDesktopDisplayMode = new DisplayMode();
-      bestAdapterDesktopDisplayMode.Width = 0;
-      bestAdapterDesktopDisplayMode.Height = 0;
-      bestAdapterDesktopDisplayMode.Format = 0;
-      bestAdapterDesktopDisplayMode.RefreshRate = 0;
+      DisplayMode bestAdapterDesktopDisplayMode = new DisplayMode {Width = 0, Height = 0, Format = 0, RefreshRate = 0};
 
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
@@ -634,11 +625,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           }
         }
       }
-    }
-
-    protected static void CancelAutoResizeEvent(object sender, CancelEventArgs e)
-    {
-      e.Cancel = true;
     }
 
     protected virtual bool ConfirmDevice(Capabilities caps, VertexProcessingType vertexProcessingType,
@@ -1138,35 +1124,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;
-      }
-    }
-
-    public void ResetDevice()
-    {
-      try
-      {
-        //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
-
-        BuildPresentParamsFromSettings();
-        //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
-
-        Result result = GraphicsDevice.Device.Reset(_presentParams);
-
-        if (result == ResultCode.DeviceLost)
-        {
-          result = GraphicsDevice.Device.TestCooperativeLevel();
-          // Loop until it's ok to reset
-          while (result == ResultCode.DeviceLost)
-          {
-            Thread.Sleep(10);
-            result = GraphicsDevice.Device.TestCooperativeLevel();
-          }
-          GraphicsDevice.Device.Reset(_presentParams);
-        }
-      }
-      finally
-      {
-        //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
       }
     }
 
