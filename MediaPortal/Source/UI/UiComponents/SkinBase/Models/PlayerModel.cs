@@ -53,6 +53,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isMutedProperty;
+    protected AbstractProperty _volumeProperty;
 
     protected IResourceLocator _currentPictureSourceLocator = null;
     protected ILocalFsResourceAccessor _currentPictureResourceAccessor = null;
@@ -66,6 +67,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isMutedProperty = new WProperty(typeof(bool), false);
+      _volumeProperty = new WProperty(typeof(int), 0);
 
       SubscribeToMessages();
       Update();
@@ -105,6 +107,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IsMuted = playerManager.Muted;
       PipWidth = DEFAULT_PIP_WIDTH;
       PipHeight = pipVideoPlayer == null ? DEFAULT_PIP_HEIGHT : PipWidth*videoAspectRatio.Height/videoAspectRatio.Width;
+      Volume = playerManager.Volume;
     }
 
     protected string CheckLocalResourcePath(IResourceLocator resourceLocator)
@@ -214,6 +217,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (bool) _isMutedProperty.GetValue(); }
       internal set { _isMutedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VolumeProperty
+    {
+      get { return _volumeProperty; }
+    }
+
+    public int Volume
+    {
+      get { return (int) _volumeProperty.GetValue(); }
+      internal set { _volumeProperty.SetValue(value); }
     }
 
     public void SetCurrentPlayer(int playerIndex)
