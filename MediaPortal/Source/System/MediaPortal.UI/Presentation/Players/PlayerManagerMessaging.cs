@@ -122,6 +122,11 @@ namespace MediaPortal.UI.Presentation.Players
       /// </summary>
       PlayersResetMute,
 
+      /// <summary>
+      /// The global volume was changed.
+      /// </summary>
+      VolumeChanged,
+
       #endregion
     }
 

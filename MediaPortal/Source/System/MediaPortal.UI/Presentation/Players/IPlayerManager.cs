@@ -89,7 +89,7 @@ namespace MediaPortal.UI.Presentation.Players
     bool Muted { get; set; }
 
     /// <summary>
-    /// Gets or sets the volume which will be used in all players.
+    /// Gets or sets the volume which will be used in all players. The value range is from 0 (muted) to 100 (loudest).
     /// </summary>
     int Volume { get; set; }
 

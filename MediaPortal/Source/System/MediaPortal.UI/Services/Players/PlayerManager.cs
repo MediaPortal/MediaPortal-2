@@ -479,6 +479,7 @@ namespace MediaPortal.UI.Services.Players
           else
             _volume = value;
           ForEach(psc => { psc.Volume = _volume; });
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.VolumeChanged);
         }
       }
     }
