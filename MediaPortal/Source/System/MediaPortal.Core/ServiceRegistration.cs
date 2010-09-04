@@ -43,6 +43,34 @@ namespace MediaPortal.Core
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
 
+    #region Classes
+
+    private class ServiceRegistrationChangeListener : IItemRegistrationChangeListener
+    {
+      private readonly ServiceRegistration _parent;
+
+      public ServiceRegistrationChangeListener(ServiceRegistration parent)
+      {
+        _parent = parent;
+      }
+
+      #region IItemRegistrationChangeListener implementation
+
+      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
+      {
+        _parent.AddServiceItems(items);
+      }
+
+      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
+      {
+        // Item removals are not supported
+      }
+
+      #endregion
+    }
+
+    #endregion
+
     private static readonly object _syncObj = new object();
 
     /// <summary>
@@ -56,6 +84,7 @@ namespace MediaPortal.Core
     /// Holds the dictionary of services.
     /// </summary>
     private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
+    private static IItemRegistrationChangeListener _servicesRegistrationChangeListener;
 
     /// <summary>
     /// Holds the collection of services which were loaded from the plugin tree.
@@ -64,12 +93,7 @@ namespace MediaPortal.Core
 
     private ServiceRegistration()
     {
-      lock (_syncObj)
-      {
-        if (_instance != null)
-          throw new IllegalCallException("The ServiceRegistration class was already instantiated");
-        _instance = this;
-      }
+      _servicesRegistrationChangeListener = new ServiceRegistrationChangeListener(this);
     }
 
     public static void RemoveAndDisposePluginServices()
@@ -84,8 +108,9 @@ namespace MediaPortal.Core
     {
       get
       {
-        if (_instance == null)
-          return _instance = new ServiceRegistration();
+        lock (_syncObj)
+          if (_instance == null)
+            _instance = new ServiceRegistration();
         return _instance;
       }
     }
@@ -219,11 +244,20 @@ namespace MediaPortal.Core
     public static void LoadServicesFromPlugins()
     {
       IPluginManager pluginManager = Get<IPluginManager>();
+      pluginManager.AddItemRegistrationChangeListener(PLUGIN_TREE_SERVICES_LOCATION, _servicesRegistrationChangeListener);
       ILogger logger = Get<ILogger>();
       logger.Info("ServiceRegistration: Loading services from plugin manager at location '{0}'", PLUGIN_TREE_SERVICES_LOCATION);
-      ICollection<PluginItemMetadata> metadata = pluginManager.GetAllPluginItemMetadata(PLUGIN_TREE_SERVICES_LOCATION);
-      foreach (PluginItemMetadata itemMetadata in metadata)
+      ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(PLUGIN_TREE_SERVICES_LOCATION);
+      Instance.AddServiceItems(items);
+    }
+
+    private void AddServiceItems(IEnumerable<PluginItemMetadata> items)
+    {
+      IPluginManager pluginManager = Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in items)
       {
+        // We cannot use an item state tracker which is able to revoke the service because we cannot
+        // know which methods are using the service, so the only safe way is to use a fixed item state tracker
         ServiceBuilder.ServiceItem item = pluginManager.RequestPluginItem<ServiceBuilder.ServiceItem>(
             PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, new FixedItemStateTracker(string.Format("System services")));
         if (item == null)
@@ -231,10 +265,10 @@ namespace MediaPortal.Core
           Get<ILogger>().Warn("ServiceRegistration: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
-        if (Instance._services.ContainsKey(item.RegistrationType))
+        if (_services.ContainsKey(item.RegistrationType))
           throw new EnvironmentException("ServiceRegistration: A Service with registration type '{0}' is already registered", item.RegistrationType);
-        Instance._services.Add(item.RegistrationType, item.ServiceInstance);
-        Instance._pluginServices.Add(item.RegistrationType);
+        _services.Add(item.RegistrationType, item.ServiceInstance);
+        _pluginServices.Add(item.RegistrationType);
       }
     }
 
