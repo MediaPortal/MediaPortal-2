@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Grid
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <Control Style="{ThemeResource BusyCursorControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+</Grid>

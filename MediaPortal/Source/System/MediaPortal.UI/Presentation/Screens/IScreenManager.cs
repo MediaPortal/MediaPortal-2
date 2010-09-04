@@ -79,6 +79,11 @@ namespace MediaPortal.UI.Presentation.Screens
     bool IsDialogVisible { get; }
 
     /// <summary>
+    /// Returns <c>true</c> if there is a super layer present at the moment, else <c>false</c>.
+    /// </summary>
+    bool IsSuperLayerVisible { get; }
+
+    /// <summary>
     /// Gets the descriptors to all dialogs of the current dialog stack. The first element in the result list represents
     /// the topmost dialog.
     /// </summary>
@@ -112,7 +117,7 @@ namespace MediaPortal.UI.Presentation.Screens
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
     /// <returns><see cref="Guid"/> instance which uniquely identifies the new screen, if the screen could
-    /// successfully be shown, else <c>null</c>.</returns>
+    /// successfully be loaded, else <c>null</c>.</returns>
     Guid? ShowScreen(string screenName);
 
     /// <summary>
@@ -120,14 +125,14 @@ namespace MediaPortal.UI.Presentation.Screens
     /// All current dialogs will be left open.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown instead of the current screen.</param>
-    /// <returns><c>true</c>, if the screen could successfully be prepared, else <c>false</c>.</returns>
+    /// <returns><c>true</c>, if the screen could successfully be loaded, else <c>false</c>.</returns>
     bool ExchangeScreen(string screenName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name.
     /// </summary>
     /// <returns><see cref="Guid"/> instance which uniquely identifies the new dialog, if the dialog screen could
-    /// successfully be shown, else <c>null</c>.</returns>
+    /// successfully be loaded, else <c>null</c>.</returns>
     Guid? ShowDialog(string dialogName);
 
     /// <summary>
@@ -141,16 +146,33 @@ namespace MediaPortal.UI.Presentation.Screens
     /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
     /// gets closed, or <c>null</c>.</param>
     /// <returns><see cref="Guid"/> instance which uniquely identifies the new dialog, if the dialog screen could
-    /// successfully be shown, else <c>null</c>.</returns>
+    /// successfully be loaded, else <c>null</c>.</returns>
     Guid? ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
 
     /// <summary>
-    /// Shows the specified screen as background layer.
+    /// Shows the specified background screen as background layer.
     /// </summary>
+    /// <remarks>
+    /// The screen given by <paramref name="backgroundName"/> must be a background, typically the skin engine
+    /// will search it in the skin's backgrounds directory. See the docs of the skin engine being used.
+    /// </remarks>
     /// <param name="backgroundName">Name of a screen to show as background. This will typically be a media
     /// player or a background image.</param>
-    /// <returns><c>true</c>, if the background screen could successfully be set, else <c>false</c>.</returns>
+    /// <returns><c>true</c>, if the background screen could successfully be loaded, else <c>false</c>.</returns>
     bool SetBackgroundLayer(string backgroundName);
+
+    /// <summary>
+    /// Shows the specified screen as super layer.
+    /// </summary>
+    /// <remarks>
+    /// The super layer is used for showing busy indicators, volume indicators and other screens which must be
+    /// shown on top of all other visible screens. The screen given by <paramref name="superLayerName"/> must be
+    /// a super layer screen which will typically be searched in the skin's super layer directory. See the docs of
+    /// the skin engine being used.
+    /// </remarks>
+    /// <param name="superLayerName">Name of the super layer screen to show as super layer.</param>
+    /// <returns><c>true</c>, if the super layer screen could successfully be loaded, else <c>false</c>.</returns>
+    bool SetSuperLayer(string superLayerName);
 
     /// <summary>
     /// Closes the dialog with the given instance id.

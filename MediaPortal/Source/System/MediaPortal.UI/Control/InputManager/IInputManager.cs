@@ -32,6 +32,9 @@ namespace MediaPortal.UI.Control.InputManager
   /// <summary>
   /// Public interface of the input manager.
   /// </summary>
+  /// <remarks>
+  /// This service is multithreading-safe.
+  /// </remarks>
   public interface IInputManager
   {
     /// <summary>
@@ -53,6 +56,16 @@ namespace MediaPortal.UI.Control.InputManager
     /// Returns the current mouse position;
     /// </summary>
     PointF MousePosition { get; }
+
+    /// <summary>
+    /// Shows a busy screen. Remember to use a try/finally block to hide busy screen after usage.
+    /// </summary>
+    void ShowBusyScreen();
+
+    /// <summary>
+    /// Hides a formerly shown busy screen.
+    /// </summary>
+    void HideBusyScreen();
 
     /// <summary>
     /// Called to handle a mouse move event.

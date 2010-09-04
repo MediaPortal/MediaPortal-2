@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+  <!-- TODO: Outsource colors -->
+  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <ControlTemplate.Resources>
+            <Storyboard x:Key="VisibleStoryboard" FillBehavior="Stop" RepeatBehavior="Forever" Duration="00:00:01.4">
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body1" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7F336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body1" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#FFD1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2DEF8DE"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body1" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body2" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7F336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body2" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F292CD91"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body2" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body2" Storyboard.TargetProperty="Fill.GradientStops[0].Offset">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.005"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.6000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.8000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.2000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4000000" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body2" Storyboard.TargetProperty="Fill.GradientStops[1].Offset">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.6000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.8000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01" Value="0.995"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.2000000" Value="0.995"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4000000" Value="0.995"/>
+              </DoubleAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body3" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7F336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body3" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F272A871"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body3" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body4" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7F336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body4" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#FF559A54"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body4" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2336F32"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body5" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7FD2D7E6"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body5" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body5" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body5" Storyboard.TargetProperty="Fill.GradientStops[1].Offset">
+                <SplineDoubleKeyFrame KeyTime="00:00:01.2000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4000000" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body6" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7FD2D7E6"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body6" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body6" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body6" Storyboard.TargetProperty="Fill.GradientStops[1].Offset">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.971"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.6000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.8000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.2000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4000000" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body7" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7FD2D7E6"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body7" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F272A871"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body7" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body7" Storyboard.TargetProperty="Fill.GradientStops[0].Offset">
+                <SplineDoubleKeyFrame KeyTime="00:00:01.2000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.4000000" Value="0.005"/>
+              </DoubleAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body8" Storyboard.TargetProperty="Stroke.Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#7F336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#7FD2D7E6"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#7FD2D7E6"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body8" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFD1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2DEF8DE"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F292CD91"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#FF559A54"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body8" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFD1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.6000000" Value="#F2336F32"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.8000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.2000000" Value="#F2D1D6E4"/>
+                <SplineColorKeyFrame KeyTime="00:00:01.4000000" Value="#F2D1D6E4"/>
+              </ColorAnimationUsingKeyFrames>
+            </Storyboard>
+          </ControlTemplate.Resources>
+          <Grid Width="90" Height="90" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <SkewTransform AngleX="0" AngleY="0"/>
+                <RotateTransform Angle="0"/>
+                <TranslateTransform X="0" Y="0"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Canvas x:Name="CursorBusy" RenderTransformOrigin="0.5,0.5">
+              <Path x:Name="Body1" Stretch="Fill" Stroke="#7F336F32" Height="17.788" Data="M306.63968,180.99327 L306.62275,171.0691 C316.13932,172.13855 323.28407,175.02257 330.51708,180.69159 L324.00411,187.85985 C319.3108,184.02487 313.24803,181.56381 306.63968,180.99327 z" Width="24.907" Canvas.Left="48.703">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.185" ScaleY="0.672"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="21.202" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.055" Y="-0.046"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F2DEF8DE" Offset="0"/>
+                    <GradientStop Color="#F2336F32" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+              </Path>
+              <Path x:Name="Body2" Stretch="Fill" Stroke="#7F336F32" Height="17.588" Data="M306.72119,180.78865 L306.62275,171.0691 C316.74244,172.3826 323.77012,175.30607 330.44904,180.75992 L323.62849,187.65938 C318.80678,183.96325 313.20546,181.48972 306.72119,180.78865 z" RenderTransformOrigin="0.5,0.5" Width="24.838" Canvas.Left="69.674" Canvas.Top="22">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <GradientStop Color="#F292CD91" Offset="0.005"/>
+                    <GradientStop Color="#F2336F32" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="45.104"/>
+                    <TranslateTransform X="0.010002048004690067" Y="-0.024085229914433626"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body3" Stretch="Fill" Stroke="#7F336F32" Data="M306.64277,180.50297 L306.6219,170.6014 C316.65865,171.97514 323.61917,175.43457 330.38117,180.82808 L323.56062,187.72754 C318.79289,184.14217 313.17399,181.33963 306.64277,180.50297 z" RenderTransformOrigin="0.5,0.5" Width="24.77" Height="18.124" Canvas.Left="70.169" Canvas.Top="49.501">
+                <Path.Fill>
+                  <RadialGradientBrush GradientOrigin="0.449,0.498">
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.3" ScaleY="0.777"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="36.335" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.065" Y="-0.029"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F272A871" Offset="0"/>
+                    <GradientStop Color="#F2336F32" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="-45.104"/>
+                    <TranslateTransform X="-0.16984418684554115" Y="-0.45716032749243851"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body4" Stretch="Fill" Stroke="#7F336F32" Data="M306.61248,181.21157 L306.62275,171.01453 C315.39125,171.8434 322.26333,174.46851 330.18656,180.36091 L323.62849,187.84309 C318.78194,184.1617 313.06431,181.94214 306.61248,181.21157 z" RenderTransformOrigin="0.434,0.441" Width="24.583" Height="17.829" Canvas.Left="48.694" Canvas.Top="72.069">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.039" ScaleY="0.858"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="22.741" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.029" Y="0"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#FF559A54" Offset="0"/>
+                    <GradientStop Color="#F2336F32" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="0" Y="1.865000000000002"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body5" Stretch="Fill" Stroke="#7FD2D7E6" Data="M306.72156,181.23884 L306.73184,170.98724 C315.56832,171.72276 323.70522,174.93091 331.11994,180.69159 L324.0541,188.36623 C319.30494,184.62453 313.27437,181.90203 306.72156,181.23884 z" RenderTransformOrigin="0.5,0.5" Height="18.37" Width="25.401" Canvas.Left="17.267" Canvas.Top="72.096">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.101" ScaleY="0.682"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="29.187" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.031" Y="-0.048"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F2D1D6E4" Offset="0"/>
+                    <GradientStop Color="#FFD1D6E4" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="-0.49500000000001876" Y="-0.78200000000001069"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body6" Stretch="Fill" Stroke="#7FD2D7E6" Data="M305.59252,180.51523 L305.64334,170.0936 C315.37318,170.9357 323.6885,174.51943 330.75947,180.44815 L323.41122,187.87758 C318.69367,183.96574 312.17675,181.00929 305.59252,180.51523 z" RenderTransformOrigin="0.5,0.5" Width="26.18" Height="18.812" Canvas.Left="-3.636" Canvas.Top="50.576">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.122" ScaleY="0.657"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="22.713" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.023" Y="-0.037"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F2D1D6E4" Offset="0"/>
+                    <GradientStop Color="#FFD1D6E4" Offset="0.971"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="45.104"/>
+                    <TranslateTransform X="-0.70107045438408377" Y="-1.5433774620823542"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body7" Stretch="Fill" Stroke="#7FD2D7E6" Height="17.964" Data="M306.62196,181.20908 L306.62275,171.0691 C315.52748,171.77319 322.82329,174.63254 330.58873,180.61964 L323.25596,188.03347 C318.54246,184.40903 313.21034,181.99713 306.62196,181.20908 z" RenderTransformOrigin="0.5,0.5" Width="24.982" Canvas.Top="21.999" Canvas.Left="-3.84">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="0.656"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="31.95" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.038" Y="-0.009"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F2D1D6E4" Offset="0"/>
+                    <GradientStop Color="#FFD1D6E4" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="-1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="-45.104"/>
+                    <TranslateTransform X="0.020360009188539863" Y="-0.028386655533363836"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+              <Path x:Name="Body8" Stretch="Fill" Stroke="#7FD2D7E6" Height="17.616" Data="M306.5545,181.02157 L306.62275,171.0691 C315.24902,171.84794 322.27225,174.24976 330.37942,180.19806 L323.46143,187.68768 C318.44449,183.96574 312.81218,181.72276 306.5545,181.02157 z" RenderTransformOrigin="0.5,0.5" Width="24.83" Canvas.Left="17.434">
+                <Path.Fill>
+                  <RadialGradientBrush>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup>
+                        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.091" ScaleY="0.659"/>
+                        <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                        <RotateTransform Angle="29.592" CenterX="0.5" CenterY="0.5"/>
+                        <TranslateTransform X="-0.039" Y="-0.024"/>
+                      </TransformGroup>
+                    </RadialGradientBrush.RelativeTransform>
+                    <GradientStop Color="#F2D1D6E4" Offset="0"/>
+                    <GradientStop Color="#FFD1D6E4" Offset="1"/>
+                  </RadialGradientBrush>
+                </Path.Fill>
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="-1" ScaleY="1"/>
+                    <SkewTransform AngleX="0" AngleY="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform X="0.0759999999999792" Y="0"/>
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+            </Canvas>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsVisible" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboard" Storyboard="{StaticResource VisibleStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>
