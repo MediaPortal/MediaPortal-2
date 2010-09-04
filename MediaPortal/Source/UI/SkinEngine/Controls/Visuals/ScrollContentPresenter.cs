@@ -107,9 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.MakeVisible(element, elementBounds);
     }
 
-    protected override void ArrangeOverride()
+    protected override void ArrangeTemplateControl()
     {
-      base.ArrangeOverride();
       if (_templateControl == null)
       {
         _scrollOffsetX = 0;

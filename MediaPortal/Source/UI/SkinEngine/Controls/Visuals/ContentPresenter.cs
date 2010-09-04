@@ -206,6 +206,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override void ArrangeOverride()
     {
       base.ArrangeOverride();
+      ArrangeTemplateControl();
+    }
+
+    protected virtual void ArrangeTemplateControl()
+    {
       if (_templateControl == null)
         return;
       PointF position = new PointF(_innerRect.X, _innerRect.Y);

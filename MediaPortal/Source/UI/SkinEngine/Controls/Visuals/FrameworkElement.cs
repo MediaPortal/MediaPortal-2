@@ -565,6 +565,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure & Arrange
 
+#if DEBUG_LAYOUT
+
+    public override void InvalidateLayout()
+    {
+      System.Diagnostics.Trace.WriteLine(string.Format("InvalidateLayout {0} Name='{1}'", GetType().Name, Name));
+      base.InvalidateLayout();
+    }
+
+#endif
+
     /// <summary>
     /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/>.
     /// Must be done from the render thread.
