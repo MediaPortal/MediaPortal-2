@@ -107,7 +107,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
       IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
-      bool visible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.FullscreenContentWorkflowStateId;
+      bool visible = vp != null || ap != null && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
       IResourceString displayTitleRes;
       if (vp == null)
         displayTitleRes = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
