@@ -303,6 +303,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      DisposePrimitiveContext(ref _backgroundContext);
+    }
+
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);

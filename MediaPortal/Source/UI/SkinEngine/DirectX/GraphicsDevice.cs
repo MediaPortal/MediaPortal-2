@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to set-up DirectX", ex);
+        ServiceRegistration.Get<ILogger>().Critical("GraphicsDevice: Failed to setup DirectX", ex);
         Environment.Exit(0);
       }
     }

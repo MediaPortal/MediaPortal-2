@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void Load()
     {
-      if(_d3d == null)
+      if (_d3d == null)
         _d3d = new Direct3DEx();
     }
 

@@ -55,6 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_vertexBuffer != null)
         _vertexBuffer.Dispose();
       _vertexBuffer = PositionColored2Textured.Create(verts.Length);
+      ContentManager.VertexReferences++;
       _vertexFormat = PositionColored2Textured.Format;
       _strideSize = PositionColored2Textured.StrideSize;
       _primitiveType = primitiveType;
@@ -113,6 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _vertexBuffer.Dispose();
         _vertexBuffer = null;
+        ContentManager.VertexReferences--;
       }
 
       if (_texture != null)

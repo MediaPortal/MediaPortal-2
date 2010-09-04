@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX.Direct3D9;
 
@@ -54,12 +55,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Dispose()
     {
       _vertexBuffer.Dispose();
+      ContentManager.VertexReferences--;
     }
 
     public void InitializeVertexBuffer(int verticesCount, PositionColored2Textured[] vertices)
     {
       _numVertices = verticesCount;
       _vertexBuffer = PositionColored2Textured.Create(vertices.Length);
+      ContentManager.VertexReferences++;
       PositionColored2Textured.Set(_vertexBuffer, vertices);
     }
 
