@@ -34,8 +34,7 @@ using MediaPortal.UI.Shares;
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
-  /// Action which is visible when player slots are open. This action will show the dialog
-  /// "DialogPlayerConfiguration" when executed.
+  /// Action which sets up default client shares.
   /// </summary>
   public class SetupDefaultSharesAction : IWorkflowContributor
   {
