@@ -98,7 +98,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _titleProperty;
     protected AbstractProperty _mediaItemTitleProperty;
     protected AbstractProperty _nextMediaItemTitleProperty;
-    protected AbstractProperty _hasNextMediaItem;
+    protected AbstractProperty _hasNextMediaItemProperty;
+    protected AbstractProperty _volumeProperty;
     protected AbstractProperty _isAudioProperty;
     protected AbstractProperty _isMutedProperty;
     protected AbstractProperty _isPlayingProperty;
@@ -159,7 +160,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _titleProperty = new SProperty(typeof(string), null);
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
       _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
-      _hasNextMediaItem = new SProperty(typeof(bool), false);
+      _hasNextMediaItemProperty = new SProperty(typeof(bool), false);
+      _volumeProperty = new SProperty(typeof(int), 0);
       _isAudioProperty = new SProperty(typeof(bool), false);
       _isMutedProperty = new SProperty(typeof(bool), false);
       _isPlayingProperty = new SProperty(typeof(bool), false);
@@ -476,6 +478,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               HasNextMediaItem = !string.IsNullOrEmpty(NextMediaItemTitle);
             }
           }
+          IVolumeControl volumeControl = player as IVolumeControl;
+          Volume = volumeControl != null ? volumeControl.Volume : 0;
+
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
           IsAudio = playerSlotController.IsAudioSlot;
           IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
@@ -797,7 +802,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     public AbstractProperty HasNextMediaItemProperty
     {
-      get { return _hasNextMediaItem; }
+      get { return _hasNextMediaItemProperty; }
     }
 
     /// <summary>
@@ -806,8 +811,22 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// <summary>
     public bool HasNextMediaItem
     {
-      get { return (bool) _hasNextMediaItem.GetValue(); }
-      set { _hasNextMediaItem.SetValue(value); }
+      get { return (bool) _hasNextMediaItemProperty.GetValue(); }
+      set { _hasNextMediaItemProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VolumeProperty
+    {
+      get { return _volumeProperty; }
+    }
+
+    /// <summary>
+    /// Gets the volume of the player.
+    /// </summary>
+    public int Volume
+    {
+      get { return (int) _volumeProperty.GetValue(); }
+      internal set { _volumeProperty.SetValue(value); }
     }
 
     public AbstractProperty IsAudioProperty
