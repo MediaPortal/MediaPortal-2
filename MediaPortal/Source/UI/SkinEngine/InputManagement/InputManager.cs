@@ -255,13 +255,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       {
         hideBusyScreen = _busyScreenVisible;
         _busyScreenVisible = false;
+        _callingClientStart = null;
       }
       if (hideBusyScreen)
       {
         ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
         superLayerManager.HideBusyScreen();
       }
-      _callingClientStart = null;
     }
 
     protected void EnqueueEvent(InputEvent evt)
