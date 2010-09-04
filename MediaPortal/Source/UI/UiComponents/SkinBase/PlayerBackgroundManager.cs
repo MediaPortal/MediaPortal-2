@@ -123,55 +123,46 @@ namespace MediaPortal.UiComponents.SkinBase
             Key.Play, () =>
               {
                 PlayerModel.Play();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Pause, () =>
               {
                 PlayerModel.Pause();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.PlayPause, () =>
               {
                 PlayerModel.TogglePause();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Printable(' '), () =>
               {
                 PlayerModel.TogglePause();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Stop, () =>
               {
                 PlayerModel.Stop();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Rew, () =>
               {
                 PlayerModel.SeekBackward();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Fwd, () =>
               {
                 PlayerModel.SeekForward();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Previous, () =>
               {
                 PlayerModel.Previous();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Next, () =>
               {
                 PlayerModel.Next();
-                return true;
               });
 
         // ------------------------ Volume -----------------------
@@ -179,19 +170,16 @@ namespace MediaPortal.UiComponents.SkinBase
             Key.Mute, () =>
               {
                 PlayerModel.ToggleMute();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.VolumeUp, () =>
               {
                 PlayerModel.VolumeUp();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.VolumeDown, () =>
               {
                 PlayerModel.VolumeDown();
-                return true;
               });
 
         // --------------------- Player management --------------------
@@ -199,13 +187,11 @@ namespace MediaPortal.UiComponents.SkinBase
             Key.Blue, () =>
               {
                 PlayerModel.ToggleCurrentPlayer();
-                return true;
               });
         AddKeyBinding_NeedLock(
             Key.Printable('c'), () =>
               {
                 PlayerModel.ToggleCurrentPlayer();
-                return true;
               });
 
         // Albert, 2010-08-25: I don't think we should register player specific key bindings here.
@@ -213,7 +199,7 @@ namespace MediaPortal.UiComponents.SkinBase
       }
     }
 
-    protected void AddKeyBinding_NeedLock(Key key, ActionDlgt action)
+    protected void AddKeyBinding_NeedLock(Key key, KeyActionDlgt action)
     {
       _registeredKeyBindings.Add(key);
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();

@@ -64,6 +64,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void DoHideSuperLayer(object state)
     {
+      _currentSuperLayerName = null;
+      _superLayerEndTime = null;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.SetSuperLayer(null);
     }

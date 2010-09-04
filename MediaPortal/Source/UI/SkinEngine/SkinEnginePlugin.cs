@@ -28,6 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
@@ -42,6 +43,15 @@ namespace MediaPortal.UI.SkinEngine
 {
   public class SkinEnginePlugin: IPluginStateTracker, ISkinEngine
   {
+    #region Consts
+
+    public const string VOLUME_SUPERLAYER_SCREEN_NAME = "Volume";
+    public const int VOLUME_INCREMENT = 5;
+
+    public static TimeSpan VOLUME_SUPERLAYER_TIME = TimeSpan.FromSeconds(2);
+
+    #endregion
+
     #region Protected fields
 
     protected const string HOME_STATE_STR = "{7F702D9C-F2DD-42da-9ED8-0BA92F07787F}";
@@ -62,7 +72,6 @@ namespace MediaPortal.UI.SkinEngine
             screenManager.CloseTopmostDialog();
           else
             ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
-          return true;
         });
       inputManager.AddKeyBinding(Key.Fullscreen, () =>
         {
@@ -72,8 +81,17 @@ namespace MediaPortal.UI.SkinEngine
             sc.SwitchMode(ScreenMode.NormalWindowed);
           else
             sc.SwitchMode(ScreenMode.FullScreen);
-          return true;
         });
+      inputManager.AddKeyBinding(Key.VolumeUp, () => ChangeVolume(VOLUME_INCREMENT));
+      inputManager.AddKeyBinding(Key.VolumeDown, () => ChangeVolume(-VOLUME_INCREMENT));
+    }
+
+    protected static void ChangeVolume(int delta)
+    {
+      ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+      superLayerManager.ShowSuperLayer(VOLUME_SUPERLAYER_SCREEN_NAME, VOLUME_SUPERLAYER_TIME);
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      playerManager.Volume += delta;
     }
 
     protected static void UnregisterGlobalKeyBindings()

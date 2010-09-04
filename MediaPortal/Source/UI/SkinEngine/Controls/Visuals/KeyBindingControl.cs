@@ -112,11 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _registeredScreen = screen;
         _registeredKey = Key;
-        _registeredScreen.AddKeyBinding(_registeredKey, () =>
-        {
-          Execute();
-          return true;
-        });
+        _registeredScreen.AddKeyBinding(_registeredKey, Execute);
       }
       Content = Key.Name + ": " + Description;
     }

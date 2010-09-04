@@ -391,7 +391,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       TryEvent_NoLock(new KeyEvent(key));
     }
 
-    public void AddKeyBinding(Key key, ActionDlgt action)
+    public void AddKeyBinding(Key key, KeyActionDlgt action)
     {
       lock (_syncObj)
         _keyBindings[key] = new KeyAction(key, action);

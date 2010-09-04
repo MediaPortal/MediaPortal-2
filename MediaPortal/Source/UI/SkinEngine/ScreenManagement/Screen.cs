@@ -277,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="key">The key which triggers the command.</param>
     /// <param name="action">The action which should be executed.</param>
-    public void AddKeyBinding(Key key, ActionDlgt action)
+    public void AddKeyBinding(Key key, KeyActionDlgt action)
     {
       if (_keyBindings == null)
         _keyBindings = new Dictionary<Key, KeyAction>();

@@ -26,23 +26,23 @@ using MediaPortal.UI.Control.InputManager;
 
 namespace MediaPortal.UI.Presentation.Actions
 {
-  public delegate bool ActionDlgt();
+  public delegate void KeyActionDlgt();
 
   /// <summary>
-  /// Mapping of a <see cref="Key"/> to an <see cref="ActionDlgt"/> method. Used to register key bindings.
+  /// Mapping of a <see cref="Key"/> to an <see cref="KeyActionDlgt"/> method. Used to register key bindings.
   /// </summary>
   public class KeyAction
   {
     #region Protected fields
 
     protected Key _key;
-    protected ActionDlgt _action;
+    protected KeyActionDlgt _action;
 
     #endregion
 
     #region Ctor
 
-    public KeyAction(Key key, ActionDlgt action)
+    public KeyAction(Key key, KeyActionDlgt action)
     {
       _key = key;
       _action = action;
@@ -61,7 +61,7 @@ namespace MediaPortal.UI.Presentation.Actions
     /// <summary>
     /// The action to be executed by this shortcut.
     /// </summary>
-    public ActionDlgt Action
+    public KeyActionDlgt Action
     {
       get { return _action; }
     }
