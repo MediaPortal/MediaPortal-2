@@ -136,7 +136,7 @@ namespace MediaPortal.UiComponents.Media.Actions
             visible = false;
             break;
         }
-      visible = visible && workflowManager.CurrentNavigationContext.WorkflowState.StateId != SHOW_PLAYLIST_WORKFLOW_STATE_ID;
+      visible = visible && !workflowManager.IsStateContainedInNavigationStack(SHOW_PLAYLIST_WORKFLOW_STATE_ID);
       lock (_syncObj)
       {
         if (visible == _isVisible && displayTitleRes == _displayTitleResource)
