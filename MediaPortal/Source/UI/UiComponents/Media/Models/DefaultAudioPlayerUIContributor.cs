@@ -52,7 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool BackgroundDisabled
     {
-      get { return true; }
+      get { return false; }
     }
 
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
