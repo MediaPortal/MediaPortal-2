@@ -276,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
-        return new SizeF();
+        return SizeF.Empty;
       templateControl.Measure(ref totalSize);
       return totalSize;
     }

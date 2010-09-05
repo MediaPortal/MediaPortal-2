@@ -98,6 +98,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     EffectAsset _effect;
     // Scrolling
     protected Vector2 _scrollPos;
+    protected Vector2 _scrollWrapOffset;
     protected DateTime _lastTimeUsed;
     // Vertex buffer
     protected VertexBuffer _vertexBuffer;
@@ -119,7 +120,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _fontSize = size;
       _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
-      _lastTextSize = new SizeF();
+      _lastTextSize = SizeF.Empty;
+      ResetScrollPosition();
     }
 
     #endregion
@@ -153,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         if (_text == value)
           return;
         _textChanged = true;
-        _scrollPos = new Vector2(0.0f, 0.0f);
+        ResetScrollPosition();
         _text = value;
       }
     }
@@ -167,13 +169,23 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the size of a string as if it was rendered by this asset.
+    /// Gets the width of a string as if it was rendered by this asset.
     /// </summary>
     /// <param name="text">String to evaluate</param>
     /// <returns>The width of the text in graphics device units (pixels)</returns>
     public float TextWidth(string text)
     {
       return _font.TextWidth(text, _fontSize, _kerning);
+    }
+
+    /// <summary>
+    /// Gets the height of a number of text lines if rendered by this asset.
+    /// </summary>
+    /// <param name="lineCount">The number of lines to measure.</param>
+    /// <returns>The height of the text in graphics device units (pixels)</returns>
+    public float TextHeight(int lineCount)
+    {
+      return _font.TextHeight(_fontSize, lineCount);
     }
 
     /// <summary>
@@ -251,8 +263,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             while (nextIndex < paraLength && !char.IsWhiteSpace(para[nextIndex]))
               ++nextIndex;
             // Does the word fit into the space?
-            float cx = _font.TextWidth(para.Substring(sectionIndex, nextIndex - sectionIndex), _fontSize, Kerning);
-            if (lineWidth + cx > maxWidth)
+            // Rember to take into account the additional width required if this was the last word on the line.
+            float cx = _font.PartialTextWidth(para, sectionIndex, nextIndex - 1, _fontSize, Kerning);
+            float extension = _font.CharWidthExtension(para, nextIndex - 1, _fontSize);
+
+            if (lineWidth + cx + extension > maxWidth)
             {
               // Start new line						
               if (sectionIndex != lineIndex)
@@ -314,21 +329,37 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
 
       if (scrollMode != TextScrollMode.None && _lastTimeUsed != DateTime.MinValue)
-        UpdateScrollPosition(textBox, scrollMode, scrollSpeed);       
+        UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
 
       _effect.Parameters[PARAM_COLOR] = color;
       _effect.Parameters[PARAM_ALIGNMENT] = alignParam;
       _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y, 0.0f, 0.0f);
       _effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
+      DoRender(finalTransform);
 
-      // Render
+      if (scrollMode != TextScrollMode.None)
+      {
+        if (!float.IsNaN(_scrollWrapOffset.X))
+        {
+          _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X + _scrollWrapOffset.X, _scrollPos.Y, 0.0f, 0.0f);
+          DoRender(finalTransform);
+        }
+        else if (!float.IsNaN(_scrollWrapOffset.Y))
+        {
+          _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y + _scrollWrapOffset.Y, 0.0f, 0.0f);
+          DoRender(finalTransform);
+        }
+      }
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+    }
+
+    private void DoRender(Matrix finalTransform)
+    {
       _effect.StartRender(_font.Texture, finalTransform);
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _primitiveCount);
       _effect.EndRender();
-      
-      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     protected void UpdateScrollPosition(RectangleF textBox, TextScrollMode mode, float speed)
@@ -348,29 +379,58 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       switch (mode)
       {
         case TextScrollMode.Left:
-          if (_scrollPos.X < -_lastTextSize.Width)
-            _scrollPos.X =  textBox.Width + 4;
           _scrollPos.X -= dif;
+          if (_scrollPos.X + _lastTextSize.Width < textBox.Width / 2.0f)
+          {
+            _scrollWrapOffset.X = _scrollPos.X;
+            _scrollPos.X = textBox.Width + 4;
+            _scrollWrapOffset.X -= _scrollPos.X;
+          }
+          else if (_scrollWrapOffset.X + _scrollPos.X + _lastTextSize.Width < 0.0f)
+            _scrollWrapOffset.X = float.NaN;
           break;
         case TextScrollMode.Right:
-          if (_scrollPos.X > textBox.Width)
-            _scrollPos.X = -_lastTextSize.Width - 4;
           _scrollPos.X += dif;
+          if (_scrollPos.X > textBox.Width / 2.0f)
+          {
+            _scrollWrapOffset.X = _scrollPos.X;
+            _scrollPos.X = -_lastTextSize.Width - 4;
+            _scrollWrapOffset.X -= _scrollPos.X;
+          }
+          else if (_scrollWrapOffset.X + _scrollPos.X > textBox.Width)
+            _scrollWrapOffset.X = float.NaN;
           break;
         case TextScrollMode.Down:
-          if (_scrollPos.Y > textBox.Width)
-            _scrollPos.Y = -_lastTextSize.Width - 4;
           _scrollPos.Y += dif;
+          if (_scrollPos.Y > textBox.Height / 2.0f)
+          {
+            _scrollWrapOffset.Y = _scrollPos.Y;
+            _scrollPos.Y = -_lastTextSize.Height - 4;
+            _scrollWrapOffset.Y -= _scrollPos.Y;
+          }
+          else if (_scrollWrapOffset.Y + _scrollPos.Y > textBox.Height)
+            _scrollWrapOffset.Y = float.NaN;
           break;        
         //case TextScrollMode.Up:
         default:
-          if (_scrollPos.Y < -_lastTextSize.Height)
-            _scrollPos.Y = textBox.Height + 4;
           _scrollPos.Y -= dif;
+          if (_scrollPos.Y + _lastTextSize.Height < textBox.Height / 2.0f)
+          {
+            _scrollWrapOffset.Y = _scrollPos.Y;
+            _scrollPos.Y = textBox.Height + 4;
+            _scrollWrapOffset.Y -= _scrollPos.Y;
+          }
+          else if (_scrollWrapOffset.Y + _scrollPos.Y + _lastTextSize.Height < 0.0f)
+            _scrollWrapOffset.Y = float.NaN;
           break;
       }
     }
 
+    public void ResetScrollPosition()
+    {
+      _scrollPos = new Vector2(0.0f, 0.0f);
+      _scrollWrapOffset = new Vector2(float.NaN, float.NaN);
+    }
     #region IAsset Members
 
     public bool IsAllocated

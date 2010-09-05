@@ -213,7 +213,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_content != null && _content.IsVisible)
         _content.Measure(ref totalSize);
       else
-        totalSize = new SizeF();
+        totalSize = SizeF.Empty;
 
       AddMargin(ref totalSize, borderMargin);
 

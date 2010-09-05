@@ -118,6 +118,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
     {
+      if (_asset != null)
+        _asset.ResetScrollPosition();
       InvalidateLayout();
     }
 
@@ -261,11 +263,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       AllocFont();
       if (_asset == null)
-        return new SizeF();
+        return SizeF.Empty;
 
       // Measure the text
-      float height = _asset.LineHeight;
-      float width;
+      SizeF size = new SizeF();
       float totalWidth; // Attention: totalWidth is cleaned up by SkinContext.Zoom
       if (double.IsNaN(Width))
         if ((Scroll != TextScrollMode.None || Wrap) && !double.IsNaN(MaxDesiredWidth))
@@ -280,18 +281,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Wrap)
       { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
         string[] lines = _asset.WrapText(totalWidth);
-        width = 0;
+        size.Width = 0;
         foreach (string line in lines)
-          width = Math.Max(width, _asset.TextWidth(line));
-        height *= lines.Length;
+          size.Width = Math.Max(size.Width, _asset.TextWidth(line));
+        size.Height = _asset.TextHeight(Math.Max(lines.Length, 1));
       }
-      else if (float.IsNaN(totalWidth))
-        width = _asset.TextWidth(_resourceString);
       else
-        // Although we can maybe scroll, we will measure all the label's needed space
-        width = Math.Min(_asset.TextWidth(_resourceString), totalWidth);
-
-      return new SizeF(width, height);
+      {
+        size.Width = _asset.TextWidth(_resourceString);
+        if (!float.IsNaN(totalWidth))
+          size.Width = Math.Min(size.Width, totalWidth);
+        size.Height = _asset.TextHeight(1);
+      }
+      // Add one pixel to compensate rounding errors. Avoids that the label scrolls although there is enough space.
+      size.Width += 1;
+      size.Height += 1;
+      return size;
     }
 
     public override void DoRender(RenderContext localRenderContext)

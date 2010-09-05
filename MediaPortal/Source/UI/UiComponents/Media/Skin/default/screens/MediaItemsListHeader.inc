@@ -6,9 +6,9 @@
     VerticalAlignment="Bottom" HorizontalAlignment="Stretch" LastChildFill="false"
     IsVisible="{Binding IsItemsValid}"> <!-- Model = MediaModel -->
   <Label DockPanel.Dock="Left" Content="{Binding Source={DynamicResource ResourceKey=ItemsListTitle,TreeSearchMode=Hybrid},Path=Resource}"/>
-  <StackPanel Margin="0,0,10,0" Orientation="Horizontal" DockPanel.Dock="Right">
-    <Label Color="{ThemeResource HintTextColor}" Content=" ("/>
-    <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}"/>
-    <Label Color="{ThemeResource HintTextColor}" Content=")"/>
+  <StackPanel Margin="10,0,10,0" Orientation="Horizontal" DockPanel.Dock="Right">
+    <Label Color="{ThemeResource HintTextColor}" Content="(" FontSize="{ThemeResource SmallerFontSize}"/>
+    <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallerFontSize}"/>
+    <Label Color="{ThemeResource HintTextColor}" Content=")" FontSize="{ThemeResource SmallerFontSize}"/>
   </StackPanel>
 </DockPanel>

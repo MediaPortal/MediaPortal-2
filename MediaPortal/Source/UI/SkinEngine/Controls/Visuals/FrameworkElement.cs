@@ -597,7 +597,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (parent == null)
       {
         Screen screen = Screen;
-        SizeF screenSize = screen == null ? new SizeF() : new SizeF(screen.SkinWidth, screen.SkinHeight);
+        SizeF screenSize = screen == null ? SizeF.Empty : new SizeF(screen.SkinWidth, screen.SkinHeight);
         SizeF size = new SizeF(screenSize);
 
 #if DEBUG_LAYOUT
@@ -892,7 +892,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      return new SizeF();
+      return SizeF.Empty;
     }
 
     /// <summary>

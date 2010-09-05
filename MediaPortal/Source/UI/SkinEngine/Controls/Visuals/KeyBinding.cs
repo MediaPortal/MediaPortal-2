@@ -93,7 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      return new SizeF();
+      return SizeF.Empty;
     }
 
     void OnBindingConcerningPropertyChanged(AbstractProperty prop, object oldValue)

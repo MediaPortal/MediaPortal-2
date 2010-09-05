@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)
-        return new SizeF();
+        return SizeF.Empty;
       keyboardControl.Measure(ref totalSize);
       return totalSize;
     }

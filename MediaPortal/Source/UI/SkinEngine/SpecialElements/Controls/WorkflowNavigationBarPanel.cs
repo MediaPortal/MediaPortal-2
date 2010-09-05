@@ -161,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         float availableSize = Orientation == Orientation.Vertical ? actualHeight : actualWidth;
         FrameworkElement firstChild = visibleChildren[0];
         SizeF firstChildDesiredSize = firstChild.DesiredSize;
-        SizeF desiredEllipsisSize = _ellipsisControl == null ? new SizeF() : _ellipsisControl.DesiredSize;
+        SizeF desiredEllipsisSize = _ellipsisControl == null ? SizeF.Empty : _ellipsisControl.DesiredSize;
         // The first element is always shown
         availableSize -= Orientation == Orientation.Vertical ? firstChildDesiredSize.Height : firstChildDesiredSize.Width;
         List<FrameworkElement> reversedChildren = new List<FrameworkElement>(visibleChildren);

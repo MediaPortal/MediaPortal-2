@@ -216,7 +216,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -267,7 +267,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -302,7 +302,6 @@
   </Style>
 
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
-    <Setter Property="Height" Value="40"/>
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
 
@@ -330,7 +329,7 @@
             </Control>
             <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,7,10,7"
+            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -380,7 +379,7 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,7,10,7"
+            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
@@ -452,7 +451,7 @@
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
                   Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>
-            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,7,10,7"/>
+            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,10,0"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -509,7 +508,7 @@
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Width="48" Height="48">
-            <Ellipse x:Name="ButtonBackground" StrokeThickness="4" Margin="0.022,-0.026,-0.022,0.026" Width="48" Height="48">
+            <Ellipse x:Name="ButtonBackground" StrokeThickness="4" Width="48" Height="48">
               <Ellipse.Fill>
                 <RadialGradientBrush>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius1Color}" Offset="0.827"/>
@@ -518,7 +517,7 @@
                 </RadialGradientBrush>
               </Ellipse.Fill>
             </Ellipse>
-            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41">
+            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.5,3.5,3.5,0" Width="41" Height="41">
               <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.499,0.915">
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape1Color}" Offset="0"/>

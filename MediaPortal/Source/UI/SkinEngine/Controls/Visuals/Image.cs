@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (_fallbackImage != null)
         imageSize = new SizeF(_fallbackImage.Texture.Width, _fallbackImage.Texture.Height);
       else
-        imageSize = new SizeF();
+        imageSize = SizeF.Empty;
       float scaleX;
       float scaleY;
       CalculateScalingFactors(totalSize, imageSize, Stretch, out scaleX, out scaleY);

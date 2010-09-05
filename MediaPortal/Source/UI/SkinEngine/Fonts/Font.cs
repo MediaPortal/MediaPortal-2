@@ -75,7 +75,6 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       _charSet = new BitmapCharacterSet
         {
             RenderedSize = size,
-            LineHeight = size,
             Width = MAX_WIDTH,
             Height = MAX_HEIGHT
         };
@@ -95,11 +94,11 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Gets the <see cref="Font"/>'s base.
+    /// Gets the <see cref="Font"/>'s base for the given font size.
     /// </summary>
-    public float Base
+    public float Base(float fontSize)
     {
-      get { return _charSet.Base; }
+     return _charSet.Base * fontSize / _charSet.RenderedSize;
     }
 
     /// <summary>
@@ -109,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <returns>The height of the scaled font.</returns>
     public float LineHeight(float fontSize)
     {
-      return fontSize / _charSet.RenderedSize * _charSet.LineHeight;
+      return fontSize;
     }
 
     /// <summary>
@@ -121,23 +120,79 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <returns>The width of the passed text.</returns>
     public float TextWidth(string text, float fontSize, bool kerning)
     {
+      return PartialTextWidth(text, 0, text.Length - 1, fontSize, kerning) + CharWidthExtension(text, text.Length - 1, fontSize);
+    }
+
+    /// <summary>
+    /// Gets the width of a sub-string if rendered with this <see cref="Font"/> as a particular size.
+    /// </summary>
+    /// <param name="text">The string to measure.</param>
+    /// <param name="fromIndex">The index of the first character of the sub-string.</param>
+    /// <param name="toIndex">The index of the last character of the sub-string to measure.</param>
+    /// <param name="fontSize">The size of font to use for measurement.</param>
+    /// <param name="kerning">Whether kerning is used to improve font spacing.</param>
+    /// <returns>The width of the passed text.</returns>
+    public float TextWidth(string text, int fromIndex, int toIndex, float fontSize, bool kerning)
+    {
+      return PartialTextWidth(text, fromIndex, toIndex, fontSize, kerning) + CharWidthExtension(text, toIndex, fontSize);
+    }
+
+    /// <summary>
+    /// Gets the width of a sub-string if rendered with this <see cref="Font"/> as a particular size, excluding the 
+    /// special additional width required for the last char.
+    /// </summary>
+    /// <param name="text">The string to measure.</param>
+    /// <param name="fromIndex">The index of the first character of the sub-string.</param>
+    /// <param name="toIndex">The index of the last character of the sub-string to measure.</param>
+    /// <param name="fontSize">The size of font to use for measurement.</param>
+    /// <param name="kerning">Whether kerning is used to improve font spacing.</param>
+    /// <returns>The width of the sub-string text.</returns>
+    public float PartialTextWidth(string text, int fromIndex, int toIndex, float fontSize, bool kerning)
+    {
       if (!IsAllocated)
         Allocate();
 
       float width = 0;
-      float sizeScale = fontSize / _charSet.RenderedSize;
       BitmapCharacter lastChar = null;
 
-      foreach (char character in text)
+      for (int i = fromIndex; i <= toIndex; i++)
       {
-        BitmapCharacter c = Character(character);
+        BitmapCharacter c = Character(text[i]);
 
         width += c.XAdvance;
         if (kerning && lastChar != null)
-          width += GetKerningAmount(lastChar, character);
+          width += GetKerningAmount(lastChar, text[i]);
         lastChar = c;
       }
-      return width * sizeScale;
+      return width * (fontSize / _charSet.RenderedSize);
+    }
+
+    /// <summary>
+    /// In order to accurately determine the length of a string the final character may need to have a small
+    /// additional width applied to compensate for the amount that it would normally over-hang the following 
+    /// character. This function returns the value of that extension for a given character in the passed string
+    /// </summary>
+    /// <param name="text">The string containing the character to measure.</param>
+    /// <param name="charIndex">The index of the character in the string.</param>
+    /// <param name="fontSize">The size of font to use for measurement.</param>
+    /// <returns>The additonal width required for the specified character.</returns>
+    public float CharWidthExtension(string text, int charIndex, float fontSize)
+    {
+      if (charIndex< 0 || charIndex >= text.Length) return 0.0f;
+      BitmapCharacter c = Character(text[charIndex]);
+      return Math.Max(c.Width - c.XAdvance + c.XOffset, 0) * (fontSize / _charSet.RenderedSize);
+    }
+
+    /// <summary>
+    /// Get the height of a text block containing the specified number of lines. In order to get correct vertical 
+    /// centering we add an additonal value to compensate for the space required under the font's base line.
+    /// </summary>
+    /// <param name="fontSize">The actual font size.</param>
+    /// <param name="lines">The number of lines.</param>
+    /// <returns>The height of the text.</returns>
+    public float TextHeight(float fontSize, int lineCount)
+    {
+      return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize);
     }
 
     /// <summary>Gets the font texture.</summary>
@@ -232,17 +287,15 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     {
       BitmapCharacter Character = new BitmapCharacter
         {
-            Width = Glyph.bitmap.width + PAD,
-            Height = Glyph.bitmap.rows + PAD,
+            Width = Glyph.bitmap.width + PAD*2,
+            Height = Glyph.bitmap.rows + PAD*2,
             X = _currentX,
             Y = _currentY,
             XOffset = Glyph.left,
             YOffset = _charSet.Base - Glyph.top,
+            // Convert fixed point 16.16 to float by divison with 2^16
             XAdvance = (int) (Glyph.root.advance.x/65536.0f)
         };
-
-      // Convert fixed point 16.16 to float by divison with 2^16
-
       _charSet.SetCharacter(charIndex, Character);
       return Glyph;
     }
@@ -297,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
       List<PositionColored2Textured> verts = new List<PositionColored2Textured>();
       float[] lineWidth = new float[text.Length];
-      int liney = 0;
+      int liney = _charSet.RenderedSize - _charSet.Base;
       float sizeScale = size / _charSet.RenderedSize;
 
       lineIndex = new int[text.Length];
@@ -307,8 +360,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         int ix = verts.Count;
 
         lineWidth[i] = CreateTextLine(text[i], liney, sizeScale, kerning, ref verts);
-        lineIndex[i] = ix; 
-        liney += _charSet.LineHeight;
+        lineIndex[i] = ix;
+        liney += _charSet.RenderedSize;
       }
 
       textSize = new SizeF(0.0f, verts[verts.Count-1].Y);
@@ -341,14 +394,21 @@ namespace MediaPortal.UI.SkinEngine.Fonts
           x += GetKerningAmount(lastChar, character);
         lastChar = c;
         if (!char.IsWhiteSpace(character))
-          CreateQuad(c, sizeScale, x + c.XOffset, y + c.YOffset, ref verts);
+          CreateQuad(c, sizeScale, x, y, ref verts);
         x += c.XAdvance;
+      }
+      // Make sure there is a t least one character
+      if (verts.Count == 0) {
+        BitmapCharacter c = Character(' ');
+        CreateQuad(c, sizeScale, c.XOffset, c.YOffset, ref verts);
       }
       return x * sizeScale;
     }
 
     protected void CreateQuad(BitmapCharacter c, float sizeScale, float x, float y, ref List<PositionColored2Textured> verts)
     {
+      x += c.XOffset;
+      y += c.YOffset;
       PositionColored2Textured tl = new PositionColored2Textured(
         x * sizeScale, y * sizeScale, 1.0f,
         c.X / (float) _charSet.Width,
@@ -359,8 +419,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         (x + c.Width) * sizeScale,
         (y + c.Height) * sizeScale,
         1.0f,
-        tl.Tu1 + c.Width / (float) _charSet.Width,
-        tl.Tv1 + c.Height / (float) _charSet.Height,
+        (c.X + c.Width) / (float) _charSet.Width,
+        (c.Y + c.Height) / (float) _charSet.Height,
         0
       );
       PositionColored2Textured bl = new PositionColored2Textured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
@@ -378,7 +438,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     protected BitmapCharacter Character(char c)
     {
       if (_charSet.GetCharacter(c) == null)
-        AddGlyph(c);
+        if (!AddGlyph(c))
+          return _charSet.GetCharacter(0);
       return _charSet.GetCharacter(c);
     }
 
@@ -424,6 +485,9 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         _texture.Dispose();
         _texture = null;
         _charSet.Clear();
+        _currentX = 0;
+        _rowHeight = 0;
+        _currentY = 0;
       }
     }
 
@@ -435,8 +499,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
   {
-    public const int MAX_CHARS = 4096;
-    public int LineHeight;
+    public const int MAX_CHARS = 16*1024;
     public int Base;
     public int RenderedSize;
     public int Width;

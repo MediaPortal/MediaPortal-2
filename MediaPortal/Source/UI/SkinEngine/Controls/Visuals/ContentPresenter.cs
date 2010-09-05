@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       if (_templateControl == null)
-        return new SizeF();
+        return SizeF.Empty;
       // Measure the child
       _templateControl.Measure(ref totalSize);
       return totalSize;

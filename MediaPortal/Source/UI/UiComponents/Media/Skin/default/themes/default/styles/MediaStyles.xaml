@@ -388,10 +388,10 @@
         <Label x:Name="ItemNumberLabel" Grid.Column="0" Grid.Row="0"
             Content="{Binding [NumberStr]}"
             Color="{ThemeResource PlaylistItemColor}"
-            VerticalAlignment="Center"/>
+            VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
         <Label x:Name="ItemNameLabel" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
             Content="{Binding [Name]}"
-            FontSize="26" HorizontalAlignment="Left" VerticalAlignment="Center">
+            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Left" VerticalAlignment="Center">
           <Label.Color>
             <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="AdditionalProperties[IsCurrentItem]"/>
@@ -400,7 +400,7 @@
             </MultiBinding>
           </Label.Color>
         </Label>
-        <Label x:Name="ItemLengthLabel" Grid.Column="2" Grid.Row="0" FontSize="20" VerticalAlignment="Center"
+        <Label x:Name="ItemLengthLabel" Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
             Content="{Binding [Length]}" Color="{ThemeResource PlaylistItemColor}"/>
       </Grid>
     </Grid>
@@ -422,8 +422,8 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="26"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding [NumItems]}" FontSize="26"/>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding [NumItems]}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 
