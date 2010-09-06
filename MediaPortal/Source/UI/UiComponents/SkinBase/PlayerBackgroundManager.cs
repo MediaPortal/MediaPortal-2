@@ -120,79 +120,37 @@ namespace MediaPortal.UiComponents.SkinBase
       {
         // ------------------ Play controls ---------------------
         AddKeyBinding_NeedLock(
-            Key.Play, () =>
-              {
-                PlayerModel.Play();
-              });
+            Key.Play, PlayerModel.Play);
         AddKeyBinding_NeedLock(
-            Key.Pause, () =>
-              {
-                PlayerModel.Pause();
-              });
+            Key.Pause, PlayerModel.Pause);
         AddKeyBinding_NeedLock(
-            Key.PlayPause, () =>
-              {
-                PlayerModel.TogglePause();
-              });
+            Key.PlayPause, PlayerModel.TogglePause);
         AddKeyBinding_NeedLock(
-            Key.Printable(' '), () =>
-              {
-                PlayerModel.TogglePause();
-              });
+            Key.Printable(' '), PlayerModel.TogglePause);
         AddKeyBinding_NeedLock(
-            Key.Stop, () =>
-              {
-                PlayerModel.Stop();
-              });
+            Key.Stop, PlayerModel.Stop);
         AddKeyBinding_NeedLock(
-            Key.Rew, () =>
-              {
-                PlayerModel.SeekBackward();
-              });
+            Key.Rew, PlayerModel.SeekBackward);
         AddKeyBinding_NeedLock(
-            Key.Fwd, () =>
-              {
-                PlayerModel.SeekForward();
-              });
+            Key.Fwd, PlayerModel.SeekForward);
         AddKeyBinding_NeedLock(
-            Key.Previous, () =>
-              {
-                PlayerModel.Previous();
-              });
+            Key.Previous, PlayerModel.Previous);
         AddKeyBinding_NeedLock(
-            Key.Next, () =>
-              {
-                PlayerModel.Next();
-              });
+            Key.Next, PlayerModel.Next);
 
         // ------------------------ Volume -----------------------
         AddKeyBinding_NeedLock(
-            Key.Mute, () =>
-              {
-                PlayerModel.ToggleMute();
-              });
+            Key.Mute, PlayerModel.ToggleMute);
         AddKeyBinding_NeedLock(
-            Key.VolumeUp, () =>
-              {
-                PlayerModel.VolumeUp();
-              });
+            Key.VolumeUp, PlayerModel.VolumeUp);
         AddKeyBinding_NeedLock(
-            Key.VolumeDown, () =>
-              {
-                PlayerModel.VolumeDown();
-              });
+            Key.VolumeDown, PlayerModel.VolumeDown);
 
         // --------------------- Player management --------------------
         AddKeyBinding_NeedLock(
-            Key.Blue, () =>
-              {
-                PlayerModel.ToggleCurrentPlayer();
-              });
+            Key.Blue, PlayerModel.ToggleCurrentPlayer);
         AddKeyBinding_NeedLock(
-            Key.Printable('c'), () =>
-              {
-                PlayerModel.ToggleCurrentPlayer();
-              });
+            Key.Printable('c'), PlayerModel.ToggleCurrentPlayer);
 
         // Albert, 2010-08-25: I don't think we should register player specific key bindings here.
         // They should only be available in the FSC/CP states.
