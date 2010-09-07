@@ -864,15 +864,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Matrix layoutTransform = LayoutTransform.GetTransform().RemoveTranslation();
         if (!layoutTransform.IsIdentity)
         {
-          // FIXME Albert, 2010-08-27: Instead of calling FindMaxTransformedSize, which tries to maximize the area
-          // of the rect to the returned size, we need to take the aspect ratio of _innerDesiredSize into account.
-          SizeF transformedSize = FindMaxTransformedSize(layoutTransform, rect.Size);
-
+          SizeF resultInnerSize = _innerDesiredSize;
+          SizeF resultOuterSize = new SizeF(resultInnerSize);
+          layoutTransform.TransformSize(ref resultOuterSize);
+          if (resultOuterSize.Width > rect.Width + DELTA_DOUBLE || resultOuterSize.Height > rect.Height + DELTA_DOUBLE)
+            // Transformation of desired size doesn't fit into the available rect
+            resultInnerSize = FindMaxTransformedSize(layoutTransform, rect.Size);
           rect = new RectangleF(
-              rect.Location.X + (rect.Width - transformedSize.Width)/2,
-              rect.Location.Y + (rect.Height - transformedSize.Height)/2,
-              transformedSize.Width,
-              transformedSize.Height);
+              rect.Location.X + (rect.Width - resultInnerSize.Width)/2,
+              rect.Location.Y + (rect.Height - resultInnerSize.Height)/2,
+              resultInnerSize.Width,
+              resultInnerSize.Height);
         }
       }
       _innerRect = rect;
