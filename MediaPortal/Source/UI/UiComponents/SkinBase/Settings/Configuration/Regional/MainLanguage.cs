@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
       {
         CultureInfo ci = _cultures[i];
         _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
-        if (ci == current)
+        if (ci.LCID == current.LCID)
           Selected = i;
       }
     }
