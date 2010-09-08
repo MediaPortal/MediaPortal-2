@@ -215,8 +215,9 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           videoAspect.SetAttribute(VideoAspect.ATTR_WIDTH, _width.Value);
         if (_height.HasValue)
           videoAspect.SetAttribute(VideoAspect.ATTR_HEIGHT, _height.Value);
+        // MediaInfo returns milliseconds, we need seconds
         if (_playTime.HasValue)
-          videoAspect.SetAttribute(VideoAspect.ATTR_DURATION, _playTime.Value);
+          videoAspect.SetAttribute(VideoAspect.ATTR_DURATION, _playTime.Value / 1000);
         if (_vidBitRate.HasValue)
           videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value);
         videoAspect.SetAttribute(VideoAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));

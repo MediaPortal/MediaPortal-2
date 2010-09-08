@@ -239,7 +239,7 @@ namespace MediaInfoLib
     /// Returns the duration of the video in the specified video <paramref name="stream"/>.
     /// </summary>
     /// <param name="stream">Number of video stream to examine.</param>
-    /// <returns>Duration of the video in seconds or <c>null</c>, if the specified video
+    /// <returns>Duration of the video in milliseconds or <c>null</c>, if the specified video
     /// stream doesn't exist.</returns>
     public long? GetPlaytime(int stream)
     {
