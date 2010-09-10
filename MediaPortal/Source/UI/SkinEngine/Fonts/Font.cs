@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <returns>The height of the text.</returns>
     public float TextHeight(float fontSize, int lineCount)
     {
-      return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize);
+      return LineHeight(fontSize) * (lineCount + 1) - Base(fontSize) - 1.0f;
     }
 
     /// <summary>Gets the font texture.</summary>

@@ -73,12 +73,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     #region Consts
 
     protected const string EFFECT_FONT = "font";
+    protected const string EFFECT_FONT_FADE = "fontfade";
 
     protected const string PARAM_SCROLL_POSITION = "g_scrollpos";
     protected const string PARAM_TEXT_RECT = "g_textbox";
     protected const string PARAM_COLOR = "g_color";
     protected const string PARAM_ALIGNMENT = "g_alignment";
+    protected const string PARAM_FADE_BORDER = "g_fadeborder";
 
+    protected const int FADE_SIZE = 15;
     #endregion
 
     #region Protected fields
@@ -121,6 +124,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
       _lastTextSize = SizeF.Empty;
+      ResetScrollPosition();
       ResetScrollPosition();
     }
 
@@ -227,8 +231,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _lastTextBoxWidth = boxWidth;
       _lastWrap = wrap;
       _textChanged = false;
-
-      _effect = ContentManager.GetEffect(EFFECT_FONT);
     }
 
     /// <summary>
@@ -269,6 +271,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
             if (lineWidth + cx + extension > maxWidth)
             {
+              // If the word is longer than a line width wrap it by letter
+              if (cx + extension > maxWidth)
+              {
+                lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
+                while (lineWidth < maxWidth)
+                {
+                  ++sectionIndex;
+                  lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
+                }
+                wordIndex = sectionIndex;
+              }
               // Start new line						
               if (sectionIndex != lineIndex)
                 result.Add(para.Substring(lineIndex, sectionIndex - lineIndex));
@@ -328,8 +341,18 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           break;
       }
 
+      TextScrollMode actualScrollMode = scrollMode;
       if (scrollMode != TextScrollMode.None && _lastTimeUsed != DateTime.MinValue)
-        UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
+        actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
+
+      Vector4 fadeBorder;
+      if (CalculateFadeBorder(actualScrollMode, textBox, alignment, out fadeBorder))
+      {
+        _effect = ContentManager.GetEffect(EFFECT_FONT_FADE);
+        _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;
+      }
+      else
+        _effect = ContentManager.GetEffect(EFFECT_FONT);
 
       _effect.Parameters[PARAM_COLOR] = color;
       _effect.Parameters[PARAM_ALIGNMENT] = alignParam;
@@ -362,7 +385,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _effect.EndRender();
     }
 
-    protected void UpdateScrollPosition(RectangleF textBox, TextScrollMode mode, float speed)
+    protected TextScrollMode UpdateScrollPosition(RectangleF textBox, TextScrollMode mode, float speed)
     {
       float dif = speed * (float) SkinContext.FrameRenderingStartTime.Subtract(_lastTimeUsed).TotalSeconds;
 
@@ -373,7 +396,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         else if (_textLines.Length == 1 && _lastTextSize.Width > textBox.Width)
           mode = TextScrollMode.Left;
         else
-          return;
+          return TextScrollMode.None;
       }
 
       switch (mode)
@@ -424,6 +447,39 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             _scrollWrapOffset.Y = float.NaN;
           break;
       }
+      return mode;
+    }
+
+    protected bool CalculateFadeBorder(TextScrollMode scrollMode, RectangleF textBox, Font.Align alignment, out Vector4 fadeBorder)
+    {
+      fadeBorder = new Vector4(0.0001f, 0.0001f, 0.0001f, 0.0001f);
+      bool dofade = false;
+      if (scrollMode == TextScrollMode.Left || scrollMode == TextScrollMode.Right)
+      {
+        fadeBorder.X = FADE_SIZE; // Fade on left edge
+        fadeBorder.Z = FADE_SIZE; // Fade on right edge
+        dofade = true;
+      }
+      else if (_lastTextSize.Width > textBox.Width)
+      {
+        if (alignment == Font.Align.Right || alignment == Font.Align.Center)
+          fadeBorder.X = FADE_SIZE; // Fade on left edge
+        if (alignment == Font.Align.Left || alignment == Font.Align.Center)
+          fadeBorder.Z = FADE_SIZE; // Fade on right edge
+        dofade = true;
+      }
+      if (scrollMode == TextScrollMode.Up || scrollMode == TextScrollMode.Down)
+      {
+        fadeBorder.Y = FADE_SIZE; // Fade on top edge
+        fadeBorder.W = FADE_SIZE; // Fade on bottom edge
+        dofade = true;
+      }
+      else if (_lastTextSize.Height > textBox.Height)
+      {
+        fadeBorder.W = FADE_SIZE; // Fade on bottom edge
+        dofade = true;
+      }
+      return dofade;
     }
 
     public void ResetScrollPosition()
@@ -431,6 +487,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _scrollPos = new Vector2(0.0f, 0.0f);
       _scrollWrapOffset = new Vector2(float.NaN, float.NaN);
     }
+
     #region IAsset Members
 
     public bool IsAllocated
