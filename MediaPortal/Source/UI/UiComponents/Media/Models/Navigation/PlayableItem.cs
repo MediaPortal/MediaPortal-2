@@ -66,11 +66,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
       string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
       string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-      long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
-      if (!length.HasValue)
-        length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
+      long? duration = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+      if (!duration.HasValue)
+        duration = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
       SetLabel(Consts.NAME_KEY, name);
-      SetLabel(Consts.LENGTH_KEY, length.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) length.Value)) : string.Empty);
+      SetLabel(Consts.DURATION_KEY, duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty);
       // TODO: Open ListItem to store ints (rating), dates (Date) and other objects in ListItems
     }
 
@@ -87,8 +87,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
     public string Length
     {
-      get { return this[Consts.LENGTH_KEY]; }
-      set { SetLabel(Consts.LENGTH_KEY, value); }
+      get { return this[Consts.DURATION_KEY]; }
+      set { SetLabel(Consts.DURATION_KEY, value); }
     }
   }
 }

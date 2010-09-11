@@ -180,7 +180,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string NAME_KEY = "Name";
     public const string MEDIA_ITEM_KEY = "MediaItem";
     public const string NUM_ITEMS_KEY = "NumItems";
-    public const string LENGTH_KEY = "Length";
+    public const string DURATION_KEY = "Duration";
 
     // Keys for workflow state variables
     public const string NAVIGATION_MODE_KEY = "MediaModel: NAVIGATION_MODE";
