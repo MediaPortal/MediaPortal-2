@@ -271,7 +271,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="threadArgument">City which should be refreshed.</param>
     private void BackgroundRefresh(object threadArgument)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh");
+      ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh");
       City currentLocation;
       AbstractProperty isUpdatingProperty;
       lock (_syncObj)
@@ -301,11 +301,11 @@ namespace MediaPortal.UiComponents.Weather.Models
         // also save the last selected city to settings
         SetLastUpdateTime(DateTime.Now);
 
-        ServiceRegistration.Get<ILogger>().Debug("Weather: Background refresh end");
+        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh end");
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Weather: Error refreshing city '{0}'", e, threadArgument);
+        ServiceRegistration.Get<ILogger>().Warn("WeatherModel: Error refreshing city '{0}'", e, threadArgument);
       }
       finally
       {
