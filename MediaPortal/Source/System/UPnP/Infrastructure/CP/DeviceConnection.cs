@@ -219,9 +219,9 @@ namespace UPnP.Infrastructure.CP
       lock (_cpData.SyncObj)
         _pendingCalls.Remove(state);
       HttpWebResponse response = null;
+      Stream body = null;
       try
       {
-        Stream body;
         Encoding contentEncoding;
         try
         {
@@ -249,7 +249,8 @@ namespace UPnP.Infrastructure.CP
               SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
               return;
             }
-            SOAPHandler.HandleErrorResult(new StreamReader(response.GetResponseStream(), contentEncoding), state.Action, state.ClientState);
+            using (TextReader reader = new StreamReader(response.GetResponseStream(), contentEncoding))
+              SOAPHandler.HandleErrorResult(reader, state.Action, state.ClientState);
           }
           else
             SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
@@ -262,6 +263,8 @@ namespace UPnP.Infrastructure.CP
       }
       finally
       {
+        if (body != null)
+          body.Dispose();
         if (response != null)
           response.Close();
       }

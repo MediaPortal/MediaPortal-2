@@ -146,29 +146,32 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         // Create the request and fetch the response
         //
         WebRequest request = WebRequest.Create(searchURI);
-        WebResponse response = request.GetResponse();
-
-        //
-        // Read data from the response stream
-        //
-        Stream responseStream = response.GetResponseStream();
-        Encoding iso8859 = Encoding.GetEncoding("iso-8859-1");
-        StreamReader streamReader = new StreamReader(responseStream, iso8859);
-
-        XPathDocument document = new XPathDocument(streamReader);
-        XPathNavigator nav = document.CreateNavigator();
-        nav.MoveToChild(XPathNodeType.Element);
-        XPathNodeIterator locIt = nav.Select("/search/loc");
-        //
-        // Iterate through our results
-        //
-        while (locIt.MoveNext())
+        using (WebResponse response = request.GetResponse())
         {
-          XPathNavigator locNav = locIt.Current;
-          string name = locNav.Value;
-          string id = locNav.GetAttribute("id", string.Empty);
+          //
+          // Read data from the response stream
+          //
+          using (Stream responseStream = response.GetResponseStream())
+          {
+            Encoding iso8859 = Encoding.GetEncoding("iso-8859-1");
+            StreamReader streamReader = new StreamReader(responseStream, iso8859);
 
-          locations.Add(new CitySetupInfo(name, id));
+            XPathDocument document = new XPathDocument(streamReader);
+            XPathNavigator nav = document.CreateNavigator();
+            nav.MoveToChild(XPathNodeType.Element);
+            XPathNodeIterator locIt = nav.Select("/search/loc");
+            //
+            // Iterate through our results
+            //
+            while (locIt.MoveNext())
+            {
+              XPathNavigator locNav = locIt.Current;
+              string name = locNav.Value;
+              string id = locNav.GetAttribute("id", string.Empty);
+
+              locations.Add(new CitySetupInfo(name, id));
+            }
+          }
         }
         return locations;
       }

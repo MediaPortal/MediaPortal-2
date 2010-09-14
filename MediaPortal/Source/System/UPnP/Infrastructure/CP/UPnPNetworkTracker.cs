@@ -309,22 +309,24 @@ namespace UPnP.Infrastructure.CP
         WebResponse response = request.EndGetResponse(asyncResult);
         try
         {
-          Stream body = response.GetResponseStream();
-          XPathDocument doc = new XPathDocument(body);
-          lock (_cpData.SyncObj)
+          using (Stream body = response.GetResponseStream())
           {
-            rd.DeviceDescription = doc;
-            XPathNavigator nav = doc.CreateNavigator();
-            nav.MoveToChild(XPathNodeType.Element);
-            XPathNodeIterator rootDeviceIt = nav.SelectChildren("device", "urn:schemas-upnp-org:device-1-0");
-            if (rootDeviceIt.MoveNext())
+            XPathDocument doc = new XPathDocument(body);
+            lock (_cpData.SyncObj)
             {
-              XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-              nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
-              ExtractServiceDescriptorsRecursive(rd, rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
-                  state.PendingServiceDescriptions);
+              rd.DeviceDescription = doc;
+              XPathNavigator nav = doc.CreateNavigator();
+              nav.MoveToChild(XPathNodeType.Element);
+              XPathNodeIterator rootDeviceIt = nav.SelectChildren("device", "urn:schemas-upnp-org:device-1-0");
+              if (rootDeviceIt.MoveNext())
+              {
+                XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
+                nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
+                ExtractServiceDescriptorsRecursive(rd, rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
+                    state.PendingServiceDescriptions);
+              }
+              rd.State = RootDescriptorState.AwaitingServiceDescriptions;
             }
-            rd.State = RootDescriptorState.AwaitingServiceDescriptions;
           }
           ContinueGetServiceDescription(state);
         }

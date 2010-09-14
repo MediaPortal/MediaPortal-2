@@ -87,6 +87,7 @@ namespace Media.Importers.MusicImporter.Freedb
     public FreeDBSite[] GetFeedbSites()
     {
       FreeDBSite[] retval = null;
+      // FIXME: Close reader
       StreamReader urlRdr = GetStreamFromSite("sites");
       m_message = urlRdr.ReadLine();
       int code = GetCode(m_message);
@@ -180,6 +181,7 @@ namespace Media.Importers.MusicImporter.Freedb
     {
       CDInfo[] retval = null;
       string command = "cddb+query+" + GetCDDBDiscIDInfo(driveLetter, '+');
+      // FIXME: Close reader
       StreamReader urlRdr = GetStreamFromSite(command);
       m_message = urlRdr.ReadLine();
       int code = GetCode(m_message);
@@ -240,6 +242,7 @@ namespace Media.Importers.MusicImporter.Freedb
     {
       CDInfo[] retval = null;
       string command = "cddb+query+" + ID.Replace(" ", "+");
+      // FIXME: Close reader
       StreamReader urlRdr = GetStreamFromSite(command);
       m_message = urlRdr.ReadLine();
       int code = GetCode(m_message);
@@ -304,6 +307,7 @@ namespace Media.Importers.MusicImporter.Freedb
     private string[] GetInfo(string command, bool multipleLine)
     {
       string[] retval = null;
+      // FIXME: Close reader
       StreamReader urlRdr = GetStreamFromSite(command);
       m_message = urlRdr.ReadLine();
       int code = GetCode(m_message);
