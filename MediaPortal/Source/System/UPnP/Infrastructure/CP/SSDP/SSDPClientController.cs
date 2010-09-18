@@ -119,14 +119,15 @@ namespace UPnP.Infrastructure.CP.SSDP
         return;
       try
       {
-        EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEndPoint)))
+        EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
+            IPAddress.Any : IPAddress.IPv6Any, 0);
+        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP)))
         {
           try
           {
             SimpleHTTPRequest header;
             SimpleHTTPRequest.Parse(stream, out header);
-            HandleSSDPRequest(header, config, (IPEndPoint) remoteEndPoint);
+            HandleSSDPRequest(header, config, (IPEndPoint) remoteEP);
           }
           catch (Exception e)
           {
@@ -153,13 +154,14 @@ namespace UPnP.Infrastructure.CP.SSDP
         return;
       try
       {
-        EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEndPoint));
+        EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
+            IPAddress.Any : IPAddress.IPv6Any, 0);
+        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP));
         try
         {
           SimpleHTTPResponse header;
           SimpleHTTPResponse.Parse(stream, out header);
-          HandleSSDPResponse(header, config, (IPEndPoint) remoteEndPoint);
+          HandleSSDPResponse(header, config, (IPEndPoint) remoteEP);
         }
         catch (Exception e)
         {
@@ -290,7 +292,6 @@ namespace UPnP.Infrastructure.CP.SSDP
           try
           {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.PacketInformation, true);
             NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
 
             StartMulticastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
@@ -308,8 +309,6 @@ namespace UPnP.Infrastructure.CP.SSDP
           config.SSDP_UDP_UnicastSocket = socket;
           try
           {
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.PacketInformation, true);
-
             socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
             _cpData.Endpoints.Add(config);
             StartUnicastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
@@ -402,8 +401,10 @@ namespace UPnP.Infrastructure.CP.SSDP
       try
       {
         Socket socket = state.Endpoint.SSDP_UDP_MulticastReceiveSocket;
+        EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
+            IPAddress.Any : IPAddress.IPv6Any, 0);
         if (socket != null)
-          socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPMulticastReceive, state);
+          socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ref remoteEP, OnSSDPMulticastReceive, state);
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
@@ -416,8 +417,10 @@ namespace UPnP.Infrastructure.CP.SSDP
       try
       {
         Socket socket = state.Endpoint.SSDP_UDP_UnicastSocket;
+        EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
+            IPAddress.Any : IPAddress.IPv6Any, 0);
         if (socket != null)
-          socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPUnicastReceive, state);
+          socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, ref remoteEP, OnSSDPUnicastReceive, state);
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
@@ -680,7 +683,8 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
-          if (!rootEntryAdded && rootEntry.GetConfigID(remoteEndPoint) != configID)
+          uint currentConfigId = rootEntry.GetConfigID(remoteEndPoint);
+          if (currentConfigId != 0 && currentConfigId != configID)
             fireConfigurationChanged = true;
           rootEntry.SetConfigID(remoteEndPoint, configID);
           if (!rootEntryAdded && bi != null && rootEntry.BootID < bootID)
