@@ -135,7 +135,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected string _rootDeviceID; // UUID of the root device
     protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
     protected uint _bootID = 0;
-    protected uint _configID = 0;
+    protected IDictionary<IPEndPoint, uint> _configIDs = new Dictionary<IPEndPoint, uint>();
     protected IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
 
     /// <summary>
@@ -189,16 +189,6 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Gets or sets the configuration ID of the UPnP server. If the configuration ID changes, all description document caches must
-    /// be flushed and rebuilt, if necessary.
-    /// </summary>
-    public uint ConfigID
-    {
-      get { return _configID; }
-      internal set { _configID = value; }
-    }
-
-    /// <summary>
     /// Gets or sets the expiration time for the last advertisement of any of this root entrie's devices or services.
     /// </summary>
     public DateTime ExpirationTime
@@ -237,6 +227,29 @@ namespace UPnP.Infrastructure.CP.SSDP
     public IDictionary<string, object> ClientProperties
     {
       get { return _clientProperties; }
+    }
+
+    /// <summary>
+    /// Gets the configuration ID of the UPnP server for the given remote endpoint.
+    /// If the configuration ID changes, all description document caches must be flushed and rebuilt, if necessary.
+    /// The configuration ID depends on the remote endpoint because description documents are different for different server endpoints
+    /// and thus have different config ids.
+    /// </summary>
+    public uint GetConfigID(IPEndPoint remoteEndPoint)
+    {
+      uint result;
+      if (_configIDs.TryGetValue(remoteEndPoint, out result))
+        return result;
+      return 0;
+    }
+
+    /// <summary>
+    /// Sets the configuration ID of the UPnP server for the given remote endpoint.
+    /// If the configuration ID changes, all description document caches must be flushed and rebuilt, if necessary.
+    /// </summary>
+    internal void SetConfigID(IPEndPoint remoteEndPoint, uint value)
+    {
+      _configIDs[remoteEndPoint] = value;
     }
 
     internal LinkData AddOrUpdateLink(EndpointConfiguration endpoint, string descriptionLocation,

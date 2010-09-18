@@ -119,13 +119,14 @@ namespace UPnP.Infrastructure.CP.SSDP
         return;
       try
       {
-        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar)))
+        EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEndPoint)))
         {
           try
           {
             SimpleHTTPRequest header;
             SimpleHTTPRequest.Parse(stream, out header);
-            HandleSSDPRequest(header, config);
+            HandleSSDPRequest(header, config, (IPEndPoint) remoteEndPoint);
           }
           catch (Exception e)
           {
@@ -152,12 +153,13 @@ namespace UPnP.Infrastructure.CP.SSDP
         return;
       try
       {
-        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar));
+        EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+        Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEndPoint));
         try
         {
           SimpleHTTPResponse header;
           SimpleHTTPResponse.Parse(stream, out header);
-          HandleSSDPResponse(header, config);
+          HandleSSDPResponse(header, config, (IPEndPoint) remoteEndPoint);
         }
         catch (Exception e)
         {
@@ -224,7 +226,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// Invoked when a UPnP reboot of a device is determined. A reboot means that possibly all event subscriptions at any of
     /// the included services are gone and should be re-triggered. The root entry also might have changed its configuration;
     /// in that case the parameter <c>configurationChanged</c> in the event delegate will be set to <c>true</c>. The new
-    /// value of the configuration can be read from <see cref="RootEntry.ConfigID"/>.
+    /// value of the configuration id can be get by calling <see cref="RootEntry.GetConfigID"/> with the sender's endpoint.
     /// </summary>
     public event DeviceRebootedDlgt DeviceRebooted;
 
@@ -288,6 +290,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           try
           {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.PacketInformation, true);
             NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
 
             StartMulticastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
@@ -305,6 +308,8 @@ namespace UPnP.Infrastructure.CP.SSDP
           config.SSDP_UDP_UnicastSocket = socket;
           try
           {
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.PacketInformation, true);
+
             socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
             _cpData.Endpoints.Add(config);
             StartUnicastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
@@ -546,12 +551,12 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
     }
 
-    protected void HandleSSDPRequest(SimpleHTTPRequest header, EndpointConfiguration config)
+    protected void HandleSSDPRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
     {
       switch (header.Method)
       {
         case "NOTIFY":
-          HandleNotifyRequest(header, config);
+          HandleNotifyRequest(header, config, remoteEndPoint);
           break;
         case "UPDATE":
           HandleUpdatePacket(header, config);
@@ -559,7 +564,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
     }
 
-    protected void HandleSSDPResponse(SimpleHTTPResponse header, EndpointConfiguration config)
+    protected void HandleSSDPResponse(SimpleHTTPResponse header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
     {
       HTTPVersion httpVersion;
       if (!HTTPVersion.TryParse(header.HttpVersion, out httpVersion))
@@ -577,10 +582,10 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp);
+      HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp);
     }
 
-    protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config)
+    protected void HandleNotifyRequest(SimpleHTTPRequest header, EndpointConfiguration config, IPEndPoint remoteEndPoint)
     {
       if (header.Param != "*")
           // Invalid message
@@ -601,11 +606,11 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
+      HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
     }
 
-    protected void HandleNotifyPacket(EndpointConfiguration config, HTTPVersion httpVersion, string date, string cacheControl,
-        string location, string server, string nts, string usn, string bi, string ci, string sp)
+    protected void HandleNotifyPacket(EndpointConfiguration config, IPEndPoint remoteEndPoint, HTTPVersion httpVersion,
+        string date, string cacheControl, string location, string server, string nts, string usn, string bi, string ci, string sp)
     {
       uint bootID = 0;
       if (bi != null && !uint.TryParse(bi, out bootID))
@@ -675,9 +680,9 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
-          if (!rootEntryAdded && rootEntry.ConfigID != configID)
+          if (!rootEntryAdded && rootEntry.GetConfigID(remoteEndPoint) != configID)
             fireConfigurationChanged = true;
-          rootEntry.ConfigID = configID;
+          rootEntry.SetConfigID(remoteEndPoint, configID);
           if (!rootEntryAdded && bi != null && rootEntry.BootID < bootID)
             // Device reboot
             fireDeviceRebooted = true;
