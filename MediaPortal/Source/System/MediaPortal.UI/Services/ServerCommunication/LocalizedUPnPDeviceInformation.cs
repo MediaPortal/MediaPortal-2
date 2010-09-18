@@ -47,12 +47,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       FrontendServerSettings settings = settingsManager.Load<FrontendServerSettings>();
-      string result = settings.FriendlyName;
+      string result = settings.UPnPServerDeviceFriendlyName;
       if (string.IsNullOrEmpty(result))
       {
         result = StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(
           RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
-        settings.FriendlyName = result;
+        settings.UPnPServerDeviceFriendlyName = result;
         settingsManager.Save(settings);
       }
       return result;

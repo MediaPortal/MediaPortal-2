@@ -367,6 +367,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
     }
 
+    public IResourceInformationService ResourceInformationService
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ResourceInformationService;
+      }
+    }
+
     public IServerController ServerController
     {
       get

@@ -28,37 +28,13 @@ namespace MediaPortal.Backend.BackendServer.Settings
 {
   public class BackendServerSettings
   {
-    protected string _friendlyName = null;
-    protected int _httpServerPort = 8081;
-    protected bool _useIPv4 = true;
-    protected bool _useIPv6 = true;
+    protected string _upnPServerDeviceFriendlyName = null;
 
     [Setting(SettingScope.Global)]
-    public string FriendlyName
+    public string UPnPServerDeviceFriendlyName
     {
-      get { return _friendlyName; }
-      set { _friendlyName = value; }
-    }
-
-    [Setting(SettingScope.Global)]
-    public int HttpServerPort
-    {
-      get { return _httpServerPort; }
-      set { _httpServerPort = value; }
-    }
-
-    [Setting(SettingScope.Global)]
-    public bool UseIPv4
-    {
-      get { return _useIPv4; }
-      set { _useIPv4 = value; }
-    }
-
-    [Setting(SettingScope.Global)]
-    public bool UseIPv6
-    {
-      get { return _useIPv6; }
-      set { _useIPv6 = value; }
+      get { return _upnPServerDeviceFriendlyName; }
+      set { _upnPServerDeviceFriendlyName = value; }
     }
   }
 }

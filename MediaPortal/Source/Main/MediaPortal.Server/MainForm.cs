@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal
+namespace MediaPortal.Server
 {
   public partial class MainForm : Form
   {
@@ -61,9 +61,9 @@ namespace MediaPortal
     {
       InitializeLocalizedControls();
       _messageQueue = new AsynchronousMessageQueue("Server main form", new string[]
-      {
-        ClientManagerMessaging.CHANNEL,
-      });
+        {
+            ClientManagerMessaging.CHANNEL,
+        });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }

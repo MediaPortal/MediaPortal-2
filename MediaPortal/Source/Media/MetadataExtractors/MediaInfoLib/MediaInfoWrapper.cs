@@ -26,6 +26,7 @@ namespace MediaInfoLib
     public MediaInfoWrapper()
     {
       _mediaInfo = new MediaInfo();
+      _isValid = false;
     }
 
     /// <summary>
@@ -120,9 +121,7 @@ namespace MediaInfoLib
     {
       _isValid = (_mediaInfo.Open_Buffer_Init(stream.Length, 0) == MEDIAINFO_FILE_OPENED);
       if (!_isValid)
-      {
         return false;
-      }
 
       const int buffer_size = 64 * 1024;
       byte[] buffer = new byte[buffer_size];  // init the buffer to communicate with MediaInfo

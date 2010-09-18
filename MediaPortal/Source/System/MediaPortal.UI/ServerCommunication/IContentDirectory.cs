@@ -56,16 +56,6 @@ namespace MediaPortal.UI.ServerCommunication
     Share GetShare(Guid shareId);
     void ReImportShare(Guid guid);
 
-    ICollection<string> GetMediaCategoriesFromMetadataExtractors();
-    ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata();
-    MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId);
-    string GetResourcePathDisplayName(ResourcePath path);
-    string GetResourceDisplayName(ResourcePath path);
-    ICollection<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path);
-    bool GetIsPathValid(ResourcePath path);
-    ResourcePath ExpandResourcePathFromString(Guid mediaProviderId, string path);
-    bool DoesMediaProviderSupportTreeListing(Guid mediaProviderId);
-
     // Media item aspect storage management
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
     void RemoveMediaItemAspectStorage(Guid aspectId);

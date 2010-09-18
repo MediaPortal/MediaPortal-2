@@ -62,7 +62,7 @@ namespace HttpServer
     private int _backLog = 10;
     private ExceptionHandler _exceptionHandler;
     private readonly IComponentProvider _components;
-    private RequestQueue _requestQueue;
+    private readonly RequestQueue _requestQueue;
     [ThreadStatic] private static HttpServer _current;
 
     /// <summary>
@@ -717,18 +717,12 @@ namespace HttpServer
     /// Start the web server using regular HTTP.
     /// </summary>
     /// <param name="address">IP Address to listen on, use <c>IpAddress.Any </c>to accept connections on all IP addresses/network cards.</param>
-    /// <param name="port">Port to listen on. 80 can be a good idea =)</param>
-    /// <exception cref="ArgumentNullException"><c>address</c> is null.</exception>
-    /// <exception cref="ArgumentException">Port must be a positive number.</exception>
+    /// <param name="port">Port to listen on. 80 can be a good idea. When using a value of <c>0</c>, the system will
+    /// use an available port automatically.</param>
     public void Start(IPAddress address, int port)
     {
-      if (address == null)
-        throw new ArgumentNullException("address");
-      if (port <= 0)
-        throw new ArgumentException("Port must be a positive number.");
       if (_httpListener != null)
         return;
-
 
       Init();
       _httpListener = new HttpListener(address, port, _components.Get<IHttpContextFactory>()) {LogWriter = LogWriter};
@@ -738,19 +732,22 @@ namespace HttpServer
     }
 
     /// <summary>
+    /// Added by Albert, Team-MediaPortal: Returns the port of our listener.
+    /// </summary>
+    public int Port
+    {
+      get { return _httpListener.Port; }
+    }
+
+    /// <summary>
     /// Accept secure connections.
     /// </summary>
     /// <param name="address">IP Address to listen on, use <see cref="IPAddress.Any"/> to accept connections on all IP Addresses / network cards.</param>
-    /// <param name="port">Port to listen on. 80 can be a good idea =)</param>
+    /// <param name="port">Port to listen on. 80 can be a good idea. When using a value of <c>0</c>, the system will
+    /// use an available port automatically.</param>
     /// <param name="certificate">Certificate to use</param>
-    /// <exception cref="ArgumentNullException"><c>address</c> is null.</exception>
-    /// <exception cref="ArgumentException">Port must be a positive number.</exception>
     public void Start(IPAddress address, int port, X509Certificate certificate)
     {
-      if (address == null)
-        throw new ArgumentNullException("address");
-      if (port <= 0)
-        throw new ArgumentException("Port must be a positive number.");
       if (_httpsListener != null)
         return;
 

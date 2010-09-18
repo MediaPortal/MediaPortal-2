@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.IO;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
+namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor.ExifMetaInfo
 {
   /// <summary>
   /// ExifMetaInfo class is used to extract EXIF information from images.
@@ -209,17 +207,13 @@ namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
     private void ReadMetaInfo(IResourceAccessor mediaItemAccessor)
     {
       using (Stream mediaStream = mediaItemAccessor.OpenRead())
-      {
         ReadMetaInfo(mediaStream);
-      }
     }
 
     private void ReadMetaInfo(string filename)
     {
       using (FileStream fs = File.OpenRead(filename))
-      {
         ReadMetaInfo(fs);
-      }
     }
 
     private void ReadMetaInfo(Stream mediaStream)

@@ -29,7 +29,7 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Encapsulates the data needed to locate a specific media item.
+  /// Encapsulates the data needed to locate a specific media item in a MediaPortal 2 network.
   /// </summary>
   /// <remarks>
   /// To locate a media item, we basically need its <see cref="NativeSystem"/> and its <see cref="NativeResourcePath"/> for

@@ -22,8 +22,6 @@
 
 #endregion
 
-using HttpServer.HttpModules;
-
 namespace MediaPortal.Backend.BackendServer
 {
   /// <summary>
@@ -33,21 +31,5 @@ namespace MediaPortal.Backend.BackendServer
   {
     void Startup();
     void Shutdown();
-
-    /// <summary>
-    /// Adds a new HTTP module to the backend HTTP server.
-    /// </summary>
-    /// <remarks>
-    /// The HTTP module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
-    /// </remarks>
-    /// <param name="module"></param>
-    void AddHttpModule(HttpModule module);
-
-    /// <summary>
-    /// Removes an HTTP module from the backend HTTP server.
-    /// </summary>
-    /// <param name="module">Module to remove.</param>
-    void RemoveHttpModule(HttpModule module);
   }
 }

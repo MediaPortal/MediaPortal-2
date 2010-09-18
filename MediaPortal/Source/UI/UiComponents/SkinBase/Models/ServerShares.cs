@@ -58,8 +58,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get
       {
-        IContentDirectory contentDirectory = GetContentDirectoryService();
-        return contentDirectory.DoesMediaProviderSupportTreeListing(BaseMediaProvider.MediaProviderId);
+        IResourceInformationService ris = GetResourceInformationService();
+        return ris.DoesMediaProviderSupportTreeListing(BaseMediaProvider.MediaProviderId);
       }
     }
 
@@ -68,6 +68,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IContentDirectory contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory != null)
         return contentDirectory;
+      throw new DisconnectedException();
+    }
+
+    protected static IResourceInformationService GetResourceInformationService()
+    {
+      IResourceInformationService ris = ServiceRegistration.Get<IServerConnectionManager>().ResourceInformationService;
+      if (ris != null)
+        return ris;
       throw new DisconnectedException();
     }
 
@@ -112,20 +120,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected override string SuggestShareName()
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetResourceDisplayName(ChoosenResourcePath);
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.GetResourceDisplayName(ChoosenResourcePath);
     }
 
     protected override ResourcePath ExpandResourcePathFromString(string path)
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.ExpandResourcePathFromString(BaseMediaProvider.MediaProviderId, path);
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.ExpandResourcePathFromString(BaseMediaProvider.MediaProviderId, path);
     }
 
     protected override bool GetIsPathValid(ResourcePath path)
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetIsPathValid(path);
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.DoesResourceExist(path);
     }
 
     public override string GetResourcePathDisplayName(ResourcePath path)
@@ -135,22 +143,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected override IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path)
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetChildDirectoriesData(path);
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.GetChildDirectoriesData(path);
     }
 
     protected override IEnumerable<string> GetAllAvailableCategories()
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetMediaCategoriesFromMetadataExtractors();
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.GetMediaCategoriesFromMetadataExtractors();
     }
 
     public static string GetServerResourcePathDisplayName(ResourcePath path)
     {
       try
       {
-        IContentDirectory contentDirectory = GetContentDirectoryService();
-        return contentDirectory.GetResourcePathDisplayName(path);
+      IResourceInformationService ris = GetResourceInformationService();
+        return ris.GetResourcePathDisplayName(path);
       }
       catch (Exception e)
       {
@@ -161,8 +169,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      foreach (MediaProviderMetadata mpm in contentDirectory.GetAllBaseMediaProviderMetadata())
+      IResourceInformationService ris = GetResourceInformationService();
+      foreach (MediaProviderMetadata mpm in ris.GetAllBaseMediaProviderMetadata())
         yield return mpm;
     }
 
@@ -173,8 +181,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public static MediaProviderMetadata GetServerMediaProviderMetadata(Guid mediaProviderId)
     {
-      IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory.GetMediaProviderMetadata(mediaProviderId);
+      IResourceInformationService ris = GetResourceInformationService();
+      return ris.GetMediaProviderMetadata(mediaProviderId);
     }
   }
 }

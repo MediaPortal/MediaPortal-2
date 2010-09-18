@@ -116,7 +116,7 @@ namespace MediaPortal.Core.Services.Logging
         }
         catch (UnauthorizedAccessException e)
         {
-          Console.WriteLine("FileLogger: Unable to delete old logfile '{0}'", logFile);
+          Console.WriteLine("FileLogger: Unable to delete old logfile '{0}' (Reason: '{1}')", logFile, e.Message);
         }
         catch (Exception e)
         {

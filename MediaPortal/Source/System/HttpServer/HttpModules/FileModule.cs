@@ -179,9 +179,13 @@ namespace HttpServer.HttpModules
 
         using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         {
-          if (!string.IsNullOrEmpty(request.Headers["if-Modified-Since"]))
+          // Fixed by Albert, Team Mediaportal
+          //if (!string.IsNullOrEmpty(request.Headers["if-Modified-Since"]))
+          if (!string.IsNullOrEmpty(request.Headers["If-Modified-Since"]))
           {
-            DateTime lastRequest = DateTime.Parse(request.Headers["if-Modified-Since"]);
+            // Fixed by Albert, Team Mediaportal
+            //DateTime lastRequest = DateTime.Parse(request.Headers["if-Modified-Since"]);
+            DateTime lastRequest = DateTime.Parse(request.Headers["If-Modified-Since"]);
             if (lastRequest.CompareTo(File.GetLastWriteTime(path)) <= 0)
               response.Status = HttpStatusCode.NotModified;
           }
@@ -189,7 +193,7 @@ namespace HttpServer.HttpModules
           if (_useLastModifiedHeader)
             // Fixed by Albert, Team MediaPortal
             //response.AddHeader("Last-modified", File.GetLastWriteTime(path).ToString("r"));
-            response.AddHeader("Last-modified", File.GetLastWriteTime(path).ToUniversalTime().ToString("r"));
+            response.AddHeader("Last-Modified", File.GetLastWriteTime(path).ToUniversalTime().ToString("r"));
           response.ContentLength = stream.Length;
           response.SendHeaders();
 

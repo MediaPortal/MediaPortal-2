@@ -54,21 +54,22 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _nativeResourcePath; }
     }
 
-    // Implementation hint: This method is responsible for creating all temporary connections/mappings/resources to access
-    // the media item specified by this instance. It is also responsible for providing an ITidyUpExecutor for cleaning up
-    // the resources which have been set up.
     public IResourceAccessor CreateAccessor()
     {
-      if (!_nativeSystem.IsLocalSystem())
-        // TODO: Implement resource accessors for remote media resources
-        throw new NotImplementedException("ResourceLocator.CreateAccessor for remote media items is not implemented yet");
-      _nativeResourcePath.CheckValidLocalPath();
-      return _nativeResourcePath.CreateLocalMediaItemAccessor();
+      if (_nativeSystem.IsLocalSystem())
+      {
+        _nativeResourcePath.CheckValidLocalPath();
+        return _nativeResourcePath.CreateLocalMediaItemAccessor();
+      }
+      IFileSystemResourceAccessor fsra;
+      if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystem, _nativeResourcePath, out fsra))
+        return fsra;
+      IResourceAccessor ra;
+      if (RemoteFileResourceAccessor.ConnectFile(_nativeSystem, _nativeResourcePath, out ra))
+        return ra;
+      throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at host '{1}'", _nativeResourcePath, _nativeSystem);
     }
 
-    // Implementation hint: This method is responsible for creating all temporary connections/mappings/resources to access
-    // the media item specified by this instance. It is also responsible for providing an ITidyUpExecutor for cleaning up
-    // the resources which have been set up.
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
     {
       IResourceAccessor accessor = CreateAccessor();
@@ -80,8 +81,6 @@ namespace MediaPortal.Core.Services.MediaManagement
         return result;
       try
       {
-        if (!accessor.IsFile)
-          throw new IllegalCallException("This resource locator doesn't denote a file resource");
         // Set up a resource bridge mapping the remote or complex resource to a local file
         return new RemoteResourceToLocalFsAccessBridge(accessor);
       }

@@ -95,16 +95,26 @@ namespace MediaPortal.Core
 
       logger.Debug("ApplicationCore: Registering IImporterWorker service");
       ServiceRegistration.Add<IImporterWorker>(new Services.MediaManagement.ImporterWorker());
+
+      logger.Debug("ApplicationCore: Registering IResourceServer service");
+      ServiceRegistration.Add<IResourceServer>(new Services.MediaManagement.ResourceServer());
+
+      logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
+      ServiceRegistration.Add<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
     }
 
     public static void StartCoreServices()
     {
       ServiceRegistration.Get<ILocalization>().Startup();
       ServiceRegistration.Get<IImporterWorker>().Startup();
+      ServiceRegistration.Get<IResourceServer>().Startup();
+      ServiceRegistration.Get<IRemoteResourceInformationService>().Startup();
     }
 
     public static void StopCoreServices()
     {
+      ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
+      ServiceRegistration.Get<IResourceServer>().Shutdown();
       ServiceRegistration.Get<IImporterWorker>().Shutdown();
       ServiceRegistration.Get<Threading.IThreadPool>().Stop();
     }
@@ -123,6 +133,12 @@ namespace MediaPortal.Core
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService service");
+      ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();
+
+      logger.Debug("ApplicationCore: Removing IResourceServer service");
+      ServiceRegistration.RemoveAndDispose<IResourceServer>();
 
       logger.Debug("ApplicationCore: Removing IImporterWorker service");
       ServiceRegistration.RemoveAndDispose<IImporterWorker>();

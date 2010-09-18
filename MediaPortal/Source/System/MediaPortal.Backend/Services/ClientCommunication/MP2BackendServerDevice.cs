@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -34,9 +35,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPContentDirectoryServiceImpl());
+      AddService(new UPnPResourceAccessServiceImpl());
       AddService(new UPnPServerControllerServiceImpl());
-      // TODO: Connection manager (is our notion of a connection manager compatible with that of the UPnP standard MediaServer?)
-      // TODO: Recording service (dito)
+      // TODO: UPnP AV MediaServer device
     }
   }
 }

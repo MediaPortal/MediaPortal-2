@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
+namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor.ExifMetaInfo
 {
   class PropertyTag
   {

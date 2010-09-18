@@ -46,8 +46,6 @@ namespace MediaPortal.Core.Localization
 
     public static string Translate(string maybeLocalizationResource, params object[] parameters)
     {
-      string section;
-      string name;
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       return localization.ToString(maybeLocalizationResource, parameters);
     }

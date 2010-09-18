@@ -32,6 +32,9 @@ namespace MediaPortal.Core.MediaManagement
   /// <summary>
   /// Access bridge logic which maps a complex resource accessor to a local file resource.
   /// </summary>
+  /// <remarks>
+  /// Typically, this class is instantiated by class <see cref="ResourceLocator"/> but it also can be used directly.
+  /// </remarks>
   public class RemoteResourceToLocalFsAccessBridge : ResourceAccessorBase, ILocalFsResourceAccessor
   {
     #region Protected fields
@@ -50,8 +53,6 @@ namespace MediaPortal.Core.MediaManagement
     /// resource (i.e. <c><see cref="IResourceAccessor.IsFile"/> == false</c>.</exception>
     public RemoteResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
     {
-      if (!baseAccessor.IsFile)
-        throw new ArgumentException("The given resource accessor doesn't denote a file resource", "baseAccessor");
       _baseAccessor = baseAccessor;
     }
 
@@ -66,7 +67,7 @@ namespace MediaPortal.Core.MediaManagement
 
     public bool IsFile
     {
-      get { return true; }
+      get { return _baseAccessor.IsFile; }
     }
 
     public string ResourceName
@@ -91,12 +92,14 @@ namespace MediaPortal.Core.MediaManagement
 
     public bool Exists(string path)
     {
-      return _baseAccessor.Exists(path);
+      IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+      return fsra == null ? false : fsra.Exists(path);
     }
 
     public IResourceAccessor GetResource(string path)
     {
-      return _baseAccessor.GetResource(path);
+      IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+      return fsra == null ? null : fsra.GetResource(path);
     }
 
     public Stream OpenRead()

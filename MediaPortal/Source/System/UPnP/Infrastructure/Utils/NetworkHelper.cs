@@ -36,6 +36,11 @@ namespace UPnP.Infrastructure.Utils
   /// <summary>
   /// Contains helper methods for network handling.
   /// </summary>
+  /// <remarks>
+  /// Some methods are doubled from <see cref="MediaPortal.Utilities.Network.NetworkUtils"/>. This is made by design to
+  /// make the UPnP library as independent as possible. Furthermore I don't want to depend on inconsiderate
+  /// implementation changes of networking methods in the MediaPortal system.
+  /// </remarks>
   public class NetworkHelper
   {
     public static int ZERO_DISTANCE = 0;

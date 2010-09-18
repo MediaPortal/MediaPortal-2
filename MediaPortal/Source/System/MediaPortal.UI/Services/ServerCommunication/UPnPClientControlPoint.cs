@@ -26,6 +26,7 @@ using System;
 using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
@@ -48,6 +49,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected DeviceConnection _connection = null;
     protected UPnPContentDirectoryServiceProxy _contentDirectoryService = null;
     protected UPnPServerControllerServiceProxy _serverControllerService = null;
+    protected UPnPResourceInformationServiceProxy _resourceInformationService = null;
 
     public UPnPClientControlPoint(string homeServerSystemId)
     {
@@ -76,6 +78,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       get { return _contentDirectoryService; }
     }
 
+    public UPnPResourceInformationServiceProxy ResourceInformationService
+    {
+      get { return _resourceInformationService; }
+    }
+
     public UPnPServerControllerServiceProxy ServerControllerService
     {
       get { return _serverControllerService; }
@@ -83,19 +90,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public void Start()
     {
-      _controlPoint.Start(); // Start the control point before the network tracker starts, else the network tracker could fire events before the control point is ready
+      _controlPoint.Start(); // Start the control point before the network tracker starts. See docs of Start() method.
       _networkTracker.Start();
     }
 
     public void Stop()
     {
       _contentDirectoryService = null;
+      _resourceInformationService = null;
       _serverControllerService = null;
       _networkTracker.Close();
-      _controlPoint.Close();
+      _controlPoint.Close(); // Close the control point after the network tracker was closed. See docs of Close() method.
     }
 
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
+    {
+      TryConnect(rootDescriptor);
+    }
+
+    protected void TryConnect(RootDescriptor rootDescriptor)
     {
       DeviceConnection connection;
       string deviceUuid;
@@ -127,6 +140,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         if (cdsStub == null)
           throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'",
               deviceUuid, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
+        CpService risStub = connection.Device.FindServiceByServiceId(UPnPTypesAndIds.RESOURCE_INFORMATION_SERVICE_ID);
+        if (risStub == null)
+          throw new InvalidDataException("ResourceAccess service not found in device '{0}' of type '{1}:{2}'",
+              deviceUuid, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
         CpService scsStub = connection.Device.FindServiceByServiceId(UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_ID);
         if (scsStub == null)
           throw new InvalidDataException("ServerController service not found in device '{0}' of type '{1}:{2}'",
@@ -134,6 +151,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         lock (_networkTracker.SharedControlPointData.SyncObj)
         {
           _contentDirectoryService = new UPnPContentDirectoryServiceProxy(cdsStub);
+          _resourceInformationService = new UPnPResourceInformationServiceProxy(risStub);
           _serverControllerService = new UPnPServerControllerServiceProxy(scsStub);
         }
         // TODO: other services
@@ -154,6 +172,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         _connection = null;
         _contentDirectoryService = null;
+        _resourceInformationService = null;
         _serverControllerService = null;
       }
       InvokeBackendServerDeviceDisconnected(connection);

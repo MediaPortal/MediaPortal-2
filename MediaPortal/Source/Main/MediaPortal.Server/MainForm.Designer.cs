@@ -1,4 +1,4 @@
-namespace MediaPortal
+namespace MediaPortal.Server
 {
   partial class MainForm
   {
@@ -50,12 +50,12 @@ namespace MediaPortal
       // 
       this.lvClients.Alignment = System.Windows.Forms.ListViewAlignment.Default;
       this.lvClients.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
+          | System.Windows.Forms.AnchorStyles.Left)
+              | System.Windows.Forms.AnchorStyles.Right)));
       this.lvClients.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colClient,
-            this.colSystem,
-            this.colConnectionState});
+          this.colClient,
+          this.colSystem,
+          this.colConnectionState});
       this.lvClients.FullRowSelect = true;
       this.lvClients.HideSelection = false;
       this.lvClients.Location = new System.Drawing.Point(0, 28);

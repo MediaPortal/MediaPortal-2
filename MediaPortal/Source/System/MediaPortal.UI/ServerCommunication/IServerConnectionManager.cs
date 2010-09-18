@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.UI.ServerCommunication
 {
@@ -67,6 +68,12 @@ namespace MediaPortal.UI.ServerCommunication
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
     IContentDirectory ContentDirectory { get; }
+
+    /// <summary>
+    /// Gets a proxy object to communicate with the MediaPortal server's resource information service.
+    /// If the home server is not connected, this value is <c>null</c>.
+    /// </summary>
+    IResourceInformationService ResourceInformationService { get; }
 
     /// <summary>
     /// Gets a proxy object to communicate with the MediaPortal server's server controller service.

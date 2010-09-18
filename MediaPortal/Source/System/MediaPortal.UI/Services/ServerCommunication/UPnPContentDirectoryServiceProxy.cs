@@ -31,8 +31,6 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.UPnP;
-using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -48,19 +46,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       _serviceStub = serviceStub;
       _serviceStub.SubscribeStateVariables();
-    }
-
-    static bool ParseValidity(string validityStr)
-    {
-      switch (validityStr)
-      {
-        case "Valid":
-          return true;
-        case "Invalid":
-          return false;
-        default:
-          throw new UPnPRemoteException(new UPnPError(402, string.Format("Validity argument '{0}' could not be parsed", validityStr)));
-      }
     }
 
     protected CpAction GetAction(string actionName)
@@ -151,76 +136,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
       CpAction action = GetAction("ReImportShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
       action.InvokeAction(inParameters);
-    }
-
-    public ICollection<string> GetMediaCategoriesFromMetadataExtractors()
-    {
-      CpAction action = GetAction("GetMediaCategoriesFromMetadataExtractors");
-      IList<object> outParameters = action.InvokeAction(null);
-      return new List<string>(((string) outParameters[0]).Split(','));
-    }
-
-    public ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata()
-    {
-      CpAction action = GetAction("GetAllBaseMediaProviderMetadata");
-      IList<object> outParameters = action.InvokeAction(null);
-      return (ICollection<MediaProviderMetadata>) outParameters[0];
-    }
-
-    public MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)
-    {
-      CpAction action = GetAction("GetMediaProviderMetadata");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (MediaProviderMetadata) outParameters[0];
-    }
-
-    public string GetResourcePathDisplayName(ResourcePath path)
-    {
-      CpAction action = GetAction("GetResourcePathDisplayName");
-      IList<object> inParameters = new List<object> {path.Serialize()};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (string) outParameters[0];
-    }
-
-    public string GetResourceDisplayName(ResourcePath path)
-    {
-      CpAction action = GetAction("GetResourceDisplayName");
-      IList<object> inParameters = new List<object> {path.Serialize()};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (string) outParameters[0];
-    }
-
-    public ICollection<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path)
-    {
-      CpAction action = GetAction("GetChildDirectoriesData");
-      IList<object> inParameters = new List<object> {path.Serialize()};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (ICollection<ResourcePathMetadata>) outParameters[0];
-    }
-
-    public bool GetIsPathValid(ResourcePath path)
-    {
-      CpAction action = GetAction("GetIsPathValid");
-      IList<object> inParameters = new List<object> {path.Serialize()};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return ParseValidity((string) outParameters[0]);
-    }
-
-    public ResourcePath ExpandResourcePathFromString(Guid mediaProviderId, string path)
-    {
-      CpAction action = GetAction("ExpandResourcePathFromString");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId), path};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return ResourcePath.Deserialize((string) outParameters[0]);
-    }
-
-    public bool DoesMediaProviderSupportTreeListing(Guid mediaProviderId)
-    {
-      CpAction action = GetAction("DoesMediaProviderSupportTreeListing");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
     }
 
     // Media item aspect storage management

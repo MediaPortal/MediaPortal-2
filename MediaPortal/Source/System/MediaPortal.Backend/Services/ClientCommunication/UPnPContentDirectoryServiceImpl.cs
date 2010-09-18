@@ -31,7 +31,6 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -74,13 +73,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
-
-      // Simple boolean value
-      DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_Bool);
 
       // Used for a system ID string
       DvStateVariable A_ARG_TYPE_SystemId = new DvStateVariable("A_ARG_TYPE_SystemId", new DvStandardDataType(UPnPStandardDataType.String))
@@ -205,49 +197,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         };
       AddStateVariable(A_ARG_TYPE_TextSearchMode);
 
-      // Used to transport a media provider metadata structure
-      DvStateVariable A_ARG_TYPE_MediaProviderMetadata = new DvStateVariable("A_ARG_TYPE_MediaProviderMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaProviderMetadata))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_MediaProviderMetadata);
-
-      // Used to transport an enumeration of media provider metadata structures
-      DvStateVariable A_ARG_TYPE_MediaProviderMetadataEnumeration = new DvStateVariable("A_ARG_TYPE_MediaProviderMetadataEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaProviderMetadataEnumeration))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_MediaProviderMetadataEnumeration);
-
-      // Used to transport a display name for a resource or a resource path
-      DvStateVariable A_ARG_TYPE_ResourceDisplayName = new DvStateVariable("A_ARG_TYPE_ResourceDisplayName", new DvStandardDataType(UPnPStandardDataType.String))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_ResourceDisplayName);
-
-      // Used to transport an enumeration of directories data
-      DvStateVariable A_ARG_TYPE_DirectoriesData = new DvStateVariable("A_ARG_TYPE_DirectoriesData", new DvExtendedDataType(UPnPExtendedDataTypes.DtResourcePathMetadataEnumeration))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_DirectoriesData);
-
-      // Used to transport values "valid" and "invalid"
-      DvStateVariable A_ARG_TYPE_Validity = new DvStateVariable("A_ARG_TYPE_Validity", new DvStandardDataType(UPnPStandardDataType.String))
-          {
-            SendEvents = false,
-            AllowedValueList = new List<string> {"Valid", "Invalid"}
-          };
-      AddStateVariable(A_ARG_TYPE_Validity);
-
-      // Used to transport a short resource path string which can be evaluated by a media provider
-      DvStateVariable A_ARG_TYPE_ResourcePathString = new DvStateVariable("A_ARG_TYPE_ResourcePathString", new DvStandardDataType(UPnPStandardDataType.String))
-          {
-            SendEvents = false,
-          };
-      AddStateVariable(A_ARG_TYPE_ResourcePathString);
-
       // Used to transport an enumeration of value group instances
       DvStateVariable A_ARG_TYPE_MLQueryResultGroupEnumeration = new DvStateVariable("A_ARG_TYPE_MLQueryResultGroupEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtMLQueryResultGroupEnumeration))
           {
@@ -320,86 +269,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           });
       AddAction(reImportShareAction);
-
-      DvAction getMediaCategoriesFromMetadataExtractorsAction = new DvAction("GetMediaCategoriesFromMetadataExtractors", OnGetMediaCategoriesFromMetadataExtractors,
-          new DvArgument[] {
-          },
-          new DvArgument[] {
-            new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.Out, true),
-          });
-      AddAction(getMediaCategoriesFromMetadataExtractorsAction);
-
-      DvAction getAllBaseMediaProviderMetadataAction = new DvAction("GetAllBaseMediaProviderMetadata", OnGetAllBaseMediaProviderMetadata,
-          new DvArgument[] {
-          },
-          new DvArgument[] {
-            new DvArgument("MediaProviderMetadata", A_ARG_TYPE_MediaProviderMetadataEnumeration, ArgumentDirection.Out, true),
-          });
-      AddAction(getAllBaseMediaProviderMetadataAction);
-
-      DvAction getMediaProviderMetadataAction = new DvAction("GetMediaProviderMetadata", OnGetMediaProviderMetadata,
-          new DvArgument[] {
-            new DvArgument("MediaProviderId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaProviderMetadata", A_ARG_TYPE_MediaProviderMetadata, ArgumentDirection.Out, true),
-          });
-      AddAction(getMediaProviderMetadataAction);
-
-      DvAction getResourcePathDisplayNameAction = new DvAction("GetResourcePathDisplayName", OnGetResourcePathDisplayName,
-          new DvArgument[] {
-            new DvArgument("ResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("ResourcePathDisplayName", A_ARG_TYPE_ResourceDisplayName, ArgumentDirection.Out, true),
-          });
-      AddAction(getResourcePathDisplayNameAction);
-
-      DvAction getResourceDisplayNameAction = new DvAction("GetResourceDisplayName", OnGetResourceDisplayName,
-          new DvArgument[] {
-            new DvArgument("ResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("ResourcePathDisplayName", A_ARG_TYPE_ResourceDisplayName, ArgumentDirection.Out, true),
-          });
-      AddAction(getResourceDisplayNameAction);
-
-      DvAction getChildDirectoriesDataAction = new DvAction("GetChildDirectoriesData", OnGetChildDirectoriesData,
-          new DvArgument[] {
-            new DvArgument("ResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("ChildDirectoriesData", A_ARG_TYPE_DirectoriesData, ArgumentDirection.Out, true),
-          });
-      AddAction(getChildDirectoriesDataAction);
-
-      DvAction getIsPathValidAction = new DvAction("GetIsPathValid", OnGetIsPathValid,
-          new DvArgument[] {
-            new DvArgument("ResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("IsPathValid", A_ARG_TYPE_Validity, ArgumentDirection.Out, true),
-          });
-      AddAction(getIsPathValidAction);
-
-      DvAction expandResourcePathFromStringAction = new DvAction("ExpandResourcePathFromString", OnExpandResourcePathFromString,
-          new DvArgument[] {
-            new DvArgument("MediaProviderId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("ResourcePathStr", A_ARG_TYPE_ResourcePathString, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("ResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.Out, true),
-          });
-      AddAction(expandResourcePathFromStringAction);
-
-      DvAction doesMediaProviderSupportTreeListingAction = new DvAction("DoesMediaProviderSupportTreeListing", OnDoesMediaProviderSupportTreeListing,
-          new DvArgument[] {
-            new DvArgument("MediaProviderId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("SupportsTreeListing", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-          });
-      AddAction(doesMediaProviderSupportTreeListingAction);
 
       // Media item aspect storage management
 
@@ -705,167 +574,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Share share = ServiceRegistration.Get<IMediaLibrary>().GetShare(shareId);
       ServiceRegistration.Get<IImporterWorker>().ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
       outParams = null;
-      return null;
-    }
-
-    static UPnPError OnGetMediaCategoriesFromMetadataExtractors(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<string> result = new HashSet<string>();
-      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = me.Metadata;
-        CollectionUtils.AddAll(result, metadata.ShareCategories);
-      }
-      outParams = new List<object> {StringUtils.Join(",", result)};
-      return null;
-    }
-
-    static UPnPError OnGetAllBaseMediaProviderMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<MediaProviderMetadata> metadata = new List<MediaProviderMetadata>();
-      foreach (IBaseMediaProvider mediaProvider in mediaAccessor.LocalBaseMediaProviders)
-        metadata.Add(mediaProvider.Metadata);
-      outParams = new List<object> {metadata};
-      return null;
-    }
-
-    static UPnPError OnGetMediaProviderMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid mediaProviderId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      IMediaProvider mp;
-      outParams = null;
-      if (!mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp))
-        return new UPnPError(600, string.Format("No media provider of id '{0}' present in system", mediaProviderId));
-      outParams = new List<object> {mp.Metadata};
-      return null;
-    }
-
-    static UPnPError OnGetResourcePathDisplayName(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      outParams = null;
-      ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
-      if (path == null)
-        return new UPnPError(600, "Invalid resource path");
-      IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
-      try
-      {
-        outParams = new List<object> {ra.ResourcePathName};
-        return null;
-      }
-      finally
-      {
-        ra.Dispose();
-      }
-      // Exception won't be catched here
-    }
-
-    static UPnPError OnGetResourceDisplayName(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      outParams = null;
-      ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
-      if (path == null)
-        return new UPnPError(600, "Invalid resource path");
-      IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
-      try
-      {
-        outParams = new List<object> {ra.ResourceName};
-        return null;
-      }
-      finally
-      {
-        ra.Dispose();
-      }
-      // Exception won't be catched here
-    }
-
-    static UPnPError OnGetChildDirectoriesData(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      outParams = null;
-      ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
-      if (path == null)
-        return new UPnPError(600, "Invalid resource path");
-      IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
-      ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
-      IList<ResourcePathMetadata> result = new List<ResourcePathMetadata>();
-      if (res != null)
-        foreach (IFileSystemResourceAccessor childAccessor in res)
-          result.Add(new ResourcePathMetadata
-          {
-            ResourceName = childAccessor.ResourceName,
-            HumanReadablePath = childAccessor.ResourcePathName,
-            ResourcePath = childAccessor.LocalResourcePath
-          });
-
-      outParams = new List<object> {result};
-      return null;
-    }
-
-    static UPnPError OnGetIsPathValid(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
-      string result;
-      if (path == null)
-        result = "Invalid";
-      else
-      try
-      {
-        // Check if we can create an item accessor - if we get an exception, the path is not valid
-        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
-        ra.Dispose();
-        result = "Valid";
-      }
-      catch (Exception) // No logging necessary - exception is used to determine an invalid path
-      {
-        result = "Invalid";
-      }
-      outParams = new List<object> {result};
-      return null;
-    }
-
-    static UPnPError OnExpandResourcePathFromString(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid mediaProviderId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string pathStr = (string) inParams[0];
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ResourcePath result = null;
-      IMediaProvider mp;
-      if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp) && mp is IBaseMediaProvider)
-        result = ((IBaseMediaProvider) mp).ExpandResourcePathFromString(pathStr);
-      outParams = new List<object> {result == null ? null : result.Serialize()};
-      return null;
-    }
-
-    static UPnPError OnDoesMediaProviderSupportTreeListing(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
-    {
-      Guid mediaProviderId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      IMediaProvider mp;
-      bool result = false;
-      if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp) && mp is IBaseMediaProvider)
-      {
-        IResourceAccessor rootAccessor = ((IBaseMediaProvider) mp).CreateMediaItemAccessor("/");
-        try
-        {
-          result = rootAccessor is IFileSystemResourceAccessor;
-        }
-        finally
-        {
-          rootAccessor.Dispose();
-        }
-      }
-      outParams = new List<object> {result};
       return null;
     }
 

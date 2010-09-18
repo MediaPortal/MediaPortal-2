@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -34,6 +35,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPClientControllerServiceImpl());
+      AddService(new UPnPResourceInformationServiceImpl());
     }
   }
 }

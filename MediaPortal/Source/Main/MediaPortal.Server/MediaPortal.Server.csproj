@@ -7,7 +7,7 @@
     <ProjectGuid>{DBB95772-9A29-443D-A1B1-7A32E27F598B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal</RootNamespace>
+    <RootNamespace>MediaPortal.Server</RootNamespace>
     <AssemblyName>MP2-Server</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <FileUpgradeFlags>
@@ -17,7 +17,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <StartupObject>MediaPortal.ApplicationLauncher</StartupObject>
+    <StartupObject>MediaPortal.Server.ApplicationLauncher</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>

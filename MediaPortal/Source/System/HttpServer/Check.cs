@@ -41,16 +41,35 @@ namespace HttpServer
       throw new ArgumentNullException(parameterOrErrorMessage);
     }
 
+
+    // Fixed by Albert, Team MediaPortal
+    ///// <summary>
+    ///// Checks whether a parameter is null.
+    ///// </summary>
+    ///// <param name="minValue"></param>
+    ///// <param name="value">Parameter value</param>
+    ///// <param name="parameterOrErrorMessage">Parameter name, or error description.</param>
+    ///// <exception cref="ArgumentException">value is null.</exception>    //public static void Min(int minValue, object value, string parameterOrErrorMessage)
+    //{
+    //  if (value != null)
+    //    return;
+
+    //  if (parameterOrErrorMessage.IndexOf(' ') == -1)
+    //    throw new ArgumentException(
+    //        "'" + parameterOrErrorMessage + "' must be at least " + minValue + ".", parameterOrErrorMessage);
+
+    //  throw new ArgumentException(parameterOrErrorMessage);
+    //}
     /// <summary>
-    /// Checks whether a parameter is null.
+    /// Checks whether a parameter smaller than the given <paramref name="minValue"/>.
     /// </summary>
-    /// <param name="minValue"></param>
-    /// <param name="value">Parameter value</param>
+    /// <param name="minValue">Minimum value.</param>
+    /// <param name="value">Parameter value.</param>
     /// <param name="parameterOrErrorMessage">Parameter name, or error description.</param>
-    /// <exception cref="ArgumentException">value is null.</exception>
-    public static void Min(int minValue, object value, string parameterOrErrorMessage)
+    /// <exception cref="ArgumentException"><paramref name="value"/> is smaller than <paramref name="minValue"/>.</exception>
+    public static void Min(int minValue, int value, string parameterOrErrorMessage)
     {
-      if (value != null)
+      if (value >= minValue)
         return;
 
       if (parameterOrErrorMessage.IndexOf(' ') == -1)

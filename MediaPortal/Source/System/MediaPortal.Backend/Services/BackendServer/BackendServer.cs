@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Net;
 using HttpServer;
-using HttpServer.HttpModules;
 using MediaPortal.Backend.BackendServer;
-using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Core;
+using MediaPortal.Core.Services.MediaManagement.Settings;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using UPnP.Infrastructure;
@@ -43,7 +41,7 @@ namespace MediaPortal.Backend.Services.BackendServer
     public const string MP2SERVER_DEVICEVERSION = "MediaPortal2/1.0";
     public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 Web Server";
 
-    public class UPnPLoggerDelegate : UPnPLogger
+    internal class UPnPLoggerDelegate : UPnPLogger
     {
       public void Debug(string format, params object[] args)
       {
@@ -130,49 +128,15 @@ namespace MediaPortal.Backend.Services.BackendServer
       }
     }
 
-    protected readonly HttpServer.HttpServer _httpServerV4;
-    protected readonly HttpServer.HttpServer _httpServerV6;
     protected readonly UPnPBackendServer _upnpServer;
-
-    internal class HttpLogWriter : ILogWriter
-    {
-      public void Write(object source, LogPrio priority, string message)
-      {
-        string msg = source + ": " + message;
-        ILogger logger = ServiceRegistration.Get<ILogger>();
-        switch (priority)
-        {
-          case LogPrio.Trace:
-            // Don't write trace messages (we don't support a trace level in MP - would have to map it to debug level)
-            break;
-          case LogPrio.Debug:
-            logger.Debug(msg);
-            break;
-          case LogPrio.Info:
-            logger.Info(msg);
-            break;
-          case LogPrio.Warning:
-            logger.Warn(msg);
-            break;
-          case LogPrio.Error:
-            logger.Error(msg);
-            break;
-          case LogPrio.Fatal:
-            logger.Critical(msg);
-            break;
-        }
-      }
-    }
 
     public BackendServer()
     {
-      BackendServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackendServerSettings>();
-      _httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
-      _httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
+      ServerSettings serverSettings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       UPnPConfiguration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       UPnPConfiguration.LOGGER = new UPnPLoggerDelegate();
-      UPnPConfiguration.USE_IPV4 = settings.UseIPv4;
-      UPnPConfiguration.USE_IPV6 = settings.UseIPv6;
+      UPnPConfiguration.USE_IPV4 = serverSettings.UseIPv4;
+      UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
       HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
@@ -188,40 +152,12 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     public void Startup()
     {
-      BackendServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackendServerSettings>();
-      if (settings.UseIPv4)
-      {
-        _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
-        ServiceRegistration.Get<ILogger>().Info("BackendServer: Started HTTP server (IPv4) at address {0}", new IPEndPoint(IPAddress.Any, settings.HttpServerPort));
-      }
-      if (settings.UseIPv6)
-      {
-        _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
-        ServiceRegistration.Get<ILogger>().Info("BackendServer: Started HTTP server (IPv6) at address {0}", new IPEndPoint(IPAddress.IPv6Any, settings.HttpServerPort));
-      }
       _upnpServer.Start();
     }
 
     public void Shutdown()
     {
-      BackendServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BackendServerSettings>();
-      if (settings.UseIPv4)
-        _httpServerV4.Stop();
-      if (settings.UseIPv6)
-        _httpServerV6.Stop();
       _upnpServer.Stop();
-    }
-
-    public void AddHttpModule(HttpModule module)
-    {
-      _httpServerV4.Add(module);
-      _httpServerV6.Add(module);
-    }
-
-    public void RemoveHttpModule(HttpModule module)
-    {
-      _httpServerV4.Remove(module);
-      _httpServerV6.Remove(module);
     }
 
     #endregion

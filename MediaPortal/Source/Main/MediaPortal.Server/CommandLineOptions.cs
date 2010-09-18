@@ -25,7 +25,7 @@
 using MediaPortal.Core.Logging;
 using CommandLine;
 
-namespace MediaPortal
+namespace MediaPortal.Server
 {
   public class CommandLineOptions
   {

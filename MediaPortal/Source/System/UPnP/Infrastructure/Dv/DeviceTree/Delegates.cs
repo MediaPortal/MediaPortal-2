@@ -37,7 +37,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// Be careful with the <see cref="IPAddress.ToString"/> method. This method adds the zone identifier at the end of
   /// the string for IPv6 addresses, like this: <c>ABCD:ABCD::ABCD%12</c>. When creating an URL for the given IP address,
   /// the zone identifier must be removed from the IP address. Use method <see cref="NetworkHelper.IPAddrToString"/>
-  /// (or <see cref="NetworkHelper.IPEndPointToString"/>).
+  /// (or <see cref="NetworkHelper.IPEndPointToString(System.Net.IPEndPoint)"/>).
   /// </remarks>
   /// <param name="endPointIPAddress">IP address where the returned url must be reachable.</param>
   /// <param name="culture">The culture to localize the returned URL.</param>

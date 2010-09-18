@@ -114,7 +114,8 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       try
       {
         stream = mediaItemAccessor.OpenRead();
-        result.Open(stream);
+        if (stream != null)
+          result.Open(stream);
       }
       finally
       {

@@ -55,7 +55,7 @@ namespace MediaPortal.Core.MediaManagement
   /// <example>
   /// A file at the local HDD with file name <c>D:\Media\R.E.M\Around the sun\R.E.M. - Electron Blue.mp3</c> will be
   /// described by the resource path:
-  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:/Media/R.E.M/Around the sun/R.E.M. - Electron Blue.mp3</code>
+  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}:///D:/Media/R.E.M/Around the sun/R.E.M. - Electron Blue.mp3</code>
   /// where <c>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}</c> is the id of the local HDD provider.
   /// </example>
   /// A more complex example:
@@ -64,7 +64,7 @@ namespace MediaPortal.Core.MediaManagement
   /// by the local HDD provider. The image itself is navigated using the ISO provider. Inside the image, there is a
   /// RAR archive of name <c>R.E.M. - Around The Sun.rar</c>, which is accessed using the RAR provider. The complete
   /// path looks like this:
-  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:/Media/ISOs/MP3s.iso&gt;{90C92668-DBBF-47b3-935E-B84426A96105}://R.E.M. - Around The Sun.rar&gt;{10C18F11-854A-470e-9C47-ECF9EF867066}://R.E.M. - Electron Blue.mp3</code>
+  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}:///D:/Media/ISOs/MP3s.iso&gt;{90C92668-DBBF-47b3-935E-B84426A96105}:///R.E.M. - Around The Sun.rar&gt;{10C18F11-854A-470e-9C47-ECF9EF867066}:///R.E.M. - Electron Blue.mp3</code>
   /// List of the providers used in that example:
   /// <list type="table">
   /// <listheader><term>Provider id</term><description>Provider name</description></listheader>
@@ -112,6 +112,9 @@ namespace MediaPortal.Core.MediaManagement
       get { return _pathSegments.Count == 0 ? null : _pathSegments[_pathSegments.Count - 1]; }
     }
 
+    /// <summary>
+    /// Gets the file name and extension of the last path segment.
+    /// </summary>
     public string FileName
     {
       get
@@ -180,7 +183,8 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method for creating a resource path equal to this path with a path segment appended.
+    /// Convenience method for creating a resource path equal to this path with a path segment appended. This method
+    /// doesn't change this instance; it creates a new <see cref="ResourcePath"/> instance.
     /// </summary>
     /// <remarks>
     /// This method doesn't do any checks if the media provider of the given <paramref name="chainedProviderId"/> is present

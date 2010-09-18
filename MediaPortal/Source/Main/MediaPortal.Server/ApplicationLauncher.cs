@@ -28,7 +28,9 @@ using System.Windows.Forms;
 using MediaPortal.Backend;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
-#if !DEBUG
+#if DEBUG
+using MediaPortal.Core.Services.Logging;
+#else
 using MediaPortal.Backend.Services.Logging;
 using System.IO;
 #endif
@@ -41,7 +43,7 @@ using MediaPortal.Core.Logging;
 
 [assembly: CLSCompliant(true)]
 
-namespace MediaPortal
+namespace MediaPortal.Server
 {
   internal static class ApplicationLauncher
   {
@@ -144,11 +146,13 @@ namespace MediaPortal
       }
       catch (Exception ex)
       {
-#if !DEBUG
+#if DEBUG
+        ConsoleLogger log = new ConsoleLogger(LogLevel.All, false);
+        log.Error(ex);
+#else
         ServerCrashLogger crash = new ServerCrashLogger(logPath);
         crash.CreateLog(ex);
 #endif
-
         systemStateService.SwitchSystemState(SystemState.Ending, false);
         Application.Exit();
       }

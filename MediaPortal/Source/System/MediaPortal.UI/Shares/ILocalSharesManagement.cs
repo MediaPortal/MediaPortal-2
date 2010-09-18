@@ -38,7 +38,7 @@ namespace MediaPortal.UI.Shares
   /// server when the next server connection is made. So the client will synchronize its shares each time the
   /// server gets connected.
   /// <br/>
-  /// Shares are globally uniquely identified by share GUIDs.
+  /// Shares are globally uniquely identified by their share GUID.
   /// </remarks>
   public interface ILocalSharesManagement
   {

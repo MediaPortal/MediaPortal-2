@@ -170,6 +170,7 @@ namespace UPnP.Infrastructure.CP
 
     /// <summary>
     /// Starts this UPnP control point. All device templates should be configured at the time this method gets called.
+    /// The network tracker must be started after this method is called, else we might miss some connect events.
     /// </summary>
     public void Start()
     {
@@ -212,6 +213,7 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Closes this control point. This will first disconnect all connected devices and then release all lower-level UPnP
     /// protocol layers.
+    /// The network tracker must be closed before this method is called.
     /// </summary>
     public void Close()
     {

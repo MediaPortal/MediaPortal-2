@@ -131,11 +131,9 @@ namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
       {
         // Open a stream for media item to detect mimeType.
         using (Stream mediaStream = mediaItemAccessor.OpenRead())
-        {
           mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(mediaStream));
-        }
         // Extract EXIF information from media item.
-        using (ExifMetaInfo exif = new ExifMetaInfo(mediaItemAccessor))
+        using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
           mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.DTOrig != DateTime.MinValue ? exif.DTOrig : mediaItemAccessor.LastChanged);

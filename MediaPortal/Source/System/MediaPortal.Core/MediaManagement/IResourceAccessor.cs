@@ -47,7 +47,8 @@ namespace MediaPortal.Core.MediaManagement
   public interface IResourceAccessor : IDisposable
   {
     /// <summary>
-    /// Returns the media provider which provides this resource.
+    /// Returns the media provider which provides this resource, if available. If this resource accessor is not hosted
+    /// by a media provider, this property returns <c>null</c>.
     /// </summary>
     IMediaProvider ParentProvider { get; }
 
@@ -82,26 +83,6 @@ namespace MediaPortal.Core.MediaManagement
     DateTime LastChanged { get; }
 
     /// <summary>
-    /// Returns the information if the resource at the given path exists in the media provider of this resource.
-    /// </summary>
-    /// <remarks>
-    /// This method is defined in interface <see cref="IResourceAccessor"/> rather than in interface <see cref="IMediaProvider"/>
-    /// because we would need two different signatures for <see cref="IBaseMediaProvider"/> and <see cref="IChainedMediaProvider"/>,
-    /// which is not convenient. Furthermore, this method supports relative paths which are related to this resource.
-    /// </remarks>
-    /// <param name="path">Path to check for a resource.</param>
-    /// <returns><c>true</c> if a resource at the given path exists in the <see cref="ParentProvider"/>, else <c>false</c>.</returns>
-    bool Exists(string path);
-
-    /// <summary>
-    /// Returns a resource which is located in the same underlaying media provider and which might be located relatively
-    /// to this resource.
-    /// </summary>
-    /// <param name="path">Relative or absolute path which is valid in the underlaying media provider.</param>
-    /// <returns>Resource accessor for the desired resource, if it exists, else <c>null</c>.</returns>
-    IResourceAccessor GetResource(string path);
-
-    /// <summary>
     /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this
     /// resource accessor is disposed.
     /// </summary>
@@ -111,14 +92,14 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Opens a stream to read this resource.
     /// </summary>
-    /// <returns>Stream opened for read operations.</returns>
+    /// <returns>Stream opened for read operations, if supported. Else, <c>null</c> is returned.</returns>
     /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
     Stream OpenRead();
 
     /// <summary>
     /// Opens a stream to write this resource.
     /// </summary>
-    /// <returns>Stream opened for write operations.</returns>
+    /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
     /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
     Stream OpenWrite();
   }

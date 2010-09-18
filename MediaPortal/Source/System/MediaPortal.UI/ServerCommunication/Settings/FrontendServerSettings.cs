@@ -28,13 +28,13 @@ namespace MediaPortal.UI.ServerCommunication.Settings
 {
   public class FrontendServerSettings
   {
-    protected string _friendlyName = null;
+    protected string _upnPServerDeviceFriendlyName = null;
 
     [Setting(SettingScope.Global)]
-    public string FriendlyName
+    public string UPnPServerDeviceFriendlyName
     {
-      get { return _friendlyName; }
-      set { _friendlyName = value; }
+      get { return _upnPServerDeviceFriendlyName; }
+      set { _upnPServerDeviceFriendlyName = value; }
     }
   }
 }

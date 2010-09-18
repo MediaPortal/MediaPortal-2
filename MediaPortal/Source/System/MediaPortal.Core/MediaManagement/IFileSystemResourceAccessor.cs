@@ -47,6 +47,28 @@ namespace MediaPortal.Core.MediaManagement
     bool IsDirectory { get; }
 
     /// <summary>
+    /// Returns the information if the resource at the given path exists in the media provider of this resource.
+    /// </summary>
+    /// <remarks>
+    /// This method is defined in interface <see cref="IFileSystemResourceAccessor"/> rather than in interface
+    /// <see cref="IMediaProvider"/> because we would need two different signatures for
+    /// <see cref="IBaseMediaProvider"/> and <see cref="IChainedMediaProvider"/>, which is not convenient.
+    /// Furthermore, this method supports relative paths which are related to this resource.
+    /// </remarks>
+    /// <param name="path">Absolute or relative path to check for a resource.</param>
+    /// <returns><c>true</c> if a resource at the given path exists in the <see cref="IResourceAccessor.ParentProvider"/>,
+    /// else <c>false</c>.</returns>
+    bool Exists(string path);
+
+    /// <summary>
+    /// Returns a resource which is located in the same underlaying media provider and which might be located relatively
+    /// to this resource.
+    /// </summary>
+    /// <param name="path">Relative or absolute path which is valid in the underlaying media provider.</param>
+    /// <returns>Resource accessor for the desired resource, if it exists, else <c>null</c>.</returns>
+    IResourceAccessor GetResource(string path);
+
+    /// <summary>
     /// Returns the resource accessors for all child files of this directory resource.
     /// </summary>
     /// <returns>Collection of child resource accessors of sub files or <c>null</c>, if this resource

@@ -15,9 +15,9 @@ namespace HttpServer
     private readonly IPAddress _address;
     private readonly X509Certificate _certificate;
     private readonly IHttpContextFactory _factory;
-    private readonly int _port;
     private readonly ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
     private readonly SslProtocols _sslProtocol = SslProtocols.Tls;
+    private int _port;
     private TcpListener _listener;
     private ILogWriter _logWriter = NullLogWriter.Instance;
     private int _pendingAccepts;
@@ -27,7 +27,8 @@ namespace HttpServer
     /// Listen for regular HTTP connections
     /// </summary>
     /// <param name="address">IP Address to accept connections on</param>
-    /// <param name="port">TCP Port to listen on, default HTTP port is 80.</param>
+    /// <param name="port">TCP Port to listen on, default HTTP port is 80. If this parameter is <c>0</c>,
+    /// the system chooses an available port. The port can then be determined by reading the <see cref="Port"/> property.</param>
     /// <param name="factory">Factory used to create <see cref="IHttpClientContext"/>es.</param>
     /// <exception cref="ArgumentNullException"><c>address</c> is null.</exception>
     /// <exception cref="ArgumentException">Port must be equal or greater than 0.</exception>
@@ -91,6 +92,14 @@ namespace HttpServer
     }
 
     /// <summary>
+    /// Added by Albert, Team-MediaPortal: Returns the port our endpoint uses for listening.
+    /// </summary>
+    public int Port
+    {
+      get { return _port; }
+    }
+
+    /// <summary>
     /// Gives you a change to receive log entries for all internals of the HTTP library.
     /// </summary>
     /// <remarks>
@@ -105,9 +114,9 @@ namespace HttpServer
         if (_certificate != null)
           _logWriter.Write(
               this, LogPrio.Info,
-              "HTTPS(" + _sslProtocol + ") listening on " + _address + ":" + _port);
+              "HTTPS(" + _sslProtocol + ") listening on " + _address + ":" + Port);
         else
-          _logWriter.Write(this, LogPrio.Info, "HTTP listening on " + _address + ":" + _port);
+          _logWriter.Write(this, LogPrio.Info, "HTTP listening on " + _address + ":" + Port);
       }
     }
 
@@ -208,10 +217,11 @@ namespace HttpServer
     public void Start(int backlog)
     {
       if (_listener != null)
-        throw new InvalidOperationException("Listener have already been started.");
+        throw new InvalidOperationException("Listener has already been started.");
 
       _listener = new TcpListener(_address, _port);
       _listener.Start(backlog);
+      _port = LocalEndpoint.Port;
       Interlocked.Increment(ref _pendingAccepts);
       _listener.BeginAcceptSocket(OnAccept, null);
     }

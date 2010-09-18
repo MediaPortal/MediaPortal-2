@@ -30,7 +30,9 @@ using MediaPortal.Core.Runtime;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
-#if !DEBUG
+#if DEBUG
+using MediaPortal.Core.Services.Logging;
+#else
 using MediaPortal.UI.Services.Logging;
 using System.IO;
 #endif
@@ -43,7 +45,7 @@ using MediaPortal.Core.Logging;
 
 [assembly: CLSCompliant(true)]
 
-namespace MediaPortal
+namespace MediaPortal.Client
 {
   internal static class ApplicationLauncher
   {
@@ -59,7 +61,7 @@ namespace MediaPortal
       CommandLineOptions mpArgs = new CommandLineOptions();
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
       if (!parser.ParseArguments(args, mpArgs, Console.Out))
-          Environment.Exit(1);
+        Environment.Exit(1);
 
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
@@ -169,7 +171,10 @@ namespace MediaPortal
       }
       catch (Exception ex)
       {
-#if !DEBUG
+#if DEBUG
+        ConsoleLogger log = new ConsoleLogger(LogLevel.All, false);
+        log.Error(ex);
+#else
         UiCrashLogger crash = new UiCrashLogger(logPath);
         crash.CreateLog(ex);
 #endif
