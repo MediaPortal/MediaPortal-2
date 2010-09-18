@@ -256,6 +256,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       // More actions go here
     }
 
+    protected static bool IsAllowedToAccess(ResourcePath resourcePath)
+    {
+      // TODO: How to check safety? We don't have access to our shares store here... See also method IsAllowedToAccess
+      // in ResourceAccessModule
+      return true;
+    }
+
     static UPnPError OnGetMediaCategoriesFromMetadataExtractors(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
@@ -301,6 +308,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       if (path == null)
         return new UPnPError(600, "Invalid resource path");
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
       IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
       try
       {
@@ -321,6 +330,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       if (path == null)
         return new UPnPError(600, "Invalid resource path");
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
       IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
       try
       {
@@ -341,6 +352,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       if (path == null)
         return new UPnPError(600, "Invalid resource path");
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
       IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
       ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
       IList<ResourcePathMetadata> result = null;
@@ -366,6 +379,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       if (path == null)
         return new UPnPError(600, "Invalid resource path");
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
       IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
       ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(accessor);
       IList<ResourcePathMetadata> result = null;
@@ -387,22 +402,22 @@ namespace MediaPortal.Core.Services.MediaManagement
     static UPnPError OnDoesResourceExist(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
+      outParams = null;
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       bool result;
-      if (path == null)
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
+      try
+      {
+        // Check if we can create an item accessor - if we get an exception, the path is not valid
+        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+        ra.Dispose();
+        result = true;
+      }
+      catch (Exception) // No logging necessary - exception is used for determining an invalid path
+      {
         result = false;
-      else
-        try
-        {
-          // Check if we can create an item accessor - if we get an exception, the path is not valid
-          IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
-          ra.Dispose();
-          result = true;
-        }
-        catch (Exception) // No logging necessary - exception is used for determining an invalid path
-        {
-          result = false;
-        }
+      }
       outParams = new List<object> {result};
       return null;
     }
@@ -410,7 +425,10 @@ namespace MediaPortal.Core.Services.MediaManagement
     static UPnPError OnGetResourceInformation(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
+      outParams = null;
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
+      if (!IsAllowedToAccess(path))
+        return new UPnPError(600, "Access is not allowed to this resource path");
       bool isFileSystemResource = false;
       bool isFile = false;
       string resourcePathDisplayName = string.Empty;
@@ -418,28 +436,25 @@ namespace MediaPortal.Core.Services.MediaManagement
       DateTime lastChanged = DateTime.MinValue;
       UInt32 size = 0;
       bool result;
-      if (path == null)
+      try
+      {
+        // Check if we can create an item accessor - if we get an exception, the path is not valid
+        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+        isFileSystemResource = ra is IFileSystemResourceAccessor;
+        isFile = ra.IsFile;
+        resourcePathDisplayName = ra.ResourcePathName;
+        resourceDisplayName = ra.ResourceName;
+        lastChanged = ra.LastChanged;
+        if (ra.IsFile)
+          using (Stream fileStream = ra.OpenRead())
+            size = (UInt32) fileStream.Length;
+        ra.Dispose();
+        result = true;
+      }
+      catch (Exception) // No logging necessary - exception is used for determining an invalid path
+      {
         result = false;
-      else
-        try
-        {
-          // Check if we can create an item accessor - if we get an exception, the path is not valid
-          IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
-          isFileSystemResource = ra is IFileSystemResourceAccessor;
-          isFile = ra.IsFile;
-          resourcePathDisplayName = ra.ResourcePathName;
-          resourceDisplayName = ra.ResourceName;
-          lastChanged = ra.LastChanged;
-          if (ra.IsFile)
-            using (Stream fileStream = ra.OpenRead())
-              size = (UInt32) fileStream.Length;
-          ra.Dispose();
-          result = true;
-        }
-        catch (Exception) // No logging necessary - exception is used for determining an invalid path
-        {
-          result = false;
-        }
+      }
       outParams = new List<object> {isFileSystemResource, isFile, resourcePathDisplayName, resourceDisplayName, lastChanged, size, result};
       return null;
     }

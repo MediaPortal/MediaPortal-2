@@ -27,6 +27,10 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
+  /// <summary>
+  /// Interface of the MediaPortal 2 resource information service. This interface is implemented by both
+  /// the MediaPortal 2 client and server to provide information about resources.
+  /// </summary>
   public interface IResourceInformationService
   {
     ICollection<string> GetMediaCategoriesFromMetadataExtractors();

@@ -278,9 +278,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    protected bool IsSafe(ResourcePath resourcePath)
+    protected bool IsAllowedToAccess(ResourcePath resourcePath)
     {
-      // TODO: How to check safety? We don't have access to our shares store here...
+      // TODO: How to check safety? We don't have access to our shares store here... See also method IsAllowedToAccess
+      // in UPnPResourceInformationServiceImpl
       return true;
     }
 
@@ -301,7 +302,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return false;
       if (!ResourceHttpAccessUrlUtils.ParseResourceURI(uri, out resourcePath))
         throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", ResourceHttpAccessUrlUtils.SYNTAX));
-      if (!IsSafe(resourcePath))
+      if (!IsAllowedToAccess(resourcePath))
       {
         ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Client tries to access forbidden resource '{0}'", resourcePath);
         throw new ForbiddenException(string.Format("Access of resource '{0}' not allowed", resourcePath));
