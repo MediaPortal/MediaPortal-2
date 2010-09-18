@@ -204,8 +204,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
-        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}'",
-            clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
+        ServiceRegistration.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}' ({3})",
+            clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName,
+            _attachedClientSystemIds.Contains(clientDescriptor.MPFrontendServerUUID) ? "attached" : "not attached");
         _availableClients.Add(clientDescriptor);
       }
       InvokeClientAvailable(clientDescriptor);
