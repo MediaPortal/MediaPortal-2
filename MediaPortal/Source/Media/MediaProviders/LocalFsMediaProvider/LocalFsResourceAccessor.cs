@@ -86,6 +86,17 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       }
     }
 
+    public long Size
+    {
+      get
+      {
+        string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
+        if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
+          return -1;
+        return new FileInfo(dosPath).Length;
+      }
+    }
+
     public bool Exists(string path)
     {
       if (string.IsNullOrEmpty(path))

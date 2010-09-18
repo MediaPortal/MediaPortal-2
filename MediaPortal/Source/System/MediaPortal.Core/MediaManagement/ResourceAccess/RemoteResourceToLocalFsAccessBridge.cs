@@ -90,6 +90,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       get { return _baseAccessor.LastChanged; }
     }
 
+    public long Size
+    {
+      get { return _baseAccessor.Size; }
+    }
+
     public bool Exists(string path)
     {
       IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;

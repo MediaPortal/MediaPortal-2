@@ -83,6 +83,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     DateTime LastChanged { get; }
 
     /// <summary>
+    /// Gets the file size in bytes, if this resource represents a file. Else returns <c>-1</c>.
+    /// </summary>
+    long Size { get; }
+
+    /// <summary>
     /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this
     /// resource accessor is disposed.
     /// </summary>

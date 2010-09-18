@@ -34,11 +34,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected long _size;
 
     protected RemoteFileResourceAccessor(SystemName nativeSystem, ResourcePath nativeResourcePath,
-        string resourcePathName, string resourceName, DateTime lastChanged, long length) :
+        string resourcePathName, string resourceName, DateTime lastChanged, long size) :
         base(nativeSystem, nativeResourcePath, true, resourcePathName, resourceName)
     {
       _lastChanged = lastChanged;
-      _size = length;
+      _size = size;
     }
 
     public static bool ConnectFile(SystemName nativeSystem, ResourcePath nativeResourcePath, out IResourceAccessor result)

@@ -36,11 +36,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected DateTime? _lastChangedCache = null;
 
     protected RemoteFileSystemResourceAccessor(SystemName nativeSystem, ResourcePath nativeResourcePath, bool isFile,
-        string resourcePathName, string resourceName, long length, DateTime lastChanged) :
+        string resourcePathName, string resourceName, long size, DateTime lastChanged) :
         this(nativeSystem, nativeResourcePath, isFile, resourcePathName, resourceName)
     {
       _lastChangedCache = lastChanged;
-      _sizeCache = length;
+      _sizeCache = size;
     }
 
     protected RemoteFileSystemResourceAccessor(SystemName nativeSystem, ResourcePath nativeResourcePath, bool isFile,
@@ -88,7 +88,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           out resourcePathName, out resourceName, out lastChanged, out size))
         throw new IOException(string.Format("Unable to get file information for file '{0}' on system '{1}'", _nativeResourcePath, _nativeSystem));
       _lastChangedCache = lastChanged;
-      _sizeCache = size;
+      _sizeCache = isFile ? size : -1;
     }
 
     public override long Size
