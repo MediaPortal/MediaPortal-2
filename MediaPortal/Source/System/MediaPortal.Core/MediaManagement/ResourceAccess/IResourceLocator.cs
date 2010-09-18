@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Encapsulates the data needed to locate a specific media item in a MediaPortal 2 network.

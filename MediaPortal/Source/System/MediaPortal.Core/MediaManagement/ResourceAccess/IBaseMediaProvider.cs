@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Provide access to physical media files from arbitrary sources which can be specified by a path.

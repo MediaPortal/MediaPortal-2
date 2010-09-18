@@ -31,7 +31,7 @@ using System.Security;
 using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
@@ -46,6 +46,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
+using Ui.Players.Video.Interfaces;
 
 namespace Ui.Players.Video
 {

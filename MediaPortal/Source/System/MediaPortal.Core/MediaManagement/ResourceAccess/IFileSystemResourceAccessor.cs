@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Resource accessor interface to access a resource in a hierarchical file system structure.

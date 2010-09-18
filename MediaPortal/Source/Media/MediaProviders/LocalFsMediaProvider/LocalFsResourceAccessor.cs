@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;

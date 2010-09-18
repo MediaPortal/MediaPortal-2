@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 {

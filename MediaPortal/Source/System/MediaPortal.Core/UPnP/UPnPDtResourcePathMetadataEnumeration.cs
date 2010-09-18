@@ -27,7 +27,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 

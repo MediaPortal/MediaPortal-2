@@ -26,7 +26,7 @@ using System.Net;
 using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement.Settings;
 using MediaPortal.Core.Settings;
 

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Web;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {

@@ -29,7 +29,7 @@ using System.IO;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Encapsulates a path expression which describes a resource provider chain in a given system

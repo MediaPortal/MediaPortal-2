@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.UPnP;

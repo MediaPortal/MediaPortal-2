@@ -30,7 +30,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {

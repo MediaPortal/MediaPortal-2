@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Utilities.UPnP;

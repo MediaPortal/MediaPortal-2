@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;

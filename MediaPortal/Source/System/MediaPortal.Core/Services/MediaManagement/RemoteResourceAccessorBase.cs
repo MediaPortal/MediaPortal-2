@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement

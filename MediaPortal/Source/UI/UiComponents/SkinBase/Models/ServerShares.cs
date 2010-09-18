@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.SkinBase.Utils;
 using RelocationMode=MediaPortal.Core.MediaManagement.RelocationMode;

@@ -27,6 +27,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;

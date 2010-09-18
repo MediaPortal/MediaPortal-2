@@ -35,6 +35,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;

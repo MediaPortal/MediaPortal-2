@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;

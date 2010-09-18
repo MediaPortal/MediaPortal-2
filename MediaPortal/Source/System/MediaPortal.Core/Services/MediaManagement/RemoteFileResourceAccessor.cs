@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {

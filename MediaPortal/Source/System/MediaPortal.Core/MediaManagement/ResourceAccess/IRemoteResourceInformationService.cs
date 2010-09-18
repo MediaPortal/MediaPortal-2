@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.General;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Provides low-level file meta information to remote resources.

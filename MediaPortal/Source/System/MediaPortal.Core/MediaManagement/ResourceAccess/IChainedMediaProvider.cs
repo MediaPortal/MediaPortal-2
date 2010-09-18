@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Interface to provide access to media files which are read from a resource accessor provided by another media provider.

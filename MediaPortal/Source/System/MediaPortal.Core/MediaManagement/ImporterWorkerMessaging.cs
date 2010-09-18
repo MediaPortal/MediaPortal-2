@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Services.MediaManagement;
 

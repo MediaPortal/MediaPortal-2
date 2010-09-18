@@ -42,6 +42,7 @@ using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Ui.Players.Video.Interfaces;
 
 namespace Ui.Players.Video
 {

@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   public interface ITidyUpExecutor
   {

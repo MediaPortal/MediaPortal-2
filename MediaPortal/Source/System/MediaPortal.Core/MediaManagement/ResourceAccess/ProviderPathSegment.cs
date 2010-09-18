@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Holds an id and a path of a media provider, identifying a resource in that provider.

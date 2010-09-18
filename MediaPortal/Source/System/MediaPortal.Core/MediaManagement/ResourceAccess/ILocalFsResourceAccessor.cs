@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -22,26 +22,22 @@
 
 #endregion
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
-  /// Interface to provide access to physical media files.
+  /// Temporary local filesystem accessor instance for a resource which might located anywhere in an MP 2 system.
+  /// Via this instance, the resource, which potentially is located in a remote system, can be accessed
+  /// via a <see cref="LocalFileSystemPath"/>.
   /// </summary>
   /// <remarks>
-  /// <para>
-  /// This interface is the root interface for all media providers. Media providers are separated into
-  /// <see cref="IBaseMediaProvider"/>s and <see cref="IChainedMediaProvider"/>s. See their interface docs for more
-  /// information.
-  /// </para>
-  /// <para>
-  /// The media provider is partitioned in its metadata part (see <see cref="Metadata"/>) and this worker class.
-  /// </para>
+  /// To get a local filesystem resource accessor, get an <see cref="IResourceLocator"/> and use its
+  /// <see cref="IResourceLocator.CreateLocalFsAccessor"/> method.
   /// </remarks>
-  public interface IMediaProvider
+  public interface ILocalFsResourceAccessor : IFileSystemResourceAccessor
   {
     /// <summary>
-    /// Metadata descriptor for this media provider.
+    /// Gets a path in the local filesystem where the represented media item is located.
     /// </summary>
-    MediaProviderMetadata Metadata { get; }
+    string LocalFileSystemPath { get; }
   }
 }

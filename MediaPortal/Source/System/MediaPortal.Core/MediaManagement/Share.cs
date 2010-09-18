@@ -28,6 +28,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.MediaManagement

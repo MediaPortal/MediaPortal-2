@@ -25,7 +25,7 @@
 
 using System;
 using System.Xml;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using UPnP.Infrastructure.Common;
 
 namespace MediaPortal.Core.UPnP

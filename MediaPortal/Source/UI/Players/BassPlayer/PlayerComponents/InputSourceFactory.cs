@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;

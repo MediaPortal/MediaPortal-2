@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Base methods of the local filesystem media provider which are needed in the media accessor.

@@ -22,47 +22,26 @@
 
 #endregion
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
-  /// Changes that might occur to a media source item or path.
+  /// Interface to provide access to physical media files.
   /// </summary>
-  public enum MediaSourceChangeType
+  /// <remarks>
+  /// <para>
+  /// This interface is the root interface for all media providers. Media providers are separated into
+  /// <see cref="IBaseMediaProvider"/>s and <see cref="IChainedMediaProvider"/>s. See their interface docs for more
+  /// information.
+  /// </para>
+  /// <para>
+  /// The media provider is partitioned in its metadata part (see <see cref="Metadata"/>) and this worker class.
+  /// </para>
+  /// </remarks>
+  public interface IMediaProvider
   {
     /// <summary>
-    /// No changes.
+    /// Metadata descriptor for this media provider.
     /// </summary>
-    None,
-
-    /// <summary>
-    /// The creation of a file or folder.
-    /// </summary>
-    Created,
-
-    /// <summary>
-    /// The deletion of a file or folder.
-    /// </summary>
-    Deleted,
-
-    /// <summary>
-    /// The change of a file or folder. The types of changes include: changes to size, attributes,
-    /// security settings, last write, and last access time.
-    /// </summary>
-    Changed,
-
-    /// <summary>
-    /// The renaming of a file or folder.
-    /// </summary>
-    Renamed,
-
-    /// <summary>
-    /// The creation, deletion, change, or renaming of a file or folder.
-    /// </summary>
-    All,
-
-    /// <summary>
-    /// The deletion of the parent directory.
-    /// </summary>
-    DirectoryDeleted,
+    MediaProviderMetadata Metadata { get; }
   }
 }

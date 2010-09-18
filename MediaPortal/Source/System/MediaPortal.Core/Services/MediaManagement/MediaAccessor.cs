@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;

@@ -27,9 +27,8 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using MediaPortal.Core.MediaManagement.MLQueries;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
   /// Represents a group of results in a media library query, identified by a group name.

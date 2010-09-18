@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
-namespace Ui.Players.Video
+namespace Ui.Players.Video.Interfaces
 {
   /// <summary>
   /// Internal interface for the initialization of the players from the player builder.

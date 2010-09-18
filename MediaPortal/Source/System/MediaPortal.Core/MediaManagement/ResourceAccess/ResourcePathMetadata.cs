@@ -27,7 +27,7 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Holds some metadata about a resource path in some system.

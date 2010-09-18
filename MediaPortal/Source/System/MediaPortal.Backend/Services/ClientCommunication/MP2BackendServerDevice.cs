@@ -35,7 +35,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPContentDirectoryServiceImpl());
-      AddService(new UPnPResourceAccessServiceImpl());
+      AddService(new UPnPResourceInformationServiceImpl());
       AddService(new UPnPServerControllerServiceImpl());
       // TODO: UPnP AV MediaServer device
     }

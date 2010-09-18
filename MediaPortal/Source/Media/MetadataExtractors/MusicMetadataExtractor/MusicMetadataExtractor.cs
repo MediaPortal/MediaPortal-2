@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities;
 using TagLib;
 using File = TagLib.File;

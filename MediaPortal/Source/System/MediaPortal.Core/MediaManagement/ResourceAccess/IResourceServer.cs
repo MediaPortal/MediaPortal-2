@@ -24,7 +24,7 @@
 
 using HttpServer.HttpModules;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   public interface IResourceServer
   {

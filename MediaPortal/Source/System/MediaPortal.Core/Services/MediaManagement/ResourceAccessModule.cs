@@ -31,7 +31,7 @@ using HttpServer.Exceptions;
 using HttpServer.HttpModules;
 using HttpServer.Sessions;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Threading;
 
 namespace MediaPortal.Core.Services.MediaManagement

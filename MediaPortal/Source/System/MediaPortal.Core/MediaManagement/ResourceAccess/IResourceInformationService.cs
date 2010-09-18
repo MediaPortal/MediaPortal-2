@@ -25,9 +25,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
-  // TODO: Rename to ResourceInformationService
   public interface IResourceInformationService
   {
     ICollection<string> GetMediaCategoriesFromMetadataExtractors();

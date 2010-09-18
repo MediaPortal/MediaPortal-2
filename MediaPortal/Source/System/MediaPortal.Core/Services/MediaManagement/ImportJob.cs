@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement

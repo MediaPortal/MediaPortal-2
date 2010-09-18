@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.Video
+namespace Ui.Players.Video.Interfaces
 {
   [ComVisible(true), ComImport,
    Guid("BD1AE5E0-A6AE-11CE-BD37-504200C10000"),
@@ -36,7 +36,7 @@ namespace Ui.Players.Video
 
     [PreserveSig]
     int GetClassID(
-      [Out] out Guid pClassID);
+        [Out] out Guid pClassID);
 
     #endregion
 

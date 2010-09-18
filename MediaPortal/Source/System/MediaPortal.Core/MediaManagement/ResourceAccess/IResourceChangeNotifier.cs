@@ -24,8 +24,50 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
+  /// <summary>
+  /// Changes that might occur to a media source item or path.
+  /// </summary>
+  public enum MediaSourceChangeType
+  {
+    /// <summary>
+    /// No changes.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// The creation of a file or folder.
+    /// </summary>
+    Created,
+
+    /// <summary>
+    /// The deletion of a file or folder.
+    /// </summary>
+    Deleted,
+
+    /// <summary>
+    /// The change of a file or folder. The types of changes include: changes to size, attributes,
+    /// security settings, last write, and last access time.
+    /// </summary>
+    Changed,
+
+    /// <summary>
+    /// The renaming of a file or folder.
+    /// </summary>
+    Renamed,
+
+    /// <summary>
+    /// The creation, deletion, change, or renaming of a file or folder.
+    /// </summary>
+    All,
+
+    /// <summary>
+    /// The deletion of the parent directory.
+    /// </summary>
+    DirectoryDeleted,
+  }
+
   /// <summary>
   /// Delegate for path/media item change events.
   /// </summary>

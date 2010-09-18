@@ -24,7 +24,7 @@
 
 using System;
 using System.Windows.Forms;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Runtime;
 using MediaPortal.UI;

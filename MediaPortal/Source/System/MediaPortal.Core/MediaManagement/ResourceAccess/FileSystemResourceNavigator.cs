@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
   /// <summary>
   /// Helper class for navigating through a file system, transparently descending into chained provider resources.
@@ -54,8 +54,8 @@ namespace MediaPortal.Core.MediaManagement
         IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) directoryAccessor;
         ICollection<IFileSystemResourceAccessor> childDirectories = fsra.GetChildDirectories();
         ICollection<IFileSystemResourceAccessor> result = childDirectories == null ?
-            new List<IFileSystemResourceAccessor>() :
-            new List<IFileSystemResourceAccessor>(childDirectories);
+                                                                                       new List<IFileSystemResourceAccessor>() :
+                                                                                                                                   new List<IFileSystemResourceAccessor>(childDirectories);
         ICollection<IFileSystemResourceAccessor> files = fsra.GetFiles();
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
