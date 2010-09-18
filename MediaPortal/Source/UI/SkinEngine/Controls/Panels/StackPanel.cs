@@ -418,23 +418,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (!_updateRenderOrder) return;
       _updateRenderOrder = false;
-      if (_renderOrder == null || Children == null)
-        return;
-      _renderOrder.Clear();
-      RectangleF bounds = ActualBounds;
-      foreach (FrameworkElement element in Children)
+      lock (_renderLock) // We must aquire the render lock when accessing the _renderOrder
       {
-        if (!element.IsVisible)
-          continue;
-        if (_canScroll)
-        { // Don't render elements which are not visible, if we can scroll
-          RectangleF elementBounds = element.ActualBounds;
-          if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) continue;
-          if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) continue;
-          if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) continue;
-          if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) continue;
+        if (_renderOrder == null || Children == null)
+          return;
+        _renderOrder.Clear();
+        RectangleF bounds = ActualBounds;
+        foreach (FrameworkElement element in Children)
+        {
+          if (!element.IsVisible)
+            continue;
+          if (_canScroll)
+          { // Don't render elements which are not visible, if we can scroll
+            RectangleF elementBounds = element.ActualBounds;
+            if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) continue;
+            if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) continue;
+            if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) continue;
+            if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) continue;
+          }
+          _renderOrder.Add(element);
         }
-        _renderOrder.Add(element);
       }
     }
 

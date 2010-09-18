@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected AbstractProperty _backgroundProperty;
     protected bool _isItemsHost = false;
     protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
-    protected List<UIElement> _renderOrder; // Cache for the render order of our children
+    protected List<UIElement> _renderOrder; // Cache for the render order of our children. Take care of locking out writing threads with the _renderLock.
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected PrimitiveContext _backgroundContext;
 
