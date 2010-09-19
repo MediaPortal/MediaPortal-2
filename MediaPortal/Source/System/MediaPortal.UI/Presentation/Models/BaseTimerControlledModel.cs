@@ -30,16 +30,16 @@ using MediaPortal.Core.Runtime;
 namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
-  /// Base class for UI models which use a timer to update their properties periodically. Provides a timer-controlled
+  /// Base class for models which use a timer to update their properties periodically. Provides a timer-controlled
   /// virtual <see cref="Update"/> method which will be called automatically in a configurable interval.
   /// This class provides initialization and virtual disposal methods for the timer and for system message queue registrations.
   /// </summary>
-  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel
+  public abstract class BaseTimerControlledModel : BaseMessageControlledModel
   {
     protected Timer _timer = null;
 
     /// <summary>
-    /// Creates a new <see cref="BaseTimerControlledUIModel"/> instance and initializes the internal timer
+    /// Creates a new <see cref="BaseTimerControlledModel"/> instance and initializes the internal timer
     /// and message queue registrations.
     /// </summary>
     /// <param name="updateInterval">Timer update interval in milliseconds.</param>
@@ -47,7 +47,7 @@ namespace MediaPortal.UI.Presentation.Models
     /// Subclasses might need to call method <see cref="Update"/> in their constructor to initialize the initial model state,
     /// if appropriate.
     /// </remarks>
-    protected BaseTimerControlledUIModel(long updateInterval)
+    protected BaseTimerControlledModel(long updateInterval)
     {
       _timer = new Timer(updateInterval);
 

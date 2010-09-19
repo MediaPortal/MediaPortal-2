@@ -34,7 +34,7 @@ using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public abstract class BasePlayerModel : BaseTimerControlledUIModel, IWorkflowModel
+  public abstract class BasePlayerModel : BaseTimerControlledModel, IWorkflowModel
   {
     protected Guid _currentlyPlayingWorkflowStateId;
     protected Guid _fullscreenContentWorkflowStateId;
@@ -173,6 +173,8 @@ namespace MediaPortal.UiComponents.Media.Models
         return playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       return null;
     }
+
+    public abstract Guid ModelId { get; }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {

@@ -28,7 +28,7 @@ using MediaPortal.Core.Messaging;
 namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
-  /// Base class for UI models which are registered to messages from the system and which are listening for
+  /// Base class for models which are registered to messages from the system and which are listening for
   /// messages all over their lifetime.
   /// </summary>
   /// <remarks>
@@ -36,14 +36,14 @@ namespace MediaPortal.UI.Presentation.Models
   /// messages only during the time when they are active. The other time they normally will temporary shut down their
   /// message queue.
   /// </remarks>
-  public abstract class BaseMessageControlledUIModel : IDisposable
+  public abstract class BaseMessageControlledModel : IDisposable
   {
     protected AsynchronousMessageQueue _messageQueue;
 
     /// <summary>
-    /// Creates a new <see cref="BaseMessageControlledUIModel"/> instance and starts the message queue.
+    /// Creates a new <see cref="BaseMessageControlledModel"/> instance and starts the message queue.
     /// </summary>
-    protected BaseMessageControlledUIModel()
+    protected BaseMessageControlledModel()
     {
       SubscribeToMessages();
     }
@@ -61,10 +61,5 @@ namespace MediaPortal.UI.Presentation.Models
       _messageQueue = new AsynchronousMessageQueue(this, new string[] {});
       _messageQueue.Start();
     }
-
-    /// <summary>
-    /// Provides the id of this model. This property has to be implemented in subclasses.
-    /// </summary>
-    public abstract Guid ModelId { get; }
   }
 }

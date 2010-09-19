@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// <summary>
   /// Model which provides data for the skin clock.
   /// </summary>
-  public class TimeModel : BaseTimerControlledUIModel
+  public class TimeModel : BaseTimerControlledModel
   {
     protected const string MODEL_ID_STR = "E821B1C8-0666-4339-8027-AA45A4F6F107";
 
@@ -88,7 +88,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
     }

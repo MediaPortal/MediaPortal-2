@@ -66,7 +66,7 @@
     <Compile Include="Presentation\Geometries\IGeometryManager.cs" />
     <Compile Include="Control\InputManager\IInputManager.cs" />
     <Compile Include="Control\InputManager\Key.cs" />
-    <Compile Include="Presentation\Models\BaseMessageControlledUIModel.cs" />
+    <Compile Include="Presentation\Models\BaseMessageControlledModel.cs" />
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
     <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
     <Compile Include="Presentation\Players\IDVDPlayer.cs" />
@@ -95,7 +95,7 @@
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
     <Compile Include="Presentation\Screens\IScreenControl.cs" />
     <Compile Include="Presentation\Models\IWorkflowModel.cs" />
-    <Compile Include="Presentation\Models\BaseTimerControlledUIModel.cs" />
+    <Compile Include="Presentation\Models\BaseTimerControlledModel.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\SkinResources\SkinResourcesMessaging.cs" />
     <Compile Include="Presentation\Workflow\MethodCallAction.cs" />

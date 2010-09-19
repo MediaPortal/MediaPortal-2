@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// <see cref="IScreenControl.IsScreenSaverActive"/> and <see cref="IInputManager.IsMouseUsed"/> data, but as
   /// <see cref="AbstractProperty"/> to enable the screen controls to bind to the data.
   /// </summary>
-  public class ScreenSaverModel : BaseTimerControlledUIModel
+  public class ScreenSaverModel : BaseTimerControlledModel
   {
     public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
 
@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       Update();
     }
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return new Guid(SCREENSAVER_MODEL_ID_STR); }
     }

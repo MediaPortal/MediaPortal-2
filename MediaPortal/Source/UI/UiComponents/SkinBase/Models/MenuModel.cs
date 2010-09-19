@@ -36,7 +36,7 @@ using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
-  public class MenuModel : BaseMessageControlledUIModel
+  public class MenuModel : BaseMessageControlledModel
   {
     #region Consts
 
@@ -338,7 +338,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #region Public properties
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
     }

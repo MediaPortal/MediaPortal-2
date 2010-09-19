@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// This model attends some screens for Video, Audio and Image media players.
   /// It is also used as data model for media backgrounds.
   /// </summary>
-  public class PlayerModel : BaseMessageControlledUIModel
+  public class PlayerModel : BaseMessageControlledModel
   {
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _currentPictureResourceAccessor = null;
     }
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return PLAYER_MODEL_ID; }
     }
