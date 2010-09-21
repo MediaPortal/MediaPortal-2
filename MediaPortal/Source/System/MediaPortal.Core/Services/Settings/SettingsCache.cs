@@ -196,7 +196,7 @@ namespace MediaPortal.Core.Services.Settings
     {
       lock (_syncObj)
       {
-        if (!_timer.Enabled)
+        if (_timer == null || !_timer.Enabled)
           // Avoid threading issues (i.e. KeepAll was called after this method begun
           // but before our lock statement)
           return;
