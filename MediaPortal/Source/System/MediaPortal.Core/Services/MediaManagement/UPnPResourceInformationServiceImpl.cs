@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Sockets;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
@@ -68,7 +67,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         };
       AddStateVariable(A_ARG_TYPE_DateTime);
 
-      DvStateVariable A_ARG_TYPE_FileSize = new DvStateVariable("A_ARG_TYPE_FileSize", new DvStandardDataType(UPnPStandardDataType.Ui4))
+      DvStateVariable A_ARG_TYPE_FileSize = new DvStateVariable("A_ARG_TYPE_FileSize", new DvStandardDataType(UPnPStandardDataType.Ui8))
         {
             SendEvents = false
         };
@@ -434,7 +433,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourcePathDisplayName = string.Empty;
       string resourceDisplayName = string.Empty;
       DateTime lastChanged = DateTime.MinValue;
-      UInt32 size = 0;
+      UInt64 size = 0;
       bool result;
       try
       {
@@ -446,8 +445,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         resourceDisplayName = ra.ResourceName;
         lastChanged = ra.LastChanged;
         if (ra.IsFile)
-          using (Stream fileStream = ra.OpenRead())
-            size = (UInt32) fileStream.Length;
+          size = (UInt64) ra.Size;
         ra.Dispose();
         result = true;
       }

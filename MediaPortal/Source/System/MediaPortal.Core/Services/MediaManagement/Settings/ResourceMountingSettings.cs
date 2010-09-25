@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -22,35 +22,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Core.Services.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement.Settings
 {
-  public abstract class ResourceAccessorBase : IDisposable
+  public class ResourceMountingSettings
   {
-    internal ICollection<ITidyUpExecutor> _tidyUpExecutors = null;
+    protected char _driveLetter = 'R';
 
-    ~ResourceAccessorBase()
+    /// <summary>
+    /// Drive where non-filesystem resources are mounted in the local filesystem.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public char DriveLetter
     {
-      Dispose();
-    }
-
-    public void Dispose()
-    {
-      if (_tidyUpExecutors == null)
-        return;
-      foreach (ITidyUpExecutor executor in _tidyUpExecutors)
-        executor.Execute();
-      _tidyUpExecutors.Clear();
-    }
-
-    public void AddTidyUpExecutor(ITidyUpExecutor executor)
-    {
-      if (_tidyUpExecutors == null)
-        _tidyUpExecutors = new List<ITidyUpExecutor>();
-      _tidyUpExecutors.Add(executor);
+      get { return _driveLetter; }
+      set { _driveLetter = value; }
     }
   }
 }

@@ -35,11 +35,13 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
   /// <remarks>
   /// Typically, this class is instantiated by class <see cref="ResourceLocator"/> but it also can be used directly.
   /// </remarks>
-  public class RemoteResourceToLocalFsAccessBridge : ResourceAccessorBase, ILocalFsResourceAccessor
+  public class RemoteResourceToLocalFsAccessBridge : ILocalFsResourceAccessor
   {
     #region Protected fields
 
     protected IResourceAccessor _baseAccessor;
+    protected string _rootDirectoryName;
+    protected string _mountPath;
 
     #endregion
 
@@ -54,9 +56,30 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     public RemoteResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
     {
       _baseAccessor = baseAccessor;
+      MountResource();
+    }
+
+    public void Dispose()
+    {
+      UnmountResource();
     }
 
     #endregion
+
+    protected void MountResource()
+    {
+      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+      _rootDirectoryName = Guid.NewGuid().ToString();
+      resourceMountingService.CreateRootDirectory(_rootDirectoryName);
+      _mountPath = resourceMountingService.AddResource(_rootDirectoryName, _baseAccessor);
+    }
+
+    protected void UnmountResource()
+    {
+      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+      resourceMountingService.RemoveResource(_rootDirectoryName, _baseAccessor);
+      resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
+    }
 
     #region IResourceAccessor implementation
 
@@ -107,6 +130,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       return fsra == null ? null : fsra.GetResource(path);
     }
 
+    public void PrepareStreamAccess()
+    {
+      _baseAccessor.PrepareStreamAccess();
+    }
+
     public Stream OpenRead()
     {
       // Using the stream on the base accessor doesn't cost so much resources than creating the bridge here
@@ -144,8 +172,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
 
     public string LocalFileSystemPath
     {
-      // TODO: Lazy initialization: Create bridge and add tidy up executor for bridge components
-      get { return string.Empty; }
+      get
+      {
+        PrepareStreamAccess();
+        return _mountPath;
+      }
     }
 
     #endregion

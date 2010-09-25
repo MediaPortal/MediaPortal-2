@@ -462,7 +462,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           return result;
         }
         wasAdded = true;
-        result = new RootEntry(rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
+        result = new RootEntry(_cpData.SyncObj, rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
         link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
         return _cpData.DeviceEntries[rootDeviceUUID] = result;
       }

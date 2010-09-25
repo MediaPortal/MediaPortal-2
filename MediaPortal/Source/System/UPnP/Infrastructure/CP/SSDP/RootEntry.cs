@@ -68,7 +68,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Returns the network endpoint where this root device's advertisement is tracked.
+    /// Returns the (local) network endpoint where this root device's advertisement is tracked.
     /// </summary>
     public EndpointConfiguration Endpoint
     {
@@ -123,36 +123,49 @@ namespace UPnP.Infrastructure.CP.SSDP
   /// <remarks>
   /// The entries are lazily initialized, as the SSDP protocol doesn't provide a strict order of advertisement messages of
   /// the single entries.
+  /// The access to all properties and methods must be synchronized using the <see cref="SyncObj"/>.
   /// </remarks>
   public class RootEntry
   {
-    protected UPnPVersion _upnpVersion;
-    protected string _osVersion;
-    protected string _productVersion;
+    protected readonly object _syncObj;
+    protected readonly UPnPVersion _upnpVersion;
+    protected readonly string _osVersion;
+    protected readonly string _productVersion;
     protected DateTime _expirationTime;
     protected LinkData _preferredLink = null;
-    protected IDictionary<string, LinkData> _linkConfigurations = new Dictionary<string, LinkData>();
-    protected string _rootDeviceID; // UUID of the root device
-    protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
+    protected readonly IDictionary<string, LinkData> _linkConfigurations = new Dictionary<string, LinkData>();
+    protected readonly string _rootDeviceID; // UUID of the root device
+    protected readonly IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
     protected uint _bootID = 0;
-    protected IDictionary<IPEndPoint, uint> _configIDs = new Dictionary<IPEndPoint, uint>();
-    protected IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
+    protected readonly IDictionary<IPEndPoint, uint> _configIDs = new Dictionary<IPEndPoint, uint>();
+    protected readonly IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
 
     /// <summary>
     /// Creates a new <see cref="RootEntry"/> instance.
     /// </summary>
-    /// <param name="deviceUUID">UUID of the root device.</param>
+    /// <param name="syncObj">Synchronization object to use for multithread access.</param>
+    /// <param name="rootDeviceUUID">UUID of the root device.</param>
     /// <param name="upnpVersion">UPnP version the remote device is using.</param>
     /// <param name="osVersion">OS and version our partner is using.</param>
     /// <param name="productVersion">Product and version our partner is using.</param>
     /// <param name="expirationTime">Time when the advertisement will expire.</param>
-    public RootEntry(string deviceUUID, UPnPVersion upnpVersion, string osVersion, string productVersion, DateTime expirationTime)
+    public RootEntry(object syncObj, string rootDeviceUUID, UPnPVersion upnpVersion, string osVersion,
+        string productVersion, DateTime expirationTime)
     {
-      _rootDeviceID = deviceUUID;
+      _syncObj = syncObj;
+      _rootDeviceID = rootDeviceUUID;
       _upnpVersion = upnpVersion;
       _osVersion = osVersion;
       _productVersion = productVersion;
       _expirationTime = expirationTime;
+    }
+
+    /// <summary>
+    /// Gets the ynchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
+    /// </summary>
+    public object SyncObj
+    {
+      get { return _syncObj; }
     }
 
     /// <summary>
@@ -203,6 +216,14 @@ namespace UPnP.Infrastructure.CP.SSDP
     public LinkData PreferredLink
     {
       get { return _preferredLink; }
+    }
+
+    /// <summary>
+    /// Gets a collection of all available links to the device of this device root entry.
+    /// </summary>
+    public ICollection<LinkData> AllLinks
+    {
+      get { return _linkConfigurations.Values; }
     }
 
     /// <summary>

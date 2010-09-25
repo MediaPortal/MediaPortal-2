@@ -42,9 +42,11 @@ namespace UPnP.Infrastructure.Common
     public static UPnPStandardDataType Ui1 = new UPnPStandardDataType("ui1", typeof(Byte));
     public static UPnPStandardDataType Ui2 = new UPnPStandardDataType("ui2", typeof(UInt16));
     public static UPnPStandardDataType Ui4 = new UPnPStandardDataType("ui4", typeof(UInt32));
+    public static UPnPStandardDataType Ui8 = new UPnPStandardDataType("ui8", typeof(UInt64));
     public static UPnPStandardDataType I1 = new UPnPStandardDataType("i1", typeof(SByte));
     public static UPnPStandardDataType I2 = new UPnPStandardDataType("i2", typeof(Int16));
     public static UPnPStandardDataType I4 = new UPnPStandardDataType("i4", typeof(Int32));
+    public static UPnPStandardDataType I8 = new UPnPStandardDataType("i8", typeof(Int64));
     public static UPnPStandardDataType Int = new UPnPStandardDataType("int", typeof(int));
     public static UPnPStandardDataType R4 = new UPnPStandardDataType("r4", typeof(Single));
     public static UPnPStandardDataType R8 = new UPnPStandardDataType("r8", typeof(Double));
@@ -115,9 +117,11 @@ namespace UPnP.Infrastructure.Common
         case "ui1":
         case "ui2":
         case "ui4":
+        case "ui8":
         case "i1":
         case "i2":
         case "i4":
+        case "i8":
         case "int":
           writer.WriteString(value.ToString());
           break;
@@ -187,9 +191,11 @@ namespace UPnP.Infrastructure.Common
           case "ui1":
           case "ui2":
           case "ui4":
+          case "ui8":
           case "i1":
           case "i2":
           case "i4":
+          case "i8":
           case "int":
           case "r4":
           case "r8":
@@ -245,9 +251,11 @@ namespace UPnP.Infrastructure.Common
         case "ui1":
         case "ui2":
         case "ui4":
+        case "ui8":
         case "i1":
         case "i2":
         case "i4":
+        case "i8":
         case "int":
         case "r4":
         case "r8":

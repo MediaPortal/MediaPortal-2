@@ -73,7 +73,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
     {
       IResourceAccessor accessor = CreateAccessor();
-      // Try to get an ILocalFsResourceAccessor
+      //// Try to get an ILocalFsResourceAccessor
       ILocalFsResourceAccessor result = accessor as ILocalFsResourceAccessor;
       if (result != null)
         // Simple case: The media item is located in the local file system or the media provider returns
@@ -90,5 +90,14 @@ namespace MediaPortal.Core.Services.MediaManagement
         throw;
       }
     }
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("Resource '{0}' at system '{1}", _nativeResourcePath, _nativeSystem);
+    }
+
+    #endregion
   }
 }

@@ -30,13 +30,18 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
-  public abstract class RemoteResourceAccessorBase : ResourceAccessorBase, IResourceAccessor
+  /// <summary>
+  /// Multithreading-safe base class for remote resource accessors. Provides metadata and a remote access stream.
+  /// </summary>
+  public abstract class RemoteResourceAccessorBase : IResourceAccessor
   {
+    protected object _syncObj = new object();
     protected SystemName _nativeSystem;
     protected ResourcePath _nativeResourcePath;
     protected bool _isFile;
     protected string _resourcePathName;
     protected string _resourceName;
+    protected Stream _underlayingStream = null; // Lazy initialized
 
     protected RemoteResourceAccessorBase(SystemName nativeSystem, ResourcePath nativeResourcePath,
         bool isFile, string resourcePathName, string resourceName)
@@ -46,6 +51,16 @@ namespace MediaPortal.Core.Services.MediaManagement
       _isFile = isFile;
       _resourcePathName = resourcePathName;
       _resourceName = resourceName;
+    }
+
+    public void Dispose()
+    {
+      lock (_syncObj)
+        if (_underlayingStream != null)
+        {
+          _underlayingStream.Dispose();
+          _underlayingStream = null;
+        }
     }
 
     public SystemName NativeSystem
@@ -84,13 +99,26 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public abstract DateTime LastChanged { get; }
 
+    public void PrepareStreamAccess()
+    {
+      IRemoteResourceInformationService rris;
+      string resourceURL = null;
+      if (_underlayingStream == null)
+      {
+        rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+        resourceURL = rris.GetFileHttpUrl(_nativeSystem, _nativeResourcePath);
+      }
+      lock (_syncObj)
+        if (_underlayingStream == null)
+          _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
+    }
+
     public Stream OpenRead()
     {
       if (!IsFile)
         throw new IllegalCallException("Only files provide stream access");
-      IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      string resourceURL = rris.GetFileHttpUrl(_nativeSystem, _nativeResourcePath);
-      return new CachedHttpResourceStream(resourceURL, Size);
+      PrepareStreamAccess();
+      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
     }
 
     public Stream OpenWrite()
@@ -98,6 +126,15 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!IsFile)
         throw new IllegalCallException("Only files provide stream access");
       return null;
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("Remote resource accessor at system {0}, path='{1}", _nativeSystem, _nativeResourcePath);
     }
 
     #endregion

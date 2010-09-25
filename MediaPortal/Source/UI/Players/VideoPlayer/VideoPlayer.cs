@@ -636,7 +636,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected void AllocateResources()
     {
-      //Trace.WriteLine("videoplayer:alloc vertex");
+      //Trace.WriteLine("{0}: Alloc vertex", PlayerTitle);
       if (_vertexBuffer != null)
         FreeResources();
       // Alloc a Vertex buffer to draw the video (4 vertices -> a Quad)

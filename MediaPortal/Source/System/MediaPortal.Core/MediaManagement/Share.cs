@@ -243,6 +243,8 @@ namespace MediaPortal.Core.MediaManagement
         return xs.Deserialize(reader) as Share;
     }
 
+    #region Base overrides
+
     public override bool Equals(object obj)
     {
       if (!(obj is Share))
@@ -255,6 +257,13 @@ namespace MediaPortal.Core.MediaManagement
     {
       return _shareId.GetHashCode();
     }
+
+    public override string ToString()
+    {
+      return string.Format("Share {0}: Id={1}, System={2}, Path={3}", _name, _shareId, _systemId, _baseResourcePath);
+    }
+
+    #endregion
 
     #region Additional members for the XML serialization
 

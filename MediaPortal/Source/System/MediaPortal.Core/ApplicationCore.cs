@@ -100,6 +100,9 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Registering IResourceServer service");
       ServiceRegistration.Add<IResourceServer>(new Services.MediaManagement.ResourceServer());
 
+      logger.Debug("ApplicationCore: Registering IResourceMountingService");
+      ServiceRegistration.Add<IResourceMountingService>(new Services.MediaManagement.ResourceMountingService());
+
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
       ServiceRegistration.Add<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
     }
@@ -109,12 +112,14 @@ namespace MediaPortal.Core
       ServiceRegistration.Get<ILocalization>().Startup();
       ServiceRegistration.Get<IImporterWorker>().Startup();
       ServiceRegistration.Get<IResourceServer>().Startup();
+      ServiceRegistration.Get<IResourceMountingService>().Startup();
       ServiceRegistration.Get<IRemoteResourceInformationService>().Startup();
     }
 
     public static void StopCoreServices()
     {
       ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
+      ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();
       ServiceRegistration.Get<IImporterWorker>().Shutdown();
       ServiceRegistration.Get<Threading.IThreadPool>().Stop();
@@ -135,8 +140,11 @@ namespace MediaPortal.Core
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
-      logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService service");
+      logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();
+
+      logger.Debug("ApplicationCore: Removing IResourceMountingService");
+      ServiceRegistration.RemoveAndDispose<IResourceMountingService>();
 
       logger.Debug("ApplicationCore: Removing IResourceServer service");
       ServiceRegistration.RemoveAndDispose<IResourceServer>();

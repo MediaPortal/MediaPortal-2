@@ -26,13 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 {
-  public class LocalFsResourceAccessor : ResourceAccessorBase, ILocalFsResourceAccessor, IResourceChangeNotifier
+  public class LocalFsResourceAccessor : ILocalFsResourceAccessor, IResourceChangeNotifier
   {
     protected LocalFsMediaProvider _provider;
     protected string _path;
@@ -42,6 +41,8 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       _provider = provider;
       _path = path;
     }
+
+    public void Dispose() { }
 
     protected ICollection<IFileSystemResourceAccessor> ConcatPaths(string rootPath,
         IEnumerable<string> namesWithPathPrefix, bool isDirectory)
@@ -108,6 +109,11 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     public IResourceAccessor GetResource(string path)
     {
       return _provider.CreateMediaItemAccessor(ExpandPath(path));
+    }
+
+    public void PrepareStreamAccess()
+    {
+      // Nothing to do
     }
 
     public Stream OpenRead()

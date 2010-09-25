@@ -121,6 +121,7 @@
     <Compile Include="MediaManagement\ResourceAccess\IResourceLocator.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IMediaAccessor.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\IResourceMountingService.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IChainedMediaProvider.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IBaseMediaProvider.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IResourceServer.cs" />
@@ -144,6 +145,9 @@
     <Compile Include="MediaManagement\ResourceAccess\ResourcePath.cs" />
     <Compile Include="MediaManagement\ResourceAccess\ResourcePathMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
+    <Compile Include="Services\Dokan\DokanNet.cs" />
+    <Compile Include="Services\Dokan\DokanOperations.cs" />
+    <Compile Include="Services\Dokan\Proxy.cs" />
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\BackgroundHttpDataTransfer.cs" />
@@ -158,7 +162,6 @@
     <Compile Include="Services\MediaManagement\RemoteFileSystemResourceAccessor.cs" />
     <Compile Include="Services\MediaManagement\RemoteFileResourceAccessor.cs" />
     <Compile Include="Services\MediaManagement\ResourceAccessModule.cs" />
-    <Compile Include="Services\MediaManagement\ResourceAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />
     <Compile Include="Services\MediaManagement\ResourceHttpAccessUrlUtils.cs" />
@@ -189,8 +192,11 @@
     <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
+    <Compile Include="Services\MediaManagement\ResourceMountingService.cs" />
     <Compile Include="Services\MediaManagement\ResourceServer.cs" />
+    <Compile Include="Services\MediaManagement\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\MediaManagement\Settings\ServerSettings.cs" />
+    <Compile Include="Services\MediaManagement\SynchronizedMasterStreamClient.cs" />
     <Compile Include="Services\MediaManagement\UPnPResourceInformationServiceProxy.cs" />
     <Compile Include="Services\MediaManagement\UPnPResourceInformationServiceImpl.cs" />
     <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />

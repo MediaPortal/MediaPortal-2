@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
 using Ui.Players.Video.Interfaces;
@@ -58,24 +60,17 @@ namespace Ui.Players.Video
       // TODO: Go on with mime types mapping
     }
 
-    protected static Type GetPlayerTypeForMediaItem(ILocalFsResourceAccessor accessor, string mimeType)
+    protected static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
     {
-      string path = accessor.ResourcePathName;
+      string path = locator.NativeResourcePath.LastPathSegment.Path;
       string extension = Path.GetExtension(path).ToLowerInvariant();
 
       Type playerType;
-      if (mimeType != null)
-      {
-        if (MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
-        {
-          return playerType;
-        }
-      }
+      if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
+        return playerType;
       // 2nd chance: if no mimetype match, try extensions
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
-      {
         return playerType;
-      }
       return null;
     }
 
@@ -83,8 +78,7 @@ namespace Ui.Players.Video
 
     public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      ILocalFsResourceAccessor accessor = locator.CreateLocalFsAccessor();
-      Type playerType = GetPlayerTypeForMediaItem(accessor, mimeType);
+      Type playerType = GetPlayerTypeForMediaItem(locator, mimeType);
       if (playerType == null)
         return null;
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);
@@ -92,8 +86,9 @@ namespace Ui.Players.Video
       {
         player.SetMediaItemLocator(locator);
       }
-      catch (Exception)
+      catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Unable to play file '{1}'", e, playerType, locator);
         if (player is IDisposable)
           ((IDisposable) player).Dispose();
         player = null;

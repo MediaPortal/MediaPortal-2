@@ -129,7 +129,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       resourcePathName = (string) outParameters[2];
       resourceName = (string) outParameters[3];
       lastChanged = (DateTime) outParameters[4];
-      size = (UInt32) outParameters[5];
+      size = (long) (UInt64) outParameters[5];
       return (bool) outParameters[6];
     }
 

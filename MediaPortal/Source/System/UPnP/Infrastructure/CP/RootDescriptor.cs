@@ -77,15 +77,23 @@ namespace UPnP.Infrastructure.CP
   /// </summary>
   public class RootDescriptor
   {
-    protected RootEntry _rootEntry;
+    protected readonly RootEntry _rootEntry;
     protected XPathDocument _deviceDescription = null;
-    protected IDictionary<string, IDictionary<string, ServiceDescriptor>> _serviceDescriptors =
+    protected readonly IDictionary<string, IDictionary<string, ServiceDescriptor>> _serviceDescriptors =
         new Dictionary<string, IDictionary<string, ServiceDescriptor>>();
     protected RootDescriptorState _state = RootDescriptorState.Initializing;
 
     internal RootDescriptor(RootEntry rootEntry)
     {
       _rootEntry = rootEntry;
+    }
+
+    /// <summary>
+    /// Gets the ynchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
+    /// </summary>
+    public object SyncObj
+    {
+      get { return _rootEntry.SyncObj; }
     }
 
     /// <summary>
@@ -125,7 +133,6 @@ namespace UPnP.Infrastructure.CP
     public IDictionary<string, IDictionary<string, ServiceDescriptor>> ServiceDescriptors
     {
       get { return _serviceDescriptors; }
-      internal set { _serviceDescriptors = value; }
     }
 
     /// <summary>
@@ -134,7 +141,6 @@ namespace UPnP.Infrastructure.CP
     public RootEntry SSDPRootEntry
     {
       get { return _rootEntry; }
-      internal set { _rootEntry = value; }
     }
 
     /// <summary>

@@ -70,6 +70,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         result = BassAudioFileInputSource.Create(accessor);
       // TODO: We could cope with web streams if resource locators would be able to hold web URLs: BassWebStreamInputSource.Create(...);
 
+      accessor.PrepareStreamAccess();
+
       Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
       return result;
     }

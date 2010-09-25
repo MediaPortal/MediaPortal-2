@@ -88,11 +88,10 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     long Size { get; }
 
     /// <summary>
-    /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this
-    /// resource accessor is disposed.
+    /// Prepares this resource accessor to get a stream for the resource's contents.
+    /// This might take some time, so this method might block some seconds.
     /// </summary>
-    /// <param name="tidUpExecutor">Tidy up executor instance to add.</param>
-    void AddTidyUpExecutor(ITidyUpExecutor tidUpExecutor);
+    void PrepareStreamAccess();
 
     /// <summary>
     /// Opens a stream to read this resource.

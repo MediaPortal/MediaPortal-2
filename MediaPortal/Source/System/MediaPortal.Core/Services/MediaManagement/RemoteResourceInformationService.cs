@@ -33,6 +33,7 @@ using MediaPortal.Core.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
+using UPnP.Infrastructure.CP.SSDP;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -100,6 +101,27 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
+    protected bool IsDescriptorOfSystem(RootDescriptor rootDescriptor, SystemName system)
+    {
+      RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
+      lock (rootEntry.SyncObj)
+        foreach (LinkData link in rootEntry.AllLinks)
+        {
+          string location = link.DescriptionLocation;
+          try
+          {
+            string hostName = new Uri(location).Host;
+            if (system == new SystemName(hostName))
+              return true;
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("RemoteResourceInformationService: Error checking host of URI '{0}'", e, location);
+          }
+        }
+      return false;
+    }
+
     /// <summary>
     /// Checks if there is a resource information UPnP service available on the given <paramref name="system"/>.
     /// </summary>
@@ -109,26 +131,13 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected IResourceInformationService FindResourceInformationService(SystemName system)
     {
       lock (_networkTracker.SharedControlPointData.SyncObj)
-      {
         foreach (RootDescriptor rootDeviceDescriptor in _networkTracker.KnownRootDevices.Values)
-        {
-          string location = rootDeviceDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation;
-          try
+          if (IsDescriptorOfSystem(rootDeviceDescriptor, system))
           {
-            string hostName = new Uri(location).Host;
-            if (system == new SystemName(hostName))
-            {
-              IResourceInformationService ris = TryGetResourceInformationService(rootDeviceDescriptor);
-              if (ris != null)
-                return ris;
-            }
+            IResourceInformationService ris = TryGetResourceInformationService(rootDeviceDescriptor);
+            if (ris != null)
+              return ris;
           }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("RemoteResourceInformationService: Error checking host of URI '{0}'", e, location);
-          }
-        }
-      }
       return null;
     }
 
