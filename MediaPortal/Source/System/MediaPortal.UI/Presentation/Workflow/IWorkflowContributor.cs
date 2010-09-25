@@ -40,16 +40,6 @@ namespace MediaPortal.UI.Presentation.Workflow
     event ContributorStateChangeDelegate StateChanged;
 
     /// <summary>
-    /// Returns the information if the associated workflow action should be visible.
-    /// </summary>
-    bool IsActionVisible { get; }
-
-    /// <summary>
-    /// Returns the information if the associated workflow action should be enabled.
-    /// </summary>
-    bool IsActionEnabled { get; }
-
-    /// <summary>
     /// Returns the title to be displayed for this workflow contributor action.
     /// </summary>
     IResourceString DisplayTitle { get; }
@@ -65,6 +55,18 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// uninitialize the actions it initialized in method <see cref="Initialize()"/>.
     /// </summary>
     void Uninitialize();
+
+    /// <summary>
+    /// Returns the information whether the associated workflow action should be visible in the given
+    /// navigation <paramref name="context"/>.
+    /// </summary>
+    bool IsActionVisible(NavigationContext context);
+
+    /// <summary>
+    /// Returns the information whether the associated workflow action should be enabled in the given
+    /// navigation <paramref name="context"/>.
+    /// </summary>
+    bool IsActionEnabled(NavigationContext context);
 
     /// <summary>
     /// Executes the contributor's code when the action is triggered.

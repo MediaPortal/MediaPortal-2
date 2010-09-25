@@ -148,16 +148,6 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #region Base overrides
 
-    public override bool IsVisible
-    {
-      get { return _contributor != null && _contributor.IsActionVisible; }
-    }
-
-    public override bool IsEnabled
-    {
-      get { return _contributor != null && _contributor.IsActionEnabled; }
-    }
-
     public override IResourceString DisplayTitle
     {
       get
@@ -183,6 +173,16 @@ namespace MediaPortal.UI.Presentation.Workflow
       usages--;
       if (usages == 0)
         Unbind();
+    }
+
+    public override bool IsVisible(NavigationContext context)
+    {
+      return _contributor != null && _contributor.IsActionVisible(context);
+    }
+
+    public override bool IsEnabled(NavigationContext context)
+    {
+      return _contributor != null && _contributor.IsActionEnabled(context);
     }
 
     /// <summary>

@@ -124,20 +124,22 @@ namespace MediaPortal.UI.Presentation.Workflow
     }
 
     /// <summary>
-    /// Returns the information if this action should be displayed to the user.
-    /// </summary>
-    public abstract bool IsVisible { get; }
-
-    /// <summary>
-    /// Returns the information if this action is currently able to be executed.
-    /// </summary>
-    public abstract bool IsEnabled { get; }
-
-    /// <summary>
     /// This event will be triggered when the <see cref="IsVisible"/> or <see cref="IsEnabled"/> states of this
     /// action have changed.
     /// </summary>
     public event WorkflowActionStateChangeDelegate StateChanged;
+
+    /// <summary>
+    /// Returns the information if this action should be displayed to the user in the given
+    /// navigation <paramref name="context"/>.
+    /// </summary>
+    public abstract bool IsVisible(NavigationContext context);
+
+    /// <summary>
+    /// Returns the information if this action is currently able to be executed in the given
+    /// navigation <paramref name="context"/>.
+    /// </summary>
+    public abstract bool IsEnabled(NavigationContext context);
 
     /// <summary>
     /// Executes this action. This method will be overridden in subclasses.

@@ -118,16 +118,6 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public bool IsActionVisible
-    {
-      get { return _isVisible; }
-    }
-
-    public bool IsActionEnabled
-    {
-      get { return true; }
-    }
-
     public IResourceString DisplayTitle
     {
       get { return _displayTitle; }
@@ -142,6 +132,16 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     public void Uninitialize()
     {
       UnsubscribeFromMessages();
+    }
+
+    public bool IsActionVisible(NavigationContext context)
+    {
+      return _isVisible;
+    }
+
+    public bool IsActionEnabled(NavigationContext context)
+    {
+      return true;
     }
 
     public void Execute()

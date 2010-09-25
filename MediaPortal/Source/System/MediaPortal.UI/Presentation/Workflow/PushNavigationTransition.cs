@@ -56,14 +56,14 @@ namespace MediaPortal.UI.Presentation.Workflow
       get { return _targetStateId; }
     }
 
-    public override bool IsVisible
+    public override bool IsVisible(NavigationContext context)
     {
-      get { return true; }
+      return true;
     }
 
-    public override bool IsEnabled
+    public override bool IsEnabled(NavigationContext context)
     {
-      get { return true; }
+      return true;
     }
 
     /// <summary>

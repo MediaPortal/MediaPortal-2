@@ -41,22 +41,6 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public bool IsActionVisible
-    {
-      get
-      {
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        NavigationContext currentNavigationContext = workflowManager.CurrentNavigationContext;
-        NavigationData navigationData = MediaModel.GetNavigationData(currentNavigationContext);
-        return navigationData != null;
-      }
-    }
-
-    public bool IsActionEnabled
-    {
-      get { return true; }
-    }
-
     public IResourceString DisplayTitle
     {
       get { return LocalizationHelper.CreateResourceString(ADD_TO_PLAYLIST_RES); }
@@ -68,6 +52,17 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public void Uninitialize()
     {
+    }
+
+    public bool IsActionVisible(NavigationContext context)
+    {
+      NavigationData navigationData = MediaModel.GetNavigationData(context);
+      return navigationData != null;
+    }
+
+    public bool IsActionEnabled(NavigationContext context)
+    {
+      return true;
     }
 
     public void Execute()

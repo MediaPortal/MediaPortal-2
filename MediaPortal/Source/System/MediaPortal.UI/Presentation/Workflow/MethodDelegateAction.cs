@@ -63,14 +63,14 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #region Overrides of WorkflowAction
 
-    public override bool IsVisible
+    public override bool IsVisible(NavigationContext context)
     {
-      get { return _isVisible; }
+      return _isVisible;
     }
 
-    public override bool IsEnabled
+    public override bool IsEnabled(NavigationContext context)
     {
-      get { return _isEnabled; }
+      return _isEnabled;
     }
 
     public override void Execute()

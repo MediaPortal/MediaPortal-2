@@ -132,20 +132,6 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public bool IsActionVisible
-    {
-      get
-      {
-        lock (_syncObj)
-          return _isVisible;
-      }
-    }
-
-    public bool IsActionEnabled
-    {
-      get { return true; }
-    }
-
     public IResourceString DisplayTitle
     {
       get
@@ -164,6 +150,17 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     public void Uninitialize()
     {
       UnsubscribeFromMessages();
+    }
+
+    public bool IsActionVisible(NavigationContext context)
+    {
+      lock (_syncObj)
+        return _isVisible;
+    }
+
+    public bool IsActionEnabled(NavigationContext context)
+    {
+      return true;
     }
 
     public void Execute()

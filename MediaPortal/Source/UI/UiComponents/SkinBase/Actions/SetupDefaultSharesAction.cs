@@ -123,16 +123,6 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public bool IsActionVisible
-    {
-      get { return CanSetupDefaultShares; }
-    }
-
-    public bool IsActionEnabled
-    {
-      get { return true; }
-    }
-
     public IResourceString DisplayTitle
     {
       get { return null; }
@@ -146,6 +136,16 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     public void Uninitialize()
     {
       UnsubscribeFromMessages();
+    }
+
+    public bool IsActionVisible(NavigationContext context)
+    {
+      return CanSetupDefaultShares;
+    }
+
+    public bool IsActionEnabled(NavigationContext context)
+    {
+      return true;
     }
 
     public void Execute()

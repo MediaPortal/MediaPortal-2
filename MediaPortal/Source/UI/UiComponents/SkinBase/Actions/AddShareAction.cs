@@ -62,16 +62,6 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public event ContributorStateChangeDelegate StateChanged;
 
-    public bool IsActionVisible
-    {
-      get { return true; }
-    }
-
-    public bool IsActionEnabled
-    {
-      get { return true; }
-    }
-
     public IResourceString DisplayTitle
     {
       get { return null; }
@@ -83,6 +73,16 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public void Uninitialize()
     {
+    }
+
+    public bool IsActionVisible(NavigationContext context)
+    {
+      return true;
+    }
+
+    public bool IsActionEnabled(NavigationContext context)
+    {
+      return true;
     }
 
     public void Execute()

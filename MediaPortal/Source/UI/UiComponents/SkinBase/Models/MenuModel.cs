@@ -132,9 +132,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return 0; // a == null, b == null
         else
           return 1; // a == null, b != null
-      else
-        if (b == null)
-          return -1; // a != null, b == null
+      if (b == null)
+        return -1; // a != null, b == null
       return a.CompareTo(b);
     }
 
@@ -265,7 +264,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         int newNumEntries = 0;
         foreach (WorkflowAction action in newActions)
         {
-          if (!action.IsVisible)
+          if (!action.IsVisible(context))
             continue;
           if (oldNumEntries <= newNumEntries)
             return false;
@@ -284,9 +283,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           }
           // Not easy to check equality of the command - doesn't matter, simply recreate it
           item.Command = new MethodDelegateCommand(action.Execute);
-          if (item.Enabled != action.IsEnabled)
+          bool actionEnabled = action.IsEnabled(context);
+          if (item.Enabled != actionEnabled)
           {
-            item.Enabled = action.IsEnabled;
+            item.Enabled = actionEnabled;
             wasChanged = true;
           }
           if (wasChanged)
@@ -321,12 +321,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         foreach (WorkflowAction action in newActions)
         {
           RegisterActionChangeHandler(context, action);
-          if (!action.IsVisible)
+          if (!action.IsVisible(context))
             continue;
           ListItem item = new ListItem("Name", action.DisplayTitle)
               {
                 Command = new MethodDelegateCommand(action.Execute),
-                Enabled = action.IsEnabled,
+                Enabled = action.IsEnabled(context),
               };
           item.AdditionalProperties[ITEM_ACTION_KEY] = action;
           menuItems.Add(item);
@@ -353,8 +353,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           ItemsList menu = GetMenuItems(currentContext);
           if (menu != null)
             return menu;
-          else
-            return UpdateMenu(currentContext);
+          return UpdateMenu(currentContext);
         }
       }
     }
