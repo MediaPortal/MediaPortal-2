@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Dokan;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement.Settings;
 using MediaPortal.Core.Settings;
@@ -55,12 +56,15 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </remarks>
     protected abstract class VirtualFileSystemResource
     {
+      protected string _name;
+
       protected IResourceAccessor _resourceAccessor;
       protected ICollection<FileHandle> _fileHandles = new HashSet<FileHandle>();
       protected DateTime _creationTime;
 
-      protected VirtualFileSystemResource(IResourceAccessor resourceAccessor)
+      protected VirtualFileSystemResource(string name, IResourceAccessor resourceAccessor)
       {
+        _name = name;
         _resourceAccessor = resourceAccessor;
         _creationTime = DateTime.Now;
       }
@@ -70,7 +74,15 @@ namespace MediaPortal.Core.Services.MediaManagement
         foreach (FileHandle handle in _fileHandles)
           handle.Cleanup();
         if (_resourceAccessor != null)
-          _resourceAccessor.Dispose();
+          try
+          {
+            _resourceAccessor.Dispose();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ResourceMountingServer: Error disposing resource accessor '{0}'", e, _resourceAccessor);
+          }
+        _resourceAccessor = null;
       }
 
       public IResourceAccessor ResourceAccessor
@@ -99,13 +111,18 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     protected class VirtualFile : VirtualFileSystemResource
     {
-      public VirtualFile(IResourceAccessor resourceAccessor) :
-          base(resourceAccessor) { }
+      public VirtualFile(string name, IResourceAccessor resourceAccessor) :
+          base(name, resourceAccessor) { }
+
+      public override string ToString()
+      {
+        return string.Format("Virtual file '{0}'", _name);
+      }
     }
 
     protected abstract class VirtualBaseDirectory : VirtualFileSystemResource
     {
-      protected VirtualBaseDirectory(IResourceAccessor resourceAccessor) : base(resourceAccessor) { }
+      protected VirtualBaseDirectory(string name, IResourceAccessor resourceAccessor) : base(name, resourceAccessor) { }
 
       public abstract IDictionary<string, VirtualFileSystemResource> ChildResources { get; }
     }
@@ -118,7 +135,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       protected IDictionary<string, VirtualFileSystemResource> _children =
           new Dictionary<string, VirtualFileSystemResource>(StringComparer.InvariantCultureIgnoreCase);
 
-      public VirtualRootDirectory() : base(null) { }
+      public VirtualRootDirectory(string name) : base(name, null) { }
 
       public override void Dispose()
       {
@@ -141,6 +158,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         _children.Remove(name);
       }
+
+      public override string ToString()
+      {
+        return string.Format("Virtual root directory '{0}'", _name);
+      }
     }
 
     /// <summary>
@@ -151,7 +173,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       protected IDictionary<string, VirtualFileSystemResource> _children = null; // Lazily initialized
 
 // ReSharper disable SuggestBaseTypeForParameter
-      public VirtualDirectory(IFileSystemResourceAccessor resourceAccessor) :  base(resourceAccessor) { }
+      public VirtualDirectory(string name, IFileSystemResourceAccessor resourceAccessor) :  base(name, resourceAccessor) { }
 // ReSharper restore SuggestBaseTypeForParameter
 
       public override void Dispose()
@@ -175,13 +197,26 @@ namespace MediaPortal.Core.Services.MediaManagement
           if (_children == null)
           {
             _children = new Dictionary<string, VirtualFileSystemResource>(StringComparer.InvariantCultureIgnoreCase);
-            foreach (IFileSystemResourceAccessor childDirectoryAccessor in Directory.GetChildDirectories())
-              _children[childDirectoryAccessor.ResourceName] = new VirtualDirectory(childDirectoryAccessor);
-            foreach (IFileSystemResourceAccessor fileAccessor in Directory.GetFiles())
-              _children[fileAccessor.ResourceName] = new VirtualFile(fileAccessor);
+            try
+            {
+              foreach (IFileSystemResourceAccessor childDirectoryAccessor in Directory.GetChildDirectories())
+                _children[childDirectoryAccessor.ResourceName] = new VirtualDirectory(
+                    childDirectoryAccessor.ResourceName, childDirectoryAccessor);
+              foreach (IFileSystemResourceAccessor fileAccessor in Directory.GetFiles())
+                _children[fileAccessor.ResourceName] = new VirtualFile(fileAccessor.ResourceName, fileAccessor);
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("ResourceMountingServer: Error collecting child resources of directory '{0}'", e, _name);
+            }
           }
           return _children;
         }
+      }
+
+      public override string ToString()
+      {
+        return string.Format("Virtual directory '{0}'", _name);
       }
     }
 
@@ -205,18 +240,32 @@ namespace MediaPortal.Core.Services.MediaManagement
 
       public void Cleanup()
       {
-        if (_stream != null)
-          _stream.Dispose();
+        try
+        {
+          if (_stream != null)
+            _stream.Dispose();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ResourceMountingServer: Error cleaning up resource '{0}'", e, _resource.ResourceAccessor);
+        }
         _stream = null;
       }
 
       public Stream GetOrOpenStream()
       {
-       if (_stream == null)
-       {
-         IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
-         _stream = resourceAccessor == null ? null : resourceAccessor.OpenRead();
-       }
+        if (_stream == null)
+        {
+          IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
+          try
+          {
+            _stream = resourceAccessor == null ? null : resourceAccessor.OpenRead();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ResourceMountingServer: Error creating stream for resource '{0}'", e, resourceAccessor);
+          }
+        }
         return _stream;
       }
     }
@@ -226,7 +275,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected object _syncObj = new object();
     protected bool _started = false;
     protected char _driveLetter;
-    protected VirtualRootDirectory _root = new VirtualRootDirectory();
+    protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
     public ResourceMountingService()
     {
@@ -316,7 +365,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     public string CreateRootDirectory(string rootDirectoryName)
     {
       lock (_syncObj)
-        _root.AddResource(rootDirectoryName, new VirtualRootDirectory());
+        _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
       
       return _driveLetter + ":\\" + rootDirectoryName;
     }
@@ -357,7 +406,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         string resourceName = resourceAccessor.ResourceName;
         IFileSystemResourceAccessor fsra = resourceAccessor as IFileSystemResourceAccessor;
         rootDirectory.AddResource(resourceName, fsra != null && fsra.IsDirectory ?
-            (VirtualFileSystemResource) new VirtualDirectory(fsra) : new VirtualFile(resourceAccessor));
+            (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
+            new VirtualFile(resourceName, resourceAccessor));
         return _driveLetter + ":\\" + rootDirectoryName + "\\" + resourceName;
       }
     }
@@ -442,20 +492,36 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public int ReadFile(string filename, byte[] buffer, ref uint readBytes, long offset, DokanFileInfo info)
     {
+      FileHandle handle = (FileHandle) info.Context;
       Stream stream;
       lock (_syncObj)
       {
-        FileHandle handle = (FileHandle) info.Context;
         if (handle == null)
           return -1;
-        stream = handle.GetOrOpenStream();
-        if (stream == null)
+        try
+        {
+          stream = handle.GetOrOpenStream();
+          if (stream == null)
+            return -1;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error creating file stream of resource '{0}'", e, handle.Resource);
           return -1;
+        }
       }
       // Do the reading outside the lock - might block when not enough bytes are available
-      stream.Seek(offset, SeekOrigin.Begin);
-      readBytes = (uint) stream.Read(buffer, 0, buffer.Length);
-      return 0;
+      try
+      {
+        stream.Seek(offset, SeekOrigin.Begin);
+        readBytes = (uint) stream.Read(buffer, 0, buffer.Length);
+        return 0;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error reading from stream of resource '{0}'", e, handle.Resource);
+        return -1;
+      }
     }
 
     public int WriteFile(string filename, byte[] buffer, ref uint writtenBytes, long offset, DokanFileInfo info)
