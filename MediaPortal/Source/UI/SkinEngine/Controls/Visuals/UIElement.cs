@@ -54,9 +54,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   }
 
   /// <summary>
-  /// Delegate interface which decides if an element fulfills a special condition.
+  /// Delegate interface which decides if an UI element fulfills a special condition.
   /// </summary>
-  public interface IFinder
+  public interface IMatcher
   {
     /// <summary>
     /// Query method which decides if the specified <paramref name="current"/>
@@ -64,103 +64,103 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <returns><c>true</c> if the specified <paramref name="current"/> element
     /// fulfills the condition exposed by this class, else <c>false</c>.</returns>
-    bool Query(UIElement current);
+    bool Match(UIElement current);
   }
 
   /// <summary>
   /// Finder implementation which returns an element if multiple child finders accept it.
   /// </summary>
-  public class MultiFinder : IFinder
+  public class MultiMatcher : IMatcher
   {
-    protected IFinder[] _finders;
+    protected IMatcher[] _matchers;
 
-    public MultiFinder(IFinder[] finders)
+    public MultiMatcher(IMatcher[] matchers)
     {
-      _finders = finders;
+      _matchers = matchers;
     }
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
-      foreach (IFinder finder in _finders)
-        if (!finder.Query(current))
+      foreach (IMatcher matcher in _matchers)
+        if (!matcher.Match(current))
           return false;
       return true;
     }
   }
 
   /// <summary>
-  /// Finder implementation which returns an element if it is visible.
+  /// Matcher implementation which returns an element if it is visible.
   /// </summary>
-  public class VisibleElementFinder : IFinder
+  public class VisibleElementMatcher : IMatcher
   {
-    private static VisibleElementFinder _instance = null;
+    private static VisibleElementMatcher _instance = null;
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       return current.IsVisible;
     }
 
-    public static VisibleElementFinder Instance
+    public static VisibleElementMatcher Instance
     {
       get
       {
         if (_instance == null)
-          _instance = new VisibleElementFinder();
+          _instance = new VisibleElementMatcher();
         return _instance;
       }
     }
   }
 
   /// <summary>
-  /// Finder implementation which looks for elements of the specified type.
+  /// Matcher implementation which looks for elements of the specified type.
   /// </summary>
-  public class TypeFinder : IFinder
+  public class TypeMatcher : IMatcher
   {
     protected Type _type;
 
-    public TypeFinder(Type type)
+    public TypeMatcher(Type type)
     {
       _type = type;
     }
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       return _type == current.GetType();
     }
   }
 
   /// <summary>
-  /// Finder implementation which looks for elements of a the given type or
+  /// Matcher implementation which looks for elements of a the given type or
   /// of a type derived from the given type.
   /// </summary>
-  public class SubTypeFinder : IFinder
+  public class SubTypeMatcher : IMatcher
   {
     protected Type _type;
 
-    public SubTypeFinder(Type type)
+    public SubTypeMatcher(Type type)
     {
       _type = type;
     }
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       return _type.IsAssignableFrom(current.GetType());
     }
   }
 
   /// <summary>
-  /// Finder implementation which looks for elements of a specified name.
+  /// Matcher implementation which looks for elements of a specified name.
   /// </summary>
-  public class NameFinder : IFinder
+  public class NameMatcher : IMatcher
   {
     protected string _name;
 
-    public NameFinder(string name)
+    public NameMatcher(string name)
     {
       _name = name;
     }
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       return _name == current.Name;
     }
@@ -908,21 +908,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Steps the structure down (in direction to the child elements) along
     /// the visual tree to find an <see cref="UIElement"/> which fulfills the
-    /// condition specified by <paramref name="finder"/>. This method has to be
+    /// condition specified by <paramref name="matcher"/>. This method has to be
     /// overridden in all descendants exposing visual children, for every child
     /// this method has to be called.
     /// This method does a depth-first search.
     /// </summary>
-    /// <param name="finder">Callback interface which decides whether an element
+    /// <param name="matcher">Callback interface which decides whether an element
     /// is the element searched for.</param>
     /// <returns><see cref="UIElement"/> for which the specified
-    /// <paramref name="finder"/> delegate returned <c>true</c>.</returns>
-    public UIElement FindElement(IFinder finder)
+    /// <paramref name="matcher"/> delegate returned <c>true</c>.</returns>
+    public UIElement FindElement(IMatcher matcher)
     {
-      return FindElement_BreadthFirst(finder);
+      return FindElement_BreadthFirst(matcher);
     }
 
-    public UIElement FindElement_DepthFirst(IFinder finder)
+    public ICollection<UIElement> FindElements(IMatcher matcher)
+    {
+      asdf
+    }
+
+    public UIElement FindElement_DepthFirst(IMatcher matcher)
     {
       Stack<UIElement> searchStack = new Stack<UIElement>();
       IList<UIElement> elementList = new List<UIElement>();
@@ -930,7 +935,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       while (searchStack.Count > 0)
       {
         UIElement current = searchStack.Pop();
-        if (finder.Query(current))
+        if (matcher.Match(current))
           return current;
         elementList.Clear();
         current.AddChildren(elementList);
@@ -940,13 +945,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return null;
     }
 
-    public UIElement FindElement_BreadthFirst(IFinder finder)
+    public UIElement FindElement_BreadthFirst(IMatcher matcher)
     {
       LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] {this});
       LinkedListNode<UIElement> current;
       while ((current = searchList.First) != null)
       {
-        if (finder.Query(current.Value))
+        if (matcher.Match(current.Value))
           return current.Value;
         searchList.RemoveFirst();
         current.Value.AddChildren(searchList);

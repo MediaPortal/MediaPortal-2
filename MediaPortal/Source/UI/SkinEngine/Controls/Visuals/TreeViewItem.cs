@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ContentPresenter FindContentPresenter()
     {
       return TemplateControl == null ? null : TemplateControl.FindElement(
-          new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
+          new SubTypeMatcher(typeof(ContentPresenter))) as ContentPresenter;
     }
 
     #region IAddChild Members

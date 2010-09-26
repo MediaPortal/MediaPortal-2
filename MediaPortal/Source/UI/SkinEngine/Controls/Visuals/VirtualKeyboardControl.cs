@@ -381,7 +381,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected VirtualKeyboardPresenter FindVirtualKeyboardPresenter()
     {
       return TemplateControl == null ? null : TemplateControl.FindElement(
-          new TypeFinder(typeof(VirtualKeyboardPresenter))) as VirtualKeyboardPresenter;
+          new TypeMatcher(typeof(VirtualKeyboardPresenter))) as VirtualKeyboardPresenter;
     }
 
     protected void UpdateKeyboardControl()

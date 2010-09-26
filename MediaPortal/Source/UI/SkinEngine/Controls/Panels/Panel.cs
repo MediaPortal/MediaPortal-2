@@ -51,24 +51,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   }
 
   /// <summary>
-  /// Finder implementation which looks for a panel which has its
+  /// Matcher implementation which looks for a panel which has its
   /// <see cref="Panel.IsItemsHost"/> property set.
   /// </summary>
-  public class ItemsHostFinder: IFinder
+  public class ItemsHostMatcher: IMatcher
   {
-    private static ItemsHostFinder _instance = null;
+    private static ItemsHostMatcher _instance = null;
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       return current is Panel && ((Panel) current).IsItemsHost;
     }
 
-    public static ItemsHostFinder Instance
+    public static ItemsHostMatcher Instance
     {
       get
       {
         if (_instance == null)
-          _instance = new ItemsHostFinder();
+          _instance = new ItemsHostMatcher();
         return _instance;
       }
     }

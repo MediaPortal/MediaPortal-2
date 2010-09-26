@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
       {
-        target = element.FindElement(new NameFinder(TargetName));
+        target = element.FindElement(new NameMatcher(TargetName));
         if (target == null)
           return;
       }

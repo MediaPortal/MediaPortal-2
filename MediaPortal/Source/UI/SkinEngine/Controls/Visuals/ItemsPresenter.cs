@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FinishBindingsDlgt finishDlgt; // We don't need to finish the bindings on the new template because it is only a template
       FrameworkElement content = template.LoadContent(out finishDlgt) as FrameworkElement;
       TemplateControl = content;
-      _itemsHostPanel = content == null ? null : content.FindElement(ItemsHostFinder.Instance) as Panel;
+      _itemsHostPanel = content == null ? null : content.FindElement(ItemsHostMatcher.Instance) as Panel;
       AttachScrolling();
     }
 

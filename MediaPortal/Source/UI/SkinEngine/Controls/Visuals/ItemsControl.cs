@@ -377,7 +377,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ItemsPresenter FindItemsPresenter()
     {
       return TemplateControl == null ? null : TemplateControl.FindElement(
-          new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
+          new TypeMatcher(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
     protected virtual void PrepareItems()

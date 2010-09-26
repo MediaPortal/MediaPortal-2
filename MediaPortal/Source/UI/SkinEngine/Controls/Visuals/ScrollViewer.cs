@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override ContentPresenter FindContentPresenter()
     {
       return TemplateControl == null ? null :
-          TemplateControl.FindElement_DepthFirst(new SubTypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
+          TemplateControl.FindElement_DepthFirst(new SubTypeMatcher(typeof(ScrollContentPresenter))) as ContentPresenter;
     }
 
     /// <summary>

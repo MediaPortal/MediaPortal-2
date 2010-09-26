@@ -66,24 +66,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Right
   }
 
-  public class FocusableElementFinder : IFinder
+  public class FocusableElementMatcher : IMatcher
   {
-    private static FocusableElementFinder _instance = null;
+    private static FocusableElementMatcher _instance = null;
 
-    public bool Query(UIElement current)
+    public bool Match(UIElement current)
     {
       FrameworkElement fe = current as FrameworkElement;
       if (fe == null)
         return false;
-      return fe.Focusable;
+      return fe.IsVisible && fe.Focusable;
     }
 
-    public static FocusableElementFinder Instance
+    public static FocusableElementMatcher Instance
     {
       get
       {
         if (_instance == null)
-          _instance = new FocusableElementFinder();
+          _instance = new FocusableElementMatcher();
         return _instance;
       }
     }
@@ -1155,6 +1155,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return bestMatch;
     }
 
+    protected static float BorderDistance(RectangleF r1, RectangleF r2)
+    {
+      float distX;
+      float distY;
+      if (r1.Left > r2.Right)
+        distX = r1.Left - r2.Right;
+      else if (r1.Right < r2.Left)
+        distX = r2.Left - r1.Right;
+      else
+        distX = 0;
+      if (r1.Top > r2.Bottom)
+        distY = r1.Top - r2.Bottom;
+      else if (r1.Bottom < r2.Top)
+        distY = r2.Top - r1.Bottom;
+      else
+        distY = 0;
+      return (float) Math.Sqrt(distX * distX + distY * distY);
+    }
+
     protected static float CenterDistance(RectangleF r1, RectangleF r2)
     {
       float distX = Math.Abs((r1.Left + r1.Right) / 2 - (r2.Left + r2.Right) / 2);
@@ -1205,25 +1224,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       float alpha = CalcCenterDirection(otherRect);
       return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
-    }
-
-    protected static float BorderDistance(RectangleF r1, RectangleF r2)
-    {
-      float distX;
-      float distY;
-      if (r1.Left > r2.Right)
-        distX = r1.Left - r2.Right;
-      else if (r1.Right < r2.Left)
-        distX = r2.Left - r1.Right;
-      else
-        distX = 0;
-      if (r1.Top > r2.Bottom)
-        distY = r1.Top - r2.Bottom;
-      else if (r1.Bottom < r2.Top)
-        distY = r2.Top - r1.Bottom;
-      else
-        distY = 0;
-      return (float) Math.Sqrt(distX * distX + distY * distY);
     }
 
     #endregion

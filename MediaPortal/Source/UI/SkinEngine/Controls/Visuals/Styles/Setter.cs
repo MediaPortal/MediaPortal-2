@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         // I think this is more than WPF does. It makes it possible to find elements instantiated
         // by a template, for example.
         targetObject = element.FindElementInNamescope(TargetName) ??
-            element.FindElement(new NameFinder(TargetName));
+            element.FindElement(new NameMatcher(TargetName));
         if (targetObject == null)
           return false;
       }

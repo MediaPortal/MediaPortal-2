@@ -260,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       _virtualKeyboardDialogGuid = dd.DialogInstanceId;
       VirtualKeyboardControl vkc = (VirtualKeyboardControl)
-          dd.DialogScreen.Visual.FindElement(new TypeFinder(typeof(VirtualKeyboardControl)));
+          dd.DialogScreen.Visual.FindElement(new TypeMatcher(typeof(VirtualKeyboardControl)));
       if (vkc == null)
         // No virtual keyboard control in our virtual keyboard dialog!?
         return;

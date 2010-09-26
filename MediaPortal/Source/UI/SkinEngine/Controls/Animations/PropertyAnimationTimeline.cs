@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected IDataDescriptor GetDataDescriptor(UIElement element)
     {
       string targetName = Storyboard.GetTargetName(this);
-      object targetObject = element.FindElement(new NameFinder(targetName));
+      object targetObject = element.FindElement(new NameMatcher(targetName));
       if (targetObject == null)
         return null;
       try
