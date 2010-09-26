@@ -31,6 +31,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
@@ -929,8 +930,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result.Add(this);
       ICollection<UIElement> children = GetChildren();
       foreach (UIElement child in children)
-        if (matcher.Match(child))
-          result.Add(child);
+        CollectionUtils.AddAll(result, child.FindElements(matcher));
       return result;
     }
 

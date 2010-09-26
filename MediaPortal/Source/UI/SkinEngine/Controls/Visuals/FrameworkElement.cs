@@ -25,7 +25,9 @@
 //#define DEBUG_LAYOUT
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -64,29 +66,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Down,
     Left,
     Right
-  }
-
-  public class FocusableElementMatcher : IMatcher
-  {
-    private static FocusableElementMatcher _instance = null;
-
-    public bool Match(UIElement current)
-    {
-      FrameworkElement fe = current as FrameworkElement;
-      if (fe == null)
-        return false;
-      return fe.IsVisible && fe.Focusable;
-    }
-
-    public static FocusableElementMatcher Instance
-    {
-      get
-      {
-        if (_instance == null)
-          _instance = new FocusableElementMatcher();
-        return _instance;
-      }
-    }
   }
 
   public class FrameworkElement: UIElement
@@ -1098,7 +1077,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Focus prediction
 
     /// <summary>
-    /// Predicts the next control which is positioned in the specified direction
+    /// Predicts the next control located inside this element which is positioned in the specified direction
     /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
     /// which is able to get the focus.
     /// This method will search the control tree down starting with this element as root element.
@@ -1113,40 +1092,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsVisible)
         return null;
-      // Check if this control is a possible return value
-      if (IsEnabled && Focusable)
-        if (!currentFocusRect.HasValue ||
-            (dir == MoveFocusDirection.Up && IsLocatedAbove(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Down && IsLocatedBelow(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Left && IsLocatedLeftOf(currentFocusRect.Value)) ||
-            (dir == MoveFocusDirection.Right && IsLocatedRightOf(currentFocusRect.Value)))
-          return this;
+      ICollection<FrameworkElement>  focusableChildren = new List<FrameworkElement>();
+      AddFocusableElements(focusableChildren);
       // Check child controls
+      if (focusableChildren.Count == 0)
+        return null;
+      if (!currentFocusRect.HasValue)
+        return focusableChildren.First();
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
-      foreach (UIElement child in GetChildren())
+      foreach (FrameworkElement child in focusableChildren)
       {
-        if (!child.IsVisible || !(child is FrameworkElement)) continue;
-        FrameworkElement fe = (FrameworkElement) child;
-
-        FrameworkElement match = fe.PredictFocus(currentFocusRect, dir);
-        if (match != null)
+        if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Down && child.LocatedBelow(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value)))
         {
-          if (!currentFocusRect.HasValue)
-            // If we don't have a comparison rect, simply return first match.
-            return match;
           // Calculate and compare distances of all matches
-          float centerDistance = CenterDistance(match.ActualBounds, currentFocusRect.Value);
+          float centerDistance = CenterDistance(child.ActualBounds, currentFocusRect.Value);
           if (centerDistance == 0)
-            // If the control's center is exactly the center of the currently focused element,
+            // If the child's center is exactly the center of the currently focused element,
             // it won't be used as next focus element
             continue;
-          float distance = BorderDistance(match.ActualBounds, currentFocusRect.Value);
+          float distance = BorderDistance(child.ActualBounds, currentFocusRect.Value);
           if (bestMatch == null || distance < bestDistance ||
               distance == bestDistance && centerDistance < bestCenterDistance)
           {
-            bestMatch = match;
+            bestMatch = child;
             bestDistance = distance;
             bestCenterDistance = centerDistance;
           }
@@ -1186,44 +1159,78 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new PointF((rect.Left + rect.Right)/2, (rect.Top + rect.Bottom)/2);
     }
 
-    private float CalcCenterDirection(RectangleF otherRect)
+    private float CalcDirection(PointF start, PointF end)
     {
-      PointF thisCenter = GetCenterPosition(ActualBounds);
-      PointF thatCenter = GetCenterPosition(otherRect);
-      if (IsNear(thisCenter.X, thatCenter.X) && IsNear(thisCenter.Y, thatCenter.Y))
+      if (IsNear(start.X, end.X) && IsNear(start.Y, end.Y))
         return float.NaN;
-      double x = thatCenter.X - thisCenter.X;
-      double y = thatCenter.Y - thisCenter.Y;
+      double x = end.X - start.X;
+      double y = end.Y - start.Y;
       double alpha = Math.Acos(x/Math.Sqrt(x*x+y*y));
-      if (thatCenter.Y > thisCenter.Y) // Coordinates go from top to bottom, so y must be inverted
+      if (end.Y > start.Y) // Coordinates go from top to bottom, so y must be inverted
         alpha = -alpha;
       if (alpha < 0)
         alpha += 2*Math.PI;
       return (float) alpha;
     }
 
-    protected bool IsLocatedBelow(RectangleF otherRect)
+    protected bool LocatedBelow(RectangleF otherRect)
     {
-      float alpha = CalcCenterDirection(otherRect);
+      RectangleF actualBounds = ActualBounds;
+      if (IsNear(actualBounds.Top, otherRect.Bottom))
+        return true;
+      PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Top);
+      PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Bottom);
+      float alpha = CalcDirection(start, end);
       return alpha > DELTA_DOUBLE && alpha < Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool IsLocatedAbove(RectangleF otherRect)
+    protected bool LocatedAbove(RectangleF otherRect)
     {
-      float alpha = CalcCenterDirection(otherRect);
+      RectangleF actualBounds = ActualBounds;
+      if (IsNear(actualBounds.Bottom, otherRect.Top))
+        return true;
+      PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
+      PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
+      float alpha = CalcDirection(start, end);
       return alpha > Math.PI + DELTA_DOUBLE && alpha < 2*Math.PI - DELTA_DOUBLE;
     }
 
-    protected bool IsLocatedLeftOf(RectangleF otherRect)
+    protected bool LocatedLeftOf(RectangleF otherRect)
     {
-      float alpha = CalcCenterDirection(otherRect);
+      RectangleF actualBounds = ActualBounds;
+      if (IsNear(actualBounds.Right, otherRect.Left))
+        return true;
+      PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
+      PointF end = new PointF(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
+      float alpha = CalcDirection(start, end);
       return alpha < Math.PI/2 - DELTA_DOUBLE || alpha > 3*Math.PI/2 + DELTA_DOUBLE;
     }
 
-    protected bool IsLocatedRightOf(RectangleF otherRect)
+    protected bool LocatedRightOf(RectangleF otherRect)
     {
-      float alpha = CalcCenterDirection(otherRect);
+      RectangleF actualBounds = ActualBounds;
+      if (IsNear(actualBounds.Left, otherRect.Right))
+        return true;
+      PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
+      PointF end = new PointF(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
+      float alpha = CalcDirection(start, end);
       return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
+    }
+
+    protected void AddFocusableElements(ICollection<FrameworkElement> elements)
+    {
+      if (!IsVisible)
+        return;
+      if (Focusable)
+        elements.Add(this);
+      ICollection<UIElement> children = GetChildren();
+      foreach (UIElement child in children)
+      {
+        if (!(child is FrameworkElement))
+          continue;
+        FrameworkElement fe = (FrameworkElement) child;
+        fe.AddFocusableElements(elements);
+      }
     }
 
     #endregion
