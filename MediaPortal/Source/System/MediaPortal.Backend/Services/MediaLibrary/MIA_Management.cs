@@ -536,6 +536,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    // If called with values == null, all values will be deleted for the given spec/mediaItemId
     protected void DeleteOneToManyAttributeValuesNotInEnumeration(ITransaction transaction,
         MediaItemAspectMetadata.AttributeSpecification spec, Int64 mediaItemId, IEnumerable values)
     {
@@ -545,14 +546,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       DBUtils.AddParameter(command, mediaItemId);
 
-      int numValues = 0;
-      foreach (object value in values)
+      string commandText = "DELETE FROM " + collectionAttributeTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ?";
+      if (values != null)
       {
-        numValues++;
-        DBUtils.AddParameter(command, value);
+        int numValues = 0;
+        foreach (object value in values)
+        {
+          numValues++;
+          DBUtils.AddParameter(command, value);
+        }
+        commandText += " AND " + COLL_ATTR_VALUE_COL_NAME + " NOT IN(" +
+            StringUtils.Join(", ", CollectionUtils.Fill("?", numValues)) + ")";
       }
-      command.CommandText = "DELETE FROM " + collectionAttributeTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND " +
-          COLL_ATTR_VALUE_COL_NAME + " NOT IN(" + StringUtils.Join(", ", CollectionUtils.Fill("?", numValues)) + ")";
+      command.CommandText = commandText;
       command.ExecuteNonQuery();
     }
 
@@ -741,8 +747,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if (!insert)
           DeleteManyToManyAttributeAssociationsNotInEnumeration(transaction, spec, mediaItemId, values);
-        foreach (object value in values)
-          InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value);
+        if (values != null)
+          foreach (object value in values)
+            InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value);
         if (!insert)
           CleanupManyToManyOrphanedAttributeValues(transaction, spec);
       }
