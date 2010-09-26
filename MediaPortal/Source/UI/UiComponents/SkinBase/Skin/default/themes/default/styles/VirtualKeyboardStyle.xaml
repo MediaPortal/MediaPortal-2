@@ -40,18 +40,22 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- TODO: Change styles to toggle button style -->
-        <CheckBox Content="[Keys.Shift]" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
-            IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.AltGr]" Grid.Row="1" Grid.Column="1" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource CheckBoxStyle}"
             IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+            IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+            IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
       </Grid>
 
       <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0">
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
             <Binding Path="!ShiftState"/>
+            <Binding Path="!CapsLockState"/>
             <Binding Path="!AltGrState"/>
           </MultiBinding>
         </Grid.IsVisible>
@@ -260,8 +264,9 @@
 
       <Grid x:Name="Keyboard-Shift" Grid.Column="1" Grid.Row="0">
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
             <Binding Path="ShiftState"/>
+            <Binding Path="CapsLockState"/>
             <Binding Path="!AltGrState"/>
           </MultiBinding>
         </Grid.IsVisible>
@@ -482,8 +487,9 @@
 
       <Grid x:Name="Keyboard-AltGr" Grid.Column="1" Grid.Row="0">
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
             <Binding Path="!ShiftState"/>
+            <Binding Path="!CapsLockState"/>
             <Binding Path="AltGrState"/>
           </MultiBinding>
         </Grid.IsVisible>
@@ -675,8 +681,9 @@
 
       <Grid x:Name="Keyboard-Shift-AltGr" Grid.Column="1" Grid.Row="0">
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
             <Binding Path="ShiftState"/>
+            <Binding Path="CapsLockState"/>
             <Binding Path="AltGrState"/>
           </MultiBinding>
         </Grid.IsVisible>

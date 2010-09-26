@@ -105,6 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _visibleTextProperty = new SProperty(typeof(string), string.Empty);
     protected AbstractProperty _shiftStateProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _capsLockStateProperty = new SProperty(typeof(bool), false);
     protected AbstractProperty _altGrStateProperty = new SProperty(typeof(bool), false);
 
     #endregion
@@ -114,6 +115,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public VirtualKeyboardControl()
     {
       IsVisible = false;
+      Attach();
       SubscribeToMessages();
     }
 
@@ -122,7 +124,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UnsubscribeFromMessages();
     }
 
+    void Attach()
+    {
+      _shiftStateProperty.Attach(OnShiftStateChanged);
+      _capsLockStateProperty.Attach(OnCapsLockStateChanged);
+    }
+
+    // Not used
+    //void Detach()
+    //{
+    //  _shiftStateProperty.Detach(OnShiftStateChanged);
+    //  _capsLockStateProperty.Detach(OnCapsLockStateChanged);
+    //}
+
     #endregion
+
+    void OnShiftStateChanged(AbstractProperty prop, object oldVal)
+    {
+      if (ShiftState)
+        CapsLockState = false;
+    }
+
+    void OnCapsLockStateChanged(AbstractProperty prop, object oldVal)
+    {
+      if (CapsLockState)
+        ShiftState = false;
+    }
 
     void SubscribeToMessages()
     {
@@ -159,7 +186,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public event VirtualKeyboardCloseDlgt Closed;
 
     /// <summary>
-    /// Gets or sets the text which is edited by the virtual keyboard.
+    /// Gets or sets the text which is edited by the virtual keyboard. This property can also be bound
+    /// to a text box, for example.
     /// </summary>
     public string Text
     {
@@ -217,12 +245,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Gets or sets the current state of the "Shift" key. This property doesn't change any internal processing,
-    /// it is only an indicator for the GUI to display other keys.
+    /// it is only an indicator for the GUI to display other keys. The shift state will automatically be reset
+    /// when a key is pressed.
     /// </summary>
     public bool ShiftState
     {
       get { return (bool) _shiftStateProperty.GetValue(); }
       set { _shiftStateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CapsLockStateProperty
+    {
+      get { return _capsLockStateProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the current state of the "Caps lock" key. This property doesn't change any internal processing,
+    /// it is only an indicator for the GUI to display other keys.
+    /// </summary>
+    public bool CapsLockState
+    {
+      get { return (bool) _capsLockStateProperty.GetValue(); }
+      set { _capsLockStateProperty.SetValue(value); }
     }
 
     public AbstractProperty AltGrStateProperty
@@ -247,6 +291,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Character(char character)
     {
       Text += character;
+      ShiftState = false;
     }
 
     /// <summary>

@@ -19,6 +19,7 @@
   </Section>
   <Section Name="Keys">
     <String Name="Shift" Text="Shift"/>
+    <String Name="CapsLock" Text="Caps Lock"/>
     <String Name="AltGr" Text="Alt Gr"/>
   </Section>
   <Section Name="Home">
