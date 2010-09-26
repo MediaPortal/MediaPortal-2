@@ -34,7 +34,6 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
@@ -58,6 +57,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     PasswordText,
   }
+
+  public delegate void VirtualKeyboardCloseDlgt(VirtualKeyboardControl virtualKeyboardControl);
 
   public class VirtualKeyboardSettings
   {
@@ -112,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public VirtualKeyboardControl()
     {
-      Attach();
+      IsVisible = false;
       SubscribeToMessages();
     }
 
@@ -120,17 +121,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       UnsubscribeFromMessages();
     }
-
-    void Attach()
-    {
-      ScreenProperty.Attach(OnScreenChanged);
-    }
-
-    // Albert, 2010-08-20: Not needed yet
-    //void Detach()
-    //{
-    //  ScreenProperty.Detach(OnScreenChanged);
-    //}
 
     #endregion
 
@@ -154,13 +144,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _messageQueue = null;
     }
 
-    void OnScreenChanged(AbstractProperty prop, object oldVal)
-    {
-      Screen screen = Screen;
-      if (screen != null)
-        screen.SetVirtalKeyboardControl(this);
-    }
-
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == LocalizationMessaging.CHANNEL)
@@ -172,6 +155,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #region Public members
+
+    public event VirtualKeyboardCloseDlgt Closed;
 
     /// <summary>
     /// Gets or sets the text which is edited by the virtual keyboard.
@@ -302,12 +287,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _settings = null;
       _textProperty = null;
       IsVisible = false;
+      FireClosed();
     }
 
     protected void InitializeStates()
     {
       ShiftState = false;
       AltGrState = false;
+    }
+
+    protected void FireClosed()
+    {
+      VirtualKeyboardCloseDlgt dlgt = Closed;
+      if (dlgt != null)
+        dlgt(this);
     }
 
     protected ControlTemplate FindKeyboardLayout()

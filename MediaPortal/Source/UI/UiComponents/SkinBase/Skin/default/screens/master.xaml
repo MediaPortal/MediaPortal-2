@@ -87,5 +87,4 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" SetFocus="true"
         Content="{DynamicResource Client_Element}"/>
   </DockPanel>
-  <VirtualKeyboardControl Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Style="{ThemeResource VirtualKeyboardControlStyle}"/>
 </Grid>

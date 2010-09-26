@@ -29,6 +29,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Actions;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -46,6 +47,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   /// </summary>
   public class Screen : NameScope
   {
+    #region Consts
+
+    public const string VIRTUAL_KEYBOARD_DIALOG = "DialogVirtualKeyboard";
+
+    #endregion
+
     #region Classes
 
     /// <summary>
@@ -126,7 +133,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Protected fields
 
-    protected AbstractProperty _virtualKeyboardControlProperty = new SProperty(typeof(VirtualKeyboardControl), null);
     protected AbstractProperty _opened = new SProperty(typeof(bool), true);
     protected State _state = State.Running;
     protected Guid _screenInstanceId = Guid.NewGuid();
@@ -149,6 +155,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Animator _animator;
     protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
+    protected Guid? _virtualKeyboardDialogGuid = null;
     protected RenderContext _renderContext;
 
     #endregion
@@ -236,28 +243,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get { return _attachedInput; }
     }
 
-    public AbstractProperty VirtualKeyboardControlProperty
-    {
-      get { return _virtualKeyboardControlProperty; }
-    }
-
-    public VirtualKeyboardControl VirtualKeyboardControl
-    {
-      get { return (VirtualKeyboardControl) _virtualKeyboardControlProperty.GetValue(); }
-      private set { _virtualKeyboardControlProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Called from the (single) virtual keyboard control instance in this screen during initialization.
-    /// </summary>
-    /// <param name="virtualKeyboardControl">The single virtual keyboard control to be used this screen.</param>
-    public void SetVirtalKeyboardControl(VirtualKeyboardControl virtualKeyboardControl)
-    {
-      VirtualKeyboardControl = virtualKeyboardControl;
-      if (virtualKeyboardControl != null)
-        virtualKeyboardControl.IsVisible = false;
-    }
-
     /// <summary>
     /// Shows a virtual keyboard input control which fills the given <paramref name="textProperty"/>.
     /// </summary>
@@ -265,10 +250,40 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="settings">Settings to be used to configure the to-be-shown virtual keyboard.</param>
     public void ShowVirtualKeyboard(AbstractProperty textProperty, VirtualKeyboardSettings settings)
     {
-      VirtualKeyboardControl virtualKeyboardControl = VirtualKeyboardControl;
-      if (virtualKeyboardControl == null)
+      ScreenManager screenManager = ServiceRegistration.Get<IScreenManager>() as ScreenManager;
+      if (screenManager == null)
+        // We need to interact with the screen, thus we cannot continue in this case
         return;
-      virtualKeyboardControl.Show(textProperty, settings);
+      DialogData dd = screenManager.ShowDialogEx(VIRTUAL_KEYBOARD_DIALOG, OnVirtualKeyboardDialogClosed);
+      if (dd == null)
+        // Virtual keyboard dialog screen not found
+        return;
+      _virtualKeyboardDialogGuid = dd.DialogInstanceId;
+      VirtualKeyboardControl vkc = (VirtualKeyboardControl)
+          dd.DialogScreen.Visual.FindElement(new TypeFinder(typeof(VirtualKeyboardControl)));
+      if (vkc == null)
+        // No virtual keyboard control in our virtual keyboard dialog!?
+        return;
+      vkc.Closed += OnVirtualKeyboardClosed;
+      vkc.Show(textProperty, settings);
+    }
+
+    protected void OnVirtualKeyboardDialogClosed(string dialogName, Guid dialogInstanceId)
+    {
+      if (dialogInstanceId != _virtualKeyboardDialogGuid)
+        return;
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.CloseDialog(_virtualKeyboardDialogGuid.Value);
+      _virtualKeyboardDialogGuid = null;
+    }
+
+    protected void OnVirtualKeyboardClosed(VirtualKeyboardControl virtualKeyboardControl)
+    {
+      if (!_virtualKeyboardDialogGuid.HasValue)
+        return;
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.CloseDialog(_virtualKeyboardDialogGuid.Value);
+      _virtualKeyboardDialogGuid = null;
     }
 
     /// <summary>

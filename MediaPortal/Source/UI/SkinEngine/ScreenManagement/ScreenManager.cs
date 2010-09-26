@@ -986,6 +986,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ForEachScreen(screen => screen.Reset());
     }
 
+    public DialogData ShowDialogEx(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    {
+      IncPendingOperations();
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
+      Screen newDialog = GetScreen(dialogName, ScreenType.ScreenOrDialog);
+      if (newDialog == null)
+        return null;
+      DialogData result = new DialogData(newDialog, dialogCloseCallback);
+      ScreenManagerMessaging.SendMessageShowDialog(result);
+      return result;
+    }
+
     #region IScreenManager implementation
 
     public string SkinName
@@ -1134,13 +1146,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Guid? ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
-      IncPendingOperations();
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
-      Screen newDialog = GetScreen(dialogName, ScreenType.ScreenOrDialog);
-      if (newDialog == null)
-        return null;
-      ScreenManagerMessaging.SendMessageShowDialog(new DialogData(newDialog, dialogCloseCallback));
-      return newDialog.ScreenInstanceId;
+      DialogData dd = ShowDialogEx(dialogName, dialogCloseCallback);
+      return dd.DialogScreen.ScreenInstanceId;
     }
 
     public void CloseDialog(Guid dialogInstanceId)

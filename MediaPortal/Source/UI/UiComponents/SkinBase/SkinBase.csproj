@@ -184,6 +184,7 @@
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
     <Content Include="Skin\default\screens\GenericDialog.xaml" />
+    <Content Include="Skin\default\screens\DialogVirtualKeyboard.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
     <Content Include="Skin\default\screens\master.xaml" />
     <Content Include="Skin\default\screens\master_dialog.xaml" />
@@ -199,7 +200,7 @@
     <Content Include="Skin\default\themes\default\styles\Consts.xaml" />
     <Content Include="Skin\default\themes\default\styles\Graphics.xaml" />
     <Content Include="Skin\default\themes\default\styles\Buttons.xaml" />
-    <Content Include="Skin\default\themes\default\styles\VirtualKeyboard.xaml" />
+    <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle.xaml" />
     <Content Include="Skin\default\themes\black\theme.xml" />
     <Content Include="Skin\default\themes\black\media\preview.png" />
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
