@@ -74,7 +74,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Add(T element)
     {
       element.VisualParent = _parent;
-      element.SetScreen(_parent == null ? null : _parent.Screen);
+      if (_parent != null)
+        element.SetScreen(_parent.Screen);
       _elements.Add(element);
       FireCollectionChanged();
     }

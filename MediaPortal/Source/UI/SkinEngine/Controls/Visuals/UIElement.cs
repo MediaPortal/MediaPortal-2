@@ -976,7 +976,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void ForEachElementInTree_BreadthFirst(IUIElementAction action)
     {
-      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] { this });
+      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] {this});
       LinkedListNode<UIElement> current;
       while ((current = searchList.First) != null)
       {
@@ -1030,7 +1030,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetScreen(Screen screen)
     {
-      ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
+      if (screen != null)
+        ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
+    }
+
+    public void ResetScreen()
+    {
+      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
     }
 
     public static bool InVisualPath(UIElement check, UIElement child)

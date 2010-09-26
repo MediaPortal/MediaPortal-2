@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void DisposeUIElement(UIElement element)
     {
       element.VisualParent = null;
-      element.SetScreen(null);
+      element.ResetScreen();
       element.Deallocate();
       element.Dispose();
     }
@@ -85,7 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _parent = parent;
       foreach (UIElement element in _elements)
       {
-        element.SetScreen(_parent == null ? null : _parent.Screen);
+        if (_parent != null)
+          element.SetScreen(_parent.Screen);
         element.VisualParent = _parent;
       }
       InvalidateParent();
@@ -95,7 +96,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // TODO: Allocate if we are already allocated
       element.VisualParent = _parent;
-      element.SetScreen(_parent == null ? null : _parent.Screen);
+      if (_parent != null)
+        element.SetScreen(_parent.Screen);
       _elements.Add(element);
       InvalidateParent();
     }

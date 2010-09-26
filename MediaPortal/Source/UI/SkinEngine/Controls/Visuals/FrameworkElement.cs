@@ -350,6 +350,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _hasFocusProperty; }
     }
 
+    /// <summary>
+    /// Returns the information whether this element currently has the focus. This element should not be set from the GUI!
+    /// </summary>
     public virtual bool HasFocus
     {
       get { return (bool) _hasFocusProperty.GetValue(); }

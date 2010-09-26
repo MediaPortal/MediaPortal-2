@@ -152,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (oldTemplateControl != null)
       {
         oldTemplateControl.VisualParent = null;
-        oldTemplateControl.SetScreen(null);
+        oldTemplateControl.ResetScreen();
         oldTemplateControl.Deallocate();
         oldTemplateControl.Dispose();
       }
