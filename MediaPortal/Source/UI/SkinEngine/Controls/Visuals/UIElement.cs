@@ -924,7 +924,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public ICollection<UIElement> FindElements(IMatcher matcher)
     {
-      asdf
+      ICollection<UIElement> result = new List<UIElement>();
+      if (matcher.Match(this))
+        result.Add(this);
+      ICollection<UIElement> children = GetChildren();
+      foreach (UIElement child in children)
+        if (matcher.Match(child))
+          result.Add(child);
+      return result;
     }
 
     public UIElement FindElement_DepthFirst(IMatcher matcher)
