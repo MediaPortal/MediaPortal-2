@@ -52,7 +52,6 @@ namespace MediaPortal.Client
     /// <summary>
     /// The main entry point for the MP 2 client application.
     /// </summary>
-    [STAThread]
     private static void Main(params string[] args)
     {
       System.Threading.Thread.CurrentThread.Name = "Main Thread";
