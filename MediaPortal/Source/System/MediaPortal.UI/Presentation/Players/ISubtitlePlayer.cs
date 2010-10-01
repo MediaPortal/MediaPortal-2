@@ -25,7 +25,7 @@
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// Interface for each player class which is able to produce subtitles to its current content.
+  /// Interface which can be implemented by player classes which are able to produce subtitles to its current content.
   /// This interface works additive to other implemented player interfaces.
   /// </summary>
   public interface ISubtitlePlayer
@@ -39,12 +39,17 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Sets the current subtitle.
     /// </summary>
-    /// <param name="subtitle">The name of the subtitle to set. Must be one of the values in the
+    /// <param name="subtitle">The name of the subtitle to set. Must be one of the values from the
     /// <see cref="Subtitles"/> list.</param>
     void SetSubtitle(string subtitle);
 
     /// <summary>
-    /// Gets the current subtitle.
+    /// Disables the subtitle, i.e. switches it off.
+    /// </summary>
+    void DisableSubtitle();
+
+    /// <summary>
+    /// Gets the current subtitle. Returns <c>null</c> if no subtitle is currently set.
     /// </summary>
     string CurrentSubtitle { get; }
   }

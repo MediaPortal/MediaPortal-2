@@ -37,6 +37,8 @@ using System.Security.Permissions;
 using DirectShowLib;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 
 namespace Ui.Players.Video
 {
@@ -995,15 +997,32 @@ namespace Ui.Players.Video
     /// <param name="filterToRelease">any COM object to release</param>
     public static bool TryRelease<TE>(ref TE filterToRelease) where TE : class
     {
+      return TryRelease<TE>(ref filterToRelease, false);
+    }
+
+    /// <summary>
+    /// Checks and release filter as COM object.
+    /// </summary>
+    /// <param name="filterToRelease">any COM object to release</param>
+    /// <param name="releaseAllReferences">true to loop until all references are removed</param>
+    public static bool TryRelease<TE>(ref TE filterToRelease, bool releaseAllReferences) where TE : class
+    {
       if (filterToRelease != null)
       {
-        while (Marshal.ReleaseComObject(filterToRelease) > 0) { ;}
+        int remainingReferences;
+        do
+        {
+          remainingReferences = Marshal.ReleaseComObject(filterToRelease);
+          if (remainingReferences > 0)
+            ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", filterToRelease,
+                                                    remainingReferences);
+
+        } while (remainingReferences > 0 && releaseAllReferences);
         filterToRelease = default(TE);
         return true;
       }
       return false;
     }
-
     /// <summary>
     /// Disposes the object, if supported. Then sets reference to null.
     /// </summary>

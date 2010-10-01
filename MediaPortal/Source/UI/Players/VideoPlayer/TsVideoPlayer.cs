@@ -44,6 +44,12 @@ namespace Ui.Players.Video
 
     #endregion
 
+    #region constants
+
+    private const string TSREADER_FILTER_NAME = "TsReader";
+
+    #endregion
+
     #region variables
 
     protected IBaseFilter _fileSource = null;
@@ -88,7 +94,7 @@ namespace Ui.Players.Video
       ((ITsReader)_fileSource).SetTsReaderCallback(this);
       ((ITsReader)_fileSource).SetRelaxedMode(1);
 
-      _graphBuilder.AddFilter(_fileSource, "TsReader");
+      _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
 
       _renderer = new SubtitleRenderer();
       _subtitleFilter = _renderer.AddSubtitleFilter(_graphBuilder);

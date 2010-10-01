@@ -133,6 +133,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string ADD_VIDEOS_AND_IMAGES_RES = "[Media.AddAllVideosAndImages]";
     public const string N_ITEMS_ADDED_RES = "[Media.NItemsAdded]";
 
+    // DVD
+    public const string SUBTITLE_OFF_RES = "[Media.SubtitleOff]";
+
     // Screens
     public const string LOCAL_MEDIA_NAVIGATION_SCREEN = "LocalMediaNavigation";
     public const string MUSIC_SHOW_ITEMS_SCREEN = "MusicShowItems";
@@ -158,6 +161,9 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string FULLSCREEN_VIDEO_SCREEN = "FullscreenContentVideo";
     public const string CURRENTLY_PLAYING_VIDEO_SCREEN = "CurrentlyPlayingVideo";
+
+    public const string FULLSCREEN_DVD_SCREEN = "FullscreenContentDVD";
+    public const string CURRENTLY_PLAYING_DVD_SCREEN = "CurrentlyPlayingDVD";
 
     public const string VIDEOCONTEXTMENU_DIALOG_SCREEN = "DialogVideoContextMenu";
 

@@ -129,6 +129,9 @@
     <String Name="VideoActorsLabel" Text="Actor(s): "/>
     <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
 
+    <String Name="DVDCurrentlyPlayingHeader" Text="Currently playing"/>
+    <String Name="DVDCurrentlyPlayingInformationHeader" Text="DVD information"/>
+
     <String Name="AudioCurrentlyPlayingHeader" Text="Currently playing"/>
     <String Name="AudioCurrentlyPlayingInformationHeader" Text="Audio information"/>
     <String Name="AudioArtistLabel" Text="Artist: "/>
@@ -151,5 +154,11 @@
     <String Name="CannotPlayItemsDialogText" Text="Unable to play media items"/>
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
+
+    <!-- DVDPlayerUIContributor -->
+    <String Name="SubtitleOff" Text="Disable Subtitles"/>
+    <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
+    <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
+    
   </Section>
 </Language>

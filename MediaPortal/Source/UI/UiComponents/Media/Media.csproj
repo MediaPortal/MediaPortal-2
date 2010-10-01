@@ -160,6 +160,34 @@
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseSubtitle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseChapter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\MediaButtons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

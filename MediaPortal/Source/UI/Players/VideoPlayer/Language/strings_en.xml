@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Playback">
-    <String Name="SubtitleOff" Text="Disable Subtitle"/>
     <String Name="NotSpecified" Text="Not specified"/>
     <String Name="CaptionNormal" Text="Normal Caption"/>
     <String Name="CaptionBig" Text="Big Caption"/>
@@ -16,5 +15,8 @@
     <String Name="VisuallyImpaired" Text="Visually Impaired"/>
     <String Name="DirectorComments1" Text="Director Comments"/>
     <String Name="DirectorComments2" Text="Director Comments (2)"/>
+
+    <String Name="Chapter" Text="Chapter"/>
+    <String Name="Title" Text="Title"/>
   </Section>
 </Language>

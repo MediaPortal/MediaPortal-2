@@ -43,6 +43,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
     protected IPlayerUIContributor _playerUIContributor = null;
     protected bool _inactive = false;
+    protected string _lastScreenName = null;
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
     {
@@ -121,6 +122,7 @@ namespace MediaPortal.UiComponents.Media.Models
       lock (_syncObj)
         oldPlayerUIContributor = _playerUIContributor;
       bool backgroundDisabled = false;
+      string screenName = _lastScreenName;
       try
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
@@ -128,6 +130,7 @@ namespace MediaPortal.UiComponents.Media.Models
           if (oldPlayerUIContributor.MediaWorkflowStateType != stateType)
             oldPlayerUIContributor.Initialize(stateType, player);
           backgroundDisabled = oldPlayerUIContributor.BackgroundDisabled;
+          screenName = oldPlayerUIContributor.Screen;
           return;
         }
         IPlayerUIContributor playerUIContributor = InstantiatePlayerUIContributor(playerUIContributorType);
@@ -135,6 +138,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           playerUIContributor.Initialize(stateType, player);
           backgroundDisabled = playerUIContributor.BackgroundDisabled;
+          screenName = playerUIContributor.Screen;
         }
         lock (_syncObj)
           _playerUIContributor = playerUIContributor;
@@ -145,6 +149,9 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
         screenManager.BackgroundDisabled = backgroundDisabled;
+        if (screenName != _lastScreenName)
+          screenManager.ExchangeScreen(screenName);
+        _lastScreenName = screenName;
       }
     }
 
@@ -228,6 +235,7 @@ namespace MediaPortal.UiComponents.Media.Models
         playerUIContributor = _playerUIContributor;
       if (playerUIContributor != null)
         screen = playerUIContributor.Screen;
+      _lastScreenName = screen;
       return ScreenUpdateMode.AutoWorkflowManager;
     }
   }

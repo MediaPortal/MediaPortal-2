@@ -91,8 +91,11 @@ namespace Ui.Players.Video
     #region Consts
 
     protected const int WM_GRAPHNOTIFY = 0x4000 + 123;
+    private const string EVR_FILTER_NAME = "Enhanced Video Renderer";
+
     public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
     public const string AUDIO_STREAM_NAME = "Audio1";
+
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
     protected String PlayerTitle;
 
@@ -135,7 +138,6 @@ namespace Ui.Players.Video
 
     // Audio related
     protected int _currentAudioStream = 0;
-    //private readonly StringId _audioStreams = new StringId("playback", "4");
 
     protected IGeometry _geometryOverride = null;
 
@@ -280,11 +282,10 @@ namespace Ui.Players.Video
 
     public void SetMediaItemLocator(IResourceLocator locator)
     {
-      if (_resourceAccessor != null)
-      {
-        _resourceAccessor.Dispose();
-        _resourceAccessor = null;
-      }
+      // free previous opened resource
+      FilterGraphTools.TryDispose(ref _resourceAccessor);
+      FilterGraphTools.TryDispose(ref _rot);
+
       _resourceLocator = locator;
       _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
       _state = PlayerState.Active;
@@ -300,7 +301,7 @@ namespace Ui.Players.Video
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
 
-        // Add it in ROT (Running Object Table) for debug purpose 
+        // Add it in ROT (Running Object Table) for debug purpose, it allows to view the Graph from outside (i.e. graphedit)
         _rot = new DsROTEntry(_graphBuilder);
 
         // Add a notification handler (see WndProc)
@@ -442,7 +443,9 @@ namespace Ui.Players.Video
       _evr = (IBaseFilter)new EnhancedVideoRenderer();
 
       IEVRFilterConfig config = (IEVRFilterConfig)_evr;
-      int hr = config.SetNumberOfStreams(_streamCount);
+      
+      //set the number of video/subtitle/cc streams that are allowed to be connected to EVR
+      config.SetNumberOfStreams(_streamCount);
 
       int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
@@ -453,7 +456,7 @@ namespace Ui.Players.Video
       {
         throw new VideoPlayerException("Initializing of EVR failed");
       }
-      hr = _graphBuilder.AddFilter(_evr, "Enhanced Video Renderer");
+      _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
     }
 
     /// <summary>
@@ -595,35 +598,44 @@ namespace Ui.Players.Video
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
 
-        if (_graphBuilder != null)
+        try
         {
-          FilterState state;
-          IMediaEventEx me = (IMediaEventEx) _graphBuilder;
-          IMediaControl mc = (IMediaControl) _graphBuilder;
-
-          me.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
-
-          mc.GetState(10, out state);
-          if (state != FilterState.Stopped)
+          if (_graphBuilder != null)
           {
-            mc.Stop();
+            FilterState state;
+            IMediaEventEx me = (IMediaEventEx)_graphBuilder;
+            IMediaControl mc = (IMediaControl)_graphBuilder;
+
+            me.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
+
             mc.GetState(10, out state);
-            ServiceRegistration.Get<ILogger>().Debug("{0}: Graph state after stop command: {1}", PlayerTitle, state);
+            if (state != FilterState.Stopped)
+            {
+              mc.Stop();
+              mc.GetState(10, out state);
+              ServiceRegistration.Get<ILogger>().Debug("{0}: Graph state after stop command: {1}", PlayerTitle, state);
+            }
           }
         }
-
-        if (_instancePtr != IntPtr.Zero)
+        catch (Exception ex)
         {
-          Marshal.FreeCoTaskMem(_instancePtr);
-          _instancePtr = IntPtr.Zero;
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Exception when stopping graph: {1}", PlayerTitle, ex.ToString());
         }
+        finally
+        {
+          if (_instancePtr != IntPtr.Zero)
+          {
+            Marshal.FreeCoTaskMem(_instancePtr);
+            _instancePtr = IntPtr.Zero;
+          }
 
-        FreeCodecs();
+          FreeCodecs();
 
-        FreeResources();
+          FreeResources();
 
-        // Dispose the resource accessor; i.e. to stop the Tve3 provider's timeshifting
-        FilterGraphTools.TryDispose(ref _resourceAccessor);
+          // Dispose the resource accessor; i.e. to stop the Tve3 provider's timeshifting
+          FilterGraphTools.TryDispose(ref _resourceAccessor);
+        }
       }
     }
 
@@ -820,8 +832,7 @@ namespace Ui.Players.Video
         double rate;
         if (mediaSeeking == null || mediaSeeking.GetRate(out rate) != 0)
           return 1.0;
-        else
-          return rate;
+        return rate;
       }
     }
 
@@ -1134,26 +1145,17 @@ namespace Ui.Players.Video
         FilterState state;
         IMediaControl mc = (IMediaControl)_graphBuilder;
         mc.GetState(10, out state);
-        if (state == FilterState.Running)
+        if (state != FilterState.Stopped)
         {
           mc.StopWhenReady();
           mc.Stop();
         }
 
-        if (_evrCallback != null)
-        {
-          _evrCallback.Dispose();
-          _evrCallback = null;
-        }
-
         if (_evr != null)
-        {
-          if (_graphBuilder != null)
-            _graphBuilder.RemoveFilter(_evr);
-          //while (Marshal.ReleaseComObject(_vmr9) > 0) ;
-          Marshal.ReleaseComObject(_evr);
-        }
-        _evr = null;
+          _graphBuilder.RemoveFilter(_evr);
+
+        FilterGraphTools.TryDispose(ref _evrCallback);
+        FilterGraphTools.TryRelease(ref _evr);
 
         if (_allocatorKey >= 0)
           EvrDeinit(_allocatorKey);

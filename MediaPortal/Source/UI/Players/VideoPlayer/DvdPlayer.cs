@@ -57,22 +57,6 @@ namespace Ui.Players.Video
     protected const int WM_MOUSEMOVE = 0x0200;
     protected const int WM_LBUTTONUP = 0x0202;
 
-    private const uint VFW_E_DVD_OPERATION_INHIBITED = 0x80040276;
-    private const uint VFW_E_DVD_INVALIDDOMAIN = 0x80040277;
-    private const int UOP_FLAG_PLAY_TITLE_OR_AT_TIME = 0x00000001;
-    private const int UOP_FLAG_PLAY_CHAPTER_OR_AT_TIME = 0x00000020;
-
-    #endregion
-
-    #region Enums
-
-    protected enum MenuMode
-    {
-      No,
-      Buttons,
-      Still
-    }
-
     #endregion
 
     #region Variables
@@ -92,15 +76,22 @@ namespace Ui.Players.Video
     /// <summary> asynchronous command pending. </summary>
     protected bool _pendingCmd;
 
+    /// <summary>
+    /// List of subtitles. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
+    protected List<String> _subtitleStreams = null;
+
+    protected List<String> _chapters = null;
+    
+    protected object _guiPropertiesLock = new object();
 
     protected DvdHMSFTimeCode _currTime; // copy of current playback states, see OnDvdEvent()
     protected int _currTitle = 0;
     protected int _currChapter = 0;
+    protected int _buttonCount = 0;
+    protected int _focusedButton = 0;
     protected DvdDomain _currDomain;
-
-    /// <summary> current mode of playback (movie/menu/still). </summary>
-    protected MenuMode _menuMode;
-
+    
     protected bool _menuOn = false;
     protected ValidUOPFlag _UOPs;
     protected double _duration;
@@ -159,7 +150,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected override void AddFileSource()
     {
-      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.Play");
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.AddFileSource");
       _pendingCmd = true;
       if (DVD_NAVIGATOR == "DVD Navigator")
       {
@@ -210,10 +201,8 @@ namespace Ui.Players.Video
       if (_line21Decoder != null)
       {
         int hr = _line21Decoder.SetCurrentService(AMLine21CCService.None);
-        ServiceRegistration.Get<ILogger>().Debug(hr == 0
-                                                   ? "DVDPlayer: Closed Captions disabled"
-                                                   : "DVDPlayer: failed to disable Closed Captions");
-
+        ServiceRegistration.Get<ILogger>().Debug(hr == 0 ? "DVDPlayer: Closed Captions disabled" :
+            "DVDPlayer: failed to disable Closed Captions");
       }
       _currTime = new DvdHMSFTimeCode();
     }
@@ -229,21 +218,14 @@ namespace Ui.Players.Video
       int titles, numOfVolumes, volume;
       hr = _dvdInfo.GetDVDVolumeInfo(out numOfVolumes, out volume, out side, out titles);
       if (hr < 0)
-      {
-        ServiceRegistration.Get<ILogger>().Error("DVDPlayer:Unable to get dvdvolumeinfo 0x{0:X}", hr);
-        //return false;
-      }
-      else
-      {
-        if (titles <= 0)
-        {
-          ServiceRegistration.Get<ILogger>().Error("DVDPlayer:DVD does not contain any titles? {0}", titles);
-          //return false;
-        }
-      }
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: Unable to get dvdvolumeinfo 0x{0:X}", hr);
+
+      if (titles <= 0)
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: DVD does not contain any titles? {0}", titles);
+
       _pendingCmd = false;
 
-      hr = _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
     }
 
     /// <summary>
@@ -265,22 +247,22 @@ namespace Ui.Players.Video
     #region Defaults and resuming information
 
     /// <summary>
-    /// Set the default languages before playback
+    /// Set the default languages before playback.
     /// </summary>
     private void SetDefaultLanguages()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      ServiceRegistration.Get<ILogger>().Info("SetDefaultLanguages");
-      int lCID;
-      int setError = 0;
-      string errorText = "";
+      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: SetDefaultLanguages");
+      int lcid;
+      int setError;
+      string errorText;
       if (!string.IsNullOrEmpty(settings.AudioLanguage))
       {
-        lCID = GetLCID(settings.AudioLanguage);
-        if (lCID >= 0)
+        lcid = GetLCID(settings.AudioLanguage);
+        if (lcid >= 0)
         {
           // Flip: Added more detailed message
-          setError = _dvdCtrl.SelectDefaultAudioLanguage(lCID, DvdAudioLangExt.NotSpecified);
+          setError = _dvdCtrl.SelectDefaultAudioLanguage(lcid, DvdAudioLangExt.NotSpecified);
           switch (setError)
           {
             case 0:
@@ -293,26 +275,26 @@ namespace Ui.Players.Video
               errorText = "Unknown Error. " + setError;
               break;
           }
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default language:{0} {1} {2}", settings.AudioLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language:{0} {1} {2}", settings.AudioLanguage, lcid, errorText);
         }
       }
       if (!string.IsNullOrEmpty(settings.SubtitleLanguage))
       {
         // For now, the default menu language is the same as the subtitle language
-        lCID = GetLCID(settings.SubtitleLanguage);
-        if (lCID >= 0)
+        lcid = GetLCID(settings.SubtitleLanguage);
+        if (lcid >= 0)
         {
-          setError = _dvdCtrl.SelectDefaultMenuLanguage(lCID);
+          setError = _dvdCtrl.SelectDefaultMenuLanguage(lcid);
           errorText = GetErrorText(setError);
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default menu language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language:{0} {1} {2}", settings.SubtitleLanguage, lcid, errorText);
         }
 
-        lCID = GetLCID(settings.SubtitleLanguage);
-        if (lCID >= 0)
+        lcid = GetLCID(settings.SubtitleLanguage);
+        if (lcid >= 0)
         {
-          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(lCID, DvdSubPictureLangExt.NotSpecified);
+          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(lcid, DvdSubPictureLangExt.NotSpecified);
           errorText = GetErrorText(setError);
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer:Set default subtitle language:{0} {1} {2}", settings.SubtitleLanguage, lCID, errorText);
+          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0} {1} {2}", settings.SubtitleLanguage, lcid, errorText);
         }
 
         // Force subtitles if this option is set in the configuration
@@ -324,6 +306,11 @@ namespace Ui.Players.Video
       }
     }
 
+    /// <summary>
+    /// Gets a DVD navigator related error text for passed error code.
+    /// </summary>
+    /// <param name="setError">Error code</param>
+    /// <returns>Error message</returns>
     private static string GetErrorText(int setError)
     {
       string errorText;
@@ -365,7 +352,7 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// Gets the DVD state
+    /// Gets the DVD resume state.
     /// </summary>
     /// <param name="resumeData">The resume data.</param>
     /// <returns></returns>
@@ -417,10 +404,9 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// Sets the DVD state
+    /// Sets the DVD resume state.
     /// </summary>
     /// <param name="resumeData">The resume data.</param>
-    /// <returns></returns>
     private void SetResumeState(byte[] resumeData)
     {
       if ((resumeData != null) && (resumeData.Length > 0))
@@ -436,7 +422,7 @@ namespace Ui.Players.Video
 
         try
         {
-          dvdStatePersistMemory.Load(stateData, (uint)resumeData.Length);
+          dvdStatePersistMemory.Load(stateData, (uint) resumeData.Length);
         }
         finally
         {
@@ -453,14 +439,14 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// Gets the name of the resume file
+    /// Gets the name of the resume file.
     /// </summary>
     protected string GetResumeFilename(Uri fileName)
     {
       long discId = 0;
       int actualSize;
 
-      IBaseFilter dvdbasefilter = (IBaseFilter)new DVDNavigator();
+      IBaseFilter dvdbasefilter = (IBaseFilter) new DVDNavigator();
       IDvdInfo2 dvdInfo = dvdbasefilter as IDvdInfo2;
 
       StringBuilder path = new StringBuilder(1024);
@@ -490,7 +476,7 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// Stop the playback and the input handling.
+    /// Stops the playback and the input handling.
     /// </summary>
     public override void Stop()
     {
@@ -505,7 +491,7 @@ namespace Ui.Players.Video
     #region DVD Event handling
 
     /// <summary>
-    /// Called to handle DVD event window messages
+    /// Called to handle DVD event window messages.
     /// </summary>
     private void OnDvdEvent()
     {
@@ -527,61 +513,47 @@ namespace Ui.Players.Video
           switch (code)
           {
             case EventCode.DvdPlaybackStopped:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdPlaybackStopped event :{0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdPlaybackStopped event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
               break;
             case EventCode.DvdError:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdError event :{0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DvdError event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
               break;
             case EventCode.VMRReconnectionFailed:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer VMRReconnectionFailed event :{0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer VMRReconnectionFailed event: {0:X} {1:X}", p1.ToInt32(), p2.ToInt32());
               break;
             case EventCode.DvdWarning:
-              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DVD warning :{0} {1}", p1.ToInt32(), p2.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer DVD warning: {0} {1}", p1.ToInt32(), p2.ToInt32());
+              break;
+            case EventCode.DvdSubPicictureStreamChange:
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdSubPicture Changed to: {0} Enabled: {1}", p1.ToInt32(), p2.ToInt32());
               break;
             case EventCode.DvdCurrentHmsfTime:
-              {
-                GetCurrentTime(p1);
-                break;
-              }
-
-            case EventCode.DvdSubPicictureStreamChange:
-              {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdSubPicture Changed to:{0} Enabled:{1}", p1.ToInt32(), p2.ToInt32());
-              }
+              GetCurrentTime(p1);
               break;
 
             case EventCode.DvdChapterStart:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdChaptStart:{0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdChaptStart: {0}", p1.ToInt32());
                 _currChapter = p1.ToInt32();
-                // Dhu?! Path to disaster, what about multiple tracks of same lang.
-                // The DVD graph should remember language setting, if not it's a bug
-                // in the DVD software.
-                // SelectSubtitleLanguage(_subtitleLanguage);
                 CalculateDuration();
-                ServiceRegistration.Get<ILogger>().Debug("  _duration:{0}", _currentTime);
+                ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
                 break;
               }
 
             case EventCode.DvdTitleChange:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdTitleChange:{0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("EVT: DvdTitleChange: {0}", p1.ToInt32());
+                _subtitleStreams = null; // Invalidate subtitles - could be different in other title
+                _chapters = null; // Invalidate chapters - they are different per title
                 _currTitle = p1.ToInt32();
-                // Dhu?! Path to disaster, what about multiple tracks of same lang.
-                // The DVD graph should remember language setting, if not it's a bug
-                // in the DVD software.
-                // SelectSubtitleLanguage(_subtitleLanguage);
                 CalculateDuration();
-                ServiceRegistration.Get<ILogger>().Debug("  _duration:{0}", _currentTime);
+                ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
                 break;
               }
 
             case EventCode.DvdCmdStart:
-              {
-                //if (_pendingCmd)
-                ServiceRegistration.Get<ILogger>().Debug("  DvdCmdStart with pending");
-                break;
-              }
+              ServiceRegistration.Get<ILogger>().Debug("  DvdCmdStart with pending");
+              break;
 
             case EventCode.DvdCmdEnd:
               {
@@ -591,74 +563,41 @@ namespace Ui.Players.Video
 
             case EventCode.DvdStillOn:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdStillOn:{0}", p1.ToInt32());
-                _menuMode = p1 == IntPtr.Zero ? MenuMode.Buttons : MenuMode.Still;
-
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOn: {0}", p1.ToInt32());
                 EnableFrameSkipping(false);
-
                 break;
               }
 
             case EventCode.DvdStillOff:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdStillOff:{0}", p1.ToInt32());
-                if (_menuMode == MenuMode.Still)
-                {
-                  _menuMode = MenuMode.No;
-                }
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOff: {0}", p1.ToInt32());
                 EnableFrameSkipping(true);
                 break;
               }
 
             case EventCode.DvdButtonChange:
               {
-                //Repaint();
-
-                // Menu buttons might not be available even if the menu is on
-                // (buttons appear after menu animation) ( DvdDomain.VideoManagerMenu or 
-                // DvdDomain.VideoTitleSetMenu event is already received at that point )
-
-                if (!_menuOn)
-                {
-                  int buttonCount, focusedButton;
-                  int result = _dvdInfo.GetCurrentButton(out buttonCount, out focusedButton);
-                  if (result == 0 && buttonCount > 0 && focusedButton > 0)
-                  {
-                    // Menu button(s) found, enable menu
-                    _menuOn = true;
-                    if ((ValidUOPFlag.ShowMenuRoot & _UOPs) != 0)
-                      hr = _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                    if ((ValidUOPFlag.ShowMenuTitle & _UOPs) != 0)
-                      hr = _dvdCtrl.ShowMenu(DvdMenuId.Title, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                    else if ((ValidUOPFlag.ShowMenuChapter & _UOPs) != 0)
-                      hr = _dvdCtrl.ShowMenu(DvdMenuId.Chapter, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                  }
-                  else
-                    _menuOn = false;
-                  ServiceRegistration.Get<ILogger>().Debug("EVT:DVDPlayer:domain=title (menu:{0}) hr:{1:X}", _menuOn, hr);
-                }
-
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdButtonChange: buttons:#{0}", p1.ToInt32());
-                _menuMode = p1.ToInt32() <= 0 ? MenuMode.No : MenuMode.Buttons;
+                _buttonCount = p1.ToInt32();
+                _focusedButton = p2.ToInt32();
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdButtonChange: buttons: {0}, focused: {1}", _buttonCount, _focusedButton);
                 break;
               }
 
             case EventCode.DvdNoFpPgc:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT:DvdNoFpPgc:{0}", p1.ToInt32());
+                ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdNoFpPgc: {0}", p1.ToInt32());
                 if (_dvdCtrl != null)
                   hr = _dvdCtrl.PlayTitle(1, DvdCmdFlags.None, out _cmdOption);
                 break;
               }
 
             case EventCode.DvdAudioStreamChange:
-              // audio stream changed
-              ServiceRegistration.Get<ILogger>().Debug("EVT:DvdAudioStreamChange:{0}", p1.ToInt32());
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdAudioStreamChange: {0}", p1.ToInt32());
               break;
 
             case EventCode.DvdValidUopsChange:
               _UOPs = (ValidUOPFlag)p1.ToInt32();
-              ServiceRegistration.Get<ILogger>().Debug("EVT:DvdValidUopsChange:{0}", _UOPs);
+              ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdValidUopsChange: {0}", _UOPs);
               break;
 
             case EventCode.DvdDomainChange:
@@ -667,24 +606,26 @@ namespace Ui.Players.Video
                 switch ((DvdDomain)p1)
                 {
                   case DvdDomain.FirstPlay:
-                    ServiceRegistration.Get<ILogger>().Debug("EVT:DVDPlayer:domain=firstplay");
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=firstplay");
+                    _menuOn = false;
                     break;
                   case DvdDomain.Stop:
-                    ServiceRegistration.Get<ILogger>().Debug("EVT:DVDPlayer:domain=stop");
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=stop");
+                    Stop();
                     break;
                   case DvdDomain.VideoManagerMenu:
-                    ServiceRegistration.Get<ILogger>().Debug("EVT:DVDPlayer:domain=videomanagermenu (menu)");
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=videomanagermenu (menu)");
                     _menuOn = true;
                     break;
                   case DvdDomain.VideoTitleSetMenu:
-                    ServiceRegistration.Get<ILogger>().Debug("EVT:DVDPlayer:domain=videotitlesetmenu (menu)");
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=videotitlesetmenu (menu)");
                     _menuOn = true;
                     break;
                   case DvdDomain.Title:
                     _menuOn = false;
                     break;
                   default:
-                    ServiceRegistration.Get<ILogger>().Debug("EVT:DvdDomChange:{0}", p1.ToInt32());
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdDomChange: {0}", p1.ToInt32());
                     break;
                 }
                 break;
@@ -696,13 +637,12 @@ namespace Ui.Players.Video
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer:OnDvdEvent() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
+        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: OnDvdEvent() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
       }
-      //      Log.Info("DVDEvent done");
     }
 
     /// <summary>
-    /// Called when an asynchronous DVD command is completed
+    /// Called when an asynchronous DVD command is completed.
     /// </summary>
     /// <param name="p1">The p1.</param>
     private void OnCmdComplete(IntPtr p1)
@@ -717,13 +657,13 @@ namespace Ui.Players.Video
         int hr = _dvdInfo.GetCmdFromEvent(p1, out cmd);
         if ((hr != 0) || (cmd == null))
         {
-          ServiceRegistration.Get<ILogger>().Debug("!!!DVD OnCmdComplete GetCmdFromEvent failed!!!");
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DVD OnCmdComplete GetCmdFromEvent failed");
           return;
         }
 
         if (cmd != _cmdOption)
         {
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer:DVD OnCmdComplete UNKNOWN CMD!!!");
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DVD OnCmdComplete UNKNOWN CMD!!!");
           Marshal.ReleaseComObject(cmd);
           return;
         }
@@ -732,11 +672,11 @@ namespace Ui.Players.Video
         Marshal.ReleaseComObject(_cmdOption);
         _cmdOption = null;
         _pendingCmd = false;
-        ServiceRegistration.Get<ILogger>().Debug("DVD OnCmdComplete OK.");
+        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DVD OnCmdComplete OK.");
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer:OnCmdComplete() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
+        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: OnCmdComplete() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
       }
     }
 
@@ -754,13 +694,12 @@ namespace Ui.Players.Video
         {
           if (m.Msg == WM_DVD_EVENT)            
             OnDvdEvent();
-
-          if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_LBUTTONUP)
+          else if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_LBUTTONUP)
             HandleMouseMessage(m);
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer:WndProc() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: WndProc() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
         }
       }
     }
@@ -774,6 +713,7 @@ namespace Ui.Players.Video
     {
       return (int)(dWord & 0xffff);
     }
+
     /// <summary>
     /// Returns the High-Word of a long.
     /// </summary>
@@ -791,7 +731,7 @@ namespace Ui.Players.Video
     {
       try
       {
-        if (_dvdInfo == null || _menuMode == MenuMode.No)
+        if (_dvdCtrl == null || !_menuOn || _buttonCount <= 0)
           return;
 
         long lParam = m.LParam.ToInt32();
@@ -805,16 +745,12 @@ namespace Ui.Players.Video
 
         Point pt = new Point((int) x, (int) y);
 
-        if (_currDomain == DvdDomain.FirstPlay || _currDomain == DvdDomain.Title ||
-            _currDomain == DvdDomain.VideoManagerMenu || _currDomain == DvdDomain.VideoTitleSetMenu)
-          if (m.Msg == WM_MOUSEMOVE)
+        if (m.Msg == WM_MOUSEMOVE)
           {
             // Highlight the button at the current position, if it exists
             _dvdCtrl.SelectAtPosition(pt);
           }
-
-        if (_currDomain == DvdDomain.VideoManagerMenu || _currDomain == DvdDomain.VideoTitleSetMenu)
-          if (m.Msg == WM_LBUTTONUP)
+        else if (m.Msg == WM_LBUTTONUP)
           {
             // Activate ("click") the button at the current position, if it exists
             _dvdCtrl.ActivateAtPosition(pt);
@@ -824,22 +760,23 @@ namespace Ui.Players.Video
     }
     
     /// <summary>
-    /// handles DVD navigation
+    /// Handles DVD navigation.
     /// </summary>
     /// <param name="key">The key.</param>
     public void OnKeyPressed(ref Key key)
     {
-      if (_menuMode == MenuMode.No)
+      if (_dvdCtrl == null || !_menuOn || _buttonCount <= 0)
         return;
+
       if (key == Key.Up)
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
-      if (key == Key.Down)
+      else if (key == Key.Down)
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
-      if (key == Key.Left)
+      else if (key == Key.Left)
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
-      if (key == Key.Right)
+      else if (key == Key.Right)
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
-      if (key == Key.Ok || key == Key.Enter)
+      else if (_focusedButton > 0 && (key == Key.Ok || key == Key.Enter))
         _dvdCtrl.ActivateButton();
     }
 
@@ -847,6 +784,9 @@ namespace Ui.Players.Video
 
     #region Audio stream handling
 
+    /// <summary>
+    /// Gets the available audio streams.
+    /// </summary>
     public override string[] AudioStreams
     {
       get
@@ -865,8 +805,10 @@ namespace Ui.Players.Video
             if (ci.LCID == (audioLanguage & 0x3ff))
             {
               StringBuilder currentAudio = new StringBuilder();
-              currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)", ci.EnglishName, attr.AudioFormat,
-                              attr.bNumberOfChannels, (attr.dwFrequency / 1000));
+              currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
+                                        ci.EnglishName,
+                                        attr.AudioFormat,
+                                        attr.bNumberOfChannels, (attr.dwFrequency/1000));
 
               switch (attr.LanguageExtension)
               {
@@ -876,7 +818,9 @@ namespace Ui.Players.Video
                 case DvdAudioLangExt.VisuallyImpaired:
                 case DvdAudioLangExt.DirectorComments1:
                 case DvdAudioLangExt.DirectorComments2:
-                  currentAudio.AppendFormat(" ({0})", ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]"));
+                  currentAudio.AppendFormat(" ({0})", 
+                    ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]")
+                    );
                   break;
               }
               streams.Add(currentAudio.ToString());
@@ -888,7 +832,7 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// sets the current audio stream
+    /// Sets the current audio stream.
     /// </summary>
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
@@ -899,7 +843,7 @@ namespace Ui.Players.Video
       {
         if (audioStreams[i] == audioStream)
         {
-          ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: select audio stream:{0}", audioStream);
+          ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select audio stream: {0}", audioStream);
           _dvdCtrl.SelectAudioStream(i, DvdCmdFlags.None, out _cmdOption);
           int audioLanguage;
           _dvdInfo.GetAudioLanguage(i, out audioLanguage);
@@ -927,8 +871,8 @@ namespace Ui.Players.Video
       {
         int streamsAvailable, currentStream;
         _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
-        string[] subs = AudioStreams;
-        return subs[currentStream];
+        string[] audioStreams = AudioStreams;
+        return audioStreams[currentStream];
       }
     }
     
@@ -936,37 +880,70 @@ namespace Ui.Players.Video
 
     #region Subtitle stream handling
 
+    /// <summary>
+    /// AddUnique adds a string to a list and avoids duplicates by adding a counting number.
+    /// </summary>
+    /// <param name="targetList">Target list</param>
+    /// <param name="valueToAdd">String to add</param>
+    private static void AddUnique(ICollection<string> targetList, String valueToAdd)
+    {
+      if (!targetList.Contains(valueToAdd))
+        targetList.Add(valueToAdd);
+      else
+      {
+        // Try a maximum of 2..5 numbers to append.
+        for (int i = 2; i <= 5; i++)
+        {
+          String countedName = String.Format("{0} ({1})", valueToAdd, i);
+          if (!targetList.Contains(countedName))
+          {
+            targetList.Add(countedName);
+            return;
+          }
+        }
+      }
+    }
+
     public string[] Subtitles
     {
       get
       {
-        int streamsAvailable;
-        int currentStream;
-        bool isDisabled;
-        _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
-        List<String> streams = new List<String>();
-        streams.Add(ServiceRegistration.Get<ILocalization>().ToString("[Playback.SubtitleOff]")); //off
-        for (int i = 0; i < streamsAvailable; ++i)
+        // Accessing the list and count information can occure concurrently, this has to be avoided.
+        lock (_guiPropertiesLock)
         {
-          DvdSubpictureAttributes attr;
-          int iLanguage;
-          _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
-          _dvdInfo.GetSubpictureAttributes(i, out attr);
-          foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
+          if (_subtitleStreams != null)
+            return _subtitleStreams.ToArray();
+
+          _subtitleStreams = new List<string>();
+          if (_initialized && _dvdInfo != null)
           {
-            if (ci.LCID == (iLanguage & 0x3ff))
+            int streamsAvailable;
+            int currentStream;
+            bool isDisabled;
+            _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
+            for (int i = 0; i < streamsAvailable; ++i)
             {
-              String localizationTag = attr.LanguageExtension.ToString();
-              String currentSubtitle = String.Format("{0} {1}",
-                ci.EnglishName,
-                ServiceRegistration.Get<ILocalization>().ToString("[Playback." + localizationTag + "]") ?? localizationTag
-                );
-              streams.Add(currentSubtitle);
-              break;
+              DvdSubpictureAttributes attr;
+              int iLanguage;
+              _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
+              _dvdInfo.GetSubpictureAttributes(i, out attr);
+              foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
+              {
+                if (ci.LCID == (iLanguage & 0x3ff))
+                {
+                  String localizationTag = attr.LanguageExtension.ToString();
+                  String currentSubtitle = String.Format("{0} {1}", ci.EnglishName,
+                      ServiceRegistration.Get<ILocalization>().ToString(
+                          "[Playback." + localizationTag + "]") ?? localizationTag
+                    );
+                  AddUnique(_subtitleStreams, currentSubtitle);
+                  break;
+                }
+              }
             }
           }
+          return _subtitleStreams.ToArray();
         }
-        return streams.ToArray();
       }
     }
 
@@ -978,33 +955,32 @@ namespace Ui.Players.Video
       {
         if (subtitles[i] == subtitle)
         {
-          if (i == 0)
+          ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select subtitle:{0}", subtitle);
+          _dvdCtrl.SelectSubpictureStream(i, DvdCmdFlags.None, out _cmdOption);
+          _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
+          int iLanguage;
+          _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
+          foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
           {
-            ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: disable subtitles");
-            _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
-            settings.SubtitleLanguage = "";
-            ServiceRegistration.Get<ISettingsManager>().Save(settings);
-          }
-          else
-          {
-            ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: select subtitle:{0}", subtitle);
-            _dvdCtrl.SelectSubpictureStream(i - 1, DvdCmdFlags.None, out _cmdOption);
-            _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
-            int iLanguage;
-            _dvdInfo.GetSubpictureLanguage(i - 1, out iLanguage);
-            foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
+            if (ci.LCID == (iLanguage & 0x3ff))
             {
-              if (ci.LCID == (iLanguage & 0x3ff))
-              {
-                settings.SubtitleLanguage = ci.EnglishName;
-                ServiceRegistration.Get<ISettingsManager>().Save(settings);
-                break;
-              }
+              settings.SubtitleLanguage = ci.EnglishName;
+              ServiceRegistration.Get<ISettingsManager>().Save(settings);
+              break;
             }
           }
           return;
         }
       }
+    }
+
+    public void DisableSubtitle()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Disable subtitles");
+      _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
+      settings.SubtitleLanguage = null;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     public string CurrentSubtitle
@@ -1015,11 +991,10 @@ namespace Ui.Players.Video
         bool isDisabled;
         _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
         string[] subs = Subtitles;
-        if (isDisabled)
-        {
-          return subs[0];
-        }
-        return subs[currentStream + 1];
+        // Attention: currentStream can return invalid index, check if it's higher than the number of available subtitles
+        if (isDisabled || currentStream >= subs.Length)
+          return null;
+        return subs[currentStream];
       }
     }
 
@@ -1027,6 +1002,9 @@ namespace Ui.Players.Video
 
     #region DVD Titles handling
 
+    /// <summary>
+    /// Gets the available DVD titles.
+    /// </summary>
     public string[] DvdTitles
     {
       get
@@ -1038,12 +1016,16 @@ namespace Ui.Players.Video
         string[] titles = new string[titleCount];
         for (int i = 0; i < titleCount; ++i)
         {
-          titles[i] = String.Format("Title {0}", i + 1);
+          titles[i] = String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Title]"), i + 1);
         }
         return titles;
       }
     }
 
+    /// <summary>
+    /// Sets the DVD title to play.
+    /// </summary>
+    /// <param name="title">DVD title</param>
     public void SetDvdTitle(string title)
     {
       string[] titles = DvdTitles;
@@ -1057,13 +1039,16 @@ namespace Ui.Players.Video
       }
     }
 
+    /// <summary>
+    /// Gets the current DVD title.
+    /// </summary>
     public string CurrentDvdTitle
     {
       get
       {
         DvdPlaybackLocation2 location;
         _dvdInfo.GetCurrentLocation(out location);
-        return String.Format("Title {0}", location.TitleNum);
+        return String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Title]"), location.TitleNum);
       }
     }
 
@@ -1071,23 +1056,48 @@ namespace Ui.Players.Video
 
     #region DVD Chapters handling
 
+    /// <summary>
+    /// Returns a localized chapter name.
+    /// </summary>
+    /// <param name="chapterNumber">0 based chapter</param>
+    /// <returns>Chapter title</returns>
+    private String ChapterName(Int32 chapterNumber)
+    {
+      //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
+      return String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Chapter]"), chapterNumber);
+    }
+
+    /// <summary>
+    /// Gets a list of available chapters.
+    /// </summary>
     public string[] DvdChapters
     {
       get
       {
-        int chapterCount;
-        DvdPlaybackLocation2 location;
-        _dvdInfo.GetCurrentLocation(out location);
-        _dvdInfo.GetNumberOfChapters(location.TitleNum, out chapterCount);
-        string[] chapters = new string[chapterCount];
-        for (int i = 0; i < chapterCount; ++i)
+        lock (_guiPropertiesLock)
         {
-          chapters[i] = String.Format("Chapter {0}", i + 1);
+          if (_chapters != null)
+            return _chapters.ToArray();
+
+          _chapters = new List<string>();
+          if (_initialized && _dvdInfo != null)
+          {
+            int chapterCount;
+            DvdPlaybackLocation2 location;
+            _dvdInfo.GetCurrentLocation(out location);
+            _dvdInfo.GetNumberOfChapters(location.TitleNum, out chapterCount);
+            for (int i = 1; i <= chapterCount; ++i)
+              _chapters.Add(ChapterName(i));
+          }
         }
-        return chapters;
+        return _chapters.ToArray();
       }
     }
 
+    /// <summary>
+    /// Sets the chapter to play.
+    /// </summary>
+    /// <param name="chapter">Chapter name</param>
     public void SetDvdChapter(string chapter)
     {
       string[] chapters = DvdChapters;
@@ -1101,14 +1111,43 @@ namespace Ui.Players.Video
       }
     }
 
+    /// <summary>
+    /// Gets the current chapter.
+    /// </summary>
     public string CurrentDvdChapter
     {
       get
       {
         DvdPlaybackLocation2 location;
         _dvdInfo.GetCurrentLocation(out location);
-        return String.Format("Chapter {0}", location.ChapterNum);
+        return ChapterName(location.ChapterNum);
       }
+    }
+
+    /// <summary>
+    /// Indicate if chapters are available.
+    /// </summary>
+    public bool ChaptersAvailable
+    {
+      get { return DvdChapters.Length!= 0; }
+    }
+
+    /// <summary>
+    /// Skip to next chapter.
+    /// </summary>
+    public void NextChapter()
+    {
+      IDvdCmd cmd;
+      _dvdCtrl.PlayNextChapter(DvdCmdFlags.None, out cmd);
+    }
+
+    /// <summary>
+    /// Skip to previous chapter.
+    /// </summary>
+    public void PrevChapter()
+    {
+      IDvdCmd cmd;
+      _dvdCtrl.PlayPrevChapter(DvdCmdFlags.None, out cmd);
     }
 
     #endregion
@@ -1158,6 +1197,10 @@ namespace Ui.Players.Video
       return result;
     }
 
+    /// <summary>
+    /// Convertes time and updates _currentTime.
+    /// </summary>
+    /// <param name="p1"></param>
     private void GetCurrentTime(IntPtr p1)
     {
       byte[] ati = BitConverter.GetBytes(p1.ToInt32());
@@ -1168,6 +1211,9 @@ namespace Ui.Players.Video
       _currentTime = ToDouble(_currTime);
     }
 
+    /// <summary>
+    /// Calculates the duration.
+    /// </summary>
     private void CalculateDuration()
     {
       DvdHMSFTimeCode totaltime = new DvdHMSFTimeCode();
@@ -1178,7 +1224,7 @@ namespace Ui.Players.Video
 
 
     /// <summary>
-    /// returns the current play time
+    /// Returns the current play time.
     /// </summary>
     /// <value></value>
     public override TimeSpan CurrentTime
@@ -1207,14 +1253,20 @@ namespace Ui.Players.Video
       }
     }
 
+    /// <summary>
+    /// Gets the duration of DVD title.
+    /// </summary>
     public override TimeSpan Duration
     {
       get { return ToTimeSpan(_duration); }
     }
 
+    /// <summary>
+    /// Indicates if DVD menu is active.
+    /// </summary>
     public bool InDvdMenu
     {
-      get { return (_menuMode != MenuMode.No); }
+      get { return (_menuOn); }
     }
 
     #endregion

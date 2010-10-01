@@ -59,6 +59,21 @@ namespace MediaPortal.UI.Presentation.Players
     void SetDvdChapter(string chapter);
 
     /// <summary>
+    /// Indicate if chapters are available.
+    /// </summary>
+    bool ChaptersAvailable { get; }
+
+    /// <summary>
+    /// Skips to the next chapter.
+    /// </summary>
+    void NextChapter();
+
+    /// <summary>
+    /// Skips to the previous chapter.
+    /// </summary>
+    void PrevChapter();
+
+    /// <summary>
     /// Gets the current DVD chapter.
     /// </summary>
     string CurrentDvdChapter { get; }

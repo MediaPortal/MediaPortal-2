@@ -127,19 +127,16 @@ namespace Ui.Players.Video
 
     public void Dispose()
     {
-      if (_surface != null)
-      {
-        _surface.Dispose();
-        _surface = null;
-        ContentManager.TextureReferences--;
-      }
-      if (_texture != null)
-      {
-        _texture.Dispose();
-        _texture = null;
+      FreeTexture();
+    }
 
-        ContentManager.TextureReferences--;
-      }
+    private void FreeTexture()
+    {
+      FilterGraphTools.TryDispose(ref _surface);
+      ContentManager.TextureReferences--;
+
+      FilterGraphTools.TryDispose(ref _texture);
+      ContentManager.TextureReferences--;
     }
 
     public Texture Texture
@@ -164,22 +161,10 @@ namespace Ui.Players.Video
       {
         if (dwImg == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
           return 0;
-        if (cx != _videoSize.Width || cy != _videoSize.Height)
-        {
-          if (_surface != null)
-          {
-            _surface.Dispose();
-            _surface = null;
-            ContentManager.TextureReferences--;
-          }
 
-          if (_texture != null)
-          {
-            _texture.Dispose();
-            _texture = null;
-            ContentManager.TextureReferences--;
-          }
-        }
+        if (cx != _videoSize.Width || cy != _videoSize.Height)
+          FreeTexture();
+        
         _videoSize = new Size(cx, cy);
         _aspectRatio = new Size(arx, ary);
         VideoSizePresentDlgt vsp = VideoSizePresent;

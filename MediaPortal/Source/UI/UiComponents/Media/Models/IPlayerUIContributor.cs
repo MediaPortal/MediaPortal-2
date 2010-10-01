@@ -33,12 +33,11 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <remarks>
   /// Implementors of this interface must provide a parameterless constructor.
   /// <para>
-  /// First, I must apologize that the interface infrastructure is so complicated in the media part. Let me try to explain
-  /// the reason of this interface.
+  /// The interface infrastructure is quite complicated in the media part. What is the reason for that?
   /// </para>
   /// <para>
   /// The media plugin provides a media navigation function for all kinds of media items (audio/video, all sub types like
-  /// normal video, images, DVD, videos with sub title etc.)
+  /// normal video, images, DVD, videos with sub title etc).
   /// We group all kinds of players by their AV-Type (all kinds of video players form the "V"ideo group and all kinds of audio
   /// players form the "A"udio group). All media items which are played by a player of the video group can be together in
   /// one single playlist and all audio media items can be in a single playlist.
@@ -49,15 +48,15 @@ namespace MediaPortal.UiComponents.Media.Models
   /// But because of the fact that all of those share a single playlist and thus are located in a single player context,
   /// all of them need to share a single FSC workflow state and a single CP workflow state. Those states are attended by the
   /// <see cref="VideoPlayerModel"/> respectively by the <see cref="AudioPlayerModel"/>.
-  /// To make it possible that multiple screens can be shown per specific player type, there will be an implementations
+  /// To make it possible that different screens can be shown per specific player type, there will be an implementation
   /// of this interface for each specific supported player type.
   /// </para>
   /// </remarks>
   public interface IPlayerUIContributor : IDisposable
   {
     bool BackgroundDisabled { get; }
-    void Initialize(MediaWorkflowStateType stateType, IPlayer player);
     MediaWorkflowStateType MediaWorkflowStateType { get; }
     string Screen { get; }
+    void Initialize(MediaWorkflowStateType stateType, IPlayer player);
   }
 }
