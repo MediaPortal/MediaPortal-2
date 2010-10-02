@@ -102,7 +102,7 @@
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>
     <String Name="Regional.Language.Main" Text="Language"/>
-    <String Name="Regional.Language.Main.Help" Text="Sets the main language used in the application"/>
+    <String Name="Regional.Language.Main.Help" Text="Set the main language used in the application"/>
 
     <String Name="Shares" Text="Shares"/>
     <String Name="Shares.Configure" Text="Configure shares"/>
