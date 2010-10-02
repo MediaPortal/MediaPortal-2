@@ -29,10 +29,6 @@
             </CommandList>
           </ListView.Resources>
         </ListView>
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
-          <Button Name="ButtonCancel" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Back]"
-              Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
-        </StackPanel>
       </StackPanel>
     </ResourceWrapper>
 

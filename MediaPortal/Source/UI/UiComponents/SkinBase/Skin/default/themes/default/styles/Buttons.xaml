@@ -305,6 +305,11 @@
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
   </Style>
 
+  <Style x:Key="DialogButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
+    <Setter Property="MinWidth" Value="200"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+  </Style>
+
   <!-- ***************************** Radio buttons ******************************** -->
 
   <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">

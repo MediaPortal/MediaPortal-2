@@ -26,7 +26,7 @@
           </Grid.RowDefinitions>
           <Label Grid.Column="0" Grid.Row="0" Content="[ServerConnection.AttachToServerNoServerText]" Wrap="True"/>
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">
-            <Button Margin="10" x:Name="NoServersOkButton" Style="{ThemeResource ButtonWideStyle}"
+            <Button Margin="10" x:Name="NoServersOkButton" Style="{ThemeResource DialogButtonStyle}"
                 Content="[System.Ok]"
                 Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>
@@ -48,9 +48,9 @@
           <Label Content="[ServerConnection.AttachToSingleText.After]" Grid.Column="0" Grid.Row="2" Wrap="True"/>
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center">
-            <Button Margin="10" x:Name="SingleServerAttachButton" Grid.Column="0" Style="{ThemeResource ButtonWideStyle}"
+            <Button Margin="10" x:Name="SingleServerAttachButton" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}"
                 Content="[ServerConnection.AttachButton]" Command="{Command Source={StaticResource Model},Path=ConnectToSingleServerAndClose}"/>
-            <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
+            <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
                 Content="[System.Cancel]"
                 Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>
@@ -74,7 +74,7 @@
             </ListView.Resources>
           </ListView>
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Center">
-            <Button Margin="10" x:Name="MultipleServersCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
+            <Button Margin="10" x:Name="MultipleServersCancelButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
                 Content="[System.Cancel]"
                 Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
           </StackPanel>

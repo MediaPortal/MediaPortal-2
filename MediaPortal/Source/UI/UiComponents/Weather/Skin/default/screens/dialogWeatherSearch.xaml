@@ -18,8 +18,18 @@
         <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[Weathersetup.Entercity]" Color="White"/>
         <TextBox Margin="10,5,10,5" Style="{ThemeResource TextBoxStyle}" HorizontalAlignment="Stretch" BorderThickness="1"
             Text="{Binding Path=SearchCity,Mode=OneWayToSource}"/>
-        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-          <Button Name="ButtonDone" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Done]">
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Name="ButtonCancel" Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
+              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+          <Button Name="ButtonOk" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]"
+              HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
                 <Command Path="SearchLocations" Parameters="{LateBoundValue BindingValue={Binding Path=SearchCity}}"/>
@@ -28,9 +38,7 @@
               </CommandList>
             </Button.Command>
           </Button>
-          <Button Name="ButtonCancel" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Cancel]"
-              Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
-        </StackPanel>
+        </Grid>
       </StackPanel>
     </ResourceWrapper>
 
