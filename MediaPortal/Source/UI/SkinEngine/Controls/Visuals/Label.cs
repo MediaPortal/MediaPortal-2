@@ -39,8 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Private & protected fields
 
     protected AbstractProperty _contentProperty;
-    protected AbstractProperty _horizontalContentAlignmentProperty;
-    protected AbstractProperty _verticalContentAlignmentProperty;
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _scrollProperty;
     protected AbstractProperty _scrollSpeedProperty;
@@ -156,28 +154,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (string) _contentProperty.GetValue(); }
       set { _contentProperty.SetValue(value); }
-    }
-
-    public AbstractProperty HorizontalContentAlignmentProperty
-    {
-      get { return _horizontalContentAlignmentProperty; }
-    }
-
-    public HorizontalAlignmentEnum HorizontalContentAlignment
-    {
-      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
-      set { _horizontalContentAlignmentProperty.SetValue(value); }
-    }
-
-    public AbstractProperty VerticalContentAlignmentProperty
-    {
-      get { return _verticalContentAlignmentProperty; }
-    }
-
-    public VerticalAlignmentEnum VerticalContentAlignment
-    {
-      get { return (VerticalAlignmentEnum) _verticalContentAlignmentProperty.GetValue(); }
-      set { _verticalContentAlignmentProperty.SetValue(value); }
     }
 
     /// <summary>
