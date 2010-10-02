@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childArea = new SizeF(availableSize.Width, childSize.Height);
 
           // Position the child within the child area
-          ArrangeChildHorizontal(child, ref location, ref childArea);
+          ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
           child.Arrange(new RectangleF(location, childArea));
 
           offsetTop += childArea.Height;
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childArea = new SizeF(availableSize.Width, childSize.Height);
 
           // Position the child within the child area
-          ArrangeChildHorizontal(child, ref location, ref childArea);
+          ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
           child.Arrange(new RectangleF(location, childArea));
 
           offsetBottom += childArea.Height;
@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childArea = new SizeF(childSize.Width, availableSize.Height);
 
           // Position the child within the child area
-          ArrangeChildVertical(child, ref location, ref childArea);
+          ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
           child.Arrange(new RectangleF(location, childArea));
 
           offsetLeft += childArea.Width;
@@ -180,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             childArea = new SizeF(childSize.Width,availableSize.Height);
 
           // Position the child within the child area
-          ArrangeChildVertical(child, ref location, ref childArea);
+          ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
           child.Arrange(new RectangleF(location, childArea));
 
           offsetRight += childArea.Width;
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             child.Arrange(new RectangleF(location, childSize));
           else
           {
-            ArrangeChild(child, ref location, ref childSize);
+            ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref location, ref childSize);
             child.Arrange(new RectangleF(location, childSize));
           }
 

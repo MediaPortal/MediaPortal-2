@@ -37,13 +37,6 @@ using SizeF = System.Drawing.SizeF;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-// changes possible:
-// - opacity
-// - vertices
-// - effect / effect parameters
-// - rendertransform
-// - visibility
-
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Border : FrameworkElement, IAddChild<FrameworkElement>
@@ -231,7 +224,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RemoveMargin(ref layoutRect, GetTotalBorderMargin());
       PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
       SizeF size = new SizeF(layoutRect.Size);
-      ArrangeChild(_content, ref location, ref size);
+      ArrangeChild(_content, _content.HorizontalAlignment, _content.VerticalAlignment, ref location, ref size);
       _content.Arrange(new RectangleF(location, size));
     }
 

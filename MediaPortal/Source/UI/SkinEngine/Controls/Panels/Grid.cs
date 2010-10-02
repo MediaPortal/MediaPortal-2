@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             (float) ColumnDefinitions.GetLength(col, GetColumnSpan(child)),
             (float) RowDefinitions.GetLength(row, GetRowSpan(child)));
 
-        ArrangeChild(child, ref position, ref childSize);
+        ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref position, ref childSize);
         child.Arrange(new RectangleF(position, childSize));
       }
     }

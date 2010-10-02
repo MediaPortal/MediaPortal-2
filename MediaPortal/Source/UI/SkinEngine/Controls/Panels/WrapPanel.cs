@@ -189,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
               SizeF size = new SizeF(childSize.Width, _sizeCol[offset]);
 
-              ArrangeChildVertical(child, ref location, ref size);
+              ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref size);
 
               child.Arrange(new RectangleF(location, size));
               offsetX += childSize.Width;
@@ -218,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
               SizeF size = new SizeF(_sizeCol[offset], childSize.Height);
 
-              ArrangeChildHorizontal(child, ref location, ref size);
+              ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref size);
 
               child.Arrange(new RectangleF(location, size));
               offsetY += childSize.Height;

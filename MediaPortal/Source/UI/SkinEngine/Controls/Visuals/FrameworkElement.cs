@@ -952,35 +952,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Arranges the child horizontal and vertical in a given area. If the area is bigger than
-    /// the child's desired size, the child will be arranged according to its
-    /// <see cref="HorizontalAlignment"/> and <see cref="VerticalAlignment"/>.
+    /// the child's desired size, the child will be arranged according to the given <paramref name="horizontalAlignment"/>
+    /// and <paramref name="verticalAlignment"/>.
     /// </summary>
     /// <param name="child">The child to arrange. The child will not be changed by this method.</param>
+    /// <param name="horizontalAlignment">Alignment in horizontal direction.</param>
+    /// <param name="verticalAlignment">Alignment in vertical direction.</param>
     /// <param name="location">Input: The starting position of the available area. Output: The position
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChild(FrameworkElement child, ref PointF location, ref SizeF childSize)
+    public void ArrangeChild(FrameworkElement child, HorizontalAlignmentEnum horizontalAlignment, VerticalAlignmentEnum verticalAlignment, ref PointF location, ref SizeF childSize)
     {
       // Be careful when changing the implementation of those arrangement methods.
       // MPF behaves a bit different from WPF: We don't clip elements at the boundaries of containers,
       // instead, we arrange them with a maximum size calculated by the container. If we would not avoid
       // that controls can become bigger than their arrange size, we would have to accomplish a means to clip
       // their render size.
-      ArrangeChildHorizontal(child, ref location, ref childSize);
-      ArrangeChildVertical(child, ref location, ref childSize);
+      ArrangeChildHorizontal(child, horizontalAlignment, ref location, ref childSize);
+      ArrangeChildVertical(child, verticalAlignment, ref location, ref childSize);
     }
 
     /// <summary>
     /// Arranges the child horizontal in a given area. If the area is bigger than the child's desired
-    /// size, the child will be arranged according to its <see cref="HorizontalAlignment"/>.
+    /// size, the child will be arranged according to the given <paramref name="alignment"/>.
     /// </summary>
     /// <param name="child">The child to arrange. The child will not be changed by this method.</param>
+    /// <param name="alignment">Alignment in horizontal direction.</param>
     /// <param name="location">Input: The starting position of the available area. Output: The position
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChildHorizontal(FrameworkElement child, ref PointF location, ref SizeF childSize)
+    public void ArrangeChildHorizontal(FrameworkElement child, HorizontalAlignmentEnum alignment, ref PointF location, ref SizeF childSize)
     {
       // See comment in ArrangeChild
       SizeF desiredSize = child.DesiredSize;
@@ -988,18 +991,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Width <= childSize.Width)
       {
         // Width takes precedence over Stretch - Use Center as fallback
-        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
-            (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
+        if (alignment == HorizontalAlignmentEnum.Center ||
+            (alignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
         {
           location.X += (childSize.Width - desiredSize.Width)/2;
           childSize.Width = desiredSize.Width;
         }
-        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+        if (alignment == HorizontalAlignmentEnum.Right)
         {
           location.X += childSize.Width - desiredSize.Width;
           childSize.Width = desiredSize.Width;
         }
-        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Left)
+        else if (alignment == HorizontalAlignmentEnum.Left)
         {
           // Leave location unchanged
           childSize.Width = desiredSize.Width;
@@ -1011,14 +1014,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Arranges the child vertical in a given area. If the area is bigger than the child's desired
-    /// size, the child will be arranged according to its <see cref="VerticalAlignment"/>.
+    /// size, the child will be arranged according to the given <paramref name="alignment"/>.
     /// </summary>
     /// <param name="child">The child to arrange. The child will not be changed by this method.</param>
+    /// <param name="alignment">Alignment in vertical direction.</param>
     /// <param name="location">Input: The starting position of the available area. Output: The position
     /// the child should be located.</param>
     /// <param name="childSize">Input: The available area for the <paramref name="child"/>. Output:
     /// The area the child should take.</param>
-    public void ArrangeChildVertical(FrameworkElement child, ref PointF location, ref SizeF childSize)
+    public void ArrangeChildVertical(FrameworkElement child, VerticalAlignmentEnum alignment, ref PointF location, ref SizeF childSize)
     {
       // See comment in ArrangeChild
       SizeF desiredSize = child.DesiredSize;
@@ -1026,18 +1030,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(desiredSize.Height) && desiredSize.Height <= childSize.Height)
       {
         // Height takes precedence over Stretch - Use Center as fallback
-        if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
-            (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
+        if (alignment == VerticalAlignmentEnum.Center ||
+            (alignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
         {
           location.Y += (childSize.Height - desiredSize.Height)/2;
           childSize.Height = desiredSize.Height;
         }
-        else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+        else if (alignment == VerticalAlignmentEnum.Bottom)
         {
           location.Y += childSize.Height - desiredSize.Height;
           childSize.Height = desiredSize.Height;
         }
-        else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
+        else if (alignment == VerticalAlignmentEnum.Top)
         {
           // Leave location unchanged
           childSize.Height = desiredSize.Height;

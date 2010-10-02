@@ -114,11 +114,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected FrameworkElement CreateEllipsisControl()
     {
+// ReSharper disable UseObjectOrCollectionInitializer
       FrameworkElement result = new SkinEngine.Controls.Visuals.Control
+// ReSharper restore UseObjectOrCollectionInitializer
         {
             VisualParent = this
         };
-      result.Style = EllipsisControlStyle; // Set the style after all other properties have been set to avoid doing work multiple times
+      // Set the style after all other properties have been set to avoid doing work multiple times
+      result.Style = EllipsisControlStyle;
       return result;
     }
 
@@ -193,13 +196,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           if (Orientation == Orientation.Vertical)
           {
             childSize.Width = actualWidth;
-            ArrangeChildHorizontal(firstChild, ref position, ref childSize);
+            ArrangeChildHorizontal(firstChild, firstChild.HorizontalAlignment, ref position, ref childSize);
             startPositionY += childSize.Height;
           }
           else
           {
             childSize.Height = actualHeight;
-            ArrangeChildVertical(firstChild, ref position, ref childSize);
+            ArrangeChildVertical(firstChild, firstChild.VerticalAlignment, ref position, ref childSize);
             startPositionX += childSize.Width;
           }
 
@@ -214,13 +217,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             if (Orientation == Orientation.Vertical)
             {
               childSize.Width = actualWidth;
-              ArrangeChildHorizontal(_ellipsisControl, ref position, ref childSize);
+              ArrangeChildHorizontal(_ellipsisControl, _ellipsisControl.HorizontalAlignment, ref position, ref childSize);
               startPositionY += childSize.Height;
             }
             else
             {
               childSize.Height = actualHeight;
-              ArrangeChildVertical(_ellipsisControl, ref position, ref childSize);
+              ArrangeChildVertical(_ellipsisControl, _ellipsisControl.VerticalAlignment, ref position, ref childSize);
               startPositionX += childSize.Width;
             }
 
@@ -241,13 +244,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           if (Orientation == Orientation.Vertical)
           {
             childSize.Width = actualWidth;
-            ArrangeChildHorizontal(child, ref position, ref childSize);
+            ArrangeChildHorizontal(child, child.HorizontalAlignment, ref position, ref childSize);
             startPositionY += childSize.Height;
           }
           else
           {
             childSize.Height = actualHeight;
-            ArrangeChildVertical(child, ref position, ref childSize);
+            ArrangeChildVertical(child, child.VerticalAlignment, ref position, ref childSize);
             startPositionX += childSize.Width;
           }
 

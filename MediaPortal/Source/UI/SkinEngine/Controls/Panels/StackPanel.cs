@@ -202,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 childSize.Width = actualWidth;
 
-                ArrangeChildHorizontal(child, ref position, ref childSize);
+                ArrangeChildHorizontal(child, child.HorizontalAlignment, ref position, ref childSize);
                 child.Arrange(new RectangleF(position, childSize));
                 _totalWidth = Math.Max(_totalWidth, childSize.Width);
                 _totalHeight += childSize.Height;
@@ -252,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 childSize.Height = actualHeight;
 
-                ArrangeChildVertical(child, ref location, ref childSize);
+                ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childSize);
                 child.Arrange(new RectangleF(location, childSize));
                 _totalHeight = Math.Max(_totalHeight, childSize.Height);
                 _totalWidth += childSize.Width;

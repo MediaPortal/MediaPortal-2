@@ -47,6 +47,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _borderProperty;
     protected AbstractProperty _borderThicknessProperty;
     protected AbstractProperty _cornerRadiusProperty;
+    protected AbstractProperty _horizontalContentAlignmentProperty;
+    protected AbstractProperty _verticalContentAlignmentProperty;
+
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
     protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
@@ -70,6 +73,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
+      _horizontalContentAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
+      _verticalContentAlignmentProperty = new SProperty(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
     }
 
     void Attach()
@@ -213,6 +218,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _templateProperty.SetValue(value); }
     }
 
+    public AbstractProperty HorizontalContentAlignmentProperty
+    {
+      get { return _horizontalContentAlignmentProperty; }
+    }
+
+    public HorizontalAlignmentEnum HorizontalContentAlignment
+    {
+      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
+      set { _horizontalContentAlignmentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalContentAlignmentProperty
+    {
+      get { return _verticalContentAlignmentProperty; }
+    }
+
+    public VerticalAlignmentEnum VerticalContentAlignment
+    {
+      get { return (VerticalAlignmentEnum) _verticalContentAlignmentProperty.GetValue(); }
+      set { _verticalContentAlignmentProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Rendering
@@ -297,7 +324,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
-      templateControl.Arrange(_innerRect);
+      PointF location = _innerRect.Location;
+      SizeF childSize = _innerRect.Size;
+      ArrangeChild(templateControl, HorizontalContentAlignment, VerticalContentAlignment, ref location, ref childSize);
+      templateControl.Arrange(new RectangleF(location, childSize));
     }
 
     #endregion

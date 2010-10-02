@@ -242,7 +242,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             ActualPosition.X + (i % _actualColumns - _scrollIndexX)*_actualColumnWidth,
             ActualPosition.Y + (i / _actualColumns - _scrollIndexY)*_actualRowHeight);
 
-        ArrangeChild(child, ref position, ref childSize);
+        ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref position, ref childSize);
         child.Arrange(new RectangleF(position, childSize));
       }
     }

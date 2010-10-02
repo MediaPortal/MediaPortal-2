@@ -146,7 +146,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           availableSize = _innerRect.Size;
         }
 
-        ArrangeChild(_templateControl, ref position, ref availableSize);
+        ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
+            ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
         _templateControl.Arrange(childRect);
       }

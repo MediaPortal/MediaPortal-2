@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         PointF position = new PointF(_innerRect.X, _innerRect.Y);
         SizeF availableSize = CalculateDesiredSize(_innerRect.Size);
-        ArrangeChild(content, ref position, ref availableSize);
+        ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
         content.Arrange(childRect);
       }
