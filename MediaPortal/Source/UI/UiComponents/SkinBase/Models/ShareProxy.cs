@@ -25,9 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Utilities;
 
@@ -56,6 +58,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _allBaseMediaProvidersList;
     protected AbstractProperty _isMediaProviderSelectedProperty;
     protected AbstractProperty _baseMediaProviderProperty;
+    protected AbstractProperty _nativeSystemProperty;
     protected AbstractProperty _choosenResourcePathStrProperty;
     protected AbstractProperty _choosenResourcePathProperty;
     protected AbstractProperty _isChoosenPathValidProperty;
@@ -75,6 +78,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _allBaseMediaProvidersList = new ItemsList();
       _isMediaProviderSelectedProperty = new WProperty(typeof(bool), false);
       _baseMediaProviderProperty = new WProperty(typeof(MediaProviderMetadata), null);
+      _nativeSystemProperty = new WProperty(typeof(string), string.Empty);
       _choosenResourcePathStrProperty = new WProperty(typeof(string), string.Empty);
       _choosenResourcePathStrProperty.Attach(OnChoosenResourcePathStrChanged);
       _choosenResourcePathProperty = new WProperty(typeof(ResourcePath), null);
@@ -186,6 +190,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (MediaProviderMetadata) _baseMediaProviderProperty.GetValue(); }
       set { _baseMediaProviderProperty.SetValue(value); }
+    }
+
+    public AbstractProperty NativeSystemProperty
+    {
+      get { return _nativeSystemProperty; }
+    }
+
+    /// <summary>
+    /// System where the share is located.
+    /// </summary>
+    public string NativeSystem
+    {
+      get { return (string) _nativeSystemProperty.GetValue(); }
+      set { _nativeSystemProperty.SetValue(value); }
     }
 
     public AbstractProperty ChoosenResourcePathStrProperty
@@ -322,12 +340,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       ChoosenResourcePath = null;
       ShareName = string.Empty;
       MediaCategories.Clear();
+      NativeSystem = null;
     }
 
     protected bool InitializePropertiesWithShare(Share share)
     {
       _origShare = share;
       BaseMediaProvider = GetBaseMediaProviderMetadata(share.BaseResourcePath);
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      SystemName systemName = systemResolver.GetSystemNameForSystemId(share.SystemId);
+      NativeSystem = systemName == null ? share.SystemId : systemName.HostName;
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
       MediaCategories.Clear();

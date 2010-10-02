@@ -130,6 +130,7 @@
     <String Name="ShareInformation" Text="Share information"/>
     <String Name="ShareNameInfo" Text="Name:"/>
     <String Name="ShareMediaProviderInfo" Text="Base media provider:"/>
+    <String Name="ShareSystem" Text="System:"/>
     <String Name="SharePathInfo" Text="Path:"/>
     <String Name="ShareResourcePathInfo" Text="Technical path:"/>
     <String Name="ShareMediaCategoriesInfo" Text="Media categories:"/>
