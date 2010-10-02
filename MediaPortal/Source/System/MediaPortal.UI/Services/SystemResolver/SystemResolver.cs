@@ -42,8 +42,15 @@ namespace MediaPortal.UI.Services.SystemResolver
     public override SystemName GetSystemNameForSystemId(string systemId)
     {
       if (systemId == _localSystemId)
+        // Shortcut for local system
         return SystemName.GetLocalSystemName();
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      if (systemId == serverConnectionManager.HomeServerSystemId)
+      { // Shortcut for home server
+        SystemName result = serverConnectionManager.LastHomeServerSystem;
+        if (result != null)
+          return result;
+      }
       IServerController sc = serverConnectionManager.ServerController;
       if (sc == null)
         return null;
