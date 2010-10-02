@@ -37,6 +37,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
+    protected AbstractProperty _scrollBarXSizeProperty;
+    protected AbstractProperty _scrollBarYSizeProperty;
     protected AbstractProperty _scrollBarXKnobPosProperty;
     protected AbstractProperty _scrollBarXKnobWidthProperty;
     protected AbstractProperty _scrollBarXVisibleProperty;
@@ -59,6 +61,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
+      _scrollBarXSizeProperty = new SProperty(typeof(float), 0f);
+      _scrollBarYSizeProperty = new SProperty(typeof(float), 0f);
       _scrollBarXKnobPosProperty = new SProperty(typeof(float), 0f);
       _scrollBarXKnobWidthProperty = new SProperty(typeof(float), 30f);
       _scrollBarXVisibleProperty = new SProperty(typeof(bool), false);
@@ -144,8 +148,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float totalHeight = scrollInfo.TotalHeight;
       float totalHeightNN = Math.Max(1, totalHeight); // Avoid divisions by zero
 
-      float scrollAreaWidth = (float) scp.ActualWidth;
-      float scrollAreaHeight = (float) scp.ActualHeight;
+      float scrollAreaWidth = ScrollBarXSize;
+      float scrollAreaHeight = ScrollBarYSize;
       // Hint about the coordinate systems used:
       // The values our calculations are based on are in the coordinate system which is scaled by the
       // SkinContext.Zoom setting. The output values must be in the original coordinate system, so we have to
@@ -187,6 +191,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.ArrangeOverride();
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
+    }
+
+    public AbstractProperty ScrollBarXSizeProperty
+    {
+      get { return _scrollBarXSizeProperty; }
+    }
+
+    public float ScrollBarXSize
+    {
+      get { return (float) _scrollBarXSizeProperty.GetValue(); }
+      set { _scrollBarXSizeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScrollBarYSizeProperty
+    {
+      get { return _scrollBarYSizeProperty; }
+    }
+
+    public float ScrollBarYSize
+    {
+      get { return (float) _scrollBarYSizeProperty.GetValue(); }
+      set { _scrollBarYSizeProperty.SetValue(value); }
     }
 
     public AbstractProperty ScrollBarXKnobPosProperty

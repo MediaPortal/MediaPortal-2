@@ -324,10 +324,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
-      PointF location = _innerRect.Location;
-      SizeF childSize = _innerRect.Size;
-      ArrangeChild(templateControl, HorizontalContentAlignment, VerticalContentAlignment, ref location, ref childSize);
-      templateControl.Arrange(new RectangleF(location, childSize));
+      templateControl.Arrange(_innerRect);
     }
 
     #endregion

@@ -80,12 +80,10 @@
           <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="2"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
-              <RowDefinition Height="2"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
@@ -93,7 +91,7 @@
             <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Content}"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch" OpacityMask="#FF000000"/>
             <!-- ScrollBar X -->
-            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="2" Grid.Column="0">
+            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0" Margin="2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -102,7 +100,8 @@
               </Grid.RowDefinitions>
               <!-- Background -->
               <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}">
                 <Rectangle.Fill>
                   <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
                 </Rectangle.Fill>
@@ -119,7 +118,7 @@
               </StackPanel>
             </Grid>
             <!-- ScrollBar Y -->
-            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="2">
+            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1" Margin="2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
@@ -128,7 +127,8 @@
               </Grid.RowDefinitions>
               <!-- Background -->
               <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}">
                 <Rectangle.Fill>
                   <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
                 </Rectangle.Fill>
