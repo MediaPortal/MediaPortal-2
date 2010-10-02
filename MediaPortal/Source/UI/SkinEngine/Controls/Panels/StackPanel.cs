@@ -324,8 +324,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
+    protected static void Bound(ref int value, int upperBound, int lowerBound)
+    {
+      if (value < lowerBound)
+        value = lowerBound;
+      if (value > upperBound)
+        value = upperBound;
+    }
+
     protected static double SumActualWidths(IList<FrameworkElement> elements, int startIndex, int endIndex)
     {
+      Bound(ref startIndex, 0, elements.Count-1);
+      Bound(ref endIndex, 0, elements.Count-1);
       if (startIndex == endIndex || elements.Count == 0)
         return 0f;
       bool invert = startIndex > endIndex;
@@ -347,6 +357,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected static double SumActualHeights(IList<FrameworkElement> elements, int startIndex, int endIndex)
     {
+      Bound(ref startIndex, 0, elements.Count-1);
+      Bound(ref endIndex, 0, elements.Count-1);
       if (startIndex == endIndex || elements.Count == 0)
         return 0f;
       bool invert = startIndex > endIndex;
