@@ -85,62 +85,6 @@ namespace MediaPortal.Backend.Services.Database
       return result;
     }
 
-    protected static string GetStringPatternReplacement(string stringPattern, ISQLDatabase database)
-    {
-      int start = stringPattern.IndexOf('(');
-      int end = stringPattern.IndexOf(')');
-      if (start == -1 || end <= start)
-        throw new InvalidDataException("Malformed string pattern '{0}'", stringPattern);
-      string lstr = stringPattern.Substring(start + 1, end - start - 1).Trim();
-      uint length;
-      if (!uint.TryParse(lstr, out length))
-        throw new InvalidDataException("Invalid length in string pattern '{0}'", stringPattern);
-      return database.GetSQLVarLengthStringType(length);
-    }
-
-    protected static string GetFixedStringPatternReplacement(string stringPattern, ISQLDatabase database)
-    {
-      int start = stringPattern.IndexOf('(');
-      int end = stringPattern.IndexOf(')');
-      if (start == -1 || end <= start)
-        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string lStr = stringPattern.Substring(start + 1, end - start - 1).Trim();
-      uint length;
-      if (!uint.TryParse(lStr, out length))
-        throw new InvalidDataException("Invalid length in fixed string pattern '{0}'", stringPattern);
-      return database.GetSQLFixedLengthStringType(length);
-    }
-
-    protected static string GetCreateSequencePatternReplacement(string stringPattern, ISQLDatabase database)
-    {
-      int start = stringPattern.IndexOf('(');
-      int end = stringPattern.IndexOf(')');
-      if (start == -1 || end <= start)
-        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
-      return database.GetCreateSequenceCommand(name);
-    }
-
-    protected static string GetSelectSequenceNextValPatternReplacement(string stringPattern, ISQLDatabase database)
-    {
-      int start = stringPattern.IndexOf('(');
-      int end = stringPattern.IndexOf(')');
-      if (start == -1 || end <= start)
-        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
-      return database.GetSelectSequenceNextValStatement(name);
-    }
-
-    protected static string GetSelectSequenceCurrValPatternReplacement(string stringPattern, ISQLDatabase database)
-    {
-      int start = stringPattern.IndexOf('(');
-      int end = stringPattern.IndexOf(')');
-      if (start == -1 || end <= start)
-        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
-      return database.GetSelectSequenceCurrValStatement(name);
-    }
-
     protected static string Preprocess(string origScript, ISQLDatabase database)
     {
       // Replace simple types
@@ -158,53 +102,69 @@ namespace MediaPortal.Backend.Services.Database
       IDictionary<string, string> replacements = new Dictionary<string, string>();
 
       string interimStr = result.ToString();
+
       // %STRING([N])%
-      Match match = new Regex(@"%STRING\(\d*\)%").Match(interimStr);
+      Match match = new Regex(@"%STRING\((\d*)\)%").Match(interimStr);
       while (match.Success)
       {
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
-          replacements.Add(pattern, GetStringPatternReplacement(pattern, database));
+        {
+          uint length = uint.Parse(match.Groups[1].Value);
+          replacements.Add(pattern, database.GetSQLVarLengthStringType(length));
+        }
         match = match.NextMatch();
       }
 
       // %STRING_FIXED([N])%
-      match = new Regex(@"%STRING_FIXED\(\d*\)%").Match(interimStr);
+      match = new Regex(@"%STRING_FIXED\((\d*)\)%").Match(interimStr);
       while (match.Success)
       {
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
-          replacements.Add(pattern, GetFixedStringPatternReplacement(pattern, database));
+        {
+          uint length = uint.Parse(match.Groups[1].Value);
+          replacements.Add(pattern, database.GetSQLFixedLengthStringType(length));
+        }
         match = match.NextMatch();
       }
 
       // %CREATE_SEQUENCE([NAME])%
-      match = new Regex(@"%CREATE_SEQUENCE\((\w|_)*\)%").Match(interimStr);
+      match = new Regex(@"%CREATE_SEQUENCE\(((\w|_)*)\)%").Match(interimStr);
       while (match.Success)
       {
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
-          replacements.Add(pattern, GetCreateSequencePatternReplacement(pattern, database));
+        {
+          string sequenceName = match.Groups[1].Value;
+          replacements.Add(pattern, database.GetCreateSequenceCommand(sequenceName));
+        }
         match = match.NextMatch();
       }
 
       // %SELECT_SEQUENCE_NEXTVAL([NAME])%
-      match = new Regex(@"%SELECT_SEQUENCE_NEXTVAL\((\w|_)*\)%").Match(interimStr);
+      match = new Regex(@"%CREATE_SEQUENCE_NEXTVAL\(((\w|_)*)\)%").Match(interimStr);
       while (match.Success)
       {
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
-          replacements.Add(pattern, GetSelectSequenceNextValPatternReplacement(pattern, database));
+        {
+          string sequenceName = match.Groups[1].Value;
+          replacements.Add(pattern, database.GetSelectSequenceNextValStatement(sequenceName));
+        }
         match = match.NextMatch();
       }
 
       // %SELECT_SEQUENCE_CURRVAL([NAME])%
-      match = new Regex(@"%SELECT_SEQUENCE_CURRVAL\((\w|_)*\)%").Match(interimStr);
+      match = new Regex(@"%SELECT_SEQUENCE_CURRVAL\(((\w|_)*)\)%").Match(interimStr);
       while (match.Success)
       {
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
-          replacements.Add(pattern, GetSelectSequenceCurrValPatternReplacement(pattern, database));
+        {
+          string sequenceName = match.Groups[1].Value;
+          replacements.Add(pattern, database.GetSelectSequenceCurrValStatement(sequenceName));
+        }
         match = match.NextMatch();
       }
 

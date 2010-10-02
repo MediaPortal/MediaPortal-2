@@ -45,10 +45,9 @@ namespace MediaPortal.Backend.Services.Database
     {
       if (!versionMajor.HasValue)
         return "-";
-      else if (!versionMinor.HasValue)
+      if (!versionMinor.HasValue)
         return versionMajor.Value + ".-";
-      else
-        return versionMajor.Value + "." + versionMinor.Value;
+      return versionMajor.Value + "." + versionMinor.Value;
     }
 
     #region IDatabaseManager implementation

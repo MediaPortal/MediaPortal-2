@@ -1,5 +1,4 @@
 -- This script creates the MediaLibrary schema. DO NOT MODIFY!
--- Albert, 2009-12-06
 
 CREATE TABLE SHARES (
   SHARE_ID %STRING_FIXED(36)% NOT NULL PRIMARY KEY,

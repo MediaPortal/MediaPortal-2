@@ -1,5 +1,4 @@
 -- This script creates the MediaPortal basis schema. DO NOT MODIFY!
--- Albert, 2009-08-15
 
 -- Dummy table, like "DUAL" in Oracle
 CREATE TABLE DUMMY (

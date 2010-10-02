@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection;
@@ -195,8 +194,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
     {
       if (IsCLOBNecessary(maxNumChars))
         return "BLOB SUB_TYPE 1"; // SUB_TYPE 1 = text
-      else
-        return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
+      return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public bool IsCLOBNecessary(uint maxNumChars)
@@ -208,8 +206,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
     {
       if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
         return "BLOB SUB_TYPE 1"; // SUB_TYPE 1 = text
-      else
-        return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
+      return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public string GetCreateSequenceCommand(string sequenceName)
@@ -257,33 +254,6 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       {
         con.Close();
       }
-    }
-
-    public void ExecuteScript(string sqlScript, bool autoCommit)
-    {
-      FbConnection con = CreateConnection();
-      FbScript script = new FbScript(new StringReader(sqlScript));
-      script.Parse();
-      FbBatchExecution batch = new FbBatchExecution(con, script);
-      batch.Execute(autoCommit);
-    }
-
-    public void ExecuteBatch(IList<string> sqlStatements, bool autoCommit)
-    {
-      FbConnection con = CreateConnection();
-      FbBatchExecution batch = new FbBatchExecution(con);
-      foreach (string statement in sqlStatements)
-        batch.SqlStatements.Add(statement);
-      batch.Execute(autoCommit);
-    }
-
-    public void ExecuteBatch(string sqlScriptFilePath, bool autoCommit)
-    {
-      FbConnection con = CreateConnection();
-      FbScript script = new FbScript(sqlScriptFilePath);
-      script.Parse();
-      FbBatchExecution batch = new FbBatchExecution(con, script);
-      batch.Execute(autoCommit);
     }
 
     public void ExecuteBatch(TextReader reader, bool autoCommit)
