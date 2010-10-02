@@ -154,14 +154,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override UIElement PrepareItemContainer(object dataItem)
     {
+// ReSharper disable UseObjectOrCollectionInitializer
       TreeViewItem container = new TreeViewItem
+// ReSharper restore UseObjectOrCollectionInitializer
         {
             Content = dataItem,
             Context = dataItem,
             ForceExpander = ForceExpander,
             Screen = Screen
         };
-      container.Style = ItemContainerStyle; // Set this after the other properties have been initialized to avoid duplicate work
+      // Set this after the other properties have been initialized to avoid duplicate work
+      container.Style = ItemContainerStyle;
 
       // We need to copy the item data template for the child containers, because the
       // data template contains specific data for each container. We need to "personalize" the
