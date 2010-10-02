@@ -30,6 +30,12 @@ namespace MediaPortal.Core.SystemResolver
   {
     string LocalSystemId { get; }
 
-    SystemName GetSystemNameForSystemId(string sytemId);
+    /// <summary>
+    /// Gets the name of the system with the given <paramref name="systemId"/>.
+    /// </summary>
+    /// <param name="systemId">Id of the system to resolve.</param>
+    /// <returns>System name or <c>null</c>, if the system could not resolved (i.e. if the server is not connected or
+    /// the system with the given <paramref name="systemId"/> is not known.</returns>
+    SystemName GetSystemNameForSystemId(string systemId);
   }
 }

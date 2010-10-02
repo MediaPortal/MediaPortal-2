@@ -55,7 +55,7 @@ namespace MediaPortal.Core.Services.SystemResolver
       get { return _localSystemId; }
     }
 
-    public abstract SystemName GetSystemNameForSystemId(string sytemId);
+    public abstract SystemName GetSystemNameForSystemId(string systemId);
 
     #endregion
   }
