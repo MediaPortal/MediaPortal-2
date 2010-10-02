@@ -5,7 +5,7 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors,Buttons"
+    DependsOnStyleResources="Colors,Buttons,Consts"
     >
 
   <!-- ************************** Default conversions ****************************** -->
@@ -243,7 +243,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
+          <Button Style="{ThemeResource DialogButtonStyle}" Margin="5,0,5,0"
+              Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -253,6 +254,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
   </Style>
 
   <!-- Container style for an entry markable with a checkbox -->

@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors,Graphics"
+    DependsOnStyleResources="Colors,Graphics,Consts"
     >
 
   <!-- ***************************** Storyboards ******************************** -->
@@ -306,7 +306,7 @@
   </Style>
 
   <Style x:Key="DialogButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
-    <Setter Property="MinWidth" Value="200"/>
+    <Setter Property="MinWidth" Value="{ThemeResource DialogButtonMinWidth}"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
   </Style>
 
