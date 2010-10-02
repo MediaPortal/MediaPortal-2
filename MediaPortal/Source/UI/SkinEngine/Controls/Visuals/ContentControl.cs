@@ -102,6 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       presenter.Content = Content;
       presenter.ContentTemplate = ContentTemplate;
+      presenter.HorizontalContentAlignment = HorizontalContentAlignment;
+      presenter.VerticalContentAlignment = VerticalContentAlignment;
     }
 
     #endregion

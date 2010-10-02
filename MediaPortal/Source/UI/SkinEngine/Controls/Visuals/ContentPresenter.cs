@@ -39,6 +39,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _contentTemplateProperty;
+    protected AbstractProperty _horizontalContentAlignmentProperty;
+    protected AbstractProperty _verticalContentAlignmentProperty;
     protected FrameworkElement _templateControl = null;
 
     #endregion
@@ -55,18 +57,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty = new SProperty(typeof(object), null);
       _contentTemplateProperty = new SProperty(typeof(DataTemplate), null);
+      _horizontalContentAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
+      _verticalContentAlignmentProperty = new SProperty(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
     }
 
     void Attach()
     {
       _contentProperty.Attach(OnContentChanged);
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
+      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
+      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -76,11 +84,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ContentPresenter p = (ContentPresenter) source;
       Content = copyManager.GetCopy(p.Content);
       ContentTemplate = copyManager.GetCopy(p.ContentTemplate);
+      HorizontalContentAlignment = p.HorizontalContentAlignment;
+      VerticalContentAlignment = p.VerticalContentAlignment;
       _templateControl = copyManager.GetCopy(p._templateControl);
       Attach();
     }
 
     #endregion
+
+    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout();
+    }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
@@ -194,6 +209,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentTemplateProperty.SetValue(value); }
     }
 
+    public AbstractProperty HorizontalContentAlignmentProperty
+    {
+      get { return _horizontalContentAlignmentProperty; }
+    }
+
+    public HorizontalAlignmentEnum HorizontalContentAlignment
+    {
+      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
+      set { _horizontalContentAlignmentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalContentAlignmentProperty
+    {
+      get { return _verticalContentAlignmentProperty; }
+    }
+
+    public VerticalAlignmentEnum VerticalContentAlignment
+    {
+      get { return (VerticalAlignmentEnum) _verticalContentAlignmentProperty.GetValue(); }
+      set { _verticalContentAlignmentProperty.SetValue(value); }
+    }
+
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       if (_templateControl == null)
@@ -215,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       PointF position = new PointF(_innerRect.X, _innerRect.Y);
       SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
-      ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
+      ArrangeChild(_templateControl, HorizontalContentAlignment, VerticalContentAlignment,
           ref position, ref availableSize);
       RectangleF childRect = new RectangleF(position, availableSize);
       _templateControl.Arrange(childRect);

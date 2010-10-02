@@ -81,12 +81,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _templateProperty.Attach(OnTemplateChanged);
       _templateControlProperty.Attach(OnTemplateControlChanged);
+      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
       _templateProperty.Detach(OnTemplateChanged);
       _templateControlProperty.Detach(OnTemplateControlChanged);
+      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -103,6 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (oldTemplateControl != null)
         oldTemplateControl.VisualParent = null;
       TemplateControl = copyManager.GetCopy(c.TemplateControl);
+      HorizontalContentAlignment = c.HorizontalContentAlignment;
+      VerticalContentAlignment = c.VerticalContentAlignment;
       _initializedTemplateControl = copyManager.GetCopy(c._initializedTemplateControl);
       Attach();
     }
@@ -110,6 +116,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Change handlers
+
+    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout();
+    }
 
     void OnTemplateChanged(AbstractProperty property, object oldValue)
     {
