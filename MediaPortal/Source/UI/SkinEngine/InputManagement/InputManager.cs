@@ -136,6 +136,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected PointF _mousePosition = new PointF();
     protected DateTime? _callingClientStart = null;
     protected bool _busyScreenVisible = false;
+    protected bool _busyScreenPending = false;
     protected Thread _workThread;
     protected Queue<InputEvent> _inputEventQueue = new Queue<InputEvent>(30);
     protected bool _terminated = false;
@@ -215,26 +216,54 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         _inputEventQueue.Clear();
     }
 
-    protected void TryEvent_NoLock(InputEvent evt)
+    protected void WaitWhileAndSetBusyScreenPending()
     {
-      bool showBusyScreen = false;
+      lock (_syncObj)
+        while (_busyScreenPending && !_terminated)
+          Monitor.Wait(_syncObj);
+    }
+
+    protected void ResetBusyScreenPending()
+    {
       lock (_syncObj)
       {
-        if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
-        { // Client call lasts longer than our BUSY_TIMEOUT
-          ClearInputBuffer(); // Discard all later input
-          if (!_busyScreenVisible)
-          {
-            showBusyScreen = true;
-            _busyScreenVisible = true;
+        _busyScreenPending = false;
+        Monitor.PulseAll(_syncObj);
+      }
+    }
+
+    protected void TryEvent_NoLock(InputEvent evt)
+    {
+      try
+      {
+        bool showBusyScreen = false;
+        lock (_syncObj)
+        {
+          WaitWhileAndSetBusyScreenPending();
+          if (_terminated)
+            return;
+          if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
+          { // Client call lasts longer than our BUSY_TIMEOUT
+            ClearInputBuffer(); // Discard all later input
+            if (!_busyScreenVisible)
+              showBusyScreen = true;
           }
         }
+        if (showBusyScreen)
+        {
+          ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+          superLayerManager.ShowBusyScreen();
+          lock (_syncObj)
+          {
+            _busyScreenVisible = true;
+            Monitor.PulseAll(_syncObj);
+          }
+          return; // Finished, no further processing
+        }
       }
-      if (showBusyScreen)
+      finally
       {
-        ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-        superLayerManager.ShowBusyScreen();
-        return; // Finished, no further processing
+        ResetBusyScreenPending();
       }
       EnqueueEvent(evt);
     }
@@ -243,24 +272,38 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       lock (_syncObj)
         _callingClientStart = DateTime.Now;
-      Type eventType = evt.GetType();
-      if (eventType == typeof(KeyEvent))
-        ExecuteKeyPress((KeyEvent) evt);
-      else if (eventType == typeof(MouseMoveEvent))
-        ExecuteMouseMove((MouseMoveEvent) evt);
-      else if (eventType == typeof(MouseWheelEvent))
-        ExecuteMouseWheel((MouseWheelEvent) evt);
-      bool hideBusyScreen;
-      lock (_syncObj)
+      try
       {
-        hideBusyScreen = _busyScreenVisible;
-        _busyScreenVisible = false;
-        _callingClientStart = null;
+        Type eventType = evt.GetType();
+        if (eventType == typeof(KeyEvent))
+          ExecuteKeyPress((KeyEvent) evt);
+        else if (eventType == typeof(MouseMoveEvent))
+          ExecuteMouseMove((MouseMoveEvent) evt);
+        else if (eventType == typeof(MouseWheelEvent))
+          ExecuteMouseWheel((MouseWheelEvent) evt);
       }
-      if (hideBusyScreen)
+      finally
       {
-        ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-        superLayerManager.HideBusyScreen();
+        try
+        {
+          bool hideBusyScreen;
+          lock (_syncObj)
+          {
+            WaitWhileAndSetBusyScreenPending();
+            hideBusyScreen = _busyScreenVisible;
+            _busyScreenVisible = false;
+            _callingClientStart = null;
+          }
+          if (hideBusyScreen && !_terminated)
+          {
+            ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+            superLayerManager.HideBusyScreen();
+          }
+        }
+        finally
+        {
+          ResetBusyScreenPending();
+        }
       }
     }
 
