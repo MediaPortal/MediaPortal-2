@@ -35,7 +35,7 @@ using MediaPortal.Core;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace Ui.Players.Video.Subtitles
@@ -87,7 +87,6 @@ namespace Ui.Players.Video.Subtitles
     public LineContent[] lc;
     public UInt64 timeStamp;
     public UInt64 timeOut; // in seconds
-
   }
 
   public enum TeletextCharTable
@@ -173,9 +172,9 @@ namespace Ui.Players.Video.Subtitles
     private int _wx0, _wy0, _wwidth0, _wheight0 = 0;
 
     /// <summary>
-    /// Vertex buffer for rendering subtitles
+    /// Primitive buffer for rendering subtitles.
     /// </summary>
-    private VertexBuffer _vertexBuffer = null;
+    private PrimitiveBuffer _primitiveContext = new PrimitiveBuffer();
 
     // important, these delegates must NOT be garbage collected
     // or horrible things will happen when the native code tries to call those!
@@ -752,12 +751,9 @@ namespace Ui.Players.Video.Subtitles
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, true);
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, false);
 
-        EffectAsset effect = ContentManager.GetEffect("normal");
-        GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
-        GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColoredTextured.StrideSize);
-        GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
+        EffectAsset effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
         effect.StartRender(_subTexture, FinalTransform);
-        GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+        _primitiveContext.Render(0);
         effect.EndRender();
       }
       catch (Exception e)
@@ -788,16 +784,10 @@ namespace Ui.Players.Video.Subtitles
     /// <param name="wheight"></param>
     private void CreateVertexBuffer(int wx, int wy, int wwidth, int wheight)
     {
-      if (_vertexBuffer == null)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("Subtitle: Creating vertex buffer");
-        _vertexBuffer = PositionColoredTextured.Create(4);
-      }
-
       if (_wx0 != wx || _wy0 != wy || _wwidth0 != wwidth || _wheight0 != wheight)
       {
         ServiceRegistration.Get<ILogger>().Debug("Subtitle: Setting vertices");
-        PositionColoredTextured[] verts = new PositionColoredTextured[4];
+        PositionColored2Textured[] verts = new PositionColored2Textured[4];
         int color;
         unchecked
         {
@@ -842,7 +832,7 @@ namespace Ui.Players.Video.Subtitles
         _wx0 = wx;
         _wheight0 = wheight;
         _wwidth0 = wwidth;
-        PositionColoredTextured.Set(_vertexBuffer, ref verts);
+        _primitiveContext.Set(ref verts, PrimitiveType.TriangleStrip);
       }
     }
 
@@ -875,11 +865,7 @@ namespace Ui.Players.Video.Subtitles
         _subTexture.Dispose();
         _subTexture = null;
       }
-      if (_vertexBuffer != null)
-      {
-        _vertexBuffer.Dispose();
-        _vertexBuffer = null;
-      }
+      _primitiveContext.Dispose();
     }
     public void ReallocResources()
     {

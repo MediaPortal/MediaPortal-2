@@ -815,7 +815,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         PlayersHelper.ReleaseGUIResources();
 
         // FIXME Albert78: Find a better way to make ContentManager observe the current skin
-        ContentManager.Clear();
+        ServiceRegistration.Get<ContentManager>().Clear();
 
         WaitForPendingOperations();
 

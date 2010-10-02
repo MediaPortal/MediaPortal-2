@@ -43,7 +43,6 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities.Exceptions;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using Ui.Players.Video.Interfaces;
@@ -119,8 +118,6 @@ namespace Ui.Players.Video
     protected EVRCallback _evrCallback;
 
     // Managed Direct3D Resources
-    protected VertexBuffer _vertexBuffer = null;
-    protected PositionColored2Textured[] _vertices;
     protected Size _displaySize = new Size(100, 100);
 
     protected IntPtr _instancePtr;
@@ -290,7 +287,6 @@ namespace Ui.Players.Video
       _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
       _state = PlayerState.Active;
       _isPaused = true;
-      _vertices = new PositionColored2Textured[4];
       ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
       try
@@ -649,11 +645,6 @@ namespace Ui.Players.Video
     protected void AllocateResources()
     {
       //Trace.WriteLine("{0}: Alloc vertex", PlayerTitle);
-      if (_vertexBuffer != null)
-        FreeResources();
-      // Alloc a Vertex buffer to draw the video (4 vertices -> a Quad)
-      _vertexBuffer = PositionColored2Textured.Create(4);
-      ContentManager.VertexReferences++;
     }
 
     /// <summary>
@@ -662,11 +653,6 @@ namespace Ui.Players.Video
     protected void FreeResources()
     {
       ServiceRegistration.Get<ILogger>().Info("{0}: FreeResources", PlayerTitle);
-      // Free Managed Direct3D resources
-      if (FilterGraphTools.TryDispose(ref _vertexBuffer))
-        ContentManager.VertexReferences--;
-
-      FilterGraphTools.TryDispose(ref _vertices);
     }
 
     #endregion
@@ -1169,7 +1155,6 @@ namespace Ui.Players.Video
     {
       if (_graphBuilder != null)
       {
-        _vertices = new PositionColored2Textured[4];
         _evrCallback = new EVRCallback(this);
         AddEvr();
         IEnumPins enumer;

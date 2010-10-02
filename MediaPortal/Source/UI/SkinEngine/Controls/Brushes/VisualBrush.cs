@@ -23,16 +23,16 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -42,7 +42,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected AbstractProperty _visualProperty;
     protected AbstractProperty _autoLayoutContentProperty;
-    protected EffectAsset _effect;
     protected Texture _textureVisual;
     protected Screen _screen = null;
     protected FrameworkElement _preparedVisual = null;
@@ -62,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _visualProperty = new SProperty(typeof(FrameworkElement), null);
       _autoLayoutContentProperty = new SProperty(typeof(bool), true);
-      _effect = ContentManager.GetEffect("normal");
+      _effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
     }
 
     void Attach()
@@ -136,14 +135,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _textureVisual = new Texture(GraphicsDevice.Device, (int) _vertsBounds.Width, (int ) _vertsBounds.Height, 1,
-          Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+/*      _textureVisual = new Texture(GraphicsDevice.Device, (int) _vertsBounds.Width, (int ) _vertsBounds.Height, 1,
+          Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);*/
       _screen = parent.Screen;
       if (_preparedVisual == null)
         PrepareVisual();
     }
 
-    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       // TODO: Implement and use method in TileBrush
       FrameworkElement visual = _preparedVisual;
@@ -157,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       RenderContext tempRenderContext = renderContext.Derive(_vertsBounds, null, null,
           new Vector2(0.5f, 0.5f), Opacity);
 
-      visual.RenderToTexture(_textureVisual, tempRenderContext);
+      //visual.RenderToTexture(_textureVisual, tempRenderContext);
 
       // Now render our texture
       _effect.StartRender(_textureVisual, finalTransform);

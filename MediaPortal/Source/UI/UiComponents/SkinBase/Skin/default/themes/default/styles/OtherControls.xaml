@@ -443,7 +443,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform"
+      <Image x:Name="Image" Thumbnail="True" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}"
           FontSize="{ThemeResource SmallFontSize}"/>
@@ -787,7 +787,7 @@
   </Style>
 
   <!-- ****************************** Keybindings ListView ********************************** -->
-  
+
   <Style x:Key="KeyBindingContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
@@ -896,9 +896,9 @@
                 <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
                   <Grid IsVisible="{Binding !ShowMouseControls}">
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"
-                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}"
-                         VerticalAlignment="Center" HorizontalAlignment="Center">
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
                       <Control.IsVisible>
                         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                           <Binding Path="IsAudio"/>

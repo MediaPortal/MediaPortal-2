@@ -23,252 +23,432 @@
 #endregion
 
 using System;
+using System.Threading;
 using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Fonts;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
-  // FIXME Albert: make a real signleton object
-  public class ContentManager
+  public sealed class ContentManager
   {
-    static public int TextureReferences = 0;
-    static public int VertexReferences = 0;
+    #region Internal structure
 
-    #region Private variables
-
-    private static Dictionary<string, IAsset> _assetsNormal = new Dictionary<string, IAsset>();
-    private static Dictionary<string, IAsset> _assetsHigh = new Dictionary<string, IAsset>();
-    private static List<IAsset> _vertexBuffers = new List<IAsset>();
-    private static List<IAsset> _unnamedAssets = new List<IAsset>();
-    private static DateTime _timer = SkinContext.FrameRenderingStartTime;
-    private static AsynchronousMessageQueue _messageQueue;
+    /// <summary>
+    /// This struct stores the pair of objects that together make-up a managed asset.
+    /// The separation of the two objects allows us to use a <see cref="WeakReference"/>
+    /// to determine when clients are still holding references to the asset.
+    /// </summary>
+    private class AssetInstance
+    {
+      /// <summary>
+      /// This core object holds the actual (unmanaged) resource handle, and is only 
+      /// used internally in the ContentManager
+      /// </summary>
+      public IAssetCore core;
+      /// <summary>
+      /// The asset member is a <see cref="WeakReference"/> to the asset wrapper that
+      /// is used by client classes.
+      /// </summary>
+      public WeakReference asset;
+    }
 
     #endregion
 
-    public static void Initialize()
-    {
-      _messageQueue = new AsynchronousMessageQueue(typeof(ContentManager).Name, new string[] {"contentmanager"});
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
+    #region Consts
 
-    public static void Uninitialize()
+    private enum AssetType
     {
-      _messageQueue.Dispose();
-      _messageQueue = null;
-    }
+      Texture = 0,
+      Thumbnail = 1,
+      Effect = 2,
+      Font = 3,
+      RenderTexture = 4
+    };
+    // Values for less agressive resource management.
+    private const int LOW_CLEANUP_THRESHOLD = 70 * 1024 * 1024; // 70 MB
+    private const int LOW_DEALLOCATION_LIMIT = 10;
+    private const int LOW_SCAN_LIMIT = 40;
+    // Values for aggressive resource management.
+    private const int HIGH_CLEANUP_THRESHOLD = 100 * 1024 * 1024; // 100 MB
+    private const int HIGH_DEALLOCATION_LIMIT = 30;
+    private const int HIGH_SCAN_LIMIT = 100;
+    // Intervals between cleanups. Which one is used depends on whether the deallocation limit was reached
+    // in the last sweep.
+    private const double SHORT_CLEANUP_INTERVAL = 1.0;
+    private const double LONG_CLEANUP_INTERVAL = 10.0;
+    // Maximum time between dictionary garbage collections (in milliseconds)
+    private const int DICTIONARY_CLEANUP_INTERVAL = 60 * 1000;
+    #endregion
 
-    static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    #region Protected variables
+
+    private static readonly ContentManager _instance = new ContentManager();
+    private readonly Dictionary<string, AssetInstance>[] _assets = null;
+    private DateTime _timerA = SkinContext.FrameRenderingStartTime;
+    private DateTime _timerB = SkinContext.FrameRenderingStartTime;
+    private int _totalAllocation = 0;
+
+
+    private int _lastCleanedAssetType = 0;
+    private double _nextCleanupInterval = LONG_CLEANUP_INTERVAL;
+    private readonly Thread _garbageCollectorThread;
+
+    #endregion
+
+    #region Ctor
+
+    private ContentManager()
     {
-      if (message.ChannelName == "contentmanager")
+      int asset_count = Enum.GetNames(typeof(AssetType)).Length;
+      _assets = new Dictionary<string, AssetInstance>[asset_count];
+      for (int i = 0; i < asset_count; ++i)
+        _assets[i] = new Dictionary<string, AssetInstance>();
+
+      _garbageCollectorThread = new Thread(DoGarbageCollection)
       {
-        if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
+        Name = typeof(ContentManager).Name + " garbage collector thread",
+        Priority = ThreadPriority.Lowest,
+        IsBackground = true
+      };
+      _garbageCollectorThread.Start();
+    }
+
+    #endregion
+
+    #region Public asset methods
+
+    /// <summary>
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) from the specified file.
+    /// </summary>
+    /// <param name="fileName">Name of the file (.jpg, .png).</param>
+    /// <param name="thumb">True to load the image as a thumbnail, false otherwise.</param>
+    /// <returns>A <see cref="TextureAsset"/> object.</returns>
+    public TextureAsset GetTexture(string fileName, bool thumb)
+    {
+      int type = (int) (thumb ? AssetType.Thumbnail : AssetType.Texture);
+      AssetInstance texture;
+      TextureAsset asset = null;
+      lock (_assets[type])
+      {
+        if (!_assets[type].TryGetValue(fileName, out texture))
         {
-          string action = (string) message.MessageData["action"];
-          if (action == "changed")
-          {
-            string fileName = (string) message.MessageData["fullpath"];
-            lock (_assetsNormal)
-              if (_assetsNormal.ContainsKey(fileName))
-              {
-                TextureAsset asset = (TextureAsset) _assetsNormal[fileName];
-                asset.Free(true);
-              }
-            lock (_assetsHigh)
-              if (_assetsHigh.ContainsKey(fileName))
-              {
-                TextureAsset asset = (TextureAsset) _assetsHigh[fileName];
-                asset.Free(true);
-              }
-          }
+          texture = NewAssetInstance(fileName, thumb ? AssetType.Thumbnail : AssetType.Texture, 
+            new TextureAssetCore(fileName));
+          ((TextureAssetCore) texture.core).UseThumbnail = thumb;
         }
+        else
+          asset = texture.asset.Target as TextureAsset;
       }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null) 
+      {
+        asset = new TextureAsset(texture.core as TextureAssetCore);
+        if (texture.asset == null)
+          texture.asset = new WeakReference(asset);
+      }
+      return asset;
+    }
+
+    public TextureAsset GetTexture(string fileName)
+    {
+      return GetTexture(fileName, 0, 0);
     }
 
     /// <summary>
-    /// Adds an asset to the un-named asset collection
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) from the specified file
+    /// at a specified size.
     /// </summary>
-    /// <param name="unknownAsset">The unknown asset.</param>
-    public static void Add(IAsset unknownAsset)
+    /// <param name="fileName">Name of the file (.jpg, .png).</param>
+    /// <param name="width">Restricts the size to the given width.</param>
+    /// <param name="height">Restricts the size to the given height.</param>
+    /// <returns>Texture asset with the given parameters.</returns>
+    public TextureAsset GetTexture(string fileName, int width, int height)
     {
-      lock (_unnamedAssets)
-        _unnamedAssets.Add(unknownAsset);
+      // Todo: Add support for resticted size
+      return GetTexture(fileName, false);
     }
 
     /// <summary>
-    /// Removes the specified  asset.
+    /// Retrieves an <see cref="EffectAsset"/> (creating it if necessary) from the specified file.
     /// </summary>
-    /// <param name="unknownAsset">The unknown asset.</param>
-    public static void Remove(IAsset unknownAsset)
+    /// <param name="effectName">Name of the effect file (.fx).</param>
+    /// <returns>An <see cref="EffectAsset"/> object.</returns>
+    public EffectAsset GetEffect(string effectName)
     {
-      lock (_unnamedAssets)
-        if (_unnamedAssets.Remove(unknownAsset)) return;
-      lock (_vertexBuffers)
-        if (_vertexBuffers.Remove(unknownAsset)) return;
-      lock (_assetsNormal)
+      AssetInstance effect;
+      EffectAsset asset = null;
+      lock (_assets[(int) AssetType.Effect])
       {
-        Dictionary<string, IAsset>.Enumerator enumer = _assetsNormal.GetEnumerator();
-        while (enumer.MoveNext())
-          if (enumer.Current.Value == unknownAsset)
-          {
-            _assetsNormal.Remove(enumer.Current.Key);
-            break;
-          }
+        if (!_assets[(int) AssetType.Effect].TryGetValue(effectName, out effect))
+          effect = NewAssetInstance(effectName, AssetType.Effect, new EffectAssetCore(effectName));
+        else
+          asset = effect.asset.Target as EffectAsset;
       }
-      lock (_assetsHigh)
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null)
       {
-        Dictionary<string, IAsset>.Enumerator enumer = _assetsHigh.GetEnumerator();
-        while (enumer.MoveNext())
-          if (enumer.Current.Value == unknownAsset)
-          {
-            _assetsHigh.Remove(enumer.Current.Key);
-            break;
-          }
+        asset = new EffectAsset(effect.core as EffectAssetCore);
+        if (effect.asset == null)
+          effect.asset = new WeakReference(asset);
       }
+      return asset;
     }
 
     /// <summary>
-    /// returns a fontbuffer asset for the specified font
+    /// Retrieves a <see cref="FontAsset"/>, creating it if necessary.
     /// </summary>
-    /// <param name="font">The font.</param>
-    /// <returns></returns>
-    public static TextBufferAsset GetTextBuffer(string fontFamily, float fontSize, bool zoomToFullScreen)
+    /// <param name="fontFamily">The font family to use for the text.</param>
+    /// <param name="fontSize">The size of the desired font.</param>
+    /// <returns>A <see cref="FontAsset"/> object.</returns>
+    public FontAsset GetFont(string fontFamily, float fontSize)
     {
-      lock (_vertexBuffers)
+      AssetInstance font;
+      FontAsset asset = null;
+
+      // Get the actual font file resource for this family
+      FontFamily family = FontManager.GetFontFamily(fontFamily);
+      if (family == null)
       {
-        FontFamily family = FontManager.GetFontFamily(fontFamily);
+        ServiceRegistration.Get<ILogger>().Debug("SkinEngine.ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
+        family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
         if (family == null)
+          return null;
+      }
+
+      // Round down font size
+      int baseSize = (int) Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
+      // Generate the asset key we'll use to store this font
+      string key = family.Name + "::" + baseSize;
+
+      // Get / Create AssetInstance
+      lock (_assets[(int) AssetType.Font])
+      {
+        if (!_assets[(int) AssetType.Font].TryGetValue(key, out font))
+          font = NewAssetInstance(key, AssetType.Font, new FontAssetCore(family, baseSize, FontManager.DefaultDPI));
+        else
+          asset = font.asset.Target as FontAsset;
+      }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null)
+      {
+        asset = new FontAsset(font.core as FontAssetCore);
+        if (font.asset == null)
+          font.asset = new WeakReference(asset);
+      }
+      return asset;
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="RenderTextureAsset"/>, creating it if necessary.
+    /// </summary>
+    /// <param name="key">The name/key to use for storing the asset.</param>
+    /// <returns>A <see cref="RenderTextureAsset"/> object.</returns>
+    public RenderTextureAsset GetRenderTexture(string key)
+    {
+      AssetInstance texture;
+      RenderTextureAsset asset = null;
+      lock (_assets[(int) AssetType.RenderTexture])
+      {
+        if (!_assets[(int) AssetType.RenderTexture].TryGetValue(key, out texture))
+          texture = NewAssetInstance(key, AssetType.RenderTexture, new RenderTextureAssetCore());
+        else
+          asset = texture.asset.Target as RenderTextureAsset;
+      }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null) 
+      {
+        asset = new RenderTextureAsset(texture.core as RenderTextureAssetCore);
+        if (texture.asset == null)
+          texture.asset = new WeakReference(asset);
+      }
+      return asset;
+    }
+
+    #endregion
+
+    #region Public methods
+
+    /// <summary>
+    /// Gets the usable instance for this singleton class.
+    /// </summary>
+    public static ContentManager Instance
+    {
+      get { return _instance; }
+    }
+
+    /// <summary>
+    /// Gets a value that is an estimation of the total VRAM usage of assets managed by this class.
+    /// </summary>
+    public int TotalAllocationSize
+    {
+      get { return _totalAllocation; }
+    }
+
+    /// <summary>
+    /// Frees any assets that haven't been recently used. This must be done syncronously because pre-DirectX 11
+    /// all calls must be made from the main rendering thread.
+    /// </summary>
+    public void Clean()
+    {
+      // If we are over our chosen allocation limit we will start freeing resources at regular intervals
+      if (_totalAllocation > LOW_CLEANUP_THRESHOLD &&
+        (SkinContext.FrameRenderingStartTime - _timerA).TotalSeconds > _nextCleanupInterval)
+      {
+        // Choose limits based on allocation threshhold
+        int dealloc_limit = LOW_DEALLOCATION_LIMIT;
+        int scan_limit = LOW_SCAN_LIMIT; 
+        if (_totalAllocation > HIGH_CLEANUP_THRESHOLD)
         {
-          family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
-          if (family == null)
-            return null;
+          dealloc_limit = HIGH_DEALLOCATION_LIMIT;
+          scan_limit = HIGH_SCAN_LIMIT; 
         }
-        int baseSize = (int) Math.Ceiling(zoomToFullScreen ? fontSize * SkinContext.MaxZoomHeight : fontSize);
-        string fontKey = family.Name + "::" + baseSize.ToString();
-        Font font;
-        if (!_assetsHigh.ContainsKey(fontKey))
-          _assetsHigh[fontKey] = new Font(family, baseSize, FontManager.DefaultDPI);
-        font = (Font)_assetsHigh[fontKey];
-
-        TextBufferAsset text = new TextBufferAsset(font, fontSize);
-        _unnamedAssets.Add(text);
-        return text;
-      }
-    }
-
-    /// <summary>
-    /// returns a vertex buffer asset for the specified graphic file
-    /// </summary>
-    /// <param name="fileName">Name of the file (.jpg, .png).</param>
-    /// <param name="thumb">If set to <c>true</c>, the image will be loaded as thumbnail.</param>
-    /// <returns></returns>
-    public static VertexBufferAsset Load(string fileName, bool thumb)
-    {
-      TextureAsset texture = GetTexture(fileName, thumb);
-      lock (_vertexBuffers)
-      {
-        VertexBufferAsset vertex = new VertexBufferAsset(texture);
-        _vertexBuffers.Add(vertex);
-        return vertex;
-      }
-    }
-
-    public static EffectAsset GetEffect(string effectName)
-    {
-      lock (_assetsNormal)
-      {
-        if (_assetsNormal.ContainsKey(effectName))
-          return (EffectAsset)_assetsNormal[effectName];
-        EffectAsset newEffect = new EffectAsset(effectName);
-        _assetsNormal[effectName] = newEffect;
-        return newEffect;
-      }
-    }
-
-    /// <summary>
-    /// returns a texture asset for the specified graphic file
-    /// </summary>
-    /// <param name="fileName">Name of the file (.jpg, .png).</param>
-    /// <returns></returns>
-    public static TextureAsset GetTexture(string fileName, bool thumb)
-    {
-      if (thumb)
-      {
-        lock (_assetsNormal)
+        // Loop though assets types until scan limit or deallocation limit is reached
+        // This algorthim could use improvement
+        int dealloc_remaining = dealloc_limit;
+        int type = _lastCleanedAssetType;
+        while (type < _assets.Length) 
         {
-          if (_assetsNormal.ContainsKey(fileName))
-            return (TextureAsset) _assetsNormal[fileName];
-          TextureAsset newImage = new TextureAsset(fileName);
-          _assetsNormal[fileName] = newImage;
-          return newImage;
+          lock (_assets[type])
+          {
+            dealloc_remaining -= Free(_assets[type], true, dealloc_remaining);
+            scan_limit -= _assets[type].Count;
+          }
+          
+          ++type;
+          if (type >= _assets.Length)
+            type = 0;
+          if (dealloc_remaining <= 0 || scan_limit <= 0 || type == _lastCleanedAssetType)
+            break;
         }
+        _lastCleanedAssetType = type;
+        _nextCleanupInterval = (dealloc_remaining > 0) ? LONG_CLEANUP_INTERVAL : SHORT_CLEANUP_INTERVAL;
+
+        _timerA = SkinContext.FrameRenderingStartTime;
+
+        ServiceRegistration.Get<ILogger>().Debug("ContentManager: {0} resources deallocated, next cleanup in {1} seconds. {2}/{3} MB", dealloc_limit - dealloc_remaining, _nextCleanupInterval, _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
       }
 
-      lock (_assetsHigh)
+      if ((SkinContext.FrameRenderingStartTime - _timerB).TotalSeconds > 60.0) 
       {
-        if (_assetsHigh.ContainsKey(fileName))
-          return (TextureAsset) _assetsHigh[fileName];
-        TextureAsset newImage = new TextureAsset(fileName);
-        _assetsHigh[fileName] = newImage;
-        return newImage;
+        _timerB = SkinContext.FrameRenderingStartTime;
+        ServiceRegistration.Get<ILogger>().Debug("ContentManager: Allocation {0}/{1} MB", _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
       }
     }
 
     /// <summary>
-    /// Frees any un-used assets
+    /// Free all resources but retain containers for re-allocation.
     /// </summary>
-    public static void Clean()
+    public void Free()
     {
-      TimeSpan ts = SkinContext.FrameRenderingStartTime - _timer;
-      if (ts.TotalSeconds < 1)
-        return;
-      _timer = SkinContext.FrameRenderingStartTime;
-
-      Free(true, false);
-    }
-
-    protected static void Free(ICollection<IAsset> assets, bool checkIfCanBeDeleted, bool force)
-    {
-      lock (assets)
-        foreach (IAsset asset in assets)
-          if (asset.IsAllocated && (!checkIfCanBeDeleted || asset.CanBeDeleted))
-            asset.Free(force);
-    }
-
-    protected static void Free(IDictionary<string, IAsset> assets, bool checkIfCanBeDeleted, bool force)
-    {
-      lock (assets)
-        Free(assets.Values, checkIfCanBeDeleted, force);
-    }
-
-    public static void Free()
-    {
-      Free(false, true);
+      ServiceRegistration.Get<ILogger>().Debug("ContentManager: Freeing all assets", _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
+      Free(false);
+      ServiceRegistration.Get<ILogger>().Debug("ContentManager: All assets freed", _totalAllocation / (1024.0 * 1024.0), HIGH_CLEANUP_THRESHOLD / (1024.0 * 1024.0));
     }
 
     /// <summary>
-    /// Frees all resources
+    /// Free all recources and remove all <see cref="IAsset"/>s.
     /// </summary>
-    protected static void Free(bool checkIfCanBeDeleted, bool force)
-    {
-      Free(_assetsNormal, checkIfCanBeDeleted, force);
-      Free(_assetsHigh, checkIfCanBeDeleted, force);
-      Free(_unnamedAssets, checkIfCanBeDeleted, force);
-      Free(_vertexBuffers, checkIfCanBeDeleted, force);
-    }
-
-    public static void Clear()
+    public void Clear()
     {
       Free();
-
-      _vertexBuffers.Clear();
-      _unnamedAssets.Clear();
-      _assetsHigh.Clear();
-      _assetsNormal.Clear();
+      foreach (Dictionary<string, AssetInstance> type in _assets)
+        lock (type)
+          type.Clear();
     }
 
+    #endregion
+
+    #region Protected asset management methods
+
+    /// <summary>
+    /// This function is run asyncronously to remove de-referenced and de-allocated assets from the list.
+    /// </summary>
+    private void DoGarbageCollection()
+    {
+      while (true)
+      {
+        if (_totalAllocation > LOW_CLEANUP_THRESHOLD)
+        {
+          // Clear out expired but unallocated assets
+          foreach (Dictionary<string, AssetInstance> type in _assets)
+            RemoveUnallocated(type);
+        }
+        // Wait for next run
+        Thread.Sleep(DICTIONARY_CLEANUP_INTERVAL);
+      }
+    }
+
+    private AssetInstance NewAssetInstance(string key, AssetType type, IAssetCore newcore)
+    {
+      AssetInstance inst = new AssetInstance { core = newcore };
+      ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
+      newcore.AllocationChanged += OnAssetAllocationChanged;
+      _assets[(int) type].Add(key, inst);
+      return inst;
+    }
+
+    /// <summary>
+    /// Frees all resources.
+    /// </summary>
+    private void Free(bool checkIfCanBeDeleted)
+    {
+      foreach (Dictionary<string, AssetInstance> type in _assets)
+        lock(type)
+          Free(type, checkIfCanBeDeleted, int.MaxValue);
+    }
+
+    /// <summary>
+    /// Frees resources of a particular type.
+    /// </summary>
+    /// <param name="assets">The asset <see cref="Dictionary{TKey,TValue}"/> to search.</param>
+    /// <param name="checkIfCanBeDeleted"><c>true</c> if resources should be asked if they are still needed,
+    /// <c>false</c> to just deallocate everything.</param>
+    /// <param name="limit">The maximum number of resources to de-allocate. Defaults value is <c>Int32.MaxValue</c>.</param>
+    /// <returns>The number of resources de-allocated</returns>
+    private static int Free(Dictionary<string, AssetInstance> assets, bool checkIfCanBeDeleted, int limit)
+    {
+      int count = 0;
+      Dictionary<string, AssetInstance>.Enumerator enumer = assets.GetEnumerator();
+      while (enumer.MoveNext())
+        if (enumer.Current.Value.core.IsAllocated && 
+          (!checkIfCanBeDeleted || enumer.Current.Value.core.CanBeDeleted))
+        {
+          enumer.Current.Value.core.Free();
+          ++count;
+          if (count == limit)
+            return count;
+        }
+      return count;
+    }
+
+    /// <summary>
+    /// Removes unallocated resources from the given asset <see cref="IDictionary{TKey,TValue}"/>.
+    /// </summary>
+    /// <param name="assets">The asset <see cref="IDictionary{TKey,TValue}"/> to search.</param>
+    private static void RemoveUnallocated(Dictionary<string, AssetInstance> assets)
+    {
+      lock (assets)
+      {
+        List<string> items = new List<string>();
+        Dictionary<string, AssetInstance>.Enumerator enumer = assets.GetEnumerator();
+        while (enumer.MoveNext())
+          if (!enumer.Current.Value.asset.IsAlive && !enumer.Current.Value.core.IsAllocated)
+            items.Add(enumer.Current.Key);
+        foreach (string key in items)
+          assets.Remove(key);
+      }
+    }
+
+    private void OnAssetAllocationChanged(int amount)
+    {
+      _totalAllocation += amount;
+    }
+
+    #endregion
   }
 }

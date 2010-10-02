@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
     protected volatile bool _performLayout = true; // Mark control to adapt background brush and related contents to the layout
-    protected PrimitiveContext _backgroundContext;
+    protected PrimitiveBuffer _backgroundContext;
 
     #endregion
 
@@ -225,9 +225,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
         {
-          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, 2);
+          _backgroundContext.Render(0);
           Background.EndRender();
         }
       }
@@ -245,7 +243,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = false;
 
       // Setup background brush
-      DisposePrimitiveContext(ref _backgroundContext);
       if (Background != null)
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
@@ -264,8 +261,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         }
         Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        _backgroundContext = new PrimitiveContext(2, ref verts, PrimitiveType.TriangleList);
+        SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
       }
+      else
+        DisposePrimitiveContext(ref _backgroundContext);
     }
 
     #endregion

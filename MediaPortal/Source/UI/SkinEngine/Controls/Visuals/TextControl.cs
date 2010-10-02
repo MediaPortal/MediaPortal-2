@@ -27,15 +27,12 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.Exceptions;
 using SlimDX;
-using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
-using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.TextBufferAsset;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -49,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _preferredTextLengthProperty;
     protected AbstractProperty _textAlignProperty;
-    protected FontBufferAsset _asset;
+    protected TextBuffer _asset;
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
@@ -133,7 +130,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // The skin is setting the text, so update the caret
       if (!_editText)
         CaretIndex = text.Length;
-      if (_asset != null)
+      if (_asset == null)
+        AllocFont();
+      else
         _asset.Text = text;
     }
 
@@ -141,14 +140,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       InvalidateLayout();
       InvalidateParentLayout();
-    }
-
-    protected void ClearAsset()
-    {
-      TextBufferAsset asset = _asset;
-      _asset = null;
-      if (asset != null)
-        asset.Free(true);
     }
 
     protected AbstractTextInputHandler CreateTextInputHandler()
@@ -168,7 +159,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
     {
-      ClearAsset();
+      if (_asset == null)
+        AllocFont();
+      else
+        _asset.SetFont(GetFontFamilyOrInherited(), GetFontSizeOrInherited());
     }
 
     public override void OnKeyPreview(ref Key key)
@@ -248,8 +242,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        _asset = ContentManager.GetTextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited(), true);
-        _asset.Text = Text;
+        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) {Text = Text};
       }
     }
 
@@ -287,27 +280,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DoRender(localRenderContext);
 
       AllocFont();
-      if (_asset == null)
-        return;
 
-      Font.Align align = Font.Align.Left;
+      TextAlignEnum align = TextAlignEnum.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
-        align = Font.Align.Right;
+        align = TextAlignEnum.Right;
       else if (TextAlign == HorizontalAlignmentEnum.Center)
-        align = Font.Align.Center;
+        align = TextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, align, color, false, localRenderContext.ZOrder, TextScrollMode.None, 0.0f, localRenderContext.Transform);
+      _asset.Render(_innerRect, align, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
       if (_asset != null)
-        _asset.Free(true);
-      _asset = null;
+      {
+        _asset.Dispose();
+        _asset = null;
+      }
+    }
+
+    public override void Dispose()
+    {
+      Deallocate();
+      base.Dispose();
     }
   }
 }

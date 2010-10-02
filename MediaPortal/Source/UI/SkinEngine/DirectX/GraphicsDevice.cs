@@ -175,24 +175,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static bool Reset()
     {
-      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
-      if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
-      {
-        if (_backBuffer != null)
-          _backBuffer.Dispose();
-        _backBuffer = null;
-        _setup.BuildPresentParamsFromSettings();
-        ResetDxDevice();
-        int ordinal = _device.Capabilities.AdapterOrdinal;
-        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-        ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-            adapterInfo.CurrentDisplayMode.Format,
-            adapterInfo.CurrentDisplayMode.RefreshRate);
-        _backBuffer = _device.GetRenderTarget(0);
-        GetCapabilities();
-      }
-      else
-        ServiceRegistration.Get<ILogger>().Error("GraphicsDevice: Cannot reset DirectX due to pending texture- or vertex-references (#texture references: {0}, #vertex references: {1})", ContentManager.TextureReferences, ContentManager.VertexReferences);
+      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ServiceRegistration.Get<ContentManager>().TotalAllocationSize / (1024*1024));
+      if (_backBuffer != null)
+        _backBuffer.Dispose();
+      _backBuffer = null;
+      _setup.BuildPresentParamsFromSettings();
+      ResetDxDevice();
+      int ordinal = _device.Capabilities.AdapterOrdinal;
+      AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
+          adapterInfo.CurrentDisplayMode.Format,
+          adapterInfo.CurrentDisplayMode.RefreshRate);
+      _backBuffer = _device.GetRenderTarget(0);
+      GetCapabilities();
       return true;
     }
 
@@ -361,7 +356,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _deviceLost = true;
           return true;
         }
-        ContentManager.Clean();
+        ServiceRegistration.Get<ContentManager>().Clean();
       }
       return false;
     }
@@ -374,7 +369,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         _backBuffer = null;
         PlayersHelper.ReleaseGUIResources();
-        ContentManager.Free();
+        ServiceRegistration.Get<ContentManager>().Free();
       }
 
       Result result = _device.TestCooperativeLevel();

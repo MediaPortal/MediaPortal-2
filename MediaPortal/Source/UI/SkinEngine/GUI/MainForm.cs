@@ -153,12 +153,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping UI");
       StopRenderThread();
       PlayersHelper.ReleaseGUIResources();
-      ContentManager.Free();
+      ServiceRegistration.Get<ContentManager>().Free();
     }
 
     public void StartUI()
     {
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
+
       GraphicsDevice.Reset();
       PlayersHelper.ReallocGUIResources();
       StartRenderThread_Async();

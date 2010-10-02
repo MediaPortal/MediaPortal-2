@@ -106,7 +106,8 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Initialize()
     {
-      ContentManager.Initialize();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ContentManager service");
+      ServiceRegistration.Add<ContentManager>(ContentManager.Instance);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
       IGeometryManager geometryManager = new GeometryManager();
@@ -162,9 +163,6 @@ namespace MediaPortal.UI.SkinEngine
       _mainForm.StopRenderThread();
       _screenManager.Shutdown();
 
-      ContentManager.Free();
-      ContentManager.Uninitialize();
-
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
       ServiceRegistration.Remove<ISkinResourceManager>();
 
@@ -176,6 +174,10 @@ namespace MediaPortal.UI.SkinEngine
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
       ServiceRegistration.Remove<IGeometryManager>();
+
+      ServiceRegistration.Get<ContentManager>().Clear();
+      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ContentManager service");
+      ServiceRegistration.Remove<ContentManager>();
     }
 
     public void Dispose()

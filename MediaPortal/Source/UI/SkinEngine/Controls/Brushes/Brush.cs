@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return transform.Value;
     }
 
-    public abstract bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext);
+    public abstract bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext);
 
     public abstract void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext);
 

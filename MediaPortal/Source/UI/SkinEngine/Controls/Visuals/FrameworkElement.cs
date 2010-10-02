@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -40,7 +41,6 @@ using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -75,6 +75,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
     public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseEnter";
 
+    protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTarget";
+
     #region Protected fields
 
     protected AbstractProperty _widthProperty;
@@ -82,18 +84,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _actualWidthProperty;
     protected AbstractProperty _actualHeightProperty;
+    protected AbstractProperty _minWidthProperty;
+    protected AbstractProperty _minHeightProperty;
+    protected AbstractProperty _maxWidthProperty;
+    protected AbstractProperty _maxHeightProperty;
     protected AbstractProperty _horizontalAlignmentProperty;
     protected AbstractProperty _verticalAlignmentProperty;
     protected AbstractProperty _styleProperty;
     protected AbstractProperty _focusableProperty;
     protected AbstractProperty _hasFocusProperty;
     protected AbstractProperty _isMouseOverProperty;
-    protected VisualAssetContext _opacityMaskContext;
     protected AbstractProperty _fontSizeProperty;
     protected AbstractProperty _fontFamilyProperty;
 
     protected AbstractProperty _contextMenuCommandProperty;
 
+    protected PrimitiveBuffer _opacityMaskContext;
     protected bool _updateOpacityMask = false;
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected bool _setFocus = false;
@@ -118,6 +124,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Default is not set
       _actualWidthProperty = new SProperty(typeof(double), Double.NaN);
       _actualHeightProperty = new SProperty(typeof(double), Double.NaN);
+
+      // Min/Max width
+      _minWidthProperty = new SProperty(typeof(double), 0.0);
+      _minHeightProperty = new SProperty(typeof(double), 0.0);
+      _maxWidthProperty = new SProperty(typeof(double), (double) int.MaxValue);
+      _maxHeightProperty = new SProperty(typeof(double), (double) int.MaxValue);
 
       // Default is not set
       _styleProperty = new SProperty(typeof(Style), null);
@@ -185,6 +197,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Focusable = fe.Focusable;
       FontSize = fe.FontSize;
       FontFamily = fe.FontFamily;
+      MinWidth = fe.MinWidth;
+      MinHeight = fe.MinHeight;
+      MaxWidth = fe.MaxWidth;
+      MaxHeight = fe.MaxHeight;
       Attach();
     }
 
@@ -282,6 +298,50 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (double) _actualHeightProperty.GetValue(); }
       set { _actualHeightProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MinWidthProperty
+    {
+      get { return _minWidthProperty; }
+    }
+
+    public double MinWidth
+    {
+      get { return (double) _minWidthProperty.GetValue(); }
+      set { _minWidthProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MinHeightProperty
+    {
+      get { return _minHeightProperty; }
+    }
+
+    public double MinHeight
+    {
+      get { return (double) _minHeightProperty.GetValue(); }
+      set { _minHeightProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MaxWidthProperty
+    {
+      get { return _maxWidthProperty; }
+    }
+
+    public double MaxWidth
+    {
+      get { return (double) _maxWidthProperty.GetValue(); }
+      set { _maxWidthProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MaxHeightProperty
+    {
+      get { return _maxHeightProperty; }
+    }
+
+    public double MaxHeight
+    {
+      get { return (double) _maxHeightProperty.GetValue(); }
+      set { _maxHeightProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -813,6 +873,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height;
 
+      totalSize = ClampSize(totalSize);
+
       _innerDesiredSize = totalSize;
 
       if (layoutTransform.HasValue)
@@ -877,6 +939,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
     {
       return SizeF.Empty;
+    }
+
+    protected SizeF ClampSize(SizeF size)
+    {
+      if (!float.IsNaN(size.Width))
+        size.Width = (float) Math.Min(Math.Max(size.Width, MinWidth), MaxWidth);
+      if (!float.IsNaN(size.Height))
+        size.Height = (float) Math.Min(Math.Max(size.Height, MinHeight), MaxHeight);
+      return size;
     }
 
     /// <summary>
@@ -1244,7 +1315,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
-    public void RenderToTexture(Texture texture, RenderContext renderContext)
+    public void RenderToTexture(RenderTextureAsset texture, RenderContext renderContext)
     {
       // We do the following here:
       // 1. Set the rendertarget to the given texture
@@ -1254,21 +1325,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       // Get the current backbuffer
       using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
-        // Get the surface of our render texture
-        using (Surface renderTextureSurface = texture.GetSurfaceLevel(0))
-        {
-          // Change the rendertarget to the render texture
-          GraphicsDevice.Device.SetRenderTarget(0, renderTextureSurface);
+      {
+        // Change the rendertarget to the render texture
+        GraphicsDevice.Device.SetRenderTarget(0, texture.Surface0);
 
-          // Fill the background of the texture with an alpha value of 0
-          GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
+        // Fill the background of the texture with an alpha value of 0
+        GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
 
-          // Render the control into the given texture
-          DoRender(renderContext);
+        // Render the control into the given texture
+        DoRender(renderContext);
 
-          // Restore the backbuffer
-          GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
-        }
+        // Restore the backbuffer
+        GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
+      }
     }
 
     public override void Render(RenderContext parentRenderContext)
@@ -1292,35 +1361,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         DoRender(localRenderContext);
       else
       { // Control has an opacity mask
-        Size textureSize = new Size(GraphicsDevice.Width, GraphicsDevice.Height);
-        if (_opacityMaskContext == null || !_opacityMaskContext.IsAllocated)
-          _updateOpacityMask = true;
-        if (_updateOpacityMask)
-          PrepareOpacityMaskContext(textureSize);
-
-        RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);
-        RenderToTexture(_opacityMaskContext.Texture, tempRenderContext);
-
-        if (tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds)
-          // We must check this each render pass because the control might have changed its bounds due to a render transform
-          _updateOpacityMask = true;
-        _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
-
-        if (_updateOpacityMask)
+        // Get global render texture or create it if it doesn't exist
+        RenderTextureAsset renderTarget = 
+            ServiceRegistration.Get<ContentManager>().GetRenderTexture(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+        // Ensure it's allocated
+        if (!renderTarget.IsAllocated)
         {
-          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, textureSize, localRenderContext.ZOrder);
-          _updateOpacityMask = false;
+          renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
+          _updateOpacityMask = true;
+          if (!renderTarget.IsAllocated)
+            return;
+        }
+        // Create a temporary render context and render the control to the render texture
+        RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);
+        RenderToTexture(renderTarget, tempRenderContext);
+        // If the control bounds have changed we need to update our primitive context to make the 
+        //    texture coordinates match up
+        if (_updateOpacityMask || _opacityMaskContext == null ||
+            tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds)
+        {
+          _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
+          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-
-        OpacityMask.BeginRenderOpacityBrush(_opacityMaskContext.Texture, localRenderContext);
-        GraphicsDevice.Device.VertexFormat = _opacityMaskContext.VertexFormat;
-        GraphicsDevice.Device.SetStreamSource(0, _opacityMaskContext.VertexBuffer, 0, _opacityMaskContext.StrideSize);
-        GraphicsDevice.Device.DrawPrimitives(_opacityMaskContext.PrimitiveType, 0, 2);
+        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, localRenderContext);
+        _opacityMaskContext.Render(0);
         OpacityMask.EndRender();
-
-        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime.AddSeconds(5);
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
@@ -1328,41 +1395,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Opacitymask
 
-    void PrepareOpacityMaskContext(Size textureSize)
+    void UpdateOpacityMask(RectangleF bounds, int width, int height, float zPos)
     {
-      if (_opacityMaskContext != null)
-      {
-        _opacityMaskContext.Free(false);
-        _opacityMaskContext = null;
-      }
-      if (OpacityMask == null)
-        return;
-      Screen screen = Screen;
-      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext: " + Name, screen == null ? string.Empty : screen.Name,
-          new Texture(GraphicsDevice.Device, textureSize.Width, textureSize.Height, 1,
-              Usage.RenderTarget, Format.A8R8G8B8, Pool.Default));
-      ContentManager.Add(_opacityMaskContext);
-    }
-
-    void UpdateOpacityMask(RectangleF bounds, SizeF textureSize, float zPos)
-    {
-      if (OpacityMask == null)
-        return;
-
       PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
-      
+
       float left = bounds.Left - 0.5f;
       float right = bounds.Right + 0.5f;
       float top = bounds.Top - 0.5f;
       float bottom = bounds.Bottom + 0.5f;
-      float uLeft = bounds.Left / textureSize.Width;
-      float uRight = bounds.Right / textureSize.Width;
-      float vTop = bounds.Top / textureSize.Height;
-      float vBottom = bounds.Bottom / textureSize.Height;
+      float uLeft = bounds.Left / width;
+      float uRight = bounds.Right / width;
+      float vTop = bounds.Top / height;
+      float vBottom = bounds.Bottom / height;
 
       // Upper left
       verts[0].X = left;
@@ -1412,28 +1460,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       verts[5].Tv1 = vTop;
       verts[5].Z = zPos;
 
-      _opacityMaskContext.SetVerts(verts, PrimitiveType.TriangleList);
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
+      SetPrimitiveContext(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleList);
     }
 
     #endregion
 
-    public override void Allocate()
-    {
-      base.Allocate();
-      if (_opacityMaskContext != null)
-        ContentManager.Add(_opacityMaskContext);
-    }
-
     public override void Deallocate()
     {
       base.Deallocate();
-      if (_opacityMaskContext != null)
-      {
-        _opacityMaskContext.Free(true);
-        ContentManager.Remove(_opacityMaskContext);
-        _opacityMaskContext = null;
-      }
+      DisposePrimitiveContext(ref _opacityMaskContext);
     }
+
+    #region Helpers
+
+    protected void SetPrimitiveContext(ref PrimitiveBuffer _buffer, ref PositionColored2Textured[] verts, PrimitiveType type)
+    {
+      if (_buffer == null)
+        _buffer = new PrimitiveBuffer();
+      _buffer.Set(ref verts, type);
+    }
+
+    protected void DisposePrimitiveContext(ref PrimitiveBuffer _buffer)
+    {
+      if (_buffer != null)
+        _buffer.Dispose();
+      _buffer = null;
+    }
+
+    #endregion
   }
 }

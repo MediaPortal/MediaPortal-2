@@ -27,20 +27,21 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.UI.SkinEngine.Effects
+namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   /// <summary>
   /// Encapsulates an effect which can render a vertex buffer with a texture.
   /// The effect gets loaded from the skin's shaders directory.
   /// </summary>
-  public class EffectAsset : IAsset
+  public class EffectAssetCore : TemporaryAssetBase, IAssetCore
   {
+    public event AssetAllocationHandler AllocationChanged = delegate { };
+
     #region Consts
 
     protected const string PARAM_WORLDVIEWPROJ = "worldViewProj";
@@ -51,16 +52,14 @@ namespace MediaPortal.UI.SkinEngine.Effects
     private readonly string _effectName;
     readonly Dictionary<string, object> _parameterValues;
     private Effect _effect;
-    private DateTime _lastUsed = DateTime.MinValue;
     EffectHandle _handleWorldProjection;
     EffectHandle _handleTexture;
     EffectHandle _handleTechnique;
 
-    public EffectAsset(string effectName)
+    public EffectAssetCore(string effectName)
     {
       _parameterValues = new Dictionary<string, object>();
       _effectName = effectName;
-      Allocate();
     }
 
     public bool Allocate()
@@ -84,17 +83,27 @@ namespace MediaPortal.UI.SkinEngine.Effects
       try
       {
         _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
-        _lastUsed = SkinContext.FrameRenderingStartTime;
         _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
         _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
         _handleTechnique = _effect.GetTechnique(0);
         return true;
       }
       catch
-      { 
+      {
         ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
         ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         return false;
+      }
+    }
+
+    #region Public properties
+
+    public Effect Effect
+    {
+      get {
+        if (!IsAllocated)
+          Allocate(); 
+        return _effect;
       }
     }
 
@@ -103,23 +112,21 @@ namespace MediaPortal.UI.SkinEngine.Effects
       get { return _parameterValues; }
     }
 
-    #region IAsset Members
+    #endregion
+
+    #region IAssetCore implementation
 
     public bool IsAllocated
     {
       get { return (_effect != null); }
     }
 
-    public bool CanBeDeleted
+    public int AllocationSize
     {
-      get
-      {
-        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastUsed;
-        return (ts.TotalSeconds >= 5);
-      }
+      get { return 0; }
     }
 
-    public void Free(bool force)
+    public void Free()
     {
       if (_handleTechnique != null)
         _handleTechnique.Dispose();
@@ -140,82 +147,29 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     #endregion
 
-    public void Render(TextureAsset tex, int stream, Matrix finalTransform)
-    {
-      if (!IsAllocated)
-        Allocate();
-
-      if (!IsAllocated)
-      {
-        // Render without effect
-        tex.Draw(stream);
-        return;
-      }
-      if (!tex.IsAllocated)
-      {
-        tex.Allocate();
-        if (!tex.IsAllocated)
-          return;
-      }
-      _effect.SetValue(_handleWorldProjection, finalTransform * GraphicsDevice.FinalTransform);
-      _effect.SetTexture(_handleTexture, tex.Texture);
-      _effect.Technique = _handleTechnique;
-      SetEffectParameters();
-      _effect.Begin(0);
-      _effect.BeginPass(0);
-      tex.Draw(stream);
-      _effect.EndPass();
-      _effect.End();
-      _lastUsed = SkinContext.FrameRenderingStartTime;
-    }
-
-    public void StartRender(Matrix finalTransform)
-    {
-      StartRender(null, 0, finalTransform);
-    }
-
     /// <summary>
-    /// Starts the rendering of the given texture <paramref name="tex"/> in the stream of number <code>0</code>.
+    /// Starts the rendering of the given texture <paramref name="texture"/> in the given <paramref name="stream"/>.
     /// </summary>
-    /// <param name="tex">The texture to be rendered.</param>
-    /// <param name="finalTransform">Final render transformation to apply.</param>
-    public void StartRender(Texture tex, Matrix finalTransform)
-    {
-      StartRender(tex, 0, finalTransform);
-    }
-
-    /// <summary>
-    /// Starts the rendering of the given texture <paramref name="tex"/> in the given <paramref name="stream"/>.
-    /// </summary>
-    /// <param name="tex">The texture to be rendered.</param>
+    /// <param name="texture">The texture to be rendered.</param>
     /// <param name="stream">Number of the stream to render.</param>
     /// <param name="finalTransform">Final render transformation to apply.</param>
-    public void StartRender(Texture tex, int stream, Matrix finalTransform)
+    public void StartRender(Texture texture, int stream, Matrix finalTransform)
     {
       if (!IsAllocated)
-        Allocate();
-      if (!IsAllocated)
       {
-        // Render without effect
-        GraphicsDevice.Device.SetTexture(stream, tex);
-        return;
+        Allocate();
+        if (!IsAllocated)
+          return;
       }
+
       _effect.SetValue(_handleWorldProjection, finalTransform * GraphicsDevice.FinalTransform);
-      _effect.SetTexture(_handleTexture, tex);
+      _effect.SetTexture(_handleTexture, texture);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
       _effect.Begin(0);
       _effect.BeginPass(0);
 
-      GraphicsDevice.Device.SetTexture(stream, tex);
-    }
-
-    /// <summary>
-    /// Ends the rendering of the stream of number <code>0</code>.
-    /// </summary>
-    public void EndRender()
-    {
-      EndRender(0);
+      KeepAlive();
     }
 
     /// <summary>
@@ -228,27 +182,19 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         _effect.EndPass();
         _effect.End();
-        _lastUsed = SkinContext.FrameRenderingStartTime;
       }
-      GraphicsDevice.Device.SetTexture(stream, null);
     }
 
-    public void Render(Texture tex, Matrix finalTransform)
+    public void SetEffectParameters()
     {
-      StartRender(tex, finalTransform);
-      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-      EndRender();
-    }
-
-    void SetEffectParameters()
-    {
-      if (_parameterValues.Count == 0) return;
+      if (_parameterValues.Count == 0 | !IsAllocated) 
+        return;
       foreach (KeyValuePair<string, object> kvp in _parameterValues)
       {
         Type type = kvp.Value.GetType();
         if (type == typeof(Texture))
           _effect.SetTexture(kvp.Key, (Texture) kvp.Value);
-        if (type == typeof(Color4))
+        else if (type == typeof(Color4))
           _effect.SetValue(kvp.Key, (Color4) kvp.Value);
         else if (type == typeof(Color4[]))
           _effect.SetValue<Color4>(kvp.Key, (Color4[]) kvp.Value);
@@ -258,24 +204,15 @@ namespace MediaPortal.UI.SkinEngine.Effects
           _effect.SetValue<float>(kvp.Key, (float[]) kvp.Value);
         else if (type == typeof(Matrix))
           _effect.SetValue(kvp.Key, (Matrix) kvp.Value);
-        else if (type == typeof(Vector2))
-          _effect.SetValue(kvp.Key, (Vector2) kvp.Value);
         else if (type == typeof(Vector3))
           _effect.SetValue(kvp.Key, (Vector3) kvp.Value);
         else if (type == typeof(Vector4))
           _effect.SetValue(kvp.Key, (Vector4) kvp.Value);
         else if (type == typeof(bool))
           _effect.SetValue(kvp.Key, (bool) kvp.Value);
-        else if (type == typeof(float))
-          _effect.SetValue(kvp.Key, (float) kvp.Value);
         else if (type == typeof(int))
           _effect.SetValue(kvp.Key, (int) kvp.Value);
       }
-    }
-
-    public Effect Effect
-    {
-      get { return _effect; }
     }
   }
 }

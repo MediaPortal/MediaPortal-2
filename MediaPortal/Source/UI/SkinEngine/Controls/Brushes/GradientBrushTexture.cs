@@ -25,12 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -40,38 +37,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   /// </summary>
   public class GradientBrushTexture : ITextureAsset, IDisposable
   {
-    Texture _texture;
-    DateTime _lastTimeUsed;
+    RenderTextureAsset _texture;
     readonly GradientStopCollection _stops;
     readonly string _name;
     static int _assetId = 0;
 
     public GradientBrushTexture(GradientStopCollection stops)
     {
-      _stops = stops;
-      Allocate();
-      IScreenManager mgr = ServiceRegistration.Get<IScreenManager>();
-      _name = String.Format("brush#{0} {1}", _assetId, mgr.ActiveScreenName);
       _assetId++;
-      ContentManager.Add(this);
+      _stops = stops;
+      _name = String.Format("GradientBrushTexture#{0}", _assetId);
+      Allocate();
     }
 
     public void Dispose()
     {
-      if (_texture != null)
-      {
-        _texture.Dispose();
-        _texture = null;
-      }
+      _texture = null;
     }
 
     public void Allocate()
     {
-      if (!IsAllocated)
+      if (_texture == null)
+        _texture = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_name);
+      if (!_texture.IsAllocated) 
       {
-        _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+        _texture.AllocateDynamic(256, 2);
         CreateGradient();
-        KeepAlive();
       }
     }
 
@@ -97,8 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         if (!IsAllocated)
           Allocate();
-        KeepAlive();
-        return _texture;
+        return _texture.Texture;
       }
     }
 
@@ -150,52 +140,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           data[offY + offx + 3] = (byte) a;
         }
       }
-      DataRectangle rect = _texture.LockRectangle(0, LockFlags.None);
+      DataRectangle rect = _texture.Surface0.LockRectangle(LockFlags.None);
       rect.Data.Write(data, 0, 4 * 512);
-      _texture.UnlockRectangle(0);
+      _texture.Surface0.UnlockRectangle();
       rect.Data.Dispose();
-    }
-
-    #region IAsset Members
-
-    public void KeepAlive()
-    {
-      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     public bool IsAllocated
     {
-      get { return _texture != null; }
-    }
-
-    public bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-          return false;
-        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
-        if (ts.TotalSeconds >= 10)
-          return true;
-
-        return false;
-      }
+      get { return _texture != null && _texture.IsAllocated; }
     }
 
     public void Free(bool force)
     {
-      if (_texture != null)
-      {
-        _texture.Dispose();
-        _texture = null;
-      }
-    }
-
-    #endregion
-
-    public override string ToString()
-    {
-      return _name;
+      _texture = null;
     }
   }
 }

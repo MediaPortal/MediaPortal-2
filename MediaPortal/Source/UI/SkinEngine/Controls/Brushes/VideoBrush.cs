@@ -30,7 +30,6 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -97,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _effect = ContentManager.GetEffect("normal");
+      _effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
       _verts = verts;
       _videoSize = new Size(0, 0);
       _videoAspectRatio = new Size(0, 0);
@@ -105,7 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ServiceRegistration.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
-    void UpdateVertexBuffer(IVideoPlayer player, VertexBuffer vertexBuffer, float zOrder)
+    void UpdateVertexBuffer(IVideoPlayer player, PrimitiveBuffer primitiveContext, float zOrder)
     {
       Size size = player.VideoSize;
       Size aspectRatio = player.VideoAspectRatio;
@@ -132,8 +131,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       geometryManager.Transform(_currentGeometry, gd, out sourceRect, out destinationRect);
       string shaderName = geometry.Shader;
-      _effect = string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect("normal") :
-          ContentManager.GetEffect(shaderName);
+      _effect = string.IsNullOrEmpty(shaderName) ? ServiceRegistration.Get<ContentManager>().GetEffect("normal") :
+          ServiceRegistration.Get<ContentManager>().GetEffect(shaderName);
 
       float minU = sourceRect.X / (float) _videoSize.Width;
       float minV = sourceRect.Y / (float) _videoSize.Height;
@@ -151,10 +150,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         verts[i].Color = _verts[i].Color;
         verts[i].Z = zOrder;
       }
-      PositionColored2Textured.Set(vertexBuffer, verts);
+      primitiveContext.Set(ref verts, PrimitiveType.TriangleList);
     }
 
-    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
       if (playerManager == null)
@@ -167,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _renderPlayer = playerManager[Stream] as ISlimDXVideoPlayer;
       if (_renderPlayer == null) return false;
 
-      UpdateVertexBuffer(_renderPlayer, primitiveContext.VertexBuffer, renderContext.ZOrder);
+      UpdateVertexBuffer(_renderPlayer, primitiveContext, renderContext.ZOrder);
       _renderPlayer.BeginRender(_effect, renderContext.Transform);
       return true;
     }

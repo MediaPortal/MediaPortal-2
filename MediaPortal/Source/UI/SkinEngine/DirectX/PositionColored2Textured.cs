@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       Color = color;
     }
 
-    public PositionColored2Textured(Vector3 position, float u1, float v1,  int color)
+    public PositionColored2Textured(Vector3 position, float u1, float v1, int color)
     {
       X = position.X;
       Y = position.Y;
@@ -111,18 +111,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         Y = value.Y;
         Z = value.Z;
       }
-    }
-
-    public static VertexBuffer Create(int verticeCount)
-    {
-      return new VertexBuffer(GraphicsDevice.Device, StrideSize * verticeCount, Usage.WriteOnly, Format, Pool.Default);
-    }
-
-    public static void Set(VertexBuffer buffer, PositionColored2Textured[] verts)
-    {
-      using (DataStream stream=buffer.Lock(0, 0, LockFlags.None))
-        stream.WriteRange(verts);
-      buffer.Unlock();
     }
   }
 }

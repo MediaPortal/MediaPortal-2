@@ -22,9 +22,9 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
@@ -107,12 +107,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _colorProperty.SetValue(value); }
     }
 
-    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveBuffer, RenderContext renderContext)
     {
       Matrix finalTransform = renderContext.Transform.Clone();
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
-      _effect = ContentManager.GetEffect(EFFECT_SOLID);
+      _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_SOLID);
       _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(finalTransform);
       return true;
@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) (Opacity * renderContext.Opacity);
       Matrix finalTransform = renderContext.Transform.Clone();
-      _effect = ContentManager.GetEffect(EFFECT_SOLIDOPACITY);
+      _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_SOLIDOPACITY);
       _effect.Parameters[PARAM_SOLIDCOLOR] = v;
       _effect.StartRender(tex, finalTransform);
     }

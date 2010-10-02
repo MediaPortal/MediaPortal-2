@@ -28,14 +28,37 @@ using System.Collections.Generic;
 using System.Linq;
 using SlimDX;
 using SlimDX.Direct3D9;
+using MediaPortal.Core;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Effects;
-using Font=MediaPortal.UI.SkinEngine.Fonts.Font;
 
-namespace MediaPortal.UI.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.Rendering
 {
-  public enum TextScrollMode
+  #region Enums
+  /// <summary>
+  /// An enum used to specify text-alignment.
+  /// </summary>
+  public enum TextAlignEnum
+  {
+    /// <summary>
+    /// Align text to the left.
+    /// </summary>
+    Left,
+    /// <summary>
+    /// Align text to the right.
+    /// </summary>
+    Right,
+    /// <summary>
+    /// Cener align text.
+    /// </summary>
+    Center
+  };
+
+  /// <summary>
+  /// An enum used to specify text scrolling behaviour.
+  /// </summary>
+  public enum TextScrollEnum
   {
     /// <summary>
     /// Determine scroll direction based on text size, wrapping and available space.
@@ -68,7 +91,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     Down
   };
 
-  public class TextBufferAsset : IAsset
+  #endregion
+
+  public class TextBuffer : IDisposable
   {
     #region Consts
 
@@ -87,8 +112,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     #region Protected fields
 
     // Immutable properties
-    protected readonly Font _font;
-    protected readonly float _fontSize;
+    protected FontAsset _font;
+    protected float _fontSize;
     // State
     protected string _text;
     protected bool _textChanged;
@@ -104,27 +129,37 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     protected Vector2 _scrollWrapOffset;
     protected DateTime _lastTimeUsed;
     // Vertex buffer
-    protected VertexBuffer _vertexBuffer;
-    protected int _vertexBufferLength;
-    protected int _primitiveCount;
+    protected PrimitiveBuffer _buffer = new PrimitiveBuffer();
     
     #endregion
 
     #region Ctor
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TextBufferAsset"/> class.
+    /// Initializes a new instance of the <see cref="TextBuffer"/> class.
     /// </summary>
-    /// <param name="font">The font.</param>
+    /// <param name="font">The font to use.</param>
     /// <param name="size">The font size (may be slightly different to the size of <paramref name="font"/>).</param>
-    public TextBufferAsset(Font font, float size)
+    public TextBuffer(FontAsset font, float size)
     {
-      _font = font;
-      _fontSize = size;
+      SetFont(font, size);
       _kerning = true;
       _lastTimeUsed = DateTime.MinValue;
       _lastTextSize = SizeF.Empty;
       ResetScrollPosition();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TextBuffer"/> class.
+    /// </summary>
+    /// <param name="fontName">The name of the font to use.</param>
+    /// <param name="size">The font size.</param>
+    public TextBuffer(string fontName, float size)
+    {
+      SetFont(fontName, size);
+      _kerning = true;
+      _lastTimeUsed = DateTime.MinValue;
+      _lastTextSize = SizeF.Empty;
       ResetScrollPosition();
     }
 
@@ -135,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Gets the font.
     /// </summary>
-    public Font Font
+    public FontAsset Font
     {
       get { return _font; }
     }
@@ -173,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the width of a string as if it was rendered by this asset.
+    /// Gets the width of a string as if it was rendered by this resource.
     /// </summary>
     /// <param name="text">String to evaluate</param>
     /// <returns>The width of the text in graphics device units (pixels)</returns>
@@ -183,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the height of a number of text lines if rendered by this asset.
+    /// Gets the height of a number of text lines if rendered by this resource.
     /// </summary>
     /// <param name="lineCount">The number of lines to measure.</param>
     /// <returns>The height of the text in graphics device units (pixels)</returns>
@@ -193,39 +228,70 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
-    /// Gets the height of text rendered with this asset.
+    /// Gets the height of text rendered with this resource.
     /// </summary>
     public float LineHeight
     {
       get { return _font.LineHeight(_fontSize); }
     }
 
+    public bool IsAllocated
+    {
+      get { return _buffer.IsAllocated && _font != null && _font.IsAllocated; }
+    }
+
+    public override string ToString()
+    {
+      return Text;
+    }
+
     #endregion
 
+    #region Public methods
+    /// <summary>
+    /// Sets the <see cref="FontAsset"/> for this buffer.
+    /// </summary>
+    /// <param name="font">The <see cref="FontAsset"/>to use.</param>
+    /// <param name="size">The size to use for the font.</param>
+    public void SetFont(FontAsset font, float size)
+    {
+      DisposeFont();
+      _font = font;
+      _font.Deallocated += DisposeBuffer;
+      _fontSize = size;
+      _textChanged = true;
+    }
+    /// <summary>
+    /// Sets the <see cref="FontAsset"/> for this buffer.
+    /// </summary>
+    /// <param name="fontName">The name of the font to use.</param>
+    /// <param name="size">The size to use for the font.</param>
+    public void SetFont(String fontName, float size)
+    {
+      SetFont(ServiceRegistration.Get<ContentManager>().GetFont(fontName, size), size);
+    }
+
+    /// <summary>
+    /// Allocates or re-alocates this resource.
+    /// </summary>
+    /// <param name="boxWidth"></param>
+    /// <param name="wrap"></param>
     public void Allocate(float boxWidth, bool wrap)
     {
       if (String.IsNullOrEmpty(_text))
       {
-        Free(true);
+        DisposeBuffer();
         return;
       }
+      if (Font == null)
+        return;
 
       // Get text quads
       string[] lines = wrap ? WrapText(boxWidth) : _text.Split(Environment.NewLine.ToCharArray());
       PositionColored2Textured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
-      int count = verts.Length;
 
-      // Re-use existing buffer if possible
-      if (_vertexBuffer != null && count > _vertexBufferLength)
-        Free(true);
-      if (_vertexBuffer == null)
-      {
-        _vertexBufferLength = Math.Min(count * 2, Math.Max(4096, count));
-        _vertexBuffer = PositionColored2Textured.Create(_vertexBufferLength);
-        ContentManager.VertexReferences++;
-      }
-      PositionColored2Textured.Set(_vertexBuffer, verts);
-      _primitiveCount = count / 3;
+      // Re-use existing buffer if necessary
+      _buffer.Set(ref verts, PrimitiveType.TriangleList);
       
       // Preserve state
       _lastTextBoxWidth = boxWidth;
@@ -265,7 +331,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             while (nextIndex < paraLength && !char.IsWhiteSpace(para[nextIndex]))
               ++nextIndex;
             // Does the word fit into the space?
-            // Rember to take into account the additional width required if this was the last word on the line.
+            // Remember to take into account the additional width required if this was the last word on the line.
             float cx = _font.PartialTextWidth(para, sectionIndex, nextIndex - 1, _fontSize, Kerning);
             float extension = _font.CharWidthExtension(para, nextIndex - 1, _fontSize);
 
@@ -274,13 +340,26 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
               // If the word is longer than a line width wrap it by letter
               if (cx + extension > maxWidth)
               {
-                lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
-                while (lineWidth < maxWidth)
+                // Double check without leading whitespace
+                if (_font.PartialTextWidth(para, wordIndex, nextIndex - 1, _fontSize, Kerning) + extension > maxWidth)
                 {
-                  ++sectionIndex;
+                  // Don't wrap whitespace
+                  while (sectionIndex < para.Length && char.IsWhiteSpace(para[sectionIndex]))
+                  {
+                    lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
+                    ++sectionIndex;
+                  }
+                  // See how many characters of the word we can fit on this line
                   lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
+                  while (lineWidth < maxWidth)
+                  {
+                    lineWidth += _font.TextWidth(para, sectionIndex, sectionIndex, _fontSize, Kerning);
+                    ++sectionIndex;
+                  }
+                  // Prepare for next line
+                  wordIndex = sectionIndex;
+                  nextIndex = wordIndex;
                 }
-                wordIndex = sectionIndex;
               }
               // Start new line						
               if (sectionIndex != lineIndex)
@@ -288,13 +367,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
               lineIndex = wordIndex;
               lineWidth = _font.TextWidth(para.Substring(wordIndex, nextIndex - wordIndex), _fontSize, Kerning);
             }
+            else
+              lineWidth += cx;
             if (nextIndex >= paraLength)
             {
               // End of paragraphs
               result.Add(para.Substring(lineIndex, nextIndex - lineIndex));
               lineIndex = nextIndex;
             }
-            lineWidth += cx;
           }
         }
         // If no words found add an empty line to preserve text formatting
@@ -315,8 +395,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="finalTransform">The final combined layout-/render-transform.</param>
-    public void Render(RectangleF textBox, Font.Align alignment, Color4 color, bool wrap, float zOrder,
-        TextScrollMode scrollMode, float scrollSpeed, Matrix finalTransform)
+    public void Render(RectangleF textBox, TextAlignEnum alignment, Color4 color, bool wrap, float zOrder,
+        TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
     {
       if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
       {
@@ -329,38 +409,39 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       Vector4 alignParam;
       switch (alignment)
       {
-        case Font.Align.Center:
+        case TextAlignEnum.Center:
           alignParam = new Vector4(textBox.Width / 2.0f, -0.5f, zOrder, 1.0f);
           break;
-        case Font.Align.Right:
+        case TextAlignEnum.Right:
           alignParam = new Vector4(textBox.Width, -1.0f, zOrder, 1.0f);
           break;
-        //case Font.Align.Left:
+        //case TextAlignEnum.Left:
         default:
           alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
           break;
       }
-
-      TextScrollMode actualScrollMode = scrollMode;
-      if (scrollMode != TextScrollMode.None && _lastTimeUsed != DateTime.MinValue)
+      // Update scrolling
+      TextScrollEnum actualScrollMode = scrollMode;
+      if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
         actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
-
+      // Do we need to add fading edges?
       Vector4 fadeBorder;
       if (CalculateFadeBorder(actualScrollMode, textBox, alignment, out fadeBorder))
       {
-        _effect = ContentManager.GetEffect(EFFECT_FONT_FADE);
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT_FADE);
         _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;
       }
       else
-        _effect = ContentManager.GetEffect(EFFECT_FONT);
-
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT);
+      // Render
       _effect.Parameters[PARAM_COLOR] = color;
       _effect.Parameters[PARAM_ALIGNMENT] = alignParam;
       _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y, 0.0f, 0.0f);
       _effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
       DoRender(finalTransform);
-
-      if (scrollMode != TextScrollMode.None)
+      // Because text wraps around before it is complete scrolled off the screen we may need to render a second copy 
+      // to create the desired wrapping effect
+      if (scrollMode != TextScrollEnum.None)
       {
         if (!float.IsNaN(_scrollWrapOffset.X))
         {
@@ -376,32 +457,34 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
-    private void DoRender(Matrix finalTransform)
+    #endregion
+
+    #region Protected methods
+
+    protected void DoRender(Matrix finalTransform)
     {
       _effect.StartRender(_font.Texture, finalTransform);
-      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _primitiveCount);
+      _buffer.Render(0);
       _effect.EndRender();
     }
 
-    protected TextScrollMode UpdateScrollPosition(RectangleF textBox, TextScrollMode mode, float speed)
+    protected TextScrollEnum UpdateScrollPosition(RectangleF textBox, TextScrollEnum mode, float speed)
     {
       float dif = speed * (float) SkinContext.FrameRenderingStartTime.Subtract(_lastTimeUsed).TotalSeconds;
 
-      if (mode == TextScrollMode.Auto)
+      if (mode == TextScrollEnum.Auto)
       {
         if (_lastWrap && _lastTextSize.Height > textBox.Height)
-          mode = TextScrollMode.Up;
+          mode = TextScrollEnum.Up;
         else if (_textLines.Length == 1 && _lastTextSize.Width > textBox.Width)
-          mode = TextScrollMode.Left;
+          mode = TextScrollEnum.Left;
         else
-          return TextScrollMode.None;
+          return TextScrollEnum.None;
       }
 
       switch (mode)
       {
-        case TextScrollMode.Left:
+        case TextScrollEnum.Left:
           _scrollPos.X -= dif;
           if (_scrollPos.X + _lastTextSize.Width < textBox.Width / 2.0f)
           {
@@ -412,7 +495,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           else if (_scrollWrapOffset.X + _scrollPos.X + _lastTextSize.Width < 0.0f)
             _scrollWrapOffset.X = float.NaN;
           break;
-        case TextScrollMode.Right:
+        case TextScrollEnum.Right:
           _scrollPos.X += dif;
           if (_scrollPos.X > textBox.Width / 2.0f)
           {
@@ -423,7 +506,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           else if (_scrollWrapOffset.X + _scrollPos.X > textBox.Width)
             _scrollWrapOffset.X = float.NaN;
           break;
-        case TextScrollMode.Down:
+        case TextScrollEnum.Down:
           _scrollPos.Y += dif;
           if (_scrollPos.Y > textBox.Height / 2.0f)
           {
@@ -434,7 +517,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           else if (_scrollWrapOffset.Y + _scrollPos.Y > textBox.Height)
             _scrollWrapOffset.Y = float.NaN;
           break;        
-        //case TextScrollMode.Up:
+        //case TextScrollEnum.Up:
         default:
           _scrollPos.Y -= dif;
           if (_scrollPos.Y + _lastTextSize.Height < textBox.Height / 2.0f)
@@ -450,11 +533,21 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       return mode;
     }
 
-    protected bool CalculateFadeBorder(TextScrollMode scrollMode, RectangleF textBox, Font.Align alignment, out Vector4 fadeBorder)
+    public void ResetScrollPosition()
+    {
+      _scrollPos = new Vector2(0.0f, 0.0f);
+      _scrollWrapOffset = new Vector2(float.NaN, float.NaN);
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected bool CalculateFadeBorder(TextScrollEnum scrollMode, RectangleF textBox, TextAlignEnum alignment, out Vector4 fadeBorder)
     {
       fadeBorder = new Vector4(0.0001f, 0.0001f, 0.0001f, 0.0001f);
       bool dofade = false;
-      if (scrollMode == TextScrollMode.Left || scrollMode == TextScrollMode.Right)
+      if (scrollMode == TextScrollEnum.Left || scrollMode == TextScrollEnum.Right)
       {
         fadeBorder.X = FADE_SIZE; // Fade on left edge
         fadeBorder.Z = FADE_SIZE; // Fade on right edge
@@ -462,19 +555,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
       else if (_lastTextSize.Width > textBox.Width)
       {
-        if (alignment == Font.Align.Right || alignment == Font.Align.Center)
+        if (alignment == TextAlignEnum.Right || alignment == TextAlignEnum.Center)
           fadeBorder.X = FADE_SIZE; // Fade on left edge
-        if (alignment == Font.Align.Left || alignment == Font.Align.Center)
+        if (alignment == TextAlignEnum.Left || alignment == TextAlignEnum.Center)
           fadeBorder.Z = FADE_SIZE; // Fade on right edge
         dofade = true;
       }
-      if (scrollMode == TextScrollMode.Up || scrollMode == TextScrollMode.Down)
+      if (scrollMode == TextScrollEnum.Up || scrollMode == TextScrollEnum.Down)
       {
         fadeBorder.Y = FADE_SIZE; // Fade on top edge
         fadeBorder.W = FADE_SIZE; // Fade on bottom edge
         dofade = true;
       }
-      else if (_lastTextSize.Height > textBox.Height)
+      else if (_lastTextSize.Height > textBox.Height + _fontSize / 4)
       {
         fadeBorder.W = FADE_SIZE; // Fade on bottom edge
         dofade = true;
@@ -482,45 +575,28 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       return dofade;
     }
 
-    public void ResetScrollPosition()
+    void DisposeBuffer()
     {
-      _scrollPos = new Vector2(0.0f, 0.0f);
-      _scrollWrapOffset = new Vector2(float.NaN, float.NaN);
+      _buffer.Dispose();
     }
 
-    #region IAsset Members
-
-    public bool IsAllocated
+    void DisposeFont()
     {
-      get { return (_vertexBuffer != null); }
+      if (_font != null)
+        _font.Deallocated -= DisposeBuffer;
+      _font = null;
     }
 
-    public bool CanBeDeleted
+    #endregion
+
+    #region IDisposable implementation
+
+    public void Dispose()
     {
-      get
-      {
-        if (!IsAllocated)
-          return false;
-        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
-        if (ts.TotalSeconds >= 5)
-          return true;
-        return false;
-      }
+      DisposeBuffer();
+      DisposeFont();
     }
 
-    public void Free(bool force)
-    {
-      if (_vertexBuffer == null)
-        return;
-      _vertexBuffer.Dispose();
-      _vertexBuffer = null;
-      ContentManager.VertexReferences--;
-    }
-
-    public override string ToString()
-    {
-      return Text;
-    }
     #endregion
   }
 }

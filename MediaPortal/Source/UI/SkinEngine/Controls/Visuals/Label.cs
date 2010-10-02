@@ -26,27 +26,26 @@ using System;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
-using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
-using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.TextBufferAsset;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Label : Control
   {
+    public const double DEFAULT_SCROLL_SPEED = 20.0;
+
     #region Private & protected fields
 
     protected AbstractProperty _contentProperty;
+    protected AbstractProperty _horizontalContentAlignmentProperty;
+    protected AbstractProperty _verticalContentAlignmentProperty;
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _scrollProperty;
     protected AbstractProperty _scrollSpeedProperty;
     protected AbstractProperty _wrapProperty;
-    protected AbstractProperty _horizontalContentAlignmentProperty;
-    protected AbstractProperty _maxDesiredWidthProperty;
-    protected FontBufferAsset _asset;
+    protected TextBuffer _asset = null;
     protected string _resourceString;
 
     #endregion
@@ -61,13 +60,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new SProperty(typeof(string), string.Empty);
-      _colorProperty = new SProperty(typeof(Color), Color.White);
-      _scrollProperty = new SProperty(typeof(TextScrollMode), TextScrollMode.None);
-      _scrollSpeedProperty = new SProperty(typeof(double), 20.0);
-      _wrapProperty = new SProperty(typeof(bool), false);
+      _contentProperty = new SProperty(typeof(string), null);
       _horizontalContentAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
-      _maxDesiredWidthProperty = new SProperty(typeof(double), double.NaN);
+      _verticalContentAlignmentProperty = new SProperty(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Top);
+      _colorProperty = new SProperty(typeof(Color), Color.White);
+      _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
+      _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
+      _wrapProperty = new SProperty(typeof(bool), false);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
       InitializeResourceString();
@@ -76,17 +75,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _contentProperty.Attach(OnContentChanged);
+      _horizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _verticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _fontFamilyProperty.Attach(OnFontChanged);
+      _fontSizeProperty.Attach(OnFontChanged);      
       _wrapProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
-      _maxDesiredWidthProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
+      _horizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _verticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
+      _fontFamilyProperty.Detach(OnFontChanged);
+      _fontSizeProperty.Detach(OnFontChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
-      _maxDesiredWidthProperty.Detach(OnLayoutPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -95,10 +100,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       Label l = (Label) source;
       Content = l.Content;
+      HorizontalAlignment = l.HorizontalAlignment;
+      VerticalAlignment = l.VerticalAlignment;
       Color = l.Color;
       Scroll = l.Scroll;
       Wrap = l.Wrap;
-      MaxDesiredWidth = l.MaxDesiredWidth;
 
       InitializeResourceString();
       Attach();
@@ -118,6 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
     {
+      AllocFont();
       if (_asset != null)
         _asset.ResetScrollPosition();
       InvalidateLayout();
@@ -125,39 +132,52 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
     {
-      ClearAsset();
+      if (_asset != null)
+        _asset.SetFont(GetFontFamilyOrInherited(), GetFontSizeOrInherited());
     }
 
     #endregion
 
-    protected void ClearAsset()
-    {
-      TextBufferAsset asset = _asset;
-      _asset = null;
-      if (asset != null)
-        asset.Free(true);
-    }
-
     protected void InitializeResourceString()
     {
       string content = Content;
-      _resourceString = string.IsNullOrEmpty(content) ? string.Empty : LocalizationHelper.CreateResourceString(content).Evaluate();
+      _resourceString = string.IsNullOrEmpty(content) ? string.Empty :
+          LocalizationHelper.CreateResourceString(content).Evaluate(); 
     }
 
     #region Public properties
 
-    /// <summary>
-    /// Gets or sets the content text for the Label.
-    /// </summary>
-    public string Content
-    {
-      get { return _contentProperty.GetValue() as string; }
-      set { _contentProperty.SetValue(value); }
-    }
-
     public AbstractProperty ContentProperty
     {
       get { return _contentProperty; }
+    }
+
+    public string Content
+    {
+      get { return (string) _contentProperty.GetValue(); }
+      set { _contentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HorizontalContentAlignmentProperty
+    {
+      get { return _horizontalContentAlignmentProperty; }
+    }
+
+    public HorizontalAlignmentEnum HorizontalContentAlignment
+    {
+      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
+      set { _horizontalContentAlignmentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalContentAlignmentProperty
+    {
+      get { return _verticalContentAlignmentProperty; }
+    }
+
+    public VerticalAlignmentEnum VerticalContentAlignment
+    {
+      get { return (VerticalAlignmentEnum) _verticalContentAlignmentProperty.GetValue(); }
+      set { _verticalContentAlignmentProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -177,9 +197,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Determines how to scroll text.
     /// </summary>
-    public TextScrollMode Scroll
+    public TextScrollEnum Scroll
     {
-      get { return (TextScrollMode) _scrollProperty.GetValue(); }
+      get { return (TextScrollEnum) _scrollProperty.GetValue(); }
       set { _scrollProperty.SetValue(value); }
     }
 
@@ -189,9 +209,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the scroll speed for text in skin units (1 unit = 1 pixel at native skin resolution).
+    /// Gets or sets the scroll speed for text in skin units per second (1 unit = 1 pixel at native skin resolution).
     /// <see cref="Scroll"/> must also be set for this to have an effect.
-    /// TODO: Skin units per what? Second?
     /// </summary>
     public double ScrollSpeed
     {
@@ -218,66 +237,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _wrapProperty; }
     }
 
-    /// <summary>
-    /// Will be evaluated if <see cref="Scroll"/> or <see cref="Wrap"/> is set to give a maximum width of this label.
-    /// This property differs from the <see cref="FrameworkElement.Width"/> property, as this label doesn't always occupy
-    /// the whole maximum width.
-    /// </summary>
-    public double MaxDesiredWidth
-    {
-      get { return (double) _maxDesiredWidthProperty.GetValue(); }
-      set { _maxDesiredWidthProperty.SetValue(value); }
-    }
-
-    public AbstractProperty MaxDesiredWidthProperty
-    {
-      get { return _maxDesiredWidthProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the horizontal text alignment.
-    /// </summary>
-    public HorizontalAlignmentEnum HorizontalContentAlignment
-    {
-      get { return (HorizontalAlignmentEnum) _horizontalContentAlignmentProperty.GetValue(); }
-      set { _horizontalContentAlignmentProperty.SetValue(value); }
-    }
-
-    public AbstractProperty HorizontalContentAlignmentProperty
-    {
-      get { return _horizontalContentAlignmentProperty; }
-    }
-
     #endregion
 
     void AllocFont()
     {
       if (_asset == null)
       {
-        _asset = ContentManager.GetTextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited(), true);
-        _asset.Text = _resourceString;
+        _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) {Text = _resourceString};
       }
     }
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       AllocFont();
-      if (_asset == null)
-        return SizeF.Empty;
 
       // Measure the text
-      SizeF size = new SizeF();
-      float totalWidth; // Attention: totalWidth is cleaned up by SkinContext.Zoom
-      if (double.IsNaN(Width))
-        if ((Scroll != TextScrollMode.None || Wrap) && !double.IsNaN(MaxDesiredWidth))
-          // MaxDesiredWidth will only be evaluated if either Scroll or Wrap is set
-          totalWidth = (float) MaxDesiredWidth;
-        else
-          // No size constraints
-          totalWidth = totalSize.Width;
-      else
-        // Width: highest priority
+      float totalWidth = totalSize.Width; // Attention: totalWidth is cleaned up by SkinContext.Zoom
+      if (!double.IsNaN(Width))
         totalWidth = (float) Width;
+
+      SizeF size = new SizeF();
       if (Wrap)
       { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
         string[] lines = _asset.WrapText(totalWidth);
@@ -301,17 +280,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
+      // TODO: VerticalContentAlignment
       base.DoRender(localRenderContext);
 
       AllocFont();
-      if (_asset == null)
-        return;
 
-      Font.Align align = Font.Align.Left;
+      TextAlignEnum align = TextAlignEnum.Left;
       if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
-        align = Font.Align.Right;
+        align = TextAlignEnum.Right;
       else if (HorizontalContentAlignment == HorizontalAlignmentEnum.Center)
-        align = Font.Align.Center;
+        align = TextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
@@ -324,8 +302,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       if (_asset != null)
-        _asset.Free(true);
-      _asset = null;
+      {
+        _asset.Dispose();
+        _asset = null;
+      }
+    }
+
+    public override void Dispose()
+    {
+      Deallocate();
+      base.Dispose();
     }
   }
 }

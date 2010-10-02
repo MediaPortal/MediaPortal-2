@@ -149,11 +149,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _y2Property.SetValue(value); }
     }
 
+    /// <summary>
+    /// Returns the geometry representing this <see cref="Shape"/> 
+    /// </summary>
+    /// <param name="rect">The rect to fit the shape into.</param>
+    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
+    public override PositionColored2Textured[] GetGeometry(RectangleF rect)
+    {
+      PositionColored2Textured[] verts;
+      using (GraphicsPath path = GetLine(_innerRect))
+      {
+        float centerX;
+        float centerY;
+        TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+        TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+      }
+      return verts;
+    }
+
+
+
     protected override void DoPerformLayout(RenderContext context)
     {
       base.DoPerformLayout(context);
 
-      DisposePrimitiveContext(ref _strokeContext);
       if (Stroke != null && StrokeThickness > 0)
       {
         using (GraphicsPath path = GetLine(_innerRect))
@@ -163,12 +182,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           PositionColored2Textured[] verts;
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-          int numVertices = verts.Length / 3;
+
           Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-          _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+          SetPrimitiveContext(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
         }
       }
-
+      else
+        DisposePrimitiveContext(ref _strokeContext);
     }
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)

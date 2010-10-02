@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Players

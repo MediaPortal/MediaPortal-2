@@ -22,10 +22,10 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -232,7 +232,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       FireChanged();
     }
 
-    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       if (Texture == null)
         return false;
@@ -242,7 +242,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh) 
       {
         RefreshEffectParameters();
-        _effect = ContentManager.GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(_simplemode ? EFFECT_TILE_SIMPLE : EFFECT_TILE);
         _refresh = false;
       }
 
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh)
       {
         RefreshEffectParameters();
-        _effect = ContentManager.GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(_simplemode ? EFFECT_TILE_OPACITY_SIMPLE : EFFECT_TILE_OPACITY);
         _refresh = false;
       }
 

@@ -22,10 +22,10 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
@@ -193,22 +193,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-
-      if (_gradientBrushTexture == null)
-        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
       _refresh = true;
     }
 
-    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      if (_gradientBrushTexture == null)
-        return false;
+      if (_gradientBrushTexture == null) {
+        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
+        if (_gradientBrushTexture == null)
+          return false;
+      }
+
       Matrix finalTransform = renderContext.Transform.Clone();
       if (_refresh)
       {
         _refresh = false;
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        _effect = ContentManager.GetEffect("radialgradient");
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect("radialgradient");
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
@@ -248,12 +249,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (tex == null)
         return;
+      if (_gradientBrushTexture == null)
+      {
+        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
+        if (_gradientBrushTexture == null)
+          return;
+      }
+
       Matrix finalTransform = renderContext.Transform.Clone();
       if (_refresh)
       {
         _refresh = false;
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
-        _effect = ContentManager.GetEffect(EFFECT_RADIALOPACITYGRADIENT);
+        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_RADIALOPACITYGRADIENT);
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };

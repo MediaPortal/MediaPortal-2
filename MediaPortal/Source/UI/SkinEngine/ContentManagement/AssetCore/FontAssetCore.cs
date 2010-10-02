@@ -24,28 +24,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Drawing;
 using System.IO;
-using MediaPortal.UI.SkinEngine.ContentManagement;
+using System.Runtime.InteropServices;
+using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.DirectX;
 using Tao.FreeType;
+using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
-namespace MediaPortal.UI.SkinEngine.Fonts
+namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   /// <summary>
   /// Represents a font set (of glyphs).
   /// </summary>
-  public class Font : ITextureAsset
+  public class FontAssetCore : TemporaryAssetBase, IAssetCore, ITextureAsset
   {
-    public enum Align
-    {
-      Left,
-      Center,
-      Right
-    }
+    public event AssetAllocationHandler AllocationChanged = delegate { };
 
     protected const int MAX_WIDTH = 1024;
     protected const int MAX_HEIGHT = 1024;
@@ -65,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <param name="family">The font family.</param>
     /// <param name="size">Size in pixels.</param>
     /// <param name="resolution">Resolution in dpi.</param>
-    public Font(FontFamily family, int size, uint resolution)
+    public FontAssetCore(FontFamily family, int size, uint resolution)
     {
       _family = family;
       _resolution = resolution;
@@ -86,7 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     #region Public properties
 
     /// <summary>
-    /// Get the size of this <see cref="Font"/>.
+    /// Get the size of this <see cref="FontAssetCore"/>.
     /// </summary>
     public float Size
     {
@@ -94,15 +89,15 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Gets the <see cref="Font"/>'s base for the given font size.
+    /// Gets the <see cref="FontAssetCore"/>'s base for the given font size.
     /// </summary>
     public float Base(float fontSize)
     {
-     return _charSet.Base * fontSize / _charSet.RenderedSize;
+      return _charSet.Base * fontSize / _charSet.RenderedSize;
     }
 
     /// <summary>
-    /// Gets the height of the <see cref="Font"/> if scaled to a different size.
+    /// Gets the height of the <see cref="FontAssetCore"/> if scaled to a different size.
     /// </summary>
     /// <param name="fontSize">The scale size.</param>
     /// <returns>The height of the scaled font.</returns>
@@ -112,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Gets the width of a string if rendered with this <see cref="Font"/> as a particular size.
+    /// Gets the width of a string if rendered with this <see cref="FontAssetCore"/> as a particular size.
     /// </summary>
     /// <param name="text">The string to measure.</param>
     /// <param name="fontSize">The size of font to use for measurement.</param>
@@ -124,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Gets the width of a sub-string if rendered with this <see cref="Font"/> as a particular size.
+    /// Gets the width of a sub-string if rendered with this <see cref="FontAssetCore"/> as a particular size.
     /// </summary>
     /// <param name="text">The string to measure.</param>
     /// <param name="fromIndex">The index of the first character of the sub-string.</param>
@@ -138,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
 
     /// <summary>
-    /// Gets the width of a sub-string if rendered with this <see cref="Font"/> as a particular size, excluding the 
+    /// Gets the width of a sub-string if rendered with this <see cref="FontAssetCore"/> as a particular size, excluding the 
     /// special additional width required for the last char.
     /// </summary>
     /// <param name="text">The string to measure.</param>
@@ -178,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <returns>The additonal width required for the specified character.</returns>
     public float CharWidthExtension(string text, int charIndex, float fontSize)
     {
-      if (charIndex< 0 || charIndex >= text.Length) return 0.0f;
+      if (charIndex < 0 || charIndex >= text.Length) return 0.0f;
       BitmapCharacter c = Character(text[charIndex]);
       return Math.Max(c.Width - c.XAdvance + c.XOffset, 0) * (fontSize / _charSet.RenderedSize);
     }
@@ -188,7 +183,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// centering we add an additonal value to compensate for the space required under the font's base line.
     /// </summary>
     /// <param name="fontSize">The actual font size.</param>
-    /// <param name="lines">The number of lines.</param>
+    /// <param name="lineCount">The number of lines.</param>
     /// <returns>The height of the text.</returns>
     public float TextHeight(float fontSize, int lineCount)
     {
@@ -198,17 +193,33 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <summary>Gets the font texture.</summary>
     public Texture Texture
     {
-      get 
+      get
       {
         if (!IsAllocated)
-          Allocate();        
-        return _texture; 
+          Allocate();
+        KeepAlive();
+        return _texture;
       }
     }
 
     #endregion
 
     #region Font map initialization
+
+    /// <summary>
+    /// Creates the font map texture.
+    /// </summary>
+    public void Allocate()
+    {
+      if (IsAllocated)
+        return;
+      
+      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
+      
+      AllocationChanged(AllocationSize);
+      // Add 'not defined' glyph
+      AddGlyph(0);
+    }
 
     /// <summary>Adds a glyph to the font set.</summary>
     /// <param name="charIndex">The char to add.</param>
@@ -222,11 +233,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
       // Font does not contain glyph
       if (glyphIndex == 0 && charIndex != 0)
-      {
         // Copy 'not defined' glyph
-        _charSet.SetCharacter(charIndex, _charSet.GetCharacter(0));
-        return true;
-      }
+        return _charSet.SetCharacter(charIndex, _charSet.GetCharacter(0));
 
       // Load the glyph for the current character.
       if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
@@ -254,6 +262,9 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       int pwidth = cwidth + 3 * PAD;
       int pheight = cheight + 3 * PAD;
 
+      if (!_charSet.IsInRange(charIndex))
+        return false;
+
       // Check glyph fits in our texture
       if (_currentX + pwidth > MAX_WIDTH)
       {
@@ -265,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         return false;
 
       // Create and store a BitmapCharacter for this glyph
-      CreateCharacter(charIndex, Glyph);
+      _charSet.SetCharacter(charIndex, CreateCharacter(Glyph));
 
       // Copy the glyph bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
@@ -283,9 +294,9 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       return true;
     }
 
-    private FT_BitmapGlyph CreateCharacter(uint charIndex, FT_BitmapGlyph Glyph)
+    private BitmapCharacter CreateCharacter(FT_BitmapGlyph Glyph)
     {
-      BitmapCharacter Character = new BitmapCharacter
+      BitmapCharacter result = new BitmapCharacter
         {
             Width = Glyph.bitmap.width + PAD*2,
             Height = Glyph.bitmap.rows + PAD*2,
@@ -296,8 +307,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
             // Convert fixed point 16.16 to float by divison with 2^16
             XAdvance = (int) (Glyph.root.advance.x/65536.0f)
         };
-      _charSet.SetCharacter(charIndex, Character);
-      return Glyph;
+      return result;
     }
 
     private void WriteGlyphToTexture(FT_BitmapGlyph Glyph, int pwidth, int pheight, Byte[] BitmapBuffer)
@@ -378,6 +388,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         textSize.Width = Math.Max(lineWidth[i], textSize.Width);
       }
 
+      KeepAlive();
       return vertArray;
     }
 
@@ -410,19 +421,19 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       x += c.XOffset;
       y += c.YOffset;
       PositionColored2Textured tl = new PositionColored2Textured(
-        x * sizeScale, y * sizeScale, 1.0f,
-        c.X / (float) _charSet.Width,
-        c.Y / (float) _charSet.Height,
-        0
-      );
+          x * sizeScale, y * sizeScale, 1.0f,
+          c.X / (float) _charSet.Width,
+          c.Y / (float) _charSet.Height,
+          0
+          );
       PositionColored2Textured br = new PositionColored2Textured(
-        (x + c.Width) * sizeScale,
-        (y + c.Height) * sizeScale,
-        1.0f,
-        (c.X + c.Width) / (float) _charSet.Width,
-        (c.Y + c.Height) / (float) _charSet.Height,
-        0
-      );
+          (x + c.Width) * sizeScale,
+          (y + c.Height) * sizeScale,
+          1.0f,
+          (c.X + c.Width) / (float) _charSet.Width,
+          (c.Y + c.Height) / (float) _charSet.Height,
+          0
+          );
       PositionColored2Textured bl = new PositionColored2Textured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
       PositionColored2Textured tr = new PositionColored2Textured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, 0);
 
@@ -437,7 +448,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
     protected BitmapCharacter Character(char c)
     {
-      if (_charSet.GetCharacter(c) == null)
+      BitmapCharacter result = _charSet.GetCharacter(c);
+      if (result == null)
         if (!AddGlyph(c))
           return _charSet.GetCharacter(0);
       return _charSet.GetCharacter(c);
@@ -452,36 +464,19 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     }
     #endregion
 
-    #region ITextureAsset Members
-    public void Allocate()
-    {
-      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
-      // Add 'not defined' glyph
-      AddGlyph(0);
-    }
-
-    public void KeepAlive()
-    {
-    }
-
-    #endregion
-
-    #region IAsset Members
+    #region IAssetCore implementation
 
     public bool IsAllocated
     {
       get { return _texture != null; }
     }
 
-    public bool CanBeDeleted
-    {
-      get { return false; }
-    }
-
-    public void Free(bool force)
+    public void Free()
     {
       if (_texture != null)
       {
+        if (AllocationChanged != null)
+          AllocationChanged(-AllocationSize);
         _texture.Dispose();
         _texture = null;
         _charSet.Clear();
@@ -491,15 +486,17 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       }
     }
 
+    public int AllocationSize
+    {
+      get { return IsAllocated ? MAX_WIDTH * MAX_HEIGHT * 1 : 0; }
+    }
     #endregion
   }
-
-  #region Internal classes
 
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
   {
-    public const int MAX_CHARS = 16*1024;
+    public const int MAX_CHARS = 4096;
     public int Base;
     public int RenderedSize;
     public int Width;
@@ -509,15 +506,21 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     public BitmapCharacter GetCharacter(uint index)
     {
       if (index >= MAX_CHARS)
-        throw new ArgumentOutOfRangeException("Maximum character value is " + MAX_CHARS);
+        return null;
       return _characters[index];
     }
 
-    public void SetCharacter(uint index, BitmapCharacter character)
+    public bool SetCharacter(uint index, BitmapCharacter character)
     {
       if (index >= MAX_CHARS)
-        throw new ArgumentOutOfRangeException("Maximum character value is " + MAX_CHARS);
+        return false;
       _characters[index] = character;
+      return true;
+    }
+
+    public bool IsInRange(uint index)
+    {
+      return index < MAX_CHARS;
     }
 
     public void Clear()
@@ -571,6 +574,4 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     public int Second;
     public int Amount;
   }
-
-  #endregion
 }

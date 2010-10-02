@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -66,8 +67,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected AbstractProperty _strokeThicknessProperty;
 
     protected bool _performLayout;
-    protected PrimitiveContext _fillContext;
-    protected PrimitiveContext _strokeContext;
+    protected PrimitiveBuffer _fillContext;
+    protected PrimitiveBuffer _strokeContext;
     protected bool _hidden;
 
     #endregion
@@ -200,6 +201,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _strokeThicknessProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Returns the geometry representing this <see cref="Shape"/> 
+    /// </summary>
+    /// <param name="rect">The rect to fit the shape into.</param>
+    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
+    public virtual PositionColored2Textured[] GetGeometry(RectangleF rect)
+    {
+      return null;
+    }
+
     protected void PerformLayout(RenderContext context)
     {
       if (!_performLayout)
@@ -223,12 +234,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       if (_fillContext != null)
       {
-        GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
         if (Fill.BeginRenderBrush(_fillContext, localRenderContext))
         {
-          GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, _fillContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_fillContext.PrimitiveType, 0, _fillContext.NumVertices);
+          _fillContext.Render(0);
           Fill.EndRender();
         }
       }
@@ -236,9 +244,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         if (Stroke.BeginRenderBrush(_strokeContext, localRenderContext))
         {
-          GraphicsDevice.Device.VertexFormat = _strokeContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _strokeContext.VertexBuffer, 0, _strokeContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_strokeContext.PrimitiveType, 0, _strokeContext.NumVertices);
+          _strokeContext.Render(0);
           Stroke.EndRender();
         }
       }

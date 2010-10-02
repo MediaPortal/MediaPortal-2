@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<UIElement> _renderOrder; // Cache for the render order of our children. Take care of locking out writing threads with the _renderLock.
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
-    protected PrimitiveContext _backgroundContext;
+    protected PrimitiveBuffer _backgroundContext;
 
     #endregion
 
@@ -231,16 +231,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       PerformLayout(localRenderContext);
 
-      if (_backgroundContext != null)
+      if (_backgroundContext != null && Background.BeginRenderBrush(_backgroundContext, localRenderContext))
       {
-        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
-        {
-          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, 2);
-          Background.EndRender();
-        }
+        _backgroundContext.Render(0);
+        Background.EndRender();
       }
+
       RenderChildren(localRenderContext);
     }
 
@@ -251,7 +247,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _performLayout = false;
 
       // Setup background brush
-      DisposePrimitiveContext(ref _backgroundContext);
       if (Background != null)
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
@@ -270,8 +265,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         }
         Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        _backgroundContext = new PrimitiveContext(2, ref verts, PrimitiveType.TriangleList);
+        SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
       }
+      else
+        DisposePrimitiveContext(ref _backgroundContext);
     }
 
     protected IList<FrameworkElement> GetVisibleChildren()

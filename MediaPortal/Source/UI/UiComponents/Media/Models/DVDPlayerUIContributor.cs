@@ -101,7 +101,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool IsOSDAvailable
     {
-      get { return (bool)_isOSDAvailableProperty.GetValue(); }
+      get { return (bool) _isOSDAvailableProperty.GetValue(); }
       set { _isOSDAvailableProperty.SetValue(value); }
     }
 
@@ -113,7 +113,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool InDvdMenu
     {
-      get { return (bool)_inDVDMenuProperty.GetValue(); }
+      get { return (bool) _inDVDMenuProperty.GetValue(); }
       set { _inDVDMenuProperty.SetValue(value); }
     }
 
@@ -124,7 +124,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool ChaptersAvailable
     {
-      get { return (bool)_chaptersAvailableProperty.GetValue(); }
+      get { return (bool) _chaptersAvailableProperty.GetValue(); }
       set { _chaptersAvailableProperty.SetValue(value); }
     }
 

@@ -56,9 +56,20 @@
     <Compile Include="Commands\ICommandStencil.cs" />
     <Compile Include="Commands\IExecutableCommand.cs" />
     <Compile Include="Commands\InvokeCommand.cs" />
+    <Compile Include="ContentManagement\AssetCore\AssetWrapper.cs" />
+    <Compile Include="ContentManagement\AssetCore\EffectAssetCore.cs" />
+    <Compile Include="ContentManagement\AssetCore\FontAssetCore.cs" />
+    <Compile Include="ContentManagement\AssetCore\IAssetCore.cs" />
+    <Compile Include="ContentManagement\AssetCore\RenderTextureAssetCore.cs" />
+    <Compile Include="ContentManagement\AssetCore\TemporaryAssetBase.cs" />
+    <Compile Include="ContentManagement\AssetCore\TextureAssetCore.cs" />
+    <Compile Include="ContentManagement\ContentManager.cs" />
+    <Compile Include="ContentManagement\EffectAsset.cs" />
+    <Compile Include="ContentManagement\FontAsset.cs" />
+    <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
-    <Compile Include="ContentManagement\TextBufferAsset.cs" />
-    <Compile Include="ContentManagement\VertexBufferAsset.cs" />
+    <Compile Include="ContentManagement\RenderTextureAsset.cs" />
+    <Compile Include="ContentManagement\TextureAsset.cs"  />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
@@ -80,6 +91,8 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\ImageSources\BitmapImage.cs" />
+    <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\UniformGrid.cs" />
@@ -119,6 +132,8 @@
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
     <Compile Include="DirectX\D3DSettings.cs" />
+    <Compile Include="DirectX\PositionColored2Textured.cs" />
+    <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
     <Compile Include="Fonts\FontFamily.cs" />
@@ -180,7 +195,9 @@
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
+    <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\TextBuffer.cs" />
     <Compile Include="ScreenManagement\DialogData.cs" />
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardControl.cs" />
@@ -232,7 +249,6 @@
     <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\TextBox.cs" />
     <Compile Include="Controls\Visuals\Thickness.cs" />
-    <Compile Include="Controls\Visuals\VisualAssetContext.cs" />
     <Compile Include="Controls\Visuals\Border.cs" />
     <Compile Include="Controls\Visuals\Button.cs" />
     <Compile Include="Controls\Visuals\CheckBox.cs" />
@@ -280,9 +296,6 @@
     <Compile Include="DirectX\d3dSetup.cs" />
     <Compile Include="DirectX\d3dutil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
-    <Compile Include="DirectX\PositionColoredTextured.cs" />
-    <Compile Include="DirectX\PositionColored2Textured.cs" />
-    <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="MatrixOperations.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
@@ -325,13 +338,8 @@
     <Compile Include="Xaml\Interfaces\INativeXamlObject.cs" />
     <Compile Include="Xaml\Interfaces\IParserContext.cs" />
     <Compile Include="Xaml\NameScope.cs" />
-    <Compile Include="ContentManagement\ContentManager.cs" />
-    <Compile Include="ContentManagement\IAsset.cs" />
-    <Compile Include="ContentManagement\TextureAsset.cs" />
-    <Compile Include="Fonts\Font.cs" />
     <Compile Include="Fonts\FontManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rendering\PrimitiveContext.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Configuration\Appearance\Fullscreen.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigSetting.cs" />
@@ -362,7 +370,6 @@
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\font.fx" />
-    <None Include="Skin\default\shaders\fontfade.fx" />
     <None Include="Skin\default\shaders\greyscale.fx" />
     <None Include="Skin\default\shaders\lineargradient.fx" />
     <None Include="Skin\default\shaders\linearopacitygradient.fx" />
@@ -374,8 +381,6 @@
     <None Include="Skin\default\shaders\solidopacity.fx" />
     <None Include="Skin\default\shaders\tile.fx" />
     <None Include="Skin\default\shaders\tileopacity.fx" />
-    <None Include="Skin\default\shaders\tilesimple.fx" />
-    <None Include="Skin\default\shaders\tilesimpleopacity.fx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

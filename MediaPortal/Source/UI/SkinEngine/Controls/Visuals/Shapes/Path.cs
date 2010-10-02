@@ -78,13 +78,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Returns the geometry representing this <see cref="Shape"/> 
+    /// </summary>
+    /// <param name="rect">The rect to fit the shape into.</param>
+    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
+    public override PositionColored2Textured[] GetGeometry(RectangleF rect)
+    {
+      PositionColored2Textured[] verts;
+      using (GraphicsPath path = CalculateTransformedPath(_innerRect))
+      {
+        using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
+        {
+          PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+          using (GraphicsPath subPath = new GraphicsPath())
+          {
+            for (int i = 0; i < subPathVerts.Length; i++)
+            {
+              bool isClosed;
+              gpi.NextSubpath(subPath, out isClosed);
+              TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
+            }
+          }
+          GraphicsPathHelper.Flatten(subPathVerts, out verts);
+        }
+      }
+      return verts;
+    }
+
     protected override void DoPerformLayout(RenderContext context)
     {
       base.DoPerformLayout(context);
 
       // Setup brushes
-      DisposePrimitiveContext(ref _fillContext);
-      DisposePrimitiveContext(ref _strokeContext);
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
         using (GraphicsPath path = CalculateTransformedPath(_innerRect))
@@ -107,12 +133,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {
-                int numVertices = verts.Length/3;
                 Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-                _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+                SetPrimitiveContext(ref _fillContext, ref verts, PrimitiveType.TriangleList);
               }
             }
           }
+          else
+            DisposePrimitiveContext(ref _fillContext);
+
           if (Stroke != null && StrokeThickness > 0)
           {
             using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
@@ -132,12 +160,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {
-                int numVertices = verts.Length/3;
                 Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-                _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+                SetPrimitiveContext(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
               }
             }
           }
+          else
+            DisposePrimitiveContext(ref _strokeContext);
         }
       }
     }

@@ -22,19 +22,31 @@
 
 #endregion
 
-namespace MediaPortal.UI.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   /// <summary>
-  /// Identifies a resource which is maybe shared between different objects.
+  /// In order to properly manage resources all Assets are actually two components: a wrapper that 
+  /// can GC'd freely and a core object that holds the actual DirectX resource and is managed by the 
+  /// <see cref="ContentManager"/>. This is a base class for all asset wrappers.
   /// </summary>
-  public interface IAsset
+  /// <typeparam name="T"></typeparam>
+  public class AssetWrapper<T> : IAsset where T : IAssetCore
   {
-    /// <summary>
-    /// Gets a value indicating the asset is allocated.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset is allocated; otherwise, <c>false</c>.
-    /// </value>
-    bool IsAllocated { get; }
+    protected T _assetCore;
+
+    public AssetWrapper(T assetCore)
+    {
+      _assetCore = assetCore;
+    }
+
+    public bool IsAllocated 
+    {
+      get { return _assetCore.IsAllocated; } 
+    }
+
+    public int AllocationSize 
+    {
+      get { return _assetCore.AllocationSize; } 
+    }
   }
 }

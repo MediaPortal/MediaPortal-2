@@ -35,7 +35,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _isDefaultProperty;
     protected AbstractProperty _isPressedProperty;
-
     protected AbstractProperty _commandProperty;
 
     #endregion

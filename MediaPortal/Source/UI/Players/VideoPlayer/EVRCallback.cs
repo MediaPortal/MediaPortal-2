@@ -33,7 +33,6 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 
@@ -52,7 +51,7 @@ namespace Ui.Players.Video
 
   [ComVisible(true)]
   [ClassInterface(ClassInterfaceType.None)]
-  public class EVRCallback : IEVRPresentCallback
+  public class EVRCallback : IEVRPresentCallback, IDisposable
   {
     #region variables
 
@@ -133,10 +132,7 @@ namespace Ui.Players.Video
     private void FreeTexture()
     {
       FilterGraphTools.TryDispose(ref _surface);
-      ContentManager.TextureReferences--;
-
       FilterGraphTools.TryDispose(ref _texture);
-      ContentManager.TextureReferences--;
     }
 
     public Texture Texture
@@ -178,10 +174,7 @@ namespace Ui.Players.Video
           int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           _texture = new Texture(GraphicsDevice.Device, cx, cy, 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
-          ContentManager.TextureReferences++;
           _surface = _texture.GetSurfaceLevel(0);
-
-          ContentManager.TextureReferences++;
         }
 
         using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))

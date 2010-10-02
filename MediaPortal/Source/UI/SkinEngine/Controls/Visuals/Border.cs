@@ -56,8 +56,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _cornerRadiusProperty;
     protected FrameworkElement _content;
     protected int _verticesCountBorder;
-    protected PrimitiveContext _backgroundContext;
-    protected PrimitiveContext _borderContext;
+    protected PrimitiveBuffer _backgroundContext;
+    protected PrimitiveBuffer _borderContext;
     protected bool _performLayout;
     protected RectangleF _borderRect;
     
@@ -286,8 +286,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void PerformLayoutBackground(RectangleF rect, RenderContext context)
     {
       // Setup background brush
-      DisposePrimitiveContext(ref _backgroundContext);
       if (Background != null)
+      {
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
@@ -297,17 +297,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           float centerX, centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-          int numVertices = verts.Length / 3;
+
           Background.SetupBrush(this, ref verts, context.ZOrder, true);
-          _backgroundContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+          SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
         }
+      }
+      else
+        DisposePrimitiveContext(ref _backgroundContext);
     }
 
     protected void PerformLayoutBorder(RectangleF rect, RenderContext context)
     {
       // Setup border brush
-      DisposePrimitiveContext(ref _borderContext);
       if (BorderBrush != null && BorderThickness > 0)
+      {
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
@@ -326,10 +329,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             PositionColored2Textured[] verts;
             GraphicsPathHelper.Flatten(subPathVerts, out verts);
             BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
-            int numVertices = verts.Length/3;
-            _borderContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+
+            SetPrimitiveContext(ref _borderContext, ref verts, PrimitiveType.TriangleList);
           }
         }
+      }
+      else
+        DisposePrimitiveContext(ref _borderContext);
     }
 
     protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
@@ -348,18 +354,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_backgroundContext != null)
         if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
         {
-          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, _backgroundContext.NumVertices);
+          _backgroundContext.Render(0);
           Background.EndRender();
         }
 
       if (_borderContext != null)
         if (BorderBrush.BeginRenderBrush(_borderContext, localRenderContext))
         {
-          GraphicsDevice.Device.VertexFormat = _borderContext.VertexFormat;
-          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, _borderContext.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(_borderContext.PrimitiveType, 0, _borderContext.NumVertices);
+          _borderContext.Render(0);
           BorderBrush.EndRender();
         }
 

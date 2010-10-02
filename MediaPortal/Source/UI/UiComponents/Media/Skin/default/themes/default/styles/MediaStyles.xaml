@@ -354,7 +354,7 @@
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
-                      MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                      MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
@@ -372,7 +372,7 @@
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
-                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"

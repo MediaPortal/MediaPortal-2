@@ -130,18 +130,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     public virtual void Render(RenderContext parentRenderContext) { }
-
-    #region Helper methods
-
-    protected void DisposePrimitiveContext(ref PrimitiveContext primitiveContext)
-    {
-      if (primitiveContext == null)
-        return;
-      primitiveContext.Dispose();
-      primitiveContext = null;
-    }
-
-    #endregion
   }
 }
 
