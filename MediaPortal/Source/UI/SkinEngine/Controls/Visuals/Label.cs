@@ -59,8 +59,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _contentProperty = new SProperty(typeof(string), null);
-      _horizontalContentAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
-      _verticalContentAlignmentProperty = new SProperty(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Top);
       _colorProperty = new SProperty(typeof(Color), Color.White);
       _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
@@ -75,6 +73,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Attach(OnContentChanged);
       _horizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
       _verticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);      
       _wrapProperty.Attach(OnLayoutPropertyChanged);
@@ -86,6 +86,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _contentProperty.Detach(OnContentChanged);
       _horizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
       _verticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
+      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
