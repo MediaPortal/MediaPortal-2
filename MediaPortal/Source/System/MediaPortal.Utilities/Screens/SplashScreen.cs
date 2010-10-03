@@ -36,23 +36,33 @@ namespace MediaPortal.Utilities.Screens
 {
   public class SplashScreen : Form
   {
-    private const double _opacityDecrement = .08;
-    private const double _opacityIncrement = .05;
-    private const int _timerInterval = 50;
+    /// <summary>
+    /// Fade timer interval in MS.
+    /// </summary>
+    protected const int FADE_TIMER_INTERVAL = 50;
+
+    public const int DEFAULT_FADE_IN_MS = 1000;
+    public const int DEFAULT_FADE_OUT_MS = 500;
+
+    private delegate void UpdateLabel();
+    private delegate void CloseSplash();
+
+    private static TimeSpan _fadeInDuration = TimeSpan.Zero;
+    private static TimeSpan _fadeOutDuration = TimeSpan.Zero;
+
+    private double _opacityDecrement;
+    private double _opacityIncrement;
     private static Boolean _fadeMode;
-    private static Boolean _fadeInOut;
     private static Image _splashBGImage;
     private static String _infoText;
     private static String _statusText;
     private static SplashScreen _splashScreenForm;
     private static Thread _splashScreenThread;
     private static Color _transparentColor;
-    private Label ProgramInfoLabel;
+    private Label _programInfoLabel;
     private Label _statusLabel;
     private Timer _splashTimer;
     private IContainer _components;
-    private delegate void UpdateLabel();
-    private delegate void CloseSplash();
 
     #region Public Properties & Methods
 
@@ -65,7 +75,7 @@ namespace MediaPortal.Utilities.Screens
       set
       {
         _infoText = value;
-        if (ProgramInfoLabel.InvokeRequired)
+        if (_programInfoLabel.InvokeRequired)
         {
           var InfoUpdate = new UpdateLabel(UpdateInfo);
           Invoke(InfoUpdate);
@@ -125,16 +135,49 @@ namespace MediaPortal.Utilities.Screens
       }
     }
 
-    public Boolean Fade
+    /// <summary>
+    /// Sets the duration how long the form will fade in. If set to <see cref="TimeSpan.Zero"/>, the form will be
+    /// shown at once.
+    /// </summary>
+    public TimeSpan FadeInDuration
     {
-      get { return _fadeInOut; }
+      get { return _fadeInDuration; }
       set
       {
-        _fadeInOut = value;
-        Opacity = value ? .00 : 1.00;
+        _fadeInDuration = value;
+        if (_fadeInDuration == TimeSpan.Zero)
+        {
+          _opacityIncrement = 0;
+          Opacity = 1;
+        }
+        else
+        {
+          _opacityIncrement = FADE_TIMER_INTERVAL/_fadeInDuration.TotalMilliseconds;
+          Opacity = 0;
+        }
       }
     }
 
+    /// <summary>
+    /// Sets the duration how long the form will fade out. If set to <see cref="TimeSpan.Zero"/>, the form will be
+    /// hidden at once.
+    /// </summary>
+    public TimeSpan FadeOutDuration
+    {
+      get { return _fadeOutDuration; }
+      set
+      {
+        _fadeOutDuration = value;
+        if (_fadeOutDuration == TimeSpan.Zero)
+          _opacityDecrement = 0;
+        else
+          _opacityDecrement = FADE_TIMER_INTERVAL/_fadeOutDuration.TotalMilliseconds;
+      }
+    }
+
+    /// <summary>
+    /// Gets the singleton instance of the splash screen.
+    /// </summary>
     public static SplashScreen Current
     {
       get
@@ -142,6 +185,25 @@ namespace MediaPortal.Utilities.Screens
         if (_splashScreenForm == null)
           _splashScreenForm = new SplashScreen();
         return _splashScreenForm;
+      }
+    }
+
+    /// <summary>
+    /// Sets default values for the <see cref="FadeInDuration"/> and <see cref="FadeOutDuration"/>.
+    /// </summary>
+    /// <param name="value">If set to <c>true</c>, the form will fade in in <see cref="DEFAULT_FADE_IN_MS"/> and fade out
+    /// int <see cref="DEFAULT_FADE_OUT_MS"/>, else, the form won't fade in and out.</param>
+    public void SetFade(bool value)
+    {
+      if (value)
+      {
+        FadeInDuration = TimeSpan.FromMilliseconds(DEFAULT_FADE_IN_MS);
+        FadeOutDuration = TimeSpan.FromMilliseconds(DEFAULT_FADE_OUT_MS);
+      }
+      else
+      {
+        FadeInDuration = TimeSpan.Zero;
+        FadeOutDuration = TimeSpan.Zero;
       }
     }
 
@@ -163,15 +225,15 @@ namespace MediaPortal.Utilities.Screens
     public void PositionInfoLabel(Point location, int width, int height)
     {
       if (location != Point.Empty)
-        ProgramInfoLabel.Location = location;
+        _programInfoLabel.Location = location;
       if (width == 0 && height == 0)
-        ProgramInfoLabel.AutoSize = true;
+        _programInfoLabel.AutoSize = true;
       else
       {
         if (width > 0)
-          ProgramInfoLabel.Width = width;
+          _programInfoLabel.Width = width;
         if (height > 0)
-          ProgramInfoLabel.Height = height;
+          _programInfoLabel.Height = height;
       }
     }
 
@@ -214,7 +276,7 @@ namespace MediaPortal.Utilities.Screens
 
     private void UpdateInfo()
     {
-      ProgramInfoLabel.Text = _infoText;
+      _programInfoLabel.Text = _infoText;
     }
 
     #region InitComponents
@@ -222,18 +284,18 @@ namespace MediaPortal.Utilities.Screens
     private void InitializeComponent()
     {
       _components = new Container();
-      ProgramInfoLabel = new Label();
+      _programInfoLabel = new Label();
       _statusLabel = new Label();
       _splashTimer = new Timer(_components);
       SuspendLayout();
       // 
-      // ProgramInfoLabel
+      // _programInfoLabel
       // 
-      ProgramInfoLabel.BackColor = Color.Transparent;
-      ProgramInfoLabel.Location = new Point(56, 52);
-      ProgramInfoLabel.Name = "ProgramInfoLabel";
-      ProgramInfoLabel.Size = new Size(100, 23);
-      ProgramInfoLabel.TabIndex = 0;
+      _programInfoLabel.BackColor = Color.Transparent;
+      _programInfoLabel.Location = new Point(56, 52);
+      _programInfoLabel.Name = "_programInfoLabel";
+      _programInfoLabel.Size = new Size(100, 23);
+      _programInfoLabel.TabIndex = 0;
       // 
       // _statusLabel
       // 
@@ -247,7 +309,7 @@ namespace MediaPortal.Utilities.Screens
       // 
       ClientSize = new Size(292, 273);
       Controls.Add(_statusLabel);
-      Controls.Add(ProgramInfoLabel);
+      Controls.Add(_programInfoLabel);
       FormBorderStyle = FormBorderStyle.None;
       Name = "SplashScreen";
       ShowInTaskbar = false;
@@ -264,14 +326,14 @@ namespace MediaPortal.Utilities.Screens
     {
       if (_fadeMode) // Form is opening (Increment)
       {
-        if (Opacity < 1.00)
+        if (Opacity < 0.99)
           Opacity += _opacityIncrement;
         else
           _splashTimer.Stop();
       }
       else // Form is closing (Decrement)
       {
-        if (Opacity > .00)
+        if (Opacity > .01)
           Opacity -= _opacityDecrement;
         else
           Dispose();
@@ -280,17 +342,17 @@ namespace MediaPortal.Utilities.Screens
 
     private void SplashScreen_Load(object sender, EventArgs e)
     {
-      if (Fade)
+      if (_fadeInDuration != TimeSpan.Zero)
       {
         _fadeMode = true;
-        _splashTimer.Interval = _timerInterval;
+        _splashTimer.Interval = FADE_TIMER_INTERVAL;
         _splashTimer.Start();
       }
     }
 
     private void HideSplash()
     {
-      if (Fade)
+      if (_fadeOutDuration != TimeSpan.Zero)
       {
         _fadeMode = false;
         _splashTimer.Start();
