@@ -128,8 +128,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Min/Max width
       _minWidthProperty = new SProperty(typeof(double), 0.0);
       _minHeightProperty = new SProperty(typeof(double), 0.0);
-      _maxWidthProperty = new SProperty(typeof(double), (double) int.MaxValue);
-      _maxHeightProperty = new SProperty(typeof(double), (double) int.MaxValue);
+      _maxWidthProperty = new SProperty(typeof(double), double.MaxValue);
+      _maxHeightProperty = new SProperty(typeof(double), double.MaxValue);
 
       // Default is not set
       _styleProperty = new SProperty(typeof(Style), null);
