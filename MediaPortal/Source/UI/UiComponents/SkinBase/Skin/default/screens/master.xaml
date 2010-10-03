@@ -51,12 +51,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.ColumnDefinitions>
       <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="50,0,0,0">
         <Label x:Name="HeaderLabel"
-            FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
-            Color="{ThemeResource WindowHeaderColor}"
+            FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
         <Label x:Name="MirrorHeaderLabel"
-            FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
-            Color="{ThemeResource WindowHeaderColor}"
+            FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
           <Label.LayoutTransform>
             <TransformGroup>
