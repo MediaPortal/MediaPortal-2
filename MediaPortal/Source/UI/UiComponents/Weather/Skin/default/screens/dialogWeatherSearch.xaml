@@ -26,9 +26,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
-          <Button Name="ButtonCancel" Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
-              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
-          <Button Name="ButtonOk" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]"
+          <Button Name="ButtonOk" Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]"
               HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
@@ -38,6 +36,8 @@
               </CommandList>
             </Button.Command>
           </Button>
+          <Button Name="ButtonCancel" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
+              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
       </StackPanel>
     </ResourceWrapper>

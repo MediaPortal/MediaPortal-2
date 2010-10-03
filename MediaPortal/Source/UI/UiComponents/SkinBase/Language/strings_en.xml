@@ -177,7 +177,7 @@
     <String Name="ModelDescription" Text="MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides other user interface parts."/>
     <String Name="ModelName" Text="MediaPortal 2 client"/>
     <String Name="ModelNumber" Text="1"/>
-    <!--    <String Name="ModelUrl" Text="..."/> -->
+<!--    <String Name="ModelUrl" Text="..."/> -->
   </Section>
   <Section Name="General">
     <String Name="Name" Text="Name"/>
@@ -211,130 +211,5 @@
     <String Name="10" Text="October"/>
     <String Name="11" Text="November"/>
     <String Name="12" Text="December"/>
-  </Section>
-
-
-
-  <Section Name="pictures">
-    <String Name="0" Text="Title"/>
-    <String Name="1" Text="Tags"/>
-    <String Name="2" Text="Size"/>
-    <String Name="3" Text="My Pictures"/>
-    <String Name="4" Text="Library"/>
-    <String Name="5" Text="Sort"/>
-    <String Name="6" Text="Slideshow"/>
-    <String Name="picinfo" Text="Picture Info"/>
-    <String Name="save"  Text="Save"/>
-    <String Name="cancel"    Text="Cancel"/>
-    <String Name="crop"    Text="Crop"/>
-    <String Name="print"   Text="Print"/>
-    <String Name="redeye"  Text="Red-eye"/>
-    <String Name="contrast"  Text="Contrast"/>
-    <String Name="edit"  Text="Edit"/>
-    <String Name="model" Text="Camera Model"/>
-    <String Name="maker"  Text="Maker"/>
-    <String Name="flash"  Text="Flash"/>
-    <String Name="dimension"  Text="Dimensions"/>
-    <String Name="expcomp"  Text="Exposure Compensation"/>
-    <String Name="exptime"  Text="Exposure Time"/>
-    <String Name="metmod"  Text="Metering Mod"/>
-    <String Name="sspeed"  Text="Shutter Speed"/>
-    <String Name="fstop"  Text="F Stop"/>
-  </Section>
-  <Section Name="refreshrate">
-    <String Name="5" Text="Refresh Rate Control"/>
-    <String Name="6" Text="24 FPS"/>
-    <String Name="7" Text="25 FPS"/>
-    <String Name="8" Text="30 FPS"/>
-    <String Name="9" Text="FPS Default"/>
-  </Section>
-  <Section Name="settings">
-    <String Name="0" Text="Settings"/>
-    <String Name="menulanguage" Text="Menus"/>
-    <String Name="audiolanguage" Text="Audio"/>
-    <String Name="subtitlelanguage" Text="Subtitles"/>
-    <String Name="screen" Text="Screen"/>
-
-    <String Name="playback" Text="Playback"/>
-    <String Name="mpg2videocodec" Text="MPEG-2 Video Codec"/>
-    <String Name="h264videocodec" Text="H-264 Video Codec"/>
-    <String Name="xvidvideocodec" Text="DivX/XVID Video Codec"/>
-    <String Name="audiocodec" Text="Audio Codec"/>
-    
-    <String Name="speakers" Text="Speakers"/>
-    <String Name="speakerconnection" Text="Speaker connection"/>
-    <String Name="analog" Text="Analog"/>
-    <String Name="digital" Text="Digital (e.g. Toslink/Coax)"/>
-    <String Name="channels" Text="Channels"/>
-    <String Name="speakers2" Text="2 speakers"/>
-    <String Name="speakers51" Text="5.1 speakers"/>
-    <String Name="speakers71" Text="7.1 speakers"/>
-
-    <String Name="aspect" Text="Aspect Ratio"/>
-    <String Name="aspectnormal" Text="Normal (4:3)"/>
-    <String Name="aspectwide" Text="Wide (16:9)"/>
-
-    <String Name="next" Text="Next"/>
-    <String Name="back" Text="Back"/>
-    <String Name="cancel" Text="Cancel"/>
-    <String Name="finish" Text="Finish"/>
-  </Section>
-  <Section Name="radio">
-    <String Name="name" Text="My Radio"/>
-  </Section>
-  <Section Name="tv">
-    <String Name="name" Text="My Tv"/>
-  </Section>
-  <Section Name="playlists">
-    <String Name="add" Text="Add to playlist"/>
-    <String Name="addall" Text="Add all to playlist"/>
-    <String Name="playlist" Text="Playlist"/>
-    <String Name="play" Text="Play"/>
-    <String Name="clear" Text="Clear"/>
-    <String Name="shuffle" Text="Shuffle"/>
-    <String Name="load" Text="Load"/>
-  </Section>
-  <Section Name="extensions">
-    <String Name="myextensions" Text="My extensions"/>
-    <String Name="updateall" Text="Update all"/>
-    <String Name="settings" Text="Settings"/>
-    <String Name="view" Text="View"/>
-    <String Name="sort" Text="Sort"/>
-    <String Name="views" Text="Library"/>
-    <String Name="install" Text="Install"/>
-    <String Name="uninstall" Text="Uninstall"/>
-    <String Name="downloadinstall" Text="Download &amp; Install"/>
-    <String Name="downloadlist" Text="Refresh list"/>
-    <String Name="cancelinstall" Text="Cancel install"/>
-    <String Name="canceluninstall" Text="Cancel uninstall"/>
-    <String Name="cancelreinstall" Text="Cancel reinstall"/>
-    <String Name="cancelupdate" Text="Cancel update"/>
-    <String Name="name" Text="Name"/>
-    <String Name="downloads" Text="Downloads"/>
-    <String Name="size" Text="Size"/>
-    <String Name="date" Text="Date"/>
-    <String Name="reinstall" Text="Reinstall"/>
-    <String Name="installinfo" Text="This action will be executed in next restart of MediaPortal"/>
-    <String Name="dependecyinfo" Text="This extension depend one ore more extension this will be installed to. Continue ?"/>
-    <String Name="notification" Text="Notification"/>
-    <String Name="dependon" Text="Depend On"/>
-    <String Name="flatview" Text="Flat"/>
-    <String Name="collection" Text="Collection"/>
-    <String Name="update" Text="Update"/>
-  </Section>
-  <Section Name="list">
-    <String Name="small" Text="Small List"/>
-    <String Name="big" Text="Big List"/>
-    <String Name="thumbs" Text="Thumbs"/>
-    <String Name="coverthrow" Text="Coverthrow"/>
-    <String Name="coverflow" Text="Coverflow"/>
-  </Section>
-	<Section Name="autoplay">
-    <String Name="autoplay" Text="AutoPlay"/>
-    <String Name="audio" Text="Audio disc inserted - do you want to open it?"/>
-    <String Name="dvd" Text="DVD inserted - do you want to open it?"/>
-    <String Name="video" Text="Video disc inserted - do you want to open it?"/>
-    <String Name="photo" Text="Photo disc inserted - do you want to open it?"/>
-    <String Name="disc" Text="Disc inserted - do you want to open it?"/>
   </Section>
 </Language>

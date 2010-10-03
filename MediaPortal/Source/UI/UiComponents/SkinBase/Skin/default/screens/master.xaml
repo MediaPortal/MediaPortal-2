@@ -72,8 +72,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Label>
       </StackPanel>
       <StackPanel x:Name="DateTimePanel" Margin="5" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-        <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
-        <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
+        <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
+            HorizontalAlignment="Center"
+            Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
+        <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
+            HorizontalAlignment="Center"
+            Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
       </StackPanel>
     </Grid>
     <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Top" Style="{ThemeResource WorkflowNavigationBarStyle}"/>

@@ -159,7 +159,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public void StartUI()
     {
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
-
       GraphicsDevice.Reset();
       PlayersHelper.ReallocGUIResources();
       StartRenderThread_Async();
@@ -168,7 +167,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected void AdaptToSize()
     {
       StoreClientBounds();
-
       StopUI();
       SkinContext.WindowSize = ClientSize;
       StartUI();
