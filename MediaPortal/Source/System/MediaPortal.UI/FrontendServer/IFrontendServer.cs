@@ -30,6 +30,7 @@ namespace MediaPortal.UI.FrontendServer
   public interface IFrontendServer
   {
     void Startup();
+    void RestartUPnPDevice();
     void Shutdown();
   }
 }

@@ -93,11 +93,13 @@
     <String Name="General.System.Autostart" Text="Autostart"/>
     <String Name="General.System.Autostart.Help" Text="Start MediaPortal automatically on Windows startup"/>
 
-    <String Name="General.Server" Text="Server"/>
-    <String Name="General.Server.HomeServer" Text="Home server"/>
-    <String Name="General.Server.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
-    <String Name="General.Server.ServerListener" Text="Server listener"/>
-    <String Name="General.Server.ServerListener.Help" Text="Enable automatic popup in detached state, when a MediaPortal 2 server becomes available in the network"/>
+    <String Name="General.Connectivity" Text="Connectivity"/>
+    <String Name="General.Connectivity.HomeServer" Text="Home server"/>
+    <String Name="General.Connectivity.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
+    <String Name="General.Connectivity.ServerListener" Text="Server listener"/>
+    <String Name="General.Connectivity.ServerListener.Help" Text="Enable automatic popup in detached state, when a MediaPortal 2 server becomes available in the network"/>
+    <String Name="General.Connectivity.ClientName" Text="Client name"/>
+    <String Name="General.Connectivity.ClientName.Help" Text="Set the name of this MediaPortal 2 client"/>
 
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>

@@ -150,6 +150,12 @@ namespace MediaPortal.UI.Services.FrontendServer
       _upnpServer.Start();
     }
 
+    public void RestartUPnPDevice()
+    {
+      _upnpServer.Stop();
+      _upnpServer.Start();
+    }
+
     public void Shutdown()
     {
       _upnpServer.Stop();

@@ -117,24 +117,29 @@
         Redundant="true"
         Text="[Settings.General.System]"/>
     <ConfigGroup
-        Id="Server"
+        Id="Connectivity"
         Redundant="true"
-        Text="[Settings.General.Server]"/>
+        Text="[Settings.General.Connectivity]"/>
   </Register>
 
-  <!-- Contents of '/General/Server' group -->
-  <Register Location="/Configuration/Settings/General/Server">
+  <!-- Contents of '/General/Connectivity' group -->
+  <Register Location="/Configuration/Settings/General/Connectivity">
     <CustomConfigSetting
         Id="HomeServer"
-        Text="[Settings.General.Server.HomeServer]"
-        HelpText="[Settings.General.Server.HomeServer.Help]"
+        Text="[Settings.General.Connectivity.HomeServer]"
+        HelpText="[Settings.General.Connectivity.HomeServer.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.HomeServerSetting"
         AdditionalData="WorkflowState=17214BAC-E79C-4e5e-9280-A01478B27579,ConfAppPanel=..."/>
     <ConfigSetting
         Id="ServerListener"
-        Text="[Settings.General.Server.ServerListener]"
-        HelpText="[Settings.General.Server.ServerListener.Help]"
+        Text="[Settings.General.Connectivity.ServerListener]"
+        HelpText="[Settings.General.Connectivity.ServerListener.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.ServerListener"/>
+    <ConfigSetting
+        Id="ClientName"
+        Text="[Settings.General.Connectivity.ClientName]"
+        HelpText="[Settings.General.Connectivity.ClientName.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.ClientName"/>
   </Register>
 
   <!-- Contents of '/General/System' group -->
