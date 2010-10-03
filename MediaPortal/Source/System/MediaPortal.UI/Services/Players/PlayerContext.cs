@@ -251,7 +251,7 @@ namespace MediaPortal.UI.Services.Players
       {
         IPlayer player = CurrentPlayer;
         if (player == null)
-          return PlaybackState.Stopped;
+          return PlaybackState.Idle;
         switch (player.State)
         {
           case PlayerState.Active:
@@ -267,7 +267,7 @@ namespace MediaPortal.UI.Services.Players
           case PlayerState.Ended:
             return PlaybackState.Ended;
           case PlayerState.Stopped:
-            return PlaybackState.Stopped;
+            return PlaybackState.Idle;
           default:
             throw new UnexpectedStateException("Handling code for {0}.{1} is not implemented",
                 typeof(PlayerState).Name, player.State);

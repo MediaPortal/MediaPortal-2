@@ -54,7 +54,7 @@ namespace MediaPortal.UI.Presentation.Players
     Paused,
     Seeking,
     Ended,
-    Stopped,
+    Idle,
   }
 
   /// <summary>
