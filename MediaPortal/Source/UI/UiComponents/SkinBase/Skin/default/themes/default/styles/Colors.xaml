@@ -272,4 +272,15 @@
   <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="Yellow"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient1Color" Resource="#48F2F2F2"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
+
+
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance1" Resource="#F2336F32"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance1Transparent" Resource="#7F336F32"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance2" Resource="#FF559A54"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance3" Resource="#F272A871"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance4" Resource="#F292CD91"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance5" Resource="#F2DEF8DE"/>
+
+  <ResourceWrapper x:Key="BusyCursorColor2Nuance1" Resource="#F2D1D6E4"/>
+  <ResourceWrapper x:Key="BusyCursorColor2Nuance1Transparent" Resource="#7FD2D7E6"/>
 </ResourceDictionary>
