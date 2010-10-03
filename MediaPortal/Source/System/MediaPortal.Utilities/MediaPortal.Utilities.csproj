@@ -87,6 +87,9 @@
     <Compile Include="Localization\StringsFile\StringLocalized.cs" />
     <Compile Include="Localization\StringsFile\StringSection.cs" />
     <Compile Include="Network\NetworkUtils.cs" />
+    <Compile Include="Screens\SplashScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="SystemAPI\MimeTypeDetector.cs" />
     <Compile Include="ObjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
