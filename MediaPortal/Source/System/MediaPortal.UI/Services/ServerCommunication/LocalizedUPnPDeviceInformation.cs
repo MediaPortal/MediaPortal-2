@@ -42,6 +42,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public const string RES_MODEL_NAME ="[UPnPFrontendServer.ModelName]";
     public const string RES_MODEL_NUMBER ="[UPnPFrontendServer.ModelNumber]";
     public const string RES_MODEL_URL ="[UPnPFrontendServer.ModelUrl]";
+
+    protected static readonly ICollection<IconDescriptor> EMPTY_ICON_COLLECTION = new List<IconDescriptor>();
     
     public string GetFriendlyName(CultureInfo culture)
     {
@@ -100,7 +102,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public ICollection<IconDescriptor> GetIcons(CultureInfo culture)
     {
-      return new List<IconDescriptor>();
+      return EMPTY_ICON_COLLECTION;
     }
   }
 }
