@@ -37,7 +37,7 @@ namespace MediaPortal.Core.Services.Logging
   /// </summary>
   public class DefaultLogger : ILogger
   {
-    protected LogLevel _level; // Treshold for the log level
+    protected LogLevel _level; // Threshold for the log level
     protected TextWriter _writer; // The writer to write the messages to
     protected static readonly object _syncObject = new object();
     protected bool _logMethodNames = false;
@@ -67,96 +67,6 @@ namespace MediaPortal.Core.Services.Logging
       _logMethodNames = logMethodNames;
       _alwaysFlush = alwaysFlush;
     }
-
-    #region ILogger implementation
-
-    public bool LogMethodNames
-    {
-      get { return _logMethodNames; }
-      set { _logMethodNames = value; }
-    }
-
-    public LogLevel Level
-    {
-      get { return _level; }
-      set { _level = value; }
-    }
-
-    public void Debug(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Debug);
-    }
-
-    public void Debug(string format, Exception ex, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Debug);
-      WriteException(ex, LogLevel.Debug);
-    }
-
-    public void Info(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Information);
-    }
-
-    public void Info(string format, Exception ex, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Information);
-      WriteException(ex, LogLevel.Information);
-    }
-
-    public void Warn(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Warning);
-    }
-
-    public void Warn(string format, Exception ex, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Warning);
-      WriteException(ex, LogLevel.Warning);
-    }
-
-    public void Error(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Error);
-    }
-
-    public void Error(string format, Exception ex, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Error);
-      WriteException(ex, LogLevel.Error);
-    }
-
-    public void Error(Exception ex)
-    {
-      WriteException(ex, LogLevel.Error);
-    }
-
-    public void Critical(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Critical);
-      // Force a flush, otherwise the exception will not get logged 
-      // if the next thing we do is terminate MP.
-      Flush();
-    }
-
-    public void Critical(string format, Exception ex, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Critical);
-      WriteException(ex, LogLevel.Critical);
-      // Force a flush, otherwise the exception will not get logged 
-      // if the next thing we do is terminate MP.
-      Flush();
-    }
-
-    public void Critical(Exception ex)
-    {
-      WriteException(ex, LogLevel.Error);
-      // Force a flush, otherwise the exception will not get logged 
-      // if the next thing we do is terminate MP.
-      Flush();
-    }
-
-    #endregion
 
     /// <summary>
     /// Formats the specified <paramref name="message"/> to be written for the specified
@@ -256,9 +166,7 @@ namespace MediaPortal.Core.Services.Logging
       }
       Write(exception.Message);
       if (exception.InnerException != null)
-      {
         WriteInnerException(exception.InnerException);
-      }
     }
 
     /// <summary>
@@ -283,5 +191,95 @@ namespace MediaPortal.Core.Services.Logging
       lock (_syncObject)
         _writer.Flush();
     }
+
+    #region ILogger implementation
+
+    public bool LogMethodNames
+    {
+      get { return _logMethodNames; }
+      set { _logMethodNames = value; }
+    }
+
+    public LogLevel Level
+    {
+      get { return _level; }
+      set { _level = value; }
+    }
+
+    public void Debug(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Debug);
+    }
+
+    public void Debug(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Debug);
+      WriteException(ex, LogLevel.Debug);
+    }
+
+    public void Info(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Information);
+    }
+
+    public void Info(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Information);
+      WriteException(ex, LogLevel.Information);
+    }
+
+    public void Warn(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Warning);
+    }
+
+    public void Warn(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Warning);
+      WriteException(ex, LogLevel.Warning);
+    }
+
+    public void Error(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Error);
+    }
+
+    public void Error(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Error);
+      WriteException(ex, LogLevel.Error);
+    }
+
+    public void Error(Exception ex)
+    {
+      WriteException(ex, LogLevel.Error);
+    }
+
+    public void Critical(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Critical);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Flush();
+    }
+
+    public void Critical(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Critical);
+      WriteException(ex, LogLevel.Critical);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Flush();
+    }
+
+    public void Critical(Exception ex)
+    {
+      WriteException(ex, LogLevel.Error);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Flush();
+    }
+
+    #endregion
   }
 }
