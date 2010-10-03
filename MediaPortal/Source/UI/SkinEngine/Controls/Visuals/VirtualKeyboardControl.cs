@@ -316,8 +316,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Show(AbstractProperty textProperty, VirtualKeyboardSettings settings)
     {
       InitializeStates();
-      _settings = settings;
-      _textProperty = textProperty;
+      lock (_renderLock)
+      {
+        _settings = settings;
+        _textProperty = textProperty;
+      }
       if (_updateKeyboardControl)
       {
         _updateKeyboardControl = false;
@@ -407,6 +410,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
+      lock (_renderLock)
+        if (_settings == null)
+          return;
       RectangleF? elementArrangeBounds = _settings.ElementArrangeBounds;
       SizeF keyboardSize = templateControl.DesiredSize;
       RectangleF actualBounds = ActualBounds;
