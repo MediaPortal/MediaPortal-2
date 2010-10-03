@@ -5,6 +5,7 @@
     >
   <ResourceWrapper x:Key="HeaderFontSize" Resource="54"/>
   <ResourceWrapper x:Key="HeaderFontFamily" Resource="RitzyNormal"/>
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="20"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="20"/>

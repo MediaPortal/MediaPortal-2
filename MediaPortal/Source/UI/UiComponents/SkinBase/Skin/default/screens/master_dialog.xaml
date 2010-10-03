@@ -58,7 +58,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="30" Margin="20,0,10,0"
+        <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
             Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
             VerticalAlignment="Center" HorizontalAlignment="Left"/>
         <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"

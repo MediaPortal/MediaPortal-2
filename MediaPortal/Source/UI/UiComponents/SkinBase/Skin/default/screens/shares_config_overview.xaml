@@ -32,7 +32,7 @@
             ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
         <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
             Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
-            Color="{ThemeResource HintTextColor}" FontSize="20"/>
+            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         <Label Margin="10,30,10,10" Grid.Row="2" Content="[SharesConfig.LocalShares]"/>
         <ListView Margin="10" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Top"
             Style="{ThemeResource SharesListViewStyle}"
@@ -40,7 +40,7 @@
             ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
         <Label Margin="10" Grid.Row="3" IsVisible="{Binding !ShowLocalShares}"
             Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
-            Color="{ThemeResource HintTextColor}" FontSize="20"/>
+            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ResourceWrapper>
 
