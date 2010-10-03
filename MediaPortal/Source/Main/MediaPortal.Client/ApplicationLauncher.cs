@@ -23,6 +23,9 @@
 #endregion
 
 using System;
+using System.Drawing;
+using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
@@ -42,6 +45,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Services.Runtime;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.Screens;
 
 [assembly: CLSCompliant(true)]
 
@@ -49,12 +53,27 @@ namespace MediaPortal.Client
 {
   internal static class ApplicationLauncher
   {
+    private static SplashScreen CreateSplashScreen()
+    {
+      SplashScreen result = SplashScreen.Current;
+
+      result.FadeInDuration = TimeSpan.FromMilliseconds(300);
+      result.FadeOutDuration = TimeSpan.FromMilliseconds(200);
+      result.SplashBackgroundImage = Image.FromFile(Path.Combine(
+          Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]),
+          "MP2 Client Splashscreen.jpg"));
+      return result;
+    }
+
     /// <summary>
     /// The main entry point for the MP 2 client application.
     /// </summary>
     private static void Main(params string[] args)
     {
-      System.Threading.Thread.CurrentThread.Name = "Main Thread";
+      Thread.CurrentThread.Name = "Main Thread";
+
+      SplashScreen splashScreen = CreateSplashScreen();
+      splashScreen.ShowSplashScreen();
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
@@ -123,14 +142,18 @@ namespace MediaPortal.Client
           // We have to handle some dependencies here in the start order:
           // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
           // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
-          // 3) After the workflow states and actions are loaded, the main window can be shown
-          // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
+          // 3) Before the main window is shown, the splash screen should be hidden
+          // 4) After the workflow states and actions are loaded, the main window can be shown
+          // 5) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
           mediaAccessor.Initialize(); // Independent from other services
           localSharesManagement.Initialize(); // After media accessor was initialized
           skinEngine.Initialize(); // 1)
           workflowManager.Initialize(); // 2)
-          skinEngine.Startup(); // 3)
-          UiExtension.Startup();
+
+          splashScreen.CloseSplashScreen(); // 3)
+
+          skinEngine.Startup(); // 4)
+          UiExtension.Startup(); // 5)
 
           ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 

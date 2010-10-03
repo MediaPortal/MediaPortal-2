@@ -128,7 +128,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)MP2 Client Splashscreen.jpg"  "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
+
+"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
 </PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
