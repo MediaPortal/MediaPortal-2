@@ -1332,7 +1332,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             AdditionalContextVariables = new Dictionary<string, object>
               {
                   {KEY_PLAYER_SLOT, SlotIndex},
-                  {KEY_SHOW_MUTE, !IsAudio}
+                  {KEY_SHOW_MUTE, IsAudio}
               }
           });
       }
