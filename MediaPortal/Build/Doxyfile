@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = MediaPortal-II
+PROJECT_NAME           = MediaPortal 2
 PROJECT_NUMBER         = 
 OUTPUT_DIRECTORY       = ../Bin/Doxygen
 CREATE_SUBDIRS         = YES
