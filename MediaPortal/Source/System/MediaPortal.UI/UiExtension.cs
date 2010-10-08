@@ -84,7 +84,7 @@ namespace MediaPortal.UI
       AdditionalUiBuilders.Register();
     }
 
-    public static void StopAll()
+    public static void StopUiServices()
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       serverConnectionManager.Shutdown();
