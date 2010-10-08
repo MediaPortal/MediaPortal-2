@@ -28,7 +28,7 @@ using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
-  public class RemoteFileResourceAccessor : RemoteResourceAccessorBase, IResourceAccessor
+  public class RemoteFileResourceAccessor : RemoteResourceAccessorBase
   {
     protected DateTime _lastChanged;
     protected long _size;
