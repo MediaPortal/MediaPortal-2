@@ -70,8 +70,8 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     {
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
       _rootDirectoryName = Guid.NewGuid().ToString();
-      resourceMountingService.CreateRootDirectory(_rootDirectoryName);
-      _mountPath = resourceMountingService.AddResource(_rootDirectoryName, _baseAccessor);
+      _mountPath = resourceMountingService.CreateRootDirectory(_rootDirectoryName) == null ?
+          null : resourceMountingService.AddResource(_rootDirectoryName, _baseAccessor);
     }
 
     protected void UnmountResource()
@@ -174,6 +174,8 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     {
       get
       {
+        if (_mountPath == null)
+          return null;
         PrepareStreamAccess();
         return _mountPath;
       }

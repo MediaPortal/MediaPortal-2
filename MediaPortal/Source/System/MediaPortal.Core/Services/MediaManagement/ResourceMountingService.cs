@@ -274,7 +274,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected char _driveLetter;
+    protected char? _driveLetter;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
     public ResourceMountingService()
@@ -282,10 +282,37 @@ namespace MediaPortal.Core.Services.MediaManagement
       _driveLetter = ReadDriveLetterFromSettings();
     }
 
+    protected bool DriveInUse(char driveLetter)
+    {
+      return Directory.Exists(driveLetter + ":\\");
+    }
+
     protected void Run()
     {
-      DokanOptions opt = new DokanOptions {DriveLetter = _driveLetter, VolumeLabel = VOLUME_LABEL};
-      DokanNet.DokanMain(opt, this);
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      char? driveLetter;
+      lock (_syncObj)
+        driveLetter = _driveLetter;
+      if (driveLetter.HasValue)
+      {
+        // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
+        DokanNet.DokanUnmount(driveLetter.Value);
+        if (DriveInUse(driveLetter.Value))
+        {
+          logger.Warn(
+              "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
+              driveLetter.Value);
+          lock (_syncObj)
+            _driveLetter = null;
+          return;
+        }
+        DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
+        int result = DokanNet.DokanMain(opt, this);
+        if (result == DokanNet.DOKAN_SUCCESS)
+          logger.Warn("ResourceMountingService: DokanMain returned successfully");
+        else
+          logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
+      }
     }
 
     protected VirtualFileSystemResource ParseFileName(string fileName)
@@ -327,9 +354,13 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #region IResourceMountingService implementation
 
-    public char DriveLetter
+    public char? DriveLetter
     {
-      get { return _driveLetter; }
+      get
+      {
+        lock (_syncObj)
+          return _driveLetter;
+      }
     }
 
     public ICollection<string> RootDirectories
@@ -353,21 +384,27 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void Shutdown()
     {
+      char? driveLetter;
       lock (_syncObj)
       {
         _root.Dispose();
         if (!_started)
           return;
+        driveLetter = _driveLetter;
       }
-      DokanNet.DokanUnmount(DriveLetter);
+      if (driveLetter.HasValue)
+        DokanNet.DokanUnmount(driveLetter.Value);
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
     {
       lock (_syncObj)
+      {
+        if (!_driveLetter.HasValue)
+          return null;
         _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
-      
-      return _driveLetter + ":\\" + rootDirectoryName;
+        return _driveLetter.Value + ":\\" + rootDirectoryName;
+      }
     }
 
     public void DisposeRootDirectory(string rootDirectoryName)
@@ -400,6 +437,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
+        if (!_driveLetter.HasValue)
+          return null;
         VirtualRootDirectory rootDirectory = GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return null;

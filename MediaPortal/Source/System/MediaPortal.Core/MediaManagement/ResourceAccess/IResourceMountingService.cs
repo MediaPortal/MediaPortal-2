@@ -33,9 +33,10 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
   public interface IResourceMountingService
   {
     /// <summary>
-    /// Gets the drive letter where remote resources are mounted.
+    /// Gets the drive letter where remote resources are mounted or <c>null</c> if the resource mounting service was not started
+    /// or if it had a problem mounting its configuread drive.
     /// </summary>
-    char DriveLetter { get; }
+    char? DriveLetter { get; }
 
     /// <summary>
     /// Gets all configured virtual root directories.
@@ -56,7 +57,8 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// Creates a new virtual root directory in the drive given by <see cref="DriveLetter"/>.
     /// </summary>
     /// <param name="rootDirectoryName">Name of the new root directory.</param>
-    /// <returns>Local filesystem path for the new root directory.</returns>
+    /// <returns>Local filesystem path for the new root directory or <c>null</c> if the resource mounting service
+    /// cannot mount resources.</returns>
     string CreateRootDirectory(string rootDirectoryName);
 
     /// <summary>
