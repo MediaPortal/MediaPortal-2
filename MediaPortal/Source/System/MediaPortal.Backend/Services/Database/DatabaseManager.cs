@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Backend.Database;
@@ -63,10 +64,11 @@ namespace MediaPortal.Backend.Services.Database
       if (database == null)
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
-      if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
+      if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME))
       {
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
-        database.ExecuteBatch(new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath), true);
+        using (TextReader reader = new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath))
+          ExecuteBatch(database, new InstructionList(reader));
       }
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
       int versionMajor;
@@ -84,18 +86,13 @@ namespace MediaPortal.Backend.Services.Database
       try
       {
         int nameIndex;
-        IDbCommand command = MediaPortal_Basis_Schema.SelectAllSubSchemaNames(transaction, out nameIndex);
-        IDataReader reader = command.ExecuteReader();
-        try
+        using (IDbCommand command = MediaPortal_Basis_Schema.SelectAllSubSchemaNames(transaction, out nameIndex))
+        using (IDataReader reader = command.ExecuteReader())
         {
           ICollection<string> result = new List<string>();
           while (reader.Read())
             result.Add(DBUtils.ReadDBValue<string>(reader, nameIndex));
           return result;
-        }
-        finally
-        {
-          reader.Close();
         }
       }
       finally
@@ -114,10 +111,9 @@ namespace MediaPortal.Backend.Services.Database
       {
         int versionMajorParameterIndex;
         int versionMinorParameterIndex;
-        IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName,
-            out versionMajorParameterIndex, out versionMinorParameterIndex);
-        IDataReader reader = command.ExecuteReader();
-        try
+        using (IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName,
+            out versionMajorParameterIndex, out versionMinorParameterIndex))
+        using (IDataReader reader = command.ExecuteReader())
         {
           if (reader.Read())
           {
@@ -127,10 +123,6 @@ namespace MediaPortal.Backend.Services.Database
             return true;
           }
           return false;
-        }
-        finally
-        {
-          reader.Close();
         }
       }
       finally
@@ -152,7 +144,8 @@ namespace MediaPortal.Backend.Services.Database
         {
           ServiceRegistration.Get<ILogger>().Debug("DatabaseManager: Updating subschema '{0}' from version {1}.{2} to version {3}.{4}...",
               subSchemaName, versionMajor, versionMinor, newVersionMajor, newVersionMinor);
-          database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
+          using (TextReader reader = new SqlScriptPreprocessor(updateScriptFilePath))
+            ExecuteBatch(database, new InstructionList(reader));
         }
         else
           throw new ArgumentException(string.Format(
@@ -163,7 +156,8 @@ namespace MediaPortal.Backend.Services.Database
         {
           ServiceRegistration.Get<ILogger>().Debug("DatabaseManager: Creating subschema '{0}' version {1}.{2}...",
               subSchemaName, newVersionMajor, newVersionMinor);
-          database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
+          using (TextReader reader = new SqlScriptPreprocessor(updateScriptFilePath))
+            ExecuteBatch(database, new InstructionList(reader));
         }
         else
           throw new ArgumentException(string.Format(
@@ -179,7 +173,14 @@ namespace MediaPortal.Backend.Services.Database
         else
           command = MediaPortal_Basis_Schema.InsertSubSchemaCommand(
               transaction, subSchemaName, newVersionMajor, newVersionMinor);
-        command.ExecuteNonQuery();
+        try
+        {
+          command.ExecuteNonQuery();
+        }
+        finally
+        {
+          command.Dispose();
+        }
         transaction.Commit();
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}", subSchemaName,
             newVersionMajor, newVersionMinor);
@@ -202,20 +203,32 @@ namespace MediaPortal.Backend.Services.Database
       if (!schemaPresent)
         return;
       if (currentVersionMajor == versionMajor && currentVersionMinor == versionMinor)
-        database.ExecuteBatch(new SqlScriptPreprocessor(deleteScriptFilePath), true);
+        using (TextReader reader = new SqlScriptPreprocessor(deleteScriptFilePath))
+          ExecuteBatch(database, new InstructionList(reader));
       else
         throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema deletion script works for version {3}.{4}",
             subSchemaName, versionMajor, versionMinor, currentVersionMajor, currentVersionMajor));
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = MediaPortal_Basis_Schema.DeleteSubSchemaCommand(transaction, subSchemaName);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = MediaPortal_Basis_Schema.DeleteSubSchemaCommand(transaction, subSchemaName))
+          command.ExecuteNonQuery();
       }
       finally
       {
         transaction.Dispose();
       }
+    }
+
+    public void ExecuteBatch(ISQLDatabase database, InstructionList instructions)
+    {
+      using (ITransaction transaction = database.BeginTransaction())
+        foreach (string instr in instructions)
+          using (IDbCommand cmd = transaction.CreateCommand())
+          {
+            cmd.CommandText = instr;
+            cmd.ExecuteNonQuery();
+          }
     }
 
     #endregion

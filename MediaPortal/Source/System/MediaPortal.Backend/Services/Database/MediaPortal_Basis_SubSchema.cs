@@ -63,8 +63,8 @@ namespace MediaPortal.Backend.Services.Database
       out int versionMajorParameterIndex, out int versionMinorParameterIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT VERSION_MAJOR, VERSION_MINOR FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME=?";
-      DBUtils.AddParameter(result, subSchemaName);
+      result.CommandText = "SELECT VERSION_MAJOR, VERSION_MINOR FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME = @SUBSCHEMA_NAME";
+      DBUtils.AddParameter(result, "SUBSCHEMA_NAME", subSchemaName, DBUtils.GetDBType(typeof(string)));
       versionMajorParameterIndex = 0;
       versionMinorParameterIndex = 1;
       return result;
@@ -74,10 +74,10 @@ namespace MediaPortal.Backend.Services.Database
         int versionMajor, int versionMinor)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "UPDATE MEDIAPORTAL_BASIS SET VERSION_MAJOR=?, VERSION_MINOR=? WHERE SUBSCHEMA_NAME=?";
-      DBUtils.AddParameter(result, versionMajor);
-      DBUtils.AddParameter(result, versionMinor);
-      DBUtils.AddParameter(result, subSchemaName);
+      result.CommandText = "UPDATE MEDIAPORTAL_BASIS SET VERSION_MAJOR=@VERSION_MAJOR, VERSION_MINOR=@VERSION_MINOR WHERE SUBSCHEMA_NAME=@SUBSCHEMA_NAME";
+      DBUtils.AddParameter(result, "VERSION_MAJOR", versionMajor, DBUtils.GetDBType(typeof(int)));
+      DBUtils.AddParameter(result, "VERSION_MINOR", versionMinor, DBUtils.GetDBType(typeof(int)));
+      DBUtils.AddParameter(result, "SUBSCHEMA_NAME", subSchemaName, DBUtils.GetDBType(typeof(int)));
       return result;
     }
 
@@ -85,18 +85,18 @@ namespace MediaPortal.Backend.Services.Database
         int versionMajor, int versionMinor)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO MEDIAPORTAL_BASIS (SUBSCHEMA_NAME, VERSION_MAJOR, VERSION_MINOR) VALUES (?, ?, ?)";
-      DBUtils.AddParameter(result, subSchemaName);
-      DBUtils.AddParameter(result, versionMajor);
-      DBUtils.AddParameter(result, versionMinor);
+      result.CommandText = "INSERT INTO MEDIAPORTAL_BASIS (SUBSCHEMA_NAME, VERSION_MAJOR, VERSION_MINOR) VALUES (@SUBSCHEMA_NAME, @VERSION_MAJOR, @VERSION_MINOR)";
+      DBUtils.AddParameter(result, "SUBSCHEMA_NAME", subSchemaName, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "VERSION_MAJOR", versionMajor, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "VERSION_MINOR", versionMinor, DBUtils.GetDBType(typeof(string)));
       return result;
     }
 
     public static IDbCommand DeleteSubSchemaCommand(ITransaction transaction, string subSchemaName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME=?";
-      DBUtils.AddParameter(result, subSchemaName);
+      result.CommandText = "DELETE FROM MEDIAPORTAL_BASIS WHERE SUBSCHEMA_NAME=@SUBSCHEMA_NAME";
+      DBUtils.AddParameter(result, "SUBSCHEMA_NAME", subSchemaName, DBUtils.GetDBType(typeof(string)));
       return result;
     }
   }

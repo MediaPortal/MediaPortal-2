@@ -74,6 +74,7 @@
     <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
     <Compile Include="DB\DBUtils.cs" />
+    <Compile Include="DB\InstructionList.cs" />
     <Compile Include="DB\SQLUtils.cs" />
     <Compile Include="DeepCopy\CopyManager.cs" />
     <Compile Include="DeepCopy\ICopyManager.cs" />

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Backend.Database
 {
@@ -110,5 +111,12 @@ namespace MediaPortal.Backend.Database
     /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
     /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
     void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath);
+
+    /// <summary>
+    /// Executes an SQL script provided by the given <paramref name="instructions"/>.
+    /// </summary>
+    /// <param name="database">Database to execute the batch.</param>
+    /// <param name="instructions">Instructions to execute in batch mode.</param>
+    void ExecuteBatch(ISQLDatabase database, InstructionList instructions);
   }
 }

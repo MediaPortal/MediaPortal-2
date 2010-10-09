@@ -120,11 +120,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         int systemIdIndex;
         int lastHostNameIndex;
         int lastClientNameIndex;
-        IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out systemIdIndex,
-            out lastHostNameIndex, out lastClientNameIndex);
-        IDataReader reader = command.ExecuteReader();
         IDictionary<string, AttachedClientData> result = new Dictionary<string, AttachedClientData>();
-        try
+        using (IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out systemIdIndex,
+            out lastHostNameIndex, out lastClientNameIndex))
+        using (IDataReader reader = command.ExecuteReader())
         {
           while (reader.Read())
           {
@@ -134,10 +133,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             string lastClientName = DBUtils.ReadDBValue<string>(reader, lastClientNameIndex);
             result.Add(clientSystemId, new AttachedClientData(clientSystemId, lastHostName, lastClientName));
           }
-        }
-        finally
-        {
-          reader.Close();
         }
         return result;
       }
@@ -154,8 +149,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, system, clientName);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, system, clientName))
+          command.ExecuteNonQuery();
         transaction.Commit();
       }
       catch (Exception e)
@@ -207,8 +202,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null, null);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null, null))
+          command.ExecuteNonQuery();
         transaction.Commit();
       }
       catch (Exception e)
@@ -230,8 +225,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = ClientManager_SubSchema.DeleteAttachedClientCommand(transaction, clientSystemId))
+          command.ExecuteNonQuery();
 
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
         mediaLibrary.DeleteMediaItemOrPath(clientSystemId, null);

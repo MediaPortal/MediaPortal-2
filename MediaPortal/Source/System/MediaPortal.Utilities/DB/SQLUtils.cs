@@ -93,8 +93,8 @@ namespace MediaPortal.Utilities.DB
     /// <summary>
     /// Formats a SQL command for debug output.
     /// </summary>
-    /// <param name="sqlCommand">SQL command</param>
-    /// <returns>Formatted text</returns>
+    /// <param name="sqlCommand">SQL command.</param>
+    /// <returns>Formatted command text.</returns>
     public static string FormatSQL(String sqlCommand)
     {
       String formattedSQL = sqlCommand;

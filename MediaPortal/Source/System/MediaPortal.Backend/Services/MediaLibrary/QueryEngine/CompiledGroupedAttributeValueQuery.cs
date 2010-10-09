@@ -100,47 +100,43 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          string valueAlias;
+          string groupSizeAlias;
+          string statementStr;
+          IList<BindVar> bindVars;
+          if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
+          {
+            QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
+            MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIATypes,
+                new QueryAttribute[] {selectAttributeQA}, _filter, null);
+            IDictionary<QueryAttribute, string> qa2a;
+            builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out bindVars);
+            valueAlias = qa2a[selectAttributeQA];
+          }
+          else
+          {
+            ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
+                _necessaryRequestedMIATypes, _filter);
+            builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
+                out statementStr, out bindVars);
+          }
+          command.CommandText = statementStr;
+          foreach (BindVar bindVar in bindVars)
+            DBUtils.AddParameter(command, bindVar.Name, bindVar.Value, DBUtils.GetDBType(bindVar.VariableType));
 
-        string valueAlias;
-        string groupSizeAlias;
-        string statementStr;
-        IList<object> values;
-        if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
-        {
-          QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIATypes,
-              new QueryAttribute[] {selectAttributeQA}, _filter, null);
-          IDictionary<QueryAttribute, string> qa2a;
-          builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out values);
-          valueAlias = qa2a[selectAttributeQA];
+          HomogenousMap result = new HomogenousMap(_selectAttribute.AttributeType, typeof(int));
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            int valueCol = reader.GetOrdinal(valueAlias);
+            int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
+            while (reader.Read())
+              result.Add(DBUtils.ReadDBObject(reader, valueCol),
+                  (int) DBUtils.ReadDBObject(reader, groupSizeCol));
+          }
+          return result;
         }
-        else
-        {
-          ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
-              _necessaryRequestedMIATypes, _filter);
-          builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
-              out statementStr, out values);
-        }
-        command.CommandText = statementStr;
-        foreach (object value in values)
-          DBUtils.AddParameter(command, value);
-
-        IDataReader reader = command.ExecuteReader();
-        HomogenousMap result = new HomogenousMap(_selectAttribute.AttributeType, typeof(int));
-        try
-        {
-          int valueCol = reader.GetOrdinal(valueAlias);
-          int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
-          while (reader.Read())
-            result.Add(DBUtils.ReadDBObject(reader, valueCol),
-                (int) DBUtils.ReadDBObject(reader, groupSizeCol));
-        }
-        finally
-        {
-          reader.Close();
-        }
-        return result;
       }
       finally
       {

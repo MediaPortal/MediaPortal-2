@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FirebirdDatabase"
+    PluginId="{2A8624CA-6E65-414f-A0DB-22FB62A36DC7}"
+    Author="offbyone"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to an SQL Compact Edition database"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="SQLCEDatabase.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="SQLCEDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.SQLCE.SQLCEDatabase"/>
+  </Register>
+</Plugin>

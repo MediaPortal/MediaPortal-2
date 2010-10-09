@@ -48,15 +48,15 @@ namespace MediaPortal.Backend.Services.Database
   /// <item><term>%SMALLINT%</term><description>SByte, Byte, Int16</description></item>
   /// <item><term>%INTEGER%</term><description>UInt16, Int32</description></item>
   /// <item><term>%BIGINT%</term><description>UInt32, Int64</description></item>
+  /// <item><term>%GUID%</term><description>Guid</description></item>
   /// <item><term>%STRING([N])%</term><description>string with maximum length of N unicode characters</description></item>
   /// <item><term>%STRING_FIXED([N])%</term><description>string with a fixed length of N characters</description></item>
   /// </list>
   /// There are also general placeholders:
   /// <list type="table">
   /// <listheader><term>Placeholder</term><description>Replacement</description></listheader>  
-  /// <item><term>%CREATE_SEQUENCE([Name])%</term><description>Command creating a sequence.</description></item>
-  /// <item><term>%SELECT_SEQUENCE_NEXTVAL([Name])%</term><description>Pseudo select attribute selecting the next value from the sequence.</description></item>
-  /// <item><term>%SELECT_SEQUENCE_CURRVAL([Name])%</term><description>Pseudo select attribute selecting the current value from the sequence.</description></item>
+  /// <item><term>%CREATE_NEW_GUID%</term><description>Pseudo constant attribute which will be replaced by a new GUID in the form <c>"920F3A24-292E-48ae-AAC3-C66E35AFA22A"</c>.</description></item>
+  /// <item><term>%GET_LAST_GUID%</term><description>Pseudo constant attribute which will be replaced by the last generated GUID constant.</description></item>
   /// </list>
   /// </remarks>
   public class SqlScriptPreprocessor : StringReader
@@ -96,7 +96,8 @@ namespace MediaPortal.Backend.Services.Database
           Replace("%DOUBLE%", GetType(typeof(Double), database)).
           Replace("%SMALLINT%", GetType(typeof(Int16), database)).
           Replace("%INTEGER%", GetType(typeof(Int32), database)).
-          Replace("%BIGINT%", GetType(typeof(Int64), database));
+          Replace("%BIGINT%", GetType(typeof(Int64), database)).
+          Replace("%GUID%", GetType(typeof(Guid), database));
 
       // For extended replacements: First collect all patterns to be replaced...
       IDictionary<string, string> replacements = new Dictionary<string, string>();
@@ -129,42 +130,16 @@ namespace MediaPortal.Backend.Services.Database
         match = match.NextMatch();
       }
 
-      // %CREATE_SEQUENCE([NAME])%
-      match = new Regex(@"%CREATE_SEQUENCE\(((\w|_)*)\)%").Match(interimStr);
+      // %CREATE_NEW_GUID% / %GET_LAST_GUID%
+      string lastGuid = null;
+      match = new Regex(@"(%CREATE_NEW_GUID%)|(%GET_LAST_GUID%)").Match(interimStr);
       while (match.Success)
       {
-        string pattern = match.Value;
-        if (!replacements.ContainsKey(pattern))
-        {
-          string sequenceName = match.Groups[1].Value;
-          replacements.Add(pattern, database.GetCreateSequenceCommand(sequenceName));
-        }
-        match = match.NextMatch();
-      }
-
-      // %SELECT_SEQUENCE_NEXTVAL([NAME])%
-      match = new Regex(@"%CREATE_SEQUENCE_NEXTVAL\(((\w|_)*)\)%").Match(interimStr);
-      while (match.Success)
-      {
-        string pattern = match.Value;
-        if (!replacements.ContainsKey(pattern))
-        {
-          string sequenceName = match.Groups[1].Value;
-          replacements.Add(pattern, database.GetSelectSequenceNextValStatement(sequenceName));
-        }
-        match = match.NextMatch();
-      }
-
-      // %SELECT_SEQUENCE_CURRVAL([NAME])%
-      match = new Regex(@"%SELECT_SEQUENCE_CURRVAL\(((\w|_)*)\)%").Match(interimStr);
-      while (match.Success)
-      {
-        string pattern = match.Value;
-        if (!replacements.ContainsKey(pattern))
-        {
-          string sequenceName = match.Groups[1].Value;
-          replacements.Add(pattern, database.GetSelectSequenceCurrValStatement(sequenceName));
-        }
+        Group g;
+        if ((g = match.Groups[1]).Success) // %CREATE_NEW_GUID% matched
+          result.Replace("%CREATE_NEW_GUID%", lastGuid = Guid.NewGuid().ToString("B"), g.Index, g.Length);
+        else if ((g = match.Groups[2]).Success) // %GET_LAST_GUID% matched
+          result.Replace("%GET_LAST_GUID%", lastGuid, g.Index, g.Length);
         match = match.NextMatch();
       }
 

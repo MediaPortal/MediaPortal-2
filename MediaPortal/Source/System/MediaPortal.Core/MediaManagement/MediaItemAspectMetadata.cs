@@ -103,6 +103,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <item><see cref="Double"/></item>
     /// <item><see cref="Int32"/></item>
     /// <item><see cref="Int64"/></item>
+    /// <item><see cref="Guid"/></item>
     /// </list>
     /// </remarks>
     public static readonly ICollection<Type> SUPPORTED_BASIC_TYPES = new List<Type>
@@ -113,7 +114,8 @@ namespace MediaPortal.Core.MediaManagement
           typeof(Single),
           typeof(Double),
           typeof(Int32),
-          typeof(Int64)
+          typeof(Int64),
+          typeof(Guid)
         };
 
     #endregion

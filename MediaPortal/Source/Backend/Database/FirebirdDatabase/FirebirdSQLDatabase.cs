@@ -27,7 +27,6 @@ using System.Data;
 using System.IO;
 using System.Reflection;
 using FirebirdSql.Data.FirebirdClient;
-using FirebirdSql.Data.Isql;
 using MediaPortal.Backend.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -114,9 +113,11 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       ITransaction transaction = BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
-        command.CommandText = "CREATE DOMAIN BOOLEAN AS SMALLINT DEFAULT '0' NOT NULL CHECK (value in (0,1))";
-        command.ExecuteNonQuery();
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          command.CommandText = "CREATE DOMAIN BOOLEAN AS SMALLINT DEFAULT '0' NOT NULL CHECK (value in (0,1))";
+          command.ExecuteNonQuery();
+        }
         transaction.Commit(); // Seems as if the driver doesn't execute the CREATE DOMAIN statement if we don't commit...
       }
       catch (Exception e)
@@ -187,6 +188,8 @@ namespace MediaPortal.BackendComponents.Database.Firebird
         return "INTEGER";
       if (dotNetType == typeof(UInt32) || dotNetType == typeof(Int64))
         return "BIGINT";
+      if (dotNetType == typeof(Guid))
+        return "CHAR(38)";
       return null;
     }
 
@@ -209,26 +212,6 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
-    public string GetCreateSequenceCommand(string sequenceName)
-    {
-      return "CREATE SEQUENCE " + sequenceName;
-    }
-
-    public string GetDropSequenceCommand(string sequenceName)
-    {
-      return "DROP SEQUENCE " + sequenceName;
-    }
-
-    public string GetSelectSequenceNextValStatement(string sequenceName)
-    {
-      return "(SELECT NEXT VALUE FOR " + sequenceName + " FROM RDB$DATABASE)";
-    }
-
-    public string GetSelectSequenceCurrValStatement(string sequenceName)
-    {
-      return "SELECT GEN_ID(" + sequenceName + ", 0) FROM RDB$DATABASE";
-    }
-
     public ITransaction BeginTransaction(IsolationLevel level)
     {
       return FirebirdTransaction.BeginTransaction(this, _connectionString, level);
@@ -239,30 +222,21 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       return BeginTransaction(IsolationLevel.ReadCommitted);
     }
 
-    public bool TableExists(string tableName, bool caseSensitiveName)
+    public bool TableExists(string tableName)
     {
-      FbConnection con = CreateConnection();
-      try
+      using (FbConnection conn = CreateConnection())
       {
-        if (!caseSensitiveName)
-          tableName = tableName.ToUpperInvariant();
-        DataTable dt = con.GetSchema("TABLES", BuildSchemaQueryRestrictions(null, null, tableName, null));
-        using (DataTableReader dtr = dt.CreateDataReader())
-          return dtr.Read();
+        try
+        {
+          DataTable dt = conn.GetSchema("TABLES", BuildSchemaQueryRestrictions(null, null, tableName, null));
+          using (DataTableReader dtr = dt.CreateDataReader())
+            return dtr.Read();
+        }
+        finally
+        {
+          conn.Close();
+        }
       }
-      finally
-      {
-        con.Close();
-      }
-    }
-
-    public void ExecuteBatch(TextReader reader, bool autoCommit)
-    {
-      FbConnection con = CreateConnection();
-      FbScript script = new FbScript(reader);
-      script.Parse();
-      FbBatchExecution batch = new FbBatchExecution(con, script);
-      batch.Execute(autoCommit);
     }
 
     #endregion

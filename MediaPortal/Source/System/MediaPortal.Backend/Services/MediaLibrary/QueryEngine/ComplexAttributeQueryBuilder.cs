@@ -78,9 +78,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="valueAlias">Alias for the value column.</param>
     /// <param name="groupSizeAlias">Alias for the column containing the number of items in each group.</param>
     /// <param name="statementStr">Statement which was built by this method.</param>
-    /// <param name="values">Values to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
+    /// <param name="bindVars">Bind variables to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
     public void GenerateSqlGroupByStatement(Namespace ns, out string valueAlias, out string groupSizeAlias,
-        out string statementStr, out IList<object> values)
+        out string statementStr, out IList<BindVar> bindVars)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
@@ -173,7 +173,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       string whereStr;
       _filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns), out whereStr, out values);
+          miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
@@ -194,9 +194,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="valueAlias">Alias for the value column.</param>
     /// <param name="mediaItemIdAlias">Alias for the ID of the media item to which the value belongs.</param>
     /// <param name="statementStr">Statement which was built by this method.</param>
-    /// <param name="values">Values to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
+    /// <param name="bindVars">Bind variables to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
     public void GenerateSqlStatement(Namespace ns, out string mediaItemIdAlias, out string valueAlias,
-        out string statementStr, out IList<object> values)
+        out string statementStr, out IList<BindVar> bindVars)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
@@ -283,7 +283,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       string whereStr;
       _filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns), out whereStr, out values);
+          miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
@@ -298,8 +298,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       string mediaItemIdAlias;
       string valueAlias;
       string statementStr;
-      IList<object> values;
-      GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias, out statementStr, out values);
+      IList<BindVar> bindVars;
+      GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias, out statementStr, out bindVars);
       return statementStr;
     }
   }

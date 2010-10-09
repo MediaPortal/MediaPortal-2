@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ScimoreDb"
+    PluginId="{B67DA43A-D404-46eb-B1C3-E1161C2C3F38}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to ScimoreDb database"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ScimoreDb.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="ScimoreDb" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.ScimoreDb.ScimoreDb"/>
+  </Register>
+</Plugin>

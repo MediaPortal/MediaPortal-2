@@ -24,7 +24,6 @@
 
 using System;
 using System.Data;
-using System.IO;
 
 namespace MediaPortal.Backend.Database
 {
@@ -113,34 +112,6 @@ namespace MediaPortal.Backend.Database
     string GetSQLFixedLengthStringType(uint maxNumChars);
 
     /// <summary>
-    /// Returns the command to create a sequence in this database.
-    /// </summary>
-    /// <param name="sequenceName">Name of the sequence to create.</param>
-    /// <returns>Command to create the sequence with the given name.</returns>
-    string GetCreateSequenceCommand(string sequenceName);
-
-    /// <summary>
-    /// Returns the command to drop a sequence in this database.
-    /// </summary>
-    /// <param name="sequenceName">Name of the sequence to drop.</param>
-    /// <returns>Command to drop the sequence with the given name.</returns>
-    string GetDropSequenceCommand(string sequenceName);
-
-    /// <summary>
-    /// Returns the statement to select the next value of the given sequence.
-    /// </summary>
-    /// <param name="sequenceName">Name of the sequence to select from.</param>
-    /// <returns>Statement which can be used as a pseudo attribute in an SQL select statement.</returns>
-    string GetSelectSequenceNextValStatement(string sequenceName);
-
-    /// <summary>
-    /// Returns the statement to select the current value of the given sequence.
-    /// </summary>
-    /// <param name="sequenceName">Name of the sequence to select from.</param>
-    /// <returns>Statement which can be used as a pseudo attribute in an SQL select statement.</returns>
-    string GetSelectSequenceCurrValStatement(string sequenceName);
-
-    /// <summary>
     /// Gets a database connection from the connection pool and starts a new transaction on that connection
     /// with the specified isolation level.
     /// </summary>
@@ -169,18 +140,7 @@ namespace MediaPortal.Backend.Database
     /// Returns the information if a table with the given <paramref name="tableName"/> exists in the database.
     /// </summary>
     /// <param name="tableName">Name of the table to check.</param>
-    /// <param name="caseSensitiveName">If set to <c>true</c>, the given <paramref name="tableName"/> will be checked
-    /// case-sensitive, i.e. the table must have been created case-sensitive. If the table was not explicitly created
-    /// case-sensitive, leave this parameter <c>false</c>.</param>
     /// <returns><c>true</c>, if a table with the given name exists, else <c>false</c>.</returns>
-    bool TableExists(string tableName, bool caseSensitiveName);
-
-    /// <summary>
-    /// Executes an SQL script provided by the given <paramref name="reader"/>.
-    /// </summary>
-    /// <param name="reader">Reader which provides the script contents.</param>
-    /// <param name="autoCommit">If set to <c>true</c>, the engine will automatically commit the transaction after each
-    /// DDL command.</param>
-    void ExecuteBatch(TextReader reader, bool autoCommit);
+    bool TableExists(string tableName);
   }
 }

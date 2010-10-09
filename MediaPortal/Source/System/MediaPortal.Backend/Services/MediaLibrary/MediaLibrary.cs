@@ -113,10 +113,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       int systemIdIndex;
       int pathIndex;
       int shareNameIndex;
-      IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex,
-          out pathIndex, out shareNameIndex);
-      IDataReader reader = command.ExecuteReader();
-      try
+      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex,
+          out pathIndex, out shareNameIndex))
+      using (IDataReader reader = command.ExecuteReader())
       {
         if (!reader.Read())
           return null;
@@ -125,36 +124,33 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             DBUtils.ReadDBValue<string>(reader, pathIndex)),
             DBUtils.ReadDBValue<string>(reader, shareNameIndex), mediaCategories);
       }
-      finally
-      {
-        reader.Close();
-      }
     }
 
-    protected Int64? GetMediaItemId(ITransaction transaction, string systemId, ResourcePath resourcePath)
+    protected Guid? GetMediaItemId(ITransaction transaction, string systemId, ResourcePath resourcePath)
     {
       string providerAspectTable = _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata);
       string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
       string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
-      IDbCommand command = transaction.CreateCommand();
-      command.CommandText = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
-          " WHERE " + systemIdAttribute + " = ? AND " + pathAttribute + " = ?";
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        command.CommandText = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID AND " + pathAttribute + " = @PATH";
 
-      DBUtils.AddParameter(command, systemId);
-      DBUtils.AddParameter(command, resourcePath.Serialize());
+        DBUtils.AddParameter(command, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
+        DBUtils.AddParameter(command, "PATH", resourcePath.Serialize(), DBUtils.GetDBType(typeof(string)));
 
-      object result = command.ExecuteScalar();
-      return result == null ? new Int64?() : (Int64) result;
+        return (Guid?) command.ExecuteScalar();
+      }
     }
 
-    protected Int64 AddMediaItem(ISQLDatabase database, ITransaction transaction)
+    protected Guid AddMediaItem(ISQLDatabase database, ITransaction transaction)
     {
-      IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(database, transaction);
-      command.ExecuteNonQuery();
+      Guid mediaItemId;
+      using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(transaction, out mediaItemId))
+        command.ExecuteNonQuery();
 
-      command = MediaLibrary_SubSchema.GetLastGeneratedMediaLibraryIdCommand(database, transaction);
-      return (Int64) command.ExecuteScalar();
+      return mediaItemId;
     }
 
     protected int RelocateMediaItems(ITransaction transaction,
@@ -169,18 +165,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
       string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
-      IDbCommand command = transaction.CreateCommand();
-      command.CommandText = "UPDATE " + providerAspectTable + " SET " +
-          pathAttribute + " = ? || SUBSTRING(" + pathAttribute + " FROM CHAR_LENGTH(?) + 1) " +
-          "WHERE " + systemIdAttribute + " = ? AND " +
-          "SUBSTRING(" + pathAttribute + " FROM 1 FOR CHAR_LENGTH(?)) = ?";
-      command.Parameters.Add(newBasePathStr);
-      command.Parameters.Add(originalBasePathStr.Length);
-      command.Parameters.Add(systemId);
-      command.Parameters.Add(originalBasePathStr.Length);
-      command.Parameters.Add(originalBasePathStr);
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        command.CommandText = "UPDATE " + providerAspectTable + " SET " +
+            pathAttribute + " = ? || SUBSTRING(" + pathAttribute + " FROM CHAR_LENGTH(?) + 1) " +
+            "WHERE " + systemIdAttribute + " = ? AND " +
+            "SUBSTRING(" + pathAttribute + " FROM 1 FOR CHAR_LENGTH(?)) = ?";
+        command.Parameters.Add(newBasePathStr);
+        command.Parameters.Add(originalBasePathStr.Length);
+        command.Parameters.Add(systemId);
+        command.Parameters.Add(originalBasePathStr.Length);
+        command.Parameters.Add(originalBasePathStr);
 
-      return command.ExecuteNonQuery();
+        return command.ExecuteNonQuery();
+      }
     }
 
     public int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath)
@@ -193,52 +191,49 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
               // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
               "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
-              " WHERE " + systemIdAttribute + " = ?";
+              " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
 
-      IDbCommand command = transaction.CreateCommand();
-      DBUtils.AddParameter(command, systemId);
-
-      if (basePath != null)
+      using (IDbCommand command = transaction.CreateCommand())
       {
-        commandStr = commandStr + " AND " + pathAttribute + " LIKE ? ESCAPE '\\'";
-        DBUtils.AddParameter(command, SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%");
+        DBUtils.AddParameter(command, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
+
+        if (basePath != null)
+        {
+          commandStr = commandStr + " AND " + pathAttribute + " LIKE @PATH ESCAPE '\\'";
+          DBUtils.AddParameter(command, "PATH",
+              SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%", DBUtils.GetDBType(typeof(string)));
+        }
+
+        commandStr = commandStr + ")";
+
+        command.CommandText = commandStr;
+        return command.ExecuteNonQuery();
       }
-
-      commandStr = commandStr + ")";
-
-      command.CommandText = commandStr;
-      return command.ExecuteNonQuery();
     }
 
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
     {
       int mediaCategoryIndex;
-      IDbCommand command = MediaLibrary_SubSchema.SelectShareCategoriesCommand(transaction, shareId, out mediaCategoryIndex);
-
       ICollection<string> result = new List<string>();
-      IDataReader reader = command.ExecuteReader();
-      try
+      using (IDbCommand command = MediaLibrary_SubSchema.SelectShareCategoriesCommand(transaction, shareId, out mediaCategoryIndex))
+      using (IDataReader reader = command.ExecuteReader())
       {
         while (reader.Read())
           result.Add(DBUtils.ReadDBValue<string>(reader, mediaCategoryIndex));
-      }
-      finally
-      {
-        reader.Close();
       }
       return result;
     }
 
     protected void AddMediaCategoryToShare(ITransaction transaction, Guid shareId, string mediaCategory)
     {
-      IDbCommand command = MediaLibrary_SubSchema.InsertShareCategoryCommand(transaction, shareId, mediaCategory);
-      command.ExecuteNonQuery();
+      using (IDbCommand command = MediaLibrary_SubSchema.InsertShareCategoryCommand(transaction, shareId, mediaCategory))
+        command.ExecuteNonQuery();
     }
 
     protected void RemoveMediaCategoryFromShare(ITransaction transaction, Guid shareId, string mediaCategory)
     {
-      IDbCommand command = MediaLibrary_SubSchema.DeleteShareCategoryCommand(transaction, shareId, mediaCategory);
-      command.ExecuteNonQuery();
+      using (IDbCommand command = MediaLibrary_SubSchema.DeleteShareCategoryCommand(transaction, shareId, mediaCategory))
+        command.ExecuteNonQuery();
     }
 
     protected void TryScheduleLocalShareImport(Share share)
@@ -354,19 +349,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline)
     {
       const char ESCAPE_CHAR = '!';
-      string pathStr = StringUtils.CheckSuffix(path.Serialize(), "/");
+      string pathStr = SqlUtils.LikeEscape(StringUtils.CheckSuffix(path.Serialize(), "/"), ESCAPE_CHAR);
       BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
           {
             // Compare system
             new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemId),
             // Compare parent folder
             new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-                SqlUtils.LikeEscape(pathStr, ESCAPE_CHAR),
-                ESCAPE_CHAR),
+                pathStr + '%', ESCAPE_CHAR),
             // Exclude sub folders
             new NotFilter(
                 new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-                    StringUtils.Repeat("_", pathStr.LastIndexOf('/')) + "/%/%", ESCAPE_CHAR))
+                    pathStr + "%/%", ESCAPE_CHAR))
           });
       MediaItemQuery query = new MediaItemQuery(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, filter);
       return Search(query, filterOnlyOnline);
@@ -419,7 +413,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        Int64? mediaItemId = GetMediaItemId(transaction, systemId, path);
+        Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
         DateTime now = DateTime.Now;
         MediaItemAspect importerAspect;
         bool wasCreated = !mediaItemId.HasValue;
@@ -459,7 +453,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) in path '{0}'", e, path.Serialize());
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, path.Serialize());
         transaction.Rollback();
         throw;
       }
@@ -520,22 +514,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         int shareIdIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectShareIdCommand(
-            transaction, share.SystemId, share.BaseResourcePath, out shareIdIndex);
-        IDataReader reader = command.ExecuteReader();
-        try
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectShareIdCommand(
+            transaction, share.SystemId, share.BaseResourcePath, out shareIdIndex))
+        using (IDataReader reader = command.ExecuteReader())
         {
           if (reader.Read())
             throw new ShareExistsException("A share with the given system '{0}' and path '{1}' already exists",
                 share.SystemId, share.BaseResourcePath);
         }
-        finally
-        {
-          reader.Close();
-        }
-        command = MediaLibrary_SubSchema.InsertShareCommand(transaction, share.ShareId, share.SystemId,
-            share.BaseResourcePath, share.Name);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = MediaLibrary_SubSchema.InsertShareCommand(transaction, share.ShareId, share.SystemId,
+            share.BaseResourcePath, share.Name))
+          command.ExecuteNonQuery();
 
         foreach (string mediaCategory in share.MediaCategories)
           AddMediaCategoryToShare(transaction, share.ShareId, mediaCategory);
@@ -570,8 +559,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] {shareId});
-        command.ExecuteNonQuery();
+        using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] {shareId}))
+          command.ExecuteNonQuery();
 
         DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath);
         transaction.Commit();
@@ -594,8 +583,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = MediaLibrary_SubSchema.DeleteSharesOfSystemCommand(transaction, systemId);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesOfSystemCommand(transaction, systemId))
+          command.ExecuteNonQuery();
 
         DeleteAllMediaItemsUnderPath(transaction, systemId, null);
 
@@ -621,8 +610,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Share originalShare = GetShare(transaction, shareId);
 
-        IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName);
-        command.ExecuteNonQuery();
+        using (IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName))
+          command.ExecuteNonQuery();
 
         // Update media categories
         ICollection<string> formerMediaCategories = GetShareMediaCategories(transaction, shareId);
@@ -682,25 +671,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         else
           command = MediaLibrary_SubSchema.SelectSharesBySystemCommand(transaction, systemId, out shareIdIndex,
               out systemIdIndex, out pathIndex, out shareNameIndex);
-        IDataReader reader = command.ExecuteReader();
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
-          while (reader.Read())
+          using (IDataReader reader = command.ExecuteReader())
           {
-            Guid shareId = new Guid(DBUtils.ReadDBValue<string>(reader, shareIdIndex));
-            ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-            result.Add(shareId, new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex),
-                ResourcePath.Deserialize(DBUtils.ReadDBValue<string>(reader, pathIndex)),
-                DBUtils.ReadDBValue<string>(reader, shareNameIndex),
-                mediaCategories));
+            while (reader.Read())
+            {
+              Guid shareId = DBUtils.ReadDBValue<Guid>(reader, shareIdIndex);
+              ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
+              result.Add(shareId, new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex),
+                  ResourcePath.Deserialize(DBUtils.ReadDBValue<string>(reader, pathIndex)),
+                  DBUtils.ReadDBValue<string>(reader, shareNameIndex),
+                  mediaCategories));
+            }
           }
+          return result;
         }
         finally
         {
-          reader.Close();
+          command.Dispose();
         }
-        return result;
       }
       finally
       {

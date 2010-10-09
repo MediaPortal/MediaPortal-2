@@ -42,13 +42,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "System\UPnP\UPnP.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerBase", "Backend\BackendComponents\ServerBase\ServerBase.csproj", "{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebirdDatabase", "Backend\Database\FirebirdDatabase\FirebirdDatabase.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassLibraries", "Media\BassLibraries\BassLibraries.csproj", "{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "Media\MetadataExtractors\TagLib\TagLib.csproj", "{4CC18776-125E-4318-9D24-D60110AD9697}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "Media\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj", "{7280C551-DCE2-46B7-943E-8C0D90CDC22C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebirdDatabase", "Backend\Database\FirebirdDatabase\FirebirdDatabase.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLCEDatabase", "Backend\Database\SQLCEDatabase\SQLCEDatabase.csproj", "{91188F73-7361-40C1-93CE-BA24AE50A694}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScimoreDb", "Backend\Database\ScimoreDb\ScimoreDb.csproj", "{99071112-C30D-4EBB-87AD-990DD85118D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,10 +110,6 @@ Global
 		{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}.Debug|x86.Build.0 = Debug|x86
 		{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}.Release|x86.ActiveCfg = Release|x86
 		{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}.Release|x86.Build.0 = Release|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x86.ActiveCfg = Debug|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x86.Build.0 = Debug|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|x86.ActiveCfg = Release|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|x86.Build.0 = Release|x86
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}.Debug|x86.ActiveCfg = Debug|x86
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}.Debug|x86.Build.0 = Debug|x86
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}.Release|x86.ActiveCfg = Release|x86
@@ -122,6 +122,16 @@ Global
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Debug|x86.Build.0 = Debug|x86
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.ActiveCfg = Release|x86
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.Build.0 = Release|x86
+		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x86.ActiveCfg = Debug|x86
+		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|x86.ActiveCfg = Release|x86
+		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|x86.Build.0 = Release|x86
+		{91188F73-7361-40C1-93CE-BA24AE50A694}.Debug|x86.ActiveCfg = Debug|x86
+		{91188F73-7361-40C1-93CE-BA24AE50A694}.Debug|x86.Build.0 = Debug|x86
+		{91188F73-7361-40C1-93CE-BA24AE50A694}.Release|x86.ActiveCfg = Release|x86
+		{91188F73-7361-40C1-93CE-BA24AE50A694}.Release|x86.Build.0 = Release|x86
+		{99071112-C30D-4EBB-87AD-990DD85118D5}.Debug|x86.ActiveCfg = Debug|x86
+		{99071112-C30D-4EBB-87AD-990DD85118D5}.Release|x86.ActiveCfg = Release|x86
+		{99071112-C30D-4EBB-87AD-990DD85118D5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,5 +158,7 @@ Global
 		{EFC339EB-9F75-4E5A-937A-A8BECA514715} = {E6118C44-7DD3-49C6-B39E-FF148ACC9DFC}
 		{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4} = {9F6AECB3-1AB7-4348-8E97-563BCB392DB2}
 		{6759DACE-15CD-4EB1-8337-8096F35EAEA3} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
+		{91188F73-7361-40C1-93CE-BA24AE50A694} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
+		{99071112-C30D-4EBB-87AD-990DD85118D5} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 	EndGlobalSection
 EndGlobal

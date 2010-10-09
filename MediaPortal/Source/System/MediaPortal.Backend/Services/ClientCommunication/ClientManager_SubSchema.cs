@@ -71,10 +71,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         string clientName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (?, ?, ?)";
-      DBUtils.AddParameter(result, systemId);
-      DBUtils.AddParameter(result, hostName);
-      DBUtils.AddParameter(result, clientName);
+      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (@SYSTEM_ID, @LAST_HOSTNAME, @LAST_CLIENT_NAME)";
+      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "LAST_HOSTNAME", hostName, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "LAST_CLIENT_NAME", clientName, DBUtils.GetDBType(typeof(string)));
       return result;
     }
 
@@ -82,18 +82,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         string clientName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = ?, LAST_CLIENT_NAME = ? WHERE SYSTEM_ID = ?";
-      DBUtils.AddParameter(result, system == null ? null : system.HostName);
-      DBUtils.AddParameter(result, clientName);
-      DBUtils.AddParameter(result, systemId);
+      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
+      DBUtils.AddParameter(result, "LAST_HOSTNAME", system == null ? null : system.HostName, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "LAST_CLIENT_NAME", clientName, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
       return result;
     }
 
     public static IDbCommand DeleteAttachedClientCommand(ITransaction transaction, string systemId)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM ATTACHED_CLIENTS where SYSTEM_ID = ?";
-      DBUtils.AddParameter(result, systemId);
+      result.CommandText = "DELETE FROM ATTACHED_CLIENTS WHERE SYSTEM_ID = @SYSTEM_ID";
+      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
       return result;
     }
   }

@@ -53,7 +53,7 @@ namespace MediaPortal.Backend.Services.Database
 
     #endregion
 
-    #region Member
+    #region Protected members
 
     protected void DumpCommand()
     {
@@ -77,7 +77,7 @@ namespace MediaPortal.Backend.Services.Database
 
     #endregion
 
-    #region IDbCommand Member
+    #region IDbCommand implementation
 
     public void Cancel()
     {
@@ -86,50 +86,26 @@ namespace MediaPortal.Backend.Services.Database
 
     public string CommandText
     {
-      get
-      {
-        return _command.CommandText;
-      }
-      set
-      {
-        _command.CommandText = value;
-      }
+      get { return _command.CommandText; }
+      set { _command.CommandText = value; }
     }
 
     public int CommandTimeout
     {
-      get
-      {
-        return _command.CommandTimeout;
-      }
-      set
-      {
-        _command.CommandTimeout = value;
-      }
+      get { return _command.CommandTimeout; }
+      set { _command.CommandTimeout = value; }
     }
 
     public CommandType CommandType
     {
-      get
-      {
-        return _command.CommandType;
-      }
-      set
-      {
-        _command.CommandType = value;
-      }
+      get { return _command.CommandType; }
+      set { _command.CommandType = value; }
     }
 
     public IDbConnection Connection
     {
-      get
-      {
-        return _command.Connection;
-      }
-      set
-      {
-        _command.Connection = value;
-      }
+      get { return _command.Connection; }
+      set { _command.Connection = value; }
     }
 
     public IDbDataParameter CreateParameter()

@@ -108,12 +108,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out string mediaItemIdOrGroupSizeAlias,
         out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<object> values)
+        out string statementStr, out IList<BindVar> bindVars)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
       IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes = new Dictionary<QueryAttribute, RequestedAttribute>();
       attributeAliases = new Dictionary<QueryAttribute, string>();
+
+      // Contains a list of qualified attribute names for all select attributes - needed for GROUP BY-expressions
+      ICollection<string> qualifiedAttributeNames = new List<string>();
 
       // Contains a list of compiled select attribute declarations. We need this in a separate list (in contrast to using
       // the selectAttributes list together with the compiledAttributes map) because it might be the case that
@@ -163,6 +166,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         string alias;
         selectAttributeDeclarations.Add(ra.GetDeclarationWithAlias(ns, out alias));
         attributeAliases.Add(attr, alias);
+        qualifiedAttributeNames.Add(ra.GetQualifiedName(ns));
       }
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
@@ -241,7 +245,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       string whereStr;
-      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out values);
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out bindVars);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
@@ -250,7 +254,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (groupByValues)
       {
         result.Append(" GROUP BY ");
-        result.Append(StringUtils.Join(", ", attributeAliases.Values));
+        result.Append(StringUtils.Join(", ", qualifiedAttributeNames));
       }
       else
       {
@@ -276,12 +280,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
     /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
+    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
     public void GenerateSqlGroupByStatement(Namespace ns, out string groupSizeAlias,
         out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<object> values)
+        out string statementStr, out IList<BindVar> bindVars)
     {
-      GenerateSqlStatement(ns, true, null, out groupSizeAlias, out attributeAliases, out statementStr, out values);
+      GenerateSqlStatement(ns, true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
     }
 
     /// <summary>
@@ -294,14 +298,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
     /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
+    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
     public void GenerateSqlStatement(Namespace ns, out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<object> values)
+        out string statementStr, out IList<BindVar> bindVars)
     {
       miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      GenerateSqlStatement(ns, false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out values);
+      GenerateSqlStatement(ns, false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
     }
 
     public override string ToString()
@@ -311,8 +315,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       Namespace mainQueryNS = new Namespace();
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
-      IList<object> values;
-      GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out values);
+      IList<BindVar> bindVars;
+      GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
       return statementStr;
     }
   }
