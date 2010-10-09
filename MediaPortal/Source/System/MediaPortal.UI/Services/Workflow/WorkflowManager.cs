@@ -383,7 +383,19 @@ namespace MediaPortal.UI.Services.Workflow
             CollectionUtils.AddAll(newContext.ContextVariables, config.AdditionalContextVariables);
 
         // Check if state change is accepted
-        if (workflowModel != null && !workflowModel.CanEnterState(predecessor, newContext))
+        bool canEnter = true;
+        if (workflowModel != null)
+          try
+          {
+            canEnter = workflowModel.CanEnterState(predecessor, newContext);
+          }
+          catch (Exception e)
+          {
+            logger.Error("WorkflowManager: Error checking if workflow model '{0}' can enter workflow state '{1}'", e,
+              workflowModel.ModelId, newContext.WorkflowState.StateId);
+            canEnter = false;
+          }
+        if (!canEnter)
         {
           logger.Debug("WorkflowManager: Workflow model with id '{0}' doesn't accept the state being pushed onto the workflow context stack. Reverting to old workflow state.", workflowModelId);
           return false;
@@ -405,7 +417,14 @@ namespace MediaPortal.UI.Services.Workflow
           if (modelChange)
           {
             logger.Debug("WorkflowManager: Deactivating predecessor workflow model '{0}'", predecessorModelId.Value);
-            predecessorWorkflowModel.Deactivate(predecessor, newContext);
+            try
+            {
+              predecessorWorkflowModel.Deactivate(predecessor, newContext);
+            }
+            catch (Exception e)
+            {
+              logger.Error("WorkflowManager: Error deactivating workflow model '{0}'", e, predecessorWorkflowModel.ModelId);
+            }
           }
         // else: same model is currently active - model context change will be handled in the next block
 
@@ -419,13 +438,29 @@ namespace MediaPortal.UI.Services.Workflow
             else
               logger.Debug("WorkflowManager: Entering model context with workflow state '{0}' (old state was '{1}') in new workflow model '{2}'",
                   newContext.WorkflowState.StateId, predecessor.WorkflowState.StateId, workflowModelId.Value);
-            workflowModel.EnterModelContext(predecessor, newContext);
+            try
+            {
+              workflowModel.EnterModelContext(predecessor, newContext);
+            }
+            catch (Exception e)
+            {
+              logger.Error("WorkflowManager: Error entering model context of workflow model '{0}' for workflow state '{1}'", e,
+                  workflowModel.ModelId, newContext.WorkflowState.StateId);
+            }
           }
           else
           {
             logger.Debug("WorkflowManager: Changing model context to workflow state '{0}' (old state was '{1}') in workflow model '{2}'",
                 newContext.WorkflowState.StateId, predecessor == null ? null : predecessor.WorkflowState.StateId.ToString(), workflowModelId.Value);
-            workflowModel.ChangeModelContext(predecessor, newContext, true);
+            try
+            {
+              workflowModel.ChangeModelContext(predecessor, newContext, true);
+            }
+            catch (Exception e)
+            {
+              logger.Error("WorkflowManager: Error changing model context of workflow model '{0}' from workflow state '{1}' to workflow state '{2}'",
+                e, workflowModel.ModelId, predecessor.WorkflowState.StateId, newContext.WorkflowState.StateId);
+            }
           }
         if (state.WorkflowType == WorkflowType.Workflow)
         {
@@ -435,8 +470,15 @@ namespace MediaPortal.UI.Services.Workflow
           foreach (WorkflowAction action in FilterActionsBySourceState(state.StateId, _menuActions.Values))
             menuActions.Add(action.ActionId, action);
           if (workflowModel != null)
-            workflowModel.UpdateMenuActions(newContext, menuActions);
-
+            try
+            {
+              workflowModel.UpdateMenuActions(newContext, menuActions);
+            }
+            catch (Exception e)
+            {
+              logger.Error("WorkflowManager: Error updating menu actions in workflow model '{0}' for workflow state '{1}'", e,
+                  workflowModel.ModelId, newContext.WorkflowState.StateId);
+            }
           newContext.SetMenuActions(menuActions.Values);
         }
 
@@ -493,7 +535,15 @@ namespace MediaPortal.UI.Services.Workflow
             if (modelChange)
             {
               logger.Debug("WorkflowManager: Exiting predecessor workflow model '{0}'", oldContext.WorkflowModelId.Value);
-              predecessorWorkflowModel.ExitModelContext(oldContext, newContext);
+              try
+              {
+                predecessorWorkflowModel.ExitModelContext(oldContext, newContext);
+              }
+              catch (Exception e)
+              {
+                logger.Error("WorkflowManager: Error exiting model context of workflow model '{0}' at workflow state '{1}'", e,
+                    predecessorWorkflowModel.ModelId, oldContext.WorkflowState.StateId);
+              }
             }
           // else: same model is currently active - model context change will be handled in the next block
 
@@ -506,13 +556,29 @@ namespace MediaPortal.UI.Services.Workflow
             {
               logger.Debug("WorkflowManager: Reactivating model context with workflow state '{0}' (old state was '{1}') in temporary deactivated workflow model '{2}'",
                   newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
-              workflowModel.ReActivate(oldContext, newContext);
+              try
+              {
+                workflowModel.ReActivate(oldContext, newContext);
+              }
+              catch (Exception e)
+              {
+                logger.Error("WorkflowManager: Error reactivating workflow model '{0}' for workflow state '{1}'", e,
+                    workflowModel.ModelId, newContext.WorkflowState.StateId);
+              }
             }
             else
             {
               logger.Debug("WorkflowManager: Changing model context to workflow state '{0}' (old state was '{1}') in workflow model '{2}'",
-                  newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
-              workflowModel.ChangeModelContext(oldContext, newContext, false);
+                  newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModel.ModelId);
+              try
+              {
+                workflowModel.ChangeModelContext(oldContext, newContext, false);
+              }
+              catch (Exception e)
+              {
+                logger.Error("WorkflowManager: Error changing model context of workflow model '{0}' from workflow state '{1}' to workflow state '{2}'",
+                  e, workflowModel.ModelId, oldContext.WorkflowState.StateId, newContext.WorkflowState.StateId);
+              }
             }
           }
           oldContext.Dispose();
@@ -571,8 +637,17 @@ namespace MediaPortal.UI.Services.Workflow
       IWorkflowModel workflowModel = workflowModelId.HasValue ?
           GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
       string screen = currentContext.WorkflowState.MainScreen;
-      ScreenUpdateMode updateMode = workflowModel == null ? ScreenUpdateMode.AutoWorkflowManager :
-          workflowModel.UpdateScreen(currentContext, ref screen);
+      ScreenUpdateMode updateMode = ScreenUpdateMode.AutoWorkflowManager;
+      if (workflowModel != null)
+        try
+        {
+          updateMode = workflowModel.UpdateScreen(currentContext, ref screen);
+        }
+        catch (Exception e)
+        {
+          logger.Error("WorkflowManager: Error updating screen of workflow model '{0}' for workflow state '{1}'", e,
+              workflowModel.ModelId, currentContext.WorkflowState.StateId);
+        }
 
       if (updateMode == ScreenUpdateMode.ManualWorkflowModel)
       {
