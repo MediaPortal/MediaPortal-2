@@ -253,11 +253,17 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         //  musictag.CoverArtImageBytes = pics[0].Data.Data;
         //}
         musicAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
-        musicAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
-        musicAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
-        if (tag.Tag.Year >= 1 && tag.Tag.Year <= 9999)
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime((int) tag.Tag.Year, 1, 1));
+        if (tag.Tag.Genres.Length > 0)
+          musicAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
+        if (tag.Tag.Track != 0)
+          musicAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
+        if (tag.Tag.TrackCount != 0)
+          musicAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
+        int year = (int) tag.Tag.Year;
+        if (year >= 30 && year <= 99)
+          year += 1900;
+        if (year >= 1930 && year <= 2030)
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
         return true;
       }
       catch (UnsupportedFormatException)
