@@ -526,7 +526,9 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
@@ -537,7 +539,6 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SelectableShareContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
@@ -553,7 +554,9 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
@@ -564,7 +567,6 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
@@ -580,7 +582,9 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
@@ -591,7 +595,6 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableShareContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for lists where multiple items can be marked -->
