@@ -43,22 +43,22 @@ namespace MediaPortal.Backend
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("BackendExtension: Registering ISystemResolver service");
-      ServiceRegistration.Add<ISystemResolver>(new SystemResolver());
+      ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
 
       logger.Debug("BackendExtension: Registering IDatabaseManager service");
-      ServiceRegistration.Add<IDatabaseManager>(new DatabaseManager());
+      ServiceRegistration.Set<IDatabaseManager>(new DatabaseManager());
 
       logger.Debug("BackendExtension: Registering IMediaLibrary service");
-      ServiceRegistration.Add<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
+      ServiceRegistration.Set<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
 
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
-      ServiceRegistration.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+      ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
       logger.Debug("BackendExtension: Registering IBackendServer service");
-      ServiceRegistration.Add<IBackendServer>(new Services.BackendServer.BackendServer());
+      ServiceRegistration.Set<IBackendServer>(new Services.BackendServer.BackendServer());
 
       logger.Debug("BackendExtension: Registering IClientManager service");
-      ServiceRegistration.Add<IClientManager>(new Services.ClientCommunication.ClientManager());
+      ServiceRegistration.Set<IClientManager>(new Services.ClientCommunication.ClientManager());
     }
 
     /// <summary>

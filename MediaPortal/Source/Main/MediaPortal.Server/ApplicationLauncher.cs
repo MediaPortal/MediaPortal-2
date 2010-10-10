@@ -65,7 +65,7 @@ namespace MediaPortal.Server
 #endif
 
       SystemStateService systemStateService = new SystemStateService();
-      ServiceRegistration.Add<ISystemStateService>(systemStateService);
+      ServiceRegistration.Set<ISystemStateService>(systemStateService);
       systemStateService.SwitchSystemState(SystemState.Initializing, false);
 
       try
