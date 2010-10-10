@@ -204,6 +204,7 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Stop()
     {
+      ServiceRegistration.Remove<ISkinEngine>();
       Dispose();
     }
 
