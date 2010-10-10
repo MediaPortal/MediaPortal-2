@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Ui.Players.Video.Subtitles
+namespace MediaPortal.UI.Players.Video.Subtitles
 {
   class TextConversion
   {

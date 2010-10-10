@@ -22,71 +22,124 @@
 
 #endregion
 
+using MediaPortal.Core;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
+using System.Xml.Serialization;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video.Settings
 {
+  /// <summary>
+  /// VideoSettings class contains settings for VideoPlayers.
+  /// </summary>
+  [XmlInclude(typeof(CodecInfo))]
   public class VideoSettings
   {
-    private CropSettings _crop;
-    private string _geometry;
-    private string _audioCodec;
-    private string _mpeg2Codec;
-    private string _h264Codec;
-    private string _divxCodec;
-    private string _subtitleLanguage;
-    private string _audioLanguage;
+    #region Private variables
 
+    private int _subtitleLCID = 0;
+    private int _audioLCID = 0;
+    private int _menuLCID = 0;
 
+    #endregion
+
+    /// <summary>
+    /// Gets or Sets CropSettings.
+    /// </summary>
     [Setting(SettingScope.User, null)]
-    public CropSettings Crop
+    public CropSettings Crop { get; set; }
+
+    /// <summary>
+    /// Gets or Sets default Geometry.
+    /// </summary>
+    [Setting(SettingScope.User, "")]
+    public string Geometry { get; set; }
+
+    // Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// <summary>
+    /// Gets or Sets the preferred audio codec.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo AudioCodec { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the preferred MPEG2 codec.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo Mpeg2Codec { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the preferred H264 codec.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo H264Codec { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the preferred DivX codec.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo DivXCodec { get; set; }
+
+    /// <summary>
+    /// Gets or Sets a flag if closed captions should be enabled by default.
+    /// </summary>
+    [Setting(SettingScope.User, false)]
+    public bool EnableClosedCaption { get; set; }
+
+    /// <summary>
+    /// Gets or Sets a flag if subtitles should be enabled by default.
+    /// </summary>
+    [Setting(SettingScope.User, false)]
+    public bool EnableSubtitles { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the preferred subtitle language.
+    /// If no choice was made before, the getter returns the global MP CurrentCulture.
+    /// </summary>
+    [Setting(SettingScope.User, 0)]
+    public int SubtitleLanguage
     {
-      get { return _crop; }
-      set { _crop = value; }
+      get
+      {
+        return _subtitleLCID == 0
+            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
+            : _subtitleLCID;
+      }
+      set { _subtitleLCID = value; }
     }
 
-    [Setting(SettingScope.User, "")]
-    public string Geometry
+    /// <summary>
+    /// Gets or Sets the preferred audio language.
+    /// If no choice was made before, the getter returns the global MP CurrentCulture.
+    /// </summary>
+    [Setting(SettingScope.User, 0)]
+    public int AudioLanguage
     {
-      get { return _geometry; }
-      set { _geometry = value; }
+      get
+      {
+        return _audioLCID == 0
+            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
+            : _audioLCID;
+      }
+      set { _audioLCID = value; }
     }
-    [Setting(SettingScope.User, "MPA Decoder Filter")]
-    public string AudioCodec
+
+    /// <summary>
+    /// Gets or Sets the preferred menu language.
+    /// If no choice was made before, the getter returns the global MP CurrentCulture.
+    /// </summary>
+    [Setting(SettingScope.User, 0)]
+    public int MenuLanguage
     {
-      get { return _audioCodec; }
-      set { _audioCodec = value; }
-    }
-    [Setting(SettingScope.User, "CyberLink Video/SP Decoder (PDVD7)")]
-    public string Mpeg2Codec
-    {
-      get { return _mpeg2Codec; }
-      set { _mpeg2Codec = value; }
-    }
-    [Setting(SettingScope.User, "CyberLink H.264/AVC Decoder (PDVD7.X)")]
-    public string H264Codec
-    {
-      get { return _h264Codec; }
-      set { _h264Codec = value; }
-    }
-    [Setting(SettingScope.User, "ffdshow Video Decoder")]
-    public string DivXCodec
-    {
-      get { return _divxCodec; }
-      set { _divxCodec = value; }
-    }
-    [Setting(SettingScope.User, "English")]
-    public string SubtitleLanguage
-    {
-      get { return _subtitleLanguage; }
-      set { _subtitleLanguage = value; }
-    }
-    [Setting(SettingScope.User, "English")]
-    public string AudioLanguage
-    {
-      get { return _audioLanguage; }
-      set { _audioLanguage = value; }
+      get
+      {
+        return _menuLCID == 0
+            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
+            : _menuLCID;
+      }
+      set { _menuLCID = value; }
     }
   }
 }

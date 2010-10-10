@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Ui.Players.Video.Teletext
+namespace MediaPortal.UI.Players.Video.Teletext
 {
   internal class TeletextReceiver
   {

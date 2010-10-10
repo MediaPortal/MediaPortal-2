@@ -2,13 +2,15 @@
     DescriptorVersion="1.0"
     Name="DefaultVideoPlayers"
     PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"
-    Author="Frodo, Albert"
+    Author="Frodo, Albert, Morpheus_xx"
     Copyright="GPL"
     Description="This plugin contains default players for several video formats and DVD"
     PluginVersion="1.0">
 
   <DependsOn>
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
   </DependsOn>
 
   <Runtime>
@@ -16,10 +18,85 @@
   </Runtime>
 
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="Ui.Players.Video.VideoPlayerBuilder"/>
+    <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="MediaPortal.UI.Players.Video.VideoPlayerBuilder"/>
   </Register>
 
   <Register Location="/Resources/Language">
     <Resource Id="VideoPlayersLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Codecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="VideoCodecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.VideoCodecs]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+    <ConfigSetting
+        Id="VideoMPEG2Codec"
+        Text="[Settings.Players.Codecs.VideoCodecs.MPEG2]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG2.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG2Codec"/>
+  </Register>
+  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+    <ConfigSetting
+        Id="VideoMPEG4Codec"
+        Text="[Settings.Players.Codecs.VideoCodecs.MPEG4]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.MPEG4.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.VideoMPEG4Codec"/>
+  </Register>
+
+  <!-- Contents of '/Players/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="AudioCodecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.AudioCodecs]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
+    <ConfigSetting
+        Id="AudioCodec"
+        Text="[Settings.Players.Codecs.AudioCodecs.AudioCodec]"
+        HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodec.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodec"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/">
+    <ConfigSection
+        Id="DVDPlayer"
+        Redundant="true"
+        Text="[Settings.Players.DVDPlayer]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/DVDPlayer">
+    <ConfigSetting
+        Id="EnableClosedCaptions"
+        Text="[Settings.Players.DVDPlayer.EnableClosedCaption]"
+        HelpText="[Settings.Players.DVDPlayer.EnableClosedCaption.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.ClosedCaptions"/>
+    <ConfigSetting
+        Id="EnableSubtitles"
+        Text="[Settings.Players.DVDPlayer.EnableSubtitles]"
+        HelpText="[Settings.Players.DVDPlayer.EnableSubtitles.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
 </Plugin>

@@ -39,12 +39,14 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
+using MediaPortal.UI.Players.Video.Interfaces;
+using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using Ui.Players.Video.Interfaces;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video
 {
   public class DvdPlayer : VideoPlayer, ISubtitlePlayer, IDVDPlayer
   {
@@ -195,21 +197,13 @@ namespace Ui.Players.Video
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins
       FilterGraphTools.RenderAllManualConnectPins(_graphBuilder);
-
-      // TODO: get CC from settings
-      _line21Decoder = FilterGraphTools.FindFilterByInterface<IAMLine21Decoder>(_graphBuilder);
-      if (_line21Decoder != null)
-      {
-        int hr = _line21Decoder.SetCurrentService(AMLine21CCService.None);
-        ServiceRegistration.Get<ILogger>().Debug(hr == 0 ? "DVDPlayer: Closed Captions disabled" :
-            "DVDPlayer: failed to disable Closed Captions");
-      }
       _currTime = new DvdHMSFTimeCode();
     }
 
     protected override void OnGraphRunning()
     {
       base.OnGraphRunning();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       int hr = _dvdCtrl.SelectVideoModePreference(_videoPref);
       hr = _dvdInfo.GetCurrentVideoAttributes(out _videoAttr);
@@ -225,7 +219,18 @@ namespace Ui.Players.Video
 
       _pendingCmd = false;
 
-      _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(settings.EnableSubtitles, DvdCmdFlags.None, out _cmdOption);
+
+      _line21Decoder = FilterGraphTools.FindFilterByInterface<IAMLine21Decoder>(_graphBuilder);
+      if (_line21Decoder != null)
+      {
+        AMLine21CCState state = settings.EnableClosedCaption ? AMLine21CCState.On : AMLine21CCState.Off;
+        if (_line21Decoder.SetServiceState(state) == 0)
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Closed Captions enabled: {0}",settings.EnableClosedCaption);
+        else
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: failed to set Closed Captions state.");
+      }
+
     }
 
     /// <summary>
@@ -251,59 +256,21 @@ namespace Ui.Players.Video
     /// </summary>
     private void SetDefaultLanguages()
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       ServiceRegistration.Get<ILogger>().Info("DVDPlayer: SetDefaultLanguages");
-      int lcid;
-      int setError;
-      string errorText;
-      if (!string.IsNullOrEmpty(settings.AudioLanguage))
-      {
-        lcid = GetLCID(settings.AudioLanguage);
-        if (lcid >= 0)
-        {
-          // Flip: Added more detailed message
-          setError = _dvdCtrl.SelectDefaultAudioLanguage(lcid, DvdAudioLangExt.NotSpecified);
-          switch (setError)
-          {
-            case 0:
-              errorText = "Success.";
-              break;
-            case 631:
-              errorText = "The DVD Navigator filter is not in the Stop domain.";
-              break;
-            default:
-              errorText = "Unknown Error. " + setError;
-              break;
-          }
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language:{0} {1} {2}", settings.AudioLanguage, lcid, errorText);
-        }
-      }
-      if (!string.IsNullOrEmpty(settings.SubtitleLanguage))
-      {
-        // For now, the default menu language is the same as the subtitle language
-        lcid = GetLCID(settings.SubtitleLanguage);
-        if (lcid >= 0)
-        {
-          setError = _dvdCtrl.SelectDefaultMenuLanguage(lcid);
-          errorText = GetErrorText(setError);
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language:{0} {1} {2}", settings.SubtitleLanguage, lcid, errorText);
-        }
+      int setError = _dvdCtrl.SelectDefaultAudioLanguage(settings.AudioLanguage, DvdAudioLangExt.NotSpecified);
+      string errorText = GetErrorText(setError);
+      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language to: {0}. {1}", settings.AudioLanguage, errorText);
 
-        lcid = GetLCID(settings.SubtitleLanguage);
-        if (lcid >= 0)
-        {
-          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(lcid, DvdSubPictureLangExt.NotSpecified);
-          errorText = GetErrorText(setError);
-          ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0} {1} {2}", settings.SubtitleLanguage, lcid, errorText);
-        }
+      setError = _dvdCtrl.SelectDefaultMenuLanguage(settings.MenuLanguage);
+      errorText = GetErrorText(setError);
+      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language to:{0}. {1}", settings.MenuLanguage, errorText);
 
-        // Force subtitles if this option is set in the configuration
-        _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
-      }
-      else
-      {
-        _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
-      }
+      setError = _dvdCtrl.SelectDefaultSubpictureLanguage(settings.SubtitleLanguage, DvdSubPictureLangExt.NotSpecified);
+      errorText = GetErrorText(setError);
+      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.SubtitleLanguage, errorText);
+ 
+      _dvdCtrl.SetSubpictureState(settings.EnableSubtitles, DvdCmdFlags.None, out _cmdOption);
     }
 
     /// <summary>
@@ -327,28 +294,6 @@ namespace Ui.Players.Video
           break;
       }
       return errorText;
-    }
-
-    static int GetLCID(string language)
-    {
-      if (language == null) return -1;
-      if (language.Length == 0) return -1;
-      // Flip: Added to cut off the detailed name info
-      // Flip: Changed from CultureTypes.NeutralCultures to CultureTypes.SpecificCultures
-      // Flip: CultureTypes.NeutralCultures did not work, provided the wrong CLID
-      foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
-      {
-        // Flip: cut off detailed info, e.g. "English (United States)" -> "English"
-        // Flip: to get correct compare
-        int start = ci.EnglishName.IndexOf(" (");
-        string cutName = start > 0 ? ci.EnglishName.Substring(0, start) : ci.EnglishName;
-
-        if (String.Compare(cutName, language, true) == 0)
-        {
-          return ci.LCID;
-        }
-      }
-      return -1;
     }
 
     /// <summary>
@@ -837,25 +782,18 @@ namespace Ui.Players.Video
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       string[] audioStreams = AudioStreams;
       for (int i = 0; i < audioStreams.Length; ++i)
       {
         if (audioStreams[i] == audioStream)
         {
+          int audioLanguage;
           ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select audio stream: {0}", audioStream);
           _dvdCtrl.SelectAudioStream(i, DvdCmdFlags.None, out _cmdOption);
-          int audioLanguage;
           _dvdInfo.GetAudioLanguage(i, out audioLanguage);
-          foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
-          {
-            if (ci.LCID == (audioLanguage & 0x3ff))
-            {
-              settings.AudioLanguage = ci.EnglishName;
-              ServiceRegistration.Get<ISettingsManager>().Save(settings);
-              break;
-            }
-          }
+          settings.AudioLanguage = audioLanguage;
+          ServiceRegistration.Get<ISettingsManager>().Save(settings);
           return;
         }
       }
@@ -949,26 +887,20 @@ namespace Ui.Players.Video
 
     public void SetSubtitle(string subtitle)
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       string[] subtitles = Subtitles;
       for (int i = 0; i < subtitles.Length; ++i)
       {
         if (subtitles[i] == subtitle)
         {
+          int iLanguage;
           ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Select subtitle:{0}", subtitle);
           _dvdCtrl.SelectSubpictureStream(i, DvdCmdFlags.None, out _cmdOption);
           _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
-          int iLanguage;
           _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
-          foreach (CultureInfo ci in CultureInfo.GetCultures(CultureTypes.NeutralCultures))
-          {
-            if (ci.LCID == (iLanguage & 0x3ff))
-            {
-              settings.SubtitleLanguage = ci.EnglishName;
-              ServiceRegistration.Get<ISettingsManager>().Save(settings);
-              break;
-            }
-          }
+          settings.SubtitleLanguage = iLanguage;
+          settings.EnableSubtitles = true;
+          ServiceRegistration.Get<ISettingsManager>().Save(settings);
           return;
         }
       }
@@ -976,11 +908,12 @@ namespace Ui.Players.Video
 
     public void DisableSubtitle()
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Disable subtitles");
       _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
-      settings.SubtitleLanguage = null;
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      settings.EnableSubtitles = false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
     }
 
     public string CurrentSubtitle

@@ -25,9 +25,9 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using Ui.Players.Video.Teletext;
+using MediaPortal.UI.Players.Video.Teletext;
 
-namespace Ui.Players.Video.Subtitles
+namespace MediaPortal.UI.Players.Video.Subtitles
 {
   internal class TeletextSubtitleDecoder : IDVBTeletextDecoder
   {

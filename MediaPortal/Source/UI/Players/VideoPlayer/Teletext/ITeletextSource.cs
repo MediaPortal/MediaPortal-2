@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.Video.Teletext
+namespace MediaPortal.UI.Players.Video.Teletext
 {
 
   enum TeletextEvent

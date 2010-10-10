@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2010 Team MediaPortal
 
 /*
     Copyright (C) 2007-2010 Team MediaPortal
@@ -22,52 +22,23 @@
 
 #endregion
 
-using MediaPortal.Core.Settings;
-namespace Ui.Players.Video
+using MediaPortal.Core.Configuration.ConfigurationClasses;
+
+namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public enum SpeakerConnectionType
+  public class Subtitles : YesNo
   {
-    Analog,
-    Digital,
-    BuildIn
-  };
-
-  public enum SpeakerAmount
-  {
-    Stereo,
-    Speakers_5_1,
-    Speakers_7_1
-
-  }
-
-  public class AudioSettings
-  {
-    SpeakerConnectionType _connectionType = SpeakerConnectionType.BuildIn;
-    SpeakerAmount _speakers = SpeakerAmount.Stereo;
-    public AudioSettings()
+    public override void Load()
     {
+      _yes = SettingsManager.Load<VideoSettings>().EnableSubtitles;
     }
 
-    [Setting(SettingScope.User, "")]
-    public SpeakerConnectionType ConnectionType
+    public override void Save()
     {
-      get { return _connectionType; }
-      set
-      {
-        _connectionType = value;
-      }
+      base.Save();
+      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      settings.EnableSubtitles = _yes;
+      SettingsManager.Save(settings);
     }
-
-
-    [Setting(SettingScope.User, "")]
-    public SpeakerAmount Count
-    {
-      get { return _speakers; }
-      set
-      {
-        _speakers = value;
-      }
-    }
-
   }
 }

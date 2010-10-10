@@ -32,11 +32,12 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
-using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
+using SlimDX.Direct3D9;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video
 {
   public delegate void VideoSizePresentDlgt(EVRCallback sender);
 

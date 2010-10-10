@@ -35,12 +35,12 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Permissions;
 using DirectShowLib;
-using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
-using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
+using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video.Tools
 {
   /// <summary>
   /// A collection of methods to do common DirectShow tasks.
@@ -668,21 +668,21 @@ namespace Ui.Players.Video
       try
       {
         int hr = NativeMethods.StgCreateDocfile(
-          fileName,
-          STGM.Create | STGM.Transacted | STGM.ReadWrite | STGM.ShareExclusive,
-          0,
-          out storage
-          );
+            fileName,
+            STGM.Create | STGM.Transacted | STGM.ReadWrite | STGM.ShareExclusive,
+            0,
+            out storage
+            );
 
         Marshal.ThrowExceptionForHR(hr);
 
         hr = storage.CreateStream(
-          @"ActiveMovieGraph",
-          STGM.Write | STGM.Create | STGM.ShareExclusive,
-          0,
-          0,
-          out stream
-          );
+            @"ActiveMovieGraph",
+            STGM.Write | STGM.Create | STGM.ShareExclusive,
+            0,
+            0,
+            out stream
+            );
 
         Marshal.ThrowExceptionForHR(hr);
 
@@ -737,23 +737,23 @@ namespace Ui.Players.Video
         }
 
         int hr = NativeMethods.StgOpenStorage(
-          fileName,
-          null,
-          STGM.Transacted | STGM.Read | STGM.ShareDenyWrite,
-          IntPtr.Zero,
-          0,
-          out storage
-          );
+            fileName,
+            null,
+            STGM.Transacted | STGM.Read | STGM.ShareDenyWrite,
+            IntPtr.Zero,
+            0,
+            out storage
+            );
 
         Marshal.ThrowExceptionForHR(hr);
 
         hr = storage.OpenStream(
-          @"ActiveMovieGraph",
-          IntPtr.Zero,
-          STGM.Read | STGM.ShareExclusive,
-          0,
-          out stream
-          );
+            @"ActiveMovieGraph",
+            IntPtr.Zero,
+            STGM.Read | STGM.ShareExclusive,
+            0,
+            out stream
+            );
 
         Marshal.ThrowExceptionForHR(hr);
 
@@ -843,13 +843,13 @@ namespace Ui.Players.Video
           objs[0] = filter;
 
           NativeMethods.OleCreatePropertyFrame(
-            parent, 0, 0,
-            filterInfo.achName,
-            objs.Length, objs,
-            caGuid.cElems, caGuid.pElems,
-            0, 0,
-            IntPtr.Zero
-            );
+              parent, 0, 0,
+              filterInfo.achName,
+              objs.Length, objs,
+              caGuid.cElems, caGuid.pElems,
+              0, 0,
+              IntPtr.Zero
+              );
         }
         finally
         {
@@ -905,7 +905,7 @@ namespace Ui.Players.Video
     /// If useIntelligentConnect is false, this method works only if the two media types are compatible.
     /// </remarks>
     public static void ConnectFilters(IGraphBuilder graphBuilder, IBaseFilter upFilter, string sourcePinName,
-                                      IBaseFilter downFilter, string destPinName, bool useIntelligentConnect)
+        IBaseFilter downFilter, string destPinName, bool useIntelligentConnect)
     {
       if (graphBuilder == null)
       {
@@ -960,7 +960,7 @@ namespace Ui.Players.Video
     /// </remarks>
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public static void ConnectFilters(IGraphBuilder graphBuilder, IPin sourcePin, IPin destPin,
-                                      bool useIntelligentConnect)
+        bool useIntelligentConnect)
     {
       int hr;
 
@@ -1015,7 +1015,7 @@ namespace Ui.Players.Video
           remainingReferences = Marshal.ReleaseComObject(filterToRelease);
           if (remainingReferences > 0)
             ServiceRegistration.Get<ILogger>().Info("Releasing filter {0}, remaining references: {1}", filterToRelease,
-                                                    remainingReferences);
+                remainingReferences);
 
         } while (remainingReferences > 0 && releaseAllReferences);
         filterToRelease = default(TE);
@@ -1039,9 +1039,69 @@ namespace Ui.Players.Video
       objectToDispose = default(TE);
       return true;
     }
-  }
 
-  #region Unmanaged Code declarations
+    /// <summary>
+    /// Returns the friendly name of a moniker.
+    /// </summary>
+    /// <param name="mon">moniker</param>
+    /// <returns>friendly name</returns>
+    public static string GetFriendlyName(IMoniker mon)
+    {
+      return GetFilterProperty(mon, "FriendlyName");
+    }
+    /// <summary>
+    /// Returns the friendly name of a moniker.
+    /// </summary>
+    /// <param name="mon">moniker</param>
+    /// <returns>friendly name</returns>
+    public static Guid GetCLSID(IMoniker mon)
+    {
+      String clsidString=GetFilterProperty(mon, "CLSID");
+      return String.IsNullOrEmpty(clsidString) ? Guid.Empty : new Guid(clsidString);
+    }
+
+    /// <summary>
+    /// Returns a propery from the Filter's property bag.
+    /// </summary>
+    /// <param name="mon">moniker</param>
+    /// <param name="propertyName">name of property</param>
+    /// <returns>friendly name</returns>
+    public static string GetFilterProperty(IMoniker mon, String propertyName)
+    {
+      if (mon == null)
+        return string.Empty;
+
+      object bagObj = null;
+      IPropertyBag bag = null;
+      try
+      {
+        IErrorLog errorLog = null;
+        Guid bagId = typeof(IPropertyBag).GUID;
+        mon.BindToStorage(null, null, ref bagId, out bagObj);
+        bag = (IPropertyBag)bagObj;
+        object val;
+        int hr = bag.Read(propertyName, out val, errorLog);
+        Marshal.ThrowExceptionForHR(hr);
+
+        string ret = val as string;
+        if (string.IsNullOrEmpty(ret))
+          throw new NotImplementedException("Filter: "+propertyName);
+
+        return ret;
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+      finally
+      {
+        bag = null;
+        if (bagObj != null) 
+          Marshal.ReleaseComObject(bagObj);
+        bagObj = null;
+      }
+    }
+  }
 
   [Flags]
   internal enum STGM
@@ -1082,64 +1142,64 @@ namespace Ui.Players.Video
   {
     [PreserveSig]
     int CreateStream(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] STGM grfMode,
-      [In] int reserved1,
-      [In] int reserved2,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] STGM grfMode,
+        [In] int reserved1,
+        [In] int reserved2,
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
- [Out] out IStream ppstm
+        [Out] out IStream ppstm
 #endif
-);
+        );
 
     [PreserveSig]
     int OpenStream(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] IntPtr reserved1,
-      [In] STGM grfMode,
-      [In] int reserved2,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] IntPtr reserved1,
+        [In] STGM grfMode,
+        [In] int reserved2,
 #if USING_NET11
 			[Out] out UCOMIStream ppstm
 #else
- [Out] out IStream ppstm
+        [Out] out IStream ppstm
 #endif
-);
+        );
 
     [PreserveSig]
     int CreateStorage(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] STGM grfMode,
-      [In] int reserved1,
-      [In] int reserved2,
-      [Out] out IStorage ppstg
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] STGM grfMode,
+        [In] int reserved1,
+        [In] int reserved2,
+        [Out] out IStorage ppstg
+        );
 
     [PreserveSig]
     int OpenStorage(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] IStorage pstgPriority,
-      [In] STGM grfMode,
-      [In] int snbExclude,
-      [In] int reserved,
-      [Out] out IStorage ppstg
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] IStorage pstgPriority,
+        [In] STGM grfMode,
+        [In] int snbExclude,
+        [In] int reserved,
+        [Out] out IStorage ppstg
+        );
 
     [PreserveSig]
     int CopyTo(
-      [In] int ciidExclude,
-      [In] Guid[] rgiidExclude,
-      [In] string[] snbExclude,
-      [In] IStorage pstgDest
-      );
+        [In] int ciidExclude,
+        [In] Guid[] rgiidExclude,
+        [In] string[] snbExclude,
+        [In] IStorage pstgDest
+        );
 
     [PreserveSig]
     int MoveElementTo(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] IStorage pstgDest,
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsNewName,
-      [In] STGM grfFlags
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] IStorage pstgDest,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsNewName,
+        [In] STGM grfFlags
+        );
 
     [PreserveSig]
     int Commit([In] STGC grfCommitFlags);
@@ -1149,53 +1209,53 @@ namespace Ui.Players.Video
 
     [PreserveSig]
     int EnumElements(
-      [In] int reserved1,
-      [In] IntPtr reserved2,
-      [In] int reserved3,
-      [Out, MarshalAs(UnmanagedType.Interface)] out object ppenum
-      );
+        [In] int reserved1,
+        [In] IntPtr reserved2,
+        [In] int reserved3,
+        [Out, MarshalAs(UnmanagedType.Interface)] out object ppenum
+        );
 
     [PreserveSig]
     int DestroyElement([In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
 
     [PreserveSig]
     int RenameElement(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsOldName,
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsNewName
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsOldName,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsNewName
+        );
 
     [PreserveSig]
     int SetElementTimes(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
 #if USING_NET11
 			[In] FILETIME pctime,
 			[In] FILETIME patime,
 			[In] FILETIME pmtime
 #else
- [In] FILETIME pctime,
-      [In] FILETIME patime,
-      [In] FILETIME pmtime
+        [In] FILETIME pctime,
+        [In] FILETIME patime,
+        [In] FILETIME pmtime
 #endif
-);
+        );
 
     [PreserveSig]
     int SetClass([In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid);
 
     [PreserveSig]
     int SetStateBits(
-      [In] int grfStateBits,
-      [In] int grfMask
-      );
+        [In] int grfStateBits,
+        [In] int grfMask
+        );
 
     [PreserveSig]
     int Stat(
 #if USING_NET11
 			[Out] out STATSTG pStatStg,
 #else
-[Out] out STATSTG pStatStg,
+        [Out] out STATSTG pStatStg,
 #endif
- [In] int grfStatFlag
- );
+        [In] int grfStatFlag
+        );
   }
 
   internal static class NativeMethods
@@ -1205,44 +1265,42 @@ namespace Ui.Players.Video
 
     [DllImport("ole32.dll")]
     public static extern int MkParseDisplayName(IBindCtx pcb, [MarshalAs(UnmanagedType.LPWStr)] string szUserName,
-                                                out int pchEaten, out IMoniker ppmk);
+        out int pchEaten, out IMoniker ppmk);
 
     [DllImport("olepro32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int OleCreatePropertyFrame(
-      [In] IntPtr hwndOwner,
-      [In] int x,
-      [In] int y,
-      [In, MarshalAs(UnmanagedType.LPWStr)] string lpszCaption,
-      [In] int cObjects,
-      [In, MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.IUnknown)] object[] ppUnk,
-      [In] int cPages,
-      [In] IntPtr pPageClsId,
-      [In] int lcid,
-      [In] int dwReserved,
-      [In] IntPtr pvReserved
-      );
+        [In] IntPtr hwndOwner,
+        [In] int x,
+        [In] int y,
+        [In, MarshalAs(UnmanagedType.LPWStr)] string lpszCaption,
+        [In] int cObjects,
+        [In, MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.IUnknown)] object[] ppUnk,
+        [In] int cPages,
+        [In] IntPtr pPageClsId,
+        [In] int lcid,
+        [In] int dwReserved,
+        [In] IntPtr pvReserved
+        );
 
     [DllImport("ole32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int StgCreateDocfile(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] STGM grfMode,
-      [In] int reserved,
-      [Out] out IStorage ppstgOpen
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] STGM grfMode,
+        [In] int reserved,
+        [Out] out IStorage ppstgOpen
+        );
 
     [DllImport("ole32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int StgIsStorageFile([In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
 
     [DllImport("ole32.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
     public static extern int StgOpenStorage(
-      [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-      [In] IStorage pstgPriority,
-      [In] STGM grfMode,
-      [In] IntPtr snbExclude,
-      [In] int reserved,
-      [Out] out IStorage ppstgOpen
-      );
+        [In, MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
+        [In] IStorage pstgPriority,
+        [In] STGM grfMode,
+        [In] IntPtr snbExclude,
+        [In] int reserved,
+        [Out] out IStorage ppstgOpen
+        );
   }
-
-  #endregion
 }

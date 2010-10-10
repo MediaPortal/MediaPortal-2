@@ -31,23 +31,25 @@ using System.Security;
 using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Logging;
 using MediaPortal.UI.General;
+using MediaPortal.UI.Players.Video.Interfaces;
+using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Players;
-using MediaPortal.Utilities.Exceptions;
-using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.Utilities.Exceptions;
 using SlimDX;
-using Ui.Players.Video.Interfaces;
+using SlimDX.Direct3D9;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video
 {
   public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl
   {
@@ -178,47 +180,46 @@ namespace Ui.Players.Video
 
     public void Dispose()
     {
-      if (_resourceAccessor != null)
-        _resourceAccessor.Dispose();
-      _resourceAccessor = null;
+      FilterGraphTools.TryDispose(ref _resourceAccessor);
+      FilterGraphTools.TryDispose(ref _resourceLocator);
       UnsubscribeFromMessages();
     }
 
     void InitMediaSubTypes()
     {
-      MediaSubTypes[new Guid("00000130-0000-0010-8000-00AA00389B71")] = "ACELPnet"; //WMMEDIASUBTYPE_ACELPnet	
-      MediaSubTypes[new Guid("00000000-0000-0010-8000-00AA00389B71")] = "Base"; //WMMEDIASUBTYPE_Base
-      MediaSubTypes[new Guid("00000009-0000-0010-8000-00AA00389B71")] = "DRM"; //WMMEDIASUBTYPE_DRM
-      MediaSubTypes[new Guid("00000055-0000-0010-8000-00AA00389B71")] = "MP3"; //WMMEDIASUBTYPE_MP3
-      MediaSubTypes[new Guid("3334504D-0000-0010-8000-00AA00389B71")] = "MP43"; //WMMEDIASUBTYPE_MP43
-      MediaSubTypes[new Guid("5334504D-0000-0010-8000-00AA00389B71")] = "MP4S"; //WMMEDIASUBTYPE_MP4S
-      MediaSubTypes[new Guid("3253344D-0000-0010-8000-00AA00389B71")] = "M4S2"; //WMMEDIASUBTYPE_M4S2
-      MediaSubTypes[new Guid("32323450-0000-0010-8000-00AA00389B71")] = "P422"; //WMMEDIASUBTYPE_P422
-      MediaSubTypes[new Guid("e06d8026-db46-11cf-b4d1-00805f6cbbea")] = "MPEG2"; //WMMEDIASUBTYPE_MPEG2_VIDEO
-      MediaSubTypes[new Guid("3153534D-0000-0010-8000-00AA00389B71")] = "MSS1"; //WMMEDIASUBTYPE_MSS1
-      MediaSubTypes[new Guid("3253534D-0000-0010-8000-00AA00389B71")] = "MSS2"; //WMMEDIASUBTYPE_MSS2
-      MediaSubTypes[new Guid("00000001-0000-0010-8000-00AA00389B71")] = "PCM"; //WMMEDIASUBTYPE_PCM
-      MediaSubTypes[new Guid("776257d4-c627-41cb-8f81-7ac7ff1c40cc")] = "WebStream"; //WMMEDIASUBTYPE_WebStream
-      MediaSubTypes[new Guid("00000163-0000-0010-8000-00AA00389B71")] = "WMA Lossless"; //WMMEDIASUBTYPE_WMAudio_Lossless
-      MediaSubTypes[new Guid("00000161-0000-0010-8000-00AA00389B71")] = "WMA v2"; //WMMEDIASUBTYPE_WMAudioV2
-      MediaSubTypes[new Guid("00000161-0000-0010-8000-00AA00389B71")] = "WMA v7"; //WMMEDIASUBTYPE_WMAudioV7
-      MediaSubTypes[new Guid("00000161-0000-0010-8000-00AA00389B71")] = "WMA v8"; //WMMEDIASUBTYPE_WMAudioV8
-      MediaSubTypes[new Guid("00000162-0000-0010-8000-00AA00389B71")] = "WMA v9"; //WMMEDIASUBTYPE_WMAudioV9
-      MediaSubTypes[new Guid("0000000A-0000-0010-8000-00AA00389B71")] = "WMSP1"; //WMMEDIASUBTYPE_WMSP1
-      MediaSubTypes[new Guid("31564D57-0000-0010-8000-00AA00389B71")] = "WMV1"; //WMMEDIASUBTYPE_WMV1
-      MediaSubTypes[new Guid("32564D57-0000-0010-8000-00AA00389B71")] = "WMV2"; //WMMEDIASUBTYPE_WMV2
-      MediaSubTypes[new Guid("33564D57-0000-0010-8000-00AA00389B71")] = "WMV3"; //WMMEDIASUBTYPE_WMV3
-      MediaSubTypes[new Guid("41564D57-0000-0010-8000-00AA00389B71")] = "WMVA"; //WMMEDIASUBTYPE_WMVA
-      MediaSubTypes[new Guid("50564D57-0000-0010-8000-00AA00389B71")] = "WMVP"; //WMMEDIASUBTYPE_WMVP
-      MediaSubTypes[new Guid("32505657-0000-0010-8000-00AA00389B71")] = "WVP2"; //WMMEDIASUBTYPE_WVP2
-      MediaSubTypes[new Guid("e06d802c-db46-11cf-b4d1-00805f6cbbea")] = "AC3"; //MEDIASUBTYPE_AC3_AUDIO
-      MediaSubTypes[new Guid("00002000-0000-0010-8000-00aa00389b71")] = "AC3"; //MEDIASUBTYPE_ ???
-      MediaSubTypes[new Guid("a7fb87af-2d02-42fb-a4d4-05cd93843bdd")] = "AC3+"; //MEDIASUBTYPE_DDPLUS_AUDIO
-      MediaSubTypes[new Guid("e436eb81-524f-11ce-9f53-0020af0ba770")] = "MPEG1"; //MEDIASUBTYPE_MPEG1_PAYLOAD
-      MediaSubTypes[new Guid("e436eb87-524f-11ce-9f53-0020af0ba770")] = "MPEG1"; //MEDIASUBTYPE_MPEG1_AUDIO
-      MediaSubTypes[new Guid("e06d802b-db46-11cf-b4d1-00805f6cbbea")] = "MPEG2"; //MEDIASUBTYPE_MPEG2_AUDIO
-      MediaSubTypes[new Guid("000001ff-0000-0010-8000-00aa00389b71")] = "LATM AAC"; //MEDIASUBTYPE_LATM_AAC_AUDIO
-      MediaSubTypes[new Guid("000000ff-0000-0010-8000-00aa00389b71")] = "AAC"; //MEDIASUBTYPE_AAC_AUDIO
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_ACELPnet] = "ACELPnet"; //WMMEDIASUBTYPE_ACELPnet	
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_Base] = "Base"; //WMMEDIASUBTYPE_Base
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_DRM] = "DRM"; //WMMEDIASUBTYPE_DRM
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP3] = "MP3"; //WMMEDIASUBTYPE_MP3
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP43] = "MP43"; //WMMEDIASUBTYPE_MP43
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MP4S] = "MP4S"; //WMMEDIASUBTYPE_MP4S
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_M4S2] = "M4S2"; //WMMEDIASUBTYPE_M4S2
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_P422] = "P422"; //WMMEDIASUBTYPE_P422
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MPEG2_VIDEO] = "MPEG2"; //WMMEDIASUBTYPE_MPEG2_VIDEO
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS1] = "MSS1"; //WMMEDIASUBTYPE_MSS1
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_MSS2] = "MSS2"; //WMMEDIASUBTYPE_MSS2
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_PCM] = "PCM"; //WMMEDIASUBTYPE_PCM
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WebStream] = "WebStream"; //WMMEDIASUBTYPE_WebStream
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudio_Lossless] = "WMA Lossless"; //WMMEDIASUBTYPE_WMAudio_Lossless
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV2] = "WMA v2"; //WMMEDIASUBTYPE_WMAudioV2
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV7] = "WMA v7"; //WMMEDIASUBTYPE_WMAudioV7
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV8] = "WMA v8"; //WMMEDIASUBTYPE_WMAudioV8
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMAudioV9] = "WMA v9"; //WMMEDIASUBTYPE_WMAudioV9
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMSP1] = "WMSP1"; //WMMEDIASUBTYPE_WMSP1
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV1] = "WMV1"; //WMMEDIASUBTYPE_WMV1
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV2] = "WMV2"; //WMMEDIASUBTYPE_WMV2
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMV3] = "WMV3"; //WMMEDIASUBTYPE_WMV3
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVA] = "WMVA"; //WMMEDIASUBTYPE_WMVA
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WMVP] = "WMVP"; //WMMEDIASUBTYPE_WMVP
+      MediaSubTypes[CodecHandler.WMMEDIASUBTYPE_WVP2] = "WVP2"; //WMMEDIASUBTYPE_WVP2
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO] = "AC3"; //MEDIASUBTYPE_AC3_AUDIO
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AC3_AUDIO_OTHER] = "AC3"; //MEDIASUBTYPE_ ???
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_DDPLUS_AUDIO] = "AC3+"; //MEDIASUBTYPE_DDPLUS_AUDIO
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_PAYLOAD] = "MPEG1"; //MEDIASUBTYPE_MPEG1_PAYLOAD
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG1_AUDIO] = "MPEG1"; //MEDIASUBTYPE_MPEG1_AUDIO
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_MPEG2_AUDIO] = "MPEG2"; //MEDIASUBTYPE_MPEG2_AUDIO
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_LATM_AAC_AUDIO] = "LATM AAC"; //MEDIASUBTYPE_LATM_AAC_AUDIO
+      MediaSubTypes[CodecHandler.MEDIASUBTYPE_AAC_AUDIO] = "AAC"; //MEDIASUBTYPE_AAC_AUDIO
     }
     #endregion
 
@@ -466,13 +467,14 @@ namespace Ui.Players.Video
 
     /// <summary>
     /// Try to add filter by name to graph.
-    /// If it succeedes it gets added to _filtersList.
     /// </summary>
-    /// <param name="codecName">Filter name to add</param>
+    /// <param name="codecInfo">Filter name to add</param>
     /// <returns>true if successful</returns>
-    protected bool TryAdd(String codecName)
+    protected bool TryAdd(CodecInfo codecInfo)
     {
-      IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, codecName);
+      if (codecInfo == null)
+        return false;
+      IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, codecInfo.Name);
       return tempFilter != null;
     }
 
@@ -484,9 +486,9 @@ namespace Ui.Players.Video
       if (_resourceAccessor == null) return;
       string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
-      {
         _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
-      }
+      else
+        _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
     }
 
     /// <summary>
@@ -504,62 +506,56 @@ namespace Ui.Players.Video
     /// </summary>
     protected virtual void AddPreferredCodecs()
     {
-      // Init capabilities
-      _graphCapabilities = CodecHandler.CodecCapabilities.None;
-
-      CodecHandler codecHandler = new CodecHandler();
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      if (settings == null)
+        return;
 
-      // set default codecs
-      if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.VideoH264) && !string.IsNullOrEmpty(settings.H264Codec))
-        codecHandler.SetPreferred(settings.H264Codec, CodecHandler.CodecCapabilities.VideoH264);
-
-      if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.VideoMPEG2) && !string.IsNullOrEmpty(settings.Mpeg2Codec))
-        codecHandler.SetPreferred(settings.Mpeg2Codec, CodecHandler.CodecCapabilities.VideoMPEG2);
-
-      if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.VideoDIVX) && !string.IsNullOrEmpty(settings.DivXCodec))
-        codecHandler.SetPreferred(settings.DivXCodec, CodecHandler.CodecCapabilities.VideoDIVX);
-
-      if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.AudioMPEG) && !string.IsNullOrEmpty(settings.AudioCodec))
-        codecHandler.SetPreferred(settings.AudioCodec, CodecHandler.CodecCapabilities.AudioMPEG);
-
-      // Lookup all known codecs and add them to graph
-      foreach (CodecInfo currentCodec in codecHandler.CodecList)
+      //IAMPluginControl is supported in Win7 and later only.
+      IAMPluginControl pc = null;
+      try
       {
-        // Check H264 codec
-        if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.VideoH264))
-          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.VideoH264);
-
-        // Check MPEG2 codec
-        if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.VideoMPEG2))
-          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.VideoMPEG2);
-
-        // Check Audio codec
-        if (codecHandler.Supports(_requiredCapabilities, CodecHandler.CodecCapabilities.AudioMPEG))
-          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.AudioMPEG);
-
-        // Exit if all needed capabilities exist
-        if (codecHandler.Supports(_graphCapabilities, _requiredCapabilities))
-          break;
-      }
-    }
-
-    /// <summary>
-    /// Adds a codec to graph for the requested capability.
-    /// </summary>
-    /// <param name="codecHandler">Current codec handler.</param>
-    /// <param name="currentCodec">Current codec to check.</param>
-    /// <param name="requestedCapability">The capability the codec has to support.</param>
-    protected void AddFilterByCapability(CodecHandler codecHandler, CodecInfo currentCodec, CodecHandler.CodecCapabilities requestedCapability)
-    {
-      if (!codecHandler.Supports(_graphCapabilities, requestedCapability) &&
-           codecHandler.Supports(currentCodec.Capabilities, requestedCapability))
-      {
-        if (TryAdd(currentCodec.Name))
+        pc = new DirectShowPluginControl() as IAMPluginControl;
+        if (pc != null)
         {
-          _graphCapabilities |= currentCodec.Capabilities; // remember all capabilities
-          ServiceRegistration.Get<ILogger>().Debug("{0}: Add {1} Codec {2} ", PlayerTitle, requestedCapability.ToString(), currentCodec.Name);
+          if (settings.Mpeg2Codec != null)
+            pc.SetPreferredClsid(MediaSubType.Mpeg2Video, settings.Mpeg2Codec.GetCLSID());
+
+          if (settings.H264Codec != null)
+            pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
+
+          if (settings.AudioCodec != null)
+          {
+            foreach (Guid guid in new Guid[]
+                                    {
+                                      MediaSubType.Mpeg2Audio,
+                                      MediaSubType.MPEG1AudioPayload,
+                                      CodecHandler.WMMEDIASUBTYPE_MP3,
+                                      CodecHandler.MEDIASUBTYPE_MPEG1_AUDIO,
+                                      CodecHandler.MEDIASUBTYPE_MPEG2_AUDIO
+                                    })
+              pc.SetPreferredClsid(guid, settings.AudioCodec.GetCLSID());
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Exception in IAMPluginControl: {1}", PlayerTitle, ex.ToString());
+      }
+
+      // if IAMPluginControl is not supported.
+      if (pc == null)
+      {
+        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoMPEG2) != 0)
+          TryAdd(settings.Mpeg2Codec);
+
+        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoH264) != 0)
+          TryAdd(settings.H264Codec);
+
+        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.VideoDIVX) != 0)
+          TryAdd(settings.DivXCodec);
+
+        if ((_requiredCapabilities & CodecHandler.CodecCapabilities.AudioMPEG) != 0)
+          TryAdd(settings.AudioCodec);
       }
     }
 
@@ -633,6 +629,9 @@ namespace Ui.Players.Video
           FilterGraphTools.TryDispose(ref _resourceAccessor);
         }
       }
+      // Dispose resource locator and accessor
+      FilterGraphTools.TryDispose(ref _resourceAccessor);
+      FilterGraphTools.TryDispose(ref _resourceLocator);
     }
 
     #endregion

@@ -28,10 +28,10 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.Video.Interfaces;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video
 {
   /// <summary>
   /// Player builder for all video players of the VideoPlayers plugin.

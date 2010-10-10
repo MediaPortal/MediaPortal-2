@@ -24,7 +24,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.Video.Subtitles
+namespace MediaPortal.UI.Players.Video.Subtitles
 {
   public enum SubtitleType
   {
@@ -50,7 +50,7 @@ namespace Ui.Players.Video.Subtitles
         case SubtitleType.Bitmap:
           return "Bitmap Lang " + language;
         case SubtitleType.Teletext:
-          return "Teletext Lang\t" + entry.language + "\tpage : " + entry.page;
+          return "Teletext Lang\t" + entry.language + "\tpage: " + entry.page;
         case SubtitleType.None:
           return "None";
         default:

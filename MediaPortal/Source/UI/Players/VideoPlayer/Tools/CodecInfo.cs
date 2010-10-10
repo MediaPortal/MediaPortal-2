@@ -23,69 +23,21 @@
 #endregion
 
 using System;
+using DirectShowLib;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video.Tools
 {
   public class CodecInfo: IComparable
   {
-    #region Variables
-
-    private CodecHandler.CodecCapabilities _capabilities;
-    private String _name;
-    private Boolean _preferred;
-    private String _CLSID;
-
-    #endregion
-
     #region Properties
 
-    public CodecHandler.CodecCapabilities Capabilities
-    {
-      get
-      {
-        return _capabilities;
-      }
-      set
-      {
-        _capabilities = value;
-      }
-    }
+    public CodecHandler.CodecCapabilities Capabilities { get; set; }
 
-    public String Name
-    {
-      get
-      {
-        return _name;
-      }
-      set
-      {
-        _name = value;
-      }
-    }
+    public String Name { get; set; }
 
-    public String CLSID
-    {
-      get
-      {
-        return _CLSID;
-      }
-      set
-      {
-        _CLSID = value;
-      }
-    }
+    public String CLSID { get; set; }
 
-    public Boolean Preferred
-    {
-      get
-      {
-        return _preferred;
-      }
-      set
-      {
-        _preferred = value;
-      }
-    }
+    public bool Preferred { get; set; }
 
     #endregion
 
@@ -98,14 +50,14 @@ namespace Ui.Players.Video
 
     public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities)
     {
-      _name = codecName;
-      _capabilities = codecCapabilities;
+      Name = codecName;
+      Capabilities = codecCapabilities;
     }
 
-    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities, String codecClsid)
-      : this(codecName, codecCapabilities)
+    public CodecInfo(String codecName, CodecHandler.CodecCapabilities codecCapabilities, DsGuid codecClsid)
+        : this(codecName, codecCapabilities)
     {
-      _CLSID = codecClsid;
+      CLSID = codecClsid.ToString();
     }
 
     #endregion
@@ -114,11 +66,22 @@ namespace Ui.Players.Video
 
     public override String ToString()
     {
-      return String.Format("{0} [{1}] preferred: {2}", _name, _capabilities, _preferred);
+      return String.Format("{0} [{1}]", Name, CLSID);
     }
 
     #endregion
 
+    #region Methods
+
+    public DsGuid GetCLSID()
+    {
+      return DsGuid.FromGuid(
+          String.IsNullOrEmpty(CLSID)
+              ? Guid.Empty
+              : new Guid(CLSID));
+    }
+
+    #endregion
 
     #region IComparable Member
 
@@ -127,7 +90,7 @@ namespace Ui.Players.Video
       if (! (obj is CodecInfo) ) return -1;
       if (Preferred && !((CodecInfo)obj).Preferred) return -1;
       if (!Preferred && ((CodecInfo)obj).Preferred) return +1;
-      return 0;
+      return Name.CompareTo(((CodecInfo)obj).Name);
     }
 
     #endregion

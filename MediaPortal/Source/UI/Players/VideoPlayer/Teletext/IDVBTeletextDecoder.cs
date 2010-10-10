@@ -24,7 +24,7 @@
 
 using System;
 
-namespace Ui.Players.Video.Teletext
+namespace MediaPortal.UI.Players.Video.Teletext
 {
   public interface IDVBTeletextDecoder
   {

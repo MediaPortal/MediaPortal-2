@@ -8,7 +8,7 @@
     <ProjectGuid>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ui.Players.Video</RootNamespace>
+    <RootNamespace>MediaPortal.UI.Players.Video</RootNamespace>
     <AssemblyName>VideoPlayers</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,6 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
+    <Compile Include="Settings\Configuration\AudioCodec.cs" />
+    <Compile Include="Settings\Configuration\ClosedCaptions.cs" />
+    <Compile Include="Settings\Configuration\Subtitles.cs" />
+    <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
+    <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
     <Compile Include="Tools\CodecHandler.cs" />
     <Compile Include="Tools\CodecInfo.cs" />
     <Compile Include="DvdPlayer.cs" />
@@ -62,9 +68,7 @@
     <Compile Include="Interfaces\IInitializablePlayer.cs" />
     <Compile Include="Interfaces\IPersistMemory.cs" />
     <Compile Include="Interfaces\ITsReaderCallback.cs" />
-    <Compile Include="settings\AudioSettings.cs" />
-    <Compile Include="settings\Settings.cs" />
-    <Compile Include="settings\VideoSettings.cs" />
+    <Compile Include="Settings\VideoSettings.cs" />
     <Compile Include="Subtitles\SubtitleRenderer.cs" />
     <Compile Include="Subtitles\SubtitleSelector.cs" />
     <Compile Include="Subtitles\TeletextMagazine.cs" />

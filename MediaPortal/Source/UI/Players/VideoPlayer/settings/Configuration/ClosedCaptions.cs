@@ -1,9 +1,9 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2010 Team MediaPortal
 
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -22,15 +22,23 @@
 
 #endregion
 
-using System;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UI.Players.Video
+namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public class VideoPlayerException : ApplicationException
+  public class ClosedCaptions : YesNo
   {
-    public VideoPlayerException(string msg, params object[] args):
-        base(string.Format(msg, args)) { }
-    public VideoPlayerException(string msg, Exception ex, params object[] args):
-        base(string.Format(msg, args), ex) { }
+    public override void Load()
+    {
+      _yes = SettingsManager.Load<VideoSettings>().EnableClosedCaption;
+    }
+
+    public override void Save()
+    {
+      base.Save();
+      VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      settings.EnableClosedCaption = _yes;
+      SettingsManager.Save(settings);
+    }
   }
 }

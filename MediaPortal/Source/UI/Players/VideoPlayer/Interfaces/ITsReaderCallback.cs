@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.Video.Interfaces
+namespace MediaPortal.UI.Players.Video.Interfaces
 {
   /// <summary>
   /// Structure for callbacks by TsReader.
@@ -40,7 +40,7 @@ namespace Ui.Players.Video.Interfaces
 
     [PreserveSig]
     int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY, int bitrate,
-                             int isInterlaced);
+        int isInterlaced);
   }
 
   /// <summary>

@@ -24,9 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
+using DirectShowLib;
 using Microsoft.Win32;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video.Tools
 {
   public class CodecHandler
   {
@@ -68,6 +70,44 @@ namespace Ui.Players.Video
 
     #endregion
 
+    #region Constants
+
+    public static Guid WMMEDIASUBTYPE_ACELPnet = new Guid("00000130-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_Base = new Guid("00000000-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_DRM = new Guid("00000009-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_MP3 = new Guid("00000055-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_MP43 = new Guid("3334504D-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_MP4S = new Guid("5334504D-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_M4S2 = new Guid("3253344D-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_P422 = new Guid("32323450-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_MPEG2_VIDEO = new Guid("e06d8026-db46-11cf-b4d1-00805f6cbbea");
+    public static Guid WMMEDIASUBTYPE_MSS1 = new Guid("3153534D-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_MSS2 = new Guid("3253534D-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_PCM = new Guid("00000001-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WebStream = new Guid("776257d4-c627-41cb-8f81-7ac7ff1c40cc");
+    public static Guid WMMEDIASUBTYPE_WMAudio_Lossless = new Guid("00000163-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMAudioV2 = new Guid("00000161-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMAudioV7 = new Guid("00000161-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMAudioV8 = new Guid("00000161-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMAudioV9 = new Guid("00000162-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMSP1 = new Guid("0000000A-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMV1 = new Guid("31564D57-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMV2 = new Guid("32564D57-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMV3 = new Guid("33564D57-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMVA = new Guid("41564D57-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WMVP = new Guid("50564D57-0000-0010-8000-00AA00389B71");
+    public static Guid WMMEDIASUBTYPE_WVP2 = new Guid("32505657-0000-0010-8000-00AA00389B71");
+    public static Guid MEDIASUBTYPE_AC3_AUDIO = new Guid("e06d802c-db46-11cf-b4d1-00805f6cbbea");
+    public static Guid MEDIASUBTYPE_AC3_AUDIO_OTHER = new Guid("00002000-0000-0010-8000-00aa00389b71");
+    public static Guid MEDIASUBTYPE_DDPLUS_AUDIO = new Guid("a7fb87af-2d02-42fb-a4d4-05cd93843bdd");
+    public static Guid MEDIASUBTYPE_MPEG1_PAYLOAD = new Guid("e436eb81-524f-11ce-9f53-0020af0ba770");
+    public static Guid MEDIASUBTYPE_MPEG1_AUDIO = new Guid("e436eb87-524f-11ce-9f53-0020af0ba770");
+    public static Guid MEDIASUBTYPE_MPEG2_AUDIO = new Guid("e06d802b-db46-11cf-b4d1-00805f6cbbea");
+    public static Guid MEDIASUBTYPE_LATM_AAC_AUDIO = new Guid("000001ff-0000-0010-8000-00aa00389b71");
+    public static Guid MEDIASUBTYPE_AAC_AUDIO = new Guid("000000ff-0000-0010-8000-00aa00389b71");
+
+    #endregion
+
     #region Properties
 
     public List<CodecInfo> CodecList 
@@ -104,13 +144,17 @@ namespace Ui.Players.Video
     /// <param name="newCodec">Codec to add</param>
     public void TryAdd(CodecInfo newCodec)
     {
-      if (DoesComObjectExists(newCodec.CLSID))
+      if (DoesComObjectExists(newCodec.CLSID.ToString()))
       {
         _codecList.Add(newCodec);
       }
     }
 
-    // checks to see if a COM object is registered and exists on the filesystem
+    /// <summary>
+    /// Checks to see if a COM object is registered and exists on the filesystem.
+    /// </summary>
+    /// <param name="clsid">class id</param>
+    /// <returns>true if exists.</returns>
     public static bool DoesComObjectExists(string clsid)
     {
       using (RegistryKey myRegKey = Registry.LocalMachine)
@@ -138,15 +182,12 @@ namespace Ui.Players.Video
         {
           // parse out the version number embedded in the resource
           // in the DLL
-          if (!System.IO.File.Exists(val.ToString()))
-            return false;
+          return System.IO.File.Exists(val.ToString());
         }
         catch
         {
           return false;
         }
-
-        return true;
       }
     }
 
@@ -171,39 +212,93 @@ namespace Ui.Players.Video
     public CodecHandler()
     {
       _codecList = new List<CodecInfo>();
+    }
 
-      // add known other audio and video codecs
-      TryAdd(new CodecInfo("Microsoft DTV-DVD Video Decoder", CodecCapabilities.VideoH264 | CodecCapabilities.VideoMPEG2 | CodecCapabilities.SingleVideoCodecOnly, "{212690FB-83E5-4526-8FD7-74478B7939CD}"));
-      TryAdd(new CodecInfo("CyberLink H.264/AVC Decoder", CodecCapabilities.VideoH264, "{5FFFC195-E3DE-4219-981E-FFA227A02FBB}"));
-      TryAdd(new CodecInfo("CyberLink H.264/AVC Decoder (PDVD7)", CodecCapabilities.VideoH264, "{D12E285B-3B29-4416-BA8E-79BD81D193CC}"));
-      TryAdd(new CodecInfo("CyberLink H.264/AVC Decoder (PDVD7.X)", CodecCapabilities.VideoH264, "{F2E3D920-0F9B-4319-BE87-EB94CCEB6C09}"));
-      TryAdd(new CodecInfo("CoreAVC Video Decoder", CodecCapabilities.VideoH264, "{09571A4B-F1FE-4C60-9760-DE6D310C7C31}"));
-      TryAdd(new CodecInfo("MPC Video Decoder", CodecCapabilities.VideoH264 | CodecCapabilities.VideoMPEG2, "{008BAC12-FBAF-497B-9670-BC6F6FBAE2C4}"));
-      
 
-      TryAdd(new CodecInfo("CyberLink Video/SP Decoder", CodecCapabilities.VideoMPEG2, "{C81C8C5A-B354-4DEB-96D3-8BD8D0C8ABD0}"));
-      TryAdd(new CodecInfo("CyberLink Video/SP Decoder", CodecCapabilities.VideoMPEG2, "{B828D96A-4AC3-4C2E-9AD4-3596EE9A3046}"));
-      TryAdd(new CodecInfo("CyberLink Video/SP Decoder (PDVD7)", CodecCapabilities.VideoMPEG2, "{8ACD52ED-9C2D-4008-9129-DCE955D86065}"));
-      TryAdd(new CodecInfo("Microsoft MPEG-2 Video Decoder", CodecCapabilities.VideoMPEG2, "{212690FB-83E5-4526-8FD7-74478B7939CD}"));
-      TryAdd(new CodecInfo("NVIDIA Video Decoder", CodecCapabilities.VideoMPEG2, "{71E4616A-DB5E-452B-8CA5-71D9CC7805E9}"));
-      TryAdd(new CodecInfo("MPV Decoder Filter", CodecCapabilities.VideoMPEG2, "{39F498AF-1A09-4275-B193-673B0BA3D478}"));
-      TryAdd(new CodecInfo("InterVideo Video Decoder", CodecCapabilities.VideoMPEG2, "{0246CA20-776D-11D2-8010-00104B9B8592}"));
+    /// <summary>
+    /// Gets a list of DirectShow filter names that accept the passed MediaType/MediaSubType.
+    /// </summary>
+    /// <param name="mediaType">MediaType</param>
+    /// <param name="mediaSubType">MediaSubType</param>
+    /// <returns>List of names</returns>
+    public static List<CodecInfo> GetFilters(Guid mediaType, Guid mediaSubType)
+    {
+      return GetFilters(mediaType, mediaSubType, (Merit)0x080001);
+    }
 
-      TryAdd(new CodecInfo("Microsoft DTV-DVD Audio Decoder", CodecCapabilities.AudioMPEG /*| CodecCapabilities.AudioAAC*/, "{E1F1A0B8-BEEE-490D-BA7C-066C40B5E2B9}"));
-      TryAdd(new CodecInfo("CyberLink Audio Decoder (PDVD7)", CodecCapabilities.AudioMPEG, "{284DC28A-4A7D-442C-BC2E-D7480556E4D8}"));
-      TryAdd(new CodecInfo("CyberLink Audio Decoder (PDVD7.x)", CodecCapabilities.AudioMPEG, "{D5DBA1A7-61A0-437E-B6AB-C9C422F466B5}"));
-      TryAdd(new CodecInfo("CyberLink Audio Decoder (PDVD7 UPnP)", CodecCapabilities.AudioMPEG, "{706E503A-EB19-4106-9D7C-0384359D511A}"));
-      TryAdd(new CodecInfo("CyberLink Audio Decoder", CodecCapabilities.AudioMPEG, "{B60C424E-AB7B-429F-9B9B-93684E51EA75}"));
-      TryAdd(new CodecInfo("CyberLink Audio Decoder", CodecCapabilities.AudioMPEG, "{03EC05EA-C2A7-49A8-971F-580D5891F2FB}"));
-      TryAdd(new CodecInfo("NVIDIA Audio Decoder", CodecCapabilities.AudioMPEG, "{6C0BDF86-C36A-4D83-8BDB-312D2EAF409E}"));
-      TryAdd(new CodecInfo("MPA Decoder Filter", CodecCapabilities.AudioMPEG, "{3D446B6F-71DE-4437-BE15-8CE47174340F}"));
-      TryAdd(new CodecInfo("ffdshow Audio Decoder", CodecCapabilities.AudioMPEG | CodecCapabilities.AudioAAC, "{0F40E1E5-4F79-4988-B1A9-CC98794E6B55}"));
-      TryAdd(new CodecInfo("Microsoft MPEG-1/DD Audio Decoder", CodecCapabilities.AudioMPEG, "{E1F1A0B8-BEEE-490D-BA7C-066C40B5E2B9}"));
-      TryAdd(new CodecInfo("InterVideo Audio Decoder", CodecCapabilities.AudioMPEG, "{7E2E0DC1-31FD-11D2-9C21-00104B3801F6}"));
+    /// <summary>
+    /// Gets a list of DirectShow filter names that accept the passed MediaType/MediaSubType and minimum Merit.
+    /// </summary>
+    /// <param name="mediaType">MediaType</param>
+    /// <param name="mediaSubType">MediaSubType</param>
+    /// <param name="merit">Minimum merit</param>
+    /// <returns>List of names</returns>
+    public static List<CodecInfo> GetFilters(Guid mediaType, Guid mediaSubType, Merit merit)
+    {
+      return GetFilters(new Guid[] { mediaType, mediaSubType }, new Guid[0], merit);
+    }
 
-      TryAdd(new CodecInfo("ffdshow Video Decoder", CodecCapabilities.VideoDIVX, "{04FE9017-F873-410E-871E-AB91661A4EF7}"));
-      TryAdd(new CodecInfo("DivX Decoder Filter", CodecCapabilities.VideoDIVX, "{78766964-0000-0010-8000-00AA00389B71}"));
-      TryAdd(new CodecInfo("Xvid MPEG-4 Video Decoder", CodecCapabilities.VideoDIVX, "{64697678-0000-0010-8000-00AA00389B71}"));
+    /// <summary>
+    /// Gets a list of DirectShow filter names that accept the passed MediaType/MediaSubType and output the passed MediaType/MediaSubType.
+    /// </summary>
+    /// <param name="inputMediaAndSubTypes">Array of MediaType/MediaSubType</param>
+    /// <param name="outputMediaAndSubTypes">Array of MediaType/MediaSubType</param>
+    /// <returns>List of names</returns>
+    public static List<CodecInfo> GetFilters(Guid[] inputMediaAndSubTypes, Guid[] outputMediaAndSubTypes)
+    {
+      return GetFilters(inputMediaAndSubTypes, outputMediaAndSubTypes, (Merit) 0x080001);
+    }
+
+    /// <summary>
+    /// Gets a list of DirectShow filter names that accept the passed MediaType/MediaSubType and output the passed MediaType/MediaSubType.
+    /// </summary>
+    /// <param name="inputMediaAndSubTypes">Array of MediaType/MediaSubType</param>
+    /// <param name="outputMediaAndSubTypes">Array of MediaType/MediaSubType</param>
+    /// <param name="merit"></param>
+    /// <returns>List of names</returns>
+    public static List<CodecInfo> GetFilters(Guid[] inputMediaAndSubTypes, Guid[] outputMediaAndSubTypes, Merit merit)
+    {
+      List<CodecInfo> filters = new List<CodecInfo>();
+      IEnumMoniker enumMoniker = null;
+      IMoniker[] moniker = new IMoniker[1];
+      IFilterMapper2 mapper = (IFilterMapper2) new FilterMapper2();
+      try
+      {
+        int hResult = mapper.EnumMatchingFilters(
+            out enumMoniker,
+            0,
+            true,
+            merit,
+            true,
+            inputMediaAndSubTypes.Length,
+            inputMediaAndSubTypes,
+            null,
+            null,
+            false,
+            true,
+            outputMediaAndSubTypes.Length,
+            outputMediaAndSubTypes,
+            null,
+            null);
+        do
+        {
+          hResult = enumMoniker.Next(1, moniker, IntPtr.Zero);
+          if ((moniker[0] == null))
+            break;
+
+          string filterName = FilterGraphTools.GetFriendlyName(moniker[0]);
+          Guid filterClassId = FilterGraphTools.GetCLSID(moniker[0]);
+          CodecInfo codecInfo = new CodecInfo(filterName, CodecCapabilities.None, filterClassId);
+          filters.Add(codecInfo);
+          
+          FilterGraphTools.TryRelease(ref moniker[0]);
+        } while (true);
+        filters.Sort();
+        return filters;
+      }finally
+      {
+        FilterGraphTools.TryRelease(ref enumMoniker);
+      }
     }
   }
 }

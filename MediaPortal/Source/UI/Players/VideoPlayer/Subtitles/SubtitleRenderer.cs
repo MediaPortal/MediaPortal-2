@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -38,10 +39,10 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace Ui.Players.Video.Subtitles
+namespace MediaPortal.UI.Players.Video.Subtitles
 {
   /// <summary>
-  /// Structure used in communication with subtitle filter
+  /// Structure used in communication with subtitle filter.
   /// </summary>
   [StructLayout(LayoutKind.Sequential, Pack = 1)]
   public struct NativeSubtitle
@@ -138,9 +139,7 @@ namespace Ui.Players.Video.Subtitles
   }
 
   /// <summary>
-  /// Interface to the subtitle filter, which
-  /// allows us to get notified of subtitles and
-  /// retrieve them
+  /// Interface to the subtitle filter, which allows us to get notified of subtitles and retrieve them.
   /// </summary>
   [Guid("4A4fAE7C-6095-11DC-8314-0800200C9A66"),
  InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -311,18 +310,15 @@ namespace Ui.Players.Video.Subtitles
       ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: RESET");
       // Remove all previously received subtitles
       lock (_subtitles)
-      {
         _subtitles.Clear();
-      }
       _clearOnNextRender = true;
       return 0;
     }
 
     /// <summary>
-    /// Callback from subtitle filter
-    /// Updates the latest subtitle timeout 
+    /// Callback from subtitle filter. Updates the latest subtitle timeout.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The return value is always <c>0</c>.</returns>
     public int UpdateTimeout(ref Int64 timeOut)
     {
       ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: UpdateTimeout");
@@ -330,7 +326,7 @@ namespace Ui.Players.Video.Subtitles
 
       if (latest != null)
       {
-        latest.timeOut = (double)timeOut / 1000.0f;
+        latest.timeOut = (double) timeOut / 1000.0f;
         ServiceRegistration.Get<ILogger>().Debug("  new timeOut = {0}", latest.timeOut);
       }
       return 0;
@@ -338,11 +334,10 @@ namespace Ui.Players.Video.Subtitles
 
 
     /// <summary>
-    /// Callback from subtitle filter, alerting us that a new subtitle is available
-    /// It receives the neew subtitle as the argument sub, which data is only valid 
-    /// for the duration of OnSubtitle.
+    /// Callback from subtitle filter, alerting us that a new subtitle is available.
+    /// It receives the neew subtitle as the argument sub, which data is only valid for the duration of OnSubtitle.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The return value is always <c>0</c>.</returns>
     public int OnSubtitle(ref NativeSubtitle sub)
     {
       if (!_useBitmap) return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
@@ -528,7 +523,7 @@ namespace Ui.Players.Video.Subtitles
 
 
     /// <summary>
-    /// Update the subtitle texture from a Bitmap
+    /// Update the subtitle texture from a Bitmap.
     /// </summary>
     /// <param name="subtitle"></param>
     private void SetSubtitle(Subtitle subtitle)
@@ -610,6 +605,7 @@ namespace Ui.Players.Video.Subtitles
       {
         ServiceRegistration.Get<ILogger>().Error(e);
       }
+      // FIXME: Possible NRE
       _subFilter.StatusTest(111);
       IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(_callBack);
       _subFilter.SetBitmapCallback(pCallback);
@@ -628,9 +624,7 @@ namespace Ui.Players.Video.Subtitles
     public void Render()
     {
       if (_player == null)
-      {
         return;
-      }
       //ServiceRegistration.Get<ILogger>().Debug("\n\n***** SubtitleRenderer: Subtitle render *********");
       // ServiceRegistration.Get<ILogger>().Debug(" Stream pos: "+player.StreamPosition); 
       //if (!GUIGraphicsContext.IsFullScreenVideo) return;
@@ -645,9 +639,7 @@ namespace Ui.Players.Video.Subtitles
       }
 
       if (_renderSubtitles == false)
-      {
         return;
-      }
 
       // ugly temp!
       bool timeForNext = false;
@@ -713,9 +705,7 @@ namespace Ui.Players.Video.Subtitles
         }
         // if currentSubtitle is non-null we have a new subtitle
         if (_currentSubtitle != null)
-        {
           SetSubtitle(_currentSubtitle);
-        }
         else return;
       }
       bool alphaTest = false;

@@ -23,17 +23,18 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.Players.Video.Interfaces;
+using MediaPortal.UI.Players.Video.Subtitles;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using Ui.Players.Video.Interfaces;
-using Ui.Players.Video.Subtitles;
-using System.Collections.Generic;
 using SlimDX;
 
-namespace Ui.Players.Video
+namespace MediaPortal.UI.Players.Video
 {
   public class TsVideoPlayer : VideoPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
   {
@@ -78,10 +79,12 @@ namespace Ui.Players.Video
     /// </summary>
     protected override void FreeCodecs()
     {
+      base.FreeCodecs();
       _renderer.Clear();
       _renderer.ReleaseResources();
       _renderer = null;
-      base.FreeCodecs();
+      FilterGraphTools.TryRelease(ref _subtitleFilter);
+      FilterGraphTools.TryRelease(ref _fileSource);
     }
 
     /// <summary>

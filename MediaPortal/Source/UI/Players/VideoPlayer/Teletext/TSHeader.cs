@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace Ui.Players.Video.Teletext
+namespace MediaPortal.UI.Players.Video.Teletext
 {
   class TSHeader
   {
