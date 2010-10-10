@@ -107,24 +107,24 @@ namespace MediaPortal.UI.SkinEngine
     public void Initialize()
     {
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ContentManager service");
-      ServiceRegistration.Add<ContentManager>(ContentManager.Instance);
+      ServiceRegistration.Set<ContentManager>(ContentManager.Instance);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
       IGeometryManager geometryManager = new GeometryManager();
-      ServiceRegistration.Add<IGeometryManager>(geometryManager);
+      ServiceRegistration.Set<IGeometryManager>(geometryManager);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
-      ServiceRegistration.Add<IInputManager>(InputManager.Instance);
+      ServiceRegistration.Set<IInputManager>(InputManager.Instance);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISuperLayerManager service");
-      ServiceRegistration.Add<ISuperLayerManager>(SuperLayerManager.Instance);
+      ServiceRegistration.Set<ISuperLayerManager>(SuperLayerManager.Instance);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
-      ServiceRegistration.Add<IScreenManager>(_screenManager);
+      ServiceRegistration.Set<IScreenManager>(_screenManager);
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
-      ServiceRegistration.Add<ISkinResourceManager>(_screenManager.SkinResourceManager);
+      ServiceRegistration.Set<ISkinResourceManager>(_screenManager.SkinResourceManager);
     }
 
     public void Startup()
@@ -194,7 +194,7 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceRegistration.Add<ISkinEngine>(this);
+      ServiceRegistration.Set<ISkinEngine>(this);
     }
 
     public bool RequestEnd()

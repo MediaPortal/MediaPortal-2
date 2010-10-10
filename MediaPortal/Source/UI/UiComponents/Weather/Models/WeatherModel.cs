@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
       {
         WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-        ServiceRegistration.Add<IWeatherCatcher>(new WeatherDotComCatcher(
+        ServiceRegistration.Set<IWeatherCatcher>(new WeatherDotComCatcher(
             settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
             settings.SkipConnectionTest));
       }

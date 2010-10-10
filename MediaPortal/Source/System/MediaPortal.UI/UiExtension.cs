@@ -52,34 +52,34 @@ namespace MediaPortal.UI
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
       logger.Debug("UiExtension: Registering ISystemResolver service");
-      ServiceRegistration.Add<ISystemResolver>(new SystemResolver());
+      ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
 
       logger.Debug("UiExtension: Registering IWorkflowManager service");
-      ServiceRegistration.Add<IWorkflowManager>(new WorkflowManager());
+      ServiceRegistration.Set<IWorkflowManager>(new WorkflowManager());
 
       logger.Debug("UiExtension: Registering IPlayerManager service");
-      ServiceRegistration.Add<IPlayerManager>(new PlayerManager());
+      ServiceRegistration.Set<IPlayerManager>(new PlayerManager());
 
       logger.Debug("UiExtension: Registering IPlayerContextManager service");
-      ServiceRegistration.Add<IPlayerContextManager>(new PlayerContextManager());
+      ServiceRegistration.Set<IPlayerContextManager>(new PlayerContextManager());
 
       logger.Debug("UiExtension: Registering IUserService service");
-      ServiceRegistration.Add<IUserService>(new UserService());
+      ServiceRegistration.Set<IUserService>(new UserService());
 
       logger.Debug("UiExtension: Registering IAsyncThumbnailGenerator service");
-      ServiceRegistration.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
+      ServiceRegistration.Set<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
 
       logger.Debug("UiExtension: Registering ILocalSharesManagement service");
-      ServiceRegistration.Add<ILocalSharesManagement>(new LocalSharesManagement());
+      ServiceRegistration.Set<ILocalSharesManagement>(new LocalSharesManagement());
 
       logger.Debug("UiExtension: Registering IServerConnectionManager service");
-      ServiceRegistration.Add<IServerConnectionManager>(new ServerConnectionManager());
+      ServiceRegistration.Set<IServerConnectionManager>(new ServerConnectionManager());
 
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
-      ServiceRegistration.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+      ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
       logger.Debug("UiExtension: Registering IFrontendServer service");
-      ServiceRegistration.Add<IFrontendServer>(new Services.FrontendServer.FrontendServer());
+      ServiceRegistration.Set<IFrontendServer>(new Services.FrontendServer.FrontendServer());
 
       AdditionalUiBuilders.Register();
     }

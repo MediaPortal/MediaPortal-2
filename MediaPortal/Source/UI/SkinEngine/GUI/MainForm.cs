@@ -74,7 +74,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _screenManager = screenManager;
 
       ServiceRegistration.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
-      ServiceRegistration.Add<IScreenControl>(this);
+      ServiceRegistration.Set<IScreenControl>(this);
 
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;

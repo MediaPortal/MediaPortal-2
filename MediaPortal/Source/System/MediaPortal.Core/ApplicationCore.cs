@@ -51,10 +51,10 @@ namespace MediaPortal.Core
       // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
       // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
       // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
-      ServiceRegistration.Add<ILogger>(new NoLogger());
+      ServiceRegistration.Set<ILogger>(new NoLogger());
 
       IPathManager pathManager = new Services.PathManager.PathManager();
-      ServiceRegistration.Add<IPathManager>(pathManager);
+      ServiceRegistration.Set<IPathManager>(pathManager);
 
 #if DEBUG
       GroupLogger groupLogger = new GroupLogger(new ConsoleLogger(logLevel, logMethodNames));
@@ -68,48 +68,49 @@ namespace MediaPortal.Core
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
       logger.Debug("ApplicationCore: Registering ILogger service");
-      ServiceRegistration.Add<ILogger>(logger);
+      ServiceRegistration.Set<ILogger>(logger);
 
       logger.Debug("ApplicationCore: Registering IRegistry service");
-      ServiceRegistration.Add<IRegistry>(new Services.Registry.Registry());
+      ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());
 
       logger.Debug("ApplicationCore: Registering IThreadPool service");
-      ServiceRegistration.Add<Threading.IThreadPool>(new Services.Threading.ThreadPool());
+      ServiceRegistration.Set<Threading.IThreadPool>(new Services.Threading.ThreadPool());
 
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
-      ServiceRegistration.Add<IMessageBroker>(new MessageBroker());
+      ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
 
       logger.Debug("ApplicationCore: Registering IPluginManager service");
-      ServiceRegistration.Add<IPluginManager>(new Services.PluginManager.PluginManager());
+      ServiceRegistration.Set<IPluginManager>(new Services.PluginManager.PluginManager());
 
       logger.Debug("ApplicationCore: Registering ISettingsManager service");
-      ServiceRegistration.Add<ISettingsManager>(new SettingsManager());
+      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
       logger.Debug("UiExtension: Registering ILocalization service");
-      ServiceRegistration.Add<ILocalization>(new StringManager());
+      ServiceRegistration.Set<ILocalization>(new StringManager());
 
       logger.Debug("ApplicationCore: Registering ITaskScheduler service");
-      ServiceRegistration.Add<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
+      ServiceRegistration.Set<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
 
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
-      ServiceRegistration.Add<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
+      ServiceRegistration.Set<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
 
       logger.Debug("ApplicationCore: Registering IImporterWorker service");
-      ServiceRegistration.Add<IImporterWorker>(new Services.MediaManagement.ImporterWorker());
+      ServiceRegistration.Set<IImporterWorker>(new Services.MediaManagement.ImporterWorker());
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
-      ServiceRegistration.Add<IResourceServer>(new Services.MediaManagement.ResourceServer());
+      ServiceRegistration.Set<IResourceServer>(new Services.MediaManagement.ResourceServer());
 
       logger.Debug("ApplicationCore: Registering IResourceMountingService");
-      ServiceRegistration.Add<IResourceMountingService>(new Services.MediaManagement.ResourceMountingService());
+      ServiceRegistration.Set<IResourceMountingService>(new Services.MediaManagement.ResourceMountingService());
 
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
-      ServiceRegistration.Add<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
+      ServiceRegistration.Set<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
     }
 
     public static void StartCoreServices()
     {
       ServiceRegistration.Get<ILocalization>().Startup();
+      ServiceRegistration.Get<ITaskScheduler>().Startup();
       ServiceRegistration.Get<IImporterWorker>().Startup();
       ServiceRegistration.Get<IResourceServer>().Startup();
       ServiceRegistration.Get<IResourceMountingService>().Startup();
@@ -122,6 +123,7 @@ namespace MediaPortal.Core
       ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();
       ServiceRegistration.Get<IImporterWorker>().Shutdown();
+      ServiceRegistration.Get<ITaskScheduler>().Shutdown();
       ServiceRegistration.Get<Threading.IThreadPool>().Stop();
     }
 

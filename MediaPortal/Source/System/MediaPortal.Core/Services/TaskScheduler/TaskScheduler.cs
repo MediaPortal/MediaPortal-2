@@ -46,7 +46,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Interval-based work object to periodically check for due tasks.
     /// </summary>
-    protected IntervalWork _work;
+    protected IntervalWork _work = null;
     
     /// <summary>
     /// Mutex object to serialize access to the registered tasks and next TaskID.
@@ -61,22 +61,6 @@ namespace MediaPortal.Core.Services.TaskScheduler
     {
       _settings = ServiceRegistration.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
       SaveChanges(false);
-
-      DoStartup();
-      _work = new IntervalWork(DoWork, new TimeSpan(0, 0, 20));
-      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, false);
-    }
-
-    #endregion
-
-    #region Public methods
-
-    public void Stop()
-    {
-      _work.Cancel();
-      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
-      ServiceRegistration.Remove<ITaskScheduler>();
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
     #endregion
@@ -85,7 +69,6 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     /// <summary>
     /// Triggers the registered tasks which are registered to fire at startup.
-    /// Called from the Constructor.
     /// </summary>
     private void DoStartup()
     {
@@ -208,6 +191,23 @@ namespace MediaPortal.Core.Services.TaskScheduler
     #endregion
 
     #region ITaskScheduler implementation
+
+    public void Startup()
+    {
+      DoStartup();
+      _work = new IntervalWork(DoWork, new TimeSpan(0, 0, 20));
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, false);
+    }
+
+    public void Shutdown()
+    {
+      if (_work != null)
+      {
+        _work.Cancel();
+        ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
+      }
+      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+    }
 
     public int AddTask(Task newTask)
     {

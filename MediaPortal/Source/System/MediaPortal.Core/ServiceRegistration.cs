@@ -142,14 +142,9 @@ namespace MediaPortal.Core
     /// and works as "handle" for the service, i.e. the service is retrieved from the <see cref="ServiceRegistration"/> by
     /// calling <see cref="Get{T}()"/> method with that interface as type parameter.</typeparam>
     /// <param name="service">The service implementation to add.</param>
-    public static void Add<T>(T service) where T : class
+    public static void Set<T>(T service) where T : class
     {
-      Instance.AddService(typeof(T), service);
-    }
-
-    public static void Replace<T>(T service) where T : class
-    {
-      Instance.ReplaceService(typeof(T), service);
+      Instance.SetService(typeof(T), service);
     }
 
     public static void Remove<T>() where T : class
@@ -199,7 +194,7 @@ namespace MediaPortal.Core
       return (T) Instance.GetService(typeof(T), throwIfNotFound);
     }
 
-    private void AddService(Type type, object service)
+    private void SetService(Type type, object service)
     {
       if (service == null)
         throw new ArgumentException("Service argument must not be null", "service");
@@ -279,12 +274,6 @@ namespace MediaPortal.Core
       if (throwIfNotFound)
         throw new ServiceNotFoundException(type);
       return null;
-    }
-
-    private void ReplaceService(Type type, object service)
-    {
-      RemoveService(type);
-      AddService(type, service);
     }
 
     #region IStatus implementation

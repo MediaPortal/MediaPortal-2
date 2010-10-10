@@ -37,6 +37,16 @@ namespace MediaPortal.Core.TaskScheduler
   public interface ITaskScheduler
   {
     /// <summary>
+    /// Starts the task scheduler. This will install the worker at the thread pool and call all startup tasks.
+    /// </summary>
+    void Startup();
+
+    /// <summary>
+    /// Shutts the task scheduler down.
+    /// </summary>
+    void Shutdown();
+
+    /// <summary>
     /// Adds a task to the task scheduler
     /// </summary>
     /// <param name="newTask">task to add to the scheduler</param>
