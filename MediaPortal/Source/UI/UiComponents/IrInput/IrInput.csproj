@@ -33,11 +33,11 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IrssComms, Version=1.0.3.5, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="IrssComms, Version=1.4.2.3784, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\IrssComms.dll</HintPath>
     </Reference>
-    <Reference Include="IrssUtils, Version=1.0.3.5, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="IrssUtils, Version=1.4.2.3784, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\IrssUtils.dll</HintPath>
     </Reference>

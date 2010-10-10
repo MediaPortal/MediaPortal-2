@@ -101,17 +101,7 @@ namespace MediaPortal.UiComponents.IrInput
         switch (received.Type)
         {
           case MessageType.RemoteEvent:
-            // FIXME Albert: Create a better interface to IRSS where we don't need to extract the single fields from the
-            // message ourselves
-
-            // CHEFKOCH: using the code from irss
-            // RemoteHandler(received.GetDataAsString());
-            byte[] data = received.GetDataAsBytes();
-            int deviceNameSize = BitConverter.ToInt32(data, 0);
-            string deviceName = System.Text.Encoding.ASCII.GetString(data, 4, deviceNameSize);
-            int keyCodeSize = BitConverter.ToInt32(data, 4 + deviceNameSize);
-            string keyCode = System.Text.Encoding.ASCII.GetString(data, 8 + deviceNameSize, keyCodeSize);
-
+            string keyCode = received.MessageData[IrssMessage.KEY_CODE] as string;
             RemoteHandler(keyCode);
             break;
 
