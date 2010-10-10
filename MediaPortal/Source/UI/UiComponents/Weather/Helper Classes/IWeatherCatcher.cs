@@ -27,34 +27,29 @@ using System.Collections.Generic;
 namespace MediaPortal.UiComponents.Weather
 {
   /// <summary>
-  /// this is an Interface for catching weather data
-  /// from a website...
-  /// any Implementation will take a City object and populate it with data
+  /// Interface for catching weather data from a given website or collection of websites.
+  /// Any Implementation will take a City object and populate it with data.
   /// </summary>
   public interface IWeatherCatcher
   {
     /// <summary>
-    /// downloads data from the internet and populates
-    /// the city object with it.
-    /// the city object should already hold id and name
-    /// (f.e. from FindLoationsByName or Settings)
+    /// Downloads data from the internet and populates the city object with it.
+    /// The city object should already hold id and name (f.e. from FindLoationsByName or Settings).
     /// </summary>
-    /// <param name="city"></param>
-    /// <returns></returns>
+    /// <param name="city">City object to populate</param>
+    /// <returns><c>true</c>, if the update was successful, else <c>false</c>.</returns>
     bool GetLocationData(City city);
 
     /// <summary>
-    /// returns a new List of City objects if the searched
-    /// location was found... the unique id (City.Id) and the
-    /// location name will be set for each City...
+    /// Returns a new List of City objects for the searched location. The unique id (City.Id) and the
+    /// location name will be set for each City.
     /// </summary>
-    /// <param name="name">name of the location to search for</param>
-    /// <returns>new City List</returns>
+    /// <param name="name">Name of the location to search for.</param>
+    /// <returns>New City List.</returns>
     List<CitySetupInfo> FindLocationsByName(string name);
 
     /// <summary>
-    /// returns the name of the service used to fetch the data,
-    /// f.e. weather.com (used in configuration)
+    /// Teturns the name of the service used to fetch data, e.g. weather.com (used in configuration).
     /// </summary>
     /// <returns></returns>
     string GetServiceName();
