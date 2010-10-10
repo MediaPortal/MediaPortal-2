@@ -52,8 +52,6 @@ namespace MediaPortal.Core.Messaging
 
     public virtual void Dispose()
     {
-      if (_registeredChannels == null)
-        return;
       UnregisterFromAllMessageChannels();
       _registeredChannels = new List<string>();
     }
