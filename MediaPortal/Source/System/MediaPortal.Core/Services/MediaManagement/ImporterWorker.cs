@@ -85,7 +85,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     ~ImporterWorker()
     {
-      Shutdown();
+      ShutdownImporterLoop();
+      _messageQueue.Shutdown();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
