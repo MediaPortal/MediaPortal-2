@@ -96,7 +96,7 @@ namespace MediaPortal.Core.Services.Threading
 
     #endregion
 
-    #region Constructors
+    #region Constructors and destructor
 
     public ThreadPool()
     {
@@ -113,6 +113,13 @@ namespace MediaPortal.Core.Services.Threading
     {
       _startInfo = startInfo;
       Init();
+    }
+
+    ~ThreadPool()
+    {
+      // If the thread pool was not stopped correctly, we'll at least make our worker threads stop
+      _run = false;
+      _cancelWaitHandle.Set();
     }
 
     #endregion

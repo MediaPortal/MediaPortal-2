@@ -75,6 +75,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       AddHttpModule(module);
     }
 
+    ~ResourceServer()
+    {
+      StopServers();
+    }
+
     public void StartServers()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
@@ -92,7 +97,6 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void StopServers()
     {
-      ServiceRegistration.Get<ILogger>().Info("ResourceServer: Shutting down HTTP server");
       _httpServerV4.Stop();
       _httpServerV6.Stop();
     }
@@ -116,11 +120,13 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void Shutdown()
     {
+      ServiceRegistration.Get<ILogger>().Info("ResourceServer: Shutting down HTTP servers");
       StopServers();
     }
 
     public void RestartHttpServers()
     {
+      ServiceRegistration.Get<ILogger>().Info("ResourceServer: Restarting HTTP servers");
       StopServers();
       StartServers();
     }

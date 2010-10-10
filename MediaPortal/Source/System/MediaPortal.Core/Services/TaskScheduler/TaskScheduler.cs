@@ -55,12 +55,17 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     #endregion
 
-    #region Ctor
+    #region Ctor & dtor
 
     public TaskScheduler()
     {
       _settings = ServiceRegistration.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
       SaveChanges(false);
+    }
+
+    ~TaskScheduler()
+    {
+      StopWorker();
     }
 
     #endregion
@@ -188,6 +193,16 @@ namespace MediaPortal.Core.Services.TaskScheduler
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
+    private void StopWorker()
+    {
+      if (_work != null)
+      {
+        _work.Cancel();
+        ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
+      }
+      _work = null;
+    }
+
     #endregion
 
     #region ITaskScheduler implementation
@@ -201,11 +216,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public void Shutdown()
     {
-      if (_work != null)
-      {
-        _work.Cancel();
-        ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_work);
-      }
+      StopWorker();
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 

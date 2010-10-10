@@ -282,6 +282,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       _driveLetter = ReadDriveLetterFromSettings();
     }
 
+    // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
+    // write a sensible destructor in this class which removes the Dokan drive
+
     protected bool DriveInUse(char driveLetter)
     {
       return Directory.Exists(driveLetter + ":\\");
