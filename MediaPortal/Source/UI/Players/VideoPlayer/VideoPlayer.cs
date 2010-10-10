@@ -98,7 +98,6 @@ namespace MediaPortal.UI.Players.Video
     public const string AUDIO_STREAM_NAME = "Audio1";
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
-    protected String PlayerTitle;
 
     #region Protected Properties
 
@@ -106,6 +105,7 @@ namespace MediaPortal.UI.Players.Video
     /// MediaSubTypes lookup list.
     /// </summary>
     protected Dictionary<Guid, String> MediaSubTypes = new Dictionary<Guid, string>();
+    protected String PlayerTitle = "VideoPlayer";
 
     #endregion
 

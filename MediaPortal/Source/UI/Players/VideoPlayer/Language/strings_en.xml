@@ -31,7 +31,7 @@
     <String Name="DirectorComments1" Text="Director Comments"/>
     <String Name="DirectorComments2" Text="Director Comments (2)"/>
 
-    <String Name="Chapter" Text="Chapter"/>
-    <String Name="Title" Text="Title"/>
+    <String Name="Chapter" Text="Chapter {0}"/> <!-- For example: "Chapter 1" -->
+    <String Name="Title" Text="Title {0}"/> <!-- For example: "Title 1" -->
   </Section>
 </Language>

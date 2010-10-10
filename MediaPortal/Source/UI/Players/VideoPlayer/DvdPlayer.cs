@@ -59,6 +59,9 @@ namespace MediaPortal.UI.Players.Video
     protected const int WM_MOUSEMOVE = 0x0200;
     protected const int WM_LBUTTONUP = 0x0202;
 
+    public const string RES_PLAYBACK_TITLE = "[Playback.Title]";
+    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
+
     #endregion
 
     #region Variables
@@ -212,10 +215,10 @@ namespace MediaPortal.UI.Players.Video
       int titles, numOfVolumes, volume;
       hr = _dvdInfo.GetDVDVolumeInfo(out numOfVolumes, out volume, out side, out titles);
       if (hr < 0)
-        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: Unable to get dvdvolumeinfo 0x{0:X}", hr);
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: Unable to get DVD volume info 0x{0:X}", hr);
 
       if (titles <= 0)
-        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: DVD does not contain any titles? {0}", titles);
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: DVD does not contain any titles? (# titles = {0})", titles);
 
       _pendingCmd = false;
 
@@ -226,11 +229,10 @@ namespace MediaPortal.UI.Players.Video
       {
         AMLine21CCState state = settings.EnableClosedCaption ? AMLine21CCState.On : AMLine21CCState.Off;
         if (_line21Decoder.SetServiceState(state) == 0)
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Closed Captions enabled: {0}",settings.EnableClosedCaption);
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: {0} Closed Captions", settings.EnableClosedCaption ? "Enabled" : "Disabled");
         else
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: failed to set Closed Captions state.");
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Failed to set Closed Captions state.");
       }
-
     }
 
     /// <summary>
@@ -276,24 +278,24 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets a DVD navigator related error text for passed error code.
     /// </summary>
-    /// <param name="setError">Error code</param>
-    /// <returns>Error message</returns>
-    private static string GetErrorText(int setError)
+    /// <param name="errorCode">Error code returned by any method of the DVD control.</param>
+    /// <returns>Error message.</returns>
+    private static string GetErrorText(int errorCode)
     {
-      string errorText;
-      switch (setError)
+      string result;
+      switch (errorCode)
       {
         case 0:
-          errorText = "Success.";
+          result = "Success.";
           break;
         case 631:
-          errorText = "The DVD Navigator filter is not in a valid domain.";
+          result = "The DVD Navigator filter is not in a valid domain.";
           break;
         default:
-          errorText = "Unknown Error. " + setError;
+          result = "Unknown Error: " + errorCode;
           break;
       }
-      return errorText;
+      return result;
     }
 
     /// <summary>
@@ -309,9 +311,7 @@ namespace MediaPortal.UI.Players.Video
         IDvdState dvdState;
         int hr = _dvdInfo.GetState(out dvdState);
         if (hr != 0)
-        {
           return false;
-        }
 
         IPersistMemory dvdStatePersistMemory = (IPersistMemory)dvdState;
         if (dvdStatePersistMemory == null)
@@ -389,7 +389,6 @@ namespace MediaPortal.UI.Players.Video
     protected string GetResumeFilename(Uri fileName)
     {
       long discId = 0;
-      int actualSize;
 
       IBaseFilter dvdbasefilter = (IBaseFilter) new DVDNavigator();
       IDvdInfo2 dvdInfo = dvdbasefilter as IDvdInfo2;
@@ -397,6 +396,7 @@ namespace MediaPortal.UI.Players.Video
       StringBuilder path = new StringBuilder(1024);
       if (dvdInfo != null)
       {
+        int actualSize;
         dvdInfo.GetDVDDirectory(path, 1024, out actualSize);
         dvdInfo.GetDiscID(path.ToString(), out discId);
       }
@@ -582,19 +582,19 @@ namespace MediaPortal.UI.Players.Video
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: OnDvdEvent() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
+        ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Exception in OnDvdEvent()", ex);
       }
     }
 
     /// <summary>
     /// Called when an asynchronous DVD command is completed.
     /// </summary>
-    /// <param name="p1">The p1.</param>
+    /// <param name="p1">The command event handle.</param>
     private void OnCmdComplete(IntPtr p1)
     {
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("DVD OnCmdComplete..........");
+        ServiceRegistration.Get<ILogger>().Debug("DVD OnCmdComplete");
         if (!_pendingCmd || _dvdInfo == null)
           return;
 
@@ -751,9 +751,7 @@ namespace MediaPortal.UI.Players.Video
             {
               StringBuilder currentAudio = new StringBuilder();
               currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
-                                        ci.EnglishName,
-                                        attr.AudioFormat,
-                                        attr.bNumberOfChannels, (attr.dwFrequency/1000));
+                  ci.EnglishName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency/1000));
 
               switch (attr.LanguageExtension)
               {
@@ -764,8 +762,7 @@ namespace MediaPortal.UI.Players.Video
                 case DvdAudioLangExt.DirectorComments1:
                 case DvdAudioLangExt.DirectorComments2:
                   currentAudio.AppendFormat(" ({0})", 
-                    ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]")
-                    );
+                    ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]"));
                   break;
               }
               streams.Add(currentAudio.ToString());
@@ -948,9 +945,7 @@ namespace MediaPortal.UI.Players.Video
         _dvdInfo.GetDVDVolumeInfo(out numOfVolumes, out volume, out side, out titleCount);
         string[] titles = new string[titleCount];
         for (int i = 0; i < titleCount; ++i)
-        {
-          titles[i] = String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Title]"), i + 1);
-        }
+          titles[i] = ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_TITLE, i+1);
         return titles;
       }
     }
@@ -981,7 +976,7 @@ namespace MediaPortal.UI.Players.Video
       {
         DvdPlaybackLocation2 location;
         _dvdInfo.GetCurrentLocation(out location);
-        return String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Title]"), location.TitleNum);
+        return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_TITLE, location.TitleNum);
       }
     }
 
@@ -997,7 +992,7 @@ namespace MediaPortal.UI.Players.Video
     private String ChapterName(Int32 chapterNumber)
     {
       //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
-      return String.Format("{0} {1}", ServiceRegistration.Get<ILocalization>().ToString("[Playback.Chapter]"), chapterNumber);
+      return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
     }
 
     /// <summary>
