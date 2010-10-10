@@ -100,6 +100,7 @@
     <Compile Include="Settings\Configuration\WeatherConfigSetting.cs" />
     <Compile Include="Settings\WeatherSettings.cs" />
     <Compile Include="Models\WeatherSetupModel.cs" />
+    <Compile Include="WeatherPlugin.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

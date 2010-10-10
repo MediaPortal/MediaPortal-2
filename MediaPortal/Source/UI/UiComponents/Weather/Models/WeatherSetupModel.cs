@@ -26,12 +26,10 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Weather.Grabbers;
 using MediaPortal.UiComponents.Weather.Settings;
 
 
@@ -54,18 +52,6 @@ namespace MediaPortal.UiComponents.Weather.Models
     private ItemsList _locationsSearchExposed = null;
 
     private AbstractProperty _searchCityProperty = null;
-
-    public WeatherSetupModel()
-    {
-      // See if we already have a weather catcher in ServiceRegistration, if not, add one
-      if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
-      {
-        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-        ServiceRegistration.Set<IWeatherCatcher>(new WeatherDotComCatcher(
-            settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
-            settings.SkipConnectionTest));
-      }
-    }
 
     public AbstractProperty SearchCityProperty
     {

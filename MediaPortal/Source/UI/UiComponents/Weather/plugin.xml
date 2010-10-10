@@ -9,6 +9,7 @@
 
   <Runtime>
     <Assembly FileName="Weather.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.Weather.WeatherPlugin"/>
   </Runtime>
 
   <DependsOn>

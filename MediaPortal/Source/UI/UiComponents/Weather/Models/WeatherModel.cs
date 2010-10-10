@@ -73,22 +73,6 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Ctor 
-
-    public WeatherModel()
-    {
-      // See if we already have a weather catcher in ServiceRegistration, if not, add one
-      if (!ServiceRegistration.IsRegistered<IWeatherCatcher>())
-      {
-        WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
-        ServiceRegistration.Set<IWeatherCatcher>(new WeatherDotComCatcher(
-            settings.TemperatureUnit, settings.WindSpeed, ServiceRegistration.Get<IPathManager>().GetPath(settings.ParsefileLocation),
-            settings.SkipConnectionTest));
-      }
-    }
-
-    #endregion
-
     #region Public properties
 
     /// <summary>
