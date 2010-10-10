@@ -33,6 +33,17 @@ namespace MediaPortal.UI.Control.InputManager
   /// Public interface of the input manager.
   /// </summary>
   /// <remarks>
+  /// <para>
+  /// This interface provides access to some input events (key/mouse) of the main MP2 window and lets you simulate
+  /// key/mouse events by calling the appropriate methods. When calling input event methods like <see cref="MouseMove"/>
+  /// or <see cref="KeyPress"/>, the events are enqueued together with the "real" input events, i.e. if currently the
+  /// busy cursor is shown, events may be discarded if necessary.
+  /// </para>
+  /// <para>
+  /// This class doesn't provide .net events to notify clients of input events by design. All input events are handled by the
+  /// system. There are very rare cases where raw input events must really be consumed by other system modules. In those cases,
+  /// a special solution must be found.
+  /// </para>
   /// This service is multithreading-safe.
   /// </remarks>
   public interface IInputManager
