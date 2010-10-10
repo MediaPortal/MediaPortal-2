@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -37,17 +39,16 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     protected static string[] EMPTY_STRING_ARRAY = new string[] {};
 
-    #region Variables
+    #region Protected fields
 
     protected MediaWorkflowStateType _mediaWorkflowStateType;
     protected IDVDPlayer _player;
-    protected AbstractProperty _isOSDAvailableProperty;
-    protected AbstractProperty _inDVDMenuProperty;
+    protected AbstractProperty _dvdPlayerHandlesInputProperty;
     protected AbstractProperty _chaptersAvailableProperty;
     protected AbstractProperty _subtitlesAvailableProperty;
     protected string[] _subtitles = EMPTY_STRING_ARRAY;
-    private ItemsList _subtitleMenuItems;
-    private ItemsList _chapterMenuItems;
+    protected ItemsList _subtitleMenuItems;
+    protected ItemsList _chapterMenuItems;
 
     #endregion
 
@@ -55,8 +56,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public DVDPlayerUIContributor() : base(300)
     {
-      _isOSDAvailableProperty = new WProperty(typeof(bool), false);
-      _inDVDMenuProperty = new WProperty(typeof(bool), false);
+      _dvdPlayerHandlesInputProperty = new WProperty(typeof(bool), false);
       _chaptersAvailableProperty = new WProperty(typeof(bool), false);
       _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
       StartTimer();
@@ -94,27 +94,15 @@ namespace MediaPortal.UiComponents.Media.Models
       get { return MediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
     }
 
-    public AbstractProperty IsOSDAvailableProperty
+    public AbstractProperty DvdPlayerHandlesInputProperty
     {
-      get { return _isOSDAvailableProperty; }
+      get { return _dvdPlayerHandlesInputProperty; }
     }
 
-    public bool IsOSDAvailable
+    public bool DvdPlayerHandlesInput
     {
-      get { return (bool) _isOSDAvailableProperty.GetValue(); }
-      set { _isOSDAvailableProperty.SetValue(value); }
-    }
-
-
-    public AbstractProperty InDVDMenuProperty
-    {
-      get { return _inDVDMenuProperty; }
-    }
-
-    public bool InDvdMenu
-    {
-      get { return (bool) _inDVDMenuProperty.GetValue(); }
-      set { _inDVDMenuProperty.SetValue(value); }
+      get { return (bool) _dvdPlayerHandlesInputProperty.GetValue(); }
+      set { _dvdPlayerHandlesInputProperty.SetValue(value); }
     }
 
     public AbstractProperty ChaptersAvailableProperty
@@ -127,7 +115,6 @@ namespace MediaPortal.UiComponents.Media.Models
       get { return (bool) _chaptersAvailableProperty.GetValue(); }
       set { _chaptersAvailableProperty.SetValue(value); }
     }
-
 
     public AbstractProperty SubtitlesAvailableProperty
     {
@@ -223,8 +210,7 @@ namespace MediaPortal.UiComponents.Media.Models
     // update GUI properties
     protected override void Update()
     {
-      IsOSDAvailable = !_player.InDvdMenu;
-      InDvdMenu = _player.InDvdMenu;
+      DvdPlayerHandlesInput = _player.IsHandlingUserInput;
       ChaptersAvailable = _player.ChaptersAvailable;
       ISubtitlePlayer subtitlePlayer = _player as ISubtitlePlayer;
       if (subtitlePlayer != null)
@@ -258,6 +244,37 @@ namespace MediaPortal.UiComponents.Media.Models
     public void ShowDvdMenu()
     {
       _player.ShowDvdMenu();
+    }
+
+    /// <summary>
+    /// Must be called from the screen when the DVD player is handling the user input and a key is pressed.
+    /// </summary>
+    /// <param name="key">Key that was pressed.</param>
+    public void OnKeyPress(Key key)
+    {
+      _player.OnKeyPress(key);
+    }
+
+    /// <summary>
+    /// Must be called from the screen when the DVD player is handling the user input and the mouse is moved.
+    /// </summary>
+    /// <param name="x">X coordinate relative to the video size.</param>
+    /// <param name="y">Y coordinate relative to the video size.</param>
+    public void OnMouseMove(float x, float y)
+    {
+      _player.OnMouseMove(x, y);
+    }
+
+    /// <summary>
+    /// Must be called from the screen when the DVD player is handling the user input and the mouse is left-clicked.
+    /// </summary>
+    /// <param name="buttons">Mouse buttons that have been pressed.</param>
+    /// <param name="x">X coordinate relative to the video size.</param>
+    /// <param name="y">Y coordinate relative to the video size.</param>
+    public void OnMouseClick(MouseButtons buttons, float x, float y)
+    {
+      if (buttons == MouseButtons.Left)
+        _player.OnMouseClick(x, y);
     }
 
     /// <summary>

@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.UI.Control.InputManager;
+
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
@@ -79,13 +81,34 @@ namespace MediaPortal.UI.Presentation.Players
     string CurrentDvdChapter { get; }
 
     /// <summary>
-    /// Gets the information whether we are in the in DVD menu.
+    /// Gets the information whether the DVD player currently handles key and mouse events. This is the case if we
+    /// are currently in DVD menu.
     /// </summary>
-    bool InDvdMenu { get; }
+    bool IsHandlingUserInput { get; }
 
     /// <summary>
-    /// Enters the DVD menu.
+    /// Shows the DVD menu.
     /// </summary>
     void ShowDvdMenu();
+
+    /// <summary>
+    /// If <see cref="IsHandlingUserInput"/> is <c>true</c>, this method should be called on mouse moves to control the DVD menu.
+    /// </summary>
+    /// <param name="x">Relative X coordinate of the mouse cursor. Ranges from 0 to 1 relative to the DVD video picture size.</param>
+    /// <param name="y">Relative Y coordinate of the mouse cursor. Ranges from 0 to 1 relative to the DVD video picture size.</param>
+    void OnMouseMove(float x, float y);
+
+    /// <summary>
+    /// If <see cref="IsHandlingUserInput"/> is <c>true</c>, this method should be called on mouse clicks to control the DVD menu.
+    /// </summary>
+    /// <param name="x">Relative X coordinate of the mouse cursor. Ranges from 0 to 1 relative to the DVD video picture size.</param>
+    /// <param name="y">Relative Y coordinate of the mouse cursor. Ranges from 0 to 1 relative to the DVD video picture size.</param>
+    void OnMouseClick(float x, float y);
+
+    /// <summary>
+    /// If <see cref="IsHandlingUserInput"/> is <c>true</c>, this method has to be called on key events to control the DVD menu.
+    /// </summary>
+    /// <param name="key">The key which was pressed.</param>
+    void OnKeyPress(Key key);
   }
 }

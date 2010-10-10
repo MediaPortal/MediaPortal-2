@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
+using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
 using SlimDX;
@@ -42,6 +42,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -838,6 +839,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!child.IsVisible) continue;
         child.OnMouseMove(x, y);
+      }
+    }
+
+    public virtual void OnMouseClick(MouseButtons buttons, ref bool handled)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnMouseClick(buttons, ref handled);
       }
     }
 

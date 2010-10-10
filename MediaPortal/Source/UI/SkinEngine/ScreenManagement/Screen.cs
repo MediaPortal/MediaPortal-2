@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -357,8 +358,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview += OnKeyPreview;
-        inputManager.KeyPressed += OnKeyPressed;
+        inputManager.KeyPressed += OnKeyPress;
         inputManager.MouseMoved += OnMouseMove;
+        inputManager.MouseClicked += OnMouseClick;
         inputManager.MouseWheeled += OnMouseWheel;
         _attachedInput = true;
       }
@@ -370,8 +372,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview -= OnKeyPreview;
-        inputManager.KeyPressed -= OnKeyPressed;
+        inputManager.KeyPressed -= OnKeyPress;
         inputManager.MouseMoved -= OnMouseMove;
+        inputManager.MouseClicked -= OnMouseClick;
         inputManager.MouseWheeled -= OnMouseWheel;
         _attachedInput = false;
         RemoveCurrentFocus();
@@ -444,7 +447,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    private void OnKeyPressed(ref Key key)
+    private void OnKeyPress(ref Key key)
     {
       if (!_attachedInput)
         return;
@@ -465,6 +468,34 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!_attachedInput)
         return;
       _visual.OnMouseMove(x, y);
+    }
+
+    private void OnMouseClick(MouseButtons buttons)
+    {
+      if (!_attachedInput)
+        return;
+      bool handled = false;
+      _visual.OnMouseClick(buttons, ref handled);
+      if (handled)
+        return;
+      // If mouse click was not handled explicitly, map it to an appropriate key event
+      Key key = Key.None;
+      switch (buttons)
+      {
+        case MouseButtons.Left:
+          key = Key.Ok;
+          break;
+        case MouseButtons.Right:
+          key = Key.ContextMenu;
+          break;
+      }
+      if (key != Key.None)
+      {
+        OnKeyPreview(ref key);
+        if (key == Key.None)
+          return;
+        OnKeyPress(ref key);
+      }
     }
 
     public void InvalidateLayout(UIElement element)

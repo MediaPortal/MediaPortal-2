@@ -43,8 +43,7 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.InputManagement;
-using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -86,6 +85,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected List<String> _subtitleStreams = null;
 
+    /// <summary>
+    /// List of chapters. Will be initialized lazily. <c>null</c> if not currently valid.
+    /// </summary>
     protected List<String> _chapters = null;
     
     protected object _guiPropertiesLock = new object();
@@ -97,7 +99,7 @@ namespace MediaPortal.UI.Players.Video
     protected int _focusedButton = 0;
     protected DvdDomain _currDomain;
     
-    protected bool _menuOn = false;
+    protected bool _handlesInput = false;
     protected ValidUOPFlag _UOPs;
     protected double _duration;
     protected double _currentTime = 0;
@@ -119,24 +121,6 @@ namespace MediaPortal.UI.Players.Video
     {
       PlayerTitle = "DVDPlayer"; // for logging
       _requiredCapabilities = CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
-      RegisterKeyBindings();
-      SubscribeToMessages();
-    }
-
-    #endregion
-
-    #region Input mapping de-/registration
-
-    protected void RegisterKeyBindings()
-    {
-      InputManager inputManager = InputManager.Instance;
-      inputManager.KeyPressed += OnKeyPressed;
-    }
-
-    protected void UnregisterKeyBindings()
-    {
-      InputManager inputManager = InputManager.Instance;
-      inputManager.KeyPressed -= OnKeyPressed;
     }
 
     #endregion
@@ -183,9 +167,12 @@ namespace MediaPortal.UI.Players.Video
       _dvdCtrl.SetOption(DvdOptionFlag.HMSFTimeCodeEvents, true); // use new HMSF timecode format
       _dvdCtrl.SetOption(DvdOptionFlag.ResetOnStop, false);
 
-      _mediaEvt = (_graphBuilder as IMediaEventEx);
+      _mediaEvt = _graphBuilder as IMediaEventEx;
       if (_mediaEvt != null)
-        _mediaEvt.SetNotifyWindow(SkinContext.Form.Handle, WM_DVD_EVENT, _instancePtr);
+      {
+        IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+        _mediaEvt.SetNotifyWindow(screenControl.MainWindowHandle, WM_DVD_EVENT, _instancePtr);
+      }
 
       SetDefaultLanguages();
     }
@@ -299,21 +286,24 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Gets the DVD resume state.
+    /// Gets the current DVD playback state as byte array. The resume state can be set later by calling
+    /// <see cref="SetResumeState"/> with the returned byte array.
     /// </summary>
     /// <param name="resumeData">The resume data.</param>
-    /// <returns></returns>
+    /// <returns><c>true</c>, if the resume state could successfully retrieved. In that case <paramref name="resumeData"/>
+    /// contains the resume data. <c>false</c>, if the resume state could not be retrieved. In that case,
+    /// <paramref name="resumeData"/> is <c>null</c>.</returns>
     private bool GetResumeState(out byte[] resumeData)
     {
+      byte[] result = null;
       try
       {
-        resumeData = null;
         IDvdState dvdState;
         int hr = _dvdInfo.GetState(out dvdState);
         if (hr != 0)
           return false;
 
-        IPersistMemory dvdStatePersistMemory = (IPersistMemory)dvdState;
+        IPersistMemory dvdStatePersistMemory = (IPersistMemory) dvdState;
         if (dvdStatePersistMemory == null)
         {
           Marshal.ReleaseComObject(dvdState);
@@ -332,26 +322,33 @@ namespace MediaPortal.UI.Players.Video
         try
         {
           dvdStatePersistMemory.Save(stateData, true, resumeSize);
-          resumeData = new byte[resumeSize];
-          Marshal.Copy(stateData, resumeData, 0, (int)resumeSize);
+          result = new byte[resumeSize];
+          Marshal.Copy(stateData, result, 0, (int) resumeSize);
         }
-        catch { }
+        catch
+        {
+          return false;
+        }
 
         Marshal.FreeCoTaskMem(stateData);
         Marshal.ReleaseComObject(dvdStatePersistMemory);
         Marshal.ReleaseComObject(dvdState);
       }
-      catch (Exception)
+      catch
       {
-        resumeData = null;
+        return false;
+      }
+      finally
+      {
+        resumeData = result;
       }
       return true;
     }
 
     /// <summary>
-    /// Sets the DVD resume state.
+    /// Restores the DVD playback state from a formerly saved resume state.
     /// </summary>
-    /// <param name="resumeData">The resume data.</param>
+    /// <param name="resumeData">The resume data which was retrieved by calling <see cref="GetResumeState"/>.</param>
     private void SetResumeState(byte[] resumeData)
     {
       if ((resumeData != null) && (resumeData.Length > 0))
@@ -361,7 +358,7 @@ namespace MediaPortal.UI.Players.Video
         int hr = _dvdInfo.GetState(out dvdState);
         if (hr < 0)
           return;
-        IPersistMemory dvdStatePersistMemory = (IPersistMemory)dvdState;
+        IPersistMemory dvdStatePersistMemory = (IPersistMemory) dvdState;
         IntPtr stateData = Marshal.AllocHGlobal(resumeData.Length);
         Marshal.Copy(resumeData, 0, stateData, resumeData.Length);
 
@@ -384,9 +381,9 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Gets the name of the resume file.
+    /// Gets a unique file name for the current DVD which contains the disc's ID.
     /// </summary>
-    protected string GetResumeFilename(Uri fileName)
+    protected string GetResumeFilename()
     {
       long discId = 0;
 
@@ -412,23 +409,81 @@ namespace MediaPortal.UI.Players.Video
     #region DVD Commands
 
     /// <summary>
-    /// Shows the DVD menu.
+    /// Stops the playback and the input handling.
     /// </summary>
+    public override void Stop()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
+      base.Stop();
+    }
+
+    #endregion
+
+    #region DVD menu handling
+
+    public bool IsHandlingUserInput
+    {
+      get
+      {
+        lock (_guiPropertiesLock)
+          return _handlesInput;
+      }
+    }
+
     public void ShowDvdMenu()
     {
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: ShowDvdMenu");
       _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.None, out _cmdOption);
     }
 
-    /// <summary>
-    /// Stops the playback and the input handling.
-    /// </summary>
-    public override void Stop()
+    public void OnMouseMove(float x, float y)
     {
-      ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
-      UnregisterKeyBindings();
-      UnsubscribeFromMessages();
-      base.Stop();
+      lock (_guiPropertiesLock)
+        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+          return;
+
+      // Scale to video's size
+      x *= _videoAttr.sourceResolutionX;
+      y *= _videoAttr.sourceResolutionY;
+
+      Point pt = new Point((int) x, (int) y);
+
+      // Highlight the button at the current position, if it exists
+      _dvdCtrl.SelectAtPosition(pt);
+    }
+
+    public void OnMouseClick(float x, float y)
+    {
+      lock (_guiPropertiesLock)
+        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+          return;
+
+      // Scale to video's size
+      x *= _videoAttr.sourceResolutionX;
+      y *= _videoAttr.sourceResolutionY;
+
+      Point pt = new Point((int) x, (int) y);
+
+      // Activate ("click") the button at the current position, if it exists
+      _dvdCtrl.ActivateAtPosition(pt);
+    }
+
+    public void OnKeyPress(Key key)
+    {
+      lock (_guiPropertiesLock)
+        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+          return;
+
+      if (key == Key.Up)
+        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
+      else if (key == Key.Down)
+        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
+      else if (key == Key.Left)
+        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
+      else if (key == Key.Right)
+        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
+      else if (_focusedButton > 0 && (key == Key.Ok || key == Key.Enter))
+        _dvdCtrl.ActivateButton();
     }
 
     #endregion
@@ -473,7 +528,7 @@ namespace MediaPortal.UI.Players.Video
               ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdSubPicture Changed to: {0} Enabled: {1}", p1.ToInt32(), p2.ToInt32());
               break;
             case EventCode.DvdCurrentHmsfTime:
-              GetCurrentTime(p1);
+              SetCurrentTime(p1);
               break;
 
             case EventCode.DvdChapterStart:
@@ -547,30 +602,30 @@ namespace MediaPortal.UI.Players.Video
 
             case EventCode.DvdDomainChange:
               {
-                _currDomain = (DvdDomain)p1;
-                switch ((DvdDomain)p1)
+                _currDomain = (DvdDomain) p1;
+                switch (_currDomain)
                 {
                   case DvdDomain.FirstPlay:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=firstplay");
-                    _menuOn = false;
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=FirstPlay");
+                    _handlesInput = false;
                     break;
                   case DvdDomain.Stop:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=stop");
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=Stop");
                     Stop();
                     break;
                   case DvdDomain.VideoManagerMenu:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=videomanagermenu (menu)");
-                    _menuOn = true;
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=VideoManagerMenu (menu)");
+                    _handlesInput = true;
                     break;
                   case DvdDomain.VideoTitleSetMenu:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: domain=videotitlesetmenu (menu)");
-                    _menuOn = true;
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Domain=VideoTitleSetMenu (menu)");
+                    _handlesInput = true;
                     break;
                   case DvdDomain.Title:
-                    _menuOn = false;
+                    _handlesInput = false;
                     break;
                   default:
-                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdDomChange: {0}", p1.ToInt32());
+                    ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Unhandled event DvdDomainChange: {0}", p1.ToInt32());
                     break;
                 }
                 break;
@@ -600,7 +655,7 @@ namespace MediaPortal.UI.Players.Video
 
         IDvdCmd cmd;
         int hr = _dvdInfo.GetCmdFromEvent(p1, out cmd);
-        if ((hr != 0) || (cmd == null))
+        if (hr != 0 || cmd == null)
         {
           ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DVD OnCmdComplete GetCmdFromEvent failed");
           return;
@@ -633,96 +688,10 @@ namespace MediaPortal.UI.Players.Video
     {
       if (message.ChannelName == WindowsMessaging.CHANNEL)
       {
-        Message m = (Message)message.MessageData[WindowsMessaging.MESSAGE];
-
-        try
-        {
-          if (m.Msg == WM_DVD_EVENT)            
-            OnDvdEvent();
-          else if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_LBUTTONUP)
-            HandleMouseMessage(m);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: WndProc() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace);
-        }
+        Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
+        if (m.Msg == WM_DVD_EVENT)            
+          OnDvdEvent();
       }
-    }
-
-    /// <summary>
-    /// Returns the Low-Word of a long.
-    /// </summary>
-    /// <param name="dWord">long</param>
-    /// <returns>Low-Word</returns>
-    static int LoWord(long dWord)
-    {
-      return (int)(dWord & 0xffff);
-    }
-
-    /// <summary>
-    /// Returns the High-Word of a long.
-    /// </summary>
-    /// <param name="dWord">long</param>
-    /// <returns>High-Word</returns>
-    static int HiWord(long dWord)
-    {
-      return (int)((dWord >> 16) & 0xffff);
-    }
-
-    /// <summary>
-    /// Handles the mouse click/movement messages.
-    /// </summary>
-    private void HandleMouseMessage(Message m)
-    {
-      try
-      {
-        if (_dvdCtrl == null || !_menuOn || _buttonCount <= 0)
-          return;
-
-        long lParam = m.LParam.ToInt32();
-
-        float x = LoWord(lParam); // Mouse position
-        float y = HiWord(lParam);
-
-        //scale from ClientSize to video's size
-        x *= (float) _videoAttr.sourceResolutionX/SkinContext.Form.ClientSize.Width;
-        y *= (float) _videoAttr.sourceResolutionY/SkinContext.Form.ClientSize.Height;
-
-        Point pt = new Point((int) x, (int) y);
-
-        if (m.Msg == WM_MOUSEMOVE)
-          {
-            // Highlight the button at the current position, if it exists
-            _dvdCtrl.SelectAtPosition(pt);
-          }
-        else if (m.Msg == WM_LBUTTONUP)
-          {
-            // Activate ("click") the button at the current position, if it exists
-            _dvdCtrl.ActivateAtPosition(pt);
-          }
-      }
-      catch{}
-    }
-    
-    /// <summary>
-    /// Handles DVD navigation.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public void OnKeyPressed(ref Key key)
-    {
-      if (_dvdCtrl == null || !_menuOn || _buttonCount <= 0)
-        return;
-
-      if (key == Key.Up)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
-      else if (key == Key.Down)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
-      else if (key == Key.Left)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
-      else if (key == Key.Right)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
-      else if (_focusedButton > 0 && (key == Key.Ok || key == Key.Enter))
-        _dvdCtrl.ActivateButton();
     }
 
     #endregion
@@ -987,9 +956,9 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Returns a localized chapter name.
     /// </summary>
-    /// <param name="chapterNumber">0 based chapter</param>
-    /// <returns>Chapter title</returns>
-    private String ChapterName(Int32 chapterNumber)
+    /// <param name="chapterNumber">0 based chapter number.</param>
+    /// <returns>Localized chapter name.</returns>
+    private String GetChapterName(int chapterNumber)
     {
       //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
@@ -1015,7 +984,7 @@ namespace MediaPortal.UI.Players.Video
             _dvdInfo.GetCurrentLocation(out location);
             _dvdInfo.GetNumberOfChapters(location.TitleNum, out chapterCount);
             for (int i = 1; i <= chapterCount; ++i)
-              _chapters.Add(ChapterName(i));
+              _chapters.Add(GetChapterName(i));
           }
         }
         return _chapters.ToArray();
@@ -1029,7 +998,7 @@ namespace MediaPortal.UI.Players.Video
     public void SetDvdChapter(string chapter)
     {
       string[] chapters = DvdChapters;
-      for (int i = 0; i < chapters.Length; ++i)
+      for (int i = 0; i < chapters.Length; i++)
       {
         if (chapter == chapters[i])
         {
@@ -1048,7 +1017,7 @@ namespace MediaPortal.UI.Players.Video
       {
         DvdPlaybackLocation2 location;
         _dvdInfo.GetCurrentLocation(out location);
-        return ChapterName(location.ChapterNum);
+        return GetChapterName(location.ChapterNum);
       }
     }
 
@@ -1057,7 +1026,11 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public bool ChaptersAvailable
     {
-      get { return DvdChapters.Length!= 0; }
+      get
+      {
+        lock (_guiPropertiesLock)
+          return _chapters != null && _chapters.Count != 0;
+      }
     }
 
     /// <summary>
@@ -1083,10 +1056,10 @@ namespace MediaPortal.UI.Players.Video
     #region Time handling format conversions
 
     /// <summary>
-    /// Converts a TimeSpan into a DvdHMSFTimeCode.
+    /// Converts a <see cref="TimeSpan"/> into a <see cref="DvdHMSFTimeCode"/>.
     /// </summary>
-    /// <param name="newTime">TimeSpan</param>
-    /// <returns>DvdHMSFTimeCode</returns>
+    /// <param name="newTime">TimeSpan to convert.</param>
+    /// <returns><see cref="DvdHMSFTimeCode"/> instance.</returns>
     private static DvdHMSFTimeCode ToTimeCode(TimeSpan newTime)
     {
       int hours = newTime.Hours;
@@ -1103,21 +1076,21 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Converts a Double time stamp to TimeSpan.
+    /// Converts a <see cref="double"/> time stamp to <see cref="TimeSpan"/>.
     /// </summary>
-    /// <param name="timeStamp">time stamp</param>
-    /// <returns>TimeSpan</returns>
-    private static TimeSpan ToTimeSpan(Double timeStamp)
+    /// <param name="timeStamp">Time stamp to convert.</param>
+    /// <returns>TimeSpan instance.</returns>
+    private static TimeSpan ToTimeSpan(double timeStamp)
     {
-      return new TimeSpan(0, 0, 0, 0, (int)(timeStamp * 1000.0f));
+      return new TimeSpan(0, 0, 0, 0, (int) (timeStamp * 1000.0f));
     }
 
     /// <summary>
-    /// Converts a DvdHMSFTimeCode to Double time stamp.
+    /// Converts a <see cref="DvdHMSFTimeCode"/> to <see cref="double"/> time stamp.
     /// </summary>
     /// <param name="timeCode">DvdHMSFTimeCode</param>
     /// <returns>Double</returns>
-    private static Double ToDouble(DvdHMSFTimeCode timeCode)
+    private static double ToDouble(DvdHMSFTimeCode timeCode)
     {
       Double result = timeCode.bHours * 3600d;
       result += (timeCode.bMinutes * 60d);
@@ -1128,15 +1101,18 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Convertes time and updates _currentTime.
     /// </summary>
-    /// <param name="p1"></param>
-    private void GetCurrentTime(IntPtr p1)
+    /// <param name="p1">Packed time code.</param>
+    private void SetCurrentTime(IntPtr p1)
     {
       byte[] ati = BitConverter.GetBytes(p1.ToInt32());
-      _currTime.bHours = ati[0];
-      _currTime.bMinutes = ati[1];
-      _currTime.bSeconds = ati[2];
-      _currTime.bFrames = ati[3];
-      _currentTime = ToDouble(_currTime);
+      lock (_guiPropertiesLock)
+      {
+        _currTime.bHours = ati[0];
+        _currTime.bMinutes = ati[1];
+        _currTime.bSeconds = ati[2];
+        _currTime.bFrames = ati[3];
+        _currentTime = ToDouble(_currTime);
+      }
     }
 
     /// <summary>
@@ -1147,7 +1123,8 @@ namespace MediaPortal.UI.Players.Video
       DvdHMSFTimeCode totaltime = new DvdHMSFTimeCode();
       DvdTimeCodeFlags ulTimeCodeFlags;
       _dvdInfo.GetTotalTitleTime(totaltime, out ulTimeCodeFlags);
-      _duration = ToDouble(totaltime);
+      lock (_guiPropertiesLock)
+        _duration = ToDouble(totaltime);
     }
 
 
@@ -1157,27 +1134,28 @@ namespace MediaPortal.UI.Players.Video
     /// <value></value>
     public override TimeSpan CurrentTime
     {
-      get { return ToTimeSpan(_currentTime); }
+      get
+      {
+        lock (_guiPropertiesLock)
+          return ToTimeSpan(_currentTime);
+      }
       set
       {
         ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: seek {0} / {1}", value.TotalSeconds, Duration.TotalSeconds);
         TimeSpan newTime = value;
         if (newTime.TotalSeconds < 0)
-        {
           newTime = new TimeSpan();
-        }
-        if (newTime < Duration)
-        {
-          DvdHMSFTimeCode timeCode = ToTimeCode(newTime);
-          DvdPlaybackLocation2 loc;
-          _currTitle = _dvdInfo.GetCurrentLocation(out loc);
+        if (newTime > Duration)
+          return;
+        DvdHMSFTimeCode timeCode = ToTimeCode(newTime);
+        DvdPlaybackLocation2 loc;
+        _currTitle = _dvdInfo.GetCurrentLocation(out loc);
 
-          try
-          {
-            _dvdCtrl.PlayAtTime(timeCode, DvdCmdFlags.Block, out _cmdOption);
-          }
-          catch { }
+        try
+        {
+          _dvdCtrl.PlayAtTime(timeCode, DvdCmdFlags.Block, out _cmdOption);
         }
+        catch { }
       }
     }
 
@@ -1186,15 +1164,11 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public override TimeSpan Duration
     {
-      get { return ToTimeSpan(_duration); }
-    }
-
-    /// <summary>
-    /// Indicates if DVD menu is active.
-    /// </summary>
-    public bool InDvdMenu
-    {
-      get { return (_menuOn); }
+      get
+      {
+        lock (_guiPropertiesLock)
+          return ToTimeSpan(_duration);
+      }
     }
 
     #endregion

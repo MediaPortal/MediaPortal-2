@@ -208,15 +208,18 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       obj = source.Value;
       mis = null;
+      if (obj == null)
+      {
+        type = null;
+        return false;
+      }
       if (obj is Type)
       {
         type = (Type) obj;
         obj = null;
       }
       else
-      {
         type = obj.GetType();
-      }
       MemberInfo[] members = type.GetMember(memberName);
       if (members.Length == 0)
       { // Check access problems

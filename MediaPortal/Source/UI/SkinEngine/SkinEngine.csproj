@@ -69,7 +69,7 @@
     <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
     <Compile Include="ContentManagement\RenderTextureAsset.cs" />
-    <Compile Include="ContentManagement\TextureAsset.cs"  />
+    <Compile Include="ContentManagement\TextureAsset.cs" />
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
@@ -208,6 +208,7 @@
     <Compile Include="Settings\Configuration\Players\DefaultGeometry.cs" />
     <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
+    <Compile Include="SpecialElements\Controls\UserInputCapture.cs" />
     <Compile Include="SpecialElements\Controls\WorkflowNavigationBarPanel.cs" />
     <Compile Include="SpecialElements\Controls\PlayerControl.cs" />
     <Compile Include="SpecialElements\Controls\WorkflowNavigationBar.cs" />

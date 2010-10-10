@@ -116,6 +116,11 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _currentPlayerIndexProperty.SetValue(value); }
     }
 
+    public IPlayerUIContributor PlayerUIContributor
+    {
+      get { return _playerUIContributor; }
+    }
+
     protected void SetPlayerUIContributor(Type playerUIContributorType, MediaWorkflowStateType stateType, IPlayer player)
     {
       IPlayerUIContributor oldPlayerUIContributor;

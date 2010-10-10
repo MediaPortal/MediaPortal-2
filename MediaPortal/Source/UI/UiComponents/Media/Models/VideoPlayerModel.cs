@@ -127,11 +127,6 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _pipHeightProperty.SetValue(value); }
     }
 
-    public IPlayerUIContributor PlayerUIContributor
-    {
-      get { return _playerUIContributor; }
-    }
-
     public void ShowVideoInfo()
     {
       if (IsOSDVisible)

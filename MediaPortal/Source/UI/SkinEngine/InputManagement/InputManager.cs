@@ -41,6 +41,16 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// <param name="y">Y coordinate of the new mouse position.</param>
   public delegate void MouseMoveHandler(float x, float y);
 
+  /// <summary>
+  /// Delegate for a mouse click handler.
+  /// </summary>
+  /// <param name="buttons">Buttons that have been clicked.</param>
+  public delegate void MouseClickHandler(MouseButtons buttons);
+
+  /// <summary>
+  /// Delegate for a mouse wheel handler.
+  /// </summary>
+  /// <param name="numDetents">Number of detents which have been scrolled.</param>
   public delegate void MouseWheelHandler(int numDetents);
 
   /// <summary>
@@ -99,6 +109,21 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       public float Y
       {
         get { return _y; }
+      }
+    }
+
+    protected class MouseClickEvent : InputEvent
+    {
+      protected MouseButtons _buttons;
+
+      public MouseClickEvent(MouseButtons buttons)
+      {
+        _buttons = buttons;
+      }
+
+      public MouseButtons Buttons
+      {
+        get { return _buttons; }
       }
     }
 
@@ -174,6 +199,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     /// </summary>
     public event MouseMoveHandler MouseMoved;
 
+    /// <summary>
+    /// Can be registered by classes of the skin engine to be informed about mouse clicks.
+    /// </summary>
+    public event MouseClickHandler MouseClicked;
+
+    /// <summary>
+    /// Can be registered by classes of the skin engine to be informed about mouse wheel events.
+    /// </summary>
     public event MouseWheelHandler MouseWheeled;
 
     /// <summary>
@@ -279,6 +312,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
           ExecuteKeyPress((KeyEvent) evt);
         else if (eventType == typeof(MouseMoveEvent))
           ExecuteMouseMove((MouseMoveEvent) evt);
+        else if (eventType == typeof(MouseClickEvent))
+          ExecuteMouseClick((MouseClickEvent) evt);
         else if (eventType == typeof(MouseWheelEvent))
           ExecuteMouseWheel((MouseWheelEvent) evt);
       }
@@ -345,6 +380,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         dlgt(evt.X, evt.Y);
     }
 
+    protected void ExecuteMouseClick(MouseClickEvent evt)
+    {
+      MouseClickHandler dlgt = MouseClicked;
+      if (dlgt != null)
+        dlgt(evt.Buttons);
+    }
+
     protected void ExecuteMouseWheel(MouseWheelEvent evt)
     {
       MouseWheelHandler dlgt = MouseWheeled;
@@ -405,27 +447,20 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       TryEvent_NoLock(new MouseMoveEvent(x, y));
     }
 
+    public void MouseClick(MouseButtons mouseButtons)
+    {
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
+      TryEvent_NoLock(new MouseClickEvent(mouseButtons));
+    }
+
     public void MouseWheel(int numDetents)
     {
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
       TryEvent_NoLock(new MouseWheelEvent(numDetents));
-    }
-
-    public void MouseClick(MouseButtons mouseButtons)
-    {
-      switch (mouseButtons)
-      {
-        case MouseButtons.Left:
-          KeyPress(Key.Ok);
-          _lastMouseUsageTime = DateTime.Now;
-          break;
-        case MouseButtons.Right:
-          KeyPress(Key.ContextMenu);
-          _lastMouseUsageTime = DateTime.Now;
-          break;
-      }
     }
 
     public void KeyPress(Key key)
