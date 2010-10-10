@@ -55,7 +55,7 @@ namespace MediaPortal.Core.Messaging
       if (_registeredChannels == null)
         return;
       UnregisterFromAllMessageChannels();
-      _registeredChannels = null;
+      _registeredChannels = new List<string>();
     }
 
     #endregion
