@@ -97,6 +97,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string FILTER_BY_MOVIE_YEAR_MENU_ITEM_RES = "[Media.FilterByMovieYearMenuItem]";
     public const string FILTER_BY_ACTOR_MENU_ITEM_RES = "[Media.FilterByActorMenuItem]";
     public const string FILTER_BY_MOVIE_GENRE_MENU_ITEM_RES = "[Media.FilterByMovieGenreMenuItem]";
+    public const string FILTER_BY_SYSTEM_MENU_ITEM_RES = "[Media.FilterBySystemMenuItem]";
     public const string FILTER_BY_PICTURE_SIZE_MENU_ITEM_RES = "[Media.FilterByPictureSizeMenuItem]";
     public const string SIMPLE_SEARCH_FILTER_MENU_ITEM_RES = "[Media.SimpleSearchFilterMenuItem]";
     public const string SHOW_ALL_MUSIC_ITEMS_MENU_ITEM_RES = "[Media.ShowAllMusicItemsMenuItem]";
@@ -116,6 +117,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string FILTER_MUSIC_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMusicItemsNavbarDisplayLabel]";
     public const string FILTER_MOVIE_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterMovieItemsNavbarDisplayLabel]";
     public const string FILTER_PICTURE_ITEMS_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterPictureItemsNavbarDisplayLabel]";
+    public const string FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL_RES = "[Media.FilterSystemNavbarDisplayLabel]";
 
     public const string MORE_THAN_MAX_ITEMS_HINT_RES = "[Media.MoreThanMaxItemsHint]";
     public const string MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT_RES = "[Media.MoreThanMaxItemsSearchResultHint]";
@@ -143,15 +145,18 @@ namespace MediaPortal.UiComponents.Media.General
     public const string MUSIC_FILTER_BY_ALBUM_SCREEN = "MusicFilterByAlbum";
     public const string MUSIC_FILTER_BY_GENRE_SCREEN = "MusicFilterByGenre";
     public const string MUSIC_FILTER_BY_DECADE_SCREEN = "MusicFilterByDecade";
+    public const string MUSIC_FILTER_BY_SYSTEM_SCREEN = "MusicFilterBySystem";
     public const string MUSIC_SIMPLE_SEARCH_SCREEN = "MusicSimpleSearch";
     public const string MOVIES_SHOW_ITEMS_SCREEN = "MoviesShowItems";
     public const string MOVIES_FILTER_BY_ACTOR_SCREEN = "MoviesFilterByActor";
     public const string MOVIES_FILTER_BY_GENRE_SCREEN = "MoviesFilterByGenre";
     public const string MOVIES_FILTER_BY_YEAR_SCREEN = "MoviesFilterByYear";
+    public const string MOVIES_FILTER_BY_SYSTEM_SCREEN = "MoviesFilterBySystem";
     public const string MOVIES_SIMPLE_SEARCH_SCREEN = "MoviesSimpleSearch";
     public const string PICTURES_SHOW_ITEMS_SCREEN = "PicturesShowItems";
     public const string PICTURES_FILTER_BY_YEAR_SCREEN = "PicturesFilterByYear";
     public const string PICTURES_FILTER_BY_SIZE_SCREEN = "PicturesFilterBySize";
+    public const string PICTURES_FILTER_BY_SYSTEM_SCREEN = "PicturesFilterBySystem";
     public const string PICTURES_SIMPLE_SEARCH_SCREEN = "PicturesSimpleSearch";
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
     public const string CHOOSE_AV_TYPE_DIALOG_SCREEN = "DialogChooseAVType";

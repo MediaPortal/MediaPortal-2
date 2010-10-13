@@ -637,6 +637,7 @@ namespace MediaPortal.UiComponents.Media.Models
               sd, // C# doesn't like it to have an assignment inside a collection initializer
               new MusicFilterByGenreScreenData(),
               new MusicFilterByDecadeScreenData(),
+              new MusicFilterBySystemScreenData(),
               new MusicSimpleSearchScreenData(picd),
             };
         navigationData = new NavigationData(Consts.MUSIC_VIEW_NAME_RESOURCE, currentStateId,
@@ -661,6 +662,7 @@ namespace MediaPortal.UiComponents.Media.Models
               new MoviesFilterByActorScreenData(),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
               new MoviesFilterByYearScreenData(),
+              new MoviesFilterBySystemScreenData(),
               new MoviesSimpleSearchScreenData(picd),
           };
         navigationData = new NavigationData(Consts.MOVIES_VIEW_NAME_RESOURCE, currentStateId,
@@ -684,6 +686,7 @@ namespace MediaPortal.UiComponents.Media.Models
               new PicturesShowItemsScreenData(picd),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
               new PicturesFilterBySizeScreenData(),
+              new PicturesFilterBySystemScreenData(),
               new PicturesSimpleSearchScreenData(picd),
           };
         navigationData = new NavigationData(Consts.PICTURES_VIEW_NAME_RESOURCE, currentStateId,

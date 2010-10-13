@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
-      // There is currently no way to get all available years from the content directory...
+      // There is currently no way to get all available years from the content directory, so we build a static list...
       ICollection<FilterValue> result = new List<FilterValue>
         {
             new FilterValue(VALUE_EMPTY_TITLE,

@@ -60,7 +60,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// the available values will be collected.</param>
     /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
     /// <returns>Collection of filter value objects which hold a title for the particular filter value group and which can
-    /// create the actual filter to be used in a media item query.</returns>
+    /// create the actual filter to be used in a media item query. If <c>null</c> is returned, this filter doesn't provide
+    /// value groups. In that case, the caller can fall back to request all filter values via
+    /// <see cref="GetAvailableValues"/>.</returns>
     public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter);
   }
 }

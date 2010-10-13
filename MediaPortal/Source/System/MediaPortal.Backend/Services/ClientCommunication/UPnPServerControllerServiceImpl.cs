@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Core;
+using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.General;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.UPnP;
@@ -64,6 +65,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_SystemName);
 
+      // Used to transport an enumeration of attached client data
+      DvStateVariable A_ARG_TYPE_MPClientMetadata = new DvStateVariable("A_ARG_TYPE_MPClientMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMPClientMetadata))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_MPClientMetadata);
+
       // More state variables go here
 
       DvAction isClientAttachedAction = new DvAction("IsClientAttached", OnIsClientAttached,
@@ -90,6 +98,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           });
       AddAction(detachClientAction);
+
+      DvAction getAttachedClientsAction = new DvAction("GetAttachedClients", OnGetAttachedClients,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("AttachedClients", A_ARG_TYPE_MPClientMetadata, ArgumentDirection.Out, true),
+          });
+      AddAction(getAttachedClientsAction);
 
       DvAction getSystemNameForSytemIdAction = new DvAction("GetSystemNameForSystemId", OnGetSystemNameForSytemId,
           new DvArgument[] {
@@ -127,6 +143,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string clientSystemId = (string) inParams[0];
       ServiceRegistration.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
       outParams = null;
+      return null;
+    }
+
+    static UPnPError OnGetAttachedClients(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IDictionary<string, MPClientMetadata> attachedClients = ServiceRegistration.Get<IClientManager>().AttachedClients;
+      outParams = new List<object> {attachedClients.Values};
       return null;
     }
 

@@ -16,6 +16,7 @@
     <String Name="FilterByMovieYearMenuItem" Text="Filter by year"/>
     <String Name="FilterByPictureSizeMenuItem" Text="Filter by size"/>
     <String Name="FilterByPictureYearMenuItem" Text="Filter by year"/>
+    <String Name="FilterBySystemMenuItem" Text="Filter by system"/>
     <String Name="SimpleSearchFilterMenuItem" Text="Search"/>
     <String Name="ShowAllMusicItemsMenuItem" Text="Show all"/>
     <String Name="ShowAllMovieItemsMenuItem" Text="Show all"/>
@@ -35,6 +36,7 @@
     <String Name="FilterMusicItemsNavbarDisplayLabel" Text="{0}"/>
     <String Name="FilterMovieItemsNavbarDisplayLabel" Text="{0}"/>
     <String Name="FilterPictureItemsNavbarDisplayLabel" Text="{0}"/>
+    <String Name="FilterSystemNavbarDisplayLabel" Text="{0}"/>
 
     <!-- Display labels for workflow navigation contexts -->
     <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
@@ -70,6 +72,7 @@
     <String Name="ChooseMusicGenreViewTitle" Text="Choose a genre"/>
     <String Name="ChoosePictureYearViewTitle" Text="Choose a year"/>
     <String Name="ChoosePictureSizeViewTitle" Text="Choose a size"/>
+    <String Name="ChooseSystemViewTitle" Text="Choose a system"/>
 
     <!-- View names (names for the view instances) -->
     <String Name="LocalMediaRootViewName" Text="Local media"/>

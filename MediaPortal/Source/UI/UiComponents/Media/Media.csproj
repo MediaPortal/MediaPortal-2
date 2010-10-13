@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -69,6 +69,7 @@
     <Compile Include="Actions\PlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\LocalMediaAction.cs" />
+    <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
@@ -86,6 +87,9 @@
     <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractShowMLItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\PicturesFilterBySystemScreenData.cs" />
+    <Compile Include="Models\ScreenData\MusicFilterBySystemScreenData.cs" />
+    <Compile Include="Models\ScreenData\MoviesFilterBySystemScreenData.cs" />
     <Compile Include="Models\ScreenData\LocalMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesFilterBySizeScreenData.cs" />
@@ -138,15 +142,18 @@
     <Content Include="Skin\default\screens\MusicShowItems.xaml" />
     <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
     <Content Include="Skin\default\screens\PicturesShowItems.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterBySystem.xaml" />
     <Content Include="Skin\default\screens\SimpleFilterItems.xaml" />
     <Content Include="Skin\default\screens\SimpleShowItems.xaml" />
     <Content Include="Skin\default\screens\MoviesFilterByActor.xaml" />
     <Content Include="Skin\default\screens\MoviesFilterByGenre.xaml" />
     <Content Include="Skin\default\screens\MoviesFilterByYear.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterBySystem.xaml" />
     <Content Include="Skin\default\screens\MusicFilterByAlbum.xaml" />
     <Content Include="Skin\default\screens\MusicFilterByArtist.xaml" />
     <Content Include="Skin\default\screens\MusicFilterByDecade.xaml" />
     <Content Include="Skin\default\screens\MusicFilterByGenre.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterBySystem.xaml" />
     <Content Include="Skin\default\screens\PicturesFilterBySize.xaml" />
     <Content Include="Skin\default\screens\PicturesFilterByYear.xaml" />
     <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />

@@ -41,6 +41,10 @@ namespace MediaPortal.Core.UPnP
     public const int RESOURCE_INFORMATION_SERVICE_TYPE_VERSION = 1;
     public const string RESOURCE_INFORMATION_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ResourceInformation";
 
+    public const string SERVER_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ServerController";
+    public const int SERVER_CONTROLLER_SERVICE_TYPE_VERSION = 1;
+    public const string SERVER_CONTROLLER_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ServerController";
+
     // Frontend
     public const string FRONTEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP2-Client";
     public const int FRONTEND_SERVER_DEVICE_TYPE_VERSION = 1;
@@ -48,9 +52,5 @@ namespace MediaPortal.Core.UPnP
     public const string CLIENT_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ClientController";
     public const int CLIENT_CONTROLLER_SERVICE_TYPE_VERSION = 1;
     public const string CLIENT_CONTROLLER_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ClientController";
-
-    public const string SERVER_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ServerController";
-    public const int SERVER_CONTROLLER_SERVICE_TYPE_VERSION = 1;
-    public const string SERVER_CONTROLLER_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ServerController";
   }
 }

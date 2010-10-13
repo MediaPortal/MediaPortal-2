@@ -22,22 +22,22 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Core.ClientCommunication;
-using MediaPortal.Core.General;
+using MediaPortal.UiComponents.Media.FilterCriteria;
+using MediaPortal.UiComponents.Media.General;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  /// <summary>
-  /// Interface of the MediaPortal 2 server's ServerController service. This interface is implemented by the
-  /// MediaPortal 2 server.
-  /// </summary>
-  public interface IServerController
+  public class MoviesFilterBySystemScreenData : AbstractMoviesFilterScreenData
   {
-    bool IsClientAttached(string clientSystemId);
-    void AttachClient(string clientSystemId);
-    void DetachClient(string clientSystemId);
-    ICollection<MPClientMetadata> GetAttachedClients();
-    SystemName GetSystemNameForSystemId(string systemId);
+    public MoviesFilterBySystemScreenData() :
+        base(Consts.MOVIES_FILTER_BY_SYSTEM_SCREEN, Consts.FILTER_BY_SYSTEM_MENU_ITEM_RES,
+        Consts.FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL_RES, new FilterBySystemCriterion())
+    {
+    }
+
+    public override AbstractFiltersScreenData Derive()
+    {
+      return new MoviesFilterBySystemScreenData();
+    }
   }
 }

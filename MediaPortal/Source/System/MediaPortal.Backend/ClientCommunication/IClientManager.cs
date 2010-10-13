@@ -23,52 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.General;
 
 namespace MediaPortal.Backend.ClientCommunication
 {
-  /// <summary>
-  /// Contains data about an attached MediaPortal client.
-  /// </summary>
-  public class AttachedClientData
-  {
-    protected string _systemId;
-    protected SystemName _lastSystem;
-    protected string _lastClientName;
-
-    internal AttachedClientData(string systemId, SystemName lastHostName, string lastClientName)
-    {
-      _systemId = systemId;
-      _lastSystem = lastHostName;
-      _lastClientName = lastClientName;
-    }
-
-    /// <summary>
-    /// UUID of the attached client.
-    /// </summary>
-    public string SystemId
-    {
-      get { return _systemId; }
-    }
-
-    /// <summary>
-    /// Last known host name of the client.
-    /// </summary>
-    public SystemName LastSystem
-    {
-      get { return _lastSystem; }
-    }
-
-
-    /// <summary>
-    /// Last known client name.
-    /// </summary>
-    public string LastClientName
-    {
-      get { return _lastClientName; }
-    }
-  }
-
   /// <summary>
   /// Manages the UPnP connection to all attached clients.
   /// </summary>
@@ -93,7 +52,7 @@ namespace MediaPortal.Backend.ClientCommunication
     /// <summary>
     /// Gets a dictionary of client's UUIDs to attachment structures of all clients which are currently attached to the server.
     /// </summary>
-    IDictionary<string, AttachedClientData> AttachedClients { get; }
+    IDictionary<string, MPClientMetadata> AttachedClients { get; }
 
     void AttachClient(string clientSystemId);
     void DetachClientAndRemoveShares(string clientSystemId);

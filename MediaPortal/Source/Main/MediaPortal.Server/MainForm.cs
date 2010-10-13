@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Core;
+using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
 
@@ -100,7 +101,7 @@ namespace MediaPortal.Server
         ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
         foreach (ClientConnection clientConnection in clients)
           connectedClientSystemIDs.Add(clientConnection.Descriptor.MPFrontendServerUUID);
-        foreach (AttachedClientData attachedClientData in clientManager.AttachedClients.Values)
+        foreach (MPClientMetadata attachedClientData in clientManager.AttachedClients.Values)
         {
           ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName,
               attachedClientData.LastSystem == null ? null : attachedClientData.LastSystem.HostName,

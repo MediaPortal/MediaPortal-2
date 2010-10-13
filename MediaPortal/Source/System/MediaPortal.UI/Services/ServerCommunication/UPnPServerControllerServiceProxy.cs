@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.General;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.Exceptions;
@@ -68,6 +69,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("DetachClient");
       action.InvokeAction(new List<object> {clientSystemId});
+    }
+
+    public ICollection<MPClientMetadata> GetAttachedClients()
+    {
+      CpAction action = GetAction("GetAttachedClients");
+      IList<object> outParams = action.InvokeAction(new List<object> {});
+      return (ICollection<MPClientMetadata>) outParams[0];
     }
 
     public SystemName GetSystemNameForSystemId(string systemId)

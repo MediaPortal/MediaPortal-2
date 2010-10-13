@@ -29,6 +29,7 @@ using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Core;
+using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.SystemResolver;
@@ -42,7 +43,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   {
     protected UPnPServerControlPoint _controlPoint = null;
     protected object _syncObj = new object();
-    protected IDictionary<string, AttachedClientData> _attachedClients;
+    protected IDictionary<string, MPClientMetadata> _attachedClients;
 
     public ClientManager()
     {
@@ -111,7 +112,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     /// Returns a dictionary which maps the system ids of all attached clients to their last hostname.
     /// </summary>
     /// <returns>Dictionary with system ids mapped to host names.</returns>
-    protected IDictionary<string, AttachedClientData> ReadAttachedClientsFromDB()
+    protected IDictionary<string, MPClientMetadata> ReadAttachedClientsFromDB()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -120,7 +121,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         int systemIdIndex;
         int lastHostNameIndex;
         int lastClientNameIndex;
-        IDictionary<string, AttachedClientData> result = new Dictionary<string, AttachedClientData>();
+        IDictionary<string, MPClientMetadata> result = new Dictionary<string, MPClientMetadata>();
         using (IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out systemIdIndex,
             out lastHostNameIndex, out lastClientNameIndex))
         using (IDataReader reader = command.ExecuteReader())
@@ -131,7 +132,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             string lastClientHostName = DBUtils.ReadDBValue<string>(reader, lastHostNameIndex);
             SystemName lastHostName = lastClientHostName == null ? null : new SystemName(lastClientHostName);
             string lastClientName = DBUtils.ReadDBValue<string>(reader, lastClientNameIndex);
-            result.Add(clientSystemId, new AttachedClientData(clientSystemId, lastHostName, lastClientName));
+            result.Add(clientSystemId, new MPClientMetadata(clientSystemId, lastHostName, lastClientName));
           }
         }
         return result;
@@ -191,7 +192,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       get { return _controlPoint.ClientConnections.Values; }
     }
 
-    public IDictionary<string, AttachedClientData> AttachedClients
+    public IDictionary<string, MPClientMetadata> AttachedClients
     {
       get { return _attachedClients; }
     }
