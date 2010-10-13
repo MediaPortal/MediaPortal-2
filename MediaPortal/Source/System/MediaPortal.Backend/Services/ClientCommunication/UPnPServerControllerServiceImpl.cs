@@ -44,14 +44,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE, UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_ID)
     {
-      // Used for a system ID string
+      // Used for system ID strings
       DvStateVariable A_ARG_TYPE_SystemId = new DvStateVariable("A_ARG_TYPE_SystemId", new DvStandardDataType(UPnPStandardDataType.String))
           {
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_SystemId);
 
-      // Used for a system ID string
+      // Used for bool values
       DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean))
           {
             SendEvents = false
