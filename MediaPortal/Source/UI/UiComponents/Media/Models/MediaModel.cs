@@ -633,7 +633,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ICollection<AbstractScreenData> availableScreens = new List<AbstractScreenData>
             {
               new MusicShowItemsScreenData(picd),
-              new MusicFilterByArttistScreenData(),
+              new MusicFilterByArtistScreenData(),
               sd, // C# doesn't like it to have an assignment inside a collection initializer
               new MusicFilterByGenreScreenData(),
               new MusicFilterByDecadeScreenData(),

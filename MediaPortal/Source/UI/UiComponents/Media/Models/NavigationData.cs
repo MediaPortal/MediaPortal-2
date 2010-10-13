@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <summary>
     /// Returns the id of the workflow state to which we must revert when a different view presentation screen is choosen.
     /// </summary>
-    public Guid ParentWorkflowStateId
+    public Guid BaseWorkflowStateId
     {
       get { return _baseWorkflowStateId; }
     }

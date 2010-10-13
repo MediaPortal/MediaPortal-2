@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
@@ -150,9 +151,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               if (_listDirty)
                 goto RebuildView;
 
+            // Build collection of available (filter/display) screens which will remain in the next view - that is all currently
+            // available screens without the screen which equals this current screen. But we cannot simply remove "this"
+            // from the collection, because "this" could be a derived screen (in case our base screen showed groups).
+            // So we need an equality criterion when the screen to be removed is equal to this screen in terms of its
+            // filter criterion. But with the given data, we actually cannot derive that equality.
+            // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
+            ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(
+                _navigationData.AvailableScreens.Where(screen => screen.MenuItemLabel != MenuItemLabel));
             List<FilterValue> filterValues = new List<FilterValue>(fv);
-            ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(_navigationData.AvailableScreens);
-            remainingScreens.Remove(this);
             filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
             foreach (FilterValue filterValue in filterValues)
             {

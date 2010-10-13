@@ -28,9 +28,9 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MusicFilterByArttistScreenData : AbstractMusicFilterScreenData
+  public class MusicFilterByArtistScreenData : AbstractMusicFilterScreenData
   {
-    public MusicFilterByArttistScreenData() :
+    public MusicFilterByArtistScreenData() :
         base(Consts.MUSIC_FILTER_BY_ARTIST_SCREEN, Consts.FILTER_BY_ARTIST_MENU_ITEM_RES,
         Consts.FILTER_ARTIST_NAVBAR_DISPLAY_LABEL_RES, new SimpleMLFilterCriterion(AudioAspect.ATTR_ARTISTS))
     {
@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     public override AbstractFiltersScreenData Derive()
     {
-      return new MusicFilterByArttistScreenData();
+      return new MusicFilterByArtistScreenData();
     }
   }
 }
