@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction result;
       if (!_serviceStub.Actions.TryGetValue(actionName, out result))
-        throw new FatalException("Method '{0}' is not present in the connected MP 2 ContentDirectoryService", actionName);
+        throw new FatalException("Method '{0}' is not present in the connected MP 2 ContentDirectory service", actionName);
       return result;
     }
 
