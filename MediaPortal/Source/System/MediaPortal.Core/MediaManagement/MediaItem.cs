@@ -42,32 +42,24 @@ namespace MediaPortal.Core.MediaManagement
   {
     #region Protected fields
 
-    protected Guid _id = Guid.Empty;
+    protected Guid _id;
     protected readonly IDictionary<Guid, MediaItemAspect> _aspects;
 
     #endregion
 
-    public MediaItem()
-    {
-      _aspects = new Dictionary<Guid, MediaItemAspect>();
-    }
-
     public MediaItem(Guid mediaItemId) : this()
     {
       _id = mediaItemId;
+      _aspects = new Dictionary<Guid, MediaItemAspect>();
     }
 
-    public MediaItem(IDictionary<Guid, MediaItemAspect> aspects)
+    public MediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
     {
+      _id = mediaItemId;
       _aspects = new Dictionary<Guid, MediaItemAspect>(aspects);
       if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
         throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
             typeof(ProviderResourceAspect).Name));
-    }
-
-    public MediaItem(IDictionary<Guid, MediaItemAspect> aspects, Guid mediaItemId) : this(aspects)
-    {
-      _id = mediaItemId;
     }
 
     public Guid MediaItemId
@@ -168,6 +160,12 @@ namespace MediaPortal.Core.MediaManagement
     {
       return Equals(obj as MediaItem);
     }
+
+    #endregion
+
+    #region Additional members for the XML serialization
+
+    internal MediaItem() { }
 
     #endregion
   }
