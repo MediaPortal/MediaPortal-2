@@ -28,7 +28,6 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -43,6 +42,7 @@ namespace MediaPortal.Core.MediaManagement
   {
     #region Protected fields
 
+    protected Guid _id = Guid.Empty;
     protected readonly IDictionary<Guid, MediaItemAspect> _aspects;
 
     #endregion
@@ -52,12 +52,27 @@ namespace MediaPortal.Core.MediaManagement
       _aspects = new Dictionary<Guid, MediaItemAspect>();
     }
 
+    public MediaItem(Guid mediaItemId) : this()
+    {
+      _id = mediaItemId;
+    }
+
     public MediaItem(IDictionary<Guid, MediaItemAspect> aspects)
     {
       _aspects = new Dictionary<Guid, MediaItemAspect>(aspects);
       if (!_aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
         throw new ArgumentException(string.Format("Media items always have to contain the '{0}' aspect",
             typeof(ProviderResourceAspect).Name));
+    }
+
+    public MediaItem(IDictionary<Guid, MediaItemAspect> aspects, Guid mediaItemId) : this(aspects)
+    {
+      _id = mediaItemId;
+    }
+
+    public Guid MediaItemId
+    {
+      get { return _id; }
     }
 
     public IDictionary<Guid, MediaItemAspect> Aspects
@@ -86,8 +101,18 @@ namespace MediaPortal.Core.MediaManagement
 
     void IXmlSerializable.ReadXml(XmlReader reader)
     {
-      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItem"))
-        return;
+      try
+      {
+        if (reader.IsEmptyElement)
+          return;
+        if (!reader.MoveToAttribute("Id"))
+          throw new ArgumentException("Id attribute not present");
+        _id = new Guid(reader.Value);
+      }
+      finally
+      {
+        reader.ReadStartElement("MediaItem");
+      }
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
@@ -98,6 +123,7 @@ namespace MediaPortal.Core.MediaManagement
 
     void IXmlSerializable.WriteXml(XmlWriter writer)
     {
+      writer.WriteAttributeString("Id", _id.ToString("D"));
       foreach (MediaItemAspect mia in _aspects.Values)
         mia.Serialize(writer);
     }

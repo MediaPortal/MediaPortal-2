@@ -211,7 +211,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                   attributeValues = null;
-              MediaItem mediaItem = new MediaItem();
+              MediaItem mediaItem = new MediaItem(mediaItemId);
               foreach (MediaItemAspectMetadata miam in selectedMIAs)
               {
                 if (reader.IsDBNull(reader.GetOrdinal(miamAliases[miam])))
