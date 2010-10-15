@@ -276,6 +276,7 @@
     <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
     <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
     <Compile Include="UPnP\UPnPDtMLQueryResultGroupEnumeration.cs" />
+    <Compile Include="UPnP\UPnPServiceProxyBase.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />

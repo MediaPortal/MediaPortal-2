@@ -26,8 +26,8 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Core.UPnP;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -35,23 +35,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   /// <summary>
   /// Encapsulates the MediaPortal 2 UPnP server's proxy for the ClientController service.
   /// </summary>
-  public class UPnPClientControllerServiceProxy : IClientController
+  public class UPnPClientControllerServiceProxy : UPnPServiceProxyBase, IClientController
   {
-    protected CpService _serviceStub;
-
-    public UPnPClientControllerServiceProxy(CpService serviceStub)
-    {
-      _serviceStub = serviceStub;
-      _serviceStub.SubscribeStateVariables();
-    }
-
-    protected CpAction GetAction(string actionName)
-    {
-      CpAction result;
-      if (!_serviceStub.Actions.TryGetValue(actionName, out result))
-        throw new FatalException("Method '{0}' is not present in the connected MP 2 ClientController service", actionName);
-      return result;
-    }
+    public UPnPClientControllerServiceProxy(CpService serviceStub) : base(serviceStub, "ClientController") { }
 
     public string GetHomeServer()
     {

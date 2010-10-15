@@ -28,9 +28,9 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -39,23 +39,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// <summary>
   /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ContentDirectory service.
   /// </summary>
-  public class UPnPContentDirectoryServiceProxy : IContentDirectory
+  public class UPnPContentDirectoryServiceProxy : UPnPServiceProxyBase, IContentDirectory
   {
-    protected CpService _serviceStub;
-
-    public UPnPContentDirectoryServiceProxy(CpService serviceStub)
-    {
-      _serviceStub = serviceStub;
-      _serviceStub.SubscribeStateVariables();
-    }
-
-    protected CpAction GetAction(string actionName)
-    {
-      CpAction result;
-      if (!_serviceStub.Actions.TryGetValue(actionName, out result))
-        throw new FatalException("Method '{0}' is not present in the connected MP 2 ContentDirectory service", actionName);
-      return result;
-    }
+    public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory") { }
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
