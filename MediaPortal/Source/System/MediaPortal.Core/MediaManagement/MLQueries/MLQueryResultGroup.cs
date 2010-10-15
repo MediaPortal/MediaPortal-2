@@ -46,7 +46,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     protected IFilter _additionalFilter;
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
     
     public MLQueryResultGroup(string groupName, int numItemsInGroup, IFilter additionalFilter)
@@ -82,13 +81,10 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public string Serialize()
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-      {
-        StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-        using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
-          xs.Serialize(writer, this);
-        return sb.ToString();
-      }
+      StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
+        xs.Serialize(writer, this);
+      return sb.ToString();
     }
 
     /// <summary>
@@ -98,8 +94,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     /// <summary>
@@ -110,9 +105,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public static MLQueryResultGroup Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        using (StringReader reader = new StringReader(str))
-          return xs.Deserialize(reader) as MLQueryResultGroup;
+      using (StringReader reader = new StringReader(str))
+        return xs.Deserialize(reader) as MLQueryResultGroup;
     }
 
     /// <summary>
@@ -123,8 +117,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public static MLQueryResultGroup Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as MLQueryResultGroup;
+      return xs.Deserialize(reader) as MLQueryResultGroup;
     }
 
     #region Additional members for the XML serialization

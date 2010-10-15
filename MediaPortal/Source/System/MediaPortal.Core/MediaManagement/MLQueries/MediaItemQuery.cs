@@ -135,10 +135,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     protected List<SortInformation> _sortInformation = null;
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
-
-    [ThreadStatic]
     protected static XmlSerializer _xmlFilterSerializer = null; // Lazy initialized
 
     #endregion
@@ -205,31 +202,26 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     {
       FilterWrapper wrapper = new FilterWrapper(filter);
       XmlSerializer xs = GetOrCreateXMLFilterSerializer();
-      lock (xs)
-        xs.Serialize(writer, wrapper);
+      xs.Serialize(writer, wrapper);
     }
 
     public static IFilter DeserializeFilter(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLFilterSerializer();
-      FilterWrapper wrapper;
-      lock (xs)
-        wrapper = xs.Deserialize(reader) as FilterWrapper;
+      FilterWrapper wrapper = xs.Deserialize(reader) as FilterWrapper;
       return wrapper == null ? null : wrapper.Filter;
     }
 
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     public static MediaItemQuery Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as MediaItemQuery;
+      return xs.Deserialize(reader) as MediaItemQuery;
     }
 
     #region Base overrides

@@ -303,7 +303,6 @@ namespace MediaPortal.Core.MediaManagement
         new Dictionary<string, AttributeSpecification>();
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
@@ -421,13 +420,10 @@ namespace MediaPortal.Core.MediaManagement
     public string Serialize()
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-      {
-        StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-        using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
-          xs.Serialize(writer, this);
-        return sb.ToString();
-      }
+      StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
+        xs.Serialize(writer, this);
+      return sb.ToString();
     }
 
     /// <summary>
@@ -437,8 +433,7 @@ namespace MediaPortal.Core.MediaManagement
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     /// <summary>
@@ -449,9 +444,8 @@ namespace MediaPortal.Core.MediaManagement
     public static MediaItemAspectMetadata Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        using (StringReader reader = new StringReader(str))
-          return xs.Deserialize(reader) as MediaItemAspectMetadata;
+      using (StringReader reader = new StringReader(str))
+        return xs.Deserialize(reader) as MediaItemAspectMetadata;
     }
 
     /// <summary>
@@ -462,8 +456,7 @@ namespace MediaPortal.Core.MediaManagement
     public static MediaItemAspectMetadata Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as MediaItemAspectMetadata;
+      return xs.Deserialize(reader) as MediaItemAspectMetadata;
     }
 
     public override bool Equals(object obj)

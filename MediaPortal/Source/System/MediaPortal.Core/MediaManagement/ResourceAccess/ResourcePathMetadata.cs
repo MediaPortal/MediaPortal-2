@@ -45,7 +45,6 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     protected ResourcePath _resourcePath;
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     public ResourcePathMetadata() { }
@@ -74,15 +73,13 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     public static ResourcePathMetadata Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as ResourcePathMetadata;
+      return xs.Deserialize(reader) as ResourcePathMetadata;
     }
 
     #region Additional members for the XML serialization

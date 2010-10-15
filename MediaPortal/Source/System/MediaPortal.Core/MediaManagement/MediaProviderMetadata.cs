@@ -47,7 +47,6 @@ namespace MediaPortal.Core.MediaManagement
     protected bool _isChainedProvider;
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
@@ -89,15 +88,13 @@ namespace MediaPortal.Core.MediaManagement
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     public static MediaProviderMetadata Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as MediaProviderMetadata;
+      return xs.Deserialize(reader) as MediaProviderMetadata;
     }
 
     #region Additional members for the XML serialization

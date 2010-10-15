@@ -27,7 +27,6 @@ namespace MediaPortal.Core.ClientCommunication
     #endregion
 
     // We could use some cache for this instance, if we would have one...
-    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     public MPClientMetadata(string systemId, SystemName lastHostName, string lastClientName)
@@ -71,13 +70,10 @@ namespace MediaPortal.Core.ClientCommunication
     public string Serialize()
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-      {
-        StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-        using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
-          xs.Serialize(writer, this);
-        return sb.ToString();
-      }
+      StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
+        xs.Serialize(writer, this);
+      return sb.ToString();
     }
 
     /// <summary>
@@ -87,8 +83,7 @@ namespace MediaPortal.Core.ClientCommunication
     public void Serialize(XmlWriter writer)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        xs.Serialize(writer, this);
+      xs.Serialize(writer, this);
     }
 
     /// <summary>
@@ -99,9 +94,8 @@ namespace MediaPortal.Core.ClientCommunication
     public static MPClientMetadata Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        using (StringReader reader = new StringReader(str))
-          return xs.Deserialize(reader) as MPClientMetadata;
+      using (StringReader reader = new StringReader(str))
+        return xs.Deserialize(reader) as MPClientMetadata;
     }
 
     /// <summary>
@@ -112,8 +106,7 @@ namespace MediaPortal.Core.ClientCommunication
     public static MPClientMetadata Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      lock (xs)
-        return xs.Deserialize(reader) as MPClientMetadata;
+      return xs.Deserialize(reader) as MPClientMetadata;
     }
 
     #region Additional members for the XML serialization
