@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using UPnP.Infrastructure.Utils;
 
@@ -37,7 +39,7 @@ namespace MediaPortal.Core.MediaManagement
   /// Instances of this class contain multiple media item aspect instances; not necessarily all media item
   /// aspects are contained here.
   /// </remarks>
-  public class MediaItem : IEquatable<MediaItem>
+  public class MediaItem : IEquatable<MediaItem>, IXmlSerializable
   {
     #region Protected fields
 
@@ -77,25 +79,40 @@ namespace MediaPortal.Core.MediaManagement
       get { return _aspects.ContainsKey(mediaItemAspectId) ? _aspects[mediaItemAspectId] : null; }
     }
 
+    XmlSchema IXmlSerializable.GetSchema()
+    {
+      return null;
+    }
+
+    void IXmlSerializable.ReadXml(XmlReader reader)
+    {
+      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItem"))
+        return;
+      while (reader.NodeType != XmlNodeType.EndElement)
+      {
+        MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
+        _aspects[mia.Metadata.AspectId] = mia;
+      }
+      reader.ReadEndElement(); // MediaItem
+    }
+
+    void IXmlSerializable.WriteXml(XmlWriter writer)
+    {
+      foreach (MediaItemAspect mia in _aspects.Values)
+        mia.Serialize(writer);
+    }
+
     public void Serialize(XmlWriter writer)
     {
       writer.WriteStartElement("MediaItem");
-      foreach (MediaItemAspect mia in _aspects.Values)
-        mia.Serialize(writer);
+      ((IXmlSerializable) this).WriteXml(writer);
       writer.WriteEndElement(); // MediaItem
     }
 
     public static MediaItem Deserialize(XmlReader reader)
     {
       MediaItem result = new MediaItem();
-      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItem"))
-        return result;
-      while (reader.NodeType != XmlNodeType.EndElement)
-      {
-        MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        result.Aspects[mia.Metadata.AspectId] = mia;
-      }
-      reader.ReadEndElement(); // MediaItem
+      ((IXmlSerializable) result).ReadXml(reader);
       return result;
     }
 
