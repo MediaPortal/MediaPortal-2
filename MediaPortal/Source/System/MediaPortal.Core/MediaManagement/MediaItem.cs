@@ -50,7 +50,6 @@ namespace MediaPortal.Core.MediaManagement
     public MediaItem(Guid mediaItemId) : this()
     {
       _id = mediaItemId;
-      _aspects = new Dictionary<Guid, MediaItemAspect>();
     }
 
     public MediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
@@ -165,7 +164,10 @@ namespace MediaPortal.Core.MediaManagement
 
     #region Additional members for the XML serialization
 
-    internal MediaItem() { }
+    internal MediaItem()
+    {
+      _aspects = new Dictionary<Guid, MediaItemAspect>();
+    }
 
     #endregion
   }
