@@ -31,62 +31,74 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
 {
     public class SQLCETransaction : ITransaction
     {
-        SqlCeTransaction _transaction;
+      #region Protected fields
 
-        #region ITransaction Member
+      protected SqlCeTransaction _transaction;
+      protected ISQLDatabase _database;
+      protected IDbConnection _connection;
 
-        public ISQLDatabase Database { get; protected set; }
+      #endregion
 
-        public IDbConnection Connection { get; protected set; }
+      #region ITransaction Member
 
-        public void Commit()
-        {
-            _transaction.Commit();
-        }
+      public ISQLDatabase Database
+      {
+        get { return _database; }
+      }
 
-        public void Rollback()
-        {
-            _transaction.Rollback();
-        }
+      public IDbConnection Connection
+      {
+        get { return _connection; }
+      }
 
-        public IDbCommand CreateCommand()
-        {
-            IDbCommand result = Connection.CreateCommand();
+      public void Commit()
+      {
+        _transaction.Commit();
+      }
+
+      public void Rollback()
+      {
+        _transaction.Rollback();
+      }
+
+      public IDbCommand CreateCommand()
+      {
+        IDbCommand result = _connection.CreateCommand();
 #if DEBUG
-            // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-            result = new LoggingDbCommandWrapper(result);
+        // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+        result = new LoggingDbCommandWrapper(result);
 #endif
-            result.Transaction = _transaction;
-            return result;
-        }
+        result.Transaction = _transaction;
+        return result;
+      }
 
-        #endregion
+      #endregion
 
-        #region IDisposable Member
+      #region IDisposable Member
 
-        public void Dispose()
+      public void Dispose()
+      {
+        if (_connection != null)
         {
-            if (Connection != null)
-            {
-                Connection.Close();
-                Connection = null;
-            }
+          _connection.Close();
+          _connection = null;
         }
+      }
 
-        #endregion
+      #endregion
 
-        public static ITransaction BeginTransaction(SQLCEDatabase database, string connectionString, IsolationLevel level)
-        {
-            SqlCeConnection connection = new SqlCeConnection(connectionString);
-            connection.Open();
-            return new SQLCETransaction(database, connection, connection.BeginTransaction(level));
-        }
+      public static ITransaction BeginTransaction(SQLCEDatabase database, string connectionString, IsolationLevel level)
+      {
+        SqlCeConnection connection = new SqlCeConnection(connectionString);
+        connection.Open();
+        return new SQLCETransaction(database, connection, connection.BeginTransaction(level));
+      }
 
-        public SQLCETransaction(SQLCEDatabase database, SqlCeConnection connection, SqlCeTransaction transaction)
-        {
-            Database = database;
-            Connection = connection;
-            _transaction = transaction;
-        }
+      public SQLCETransaction(ISQLDatabase database, IDbConnection connection, SqlCeTransaction transaction)
+      {
+        _database = database;
+        _connection = connection;
+        _transaction = transaction;
+      }
     }
 }
