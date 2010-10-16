@@ -34,12 +34,12 @@ namespace MediaPortal.Utilities.UPnP
       return StringUtils.Join(",", guids);
     }
 
-    public static ICollection<Guid> ParseCsvGuidCollection(string csvGuids)
+    public static IList<Guid> ParseCsvGuidCollection(string csvGuids)
     {
       if (string.IsNullOrEmpty(csvGuids))
         return null;
       string[] guids = csvGuids.Split(',');
-      ICollection<Guid> result = new List<Guid>(guids.Length);
+      IList<Guid> result = new List<Guid>(guids.Length);
       foreach (string guidStr in guids)
         result.Add(new Guid(guidStr));
       return result;
