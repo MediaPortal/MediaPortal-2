@@ -223,12 +223,15 @@ namespace MediaPortal.Backend.Services.Database
     public void ExecuteBatch(ISQLDatabase database, InstructionList instructions)
     {
       using (ITransaction transaction = database.BeginTransaction())
+      {
         foreach (string instr in instructions)
           using (IDbCommand cmd = transaction.CreateCommand())
           {
             cmd.CommandText = instr;
             cmd.ExecuteNonQuery();
           }
+        transaction.Commit();
+      }
     }
 
     #endregion

@@ -603,9 +603,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       using (IDbCommand command = transaction.CreateCommand())
       {
-        command.CommandText = "DELETE FROM " + collectionAttributeTableName + " V WHERE NOT EXISTS (" +
+        command.CommandText = "DELETE FROM " + collectionAttributeTableName + " WHERE NOT EXISTS (" +
             "SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + miaTableName + " MIA WHERE MIA." +
-            attrColName + " = V." + FOREIGN_COLL_ATTR_ID_COL_NAME + ")";
+            attrColName + " = " + collectionAttributeTableName + "." + FOREIGN_COLL_ATTR_ID_COL_NAME + ")";
 
         command.ExecuteNonQuery();
       }
@@ -660,9 +660,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bindVars.Add("@" + bindVar);
           DBUtils.AddParameter(command, bindVar, value, DBUtils.GetDBType(spec.AttributeType));
         }
-        string commandText = "DELETE FROM " + nmTableName + " NM WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND NOT EXISTS(" +
+        string commandText = "DELETE FROM " + nmTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND NOT EXISTS(" +
             "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " V WHERE V." +
-            FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME;
+            FOREIGN_COLL_ATTR_ID_COL_NAME + " = " + nmTableName + "." + FOREIGN_COLL_ATTR_ID_COL_NAME;
         if (bindVars.Count > 0)
           commandText +=  " AND " + COLL_ATTR_VALUE_COL_NAME + " IN (" +
               StringUtils.Join(", ", bindVars) + ")";
@@ -680,9 +680,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       using (IDbCommand command = transaction.CreateCommand())
       {
-        command.CommandText = "DELETE FROM " + collectionAttributeTableName + " V WHERE NOT EXISTS (" +
+        command.CommandText = "DELETE FROM " + collectionAttributeTableName + " WHERE NOT EXISTS (" +
             "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + nmTableName + " NM WHERE " +
-            FOREIGN_COLL_ATTR_ID_COL_NAME + " = V." + FOREIGN_COLL_ATTR_ID_COL_NAME + ")";
+            FOREIGN_COLL_ATTR_ID_COL_NAME + " = " + collectionAttributeTableName + "." + FOREIGN_COLL_ATTR_ID_COL_NAME + ")";
 
         command.ExecuteNonQuery();
       }
