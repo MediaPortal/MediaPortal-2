@@ -28,10 +28,17 @@ namespace MediaPortal.UiComponents.Media.General
 {
   public class Utils
   {
-    public static string BuildNumItemsStr(int numItems)
+    public static string BuildNumItemsStr(int numItems, int? total)
     {
-      return numItems == 0 ? Consts.NO_ITEMS_RES : (numItems == 1 ? Consts.ONE_ITEM_RES :
-          LocalizationHelper.Translate(Consts.N_ITEMS_RES, numItems));
+      if (numItems == 0)
+        return Consts.NO_ITEMS_RES;
+      if (numItems == 1 && !total.HasValue)
+        return Consts.ONE_ITEM_RES;
+      if (numItems == 1 && total.Value == 1)
+        return Consts.ONE_OF_ONE_ITEM_RES;
+      if (total.HasValue)
+        return LocalizationHelper.Translate(Consts.N_OF_M_ITEMS_RES, numItems, total.Value);
+      return LocalizationHelper.Translate(Consts.N_ITEMS_RES, numItems);
     }
   }
 }

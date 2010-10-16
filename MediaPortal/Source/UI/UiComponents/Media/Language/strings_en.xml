@@ -33,10 +33,10 @@
     <String Name="FilterMovieYearNavbarDisplayLabel" Text="Year: {0}"/>
     <String Name="FilterPictureSizeNavbarDisplayLabel" Text="Size: {0}"/>
     <String Name="FilterPictureYearNavbarDisplayLabel" Text="Year: {0}"/>
-    <String Name="FilterMusicItemsNavbarDisplayLabel" Text="{0}"/>
-    <String Name="FilterMovieItemsNavbarDisplayLabel" Text="{0}"/>
-    <String Name="FilterPictureItemsNavbarDisplayLabel" Text="{0}"/>
-    <String Name="FilterSystemNavbarDisplayLabel" Text="{0}"/>
+    <String Name="FilterMusicItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterMovieItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterPictureItemsNavbarDisplayLabel" Text="Name: {0}"/>
+    <String Name="FilterSystemNavbarDisplayLabel" Text="System: {0}"/>
 
     <!-- Display labels for workflow navigation contexts -->
     <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
@@ -85,7 +85,9 @@
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
     <String Name="NoItems" Text="No items"/> <!-- Shown in the header of an items list -->
     <String Name="OneItem" Text="One item"/> <!-- Shown in the header of an items list -->
-    <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list and elsewhere, e.g. "15 items" -->
+    <String Name="OneOfOneItem" Text="1/1 item"/> <!-- Shown in the header of an items list -->
+    <String Name="NOfMItems" Text="{0}/{1} items"/> <!-- Shown in the header of an items list, e.g. "15/350 items" -->
+    <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list, e.g. "45 items" -->
     <String Name="MoreThanMaxItemsHint" Text="This view contains more than {0} items. Please restrict the number of items by adding more filters."/>
     <String Name="MoreThanMaxItemsSearchResultHint" Text="The search result contains more than {0} items. Please narrow your search."/>
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>

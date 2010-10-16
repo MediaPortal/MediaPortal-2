@@ -175,6 +175,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 Display_TooManyItems(subViews.Count + mediaItems.Count);
               else
               {
+                int totalNumItems = 0;
+
                 List<ListItem> viewsList = new List<ListItem>();
                 foreach (View sv in subViews)
                 {
@@ -182,6 +184,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   View subView = sv;
                   item.Command = new MethodDelegateCommand(() => NavigateToView(subView.Specification));
                   viewsList.Add(item);
+                  if (sv.AbsNumItems.HasValue)
+                    totalNumItems += sv.AbsNumItems.Value;
                 }
                 viewsList.Sort((v1, v2) => string.Compare(v1[Consts.NAME_KEY], v2[Consts.NAME_KEY]));
                 CollectionUtils.AddAll(items, viewsList);
@@ -202,7 +206,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 itemsList.Sort((i1, i2) => string.Compare(i1[Consts.NAME_KEY], i2[Consts.NAME_KEY]));
                 CollectionUtils.AddAll(items, itemsList);
 
-                Display_Normal(items.Count);
+                Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
               }
             }
           }

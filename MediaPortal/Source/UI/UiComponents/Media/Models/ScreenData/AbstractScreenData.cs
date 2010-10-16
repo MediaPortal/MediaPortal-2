@@ -268,10 +268,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ListHint = MoreThanMaxItemsHint;
       ShowListHint = true;
       IsItemsValid = true;
-      NumItemsStr = Utils.BuildNumItemsStr(numItems);
+      NumItemsStr = Utils.BuildNumItemsStr(numItems, null);
     }
 
-    protected virtual void Display_Normal(int numItems)
+    protected virtual void Display_Normal(int numItems, int? total)
     {
       ShowList = true;
       TooManyItems = false;
@@ -288,7 +288,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         ShowListHint = false;
       }
       IsItemsValid = true;
-      NumItemsStr = Utils.BuildNumItemsStr(numItems);
+      NumItemsStr = Utils.BuildNumItemsStr(numItems, total);
     }
 
     protected virtual void Display_ItemsInvalid()

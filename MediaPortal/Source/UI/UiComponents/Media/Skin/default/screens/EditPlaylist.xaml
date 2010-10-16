@@ -37,7 +37,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <ListView Grid.Column="0" Grid.Row="0" Style="{ThemeResource EditPlaylistListViewStyle}"
-              ItemsSource="{Binding RelItems}">
+              ItemsSource="{Binding Items}">
             <ListView.Resources>
               <Command x:Key="MoveUp_Command" Source="{StaticResource EditPlaylistModel}" Path="MoveUp"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>

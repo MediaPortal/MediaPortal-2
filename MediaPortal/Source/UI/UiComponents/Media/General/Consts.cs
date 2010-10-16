@@ -127,6 +127,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string NO_ITEMS_RES = "[Media.NoItems]";
     public const string ONE_ITEM_RES = "[Media.OneItem]";
+    public const string ONE_OF_ONE_ITEM_RES = "[Media.OneOfOneItem]";
+    public const string N_OF_M_ITEMS_RES = "[Media.NOfMItems]";
     public const string N_ITEMS_RES = "[Media.NItems]";
 
     public const string ADD_ALL_AUDIO_RES = "[Media.AddAllAudio]";

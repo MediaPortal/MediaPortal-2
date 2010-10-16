@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
-    protected ItemsList _relItems = new ItemsList();
+    protected ItemsList _items = new ItemsList();
     protected int _topIndex = 0;
     protected int _focusedDownButton = -1;
     protected int _focusedUpButton = -1;
@@ -166,7 +166,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         // TODO: If playlist objects differ, leave state EditPlaylist?
         _playlist = playlist;
-        _relItems.Clear();
+        _items.Clear();
         if (playlist != null)
         {
           IList<MediaItem> items = playlist.ItemList;
@@ -181,15 +181,15 @@ namespace MediaPortal.UiComponents.Media.Models
             item.AdditionalProperties[KEY_IS_DOWN_BUTTON_FOCUSED] = i == _focusedDownButton;
             item.AdditionalProperties[KEY_IS_UP_BUTTON_FOCUSED] = i == _focusedUpButton;
             item.AdditionalProperties[KEY_INDEX] = i;
-            _relItems.Add(item);
+            _items.Add(item);
           }
         }
         _focusedDownButton = -1;
         _focusedUpButton = -1;
-        IsPlaylistEmpty = _relItems.Count == 0;
-        NumItemsStr = General.Utils.BuildNumItemsStr(_relItems.Count);
+        IsPlaylistEmpty = _items.Count == 0;
+        NumItemsStr = General.Utils.BuildNumItemsStr(_items.Count, null);
       }
-      _relItems.FireChange();
+      _items.FireChange();
     }
 
     protected void UpdateProperties()
@@ -199,9 +199,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Members to be accessed by the GUI
 
-    public ItemsList RelItems
+    public ItemsList Items
     {
-      get { return _relItems; }
+      get { return _items; }
     }
 
     public void ClearPlaylist()

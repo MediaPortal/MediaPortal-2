@@ -162,7 +162,7 @@ namespace MediaPortal.UiComponents.Media.Models
           }
         }
         IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = General.Utils.BuildNumItemsStr(_items.Count);
+        NumItemsStr = General.Utils.BuildNumItemsStr(_items.Count, null);
       }
       _items.FireChange();
     }

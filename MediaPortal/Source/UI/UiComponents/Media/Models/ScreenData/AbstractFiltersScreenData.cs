@@ -150,6 +150,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             lock (_syncObj)
               if (_listDirty)
                 goto RebuildView;
+            int totalNumItems = 0;
 
             // Build collection of available (filter/display) screens which will remain in the next view - that is all currently
             // available screens without the screen which equals this current screen. But we cannot simply remove "this"
@@ -172,8 +173,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                         new MethodDelegateCommand(() => NavigateToSubView(subVS, remainingScreens))
                 };
               items.Add(filterValueItem);
+              if (filterValue.NumItems.HasValue)
+                totalNumItems += filterValue.NumItems.Value;
             }
-            Display_Normal(items.Count);
+            Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
           }
         }
         catch (Exception e)
