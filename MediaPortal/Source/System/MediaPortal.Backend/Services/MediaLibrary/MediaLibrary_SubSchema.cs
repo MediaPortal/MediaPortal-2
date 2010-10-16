@@ -254,5 +254,72 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       return result;
     }
+
+    public static IDbCommand SelectPlaylistsCommand(ITransaction transaction, out int playlistIdIndex, out int playlistNameIndex,
+        out int playlistTypeIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT PLAYLIST_ID, NAME, PLAYLIST_TYPE FROM PLAYLISTS";
+
+      playlistIdIndex = 0;
+      playlistNameIndex = 1;
+      playlistTypeIndex = 2;
+      return result;
+    }
+
+    public static IDbCommand SelectPlaylistIdentificationDataCommand(ITransaction transaction, Guid playlistId,
+        out int playlistNameIndex, out int playlistTypeIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT NAME, PLAYLIST_TYPE FROM PLAYLISTS WHERE PLAYLIST_ID=@PLAYLIST_ID";
+      DBUtils.AddParameter(result, "PLAYLIST_ID", playlistId, DBUtils.GetDBType(typeof(Guid)));
+
+      playlistNameIndex = 0;
+      playlistTypeIndex = 1;
+      return result;
+    }
+
+    public static IDbCommand InsertPlaylistCommand(ITransaction transaction, Guid playlistId, string playlistName,
+        string playlistType)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO PLAYLISTS (PLAYLIST_ID, NAME, PLAYLIST_TYPE) VALUES (@PLAYLIST_ID, @NAME, @PLAYLIST_TYPE)";
+      DBUtils.AddParameter(result, "PLAYLIST_ID", playlistId, DBUtils.GetDBType(typeof(Guid)));
+      DBUtils.AddParameter(result, "NAME", playlistName, DBUtils.GetDBType(typeof(string)));
+      DBUtils.AddParameter(result, "PLAYLIST_TYPE", playlistType, DBUtils.GetDBType(typeof(string)));
+
+      return result;
+    }
+
+    public static IDbCommand AddMediaItemToPlaylistCommand(ITransaction transaction, Guid playlistId, int playlistPosition,
+        Guid mediaItemId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO PLAYLIST_CONTENTS (PLAYLIST_ID, PLAYLIST_POS, MEDIA_ITEM_ID) VALUES (@PLAYLIST_ID, @PLAYLIST_POS, @MEDIA_ITEM_ID)";
+      DBUtils.AddParameter(result, "PLAYLIST_ID", playlistId, DBUtils.GetDBType(typeof(Guid)));
+      DBUtils.AddParameter(result, "PLAYLIST_POS", playlistPosition, DBUtils.GetDBType(typeof(int)));
+      DBUtils.AddParameter(result, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+
+      return result;
+    }
+
+    public static IDbCommand DeletePlaylistCommand(ITransaction transaction, Guid playlistId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "DELETE FROM PLAYLISTS WHERE PLAYLIST_ID=@PLAYLIST_ID";
+      DBUtils.AddParameter(result, "PLAYLIST_ID", playlistId, DBUtils.GetDBType(typeof(Guid)));
+
+      return result;
+    }
+
+    public static IDbCommand SelectPlaylistContentsCommand(ITransaction transaction, Guid playlistId, out int mediaItemIdIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT MEDIA_ITEM_ID FROM PLAYLIST_CONTENTS WHERE PLAYLIST_ID=@PLAYLIST_ID ORDER BY PLAYLIST_POS";
+      DBUtils.AddParameter(result, "PLAYLIST_ID", playlistId, DBUtils.GetDBType(typeof(Guid)));
+
+      mediaItemIdIndex = 0;
+      return result;
+    }
   }
 }

@@ -254,6 +254,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region IMediaLibrary implementation
 
+    #region Startup & Shutdown
+
     public void Startup()
     {
       DatabaseSubSchemaManager updater = new DatabaseSubSchemaManager(MediaLibrary_SubSchema.SUBSCHEMA_NAME);
@@ -278,6 +280,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
     }
+
+    #endregion
+
+    #region Media query
 
     public MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
         IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs, bool caseSensitive)
@@ -319,10 +325,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       switch (groupingFunction)
       {
         case GroupingFunction.FirstCharacter:
-          groupingFunctionImpl = new FirstCharGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction(groupingAttributeType);
           break;
         default:
-          groupingFunctionImpl = new FirstCharGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction(groupingAttributeType);
           break;
       }
       Guid groupingAspectId = groupingAttributeType.ParentMIAM.AspectId;
@@ -332,7 +338,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         string groupName;
         IFilter additionalFilter;
-        groupingFunctionImpl.GetGroup(groupingAttributeType, string.Format("{0}", item[groupingAspectId][groupingAttributeType]),
+        groupingFunctionImpl.GetGroup(string.Format("{0}", item[groupingAspectId][groupingAttributeType]),
             out groupName, out additionalFilter);
         MLQueryResultGroup rg;
         if (groups.TryGetValue(groupName, out rg))
@@ -382,10 +388,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       switch (groupingFunction)
       {
         case GroupingFunction.FirstCharacter:
-          groupingFunctionImpl = new FirstCharGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction(attributeType);
           break;
         default:
-          groupingFunctionImpl = new FirstCharGroupingFunction();
+          groupingFunctionImpl = new FirstCharGroupingFunction(attributeType);
           break;
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, necessaryMIATypeIDs, filter))
@@ -394,7 +400,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int resultGroupItemCount = (int) resultItem.Value;
         string groupName;
         IFilter additionalFilter;
-        groupingFunctionImpl.GetGroup(attributeType, valueGroupItemName, out groupName, out additionalFilter);
+        groupingFunctionImpl.GetGroup(valueGroupItemName, out groupName, out additionalFilter);
         MLQueryResultGroup rg;
         if (groups.TryGetValue(groupName, out rg))
           rg.NumItemsInGroup += resultGroupItemCount;
@@ -405,6 +411,186 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
       return result;
     }
+
+    #endregion
+
+    #region Playlist management
+
+    public ICollection<PlaylistIdentificationData> GetPlaylists()
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        int playlistIdIndex;
+        int nameIndex;
+        int playlistTypeIndex;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistsCommand(transaction, out playlistIdIndex, out nameIndex, out playlistTypeIndex))
+        {
+          ICollection<PlaylistIdentificationData> result = new List<PlaylistIdentificationData>();
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              Guid playlistId = DBUtils.ReadDBValue<Guid>(reader, playlistIdIndex);
+              string name = DBUtils.ReadDBValue<string>(reader, nameIndex);
+              string playlistType = DBUtils.ReadDBValue<string>(reader, playlistTypeIndex);
+              result.Add(new PlaylistIdentificationData(playlistId, name, playlistType));
+            }
+          }
+          return result;
+        }
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    public void SavePlaylist(PlaylistRawData playlistData)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      Guid playlistId = playlistData.PlaylistId;
+      try
+      {
+        // Playlist contents are automatically deleted (ON DELETE CASCADE)
+        using (IDbCommand command = MediaLibrary_SubSchema.DeletePlaylistCommand(transaction, playlistId))
+          command.ExecuteNonQuery();
+
+        using (IDbCommand command = MediaLibrary_SubSchema.InsertPlaylistCommand(transaction, playlistId, playlistData.Name, playlistData.PlaylistType))
+          command.ExecuteNonQuery();
+
+        // Add media items
+        int ct = 0;
+        foreach (Guid mediaItemId in playlistData.MediaItemIds)
+          using (IDbCommand command = MediaLibrary_SubSchema.AddMediaItemToPlaylistCommand(transaction, playlistId, ct++, mediaItemId))
+            command.ExecuteNonQuery();
+        transaction.Commit();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error adding playlist '{0}' (id '{1}')", e, playlistData.Name, playlistId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public bool DeletePlaylist(Guid playlistId)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool plExists = false;
+        int playlistNameIndex;
+        int playlistTypeIndex;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId,
+            out playlistNameIndex, out playlistTypeIndex))
+          using (IDataReader reader = command.ExecuteReader())
+            if (reader.Read())
+              plExists = true;
+        if (!plExists)
+        {
+          transaction.Dispose();
+          return false;
+        }
+        // Playlist contents are automatically deleted (ON DELETE CASCADE)
+        using (IDbCommand command = MediaLibrary_SubSchema.DeletePlaylistCommand(transaction, playlistId))
+          command.ExecuteNonQuery();
+        transaction.Commit();
+        return true;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting playlist '{0}'", e, playlistId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public PlaylistRawData ExportPlaylist(Guid playlistId)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        int nameIndex;
+        int playlistTypeIndex;
+        string name;
+        string playlistType;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId, out nameIndex, out playlistTypeIndex))
+          using (IDataReader reader = command.ExecuteReader())
+            if (reader.Read())
+            {
+              name = DBUtils.ReadDBValue<string>(reader, nameIndex);
+              playlistType = DBUtils.ReadDBValue<string>(reader, playlistTypeIndex);
+            }
+            else
+              return null;
+
+        IList<Guid> mediaItemIds = new List<Guid>();
+        int mediaItemIdIndex;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistContentsCommand(transaction, playlistId, out mediaItemIdIndex))
+          using (IDataReader reader = command.ExecuteReader())
+            while (reader.Read())
+              mediaItemIds.Add(DBUtils.ReadDBValue<Guid>(reader, mediaItemIdIndex));
+        return new PlaylistRawData(playlistId, name, playlistType, mediaItemIds);
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    public PlaylistContents LoadServerPlaylist(Guid playlistId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        int nameIndex;
+        int playlistTypeIndex;
+        string playlistName;
+        string playlistType;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId, out nameIndex, out playlistTypeIndex))
+          using (IDataReader reader = command.ExecuteReader())
+            if (reader.Read())
+            {
+              playlistName = DBUtils.ReadDBValue<string>(reader, nameIndex);
+              playlistType = DBUtils.ReadDBValue<string>(reader, playlistTypeIndex);
+            }
+            else
+              return null;
+
+        IList<Guid> mediaItemIds = new List<Guid>();
+        int mediaItemIdIndex;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistContentsCommand(transaction, playlistId, out mediaItemIdIndex))
+          using (IDataReader reader = command.ExecuteReader())
+            while (reader.Read())
+              mediaItemIds.Add(DBUtils.ReadDBValue<Guid>(reader, mediaItemIdIndex));
+
+        IList<MediaItem> mediaItems = LoadCustomPlaylist(mediaItemIds, necessaryMIATypes, optionalMIATypes);
+        return new PlaylistContents(playlistId, playlistName, playlistType, mediaItems);
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+    {
+      IFilter filter = new MediaItemIdFilter(mediaItemIds);
+      MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
+      return Search(query, false);
+    }
+
+    #endregion
+
+    #region Media import
 
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
@@ -477,6 +663,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    #endregion
+
+    #region Media item aspect schema management
+
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
       return _miaManagement.MediaItemAspectStorageExists(aspectId);
@@ -506,6 +696,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       return _miaManagement.GetMediaItemAspectMetadata(aspectId);
     }
+
+    #endregion
+
+    #region Shares management
 
     public void RegisterShare(Share share)
     {
@@ -713,6 +907,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    #endregion
+
+    #region Client online registration
+
     public IDictionary<string, SystemName> OnlineClients
     {
       get
@@ -733,6 +931,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
     }
+
+    #endregion
 
     #endregion
   }

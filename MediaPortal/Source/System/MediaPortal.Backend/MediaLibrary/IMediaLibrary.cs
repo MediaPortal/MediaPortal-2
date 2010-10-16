@@ -142,6 +142,62 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #endregion
 
+    #region Playlist management
+
+    /// <summary>
+    /// Gets all playlists which are stored in the media library.
+    /// </summary>
+    /// <returns>Collection of playlist data.</returns>
+    ICollection<PlaylistIdentificationData> GetPlaylists();
+
+    /// <summary>
+    /// Saves the given <paramref name="playlistData"/>.
+    /// </summary>
+    /// <param name="playlistData">Playlist to save.</param>
+    void SavePlaylist(PlaylistRawData playlistData);
+
+    /// <summary>
+    /// Deletes the playlist with the given <paramref name="playlistId"/>, if present.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to delete.</param>
+    /// <returns><c>true</c>, if a playlist with the given <paramref name="playlistId"/> was found and could be deleted,
+    /// else <c>false</c>.</returns>
+    bool DeletePlaylist(Guid playlistId);
+
+    /// <summary>
+    /// Exports the raw data of the playlist with the given <paramref name="playlistId"/>.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to export.</param>
+    /// <returns>Exported playlist data or <c>null</c>, if the playlist is not present.</returns>
+    PlaylistRawData ExportPlaylist(Guid playlistId);
+
+    /// <summary>
+    /// Loads the playlist with the given <paramref name="playlistId"/>.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to load.</param>
+    /// <param name="necessaryMIATypes">Media item aspect types which must be present in all media items of the playlist.
+    /// If media items don't have those media item aspects attached, they won't be returned even if they are present in
+    /// the playlist.</param>
+    /// <param name="optionalMIATypes">Media item aspect types which will additionally be loaded, if present.</param>
+    /// <returns>Playlist instance or <c>null</c>, if there is no playlist present with the given
+    /// <paramref name="playlistId"/>.</returns>
+    PlaylistContents LoadServerPlaylist(Guid playlistId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+
+    /// <summary>
+    /// Loads the playlist contents for the given <paramref name="mediaItemIds"/>.
+    /// </summary>
+    /// <param name="mediaItemIds">Ids of the media items whose data should be loaded.</param>
+    /// <param name="necessaryMIATypes">Media item aspect types which must be present in all media items.
+    /// If media items don't have those media item aspects attached, they won't be returned even if they are present in
+    /// the <paramref name="mediaItemIds"/> collection.</param>
+    /// <param name="optionalMIATypes">Media item aspect types which will additionally be loaded, if present.</param>
+    /// <returns>List of media items.</returns>
+    IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+
+    #endregion
+
     #region Media import
 
     /// <summary>

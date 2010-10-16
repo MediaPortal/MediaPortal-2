@@ -45,7 +45,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
-    // Shares management
+    #region Shares management
 
     public void RegisterShare(Share share)
     {
@@ -125,7 +125,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
-    // Media item aspect storage management
+    #endregion
+
+    #region Media item aspect storage management
 
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
@@ -161,7 +163,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (MediaItemAspectMetadata) outParameters[0];
     }
 
-    // Media query
+    #endregion
+
+    #region Media query
 
     public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
     {
@@ -249,7 +253,67 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
-    // Media import
+    #endregion
+
+    #region Playlist management
+
+    public ICollection<PlaylistIdentificationData> GetPlaylists()
+    {
+      CpAction action = GetAction("GetPlaylists");
+      IList<object> outParameters = action.InvokeAction(null);
+      return (ICollection<PlaylistIdentificationData>) outParameters[0];
+    }
+
+    public void SavePlaylist(PlaylistRawData playlistData)
+    {
+      CpAction action = GetAction("SavePlaylist");
+      IList<object> inParameters = new List<object> {playlistData};
+      action.InvokeAction(inParameters);
+    }
+
+    public bool DeletePlaylist(Guid playlistId)
+    {
+      CpAction action = GetAction("DeletePlaylist");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(playlistId)};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (bool) outParameters[0];
+    }
+
+    public PlaylistRawData ExportPlaylist(Guid playlistId)
+    {
+      CpAction action = GetAction("ExportPlaylist");
+      IList<object> inParameters = new List<object> {playlistId};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (PlaylistRawData) outParameters[0];
+    }
+
+    public PlaylistContents LoadServerPlaylist(Guid playlistId,
+      ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes)
+    {
+      CpAction action = GetAction("LoadServerPlaylist");
+      IList<object> inParameters = new List<object> {
+            MarshallingHelper.SerializeGuid(playlistId),
+            MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+            MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (PlaylistContents) outParameters[0];
+    }
+
+    public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+      ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes)
+    {
+      CpAction action = GetAction("LoadCustomPlaylist");
+      IList<object> inParameters = new List<object> {
+            MarshallingHelper.SerializeGuidEnumerationToCsv(mediaItemIds),
+            MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+            MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (IList<MediaItem>) outParameters[0];
+    }
+
+    #endregion
+  
+    #region Media import
 
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
@@ -265,6 +329,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
       IList<object> inParameters = new List<object> {systemId, path.Serialize()};
       action.InvokeAction(inParameters);
     }
+
+    #endregion
 
     // TODO: State variables, if present
   }

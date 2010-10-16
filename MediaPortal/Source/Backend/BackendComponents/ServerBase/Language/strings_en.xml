@@ -19,7 +19,6 @@
 <!--    <String Name="ModelUrl" Text="..."/> -->
   </Section>
   <Section Name="MediaLibrary">
-    <String Name="EmptyGroupName" Text="&lt;Empty&gt;"/>
-    <String Name="MiscCharacterGroupName" Text="&lt;Misc. Character&gt;"/>
+    <String Name="EmptyOrMiscCharGroupName" Text="&lt;Empty or misc. character&gt;"/>
   </Section>
 </Language>

@@ -48,7 +48,8 @@ namespace MediaPortal.UI.ServerCommunication
   /// </summary>
   public interface IContentDirectory
   {
-    // Shares management
+    #region Shares management
+
     void RegisterShare(Share share);
     void RemoveShare(Guid shareId);
     int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
@@ -57,13 +58,19 @@ namespace MediaPortal.UI.ServerCommunication
     Share GetShare(Guid shareId);
     void ReImportShare(Guid guid);
 
-    // Media item aspect storage management
+    #endregion
+
+    #region Media item aspect storage management
+
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
     void RemoveMediaItemAspectStorage(Guid aspectId);
     ICollection<Guid> GetAllManagedMediaItemAspectTypes();
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
 
-    // Media query
+    #endregion
+
+    #region Media query
+
     IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
     IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
         bool onlyOnline, GroupingFunction groupingFunction);
@@ -76,9 +83,66 @@ namespace MediaPortal.UI.ServerCommunication
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction);
 
-    // Media import
+    #endregion
+
+    #region Playlist management
+
+    /// <summary>
+    /// Returns the ids and names of all playlists that are stored at the server.
+    /// </summary>
+    /// <returns>Collection of playlist data.</returns>
+    ICollection<PlaylistIdentificationData> GetPlaylists();
+
+    /// <summary>
+    /// Saves a playlist at the server.
+    /// </summary>
+    /// <param name="playlistData">Raw data of the playlist to store.</param>
+    void SavePlaylist(PlaylistRawData playlistData);
+
+    /// <summary>
+    /// Deletes a playlist at the server.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to delete.</param>
+    /// <returns><c>true</c>, if the playlist could successfully be deleted, else <c>false</c>.</returns>
+    bool DeletePlaylist(Guid playlistId);
+
+    /// <summary>
+    /// Loads the raw data of a server-side playlist.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to load.</param>
+    /// <returns>Raw playlist data of the requested playlist or <c>null</c>, if there is no playlist with the
+    /// given <paramref name="playlistId"/>.</returns>
+    PlaylistRawData ExportPlaylist(Guid playlistId);
+
+    /// <summary>
+    /// Loads a server-side playlist.
+    /// </summary>
+    /// <param name="playlistId">Id of the playlist to load.</param>
+    /// <param name="necessaryMIATypes">Ids of media item aspects which need to be present for a media item to be returned.</param>
+    /// <param name="optionalMIATypes">Ids of media item aspects which will be loaded for each returned media item, if present.</param>
+    /// <returns>PlaylistContents instance with the data of the given playlist and media items matching the given
+    /// <paramref name="necessaryMIATypes"/>.</returns>
+    PlaylistContents LoadServerPlaylist(Guid playlistId,
+        ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes);
+
+    /// <summary>
+    /// Loads a client-side playlist.
+    /// </summary>
+    /// <param name="mediaItemIds">Ids of the media items to load.</param>
+    /// <param name="necessaryMIATypes">Ids of media item aspects which need to be present for a media item to be returned.</param>
+    /// <param name="optionalMIATypes">Ids of media item aspects which will be loaded for each returned media item, if present.</param>
+    /// <returns>List of media items matching the given <paramref name="mediaItemIds"/> and <paramref name="necessaryMIATypes"/>.</returns>
+    IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+        ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes);
+
+    #endregion
+
+    #region Media import
+
     void AddOrUpdateMediaItem(string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects);
     void DeleteMediaItemOrPath(string systemId, ResourcePath path);
+
+    #endregion
   }
 }

@@ -22,48 +22,55 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
-  /// Specifies an expression which negates an inner filter.
+  /// Filter which filters based on the media item id.
   /// </summary>
-  public class NotFilter : IFilter
+  public class MediaItemIdFilter : IFilter
   {
-    protected IFilter _innerFilter;
+    protected List<Guid> _mediaItemIds;
 
-    public NotFilter(IFilter innerFilter)
+    public MediaItemIdFilter(IEnumerable<Guid> mediaItemIds)
     {
-      _innerFilter = innerFilter;
+      _mediaItemIds = new List<Guid>(mediaItemIds);
     }
 
+    /// <summary>
+    /// Returns a collection of media item ids which the filtered items must match.
+    /// </summary>
     [XmlIgnore]
-    public IFilter InnerFilter
+    public ICollection<Guid> MediaItemIds
     {
-      get { return _innerFilter; }
+      get { return _mediaItemIds; }
+    }
+
+    public override string ToString()
+    {
+      if (_mediaItemIds.Count == 0)
+        return "1 = 2";
+      if (_mediaItemIds.Count == 1)
+        return "MEDIA_ITEM_ID = '" + _mediaItemIds.First() + "'";
+      return "MEDIA_ITEM_ID IN (" + StringUtils.Join(", ", _mediaItemIds) + ")";
     }
 
     #region Additional members for the XML serialization
 
-    internal NotFilter() { }
+    internal MediaItemIdFilter() { }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("Between", typeof(BetweenFilter))]
-    [XmlElement("BooleanCombination", typeof(BooleanCombinationFilter))]
-    [XmlElement("In", typeof(InFilter))]
-    [XmlElement("Like", typeof(LikeFilter))]
-    [XmlElement("SimilarTo", typeof(SimilarToFilter))]
-    [XmlElement("Not", typeof(NotFilter))]
-    [XmlElement("Relational", typeof(RelationalFilter))]
-    [XmlElement("Empty", typeof(EmptyFilter))]
-    [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
-    public object XML_InnerFilter
+    public List<Guid> XML_MediaItemIds
     {
-      get { return _innerFilter; }
-      set { _innerFilter = value as IFilter; }
+      get { return _mediaItemIds; }
+      set { _mediaItemIds = value; }
     }
 
     #endregion

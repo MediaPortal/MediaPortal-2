@@ -25,15 +25,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   public class CompiledFilter
   {
+    #region Constants
+
+    public const int MAX_IN_VALUES_SIZE = 800;
+
+    #endregion
+
     protected IList<object> _statementParts;
     protected IList<BindVar> _statementBindVars;
 
@@ -75,6 +83,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       if (filter == null)
         return;
+
+      MediaItemIdFilter mediaItemIdFilter = filter as MediaItemIdFilter;
+      if (mediaItemIdFilter != null)
+      {
+        ICollection<Guid> mediaItemIds = mediaItemIdFilter.MediaItemIds;
+        if (mediaItemIds.Count == 0)
+          resultParts.Add("1 = 2");
+        else
+        {
+          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          if (mediaItemIds.Count == 1)
+          {
+            BindVar bindVar = new BindVar("V" + _bindVarCounter++, mediaItemIds.First(), typeof(Guid));
+            resultParts.Add(" = @" + bindVar.Name);
+            resultBindVars.Add(bindVar);
+          }
+          else
+          {
+            ICollection<string> clusterExpressions = new List<string>();
+            foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIds, MAX_IN_VALUES_SIZE))
+            {
+              IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
+              foreach (Guid mediaItemId in mediaItemIdsCluster)
+              {
+                BindVar bindVar = new BindVar("V" + _bindVarCounter++, mediaItemId, typeof(Guid));
+                bindVarRefs.Add("@" + bindVar.Name);
+                resultBindVars.Add(bindVar);
+              }
+              clusterExpressions.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
+            }
+            resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
+          }
+        }
+        return;
+      }
 
       BooleanCombinationFilter boolFilter = filter as BooleanCombinationFilter;
       if (boolFilter != null)
@@ -343,22 +386,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       InFilter inFilter = filter as InFilter;
       if (inFilter != null)
       {
-        resultParts.Add(attributeOperand);
-        resultParts.Add(" IN (");
-        IEnumerator valueEnum = inFilter.Values.GetEnumerator();
-        if (!valueEnum.MoveNext())
-          throw new InvalidDataException("IN-filter doesn't provide any comparison values");
-
-        BindVar bindVar = new BindVar("V" + _bindVarCounter++, valueEnum.Current, attributeType);
-        resultParts.Add("@" + bindVar.Name);
-        resultBindVars.Add(bindVar);
-        while (valueEnum.MoveNext())
+        if (inFilter.Values.Length == 0)
         {
-          bindVar = new BindVar("V" + _bindVarCounter++, valueEnum.Current, attributeType);
-          resultParts.Add("@" + bindVar.Name);
-          resultBindVars.Add(bindVar);
+          resultParts.Add("1 = 2"); // No comparison values means filter is always false
+          return;
         }
-        resultParts.Add(")");
+        ICollection<string> clusterExpressions = new List<string>();
+        foreach (IList<object> valuesCluster in CollectionUtils.Cluster(inFilter.Values, MAX_IN_VALUES_SIZE))
+        {
+          IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
+          foreach (object value in valuesCluster)
+          {
+            BindVar bindVar = new BindVar("V" + _bindVarCounter++, value, attributeType);
+            bindVarRefs.Add("@" + bindVar.Name);
+            resultBindVars.Add(bindVar);
+          }
+          clusterExpressions.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
+        }
+        resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
         return;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);

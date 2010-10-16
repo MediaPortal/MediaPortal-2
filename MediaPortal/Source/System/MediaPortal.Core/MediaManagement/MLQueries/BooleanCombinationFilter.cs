@@ -51,12 +51,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
         throw new ArgumentException("The filter operands enumeration must not be empty");
     }
 
-    public BooleanCombinationFilter(BooleanOperator op, IFilter[] operands)
-    {
-      _operator = op;
-      _operands = operands;
-    }
-
     [XmlIgnore]
     public BooleanOperator Operator
     {
@@ -109,6 +103,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
     [XmlArrayItem("Empty", typeof(EmptyFilter))]
+    [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
     public object[] XML_Operands
     {
       get { return _operands; }

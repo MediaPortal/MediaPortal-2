@@ -47,6 +47,9 @@ namespace MediaPortal.Core.UPnP
     public static readonly UPnPExtendedDataType DtMediaProviderMetadataEnumeration = new UPnPDtMediaProviderMetadataEnumeration();
     public static readonly UPnPExtendedDataType DtMLQueryResultGroupEnumeration = new UPnPDtMLQueryResultGroupEnumeration();
     public static readonly UPnPExtendedDataType DtMPClientMetadata = new UPnPDtMPClientMetadataEnumeration();
+    public static readonly UPnPExtendedDataType DtPlaylistIdentificationDataEnumeration = new UPnPDtPlaylistIdentificationDataEnumeration();
+    public static readonly UPnPExtendedDataType DtPlaylistRawData = new UPnPDtPlaylistRawData();
+    public static readonly UPnPExtendedDataType DtPlaylistContents = new UPnPDtPlaylistContents();
 
     protected static IDictionary<string, UPnPExtendedDataType> _dataTypes = new Dictionary<string, UPnPExtendedDataType>();
 
@@ -66,6 +69,9 @@ namespace MediaPortal.Core.UPnP
       AddDataType(DtMediaProviderMetadataEnumeration);
       AddDataType(DtMLQueryResultGroupEnumeration);
       AddDataType(DtMPClientMetadata);
+      AddDataType(DtPlaylistIdentificationDataEnumeration);
+      AddDataType(DtPlaylistRawData);
+      AddDataType(DtPlaylistContents);
     }
 
     protected static void AddDataType(UPnPExtendedDataType type)

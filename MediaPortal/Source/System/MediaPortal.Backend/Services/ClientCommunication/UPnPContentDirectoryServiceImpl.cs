@@ -54,12 +54,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_ID)
     {
-      // Used for several parameters and result values
-      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Int))
+      // Used for a boolean value
+      DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean))
           {
             SendEvents = false
-          }; // Is int sufficient here?
-      AddStateVariable(A_ARG_TYPE_Count);
+          };
+      AddStateVariable(A_ARG_TYPE_Bool);
 
       // Used for any single GUID value
       DvStateVariable A_ARG_TYPE_Uuid = new DvStateVariable("A_ARG_TYPE_Id", new DvStandardDataType(UPnPStandardDataType.Uuid))
@@ -81,6 +81,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_SystemId);
+
+      // Used for several parameters and result values
+      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Int))
+          {
+            SendEvents = false
+          }; // Is int sufficient here?
+      AddStateVariable(A_ARG_TYPE_Count);
 
       // Used to transport a resource path expression
       DvStateVariable A_ARG_TYPE_ResourcePath = new DvStateVariable("A_ARG_TYPE_ResourcePath", new DvStandardDataType(UPnPStandardDataType.String))
@@ -211,6 +218,27 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             AllowedValueList = new List<string> {"FirstCharacter"}
         };
       AddStateVariable(A_ARG_TYPE_GroupingFunction);
+
+      // Used to transport the data of a PlaylistContents instance
+      DvStateVariable A_ARG_TYPE_PlaylistContents = new DvStateVariable("A_ARG_TYPE_PlaylistContents", new DvExtendedDataType(UPnPExtendedDataTypes.DtPlaylistContents))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_PlaylistContents);
+
+      // Used to transport the data of a PlaylistRawData instance
+      DvStateVariable A_ARG_TYPE_PlaylistRawData = new DvStateVariable("A_ARG_TYPE_PlaylistRawData", new DvExtendedDataType(UPnPExtendedDataTypes.DtPlaylistRawData))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_PlaylistRawData);
+
+      // Used to transport an enumeration of playlist identification data (id, name) instances
+      DvStateVariable A_ARG_TYPE_PlaylistIdentificationDataEnumeration = new DvStateVariable("A_ARG_TYPE_PlaylistIdentificationDataEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtPlaylistIdentificationDataEnumeration))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_PlaylistIdentificationDataEnumeration);
 
       // More state variables go here
 
@@ -383,6 +411,65 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("ResultGroups", A_ARG_TYPE_MLQueryResultGroupEnumeration, ArgumentDirection.Out, true),
           });
       AddAction(groupValueGroupsAction);
+
+      // Playlist management
+
+      DvAction getPlaylistsAction = new DvAction("GetPlaylists", OnGetPlaylists,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("Playlists", A_ARG_TYPE_PlaylistIdentificationDataEnumeration, ArgumentDirection.Out, true),
+          });
+      AddAction(getPlaylistsAction);
+
+      DvAction savePlaylistAction = new DvAction("SavePlaylist", OnSavePlaylist,
+          new DvArgument[] {
+            new DvArgument("PlaylistRawData", A_ARG_TYPE_PlaylistRawData, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(savePlaylistAction);
+
+      DvAction deletePlaylistAction = new DvAction("DeletePlaylist", OnDeletePlaylist,
+          new DvArgument[] {
+            new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(deletePlaylistAction);
+
+      DvAction exportPlaylistAction = new DvAction("ExportPlaylist", OnExportPlaylist,
+          new DvArgument[] {
+            new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("PlaylistRawData", A_ARG_TYPE_PlaylistRawData, ArgumentDirection.Out, true)
+          });
+      AddAction(exportPlaylistAction);
+
+      DvAction loadServerPlaylistAction = new DvAction("LoadServerPlaylist", OnLoadServerPlaylist,
+          new DvArgument[] {
+            new DvArgument("PlaylistId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("PlaylistContents", A_ARG_TYPE_PlaylistContents, ArgumentDirection.Out, true)
+          });
+      AddAction(loadServerPlaylistAction);
+
+      DvAction loadCustomPlaylistAction = new DvAction("LoadCustomPlaylist", OnLoadCustomPlaylist,
+          new DvArgument[] {
+            new DvArgument("MediaItemIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("PlaylistContents", A_ARG_TYPE_PlaylistContents, ArgumentDirection.Out, true)
+          });
+      AddAction(loadCustomPlaylistAction);
 
       // Media import
 
@@ -755,6 +842,65 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
           necessaryMIATypes, filter, groupingFunction);
       outParams = new List<object> {values};
+      return null;
+    }
+
+    static UPnPError OnGetPlaylists(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      ICollection<PlaylistIdentificationData> result = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
+      outParams = new List<object> {result};
+      return null;
+    }
+
+    static UPnPError OnSavePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      PlaylistRawData playlistData = (PlaylistRawData) inParams[0];
+      ServiceRegistration.Get<IMediaLibrary>().SavePlaylist(playlistData);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnDeletePlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(playlistId);
+      outParams = new List<object> {result};
+      return null;
+    }
+
+    static UPnPError OnExportPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      PlaylistRawData result = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
+      outParams = new List<object> {result};
+      return null;
+    }
+
+    static UPnPError OnLoadServerPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      PlaylistContents result = ServiceRegistration.Get<IMediaLibrary>().LoadServerPlaylist(
+          playlistId, necessaryMIATypes, optionalMIATypes);
+      outParams = new List<object> {result};
+      return null;
+    }
+
+    static UPnPError OnLoadCustomPlaylist(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IList<Guid> mediaItemIds = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
+          mediaItemIds, necessaryMIATypes, optionalMIATypes);
+      outParams = new List<object> {result};
       return null;
     }
 
