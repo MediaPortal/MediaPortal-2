@@ -654,19 +654,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         IList<string> bindVars = new List<string>();
         int ct = 0;
-        foreach (object value in values)
-        {
-          string bindVar = "V" + ct++;
-          bindVars.Add("@" + bindVar);
-          DBUtils.AddParameter(command, bindVar, value, DBUtils.GetDBType(spec.AttributeType));
-        }
-        string commandText = "DELETE FROM " + nmTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND NOT EXISTS(" +
-            "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " V WHERE V." +
-            FOREIGN_COLL_ATTR_ID_COL_NAME + " = " + nmTableName + "." + FOREIGN_COLL_ATTR_ID_COL_NAME;
+        if (values != null)
+          foreach (object value in values)
+          {
+            string bindVar = "V" + ct++;
+            bindVars.Add("@" + bindVar);
+            DBUtils.AddParameter(command, bindVar, value, DBUtils.GetDBType(spec.AttributeType));
+          }
+        string commandText = "DELETE FROM " + nmTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
+        
         if (bindVars.Count > 0)
-          commandText +=  " AND " + COLL_ATTR_VALUE_COL_NAME + " IN (" +
-              StringUtils.Join(", ", bindVars) + ")";
-        commandText += ")";
+          commandText += " AND NOT EXISTS(" +
+              "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " V WHERE V." +
+              FOREIGN_COLL_ATTR_ID_COL_NAME + " = " + nmTableName + "." + FOREIGN_COLL_ATTR_ID_COL_NAME +
+              " AND " + COLL_ATTR_VALUE_COL_NAME + " IN (" + StringUtils.Join(", ", bindVars) + "))";
         command.CommandText = commandText;
         command.ExecuteNonQuery();
       }
