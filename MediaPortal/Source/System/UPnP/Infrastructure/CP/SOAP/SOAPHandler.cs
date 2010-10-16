@@ -51,7 +51,8 @@ namespace UPnP.Infrastructure.CP.SOAP
     /// returns the resulting SOAP XML string.
     /// </summary>
     /// <param name="action">Action to be called.</param>
-    /// <param name="inParamValues">List of parameter values which must match the action's signature.</param>
+    /// <param name="inParamValues">List of parameter values which must match the action's signature.
+    /// Can be <c>null</c> if the parameter list is empty.</param>
     /// <param name="upnpVersion">UPnP version to use for the encoding.</param>
     /// <returns>XML string which contains the SOAP document.</returns>
     public static string EncodeCall(CpAction action, IList<object> inParamValues, UPnPVersion upnpVersion)

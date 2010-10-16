@@ -279,7 +279,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// The UPnP system invokes the provided <paramref name="callback"/> when the action result (or error message)
     /// returns. The call structure corresponds to the asynchronous call pattern used in the .net library.
     /// </remarks>
-    /// <param name="inParameters">Input parameters for the action invocation. Must match the formal input arguments.</param>
+    /// <param name="inParameters">Input parameters for the action invocation. Must match the formal input arguments.
+    /// Can be <c>null</c> if the parameter list is empty.</param>
     /// <param name="callback">Callback delegate to be invoked when the action result is present.</param>
     /// <param name="state">This object can be used to pass state information for the asynchronous operation.</param>
     /// <returns>Async result object which should be used as parameter for the <see cref="EndInvokeAction"/> method.</returns>
