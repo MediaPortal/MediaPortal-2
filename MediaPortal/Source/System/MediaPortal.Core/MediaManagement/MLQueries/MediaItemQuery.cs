@@ -113,6 +113,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     public object XML_Filter
     {
@@ -295,6 +296,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     public object XML_Filter
     {

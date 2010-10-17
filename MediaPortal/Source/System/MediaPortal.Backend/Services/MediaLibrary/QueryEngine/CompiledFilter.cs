@@ -159,6 +159,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      FalseFilter falseFilter = filter as FalseFilter;
+      if (falseFilter != null)
+      {
+        resultParts.Add("1 = 2");
+        return;
+      }
+
       // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
       // compiled in a different way
       EmptyFilter emptyFilter = filter as EmptyFilter;

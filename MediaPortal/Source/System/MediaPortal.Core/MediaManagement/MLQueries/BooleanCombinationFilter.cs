@@ -103,6 +103,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
     [XmlArrayItem("Empty", typeof(EmptyFilter))]
+    [XmlArrayItem("False", typeof(FalseFilter))]
     [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
     public object[] XML_Operands
     {

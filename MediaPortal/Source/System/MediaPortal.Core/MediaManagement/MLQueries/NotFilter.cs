@@ -59,6 +59,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("Not", typeof(NotFilter))]
     [XmlElement("Relational", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     public object XML_InnerFilter
     {
