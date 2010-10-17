@@ -513,6 +513,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         lock (importJob.SyncObj)
           if (importJob.State == ImportJobState.Started)
             importJob.State = ImportJobState.Finished;
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished import job '{0}'", importJob);
         return;
       }
       catch (ImportSuspendedException)
