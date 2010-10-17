@@ -219,12 +219,17 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           Display_ItemsInvalid();
         }
         RebuildView:
-        if (_listDirty)
-        {
-          lock (_syncObj)
+        bool dirty;
+        lock (_syncObj)
+          if (_listDirty)
+          {
+            dirty = true;
             _buildingList = false;
+          }
+          else
+            dirty = false;
+        if (dirty)
           ReloadMediaItems(createNewList);
-        }
         else
         {
           _items = items;
