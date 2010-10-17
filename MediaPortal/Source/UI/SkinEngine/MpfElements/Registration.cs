@@ -323,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         string[] parts = text.Split(new char[] { ',', ' ' });
         for (int i = 0; i < parts.Length; i += 2)
         {
-          System.Drawing.Point p = new System.Drawing.Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
+          Point p = new Point(Int32.Parse(parts[i]), Int32.Parse(parts[i + 1]));
           coll.Add(p);
         }
         result = coll;
@@ -336,12 +336,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         {
           result = new GridLength(GridUnitType.Auto, 0.0);
         }
-        else if (text.IndexOf('*') < 0)
-        {
-          double v = double.Parse(text);
-          result = new GridLength(GridUnitType.Pixel, v);
-        }
-        else
+        else if (text.IndexOf('*') >= 0)
         {
           int pos = text.IndexOf('*');
           text = text.Substring(0, pos);
@@ -349,12 +344,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           {
             object obj;
             TypeConverter.Convert(text, typeof(double), out obj);
-            result = new GridLength(GridUnitType.Star, (double)obj);
+            result = new GridLength(GridUnitType.Star, (double) obj);
           }
           else
           {
             result = new GridLength(GridUnitType.Star, 1.0);
           }
+        }
+        else
+        {
+          double v = double.Parse(text);
+          result = new GridLength(GridUnitType.Pixel, v);
         }
         return true;
       }
