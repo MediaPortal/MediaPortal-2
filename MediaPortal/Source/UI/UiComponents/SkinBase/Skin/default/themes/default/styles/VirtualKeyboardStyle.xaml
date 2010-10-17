@@ -51,7 +51,7 @@
             IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
       </Grid>
 
-      <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0">
+      <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
             <Binding Path="!ShiftState"/>
@@ -69,25 +69,25 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="Normal-Line 1" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Normal-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="`" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=`}"/>
@@ -121,24 +121,24 @@
           <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Backspace}"/>
         </Grid> <!-- Line 1 -->
-        <Grid x:Name="Normal-Line 2" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Normal-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="q" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=q}"/>
@@ -167,22 +167,22 @@
           <Button Content="\" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=\}"/>
         </Grid> <!-- Line 2 -->
-        <Grid x:Name="Normal-Line 3" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Normal-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="a" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=a}"/>
@@ -207,21 +207,21 @@
           <Button Content="'" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters='}"/>
         </Grid> <!-- Line 3 -->
-        <Grid x:Name="Normal-Line 4" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Normal-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="z" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=z}"/>
@@ -247,7 +247,7 @@
           <Button Content="/" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=/}"/>
         </Grid> <!-- Line 4 -->
-        <Grid x:Name="Normal-Line 5" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Normal-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
@@ -262,7 +262,7 @@
         </Grid> <!-- Line 5 -->
       </Grid> <!-- Keyboard-Normal -->
 
-      <Grid x:Name="Keyboard-Shift" Grid.Column="1" Grid.Row="0">
+      <Grid x:Name="Keyboard-Shift" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
             <Binding Path="ShiftState"/>
@@ -280,25 +280,25 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="Shift-Line 1" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="~" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=~}"/>
@@ -332,24 +332,24 @@
           <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Backspace}"/>
         </Grid> <!-- Line 1 -->
-        <Grid x:Name="Shift-Line 2" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="Q" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=Q}"/>
@@ -384,22 +384,22 @@
           <Button Content="|" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=|}"/>
         </Grid> <!-- Line 2 -->
-        <Grid x:Name="Shift-Line 3" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="A" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=A}"/>
@@ -427,21 +427,21 @@
             </Button.Command>
           </Button>
         </Grid> <!-- Line 3 -->
-        <Grid x:Name="Shift-Line 4" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="Z" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=Z}"/>
@@ -470,7 +470,7 @@
           <Button Content="?" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=?}"/>
         </Grid> <!-- Line 4 -->
-        <Grid x:Name="Shift-Line 5" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
@@ -485,7 +485,7 @@
         </Grid> <!-- Line 5 -->
       </Grid> <!-- Keyboard-Shift -->
 
-      <Grid x:Name="Keyboard-AltGr" Grid.Column="1" Grid.Row="0">
+      <Grid x:Name="Keyboard-AltGr" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
             <Binding Path="!ShiftState"/>
@@ -503,25 +503,25 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="AltGr-Line 1" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="AltGr-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content=" " Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}" IsEnabled="false"/>
           <Button Content="¡" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource ButtonStyle}"
@@ -551,24 +551,24 @@
           <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Backspace}"/>
         </Grid> <!-- Line 1 -->
-        <Grid x:Name="AltGr-Line 2" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="AltGr-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="ä" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=ä}"/>
@@ -597,22 +597,22 @@
           <Button Content="¬" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=¬}"/>
         </Grid> <!-- Line 2 -->
-        <Grid x:Name="AltGr-Line 3" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="AltGr-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="á" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=á}"/>
@@ -631,21 +631,21 @@
           <Button Content="´" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=´}"/>
         </Grid> <!-- Line 3 -->
-        <Grid x:Name="AltGr-Line 4" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="AltGr-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="æ" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=æ}"/>
@@ -664,7 +664,7 @@
           <Button Content="¿" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=¿}"/>
         </Grid> <!-- Line 4 -->
-        <Grid x:Name="AltGr-Line 5" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="AltGr-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
@@ -679,7 +679,7 @@
         </Grid> <!-- Line 5 -->
       </Grid> <!-- Keyboard-AltGr -->
 
-      <Grid x:Name="Keyboard-Shift-AltGr" Grid.Column="1" Grid.Row="0">
+      <Grid x:Name="Keyboard-Shift-AltGr" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
             <Binding Path="ShiftState"/>
@@ -697,25 +697,25 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="Shift-AltGr-Line 1" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-AltGr-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content=" " Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}" IsEnabled="false"/>
           <Button Content="¹" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource ButtonStyle}"
@@ -736,24 +736,24 @@
           <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Backspace}"/>
         </Grid> <!-- Line 1 -->
-        <Grid x:Name="Shift-AltGr-Line 2" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-AltGr-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="Ä" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=Ä}"/>
@@ -779,22 +779,22 @@
           <Button Content="¦" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=¦}"/>
         </Grid> <!-- Line 2 -->
-        <Grid x:Name="Shift-AltGr-Line 3" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-AltGr-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="Á" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=Á}"/>
@@ -814,21 +814,21 @@
           <Button Content="¨" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=¨}"/>
         </Grid> <!-- Line 3 -->
-        <Grid x:Name="Shift-AltGr-Line 4" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-AltGr-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Content="Æ" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonStyle}"
               Command="{Command Path=Character,Parameters=Æ}"/>
@@ -845,7 +845,7 @@
           <Button Content=" " Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource ButtonStyle}" IsEnabled="false"/>
           <Button Content=" " Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource ButtonStyle}" IsEnabled="false"/>
         </Grid> <!-- Line 4 -->
-        <Grid x:Name="Shift-AltGr-Line 5" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid x:Name="Shift-AltGr-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
