@@ -28,9 +28,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public enum GridUnitType
   {
-    Auto = 0,
-    Pixel = 1,
-    Star = 2,
+    Auto,
+    AutoStretch,
+    Pixel,
+    Star,
   }
 
   public class GridLength : IDeepCopyable
@@ -89,6 +90,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
     /// <summary>
+    /// Gets a value indicating whether length is determined by the child control size but stretched automatically
+    /// if there is more space available.
+    /// </summary>
+    public bool IsAutoStretch
+    {
+      get { return _unitType == GridUnitType.AutoStretch; }
+    }
+
+    /// <summary>
     /// Returns the information indicating whether <see cref="Length"/> is a percentage
     /// of the parent control size.
     /// </summary>
@@ -113,6 +123,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _unitType; }
     }
 
+    /// <summary>
+    /// Gets or sets the calculated length for the current cell.
+    /// </summary>
     public double Length
     {
       get { return _finalValue; }

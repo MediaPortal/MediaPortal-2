@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int relativeCount = 0;
       if (cellIndex < 0 || cellIndex >= Count)
       {
-        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell index {1}; allowed range is {2}-{3}", GetType().Name, cellIndex, 0, Count-1);
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell index {1}; valid range is {2}-{3}", GetType().Name, cellIndex, 0, Count-1);
         if (cellIndex < 0)
           cellIndex = 0;
         else
@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       if (cellSpan < 0 || cellSpan + cellIndex > Count)
       {
-        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell span {1} in cell {2}; allowed range is {3}-{4}",
+        ServiceRegistration.Get<ILogger>().Warn("{0}: Invalid cell span {1} in cell {2}; valid range is {3}-{4}",
             GetType().Name, cellSpan, cellIndex, 1, Count-cellIndex);
         if (cellSpan < 0)
           cellSpan = 0;
@@ -72,18 +72,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       for (int i = 0; i < cellSpan; i++)
       {
-        DefinitionBase cell = this[i + cellIndex];
-        if (cell.Length.IsAbsolute)
-          desiredLength -= cell.Length.Length;
+        GridLength length = this[i + cellIndex].Length;
+        if (length.IsAbsolute)
+          desiredLength -= length.Length;
         else
           relativeCount++;
       }
       for (int i = 0; i < cellSpan; i++)
       {
-        DefinitionBase cell = this[i + cellIndex];
-        if (cell.Length.IsAuto || cell.Length.IsStar)
-          if (cell.Length.Length < desiredLength / relativeCount)
-            cell.Length.Length = desiredLength / relativeCount;
+        GridLength length = this[i + cellIndex].Length;
+        if (length.IsAuto || length.IsAutoStretch || length.IsStar)
+          if (length.Length < desiredLength / relativeCount)
+            length.Length = desiredLength / relativeCount;
       }
     }
 
@@ -104,18 +104,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       double totalStar = 0;
       foreach (DefinitionBase cell in this)
       {
-        if (cell.Length.IsAbsolute || cell.Length.IsAuto) // Fixed size cells get size from cell length, auto sized cells should follow the child
-          fixedLength += cell.Length.Length;
+        GridLength length = cell.Length;
+        if (length.IsAbsolute || length.IsAuto) // Fixed size cells get size from cell length, auto sized cells should follow the child
+          fixedLength += length.Length;
+        else if (length.IsAutoStretch)
+        {
+          fixedLength += length.Length;
+          totalStar += length.Value;
+        }
         else
         {
-          cell.Length.Length = 0;
-          totalStar += cell.Length.Value;
+          length.Length = 0;
+          totalStar += length.Value;
         }
 
         // Too much allocated
         if (fixedLength > totalLength)
         {
-          cell.Length.Length -= fixedLength - totalLength;
+          length.Length -= fixedLength - totalLength;
           fixedLength = totalLength;
         }
       }
@@ -123,8 +129,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return;
       double remainingLength = totalLength - fixedLength;
       foreach (DefinitionBase cell in this)
-        if (cell.Length.IsStar)
-          cell.Length.Length = remainingLength * (cell.Length.Value / totalStar);
+      {
+        GridLength length = cell.Length;
+        if (length.IsStar)
+          length.Length = remainingLength*(length.Value/totalStar);
+        else if (length.IsAutoStretch)
+          length.Length += remainingLength*(length.Value/totalStar);
+      }
     }
 
     public double GetLength(int cellIndex, int cellSpan)

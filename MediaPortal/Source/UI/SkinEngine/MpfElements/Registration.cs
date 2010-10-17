@@ -333,9 +333,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       {
         string text = value.ToString();
         if (text == "Auto")
-        {
           result = new GridLength(GridUnitType.Auto, 0.0);
-        }
+        else if (text == "AutoStretch")
+          result = new GridLength(GridUnitType.AutoStretch, 1.0);
         else if (text.IndexOf('*') >= 0)
         {
           int pos = text.IndexOf('*');
@@ -347,9 +347,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
             result = new GridLength(GridUnitType.Star, (double) obj);
           }
           else
-          {
             result = new GridLength(GridUnitType.Star, 1.0);
-          }
         }
         else
         {
