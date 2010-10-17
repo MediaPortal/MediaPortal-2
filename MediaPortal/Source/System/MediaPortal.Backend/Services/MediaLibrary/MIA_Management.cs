@@ -904,7 +904,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             indexName, miam.AspectId);
         using (IDbCommand command = transaction.CreateCommand())
         {
-          command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + MIA_MEDIA_ITEM_ID_COL_NAME + ")";
+          command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + miaTableName + "(" + MIA_MEDIA_ITEM_ID_COL_NAME + ")";
           command.ExecuteNonQuery();
         }
 
@@ -1077,7 +1077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
-                  command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
+                  command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
                       COLL_ATTR_VALUE_COL_NAME + ")";
                   ServiceRegistration.Get<ILogger>().Debug(
                       "MIA_Management: Creating value index '{0}' for MTM attribute '{1}' in media item aspect '{2}'",

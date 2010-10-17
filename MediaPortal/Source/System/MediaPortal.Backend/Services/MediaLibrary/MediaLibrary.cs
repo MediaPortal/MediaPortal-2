@@ -295,7 +295,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
         ICollection<IFilter> textFilters = new List<IFilter>();
-        foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
+        ICollection<MediaItemAspectMetadata> types = new HashSet<MediaItemAspectMetadata>();
+        if (necessaryMIATypes != null)
+          foreach (Guid miaType in necessaryMIATypes)
+            types.Add(miatr.LocallyKnownMediaItemAspectTypes[miaType]);
+        if (optionalMIATypes != null)
+          foreach (Guid miaType in optionalMIATypes)
+            types.Add(miatr.LocallyKnownMediaItemAspectTypes[miaType]);
+        if (types.Count == 0)
+          types = miatr.LocallyKnownMediaItemAspectTypes.Values;
+        foreach (MediaItemAspectMetadata miaType in types)
           foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
             if (attrType.AttributeType == typeof(string) &&
                 attrType.MaxNumChars >= searchText.Length &&
