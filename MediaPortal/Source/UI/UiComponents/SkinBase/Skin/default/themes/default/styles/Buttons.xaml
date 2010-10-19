@@ -35,8 +35,8 @@
       <SplineColorKeyFrame KeyTime="00:00:04" Value="{ThemeResource HighlightButtonStrokeColor}"/>
     </ColorAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.264"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.26"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.8"/>
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[1].X">

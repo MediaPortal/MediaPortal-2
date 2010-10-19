@@ -26,11 +26,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IEnumerable<GradientStop>
+  public class GradientStopCollection : IEnumerable<GradientStop>, IAddChild<GradientStop>
   {
     #region Protected fields
 
@@ -162,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
     }
 
-    #region IEnumerable<GradientStop> Members
+    #region IEnumerable<GradientStop> implementation
 
     public IEnumerator<GradientStop> GetEnumerator()
     {
@@ -171,11 +172,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    #region IEnumerable Members
+    #region IEnumerable implementation
 
     IEnumerator IEnumerable.GetEnumerator()
     {
       return _elements.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IAddChild<GradientStop> implementation
+
+    public void AddChild(GradientStop o)
+    {
+      _elements.Add(o);
     }
 
     #endregion

@@ -18,6 +18,7 @@
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
   </Grid.RowDefinitions>
 
   <Grid.Resources>
@@ -139,46 +140,64 @@
     </Rectangle.Fill>
   </Rectangle>
 
-  <Label Grid.Row="3" Grid.Column="0" Content="ImageBrush"/>
+  <Label Grid.Row="3" Grid.Column="0" Content="RadialGradientBrush (2)"/>
   <Rectangle Grid.Row="3" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="Cherries.jpg"/>
+      <RadialGradientBrush GradientOrigin="0,1" Center="0,1" SpreadMethod="Reflect">
+        <RadialGradientBrush.GradientStops>
+          <GradientStop Color="White" Offset="0.0" />
+          <GradientStop Color="Black" Offset="1.0" />
+        </RadialGradientBrush.GradientStops>
+      </RadialGradientBrush>
     </Rectangle.Fill>
   </Rectangle>
   <Rectangle Grid.Row="3" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="Cherries.jpg">
-        <ImageBrush.RelativeTransform>
-          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
-        </ImageBrush.RelativeTransform>
-      </ImageBrush>
+      <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" SpreadMethod="Reflect">
+        <RadialGradientBrush.RelativeTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="2"/>
+            <SkewTransform AngleX="50"/>
+          </TransformGroup>
+        </RadialGradientBrush.RelativeTransform>
+        <RadialGradientBrush.GradientStops>
+          <GradientStop Color="White" Offset="0.0" />
+          <GradientStop Color="Black" Offset="1.0" />
+        </RadialGradientBrush.GradientStops>
+      </RadialGradientBrush>
     </Rectangle.Fill>
   </Rectangle>
   <Rectangle Grid.Row="3" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="Cherries.jpg">
-        <ImageBrush.Transform>
-          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
-              Angle="45"/>
-        </ImageBrush.Transform>
-      </ImageBrush>
+      <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" SpreadMethod="Reflect">
+        <RadialGradientBrush.Transform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="2"/>
+            <SkewTransform AngleX="50"/>
+          </TransformGroup>
+        </RadialGradientBrush.Transform>
+        <RadialGradientBrush.GradientStops>
+          <GradientStop Color="White" Offset="0.0" />
+          <GradientStop Color="Black" Offset="1.0" />
+        </RadialGradientBrush.GradientStops>
+      </RadialGradientBrush>
     </Rectangle.Fill>
   </Rectangle>
 
-  <Label Grid.Row="4" Grid.Column="0" Content="ImageBrush (Tiled)"/>
+  <Label Grid.Row="4" Grid.Column="0" Content="ImageBrush"/>
   <Rectangle Grid.Row="4" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile"/>
+      <ImageBrush ImageSource="Cherries.jpg"/>
     </Rectangle.Fill>
   </Rectangle>
   <Rectangle Grid.Row="4" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile">
+      <ImageBrush ImageSource="Cherries.jpg">
         <ImageBrush.RelativeTransform>
           <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
         </ImageBrush.RelativeTransform>
@@ -188,6 +207,35 @@
   <Rectangle Grid.Row="4" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
+      <ImageBrush ImageSource="Cherries.jpg">
+        <ImageBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </ImageBrush.Transform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+  <Label Grid.Row="5" Grid.Column="0" Content="ImageBrush (Tiled)"/>
+  <Rectangle Grid.Row="5" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile"/>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="5" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile">
+        <ImageBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </ImageBrush.RelativeTransform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="5" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
       <ImageBrush ImageSource="Cherries.jpg" ViewPort="0,0,0.5,0.5" Tile="Tile">
         <ImageBrush.Transform>
           <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
@@ -197,9 +245,9 @@
     </Rectangle.Fill>
   </Rectangle>
 
-<!--
-  <Label Grid.Row="5" Grid.Column="0" Content="VisualBrush"/>
-  <Rectangle Grid.Row="5" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <!--
+  <Label Grid.Row="6" Grid.Column="0" Content="VisualBrush"/>
+  <Rectangle Grid.Row="6" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VisualBrush>
@@ -209,7 +257,7 @@
       </VisualBrush>
     </Rectangle.Fill>
   </Rectangle>
-  <Rectangle Grid.Row="5" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <Rectangle Grid.Row="6" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VisualBrush>
@@ -219,7 +267,7 @@
       </VisualBrush>
     </Rectangle.Fill>
   </Rectangle>
-  <Rectangle Grid.Row="5" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <Rectangle Grid.Row="6" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VisualBrush>
@@ -231,14 +279,14 @@
   </Rectangle>
 -->
 
-  <Label Grid.Row="6" Grid.Column="0" Content="VideoBrush"/>
-  <Rectangle Grid.Row="6" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <Label Grid.Row="7" Grid.Column="0" Content="VideoBrush"/>
+  <Rectangle Grid.Row="7" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VideoBrush Stream="0"/>
     </Rectangle.Fill>
   </Rectangle>
-  <Rectangle Grid.Row="6" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <Rectangle Grid.Row="7" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VideoBrush Stream="0">
@@ -248,7 +296,7 @@
       </VideoBrush>
     </Rectangle.Fill>
   </Rectangle>
-  <Rectangle Grid.Row="6" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+  <Rectangle Grid.Row="7" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VideoBrush Stream="0">

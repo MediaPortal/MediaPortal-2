@@ -184,6 +184,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_STARTPOINT] = g_startpoint;
       _effect.Parameters[PARAM_ENDPOINT] = g_endpoint;
+
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
       _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
       return true;
     }
@@ -235,6 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_UPPERVERTSBOUNDS] = g_UpperVertsBounds;
       _effect.Parameters[PARAM_LOWERVERTSBOUNDS] = g_LowerVertsBounds;
 
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
       _effect.StartRender(tex, finalTransform);
     }
 

@@ -42,6 +42,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     readonly string _name;
     static int _assetId = 0;
 
+    private const int GRADIENT_TEXTURE_WIDTH = 256;
+    private const int GRADIENT_TEXTURE_HEIGHT = 2;
+
     public GradientBrushTexture(GradientStopCollection stops)
     {
       _assetId++;
@@ -59,9 +62,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_texture == null)
         _texture = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_name);
-      if (!_texture.IsAllocated) 
+      if (!_texture.IsAllocated)
       {
-        _texture.AllocateDynamic(256, 2);
+        _texture.AllocateDynamic(GRADIENT_TEXTURE_WIDTH, GRADIENT_TEXTURE_HEIGHT);
         CreateGradient();
       }
     }
@@ -94,21 +97,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void CreateGradient()
     {
-      float width = 256.0f;
-      byte[] data = new byte[4 * 512];
-      int offY = 256 * 4;
+      float width = (float) GRADIENT_TEXTURE_WIDTH;
+      byte[] data = new byte[4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT];
+      int offY = GRADIENT_TEXTURE_WIDTH * 4;
       IList<GradientStop> orderedStops = _stops.OrderedGradientStopList;
+
       for (int i = 0; i < orderedStops.Count - 1; i++)
       {
         GradientStop stopBegin = orderedStops[i];
         GradientStop stopEnd = orderedStops[i + 1];
         Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
         Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
-        int offsetStart = (int)( stopBegin.Offset * width);
+        int offsetStart = (int) (stopBegin.Offset * width);
         int offsetEnd = (int) (stopEnd.Offset * width);
 
+        int clampedStart = Math.Max(0, offsetStart);
+        int clampedEnd = Math.Min(GRADIENT_TEXTURE_WIDTH, offsetEnd);
+
         float distance = offsetEnd - offsetStart;
-        for (int x = offsetStart; x < offsetEnd; ++x)
+        for (int x = clampedStart; x < clampedEnd; ++x)
         {
           float step = (x - offsetStart) / distance;
           float r = step * (colorEnd.Red - colorStart.Red);
@@ -141,7 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         }
       }
       DataRectangle rect = _texture.Surface0.LockRectangle(LockFlags.None);
-      rect.Data.Write(data, 0, 4 * 512);
+      rect.Data.Write(data, 0, 4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT);
       _texture.Surface0.UnlockRectangle();
       rect.Data.Dispose();
     }

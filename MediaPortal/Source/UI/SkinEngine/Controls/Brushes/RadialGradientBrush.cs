@@ -44,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected const string EFFECT_SOLID = "solid";
 
     protected const string PARAM_TRANSFORM = "g_transform";
+    protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
     protected const string PARAM_OPACITY = "g_opacity";
     protected const string PARAM_FOCUS = "g_focus";
     protected const string PARAM_CENTER = "g_center";
@@ -69,6 +70,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     float[] g_focus;
     float[] g_center;
     float[] g_radius;
+    Matrix g_relativetransform;
     bool _refresh = false;
 
     #endregion
@@ -144,7 +146,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Vector2 Center
     {
-      get { return (Vector2)_centerProperty.GetValue(); }
+      get { return (Vector2) _centerProperty.GetValue(); }
       set { _centerProperty.SetValue(value); }
     }
 
@@ -198,7 +200,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      if (_gradientBrushTexture == null) {
+      if (_gradientBrushTexture == null)
+      {
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         if (_gradientBrushTexture == null)
           return false;
@@ -226,22 +229,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           g_radius[0] /= _vertsBounds.Width;
           g_radius[1] /= _vertsBounds.Height;
         }
-        if (RelativeTransform != null)
-        {
-          Matrix m = RelativeTransform.GetTransform();
-          m.Transform(ref g_focus[0], ref g_focus[1]);
-          m.Transform(ref g_center[0], ref g_center[1]);
-          m.Transform(ref g_radius[0], ref g_radius[1]);
-        }
+        g_relativetransform = RelativeTransform == null ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
       }
 
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = g_relativetransform;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_FOCUS] = g_focus;
       _effect.Parameters[PARAM_CENTER] = g_center;
       _effect.Parameters[PARAM_RADIUS] = g_radius;
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
 
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
       _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
+
       return true;
     }
 
@@ -278,19 +278,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           g_radius[0] /= _vertsBounds.Width;
           g_radius[1] /= _vertsBounds.Height;
         }
-        if (RelativeTransform != null)
-        {
-          Matrix m = RelativeTransform.GetTransform();
-          m.Transform(ref g_focus[0], ref g_focus[1]);
-          m.Transform(ref g_center[0], ref g_center[1]);
-          m.Transform(ref g_radius[0], ref g_radius[1]);
-        }
+        g_relativetransform = RelativeTransform == null ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
       }
 
       SurfaceDescription desc = tex.GetLevelDescription(0);
-      float[] g_LowerVertsBounds = new float[] {_vertsBounds.Left / desc.Width, _vertsBounds.Top / desc.Height};
-      float[] g_UpperVertsBounds = new float[] {_vertsBounds.Right / desc.Width, _vertsBounds.Bottom / desc.Height};
+      float[] g_LowerVertsBounds = new float[] { _vertsBounds.Left / desc.Width, _vertsBounds.Top / desc.Height };
+      float[] g_UpperVertsBounds = new float[] { _vertsBounds.Right / desc.Width, _vertsBounds.Bottom / desc.Height };
 
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = g_relativetransform;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_FOCUS] = g_focus;
       _effect.Parameters[PARAM_CENTER] = g_center;
@@ -300,6 +295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_UPPERVERTSBOUNDS] = g_UpperVertsBounds;
       _effect.Parameters[PARAM_LOWERVERTSBOUNDS] = g_LowerVertsBounds;
 
+      GraphicsDevice.Device.SetSamplerState(0, SamplerState.AddressU, SpreadAddressMode);
       _effect.StartRender(tex, finalTransform);
     }
 

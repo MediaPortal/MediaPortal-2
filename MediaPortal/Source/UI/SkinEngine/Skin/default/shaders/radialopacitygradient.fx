@@ -1,6 +1,7 @@
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
-float4x4  g_transform; 
+float4x4  g_transform;
+float4x4 g_relativetransform;
 float2    g_radius = {0.5f, 0.5f};
 float2    g_center = {0.5f, 0.5f};
 float2    g_focus = {0.5f, 0.5f};
@@ -58,14 +59,19 @@ float GetColor(float2 pos)
 void renderVertexShader(in a2v IN, out v2p OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
-  OUT.Texcoord = IN.Texcoord;
+
+  // Apply relative transform
+  float4 pos = float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0);
+  pos = mul(pos, g_transform);
+  pos = mul(float4(pos.x, pos.y, 0.0, 1.0), g_relativetransform);
+  pos.xy = (pos.xy - g_focus) / g_radius;
+
+  OUT.Texcoord = pos.xy;
 }
 
 void renderPixelShader(in v2p IN, out p2f OUT)
 {
-  float4 texPos = float4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  texPos = mul(texPos, g_transform);
-  OUT.Color = tex2D(textureSampler, float2(texPos.x, texPos.y));
+  OUT.Color = tex2D(textureSampler, float2(IN.Texcoord.x, IN.Texcoord.y));
 
   float4 alphaPos = float4(
       (IN.Texcoord.x - g_lowervertsbounds.x)/(g_uppervertsbounds.x - g_lowervertsbounds.x),

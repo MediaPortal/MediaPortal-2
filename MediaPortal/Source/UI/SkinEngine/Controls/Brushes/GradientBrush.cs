@@ -169,6 +169,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
+    protected SlimDX.Direct3D9.TextureAddress SpreadAddressMode
+    {
+      get
+      {
+        switch (SpreadMethod)
+        {
+          case GradientSpreadMethod.Repeat:
+            return SlimDX.Direct3D9.TextureAddress.Wrap;
+          case GradientSpreadMethod.Reflect:
+            return SlimDX.Direct3D9.TextureAddress.Mirror;
+          //case GradientSpreadMethod.Pad:
+          default:
+            return SlimDX.Direct3D9.TextureAddress.Clamp;
+        }
+      }
+    }
+
+
     #region IAddChild Members
 
     public void AddChild(GradientStop o)
