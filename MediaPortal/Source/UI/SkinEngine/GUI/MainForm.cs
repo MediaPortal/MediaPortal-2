@@ -45,6 +45,8 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.GUI
 {
+  public delegate void SwitchModeDelegate(ScreenMode mode);
+
   public partial class MainForm : Form, IScreenControl
   {
     // TODO: Make this configurable
@@ -265,6 +267,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void SwitchMode(ScreenMode mode)
     {
+      if (this.InvokeRequired)
+      {
+        this.Invoke(new SwitchModeDelegate(SwitchMode), mode);
+        return;
+      }
+
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
       bool newFullscreen = mode == ScreenMode.FullScreen;
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
