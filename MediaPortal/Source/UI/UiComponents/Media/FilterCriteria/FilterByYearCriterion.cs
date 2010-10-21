@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
                     MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(MIN_YEAR, 1, 1)), this),
         };
       int maxYear = DateTime.Now.Year;
-      for (int year = MIN_YEAR; year < maxYear; year++)
+      for (int year = MIN_YEAR; year <= maxYear; year++)
         result.Add(new FilterValue(string.Format("{0}", year),
             BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
                 new RelationalFilter(
