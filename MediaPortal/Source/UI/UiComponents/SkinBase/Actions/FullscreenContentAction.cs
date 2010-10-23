@@ -39,8 +39,9 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public static readonly Guid FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string FULLSCREEN_VIDEO_RESOURCE = "[Players.FullscreenVideo]";
-    public const string AUDIO_VISUALIZATION_RESOURCE = "[Players.AudioVisualization]";
+    public const string RES_FULLSCREEN_VIDEO = "[Players.FullscreenVideo]";
+    public const string RES_AUDIO_VISUALIZATION = "[Players.AudioVisualization]";
+    public const string RES_FULLSCREEN_PICTURE = "[Players.FullscreenPicture]";
 
     #endregion
 
@@ -105,15 +106,19 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
-      IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
-      bool visible = vp != null || ap != null && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
+      IPlayer primaryPlayer = pcPrimary == null ? null : pcPrimary.CurrentPlayer;
+      IPicturePlayer pp = primaryPlayer as IPicturePlayer;
+      IVideoPlayer vp = primaryPlayer as IVideoPlayer;
+      IAudioPlayer ap = primaryPlayer as IAudioPlayer;
+      bool visible = pp != null || vp != null || ap != null && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
       IResourceString displayTitleRes;
-      if (vp == null)
-        displayTitleRes = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
-      else
+      if (ap != null)
+        displayTitleRes = LocalizationHelper.CreateResourceString(RES_AUDIO_VISUALIZATION);
+      else if (vp != null)
         displayTitleRes = LocalizationHelper.CreateStaticString(
-            LocalizationHelper.CreateResourceString(FULLSCREEN_VIDEO_RESOURCE).Evaluate(vp.Name));
+            LocalizationHelper.CreateResourceString(RES_FULLSCREEN_VIDEO).Evaluate(vp.Name));
+      else
+        displayTitleRes = LocalizationHelper.CreateResourceString(RES_FULLSCREEN_PICTURE);
       lock (_syncObj)
       {
         _isVisible = visible;
