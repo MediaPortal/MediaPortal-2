@@ -22,13 +22,16 @@
     <Model Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" Name="AudioPlayerModel" ClassName="MediaPortal.UiComponents.Media.Models.AudioPlayerModel"/>
     <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="ShowPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.ShowPlaylistModel"/>
     <Model Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2" Name="EditPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.EditPlaylistModel"/>
+    <Model Id="039151B6-800B-4279-A1BE-7F421EEA8C9A" Name="ManagePlaylistsModel" ClassName="MediaPortal.UiComponents.Media.Models.ManagePlaylistsModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="LocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LocalMediaAction"/>
     <Model Id="D8922F2B-5B56-4218-93B1-570616BAAEAD" Name="MusicContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.MusicAction"/>
     <Model Id="598F813D-D575-4229-A8E6-5ABCE0EDCDB8" Name="MoviesContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.MoviesAction"/>
     <Model Id="E6E42CDB-07F7-4055-8EF9-0AA35904FAB5" Name="AddToPlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.AddViewToPlaylistAction"/>
     <Model Id="7190C5BB-430E-48be-A6B2-C651A840C54A" Name="PicturesContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.PicturesAction"/>
-    <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.PlaylistAction"/>
+    <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ShowPlaylistAction"/>
+    <Model Id="2C3A747D-7FD7-408b-8843-31842A2EB6F3" Name="ManagePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ManagePlaylistsAction"/>
+    <Model Id="02848CDD-34F0-4719-9A52-DA959E848409" Name="SavePlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SavePlaylistAction"/>
   </Register>
 
   <Register Location="/Resources/Language">

@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string MODEL_ID_STR = "D8998340-DA2D-42be-A29B-6D7A72AEA2DC";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    public AudioPlayerModel() : base(Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID)
+    public AudioPlayerModel() : base(Consts.WF_STATE_ID_CURRENTLY_PLAYING_AUDIO, Consts.WF_STATE_ID_FULLSCREEN_AUDIO)
     {
     }
 

@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -63,10 +63,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
+    <Compile Include="Actions\SavePlaylistAction.cs" />
+    <Compile Include="Actions\ManagePlaylistsAction.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Actions\PicturesAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\MusicAction.cs" />
-    <Compile Include="Actions\PlaylistAction.cs" />
+    <Compile Include="Actions\ShowPlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\LocalMediaAction.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
@@ -76,6 +80,8 @@
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
+    <Compile Include="Models\LocalPlaylists.cs" />
+    <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\NavigationData.cs" />
     <Compile Include="Models\Navigation\FilterItem.cs" />
     <Compile Include="Models\ScreenData\AbstractScreenData.cs" />
@@ -108,6 +114,7 @@
     <Compile Include="Models\ScreenData\MusicShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSearchScreenData.cs" />
     <Compile Include="Models\MediaModel.cs" />
+    <Compile Include="Models\ServerPlaylists.cs" />
     <Compile Include="Models\ShowPlaylistModel.cs" />
     <Compile Include="Models\Navigation\PictureItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
@@ -162,6 +169,11 @@
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
     <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
     <Content Include="Skin\default\screens\EditPlaylist.xaml" />
+    <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
+    <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
+    <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />

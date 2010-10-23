@@ -111,13 +111,13 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (_currentNavigationContext == null)
           return MediaNavigationMode.LocalMedia;
-        return (_currentNavigationContext.GetContextVariable(Consts.NAVIGATION_MODE_KEY, true) as MediaNavigationMode?) ?? MediaNavigationMode.LocalMedia;
+        return (_currentNavigationContext.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.LocalMedia;
       }
       internal set
       {
         if (_currentNavigationContext == null)
           return;
-        _currentNavigationContext.SetContextVariable(Consts.NAVIGATION_MODE_KEY, value);
+        _currentNavigationContext.SetContextVariable(Consts.KEY_NAVIGATION_MODE, value);
       }
     }
 
@@ -162,29 +162,29 @@ namespace MediaPortal.UiComponents.Media.Models
           // IF it would be possible to guess the AV type, we didn't need to ask the user here.
           _mediaTypeChoiceMenuItems = new ItemsList
             {
-                new ListItem(Consts.NAME_KEY, Consts.ADD_ALL_AUDIO_RES)
+                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_AUDIO)
                   {
                       Command = new MethodDelegateCommand(() => CheckPlayMenu(AVType.Audio,
                           () => FilterMediaItemsFromCurrentView(new Guid[] {AudioAspect.Metadata.AspectId})))
                   },
-                new ListItem(Consts.NAME_KEY, Consts.ADD_ALL_VIDEOS_RES)
+                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_VIDEOS)
                   {
                       Command = new MethodDelegateCommand(() => CheckPlayMenu(AVType.Video,
                           () => FilterMediaItemsFromCurrentView(new Guid[] {VideoAspect.Metadata.AspectId})))
                   },
-                new ListItem(Consts.NAME_KEY, Consts.ADD_ALL_IMAGES_RES)
+                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_IMAGES)
                   {
                       Command = new MethodDelegateCommand(() => CheckPlayMenu(AVType.Video,
                           () => FilterMediaItemsFromCurrentView(new Guid[] {PictureAspect.Metadata.AspectId})))
                   },
-                new ListItem(Consts.NAME_KEY, Consts.ADD_VIDEOS_AND_IMAGES_RES)
+                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_VIDEOS_AND_IMAGES)
                   {
                       Command = new MethodDelegateCommand(() => CheckPlayMenu(AVType.Video,
                           () => FilterMediaItemsFromCurrentView(new Guid[] {VideoAspect.Metadata.AspectId, PictureAspect.Metadata.AspectId})))
                   },
             };
           IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-          screenManager.ShowDialog(Consts.CHOOSE_AV_TYPE_DIALOG_SCREEN);
+          screenManager.ShowDialog(Consts.SCREEN_CHOOSE_AV_TYPE_DIALOG);
           break;
       }
     }
@@ -209,18 +209,49 @@ namespace MediaPortal.UiComponents.Media.Models
       _cancelAddToPlaylist = true;
     }
 
+    public static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)
+    {
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
+      string contextName;
+      if (!GetPlayerContextNameForMediaType(avType, out contextName))
+        return null;
+      IPlayerContext pc = null;
+      if (!play)
+      {
+        // !play means enqueue - so find our first player context of the correct media type
+        IList<IPlayerContext> playerContexts = new List<IPlayerContext>(
+            pcm.GetPlayerContextsByMediaModuleId(Consts.MODULE_ID_MEDIA).Where(playerContext => playerContext.AVType == avType));
+        // In case the media type is audio, we have max. one player context of that type. In case media type is
+        // video, we might have two. But we handle enqueue only for the first video player context.
+        pc = playerContexts.FirstOrDefault();
+      }
+      if (pc == null)
+        // No player context to reuse - so open a new one
+        if (avType == AVType.Video)
+          pc = pcm.OpenVideoPlayerContext(Consts.MODULE_ID_MEDIA, contextName, concurrencyMode,
+              Consts.WF_STATE_ID_CURRENTLY_PLAYING_VIDEO, Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+        else if (avType == AVType.Audio)
+          pc = pcm.OpenAudioPlayerContext(Consts.MODULE_ID_MEDIA, contextName, concurrencyMode == PlayerContextConcurrencyMode.ConcurrentVideo,
+              Consts.WF_STATE_ID_CURRENTLY_PLAYING_AUDIO, Consts.WF_STATE_ID_FULLSCREEN_AUDIO);
+      if (pc == null)
+        return null;
+      if (play)
+        pc.Playlist.Clear();
+      return pc;
+    }
+
     #region Protected members
 
     protected delegate IEnumerable<MediaItem> GetMediaItemsDlgt();
 
     protected internal static NavigationData GetNavigationData(NavigationContext navigationContext)
     {
-      return navigationContext.GetContextVariable(Consts.NAVIGATION_DATA_KEY, false) as NavigationData;
+      return navigationContext.GetContextVariable(Consts.KEY_NAVIGATION_DATA, false) as NavigationData;
     }
 
     protected static void SetNavigationData(NavigationData navigationData, NavigationContext navigationContext)
     {
-      navigationContext.SetContextVariable(Consts.NAVIGATION_DATA_KEY, navigationData);
+      navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
     protected IEnumerable<MediaItem> FilterMediaItemsFromCurrentView(ICollection<Guid> consideredMediaItemAspectTypes)
@@ -232,7 +263,7 @@ namespace MediaPortal.UiComponents.Media.Models
       SetNumItemsAddedToPlaylist(0);
       _cancelAddToPlaylist = false;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      Guid? dialogInstanceId = screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN,
+      Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_ADD_TO_PLAYLIST_PROGRESS,
           (dialogName, instanceId) => CancelAddToPlaylist());
       try
       {
@@ -270,7 +301,7 @@ namespace MediaPortal.UiComponents.Media.Models
       SetNumItemsAddedToPlaylist(0);
       _cancelAddToPlaylist = false;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      Guid? dialogInstanceid = screenManager.ShowDialog(Consts.ADD_TO_PLAYLIST_PROGRESS_DIALOG_SCREEN, (dialogName, instanceId) => CancelAddToPlaylist());
+      Guid? dialogInstanceid = screenManager.ShowDialog(Consts.DIALOG_ADD_TO_PLAYLIST_PROGRESS, (dialogName, instanceId) => CancelAddToPlaylist());
       try
       {
         foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
@@ -289,7 +320,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void SetNumItemsAddedToPlaylist(int numItems)
     {
       if (numItems % Consts.ADD_TO_PLAYLIST_UPDATE_INTERVAL == 0)
-        NumItemsAddedToPlaylistText = LocalizationHelper.Translate(Consts.N_ITEMS_ADDED_RES, numItems);
+        NumItemsAddedToPlaylistText = LocalizationHelper.Translate(Consts.RES_N_ITEMS_ADDED, numItems);
     }
 
     /// <summary>
@@ -312,14 +343,14 @@ namespace MediaPortal.UiComponents.Media.Models
       int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
       if (avType == AVType.Audio)
       {
-        ListItem playItem = new ListItem(Consts.NAME_KEY, Consts.PLAY_AUDIO_ITEMS_RESOURCE)
+        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEMS)
           {
               Command = new MethodDelegateCommand(() => PlayItems(getMediaItemsFunction, avType))
           };
         _playMenuItems.Add(playItem);
         if (numAudio > 0)
         {
-          ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_AUDIO_ITEMS_RESOURCE)
+          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEMS)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None))
             };
@@ -327,7 +358,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numVideo > 0)
         {
-          ListItem playItemConcurrently = new ListItem(Consts.NAME_KEY, Consts.MUTE_VIDEO_PLAY_AUDIO_ITEMS_RESOURCE)
+          ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEMS)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
@@ -336,14 +367,14 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       else if (avType == AVType.Video)
       {
-        ListItem playItem = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEMS_RESOURCE)
+        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS)
           {
               Command = new MethodDelegateCommand(() => PlayItems(getMediaItemsFunction, avType))
           };
         _playMenuItems.Add(playItem);
         if (numVideo > 0)
         {
-          ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_VIDEO_ITEMS_RESOURCE)
+          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEMS)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None))
             };
@@ -351,7 +382,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numAudio > 0)
         {
-          ListItem playItem_A = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO_RESOURCE)
+          ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio))
             };
@@ -359,7 +390,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numVideo > 0)
         {
-          ListItem playItem_V = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEMS_PIP_RESOURCE)
+          ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_PIP)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
@@ -369,11 +400,11 @@ namespace MediaPortal.UiComponents.Media.Models
       else
       {
         IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-        dialogManager.ShowDialog(Consts.SYSTEM_INFORMATION_RESOURCE, Consts.CANNOT_PLAY_ITEMS_DIALOG_TEXT_RES, DialogType.OkDialog, false,
+        dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT, DialogType.OkDialog, false,
             DialogButtonType.Ok);
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.PLAY_MENU_DIALOG_SCREEN);
+      screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG);
     }
 
     /// <summary>
@@ -387,37 +418,6 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
       PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.None);
-    }
-
-    protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)
-    {
-      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-      string contextName;
-      if (!GetPlayerContextNameForMediaType(avType, out contextName))
-        return null;
-      IPlayerContext pc = null;
-      if (!play)
-      {
-        // !play means enqueue - so find our first player context of the correct media type
-        IList<IPlayerContext> playerContexts = new List<IPlayerContext>(
-            pcm.GetPlayerContextsByMediaModuleId(Consts.MEDIA_MODULE_ID).Where(playerContext => playerContext.AVType == avType));
-        // In case the media type is audio, we have max. one player context of that type. In case media type is
-        // video, we might have two. But we handle enqueue only for the first video player context.
-        pc = playerContexts.FirstOrDefault();
-      }
-      if (pc == null)
-        // No player context to reuse - so open a new one
-        if (avType == AVType.Video)
-          pc = pcm.OpenVideoPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrencyMode,
-              Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID);
-        else if (avType == AVType.Audio)
-          pc = pcm.OpenAudioPlayerContext(Consts.MEDIA_MODULE_ID, contextName, concurrencyMode == PlayerContextConcurrencyMode.ConcurrentVideo,
-              Consts.CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_AUDIO_WORKFLOW_STATE_ID);
-      if (pc == null)
-        return null;
-      if (play)
-        pc.Playlist.Clear();
-      return pc;
     }
 
     protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
@@ -479,14 +479,14 @@ namespace MediaPortal.UiComponents.Media.Models
       int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
       if (avType == AVType.Audio)
       {
-        ListItem playItem = new ListItem(Consts.NAME_KEY, Consts.PLAY_AUDIO_ITEM_RESOURCE)
+        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEM)
           {
               Command = new MethodDelegateCommand(() => PlayItem(item))
           };
         _playMenuItems.Add(playItem);
         if (numAudio > 0)
         {
-          ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_AUDIO_ITEM_RESOURCE)
+          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEM)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None))
             };
@@ -494,7 +494,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numVideo > 0)
         {
-          ListItem playItemConcurrently = new ListItem(Consts.NAME_KEY, Consts.MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE)
+          ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEM)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
@@ -503,14 +503,14 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       else if (avType == AVType.Video)
       {
-        ListItem playItem = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEM_RESOURCE)
+        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM)
           {
               Command = new MethodDelegateCommand(() => PlayItem(item))
           };
         _playMenuItems.Add(playItem);
         if (numVideo > 0)
         {
-          ListItem enqueueItem = new ListItem(Consts.NAME_KEY, Consts.ENQUEUE_VIDEO_ITEM_RESOURCE)
+          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEM)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None))
             };
@@ -518,7 +518,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numAudio > 0)
         {
-          ListItem playItem_A = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE)
+          ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio))
             };
@@ -526,7 +526,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         if (numVideo > 0)
         {
-          ListItem playItem_V = new ListItem(Consts.NAME_KEY, Consts.PLAY_VIDEO_ITEM_PIP_RESOURCE)
+          ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_PIP)
             {
                 Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo))
             };
@@ -536,11 +536,11 @@ namespace MediaPortal.UiComponents.Media.Models
       else
       {
         IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-        dialogManager.ShowDialog(Consts.SYSTEM_INFORMATION_RESOURCE, Consts.CANNOT_PLAY_ITEM_DIALOG_TEXT_RES, DialogType.OkDialog, false,
+        dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEM_DIALOG_TEXT, DialogType.OkDialog, false,
             DialogButtonType.Ok);
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(Consts.PLAY_MENU_DIALOG_SCREEN);
+      screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG);
     }
 
     /// <summary>
@@ -568,17 +568,17 @@ namespace MediaPortal.UiComponents.Media.Models
       PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.None);
     }
 
-    public static bool GetPlayerContextNameForMediaType(AVType avType, out string contextName)
+    protected static bool GetPlayerContextNameForMediaType(AVType avType, out string contextName)
     {
       // No locking necessary
       if (avType == AVType.Video)
       {
-        contextName = Consts.VIDEO_PICTURE_CONTEXT_NAME_RESOURCE;
+        contextName = Consts.RES_VIDEO_PICTURE_CONTEXT_NAME;
         return true;
       }
       if (avType == AVType.Audio)
       {
-        contextName = Consts.AUDIO_CONTEXT_NAME_RESOURCE;
+        contextName = Consts.AUDIO_CONTEXT_NAME_RES;
         return true;
       }
       contextName = null;
@@ -617,14 +617,14 @@ namespace MediaPortal.UiComponents.Media.Models
       // The initial state ID determines the media model "part" to initialize: Local media, music, movies or pictures.
       // The media model part determines the media navigation mode and the view contents to be set.
       NavigationData navigationData;
-      if (currentStateId == Consts.MUSIC_NAVIGATION_ROOT_STATE)
+      if (currentStateId == Consts.WF_STATE_ID_MUSIC_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Music;
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MusicItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.MUSIC_VIEW_NAME_RESOURCE,
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_MUSIC_VIEW_NAME,
             null, Consts.NECESSARY_MUSIC_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -640,17 +640,17 @@ namespace MediaPortal.UiComponents.Media.Models
               new MusicFilterBySystemScreenData(),
               new MusicSimpleSearchScreenData(picd),
             };
-        navigationData = new NavigationData(Consts.MUSIC_VIEW_NAME_RESOURCE, currentStateId,
+        navigationData = new NavigationData(Consts.RES_MUSIC_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
-      else if (currentStateId == Consts.MOVIES_NAVIGATION_ROOT_STATE)
+      else if (currentStateId == Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Movies;
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.MOVIES_VIEW_NAME_RESOURCE,
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
             null, Consts.NECESSARY_MOVIE_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -665,17 +665,17 @@ namespace MediaPortal.UiComponents.Media.Models
               new MoviesFilterBySystemScreenData(),
               new MoviesSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.MOVIES_VIEW_NAME_RESOURCE, currentStateId,
+        navigationData = new NavigationData(Consts.RES_MOVIES_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
-      else if (currentStateId == Consts.PICTURES_NAVIGATION_ROOT_STATE)
+      else if (currentStateId == Consts.WF_STATE_ID_PICTURES_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Pictures;
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new PictureItem(mi)
           {
               Command = new MethodDelegateCommand(() => CheckPlayMenu(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.PICTURES_VIEW_NAME_RESOURCE,
+        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_PICTURES_VIEW_NAME,
             null, Consts.NECESSARY_PICTURE_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -689,12 +689,12 @@ namespace MediaPortal.UiComponents.Media.Models
               new PicturesFilterBySystemScreenData(),
               new PicturesSimpleSearchScreenData(picd),
           };
-        navigationData = new NavigationData(Consts.PICTURES_VIEW_NAME_RESOURCE, currentStateId,
+        navigationData = new NavigationData(Consts.RES_PICTURES_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else
-      { // If we were called with a supported root state, we should be in state LOCAL_MEDIA_NAVIGATION_ROOT_STATE here
-        if (currentStateId != Consts.LOCAL_MEDIA_NAVIGATION_ROOT_STATE)
+      { // If we were called with a supported root state, we should be in state WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT here
+        if (currentStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT)
         {
           // Error case: We cannot handle the given state
           ServiceRegistration.Get<ILogger>().Warn("MediaModel: Unknown root workflow state with ID '{0}', initializing local media navigation", currentStateId);
@@ -720,7 +720,7 @@ namespace MediaPortal.UiComponents.Media.Models
                 };
             return null;
           };
-        ViewSpecification rootViewSpecification = new LocalSharesViewSpecification(Consts.LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE,
+        ViewSpecification rootViewSpecification = new LocalSharesViewSpecification(Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME,
             new Guid[]
                 {
                     ProviderResourceAspect.ASPECT_ID,
@@ -733,7 +733,7 @@ namespace MediaPortal.UiComponents.Media.Models
                     PictureAspect.ASPECT_ID,
                 });
         // Dynamic screens remain null - local media doesn't provide dynamic filters
-        navigationData = new NavigationData(Consts.LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE, currentStateId,
+        navigationData = new NavigationData(Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME, currentStateId,
             currentStateId, rootViewSpecification, new LocalMediaNavigationScreenData(picd), null);
       }
       SetNavigationData(navigationData, _currentNavigationContext);

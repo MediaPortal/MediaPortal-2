@@ -102,7 +102,7 @@ namespace MediaPortal.Core.MediaManagement
       }
       finally
       {
-        reader.ReadStartElement("MediaItem");
+        reader.ReadStartElement();
       }
       while (reader.NodeType != XmlNodeType.EndElement)
       {

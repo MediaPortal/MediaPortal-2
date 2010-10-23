@@ -50,7 +50,7 @@
         Temporary="true"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
 
-    <!-- Playlist -->
+    <!-- Playlists -->
 
     <WorkflowState Id="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
         Name="ShowPlaylist"
@@ -64,5 +64,41 @@
         DisplayLabel="[Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel]"
         Temporary="true"
         WorkflowModel="0AFD5E3A-2CB6-44d6-827F-72A7193595E2"/> <!-- Workflow model = EditPlaylist model -->
+    <WorkflowState Id="4A0981A3-2051-46f7-89ED-2DD3A9237DE9"
+        Name="PlaylistsOverview"
+        MainScreen="PlaylistsOverview"
+        DisplayLabel="[Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="00E50877-E3BF-4361-A57D-15F5B495FDEF"
+        Name="PlaylistInfo"
+        MainScreen="PlaylistInfo"
+        DisplayLabel="[Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="BF716CDF-638C-4716-98F8-935FA85BC4D8"
+        Name="RemovePlaylists"
+        MainScreen="RemovePlaylists"
+        DisplayLabel="[Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="D41DC5C7-71B0-4bf5-AE8E-FE2F3BC04FF1"
+        Name="SavePlaylistChooseLocation"
+        MainScreen="SavePlaylistChooseLocation"
+        DisplayLabel="[Media.SavePlaylistChooseLocationWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="A967AEC6-C470-4ef6-B034-F192983AA02E"
+        Name="SavePlaylistEditName"
+        MainScreen="SavePlaylistEditName"
+        DisplayLabel="[Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="D9DB81D6-CD4E-47a3-9E3A-BD388BD1297E"
+        Name="SavePlaylistSuccessful"
+        MainScreen="SavePlaylistSuccessful"
+        DisplayLabel="[Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="9588B122-D697-4f9e-B8ED-887E83843C8E"
+        Name="SavePlaylistFailed"
+        MainScreen="SavePlaylistFailed"
+        DisplayLabel="[Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
   </States>
 </Workflow>

@@ -82,9 +82,9 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         // Using special screens for DVD player
         if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
-          return Consts.CURRENTLY_PLAYING_DVD_SCREEN;
+          return Consts.SCREEN_CURRENTLY_PLAYING_DVD;
         if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
-          return Consts.FULLSCREEN_DVD_SCREEN;
+          return Consts.SCREEN_FULLSCREEN_DVD;
         return null;
       }
     }
@@ -139,7 +139,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (subtitlePlayer != null && _subtitles.Length > 0)
         {
           string currentSubtitle = subtitlePlayer.CurrentSubtitle;
-          ListItem item = new ListItem(Consts.NAME_KEY, Consts.SUBTITLE_OFF_RES)
+          ListItem item = new ListItem(Consts.KEY_NAME, Consts.RES_SUBTITLE_OFF)
               {
                 Command = new MethodDelegateCommand(subtitlePlayer.DisableSubtitle),
                 // Check if it is the selected subtitle, then mark it
@@ -151,7 +151,7 @@ namespace MediaPortal.UiComponents.Media.Models
             // Use local variable, otherwise delegate argument is not fixed
             string localSubtitle = subtitle;
             
-            item = new ListItem(Consts.NAME_KEY, localSubtitle)
+            item = new ListItem(Consts.KEY_NAME, localSubtitle)
                 {
                   Command = new MethodDelegateCommand(() => subtitlePlayer.SetSubtitle(localSubtitle)),
                   // Check if it is the selected subtitle, then mark it
@@ -181,7 +181,7 @@ namespace MediaPortal.UiComponents.Media.Models
             // use local variable, otherwise delegate argument is not fixed
             string localChapter = chapter;
 
-            ListItem item = new ListItem(Consts.NAME_KEY, localChapter)
+            ListItem item = new ListItem(Consts.KEY_NAME, localChapter)
                 {
                   Command = new MethodDelegateCommand(() => _player.SetDvdChapter(localChapter)),
                   // check if it is the selected chapter, then mark it

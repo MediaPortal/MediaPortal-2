@@ -25,11 +25,9 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
@@ -61,18 +59,14 @@ namespace MediaPortal.Core.UPnP
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable clientData = (IEnumerable) value;
-      foreach (PlaylistContents metadata in clientData)
-        metadata.Serialize(writer);
+      PlaylistContents playlistData = (PlaylistContents) value;
+      playlistData.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<PlaylistContents> result = new List<PlaylistContents>();
-      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
-        return result;
-      while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(PlaylistContents.Deserialize(reader));
+      reader.ReadStartElement();
+      PlaylistContents result = PlaylistContents.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

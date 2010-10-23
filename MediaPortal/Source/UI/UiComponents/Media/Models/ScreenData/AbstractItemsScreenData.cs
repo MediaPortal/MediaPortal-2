@@ -187,7 +187,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   if (sv.AbsNumItems.HasValue)
                     totalNumItems += sv.AbsNumItems.Value;
                 }
-                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.NAME_KEY], v2[Consts.NAME_KEY]));
+                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.KEY_NAME], v2[Consts.KEY_NAME]));
                 CollectionUtils.AddAll(items, viewsList);
 
                 lock (_syncObj)
@@ -203,7 +203,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                     continue;
                   itemsList.Add(item);
                 }
-                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.NAME_KEY], i2[Consts.NAME_KEY]));
+                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_NAME], i2[Consts.KEY_NAME]));
                 CollectionUtils.AddAll(items, itemsList);
 
                 Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);

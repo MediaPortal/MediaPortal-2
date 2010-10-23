@@ -278,10 +278,10 @@
     <Compile Include="UPnP\UPnPDtMediaProviderMetadataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaProviderMetadata.cs" />
     <Compile Include="UPnP\UPnPDtResourcePathMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemAspects.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemAspectEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAttributeValues.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemQuery.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItems.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
     <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
     <Compile Include="UPnP\UPnPDtMLQueryResultGroupEnumeration.cs" />

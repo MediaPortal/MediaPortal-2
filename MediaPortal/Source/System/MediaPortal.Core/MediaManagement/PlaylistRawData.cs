@@ -116,10 +116,16 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("MediaItemIds", IsNullable = false)]
-    public List<Guid> XML_MediaItemIds
+    [XmlArray("MediaItemIds")]
+    [XmlArrayItem("Id")]
+    public Guid[] XML_MediaItemIds
     {
-      get { return new List<Guid>(_mediaItemIds); }
+      get
+      {
+        Guid[] result = new Guid[_mediaItemIds.Count];
+        _mediaItemIds.CopyTo(result, 0);
+        return result;
+      }
       set
       {
         _mediaItemIds.Clear();

@@ -29,8 +29,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MoviesShowItemsScreenData : AbstractShowMLItemsScreenData
   {
     public MoviesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.MOVIES_SHOW_ITEMS_SCREEN, Consts.SHOW_ALL_MOVIE_ITEMS_MENU_ITEM_RES,
-        Consts.FILTER_MOVIE_ITEMS_NAVBAR_DISPLAY_LABEL_RES, playableItemCreator, true)
+        base(Consts.SCREEN_MOVIES_SHOW_ITEMS, Consts.RES_SHOW_ALL_MOVIE_ITEMS_MENU_ITEM,
+        Consts.RES_FILTER_MOVIE_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
     }
 

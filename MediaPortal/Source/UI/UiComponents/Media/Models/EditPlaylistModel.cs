@@ -32,6 +32,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -45,12 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public const string MODEL_ID_STR = "0AFD5E3A-2CB6-44d6-827F-72A7193595E2";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    public const string EDIT_PLAYLIST_WORKFLOW_STATE_ID_STR = "078DCC03-AE75-4347-8C07-183605CDB1B7";
-    public static readonly Guid EDIT_PLAYLIST_WORKFLOW_STATE_ID = new Guid(EDIT_PLAYLIST_WORKFLOW_STATE_ID_STR);
-
-    public const string KEY_IS_DOWN_BUTTON_FOCUSED = "IsDownButtonFocused";
-    public const string KEY_IS_UP_BUTTON_FOCUSED = "IsUpButtonFocused";
 
     #endregion
 
@@ -113,7 +108,7 @@ namespace MediaPortal.UiComponents.Media.Models
             if (pc == null && sss.CurrentState == SystemState.Running)
             {
               IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-              workflowManager.NavigatePopToState(EDIT_PLAYLIST_WORKFLOW_STATE_ID, true);
+              workflowManager.NavigatePopToState(Consts.WF_STATE_ID_EDIT_PLAYLIST, true);
             }
             break;
         }
@@ -175,19 +170,19 @@ namespace MediaPortal.UiComponents.Media.Models
             MediaItem mediaItem = items[i];
             PlayableItem item = new PlayableItem(mediaItem);
   
-            item.SetLabel(KEY_NUMBERSTR, (i + 1) + ".");
-            item.AdditionalProperties[KEY_INDEX] = i;
+            item.SetLabel(Consts.KEY_NUMBERSTR, (i + 1) + ".");
+            item.AdditionalProperties[Consts.KEY_INDEX] = i;
 
-            item.AdditionalProperties[KEY_IS_DOWN_BUTTON_FOCUSED] = i == _focusedDownButton;
-            item.AdditionalProperties[KEY_IS_UP_BUTTON_FOCUSED] = i == _focusedUpButton;
-            item.AdditionalProperties[KEY_INDEX] = i;
+            item.AdditionalProperties[Consts.KEY_IS_DOWN_BUTTON_FOCUSED] = i == _focusedDownButton;
+            item.AdditionalProperties[Consts.KEY_IS_UP_BUTTON_FOCUSED] = i == _focusedUpButton;
+            item.AdditionalProperties[Consts.KEY_INDEX] = i;
             _items.Add(item);
           }
         }
         _focusedDownButton = -1;
         _focusedUpButton = -1;
         IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = General.Utils.BuildNumItemsStr(_items.Count, null);
+        NumItemsStr = Utils.BuildNumItemsStr(_items.Count, null);
       }
       _items.FireChange();
     }

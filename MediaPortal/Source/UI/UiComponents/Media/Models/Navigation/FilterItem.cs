@@ -39,9 +39,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
     public void UpdateData(string name, int? numItems)
     {
-      SetLabel(Consts.NAME_KEY, name);
+      SetLabel(Consts.KEY_NAME, name);
       if (numItems.HasValue)
-        SetLabel(Consts.NUM_ITEMS_KEY, "(" + numItems.Value + ")");
+        SetLabel(Consts.KEY_NUM_ITEMS, "(" + numItems.Value + ")");
     }
   }
 }

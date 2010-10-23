@@ -47,7 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isPipProperty;
 
-    public VideoPlayerModel() : base(Consts.CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID, Consts.FULLSCREEN_VIDEO_WORKFLOW_STATE_ID)
+    public VideoPlayerModel() : base(Consts.WF_STATE_ID_CURRENTLY_PLAYING_VIDEO, Consts.WF_STATE_ID_FULLSCREEN_VIDEO)
     {
       _isOSDVisibleProperty = new WProperty(typeof(bool), false);
       _pipWidthProperty = new WProperty(typeof(float), 0f);
@@ -64,7 +64,7 @@ namespace MediaPortal.UiComponents.Media.Models
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
 
-      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < Consts.VIDEO_INFO_TIMEOUT || _inactive;
+      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < Consts.TS_VIDEO_INFO_TIMEOUT || _inactive;
       IsPip = pipPlayer != null;
       PipHeight = Consts.DEFAULT_PIP_HEIGHT;
       PipWidth = pipPlayer == null ? Consts.DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;

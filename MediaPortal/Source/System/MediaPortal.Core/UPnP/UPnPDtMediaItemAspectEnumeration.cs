@@ -36,11 +36,11 @@ namespace MediaPortal.Core.UPnP
   /// <summary>
   /// Data type serializing and deserializing <see cref="MediaItemAspect"/> objects.
   /// </summary>
-  public class UPnPDtMediaItemAspects : UPnPExtendedDataType
+  public class UPnPDtMediaItemAspectEnumeration : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtMediaItemAspects";
+    public const string DATATYPE_NAME = "DtMediaItemAspectEnumeration";
 
-    internal UPnPDtMediaItemAspects() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMediaItemAspectEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 

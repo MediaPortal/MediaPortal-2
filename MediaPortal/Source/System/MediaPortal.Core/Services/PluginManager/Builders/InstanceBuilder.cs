@@ -34,7 +34,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
   /// The item registration has to provide the parameter "ClassName" which holds the fully
   /// qualified name of the class to instantiate:
   /// <example>
-  /// &lt;Instance ClassName="Foo"/&gt;
+  /// &lt;Instance ClassName="Foo.Bar"/&gt;
   /// </example>
   /// </remarks>
   public class InstanceBuilder : IPluginItemBuilder

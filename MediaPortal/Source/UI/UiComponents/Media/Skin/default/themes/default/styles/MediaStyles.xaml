@@ -582,4 +582,56 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
+  <Style x:Key="PlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
+  </Style>
+
 </ResourceDictionary>

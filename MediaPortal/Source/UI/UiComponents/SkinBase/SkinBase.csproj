@@ -89,7 +89,6 @@
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
     <Compile Include="SkinMessaging.cs" />
     <Compile Include="Models\TimeModel.cs" />
-    <Compile Include="Utils\Exceptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />

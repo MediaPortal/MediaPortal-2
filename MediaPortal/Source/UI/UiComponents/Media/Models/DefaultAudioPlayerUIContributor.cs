@@ -43,9 +43,9 @@ namespace MediaPortal.UiComponents.Media.Models
       get
       {
         if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
-          return Consts.CURRENTLY_PLAYING_AUDIO_SCREEN;
+          return Consts.SCREEN_CURRENTLY_PLAYING_AUDIO;
         if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
-          return Consts.FULLSCREEN_AUDIO_SCREEN;
+          return Consts.SCREEN_FULLSCREEN_AUDIO;
         return null;
       }
     }

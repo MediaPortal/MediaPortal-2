@@ -98,7 +98,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// </summary>
     /// <remarks>
     /// The current item can be retrieved with the <paramref name="relativeIndex"/> <c>0</c>, for the next item
-    /// use a <paramref name="relativeIndex"/> of <c>0</c>, for the last item use a <paramref name="relativeIndex"/>
+    /// use a <paramref name="relativeIndex"/> of <c>1</c>, for the last item use a <paramref name="relativeIndex"/>
     /// of <c>-1</c>, etc.
     /// This property heeds the <see cref="RepeatMode"/> property, i.e. it returns the playlist item which will be
     /// played at the <paramref name="relativeIndex"/>'th position.
@@ -109,7 +109,7 @@ namespace MediaPortal.UI.Presentation.Players
     MediaItem this[int relativeIndex] { get; }
 
     /// <summary>
-    /// Gets a value indicating whether all items have been played
+    /// Gets a value indicating whether all items have been played.
     /// </summary>
     /// <value><c>true</c> if all items have been played; otherwise, <c>false</c>.</value>
     bool AllPlayed { get; }
@@ -213,5 +213,17 @@ namespace MediaPortal.UI.Presentation.Players
     /// change events of type <see cref="PlaylistMessaging.MessageType.PlaylistUpdate"/>.
     /// </summary>
     void EndBatchUpdate();
+
+    /// <summary>
+    /// Exports the playlist raw data (i.e. the ids of the media items) to the given playlist <paramref name="data"/> structure.
+    /// </summary>
+    /// <param name="data">Data instance to export this playlist ids to.</param>
+    void ExportPlaylistRawData(PlaylistRawData data);
+
+    /// <summary>
+    /// Exports the playlist contents to the given playlist <paramref name="data"/> structure.
+    /// </summary>
+    /// <param name="data">Data instance to export this playlist contents to.</param>
+    void ExportPlaylistContents(PlaylistContents data);
   }
 }

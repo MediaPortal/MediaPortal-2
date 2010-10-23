@@ -34,7 +34,7 @@ namespace MediaPortal.UI.Services.Workflow
   /// The item registration has to provide the parameter "ClassName" which holds the fully
   /// qualified name of the class to instantiate:
   /// <example>
-  /// &lt;Model Id="{...}" ClassName="Foo"/&gt;
+  /// &lt;Model Id="{...}" ClassName="Foo.Bar"/&gt;
   /// </example>
   /// </remarks>
   public class ModelBuilder : InstanceBuilder

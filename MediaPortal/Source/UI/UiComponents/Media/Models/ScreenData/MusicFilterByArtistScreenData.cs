@@ -31,8 +31,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MusicFilterByArtistScreenData : AbstractMusicFilterScreenData
   {
     public MusicFilterByArtistScreenData() :
-        base(Consts.MUSIC_FILTER_BY_ARTIST_SCREEN, Consts.FILTER_BY_ARTIST_MENU_ITEM_RES,
-        Consts.FILTER_ARTIST_NAVBAR_DISPLAY_LABEL_RES, new SimpleMLFilterCriterion(AudioAspect.ATTR_ARTISTS))
+        base(Consts.SCREEN_MUSIC_FILTER_BY_ARTIST, Consts.RES_FILTER_BY_ARTIST_MENU_ITEM,
+        Consts.RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(AudioAspect.ATTR_ARTISTS))
     {
     }
 

@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public MoviesAction() :
-        base(true, Consts.MOVIES_NAVIGATION_ROOT_STATE, MOVIES_RESOURCE) { }
+        base(true, Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, MOVIES_RESOURCE) { }
   }
 }

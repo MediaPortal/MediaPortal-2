@@ -46,9 +46,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public void UpdateData(View view, string overrideName, int? absNumItems)
     {
       string name = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
-      SetLabel(Consts.NAME_KEY, name);
+      SetLabel(Consts.KEY_NAME, name);
       if (absNumItems.HasValue)
-        SetLabel(Consts.NUM_ITEMS_KEY, "(" + absNumItems.Value + ")");
+        SetLabel(Consts.KEY_NUM_ITEMS, "(" + absNumItems.Value + ")");
 
       // TODO: Other properties
     }

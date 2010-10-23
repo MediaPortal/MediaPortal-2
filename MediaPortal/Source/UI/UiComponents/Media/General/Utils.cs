@@ -31,14 +31,14 @@ namespace MediaPortal.UiComponents.Media.General
     public static string BuildNumItemsStr(int numItems, int? total)
     {
       if (numItems == 0)
-        return Consts.NO_ITEMS_RES;
+        return Consts.RES_NO_ITEMS;
       if (numItems == 1 && !total.HasValue)
-        return Consts.ONE_ITEM_RES;
+        return Consts.RES_ONE_ITEM;
       if (numItems == 1 && total.Value == 1)
-        return Consts.ONE_OF_ONE_ITEM_RES;
+        return Consts.RES_ONE_OF_ONE_ITEM;
       if (total.HasValue)
-        return LocalizationHelper.Translate(Consts.N_OF_M_ITEMS_RES, numItems, total.Value);
-      return LocalizationHelper.Translate(Consts.N_ITEMS_RES, numItems);
+        return LocalizationHelper.Translate(Consts.RES_N_OF_M_ITEMS, numItems, total.Value);
+      return LocalizationHelper.Translate(Consts.RES_N_ITEMS, numItems);
     }
   }
 }

@@ -37,10 +37,10 @@ namespace MediaPortal.Core.UPnP
     public static readonly UPnPExtendedDataType DtShareEnumeration = new UPnPDtShareEnumeration();
     public static readonly UPnPExtendedDataType DtMediaItemAspectMetadata = new UPnPDtMediaItemAspectMetadata();
     public static readonly UPnPExtendedDataType DtMediaItemQuery = new UPnPDtMediaItemQuery();
-    public static readonly UPnPExtendedDataType DtMediaItems = new UPnPDtMediaItems();
+    public static readonly UPnPExtendedDataType DtMediaItemEnumeration = new UPnPDtMediaItemEnumeration();
     public static readonly UPnPExtendedDataType DtMediaItemsFilter = new UPnPDtMediaItemsFilter();
     public static readonly UPnPExtendedDataType DtMediaItemAttributeValues = new UPnPDtMediaItemAttributeValues();
-    public static readonly UPnPExtendedDataType DtMediaItemAspects = new UPnPDtMediaItemAspects();
+    public static readonly UPnPExtendedDataType DtMediaItemAspectEnumeration = new UPnPDtMediaItemAspectEnumeration();
     public static readonly UPnPExtendedDataType DtResourcePathMetadata = new UPnPDtResourcePathMetadata();
     public static readonly UPnPExtendedDataType DtResourcePathMetadataEnumeration = new UPnPDtResourcePathMetadataEnumeration();
     public static readonly UPnPExtendedDataType DtMediaProviderMetadata = new UPnPDtMediaProviderMetadata();
@@ -59,10 +59,10 @@ namespace MediaPortal.Core.UPnP
       AddDataType(DtShareEnumeration);
       AddDataType(DtMediaItemAspectMetadata);
       AddDataType(DtMediaItemQuery);
-      AddDataType(DtMediaItems);
+      AddDataType(DtMediaItemEnumeration);
       AddDataType(DtMediaItemsFilter);
       AddDataType(DtMediaItemAttributeValues);
-      AddDataType(DtMediaItemAspects);
+      AddDataType(DtMediaItemAspectEnumeration);
       AddDataType(DtResourcePathMetadata);
       AddDataType(DtResourcePathMetadataEnumeration);
       AddDataType(DtMediaProviderMetadata);

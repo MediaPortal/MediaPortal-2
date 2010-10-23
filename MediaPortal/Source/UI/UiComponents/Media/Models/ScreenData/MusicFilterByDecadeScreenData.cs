@@ -30,8 +30,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MusicFilterByDecadeScreenData : AbstractMusicFilterScreenData
   {
     public MusicFilterByDecadeScreenData() :
-        base(Consts.MUSIC_FILTER_BY_DECADE_SCREEN, Consts.FILTER_BY_DECADE_MENU_ITEM_RES,
-        Consts.FILTER_DECADE_NAVBAR_DISPLAY_LABEL_RES, new FilterByDecadeCriterion())
+        base(Consts.SCREEN_MUSIC_FILTER_BY_DECADE, Consts.RES_FILTER_BY_DECADE_MENU_ITEM,
+        Consts.RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL, new FilterByDecadeCriterion())
     {
     }
 

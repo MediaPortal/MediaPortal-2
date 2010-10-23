@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities;
@@ -338,6 +339,8 @@ namespace MediaPortal.UI.Services.Players
     {
       lock (_syncObj)
       {
+        if (index1 == index2)
+          return;
         if (index1 < 0 || index1 >= _itemList.Count || index2 < 0 || index2 >= _itemList.Count)
           return;
         CollectionUtils.Swap(_itemList, index1, index2);
@@ -425,6 +428,22 @@ namespace MediaPortal.UI.Services.Players
           _inBatchUpdate--;
         else
           throw new IllegalCallException("The playlist is currently not in batch update mode");
+    }
+
+    public void ExportPlaylistRawData(PlaylistRawData data)
+    {
+      IList<Guid> idList = data.MediaItemIds;
+      idList.Clear();
+      lock (_syncObj)
+        CollectionUtils.AddAll(idList, _itemList.Select(item => item.MediaItemId));
+    }
+
+    public void ExportPlaylistContents(PlaylistContents data)
+    {
+      IList<MediaItem> items = data.ItemList;
+      items.Clear();
+      lock (_syncObj)
+        CollectionUtils.AddAll(items, _itemList);
     }
 
     #endregion

@@ -51,12 +51,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     public override string MoreThanMaxItemsHint
     {
-      get { return LocalizationHelper.Translate(Consts.MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT_RES, Consts.MAX_NUM_ITEMS_VISIBLE); }
+      get { return LocalizationHelper.Translate(Consts.RES_MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT, Consts.MAX_NUM_ITEMS_VISIBLE); }
     }
 
     public override string ListBeingBuiltHint
     {
-      get { return Consts.SEARCH_RESULT_BEING_BUILT_HINT_RES; }
+      get { return Consts.RES_SEARCH_RESULT_BEING_BUILT_HINT; }
     }
 
     public override void  CreateScreenData(NavigationData navigationData)
@@ -97,7 +97,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     void OnSimpleSearchTextChanged(AbstractProperty prop, object oldValue)
     {
-      _searchTimer.Change(Consts.SEARCH_TEXT_TYPE_TIMESPAN, Consts.INFINITE_TIMESPAN);
+      _searchTimer.Change(Consts.TS_SEARCH_TEXT_TYPE, Consts.TS_INFINITE);
     }
 
     void OnSearchTimerElapsed(object sender)
@@ -118,7 +118,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     protected View BuildAllItemsView()
     {
-      return new SimpleTextSearchViewSpecification(Consts.SIMPLE_SEARCH_VIEW_NAME_RESOURCE, SimpleSearchText,
+      return new SimpleTextSearchViewSpecification(Consts.RES_SIMPLE_SEARCH_VIEW_NAME, SimpleSearchText,
           _baseViewSpecification.Filter, _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds,
           true, true).BuildView();
     }
@@ -143,7 +143,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       lock (_syncObj)
         _view = null;
       _items = new ItemsList();
-      _searchTimer = new Timer(OnSearchTimerElapsed, null, Consts.SEARCH_TEXT_TYPE_TIMESPAN, Consts.INFINITE_TIMESPAN);
+      _searchTimer = new Timer(OnSearchTimerElapsed, null, Consts.TS_SEARCH_TEXT_TYPE, Consts.TS_INFINITE);
     }
 
     protected void StopSearch()

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Manage playlists model -->
+    <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.SavePlaylistEditNameHeader]"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Client_Element">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="120"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[Media.EditNameOfPlaylist]" Wrap="True"/>
+        <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{ThemeResource TextBoxStyle}"
+            Text="{Binding Path=PlaylistName,Mode=TwoWay}" PreferredTextLength="30"/>
+        <!-- Row 3 contains error message - not necessary here -->
+        <Grid Grid.Row="5" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Finish]" IsEnabled="{Binding IsPlaylistNameValid}"
+              Command="{Command SavePlaylistAndFinish}"/>
+        </Grid>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

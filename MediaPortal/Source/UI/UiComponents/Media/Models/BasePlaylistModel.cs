@@ -26,6 +26,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -34,17 +35,6 @@ namespace MediaPortal.UiComponents.Media.Models
   /// </summary>
   public abstract class BasePlaylistModel
   {
-    #region Consts
-
-    public const string AUDIO_PLAYLIST_RES = "[Media.AudioPlaylist]";
-    public const string VIDEO_PLAYLIST_RES = "[Media.VideoPlaylist]";
-    public const string PIP_PLAYLIST_RES = "[Media.PiPPlaylist]";
-
-    public const string KEY_NUMBERSTR = "NumberStr";
-    public const string KEY_INDEX = "Playlist-Index";
-
-    #endregion
-
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -113,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (item == null)
         return false;
       object oIndex;
-      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
+      if (item.AdditionalProperties.TryGetValue(Consts.KEY_INDEX, out oIndex))
       {
         int? i = oIndex as int?;
         if (i.HasValue)
@@ -135,11 +125,11 @@ namespace MediaPortal.UiComponents.Media.Models
       switch (avType.Value)
       {
         case AVType.Audio:
-          PlaylistHeader = AUDIO_PLAYLIST_RES;
+          PlaylistHeader = Consts.RES_AUDIO_PLAYLIST;
           break;
         case AVType.Video:
           PlaylistHeader = slotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-              VIDEO_PLAYLIST_RES : PIP_PLAYLIST_RES;
+              Consts.RES_VIDEO_PLAYLIST : Consts.RES_PIP_PLAYLIST;
           break;
         default:
           // Unknown player context type

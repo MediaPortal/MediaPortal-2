@@ -7,10 +7,10 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.SharesOverview]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.PlaylistsOverviewHeader]"/>
 
-    <!-- Shares configuration model -->
-    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+    <!-- Manage playlists model -->
+    <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
@@ -23,13 +23,17 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Margin="10" Content="[SharesConfig.GlobalShares]"/>
+          <Label Grid.Row="0" Margin="10" Content="[Media.GlobalPlaylists]"/>
           <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SharesListViewStyle}"
+              Style="{ThemeResource PlaylistsListViewStyle}"
               IsVisible="{Binding IsHomeServerConnected}"
-              ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
+              ItemsSource="{Binding Path=ServerPlaylists,Mode=OneTime}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
-              Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
+              Content="[Media.NoConfigGlobalPlaylistsHomeServerNotConnectedText]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </Grid>
         <Grid Margin="0,0,0,10">
@@ -40,14 +44,14 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Margin="10" Grid.Row="0" Content="[SharesConfig.LocalShares]"/>
+          <Label Margin="10" Grid.Row="0" Content="[Media.LocalPlaylists]"/>
           <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SharesListViewStyle}"
-              IsVisible="{Binding ShowLocalShares}"
-              ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
-          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !ShowLocalShares}"
-              Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
-              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+              Style="{ThemeResource PlaylistsListViewStyle}"
+              ItemsSource="{Binding Path=LocalPlaylists,Mode=OneTime}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
         </Grid>
       </UniformGrid>
     </ResourceWrapper>

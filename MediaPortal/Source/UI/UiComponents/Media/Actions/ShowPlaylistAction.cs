@@ -31,16 +31,16 @@ using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class PlaylistAction : IWorkflowContributor
+  public class ShowPlaylistAction : IWorkflowContributor
   {
     #region Consts
 
     public const string SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR = "95E38A80-234C-4494-9F7A-006D8E4D6FDA";
     public static readonly Guid SHOW_PLAYLIST_WORKFLOW_STATE_ID = new Guid(SHOW_PLAYLIST_WORKFLOW_STATE_ID_STR);
 
-    public const string SHOW_AUDIO_PLAYLIST_RES = "[Media.ShowAudioPlaylist]";
-    public const string SHOW_VIDEO_PLAYLIST_RES = "[Media.ShowVideoPlaylist]";
-    public const string SHOW_PIP_PLAYLIST_RES = "[Media.ShowPiPPlaylist]";
+    public const string SHOW_AUDIO_PLAYLIST_RES = "[Media.ShowAudioPlaylistAction]";
+    public const string SHOW_VIDEO_PLAYLIST_RES = "[Media.ShowVideoPlaylistAction]";
+    public const string SHOW_PIP_PLAYLIST_RES = "[Media.ShowPiPPlaylistAction]";
 
     #endregion
 
@@ -54,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     #endregion
 
-    public PlaylistAction()
+    public ShowPlaylistAction()
     {
       Update();
     }

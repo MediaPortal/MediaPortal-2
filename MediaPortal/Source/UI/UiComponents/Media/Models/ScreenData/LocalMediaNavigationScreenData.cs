@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class LocalMediaNavigationScreenData : AbstractItemsScreenData
   {
     public LocalMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.LOCAL_MEDIA_NAVIGATION_SCREEN, null, Consts.LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL_RES,
+        base(Consts.SCREEN_LOCAL_MEDIA_NAVIGATION, null, Consts.RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
         playableItemCreator, true) { }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()

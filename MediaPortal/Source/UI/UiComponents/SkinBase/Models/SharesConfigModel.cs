@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
@@ -38,7 +39,6 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
-using MediaPortal.UiComponents.SkinBase.Utils;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     #region Enums
 
-    public enum ShareType
+    public enum ShareOrigin
     {
       Local,
       Server,
@@ -170,7 +170,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       messageQueue.Shutdown();
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
@@ -358,7 +358,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ServerShares.RemoveShares(GetSelectedServerShares());
         NavigateBackToOverview();
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -386,7 +386,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             // Fallback: Simple TextBox path editor screen
           workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID);
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -414,7 +414,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         else
           throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _shareProxy.EditMode));
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -438,12 +438,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
     }
 
+    // Currently not used; the shares edit workflow is started from the shares info screen calling EditCurrentShare.
     public void EditSelectedShare()
     {
       try
@@ -464,7 +465,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -476,7 +477,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         _shareProxy.ReImportShare();
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -521,7 +522,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected void UpdateIsSharesSelected()
     {
-      IsSharesSelected = GetSelectedLocalShares().GetEnumerator().MoveNext() || GetSelectedServerShares().GetEnumerator().MoveNext();
+      IsSharesSelected = GetSelectedLocalShares().Count > 0 || GetSelectedServerShares().Count > 0;
     }
 
     protected void UpdateSystemsList()
@@ -561,34 +562,30 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _updatingProperties = true;
         if (create)
           _localSharesList = new ItemsList();
-        else
-          _localSharesList.Clear();
         if (create)
           _serverSharesList = new ItemsList();
-        else
-          _serverSharesList.Clear();
       }
       try
       {
-        try
-        {
-          List<Share> localShareDescriptors = new List<Share>(LocalShares.GetShares());
-          List<Share> serverShareDescriptors = IsHomeServerConnected ?
-              new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
-          int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
-          UpdateSharesList(_localSharesList, localShareDescriptors, ShareType.Local, numShares == 1);
-          if (IsHomeServerConnected)
-            // If our home server is not connected, don't try to update its list of shares
-            UpdateSharesList(_serverSharesList, serverShareDescriptors, ShareType.Server, numShares == 1);
-          ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
-          IsSharesSelected = numShares == 1;
-        }
-        catch (DisconnectedException)
-        {
-          IsSharesSelected = false;
-          ShowLocalShares = false;
-          DisconnectedError();
-        }
+        List<Share> localShareDescriptors = new List<Share>(LocalShares.GetShares());
+        List<Share> serverShareDescriptors = IsHomeServerConnected ?
+            new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
+        int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
+        UpdateSharesList(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
+        if (IsHomeServerConnected)
+          // If our home server is not connected, don't try to update its list of shares
+          try
+          {
+            UpdateSharesList(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
+          }
+          catch (NotConnectedException)
+          {
+            _serverSharesList.Clear();
+            _serverSharesList.FireChange();
+            numShares = localShareDescriptors.Count;
+          }
+        ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
+        IsSharesSelected = numShares == 1;
         bool anySharesAvailable;
         lock (_syncObj)
           anySharesAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
@@ -601,9 +598,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateSharesList(ItemsList list, List<Share> shareDescriptors, ShareType type, bool selectFirstShare)
+    protected void UpdateSharesList(ItemsList list, List<Share> shareDescriptors, ShareOrigin origin, bool selectFirstItem)
     {
-      bool selectShare = selectFirstShare;
+      list.Clear();
+      bool selectShare = selectFirstItem;
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
       foreach (Share share in shareDescriptors)
       {
@@ -611,7 +609,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         shareItem.AdditionalProperties[SHARE_KEY] = share;
         try
         {
-          string path = type == ShareType.Local ?
+          string path = origin == ShareOrigin.Local ?
               LocalShares.GetLocalResourcePathDisplayName(share.BaseResourcePath) :
               ServerShares.GetServerResourcePathDisplayName(share.BaseResourcePath);
           if (string.IsNullOrEmpty(path))
@@ -621,7 +619,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           Guid? firstMediaProviderId = SharesProxy.GetBaseMediaProviderId(share.BaseResourcePath);
           if (firstMediaProviderId.HasValue)
           {
-            MediaProviderMetadata firstMediaProviderMetadata = type == ShareType.Local ?
+            MediaProviderMetadata firstMediaProviderMetadata = origin == ShareOrigin.Local ?
                 LocalShares.GetLocalMediaProviderMetadata(firstMediaProviderId.Value) :
                 ServerShares.GetServerMediaProviderMetadata(firstMediaProviderId.Value);
             shareItem.AdditionalProperties[MEDIA_PROVIDER_METADATA_KEY] = firstMediaProviderMetadata;
@@ -629,9 +627,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           string categories = StringUtils.Join(", ", share.MediaCategories);
           shareItem.SetLabel(SHARE_CATEGORIES_KEY, categories);
           Share shareCopy = share;
-          shareItem.Command = new MethodDelegateCommand(() => ShowShareInfo(shareCopy, type));
+          shareItem.Command = new MethodDelegateCommand(() => ShowShareInfo(shareCopy, origin));
         }
-        catch (DisconnectedException)
+        catch (NotConnectedException)
         {
           throw;
         }
@@ -651,14 +649,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       list.FireChange();
     }
 
-    protected void ShowShareInfo(Share share, ShareType type)
+    protected void ShowShareInfo(Share share, ShareOrigin origin)
     {
       if (share == null)
         return;
-      if (type == ShareType.Local)
+      if (origin == ShareOrigin.Local)
         lock (_syncObj)
           _shareProxy = new LocalShares(share);
-      else if (type == ShareType.Server)
+      else if (origin == ShareOrigin.Server)
         lock (_syncObj)
           _shareProxy = new ServerShares(share);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -672,7 +670,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _shareProxy.UpdateShare(relocationMode);
         NavigateBackToOverview();
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -757,7 +755,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _shareProxy.UpdateMediaCategoriesList();
         }
       }
-      catch (DisconnectedException)
+      catch (NotConnectedException)
       {
         DisconnectedError();
       }
@@ -776,10 +774,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected void DisconnectedError()
     {
-      // TODO: Tell the user that the server was disconnected and the current action cannot be completed.
-      // This method should leave the all ongoing configuration tasks and go back to the shares overview.
-      // Be careful: This method is also called inside of method PrepareState, which is indirectly called from
-      // the workflow manager itself (so don't simply call NavigatePush() at the workflow manager from here).
+      // Called when a remote call crashes because the server was disconnected. We don't do anything here because
+      // we automatically move to the overview state in the OnMessageReceived method when the server disconnects.
     }
 
     #endregion

@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public LocalMediaAction() :
-        base(false, Consts.LOCAL_MEDIA_NAVIGATION_ROOT_STATE, LOCAL_MEDIA_RESOURCE) { }
+        base(false, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, LOCAL_MEDIA_RESOURCE) { }
   }
 }

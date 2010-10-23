@@ -163,7 +163,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddStateVariable(A_ARG_TYPE_CapitalizationMode);
 
       // Used to transport a collection of media items with some media item aspects
-      DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItems))
+      DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemEnumeration))
         {
             SendEvents = false,
         };
@@ -184,7 +184,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddStateVariable(A_ARG_TYPE_MediaItemAttributeValues);
 
       // Used to transport an enumeration of media item aspects for a media item specified elsewhere
-      DvStateVariable A_ARG_TYPE_MediaItemAspects = new DvStateVariable("A_ARG_TYPE_MediaItemAspects", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspects))
+      DvStateVariable A_ARG_TYPE_MediaItemAspects = new DvStateVariable("A_ARG_TYPE_MediaItemAspects", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspectEnumeration))
         {
             SendEvents = false,
         };
@@ -427,7 +427,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("PlaylistRawData", A_ARG_TYPE_PlaylistRawData, ArgumentDirection.In)
           },
           new DvArgument[] {
-            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(savePlaylistAction);
 
@@ -467,7 +466,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("PlaylistContents", A_ARG_TYPE_PlaylistContents, ArgumentDirection.Out, true)
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
           });
       AddAction(loadCustomPlaylistAction);
 

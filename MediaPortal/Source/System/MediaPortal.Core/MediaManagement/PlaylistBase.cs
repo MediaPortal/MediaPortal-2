@@ -43,18 +43,38 @@ namespace MediaPortal.Core.MediaManagement
       _playlistType = playlistType;
     }
 
+    /// <summary>
+    /// Gets this playlist's id.
+    /// </summary>
+    /// <remarks>
+    /// The id is unique among all playlists.
+    /// </remarks>
     [XmlIgnore]
     public Guid PlaylistId
     {
       get { return _playlistId; }
     }
 
+    /// <summary>
+    /// Gets or sets this playlist's name.
+    /// </summary>
+    /// <remarks>
+    /// The name should be a human readable name for this playlist. The name doesn't need to be unique.
+    /// </remarks>
     [XmlIgnore]
     public string Name
     {
       get { return _name; }
+      set { _name = value; }
     }
 
+    /// <summary>
+    /// Gets this playlist's type.
+    /// </summary>
+    /// <remarks>
+    /// The playlist type can be used to define the type(s) of media items contained in this playlist. The string is an
+    /// application defined string which doesn't need to be in a special format.
+    /// </remarks>
     [XmlIgnore]
     public string PlaylistType
     {

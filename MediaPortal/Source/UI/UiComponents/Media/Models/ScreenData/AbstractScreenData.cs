@@ -80,7 +80,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// </summary>
     public virtual string MoreThanMaxItemsHint
     {
-      get { return LocalizationHelper.Translate(Consts.MORE_THAN_MAX_ITEMS_HINT_RES, Consts.MAX_NUM_ITEMS_VISIBLE); }
+      get { return LocalizationHelper.Translate(Consts.RES_MORE_THAN_MAX_ITEMS_HINT, Consts.MAX_NUM_ITEMS_VISIBLE); }
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// </summary>
     public virtual string ListBeingBuiltHint
     {
-      get { return Consts.LIST_BEING_BUILT_HINT_RES; }
+      get { return Consts.RES_LIST_BEING_BUILT_HINT; }
     }
 
     #region Lazy initialized properties
@@ -278,7 +278,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (numItems == 0)
       {
         IsItemsEmpty = true;
-        ListHint = Consts.VIEW_EMPTY_RES;
+        ListHint = Consts.RES_VIEW_EMPTY;
         ShowListHint = true;
       }
       else

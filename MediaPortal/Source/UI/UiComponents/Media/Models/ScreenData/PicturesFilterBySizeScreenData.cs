@@ -30,8 +30,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class PicturesFilterBySizeScreenData : AbstractPicturesFilterScreenData
   {
     public PicturesFilterBySizeScreenData() :
-        base(Consts.PICTURES_FILTER_BY_SIZE_SCREEN, Consts.FILTER_BY_PICTURE_SIZE_MENU_ITEM_RES,
-        Consts.FILTER_PICTURE_SIZE_NAVBAR_DISPLAY_LABEL_RES, new FilterByPictureSizeCriterion())
+        base(Consts.SCREEN_PICTURES_FILTER_BY_SIZE, Consts.RES_FILTER_BY_PICTURE_SIZE_MENU_ITEM,
+        Consts.RES_FILTER_PICTURE_SIZE_NAVBAR_DISPLAY_LABEL, new FilterByPictureSizeCriterion())
     {
     }
 

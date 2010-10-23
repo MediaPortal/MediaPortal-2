@@ -175,7 +175,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-              {Consts.NAVIGATION_DATA_KEY, newNavigationData}
+              {Consts.KEY_NAVIGATION_DATA, newNavigationData}
             },
           NavigationContextDisplayLabel = navbarDisplayLabel
         });
@@ -201,7 +201,7 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           AdditionalContextVariables = new Dictionary<string, object>
             {
-              {Consts.NAVIGATION_DATA_KEY, newNavigationData}
+              {Consts.KEY_NAVIGATION_DATA, newNavigationData}
             },
           NavigationContextDisplayLabel = navbarDisplayLabel
         });

@@ -61,9 +61,9 @@ namespace MediaPortal.Core.UPnP
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable clientData = (IEnumerable) value;
-      foreach (PlaylistIdentificationData metadata in clientData)
-        metadata.Serialize(writer);
+      IEnumerable pidEnumeration = (IEnumerable) value;
+      foreach (PlaylistIdentificationData pid in pidEnumeration)
+        pid.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)

@@ -132,10 +132,16 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("ItemList", IsNullable = false)]
-    public List<MediaItem> XML_ItemList
+    [XmlArray("MediaItems")]
+    [XmlArrayItem("Item")]
+    public MediaItem[] XML_ItemList
     {
-      get { return new List<MediaItem>(_itemList); }
+      get
+      {
+        MediaItem[] result = new MediaItem[_itemList.Count];
+        _itemList.CopyTo(result, 0);
+        return result;
+      }
       set { SetItems(value); }
     }
 

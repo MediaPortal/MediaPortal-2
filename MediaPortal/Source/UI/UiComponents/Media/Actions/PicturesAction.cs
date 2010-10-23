@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public PicturesAction() :
-        base(true, Consts.PICTURES_NAVIGATION_ROOT_STATE, PICTURES_RESOURCE) { }
+        base(true, Consts.WF_STATE_ID_PICTURES_NAVIGATION_ROOT, PICTURES_RESOURCE) { }
   }
 }

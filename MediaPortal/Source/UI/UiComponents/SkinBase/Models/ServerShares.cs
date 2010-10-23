@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UiComponents.SkinBase.Utils;
 using RelocationMode=MediaPortal.Core.MediaManagement.RelocationMode;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IContentDirectory contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (contentDirectory != null)
         return contentDirectory;
-      throw new DisconnectedException();
+      throw new NotConnectedException();
     }
 
     protected static IResourceInformationService GetResourceInformationService()
@@ -77,7 +77,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IResourceInformationService ris = ServiceRegistration.Get<IServerConnectionManager>().ResourceInformationService;
       if (ris != null)
         return ris;
-      throw new DisconnectedException();
+      throw new NotConnectedException();
     }
 
     public static IEnumerable<Share> GetShares()
@@ -93,7 +93,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (contentDirectory == null)
       {
         if (new List<Share>(shares).Count > 0)
-          throw new DisconnectedException();
+          throw new NotConnectedException();
         return;
       }
       foreach (Share share in shares)

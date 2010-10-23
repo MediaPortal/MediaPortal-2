@@ -30,8 +30,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MoviesFilterByYearScreenData : AbstractMoviesFilterScreenData
   {
     public MoviesFilterByYearScreenData() :
-        base(Consts.MOVIES_FILTER_BY_YEAR_SCREEN, Consts.FILTER_BY_MOVIE_YEAR_MENU_ITEM_RES,
-        Consts.FILTER_MOVIE_YEAR_NAVBAR_DISPLAY_LABEL_RES, new FilterByYearCriterion())
+        base(Consts.SCREEN_MOVIES_FILTER_BY_YEAR, Consts.RES_FILTER_BY_MOVIE_YEAR_MENU_ITEM,
+        Consts.RES_FILTER_MOVIE_YEAR_NAVBAR_DISPLAY_LABEL, new FilterByYearCriterion())
     {
     }
 

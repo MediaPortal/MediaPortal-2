@@ -30,8 +30,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MoviesFilterBySystemScreenData : AbstractMoviesFilterScreenData
   {
     public MoviesFilterBySystemScreenData() :
-        base(Consts.MOVIES_FILTER_BY_SYSTEM_SCREEN, Consts.FILTER_BY_SYSTEM_MENU_ITEM_RES,
-        Consts.FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL_RES, new FilterBySystemCriterion())
+        base(Consts.SCREEN_MOVIES_FILTER_BY_SYSTEM, Consts.RES_FILTER_BY_SYSTEM_MENU_ITEM,
+        Consts.RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL, new FilterBySystemCriterion())
     {
     }
 

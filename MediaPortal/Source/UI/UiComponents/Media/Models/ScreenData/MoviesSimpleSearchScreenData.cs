@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class MoviesSimpleSearchScreenData : AbstractSearchScreenData
   {
     public MoviesSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.MOVIES_SIMPLE_SEARCH_SCREEN, Consts.SIMPLE_SEARCH_FILTER_MENU_ITEM_RES, playableItemCreator)
+        base(Consts.SCREEN_MOVIES_SIMPLE_SEARCH, Consts.RES_SIMPLE_SEARCH_FILTER_MENU_ITEM, playableItemCreator)
     {
     }
 

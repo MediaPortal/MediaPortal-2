@@ -346,10 +346,14 @@ namespace MediaPortal.Utilities
     public static ICollection<IList<T>> Cluster<T>(IEnumerable<T> enumeration, int clusterSize)
     {
       List<T> elements = new List<T>(enumeration);
-      int clusterCount = (elements.Count - 1) / clusterSize + 1;
+      int remaining = elements.Count;
+      int clusterCount = (remaining - 1) / clusterSize + 1;
       ICollection<IList<T>> result = new List<IList<T>>(clusterCount);
       for (int i = 0; i < clusterCount; i++)
-        result.Add(elements.GetRange(i * clusterSize, clusterSize));
+      {
+        result.Add(elements.GetRange(i*clusterSize, Math.Min(clusterSize, remaining)));
+        remaining -= clusterSize;
+      }
       return result;
     }
 

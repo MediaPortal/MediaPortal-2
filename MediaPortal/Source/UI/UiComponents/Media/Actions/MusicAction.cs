@@ -40,6 +40,6 @@ namespace MediaPortal.UiComponents.Media.Actions
     #endregion
 
     public MusicAction() :
-        base(true, Consts.MUSIC_NAVIGATION_ROOT_STATE, MUSIC_RESOURCE) { }
+        base(true, Consts.WF_STATE_ID_MUSIC_NAVIGATION_ROOT, MUSIC_RESOURCE) { }
   }
 }
