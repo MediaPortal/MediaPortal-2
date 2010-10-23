@@ -65,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _thumbnailProperty;
     protected ImageSource _imageSource = null;
     protected bool _imageSourceInvalid = true;
+    protected string _warnURI = null;
 
     #endregion
 
@@ -229,14 +230,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
-          if (uriSource.ToLower().EndsWith(".png") || uriSource.ToLower().EndsWith(".png"))
+          if (uriSource.ToLower().EndsWith(".png") || uriSource.ToLower().EndsWith(".bmp"))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             result = bmi;
           }
           // TODO: More image types
           else
-            ServiceRegistration.Get<ILogger>().Warn("Image source '{0}' is not supported", uriSource);
+          {
+            if (_warnURI != uriSource)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("Image source '{0}' is not supported", uriSource);
+              // Remember if we already wrote a warning to the log to avoid log flooding
+              _warnURI = uriSource;
+            }
+          }
         }
       }
       if (result != null && !result.IsAllocated)
