@@ -39,6 +39,7 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
     public const string DATABASE_VERSION = "3.5.1.0";
     public const int MAX_NUM_CHARS_CHAR_VARCHAR = 4000;
     public const int LOCK_TIMEOUT = 30000; // Time in ms the database will wait for a lock
+    public const int MAX_BUFFER_SIZE = 2048;
 
     public const string DEFAULT_DATABASE_FILE = "Datastore.sdf";
 
@@ -52,7 +53,7 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
         string dataDirectory = pathManager.GetPath("<DATA>");
         string databaseFile = Path.Combine(dataDirectory, DEFAULT_DATABASE_FILE);
 
-        _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT;
+        _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT + "; Max Buffer Size = " + MAX_BUFFER_SIZE;
         SqlCeEngine engine = new SqlCeEngine(_connectionString);
         if (!File.Exists(databaseFile))
         {
