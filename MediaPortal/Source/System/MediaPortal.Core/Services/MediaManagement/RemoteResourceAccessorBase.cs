@@ -36,18 +36,16 @@ namespace MediaPortal.Core.Services.MediaManagement
   public abstract class RemoteResourceAccessorBase : IResourceAccessor
   {
     protected object _syncObj = new object();
-    protected SystemName _nativeSystem;
-    protected ResourcePath _nativeResourcePath;
+    protected IResourceLocator _resourceLocator;
     protected bool _isFile;
     protected string _resourcePathName;
     protected string _resourceName;
     protected Stream _underlayingStream = null; // Lazy initialized
 
-    protected RemoteResourceAccessorBase(SystemName nativeSystem, ResourcePath nativeResourcePath,
+    protected RemoteResourceAccessorBase(IResourceLocator resourceLocator,
         bool isFile, string resourcePathName, string resourceName)
     {
-      _nativeSystem = nativeSystem;
-      _nativeResourcePath = nativeResourcePath;
+      _resourceLocator = resourceLocator;
       _isFile = isFile;
       _resourcePathName = resourcePathName;
       _resourceName = resourceName;
@@ -65,7 +63,12 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public SystemName NativeSystem
     {
-      get { return _nativeSystem; }
+      get { return _resourceLocator.NativeSystem; }
+    }
+
+    public IResourceLocator ResourceLocator
+    {
+      get { return _resourceLocator; }
     }
 
     public abstract long Size { get; }
@@ -94,7 +97,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public ResourcePath LocalResourcePath
     {
-      get { return _nativeResourcePath; }
+      get { return _resourceLocator.NativeResourcePath; }
     }
 
     public abstract DateTime LastChanged { get; }
@@ -106,7 +109,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (_underlayingStream == null)
       {
         rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-        resourceURL = rris.GetFileHttpUrl(_nativeSystem, _nativeResourcePath);
+        resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath);
       }
       lock (_syncObj)
         if (_underlayingStream == null)
@@ -134,7 +137,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override string ToString()
     {
-      return string.Format("Remote resource accessor at system {0}, path='{1}", _nativeSystem, _nativeResourcePath);
+      return string.Format("Remote resource accessor for '{0}'", _resourceLocator);
     }
 
     #endregion

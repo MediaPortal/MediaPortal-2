@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
@@ -113,7 +114,8 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <summary>
     /// Returns a resource locator instance for the specified media <paramref name="item"/>.
     /// </summary>
-    /// <param name="item">Media item to return a locator.</param>
+    /// <param name="item">Media item to return a locator. That media item must have the <see cref="ProviderResourceAspect"/>
+    /// filled out.</param>
     /// <returns>Resource locator instance or <c>null</c>, if the item is invalid.</returns>
     IResourceLocator GetResourceLocator(MediaItem item);
   }

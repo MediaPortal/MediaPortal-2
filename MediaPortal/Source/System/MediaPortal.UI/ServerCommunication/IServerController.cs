@@ -29,7 +29,7 @@ using MediaPortal.Core.General;
 namespace MediaPortal.UI.ServerCommunication
 {
   /// <summary>
-  /// Interface of the MediaPortal 2 server's ServerController service. This interface is implemented by the
+  /// Interface of the MediaPortal 2 server's ServerController service. This service is implemented by the
   /// MediaPortal 2 server.
   /// </summary>
   public interface IServerController

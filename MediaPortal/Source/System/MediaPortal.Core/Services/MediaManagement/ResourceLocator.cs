@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -42,6 +43,15 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       _nativeSystem = system;
       _nativeResourcePath = nativeResourcePath;
+    }
+
+    public ResourceLocator CreateResourceLocator(string systemId, ResourcePath nativeResourcePath)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      SystemName system = systemResolver.GetSystemNameForSystemId(systemId);
+      if (system == null)
+        return null;
+      return new ResourceLocator(system, nativeResourcePath);
     }
 
     public SystemName NativeSystem
@@ -65,7 +75,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystem, _nativeResourcePath, out fsra))
         return fsra;
       IResourceAccessor ra;
-      if (RemoteFileResourceAccessor.ConnectFile(_nativeSystem, _nativeResourcePath, out ra))
+      if (RemoteFileResourceAccessor.ConnectFile(this, out ra))
         return ra;
       throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at host '{1}'", _nativeResourcePath, _nativeSystem);
     }

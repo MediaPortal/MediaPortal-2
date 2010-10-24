@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -33,15 +32,15 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected DateTime _lastChanged;
     protected long _size;
 
-    protected RemoteFileResourceAccessor(SystemName nativeSystem, ResourcePath nativeResourcePath,
+    protected RemoteFileResourceAccessor(IResourceLocator resourceLocator,
         string resourcePathName, string resourceName, DateTime lastChanged, long size) :
-        base(nativeSystem, nativeResourcePath, true, resourcePathName, resourceName)
+        base(resourceLocator, true, resourcePathName, resourceName)
     {
       _lastChanged = lastChanged;
       _size = size;
     }
 
-    public static bool ConnectFile(SystemName nativeSystem, ResourcePath nativeResourcePath, out IResourceAccessor result)
+    public static bool ConnectFile(IResourceLocator resourceLocator, out IResourceAccessor result)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       result = null;
@@ -51,10 +50,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceName;
       DateTime lastChanged;
       long size;
-      if (!rris.GetResourceInformation(nativeSystem, nativeResourcePath, out isFileSystemResource, out isFile,
-          out resourcePathName, out resourceName, out lastChanged, out size) || !isFile)
+      if (!rris.GetResourceInformation(resourceLocator.NativeSystem, resourceLocator.NativeResourcePath,
+          out isFileSystemResource, out isFile, out resourcePathName, out resourceName, out lastChanged, out size) ||
+          !isFile)
         return false;
-      result = new RemoteFileResourceAccessor(nativeSystem, nativeResourcePath,
+      result = new RemoteFileResourceAccessor(resourceLocator,
           resourcePathName, resourceName, lastChanged, size);
       return true;
     }
