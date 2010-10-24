@@ -105,6 +105,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     public static Guid MEDIASUBTYPE_MPEG2_AUDIO = new Guid("e06d802b-db46-11cf-b4d1-00805f6cbbea");
     public static Guid MEDIASUBTYPE_LATM_AAC_AUDIO = new Guid("000001ff-0000-0010-8000-00aa00389b71");
     public static Guid MEDIASUBTYPE_AAC_AUDIO = new Guid("000000ff-0000-0010-8000-00aa00389b71");
+    public static Guid MEDIASUBTYPE_AVC = new Guid("31435641-0000-0010-8000-00AA00389B71");
+    public static Guid MEDIASUBTYPE_HDMV_SUBTITLE = new Guid("04EBA53E-9330-436C-9133-553EC87031DC");
 
     #endregion
 
