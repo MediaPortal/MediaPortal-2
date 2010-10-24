@@ -209,6 +209,9 @@ namespace MediaPortal.Core.MediaManagement
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
       CheckSingleAttribute(attributeSpecification);
+      string str = value as string;
+      if (str != null)
+        value = (T) CheckString(attributeSpecification, str);
       _aspectData[attributeSpecification] = value;
     }
 
@@ -228,7 +231,16 @@ namespace MediaPortal.Core.MediaManagement
       if (value != null)
         CheckAttributeSpecification(attributeSpecification, value.GetType());
       CheckSingleAttribute(attributeSpecification);
+      string str = value as string;
+      if (str != null)
+        value = CheckString(attributeSpecification, str);
       _aspectData[attributeSpecification] = value;
+    }
+
+    protected object CheckString(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, string str)
+    {
+      return str == null || str.Length <= attributeSpecification.MaxNumChars ? str :
+          str.Substring(0, (int) attributeSpecification.MaxNumChars);
     }
 
     /// <summary>
