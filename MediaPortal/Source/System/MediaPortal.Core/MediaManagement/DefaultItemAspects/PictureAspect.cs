@@ -59,9 +59,9 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 20, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_SHUTTER_SPEED =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("ShutterSpeed", 10, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ShutterSpeed", 50, Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
