@@ -784,30 +784,6 @@ namespace MediaPortal.UI.Players.Video
 
     #region Subtitle stream handling
 
-    /// <summary>
-    /// AddUnique adds a string to a list and avoids duplicates by adding a counting number.
-    /// </summary>
-    /// <param name="targetList">Target list</param>
-    /// <param name="valueToAdd">String to add</param>
-    private static void AddUnique(ICollection<string> targetList, String valueToAdd)
-    {
-      if (!targetList.Contains(valueToAdd))
-        targetList.Add(valueToAdd);
-      else
-      {
-        // Try a maximum of 2..5 numbers to append.
-        for (int i = 2; i <= 5; i++)
-        {
-          String countedName = String.Format("{0} ({1})", valueToAdd, i);
-          if (!targetList.Contains(countedName))
-          {
-            targetList.Add(countedName);
-            return;
-          }
-        }
-      }
-    }
-
     public string[] Subtitles
     {
       get

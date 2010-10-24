@@ -959,6 +959,31 @@ namespace MediaPortal.UI.Players.Video
       get { return _mediaItemTitle; }
     }
 
+
+    /// <summary>
+    /// AddUnique adds a string to a list and avoids duplicates by adding a counting number.
+    /// </summary>
+    /// <param name="targetList">Target list</param>
+    /// <param name="valueToAdd">String to add</param>
+    protected void AddUnique(ICollection<string> targetList, String valueToAdd)
+    {
+      if (!targetList.Contains(valueToAdd))
+        targetList.Add(valueToAdd);
+      else
+      {
+        // Try a maximum of 2..5 numbers to append.
+        for (int i = 2; i <= 5; i++)
+        {
+          String countedName = String.Format("{0} ({1})", valueToAdd, i);
+          if (!targetList.Contains(countedName))
+          {
+            targetList.Add(countedName);
+            return;
+          }
+        }
+      }
+    }
+
     #region audio streams
 
     /// <summary>
@@ -1045,7 +1070,7 @@ namespace MediaPortal.UI.Players.Video
               }
               streamName = String.Format("{0} ({1})", streamName, streamAppendix);
             }
-            streams.Add(streamName);
+            AddUnique(streams, streamName);
           }
         }
         return streams.ToArray();
