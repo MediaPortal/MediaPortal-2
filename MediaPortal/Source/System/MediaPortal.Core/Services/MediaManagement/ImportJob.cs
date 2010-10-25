@@ -222,10 +222,10 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlArray("PendingDirectories", IsNullable = false)]
-    [XmlArrayItem("Directory")]
+    [XmlArray("PendingResources", IsNullable = false)]
+    [XmlArrayItem("Resource")]
     // The XmlSerializer only calls our setter if we declare the property as array instead of a list
-    public string[] XML_PendingDirectories
+    public string[] XML_PendingResources
     {
       get
       {
