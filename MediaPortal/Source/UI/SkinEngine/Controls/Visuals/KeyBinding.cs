@@ -91,6 +91,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region Private & protected members
+
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       return SizeF.Empty;
@@ -128,6 +130,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _registeredScreen = null;
       _registeredKey = null;
     }
+
+    #endregion
 
     #region Public properties
 

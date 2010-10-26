@@ -99,6 +99,55 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
         case Keys.Sleep:
           return Key.Power;
+
+        case Keys.F1:
+          return Key.F1;
+        case Keys.F2:
+          return Key.F2;
+        case Keys.F3:
+          return Key.F3;
+        case Keys.F4:
+          return Key.F4;
+        case Keys.F5:
+          return Key.F5;
+        case Keys.F6:
+          return Key.F6;
+        case Keys.F7:
+          return Key.F7;
+        case Keys.F8:
+          return Key.F8;
+        case Keys.F9:
+          return Key.F9;
+        case Keys.F10:
+          return Key.F10;
+        case Keys.F11:
+          return Key.F11;
+        case Keys.F12:
+          return Key.F12;
+        case Keys.F13:
+          return Key.F13;
+        case Keys.F14:
+          return Key.F14;
+        case Keys.F15:
+          return Key.F15;
+        case Keys.F16:
+          return Key.F16;
+        case Keys.F17:
+          return Key.F17;
+        case Keys.F18:
+          return Key.F18;
+        case Keys.F19:
+          return Key.F19;
+        case Keys.F20:
+          return Key.F20;
+        case Keys.F21:
+          return Key.F21;
+        case Keys.F22:
+          return Key.F22;
+        case Keys.F23:
+          return Key.F23;
+        case Keys.F24:
+          return Key.F24;
       }
       return Key.None;
     }

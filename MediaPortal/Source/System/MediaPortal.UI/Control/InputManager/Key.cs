@@ -98,6 +98,31 @@ namespace MediaPortal.UI.Control.InputManager
     public static readonly Key Enter = new Key("Enter"); // Different button than Ok on MCE remote
     public static readonly Key Escape = new Key("Escape");
 
+    public static readonly Key F1 = new Key("F1");
+    public static readonly Key F2 = new Key("F2");
+    public static readonly Key F3 = new Key("F3");
+    public static readonly Key F4 = new Key("F4");
+    public static readonly Key F5 = new Key("F5");
+    public static readonly Key F6 = new Key("F6");
+    public static readonly Key F7 = new Key("F7");
+    public static readonly Key F8 = new Key("F8");
+    public static readonly Key F9 = new Key("F9");
+    public static readonly Key F10 = new Key("F10");
+    public static readonly Key F11 = new Key("F11");
+    public static readonly Key F12 = new Key("F12");
+    public static readonly Key F13 = new Key("F13");
+    public static readonly Key F14 = new Key("F14");
+    public static readonly Key F15 = new Key("F15");
+    public static readonly Key F16 = new Key("F16");
+    public static readonly Key F17 = new Key("F17");
+    public static readonly Key F18 = new Key("F18");
+    public static readonly Key F19 = new Key("F19");
+    public static readonly Key F20 = new Key("F20");
+    public static readonly Key F21 = new Key("F21");
+    public static readonly Key F22 = new Key("F22");
+    public static readonly Key F23 = new Key("F23");
+    public static readonly Key F24 = new Key("F24");
+
     public static readonly Key ContextMenu = Info;
 
     #endregion
