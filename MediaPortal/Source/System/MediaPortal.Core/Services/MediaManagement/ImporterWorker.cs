@@ -98,7 +98,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         switch (messageType)
         {
           case SystemMessaging.MessageType.SystemStateChanged:
-            SystemState newState = (SystemState) message.MessageData[SystemMessaging.PARAM];
+            SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
             if (newState == SystemState.ShuttingDown)
               IsSuspended = true;
             break;

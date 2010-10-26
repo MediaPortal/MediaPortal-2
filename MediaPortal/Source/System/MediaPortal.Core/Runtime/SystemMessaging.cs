@@ -38,7 +38,7 @@ namespace MediaPortal.Core.Runtime
     public enum MessageType
     {
       /// <summary>
-      /// The system state changed to the state given in the PARAM parameter.
+      /// The system state changed to the state given in the NEW_STATE parameter.
       /// </summary>
       SystemStateChanged,
 
@@ -46,7 +46,7 @@ namespace MediaPortal.Core.Runtime
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string NEW_STATE = "NewState"; // Parameter depends on the message type, see the docs in MessageType enum
 
     /// <summary>
     /// Sends a <see cref="MessageType.SystemStateChanged"/> message.
@@ -55,7 +55,7 @@ namespace MediaPortal.Core.Runtime
     public static void SendSystemStateChangeMessage(SystemState newState)
     {
       SystemMessage msg = new SystemMessage(MessageType.SystemStateChanged);
-      msg.MessageData[PARAM] = newState;
+      msg.MessageData[NEW_STATE] = newState;
       IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
       if (messageBroker != null)
         messageBroker.Send(CHANNEL, msg);

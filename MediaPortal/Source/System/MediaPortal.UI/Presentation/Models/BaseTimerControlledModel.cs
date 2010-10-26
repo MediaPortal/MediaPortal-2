@@ -118,7 +118,7 @@ namespace MediaPortal.UI.Presentation.Models
         SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+          SystemState state = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
           switch (state)
           {
             case SystemState.Running:
