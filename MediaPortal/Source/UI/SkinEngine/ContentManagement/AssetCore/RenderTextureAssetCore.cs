@@ -39,6 +39,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     private Size _size = Size.Empty;
     private Usage _usage = Usage.RenderTarget;
     private Format _format = Format.A8B8G8R8;
+    float _maxU = 1.0f;
+    float _maxV = 1.0f;
 
     #endregion
 
@@ -75,6 +77,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _size; }
     }
 
+    public float MaxU
+    {
+      get { return _maxU; }
+    }
+
+    public float MaxV
+    {
+      get { return _maxV; }
+    }
     public void Allocate(int width, int height, Usage usage, Format format)
     {
       if (width != _size.Width || height != _size.Height || usage != _usage || format != _format)
@@ -90,7 +101,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage,
           format, Pool.Default);
       _surface0 = _texture.GetSurfaceLevel(0);
-      // TODO: Record actual size and supply MaxU/MaxV
+
+      SurfaceDescription desc = _texture.GetLevelDescription(0);
+      _maxU = _size.Width / ((float) desc.Width);
+      _maxV = _size.Height / ((float) desc.Height);
 
       AllocationChanged(AllocationSize);
       KeepAlive();

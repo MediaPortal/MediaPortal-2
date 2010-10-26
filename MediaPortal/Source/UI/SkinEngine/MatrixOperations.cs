@@ -105,10 +105,9 @@ namespace MediaPortal.UI.SkinEngine
     /// this method returns.</param>
     public static void Transform(this Matrix matrix, ref float x, ref float y)
     {
-      Vector2 v = new Vector2(x, y);
-      matrix.Transform(ref v);
-      x = v.X;
-      y = v.Y;
+      float w = x * matrix.M11 + y * matrix.M21 + matrix.M41;
+      y = x * matrix.M12 + y * matrix.M22 + matrix.M42;
+      x = w;
     }
 
     /// <summary>
@@ -119,10 +118,20 @@ namespace MediaPortal.UI.SkinEngine
     public static void Transform(this Matrix matrix, ref Vector2 v)
     {
       // DirectX uses row-major matrices, so we need to multiply the transposed matrix
-      float w = v.X * matrix.M11 + v.Y * matrix.M21 + matrix.M41;
-      float h = v.X * matrix.M12 + v.Y * matrix.M22 + matrix.M42;
-      v.X = w;
-      v.Y = h;
+      matrix.Transform(ref v.X, ref v.Y);
+    }
+
+    /// <summary>
+    /// Transforms the size given by <paramref name="cx"/> and <paramref name="cy"/> by this matrix, ignoring translations.
+    /// </summary>
+    /// <param name="matrix">Transformation matrix.</param>
+    /// <param name="cx">Width to transform. Will contain the transformed coordinate after this method returns.</param>
+    /// <param name="cy">Height to transform. Will contain the transformed coordinate after this method returns.</param>
+    public static void TransformSize(this Matrix matrix, ref float cx, ref float cy)
+    {
+      float w = cx * matrix.M11 + cy * matrix.M21;
+      cy = cx * matrix.M12 + cy * matrix.M22;
+      cx = w;
     }
 
     /// <summary>
@@ -132,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine
     /// <param name="matrix">Transformation matrix.</param>
     /// <param name="size">Size of the rectangle to transform. Will contain the size of the transformed rectangle after
     /// this method returns.</param>
-    public static void TransformSize(this Matrix matrix, ref SizeF size)
+    public static void TransformIncludingRectangleSize(this Matrix matrix, ref SizeF size)
     {
       Vector2 p0 = new Vector2(0, 0);
       Vector2 p1 = new Vector2(size.Width, 0);

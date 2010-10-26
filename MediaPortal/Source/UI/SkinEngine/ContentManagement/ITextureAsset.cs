@@ -28,6 +28,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public interface ITextureAsset : IAsset
   {
-    Texture Texture { get;}
+    Texture Texture { get; }
   }
 }

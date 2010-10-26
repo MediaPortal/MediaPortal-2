@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     public static bool Reset()
     {
-      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ServiceRegistration.Get<ContentManager>().TotalAllocationSize / (1024*1024));
+      ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0}", ServiceRegistration.Get<ContentManager>().TotalAllocationSize / (1024 * 1024));
       if (_backBuffer != null)
         _backBuffer.Dispose();
       _backBuffer = null;
@@ -291,40 +291,31 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
       }
 
-      int gw = Width;
-      int gh = Height;
-      Point camera = new Point(gw / 2, gh / 2);
-      // And calculate the offset from the screen center
-      Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
+      // Projection onto screen space
+      SetCameraProjection(Width, Height);
+    }
 
-      // Grab the viewport dimensions and location
-      Viewport viewport = _device.Viewport;
-      float w = Width * 0.5f; // viewport.Width * 0.5f;
-      float h = Height * 0.5f; // viewport.Height * 0.5f;
-
-      //Matrix mtxWorld = Matrix.Identity;
-      //GraphicsDevice.TransformWorld = mtxWorld;
+    /// <summary>
+    /// Creates and the camera and projection matrices use in future rendering. FinalTransform is 
+    /// updated to reflect this change.
+    /// </summary>
+    /// <param name="width">The width of the desired screen-space.</param>
+    /// <param name="height">The height of the desired screen-space.</param>
+    public static void SetCameraProjection(int width, int height)
+    {
+      float w = width * 0.5f;
+      float h = height * 0.5f;
 
       // Camera view. Multiply the Y coord by -1) { translate so that everything is relative to the camera position.
       Matrix flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
-      Matrix translate = Matrix.Translation(-(viewport.X + w + offset.X), -(viewport.Y + h + offset.Y), 2 * h);
-      Matrix mtxView = Matrix.Multiply(translate, flipY);
-      TransformView = mtxView;
+      Matrix translate = Matrix.Translation(-w, -h, 2 * h);
+      TransformView = Matrix.Multiply(translate, flipY);
 
-      // projection onto screen space
-      Matrix mtxProjection = Matrix.PerspectiveOffCenterLH(
-          (-w - offset.X) * 0.5f, //Minimum x-value of the view volume.
-          (w - offset.X) * 0.5f, //Maximum x-value of the view volume.
-          (-h + offset.Y) * 0.5f, //Minimum y-value of the view volume.
-          (h + offset.Y) * 0.5f, //Maximum y-value of the view volume.
-          h, //Minimum z-value of the view volume.
-          100 * h); //Maximum z-value of the view volume.
-      TransformProjection = mtxProjection;
+      w *= 0.5f;
+      h *= 0.5f;
 
+      TransformProjection = Matrix.PerspectiveOffCenterLH(-w, w, -h, h, h * 2.0f, h * 200.0f); 
       FinalTransform = TransformView * TransformProjection;
-      ////GraphicsDevice.TransformWorld = Matrix.Identity;
-      //GraphicsDevice.TransformView = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
-      //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
     }
 
     /// <summary>

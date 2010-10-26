@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -42,10 +43,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected AbstractProperty _visualProperty;
     protected AbstractProperty _autoLayoutContentProperty;
-    protected Texture _textureVisual;
+    protected RenderTextureAsset _textureVisual = null;
     protected Screen _screen = null;
+    protected SizeF _visualSize = Size.Empty;
     protected FrameworkElement _preparedVisual = null;
-
+    protected String _renderTextureKey;
+    static int _visualBrushId = 0;
 
     #endregion
 
@@ -53,6 +56,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public VisualBrush()
     {
+      ++_visualBrushId;
+      _renderTextureKey = String.Format("VisualBrush RenderTexture #{0}", _visualBrushId);
+
       Init();
       Attach();
     }
@@ -100,8 +106,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         return;
       if (AutoLayoutContent)
       {
+        // We must bypass normal layout or the visual will be layed out to screen/skin size
         visual.SetScreen(_screen);
-        visual.UpdateLayout();
+        SizeF size = _vertsBounds.Size;
+        visual.Measure(ref size);
+        visual.Arrange(new RectangleF(new PointF(0, 0), _vertsBounds.Size));
       }
       _preparedVisual = visual;
     }
@@ -135,45 +144,57 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-/*      _textureVisual = new Texture(GraphicsDevice.Device, (int) _vertsBounds.Width, (int ) _vertsBounds.Height, 1,
-          Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);*/
+      _textureVisual = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_renderTextureKey);
       _screen = parent.Screen;
-      if (_preparedVisual == null)
-        PrepareVisual();
+      PrepareVisual();
     }
 
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      // TODO: Implement and use method in TileBrush
-      FrameworkElement visual = _preparedVisual;
-      if (visual == null) return false;
+      if (_preparedVisual == null) return false;
+      _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
-      Matrix finalTransform = renderContext.Transform.Clone();
-
-      // TODO: Handle properties of TileBrush
-      // TODO: Handle RelativeTransform, Transform
-
-      RenderContext tempRenderContext = renderContext.Derive(_vertsBounds, null, null,
-          new Vector2(0.5f, 0.5f), Opacity);
-
-      //visual.RenderToTexture(_textureVisual, tempRenderContext);
-
-      // Now render our texture
-      _effect.StartRender(_textureVisual, finalTransform);
+      UpdateRenderTarget(renderContext);
+      base.BeginRenderBrush(primitiveContext, renderContext);
 
       return true;
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
-      // TODO: Create method in TileBrush to render an image as opacity brush and use that method here
-      throw new NotImplementedException();
+      if (_preparedVisual == null) return;
+
+      UpdateRenderTarget(renderContext);
+      base.BeginRenderOpacityBrush(tex, renderContext);
     }
 
-    public override void EndRender()
+    void UpdateRenderTarget(RenderContext renderContext)
     {
-      // TODO: Create method in TileBrush and call from here
+      _preparedVisual.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity, new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
     }
 
+    public override Texture Texture
+    {
+      get
+      {
+        return _textureVisual.Texture;
+      }
+    }
+
+    protected override Vector2 BrushDimensions
+    {
+      get
+      {
+        return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f);
+      }
+    }
+
+    protected override Vector2 TextureMaxUV
+    {
+      get
+      {
+        return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f);
+      }
+    }
   }
 }

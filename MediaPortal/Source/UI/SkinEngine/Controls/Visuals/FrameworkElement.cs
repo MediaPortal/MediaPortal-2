@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Right
   }
 
-  public class FrameworkElement: UIElement
+  public class FrameworkElement : UIElement
   {
     public const string GOTFOCUS_EVENT = "FrameworkElement.GotFocus";
     public const string LOSTFOCUS_EVENT = "FrameworkElement.LostFocus";
@@ -381,7 +381,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public VerticalAlignmentEnum VerticalAlignment
     {
       get { return (VerticalAlignmentEnum) _verticalAlignmentProperty.GetValue(); }
-      set { _verticalAlignmentProperty.SetValue(value);  }
+      set { _verticalAlignmentProperty.SetValue(value); }
     }
 
     public AbstractProperty StyleProperty
@@ -708,39 +708,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float yConstr = localBounds.Height;
 
       // Avoid doing math on an empty rect
-      if (IsNear(xConstr, 0) || IsNear(yConstr, 0)) 
-        return new SizeF(0, 0); 
+      if (IsNear(xConstr, 0) || IsNear(yConstr, 0))
+        return new SizeF(0, 0);
 
-      bool xConstrInfinite = float.IsNaN(xConstr); 
+      bool xConstrInfinite = float.IsNaN(xConstr);
       bool yConstrInfinite = float.IsNaN(yConstr);
 
       if (xConstrInfinite && yConstrInfinite)
         return new SizeF(float.NaN, float.NaN);
 
-      if(xConstrInfinite) // Assume square for one-dimensional constraint 
-        xConstr = yConstr; 
+      if (xConstrInfinite) // Assume square for one-dimensional constraint 
+        xConstr = yConstr;
       else if (yConstrInfinite)
-        yConstr = xConstr; 
+        yConstr = xConstr;
 
       // We only deal with nonsingular matrices here. The nonsingular matrix is the one
       // that has inverse (determinant != 0).
-      if(transform.Determinant() == 0) 
+      if (transform.Determinant() == 0)
         return new SizeF(0, 0);
 
-      float a = transform.M11; 
+      float a = transform.M11;
       float b = transform.M12;
-      float c = transform.M21; 
+      float c = transform.M21;
       float d = transform.M22;
 
       // Result width and height (in child/local space)
       float w;
-      float h; 
+      float h;
 
       // Because we are dealing with nonsingular transform matrices, we have (b==0 || c==0) XOR (a==0 || d==0) 
-      if (IsNear(b, 0) || IsNear(c, 0)) 
+      if (IsNear(b, 0) || IsNear(c, 0))
       { // (b == 0 || c == 0) ==> a != 0 && d != 0
-        float yCoverD = yConstrInfinite ? float.PositiveInfinity : Math.Abs(yConstr/d); 
-        float xCoverA = xConstrInfinite ? float.PositiveInfinity : Math.Abs(xConstr/a);
+        float yCoverD = yConstrInfinite ? float.PositiveInfinity : Math.Abs(yConstr / d);
+        float xCoverA = xConstrInfinite ? float.PositiveInfinity : Math.Abs(xConstr / a);
 
         if (IsNear(b, 0))
         {
@@ -748,35 +748,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           { // b == 0, c == 0, a != 0, d != 0
 
             // No constraint relation; use maximal width and height 
-            h = yCoverD; 
-            w = xCoverA; 
+            h = yCoverD;
+            w = xCoverA;
           }
-          else 
+          else
           { // b == 0, a != 0, c != 0, d != 0
 
             // Maximizing under line (hIntercept=xConstr/c, wIntercept=xConstr/a) 
             // BUT we still have constraint: h <= yConstr/d
-            h = Math.Min(0.5f*Math.Abs(xConstr/c), yCoverD); 
+            h = Math.Min(0.5f * Math.Abs(xConstr / c), yCoverD);
             w = xCoverA - ((c * h) / a);
-          } 
+          }
         }
         else
         { // c == 0, a != 0, b != 0, d != 0 
 
           // Maximizing under line (hIntercept=yConstr/d, wIntercept=yConstr/b)
           // BUT we still have constraint: w <= xConstr/a
-          w = Math.Min( 0.5f*Math.Abs(yConstr/b), xCoverA);
+          w = Math.Min(0.5f * Math.Abs(yConstr / b), xCoverA);
           h = yCoverD - ((b * w) / d);
         }
       }
       else if (IsNear(a, 0) || IsNear(d, 0))
       { // (a == 0 || d == 0) ==> b != 0 && c != 0 
-        float yCoverB = Math.Abs(yConstr/b);
-        float xCoverC = Math.Abs(xConstr/c); 
+        float yCoverB = Math.Abs(yConstr / b);
+        float xCoverC = Math.Abs(xConstr / c);
 
         if (IsNear(a, 0))
         {
-          if (IsNear(d, 0)) 
+          if (IsNear(d, 0))
           { // a == 0, d == 0, b != 0, c != 0 
 
             // No constraint relation; use maximal width and height
@@ -788,7 +788,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
             // Maximizing under line (hIntercept=yConstr/d, wIntercept=yConstr/b)
             // BUT we still have constraint: h <= xConstr/c
-            h = Math.Min(0.5f*Math.Abs(yConstr/d), xCoverC);
+            h = Math.Min(0.5f * Math.Abs(yConstr / d), xCoverC);
             w = yCoverB - ((d * h) / b);
           }
         }
@@ -797,12 +797,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
           // Maximizing under line (hIntercept=xConstr/c, wIntercept=xConstr/a)
           // BUT we still have constraint: w <= yConstr/b
-          w = Math.Min(0.5f*Math.Abs(xConstr/a), yCoverB);
+          w = Math.Min(0.5f * Math.Abs(xConstr / a), yCoverB);
           h = xCoverC - ((a * w) / c);
         }
       }
       else
-      { 
+      {
         float xCoverA = Math.Abs(xConstr / a); // w-intercept of x-constraint line
         float xCoverC = Math.Abs(xConstr / c); // h-intercept of x-constraint line
 
@@ -829,12 +829,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // until it does in at least one dimension.
 
           SizeF childSizeTr = new SizeF(w, h);
-          transform.TransformSize(ref childSizeTr);
-          float expandFactor = Math.Min(xConstr / childSizeTr.Width, yConstr / childSizeTr.Height); 
-          if (!float.IsNaN(expandFactor) && !float.IsInfinity(expandFactor)) 
+          transform.TransformIncludingRectangleSize(ref childSizeTr);
+          float expandFactor = Math.Min(xConstr / childSizeTr.Width, yConstr / childSizeTr.Height);
+          if (!float.IsNaN(expandFactor) && !float.IsInfinity(expandFactor))
           {
             w *= expandFactor;
-            h *= expandFactor; 
+            h *= expandFactor;
           }
         }
       }
@@ -856,7 +856,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize, Margin);
-      
+
       Matrix? layoutTransform = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
       if (layoutTransform.HasValue)
         totalSize = FindMaxTransformedSize(layoutTransform.Value, totalSize);
@@ -878,7 +878,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _innerDesiredSize = totalSize;
 
       if (layoutTransform.HasValue)
-        layoutTransform.Value.TransformSize(ref totalSize);
+        layoutTransform.Value.TransformIncludingRectangleSize(ref totalSize);
 
       AddMargin(ref totalSize, Margin);
       _desiredSize = totalSize;
@@ -910,13 +910,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           SizeF resultInnerSize = _innerDesiredSize;
           SizeF resultOuterSize = new SizeF(resultInnerSize);
-          layoutTransform.TransformSize(ref resultOuterSize);
+          layoutTransform.TransformIncludingRectangleSize(ref resultOuterSize);
           if (resultOuterSize.Width > rect.Width + DELTA_DOUBLE || resultOuterSize.Height > rect.Height + DELTA_DOUBLE)
             // Transformation of desired size doesn't fit into the available rect
             resultInnerSize = FindMaxTransformedSize(layoutTransform, rect.Size);
           rect = new RectangleF(
-              rect.Location.X + (rect.Width - resultInnerSize.Width)/2,
-              rect.Location.Y + (rect.Height - resultInnerSize.Height)/2,
+              rect.Location.X + (rect.Width - resultInnerSize.Width) / 2,
+              rect.Location.Y + (rect.Height - resultInnerSize.Height) / 2,
               resultInnerSize.Width,
               resultInnerSize.Height);
         }
@@ -994,7 +994,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (alignment == HorizontalAlignmentEnum.Center ||
             (alignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
         {
-          location.X += (childSize.Width - desiredSize.Width)/2;
+          location.X += (childSize.Width - desiredSize.Width) / 2;
           childSize.Width = desiredSize.Width;
         }
         if (alignment == HorizontalAlignmentEnum.Right)
@@ -1033,7 +1033,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (alignment == VerticalAlignmentEnum.Center ||
             (alignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
         {
-          location.Y += (childSize.Height - desiredSize.Height)/2;
+          location.Y += (childSize.Height - desiredSize.Height) / 2;
           childSize.Height = desiredSize.Height;
         }
         else if (alignment == VerticalAlignmentEnum.Bottom)
@@ -1170,7 +1170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsVisible)
         return null;
-      ICollection<FrameworkElement>  focusableChildren = new List<FrameworkElement>();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
       AddFocusableElements(focusableChildren);
       // Check child controls
       if (focusableChildren.Count == 0)
@@ -1234,7 +1234,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected PointF GetCenterPosition(RectangleF rect)
     {
-      return new PointF((rect.Left + rect.Right)/2, (rect.Top + rect.Bottom)/2);
+      return new PointF((rect.Left + rect.Right) / 2, (rect.Top + rect.Bottom) / 2);
     }
 
     private float CalcDirection(PointF start, PointF end)
@@ -1243,11 +1243,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return float.NaN;
       double x = end.X - start.X;
       double y = end.Y - start.Y;
-      double alpha = Math.Acos(x/Math.Sqrt(x*x+y*y));
+      double alpha = Math.Acos(x / Math.Sqrt(x * x + y * y));
       if (end.Y > start.Y) // Coordinates go from top to bottom, so y must be inverted
         alpha = -alpha;
       if (alpha < 0)
-        alpha += 2*Math.PI;
+        alpha += 2 * Math.PI;
       return (float) alpha;
     }
 
@@ -1270,7 +1270,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF((actualBounds.Right + actualBounds.Left) / 2, actualBounds.Bottom);
       PointF end = new PointF((otherRect.Right + otherRect.Left) / 2, otherRect.Top);
       float alpha = CalcDirection(start, end);
-      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2*Math.PI - DELTA_DOUBLE;
+      return alpha > Math.PI + DELTA_DOUBLE && alpha < 2 * Math.PI - DELTA_DOUBLE;
     }
 
     protected bool LocatedLeftOf(RectangleF otherRect)
@@ -1281,7 +1281,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF(actualBounds.Right, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Left, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      return alpha < Math.PI/2 - DELTA_DOUBLE || alpha > 3*Math.PI/2 + DELTA_DOUBLE;
+      return alpha < Math.PI / 2 - DELTA_DOUBLE || alpha > 3 * Math.PI / 2 + DELTA_DOUBLE;
     }
 
     protected bool LocatedRightOf(RectangleF otherRect)
@@ -1292,7 +1292,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PointF start = new PointF(actualBounds.Left, (actualBounds.Top + actualBounds.Bottom) / 2);
       PointF end = new PointF(otherRect.Right, (otherRect.Top + otherRect.Bottom) / 2);
       float alpha = CalcDirection(start, end);
-      return alpha > Math.PI/2 + DELTA_DOUBLE && alpha < 3*Math.PI/2 - DELTA_DOUBLE;
+      return alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
     }
 
     protected void AddFocusableElements(ICollection<FrameworkElement> elements)
@@ -1322,11 +1322,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void RenderToTexture(RenderTextureAsset texture, RenderContext renderContext)
     {
       // We do the following here:
-      // 1. Set the rendertarget to the given texture
-      // 2. Clear the texture with an alpha value of 0
-      // 3. Render the control (into the texture)
-      // 4. Restore the rendertarget to the backbuffer
+      // 1. Set the transformation matrix to match the texture size
+      // 2. Set the rendertarget to the given texture
+      // 3. Clear the texture with an alpha value of 0
+      // 4. Render the control (into the texture)
+      // 5. Restore the rendertarget to the backbuffer
+      // 6. Restore previous transformation matrix
 
+      // Set transformation matrix
+      Matrix? oldTransform = null;
+      if (texture.Width != GraphicsDevice.Width || texture.Height != GraphicsDevice.Height)
+      {
+        oldTransform = GraphicsDevice.FinalTransform;
+        GraphicsDevice.SetCameraProjection(texture.Width, texture.Height);
+      }
       // Get the current backbuffer
       using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
       {
@@ -1342,6 +1351,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Restore the backbuffer
         GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
       }
+      // Restore standard transformation matrix
+      if (oldTransform.HasValue)
+        GraphicsDevice.FinalTransform = oldTransform.Value;
     }
 
     public override void Render(RenderContext parentRenderContext)
@@ -1366,7 +1378,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
       { // Control has an opacity mask
         // Get global render texture or create it if it doesn't exist
-        RenderTextureAsset renderTarget = 
+        RenderTextureAsset renderTarget =
             ServiceRegistration.Get<ContentManager>().GetRenderTexture(GLOBAL_RENDER_TEXTURE_ASSET_KEY);
         // Ensure it's allocated
         if (!renderTarget.IsAllocated)

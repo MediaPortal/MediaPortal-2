@@ -38,7 +38,7 @@
     <ResourceWrapper x:Key="RectangleGradient4" Resource="Black"/>
     <ResourceWrapper x:Key="RectangleGradient5" Resource="Blue"/>
 
-    <Style x:Key="TestVisualButtonStyle" BasedOn="{ThemeResource ButtonStyle}">
+    <Style x:Key="TestVisualButtonStyle" BasedOn="{ThemeResource ButtonStyle}" TargetType="{x:Type Button}">
       <Setter Property="Width" Value="50"/>
       <Setter Property="Height" Value="20"/>
       <Setter Property="Content" Value="Test-Button"/>
@@ -245,14 +245,13 @@
     </Rectangle.Fill>
   </Rectangle>
 
-  <!--
   <Label Grid.Row="6" Grid.Column="0" Content="VisualBrush"/>
   <Rectangle Grid.Row="6" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
       <VisualBrush>
         <VisualBrush.Visual>
-          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+          <Button Style="{StaticResource TestVisualButtonStyle}"/>
         </VisualBrush.Visual>
       </VisualBrush>
     </Rectangle.Fill>
@@ -260,9 +259,12 @@
   <Rectangle Grid.Row="6" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <VisualBrush>
+      <VisualBrush ViewPort="0,0,0.5,0.5" Tile="Tile">
+        <VisualBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </VisualBrush.RelativeTransform>        
         <VisualBrush.Visual>
-          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+          <Button Style="{StaticResource TestVisualButtonStyle}"/>
         </VisualBrush.Visual>
       </VisualBrush>
     </Rectangle.Fill>
@@ -270,14 +272,16 @@
   <Rectangle Grid.Row="6" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
       Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
     <Rectangle.Fill>
-      <VisualBrush>
+      <VisualBrush ViewPort="0,0,0.5,0.5" Tile="Tile">
+        <VisualBrush.Transform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </VisualBrush.Transform>
         <VisualBrush.Visual>
-          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+          <Button Style="{StaticResource TestVisualButtonStyle}"/>
         </VisualBrush.Visual>
       </VisualBrush>
     </Rectangle.Fill>
   </Rectangle>
--->
 
   <Label Grid.Row="7" Grid.Column="0" Content="VideoBrush"/>
   <Rectangle Grid.Row="7" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"

@@ -73,6 +73,24 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
+    /// Gets the maximum horizontal texture coord of the actual image in the texture resource. Due
+    /// to the power-of-two limitation on texture sizes the image size may differ from the texture size.
+    /// </summary>
+    public float MaxU
+    {
+      get { return _assetCore.MaxU; }
+    }
+
+    /// <summary>
+    /// Gets the maximum vertical texture coord of the actual image in the texture resource. Due
+    /// to the power-of-two limitation on texture sizes the image size may differ from the texture size.
+    /// </summary>
+    public float MaxV
+    {
+      get { return _assetCore.MaxV; }
+    }
+
+    /// <summary>
     /// Allocates a new render-texture with the specified size and default format.
     /// </summary>
     public void AllocateRenderTarget(int width, int height)
