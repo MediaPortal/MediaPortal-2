@@ -7,7 +7,7 @@
     <ProjectGuid>{8B3A2090-66A2-49CC-8D92-053B324F291F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test.GUITestPlugin</RootNamespace>
+    <RootNamespace>MediaPortal.Test.GUITestPlugin</RootNamespace>
     <AssemblyName>GUITestPlugin</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

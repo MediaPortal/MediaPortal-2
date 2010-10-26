@@ -12,7 +12,7 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="F4FC1599-F412-40d0-82BF-46FC352E93BE" ClassName="Test.GUITestPlugin.GUITestModel"/>
+    <Model Id="F4FC1599-F412-40d0-82BF-46FC352E93BE" ClassName="MediaPortal.Test.GUITestPlugin.GUITestModel"/>
     <Model Id="A6C3F942-105C-48cd-AEFF-059DA79773A9" ClassName="Test.GUITestPlugin.TreeViewModel"/>
   </Register>
 
