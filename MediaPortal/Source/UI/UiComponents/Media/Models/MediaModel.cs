@@ -82,6 +82,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #endregion
 
+    #region Public members
+
     /// <summary>
     /// Provides a list of items to be shown in the play menu.
     /// </summary>
@@ -239,6 +241,8 @@ namespace MediaPortal.UiComponents.Media.Models
         pc.Playlist.Clear();
       return pc;
     }
+
+    #endregion
 
     #region Protected members
 

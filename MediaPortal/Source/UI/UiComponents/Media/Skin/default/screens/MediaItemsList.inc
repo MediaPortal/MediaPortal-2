@@ -35,4 +35,5 @@
   <Label IsVisible="{Binding !IsItemsValid}"
       HorizontalAlignment="Center" VerticalAlignment="Center"
       Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
+  <KeyBinding Key="F5" Command="{Command Reload}"/>
 </Grid>
