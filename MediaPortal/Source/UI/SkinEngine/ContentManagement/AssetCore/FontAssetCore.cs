@@ -422,7 +422,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       y += c.YOffset;
       PositionColored2Textured tl = new PositionColored2Textured(
           x * sizeScale, y * sizeScale, 1.0f,
-          c.X / (float) _charSet.Width,
+          (c.X + 0.5f) / (float) _charSet.Width,
           c.Y / (float) _charSet.Height,
           0
           );
@@ -431,7 +431,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           (y + c.Height) * sizeScale,
           1.0f,
           (c.X + c.Width) / (float) _charSet.Width,
-          (c.Y + c.Height) / (float) _charSet.Height,
+          (c.Y + c.Height - 0.5f) / (float) _charSet.Height,
           0
           );
       PositionColored2Textured bl = new PositionColored2Textured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
