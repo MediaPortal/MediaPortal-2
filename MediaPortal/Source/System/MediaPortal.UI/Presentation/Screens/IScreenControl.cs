@@ -39,21 +39,21 @@ namespace MediaPortal.UI.Presentation.Screens
     bool IsScreenSaverEnabled { get; set; }
 
     /// <summary>
-    /// Switches between diffrent sceen modes.
+    /// Switches between windowed and fullscreen mode.
     /// </summary>
-    /// <param name="mode">The requested mode</param>
+    /// <param name="mode">The requested mode.</param>
     void SwitchMode(ScreenMode mode);
 
     /// <summary>
-    /// returns if application is fullscreen mode or in windowed mode
+    /// Returns the information whether the application is in fullscreen mode or in windowed mode.
     /// </summary>
     /// <value>
-    /// 	<c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
+    /// <c>true</c> if this instance is fullscreen mode; otherwise, <c>false</c>.
     /// </value>
     bool IsFullScreen { get; }
 
     /// <summary>
-    /// Returns available display modes
+    /// Returns available display modes.
     /// </summary>
     IList<string> DisplayModes { get; }
 
