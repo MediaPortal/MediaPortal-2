@@ -106,7 +106,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// Releases the player of the specified <paramref name="slotIndex"/> and closes the slot.
     /// </summary>
     /// <remarks>
-    /// See <see cref="CloseSlot(MediaPortal.Presentation.Players.IPlayerSlotController)"/>.
+    /// See <see cref="CloseSlot(IPlayerSlotController)"/>.
     /// </remarks>
     /// <param name="slotIndex">Index of the slot to close.</param>
     void CloseSlot(int slotIndex);

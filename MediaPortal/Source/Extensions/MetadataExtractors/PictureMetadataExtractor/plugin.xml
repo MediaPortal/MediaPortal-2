@@ -1,0 +1,19 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="PictureMetadataExtractor"
+    PluginId="{059F49E5-E7FB-43bd-B859-49BAAD497FFA}"
+    Author="Frodo, Morpheus_xx"
+    Copyright="GPL"
+    Description="Picture metadata extractor"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="PictureMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="PictureMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.PictureMetadataExtractor"/>
+  </Register>
+</Plugin>
