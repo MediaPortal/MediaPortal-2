@@ -267,9 +267,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void SwitchMode(ScreenMode mode)
     {
-      if (this.InvokeRequired)
+      if (InvokeRequired)
       {
-        this.Invoke(new SwitchModeDelegate(SwitchMode), mode);
+        Invoke(new SwitchModeDelegate(SwitchMode), mode);
         return;
       }
 
