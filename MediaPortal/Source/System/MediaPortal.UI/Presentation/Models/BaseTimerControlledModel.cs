@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Timers;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Runtime;
@@ -36,7 +36,9 @@ namespace MediaPortal.UI.Presentation.Models
   /// </summary>
   public abstract class BaseTimerControlledModel : BaseMessageControlledModel
   {
+    protected object _syncObj = new object();
     protected Timer _timer = null;
+    protected long _updateInterval = 0;
 
     /// <summary>
     /// Creates a new <see cref="BaseTimerControlledModel"/> instance and initializes the internal timer
@@ -49,8 +51,7 @@ namespace MediaPortal.UI.Presentation.Models
     /// </remarks>
     protected BaseTimerControlledModel(long updateInterval)
     {
-      _timer = new Timer(updateInterval);
-
+      _updateInterval = updateInterval;
       ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
       if (systemStateService.CurrentState == SystemState.Running)
         StartTimer();
@@ -64,21 +65,16 @@ namespace MediaPortal.UI.Presentation.Models
     {
       base.Dispose();
       StopTimer();
-      _timer.Dispose();
     }
 
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
-      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.PreviewMessage += OnMessageReceived;
     }
 
-    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    protected void OnTimerElapsed(object sender)
     {
-      lock (_timer)
-        if (!_timer.Enabled)
-          // Avoid calls after timer was stopped
-          return;
       Update();
     }
 
@@ -87,27 +83,28 @@ namespace MediaPortal.UI.Presentation.Models
     /// </summary>
     protected void StartTimer()
     {
-      lock (_timer)
+      lock (_syncObj)
       {
-        if (_timer.Enabled)
+        if (_timer != null)
           return;
-        // Setup timer to update the properties
-        _timer.Elapsed += OnTimerElapsed;
-        _timer.Enabled = true;
+        _timer = new Timer(OnTimerElapsed);
+        _timer.Change(_updateInterval, _updateInterval);
       }
     }
 
     /// <summary>
-    /// Disables the timer.
+    /// Disables the timer and blocks until the last timer event has executed.
     /// </summary>
     protected void StopTimer()
     {
-      lock (_timer)
+      lock (_syncObj)
       {
-        if (!_timer.Enabled)
+        if (_timer == null)
           return;
-        _timer.Enabled = false;
-        _timer.Elapsed -= OnTimerElapsed;
+        WaitHandle notifyObject = new ManualResetEvent(false);
+        _timer.Dispose(notifyObject);
+        notifyObject.WaitOne();
+        _timer = null;
       }
     }
 
