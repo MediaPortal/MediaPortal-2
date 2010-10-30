@@ -65,6 +65,7 @@
     <Compile Include="Actions\SetupDefaultSharesAction.cs" />
     <Compile Include="ConnectionListenerService.cs" />
     <Compile Include="IConnectionListenerService.cs" />
+    <Compile Include="Models\MouseModel.cs" />
     <Compile Include="Models\LocalShares.cs" />
     <Compile Include="Models\HomeServerModel.cs" />
     <Compile Include="Models\MenuModelMessaging.cs" />

@@ -2,7 +2,8 @@
 
 <!--
 This is the master template for all screens:
-A header text and a client area.
+A header text, player controls and a client area.
+Below the client area, the navigation bar is visible.
 
 Usage:
 
@@ -39,17 +40,54 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
     <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
-      <Grid.Resources>
-        <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-      </Grid.Resources>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="50"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="50,0,0,0">
+      <StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
+          HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
+        <StackPanel.Resources>
+          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+        </StackPanel.Resources>
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="HasInputFocus"/>
+            <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <StackPanel.Triggers>
+          <Trigger Property="IsMouseOver" Value="False">
+            <Trigger.Setters>
+              <Setter Property="OpacityMask" Value="#B0000000"/>
+            </Trigger.Setters>
+          </Trigger>
+        </StackPanel.Triggers>
+        <Button x:Name="CloseButton" Style="{ThemeResource WindowCloseButtonStyle}" Margin="3"
+            HorizontalAlignment="Left"
+            Command="{Command Source={Service Window},Path=Shutdown}"/>
+        <Button x:Name="MinimizeButton" Style="{ThemeResource WindowMinimizeButtonStyle}" Margin="3"
+            HorizontalAlignment="Left"
+            Command="{Command Source={Service Window},Path=Minimize}"/>
+        <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
+            HorizontalAlignment="Left">
+          <Button.Command>
+            <Command Source="{Service DialogManager}" Path="ShowDialog">
+              <Command.Parameters>
+                <ResourceWrapper Resource="[Dialogs.InfoHeaderText]"/>
+                <ResourceWrapper Resource="The hibernate function is not implemented yet."/>
+                <ResourceWrapper Resource="OkDialog"/>
+                <ResourceWrapper Resource="False"/>
+                <ResourceWrapper Resource="Ok"/>
+              </Command.Parameters>
+            </Command>
+          </Button.Command>
+        </Button>
+      </StackPanel>
+      <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="1" Grid.Row="0">
         <Label x:Name="HeaderLabel"
             FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
@@ -69,16 +107,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Label.OpacityMask>
         </Label>
       </StackPanel>
-      <StackPanel x:Name="DateTimePanel" Margin="5" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-        <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
-            HorizontalAlignment="Center"
-            Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
-        <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
-            HorizontalAlignment="Center"
-            Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
+      <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
+          HorizontalAlignment="Right" VerticalAlignment="Top">
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            AutoVisibility="True"
+            SlotIndex="0"/>
+        <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
+            HorizontalAlignment="Left" VerticalAlignment="Top"
+            AutoVisibility="True"
+            SlotIndex="1"/>
       </StackPanel>
     </Grid>
-    <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Top" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
+    <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Bottom" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
   
 <!-- Not sure if and how we should show shortcuts...
     <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"

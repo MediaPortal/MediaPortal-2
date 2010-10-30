@@ -76,4 +76,44 @@
       </Path.RenderTransform>
     </Path>
   </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowCloseControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="X" FontSize="15" Margin="3"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowMinimizeControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="M" FontSize="15" Margin="3"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="HibernateControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="H" FontSize="15" Margin="3"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
 </ResourceDictionary>

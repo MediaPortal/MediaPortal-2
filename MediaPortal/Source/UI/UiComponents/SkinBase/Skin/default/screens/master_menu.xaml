@@ -61,14 +61,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-          <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch">
-            <mp_special_controls:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
-                AutoVisibility="True"
-                SlotIndex="0"/>
-            <mp_special_controls:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
-                AutoVisibility="True"
-                SlotIndex="1"/>
-          </StackPanel>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->

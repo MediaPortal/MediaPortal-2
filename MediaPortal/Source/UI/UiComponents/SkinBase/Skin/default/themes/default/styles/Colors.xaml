@@ -244,6 +244,12 @@
   <!-- Black -->
   <ResourceWrapper x:Key="PlayControlsStrokeColor" Resource="#FF000000"/>
 
+  <!-- DarkGray -->
+  <ResourceWrapper x:Key="WindowControlsFillColor" Resource="DarkGray"/>
+
+  <!-- Black -->
+  <ResourceWrapper x:Key="WindowControlsStrokeColor" Resource="#FF000000"/>
+
   <!-- Transparent white -->
   <ResourceWrapper x:Key="PipBorderColor" Resource="#66FFFFFF"/>
 

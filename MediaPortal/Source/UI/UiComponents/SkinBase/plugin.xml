@@ -19,6 +19,7 @@
     <Model Id="D4B7FEDD-243F-4afc-A8BE-28BBBF17D799" Name="ScreenSaverModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.ScreenSaverModel"/>
     <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.MenuModel"/>
     <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.TimeModel"/>
+    <Model Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62" Name="MouseModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.MouseModel"/>
     <Model Id="81A130E1-F417-47e4-AC9C-0B2E4912331F" Name="ServerAttachmentModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.ServerAttachmentModel"/>
     <Model Id="854ABA9A-71A1-420b-A657-9641815F9C01" Name="HomeServerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.HomeServerModel"/>
     <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SharesModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesConfigModel"/>

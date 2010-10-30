@@ -116,7 +116,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public string CurrentDate
     {
-      get { return _currentDateProperty.GetValue() as string; }
+      get { return (string) _currentDateProperty.GetValue(); }
       set { _currentDateProperty.SetValue(value); }
     }
 
@@ -127,7 +127,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public string CurrentTime
     {
-      get { return _currentTimeProperty.GetValue() as string; }
+      get { return (string) _currentTimeProperty.GetValue(); }
       set { _currentTimeProperty.SetValue(value); }
     }
 
