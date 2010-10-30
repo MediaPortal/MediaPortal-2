@@ -763,8 +763,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 #if DEBUG_BINDINGS
           DebugOutput("FindDataContext found parent binding '{0}' but that binding could not evaluate", parentBinding);
 #endif
-          // else simply return the parent's evaluated source data descriptor
-          result = parentBinding.EvaluatedSourceValue;
+          AttachToSource(parentBinding.EvaluatedSourceValue);
+          result = null;
           return false;
         }
         if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
