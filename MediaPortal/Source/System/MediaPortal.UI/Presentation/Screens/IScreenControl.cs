@@ -39,6 +39,21 @@ namespace MediaPortal.UI.Presentation.Screens
     bool IsScreenSaverEnabled { get; set; }
 
     /// <summary>
+    /// Shuts MediaPortal down.
+    /// </summary>
+    void Shutdown();
+
+    /// <summary>
+    /// Minimizes the MediaPortal application.
+    /// </summary>
+    void Minimize();
+
+    /// <summary>
+    /// Restores the window from minimized state.
+    /// </summary>
+    void Restore();
+
+    /// <summary>
     /// Switches between windowed and fullscreen mode.
     /// </summary>
     /// <param name="mode">The requested mode.</param>

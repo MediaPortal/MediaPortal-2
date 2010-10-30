@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
-    #region properties
+    #region Properties
 
     public AbstractProperty KeyTimeProperty
     {

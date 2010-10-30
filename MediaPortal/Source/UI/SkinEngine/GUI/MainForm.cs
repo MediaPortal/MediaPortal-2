@@ -42,6 +42,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 using MediaPortal.UI.SkinEngine.Settings;
 using SlimDX.Direct3D9;
+using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.GUI
 {
@@ -263,6 +264,24 @@ namespace MediaPortal.UI.SkinEngine.GUI
       CheckTopMost();
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Running");
+    }
+
+    public void Shutdown()
+    {
+      Close();
+    }
+
+    public void Minimize()
+    {
+      WindowState = FormWindowState.Minimized;
+      Screen screen = _screenManager.FocusedScreen;
+      if (screen != null)
+        screen.RemoveCurrentFocus();
+    }
+
+    public void Restore()
+    {
+      WindowState = _mode == ScreenMode.NormalWindowed ? FormWindowState.Normal : FormWindowState.Maximized;
     }
 
     public void SwitchMode(ScreenMode mode)

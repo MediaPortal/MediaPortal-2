@@ -144,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
     /// </summary>
-    protected bool _attachedInput = false;
+    protected AbstractProperty _hasInputFocusProperty = new SProperty(typeof(bool), false);
 
     /// <summary>
     /// Always contains the currently focused element in this screen.
@@ -239,9 +239,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get { return _name; }
     }
 
+    public AbstractProperty HasInputFocusProperty
+    {
+      get { return _hasInputFocusProperty; }
+    }
+
     public bool HasInputFocus
     {
-      get { return _attachedInput; }
+      get { return (bool) _hasInputFocusProperty.GetValue(); }
+      set { _hasInputFocusProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -354,7 +360,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void AttachInput()
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
       {
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview += OnKeyPreview;
@@ -362,13 +368,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseMoved += OnMouseMove;
         inputManager.MouseClicked += OnMouseClick;
         inputManager.MouseWheeled += OnMouseWheel;
-        _attachedInput = true;
+        HasInputFocus = true;
       }
     }
 
     public void DetachInput()
     {
-      if (_attachedInput)
+      if (HasInputFocus)
       {
         InputManager inputManager = InputManager.Instance;
         inputManager.KeyPreview -= OnKeyPreview;
@@ -376,7 +382,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseMoved -= OnMouseMove;
         inputManager.MouseClicked -= OnMouseClick;
         inputManager.MouseWheeled -= OnMouseWheel;
-        _attachedInput = false;
+        HasInputFocus = false;
         RemoveCurrentFocus();
       }
     }
@@ -423,7 +429,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_visual)
       {
         IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-        if (_attachedInput && inputManager.IsMouseUsed)
+        if (HasInputFocus && inputManager.IsMouseUsed)
           _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
       }
     }
@@ -435,7 +441,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     private void OnKeyPreview(ref Key key)
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
         return;
       _visual.OnKeyPreview(ref key);
       // Try key bindings...
@@ -449,7 +455,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     private void OnKeyPress(ref Key key)
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
         return;
       _visual.OnKeyPressed(ref key);
       if (key != Key.None)
@@ -458,21 +464,21 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     private void OnMouseWheel(int numberOfDeltas)
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
         return;
       _visual.OnMouseWheel(numberOfDeltas);
     }
 
     private void OnMouseMove(float x, float y)
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
         return;
       _visual.OnMouseMove(x, y);
     }
 
     private void OnMouseClick(MouseButtons buttons)
     {
-      if (!_attachedInput)
+      if (!HasInputFocus)
         return;
       bool handled = false;
       _visual.OnMouseClick(buttons, ref handled);

@@ -236,6 +236,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Screen _currentScreen = null; // "Normal" screen
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
     protected int _numPendingAsyncOperations = 0;
+    protected Screen _focusedScreen = null;
 
     protected bool _backgroundDisabled = false;
 
@@ -483,23 +484,37 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    public void FocusScreen(Screen screen)
+    {
+      if (screen != null)
+        screen.AttachInput();
+      lock (_syncObj)
+        _focusedScreen = screen;
+    }
+
+    public void UnfocusCurrentScreen()
+    {
+      Screen screen;
+      lock (_syncObj)
+      {
+        screen = _focusedScreen;
+        _focusedScreen = null;
+      }
+      if (screen != null)
+        screen.DetachInput();
+    }
+
     protected internal void DoShowDialog(DialogData dialogData)
     {
       dialogData.DialogScreen.Prepare();
       lock (_syncObj)
       {
-        if (_dialogStack.Count == 0)
-        {
-          if (_currentScreen != null)
-            _currentScreen.DetachInput();
-        }
-        else
-          _dialogStack.Peek().DialogScreen.DetachInput();
+        UnfocusCurrentScreen();
 
         DialogData dd = dialogData;
         _dialogStack.Push(dd);
 
-        dialogData.DialogScreen.AttachInput();
+        FocusScreen(dialogData.DialogScreen);
         dialogData.DialogScreen.ScreenState = Screen.State.Running;
       }
       // Don't hold the lock while showing the screen
@@ -527,7 +542,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
         }
         // Remove input attachment
-        _dialogStack.Peek().DialogScreen.DetachInput();
+        UnfocusCurrentScreen();
 
         // Search the to-be-closed dialog in the dialog stack and close it.
         // It's a bit difficult because the Stack implementation doesn't provide methods to access elements in the
@@ -555,10 +570,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_dialogStack.Count == 0)
         { // Last dialog was removed, attach input to screen
           if (_currentScreen != null)
-            _currentScreen.AttachInput();
+            FocusScreen(_currentScreen);
         }
         else
-          _dialogStack.Peek().DialogScreen.AttachInput();
+          FocusScreen(_dialogStack.Peek().DialogScreen);
       }
       foreach (DialogData dd in oldDialogData)
         DoCloseDialog(dd, fireCloseDelegates);
@@ -588,7 +603,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentScreen = null;
 
         screen.ScreenState = Screen.State.Closing;
-        screen.DetachInput();
+        UnfocusCurrentScreen();
 
         ScheduleDisposeScreen(screen);
       }
@@ -613,7 +628,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentScreen = screen;
       }
       screen.ScreenState = Screen.State.Running;
-      screen.AttachInput();
+      FocusScreen(screen);
       screen.Show();
     }
 
@@ -978,6 +993,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         DialogData dd = CurrentDialogData;
         return dd == null ? null : dd.DialogScreen.Name;
+      }
+    }
+
+    public Screen FocusedScreen
+    {
+      get
+      {
+        lock (_syncObj)
+          return _focusedScreen;
       }
     }
 
