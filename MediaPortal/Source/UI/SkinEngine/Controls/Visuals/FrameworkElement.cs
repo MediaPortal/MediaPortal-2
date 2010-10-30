@@ -908,7 +908,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Matrix layoutTransform = LayoutTransform.GetTransform().RemoveTranslation();
         if (!layoutTransform.IsIdentity)
         {
-          SizeF resultInnerSize = _innerDesiredSize;
+          SizeF resultInnerSize = outerRect.Size;
           SizeF resultOuterSize = new SizeF(resultInnerSize);
           layoutTransform.TransformIncludingRectangleSize(ref resultOuterSize);
           if (resultOuterSize.Width > rect.Width + DELTA_DOUBLE || resultOuterSize.Height > rect.Height + DELTA_DOUBLE)
