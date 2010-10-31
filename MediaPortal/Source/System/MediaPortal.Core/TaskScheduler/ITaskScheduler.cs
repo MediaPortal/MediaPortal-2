@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2008 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -52,7 +52,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="newTask">task to add to the scheduler</param>
     /// <returns>ID assigned to the given task</returns>
     int AddTask(Task newTask);
-    
+
     /// <summary>
     /// Updates an already registered task
     /// </summary>
@@ -65,14 +65,14 @@ namespace MediaPortal.Core.TaskScheduler
     /// </summary>
     /// <param name="taskId">ID of the task to remove</param>
     void RemoveTask(int taskId);
-    
+
     /// <summary>
     /// Gets a registered task from the task scheduler
     /// </summary>
     /// <param name="taskId">ID of the task to get</param>
     /// <returns>task with given ID</returns>
     Task GetTask(int taskId);
-    
+
     /// <summary>
     /// Gets all registered tasks for the given owner from the task scheduler
     /// </summary>

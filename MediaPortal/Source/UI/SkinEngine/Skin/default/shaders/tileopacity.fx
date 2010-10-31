@@ -82,7 +82,7 @@ float2 wrapTextureCoord(float2 pos, float2 offset, float2 size, out float discar
 
   // Convert to viewport coords
   fraction = (pos - offset) / size;
-  
+
   // Split ratio into integer and fractional components
   fraction = modf(fraction, wrap);
 

@@ -5,7 +5,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="MediaColors,MediaGraphics,Colors,Graphics"
     >
-  
+
   <Style x:Key="ShowDvdMenuButtonStyle" TargetType="{x:Type Button}">
   <Setter Property="Template">
     <Setter.Value>

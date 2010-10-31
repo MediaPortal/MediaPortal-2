@@ -1,6 +1,6 @@
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture g_texture; // Color texture 
- 
+
 sampler textureSampler = sampler_state
 {
   Texture = <g_texture>;

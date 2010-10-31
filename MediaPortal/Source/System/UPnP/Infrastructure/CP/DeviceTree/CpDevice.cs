@@ -48,7 +48,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected bool _isOptional = true;
     protected DeviceConnection _connection = null;
     protected string _uuid;
-    
+
     /// <summary>
     /// Creates a new UPnP device instance at the control point (client) side.
     /// </summary>

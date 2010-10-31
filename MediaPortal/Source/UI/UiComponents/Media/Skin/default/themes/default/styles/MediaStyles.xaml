@@ -253,7 +253,7 @@
                     Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
-                
+
                 <!-- DVD specific feature buttons -->
                 <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0" 
                     DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
@@ -274,7 +274,6 @@
                     IsVisible="{Binding PlayerUIContributor.SubtitlesAvailable}"
                     DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
                     Command="{Command PlayerUIContributor.OpenChooseSubtitleDialog}"/>
-              
               </StackPanel>
               <!-- PlayControlsPanel -->
             </Grid>
@@ -295,7 +294,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="FixedVideoHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
     <Setter Property="Template">

@@ -96,7 +96,7 @@ namespace CommandLine
         {
             Type elementType = _field.FieldType.GetElementType();
             Array array = Array.CreateInstance(elementType, values.Count);
-            
+
             for (int i = 0; i < array.Length; i++)
             {
                 try

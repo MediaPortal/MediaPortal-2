@@ -102,7 +102,7 @@ namespace Dokan
             }
             return fileInfo;
         }
-      
+
         private string GetFileName(IntPtr fileName)
         {
             return Marshal.PtrToStringUni(fileName);
@@ -112,7 +112,7 @@ namespace Dokan
         private const uint GENERIC_READ = 0x80000000;
         private const uint GENERIC_WRITE = 0x40000000;
         private const uint GENERIC_EXECUTE = 0x20000000;
-        
+
         private const uint FILE_READ_DATA = 0x0001;
         private const uint FILE_READ_ATTRIBUTES = 0x0080;
         private const uint FILE_READ_EA = 0x0008;
@@ -129,7 +129,7 @@ namespace Dokan
         private const uint OPEN_EXISTING = 3;
         private const uint OPEN_ALWAYS = 4;
         private const uint TRUNCATE_EXISTING = 5;
-        
+
         private const uint FILE_ATTRIBUTE_ARCHIVE = 0x00000020;
         private const uint FILE_ATTRIBUTE_ENCRYPTED = 0x00004000;
         private const uint FILE_ATTRIBUTE_HIDDEN = 0x00000002;
@@ -140,7 +140,6 @@ namespace Dokan
         private const uint FILE_ATTRIBUTE_SYSTEM = 0x00000004;
         private const uint FILE_ATTRIBUTE_TEMPORARY = 0x00000100;
 
-        
         public delegate int CreateFileDelegate(
             IntPtr rawFilName,
             uint rawAccessMode,
@@ -162,7 +161,7 @@ namespace Dokan
                 string file = GetFileName(rawFileName);
 
                 DokanFileInfo info = GetNewFileInfo(ref rawFileInfo);
-                
+
                 FileAccess access = FileAccess.Read;
                 FileShare share = FileShare.None;
                 FileMode mode = FileMode.Open;
@@ -441,7 +440,7 @@ namespace Dokan
                 return -1;
             }
         }
-       
+
         ////
 
         public delegate int GetFileInformationDelegate(
@@ -694,7 +693,7 @@ namespace Dokan
 
                 time = ((long)rawCreationTime.dwHighDateTime << 32) + (uint)rawCreationTime.dwLowDateTime;
                 DateTime ctime = DateTime.FromFileTime(time);
-                
+
                 if (time == 0)
                     ctime = DateTime.MinValue;
 

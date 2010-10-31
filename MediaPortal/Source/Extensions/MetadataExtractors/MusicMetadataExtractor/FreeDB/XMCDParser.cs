@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -332,7 +332,7 @@ namespace Media.Importers.MusicImporter.Freedb
 
       Extended to the detection of " - " as well, a lot of FreeDB annotators do not follow the above rule and split the Artist from the Title name this way; this workaround is a hell more tricky, a few legitimate tags may be badly cut
       We only split the string if we're sure this CD is a real compilation
-    
+
       */
       //isALegitimateCompilation if the CD Artist is either not set or equals "Various", "Various Artists", etc...
       Regex artistTagIsSetToVarious = new Regex(@"^(([Vv]arious)|([Aa]ssorted))( [Aa]rtist[s]?)?$");

@@ -49,7 +49,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     protected DvDevice _parentDevice = null;
     protected IDictionary<string, DvAction> _actions = new Dictionary<string, DvAction>();
     protected IDictionary<string, DvStateVariable> _stateVariables = new Dictionary<string, DvStateVariable>();
-    
+
     /// <summary>
     /// Creates a new UPnP service instance at the server (device) side.
     /// </summary>
@@ -89,7 +89,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     {
       get { return _serviceType; }
     }
-  
+
     /// <summary>
     /// Returns the version of the type of this service.
     /// </summary>

@@ -135,7 +135,6 @@ namespace MediaInfoLib
         {
           bytes_read = stream.Read(buffer, 0, buffer_size);
 
-          
           if (_mediaInfo.Open_Buffer_Continue(buffer_ptr, (IntPtr) bytes_read) == 0)
             // MediaInfo doesn't need more information from us
             break;
@@ -152,7 +151,7 @@ namespace MediaInfoLib
       {
         gcHandle.Free();
       }
- 
+
       // Finalising MediaInfo procesing
       _mediaInfo.Open_Buffer_Finalize();
 

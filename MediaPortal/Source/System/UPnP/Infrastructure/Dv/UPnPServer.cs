@@ -75,7 +75,7 @@ namespace UPnP.Infrastructure.Dv
 
     protected ICollection<DvDevice> _rootDevices = new List<DvDevice>();
     protected ServerData _serverData = new ServerData();
-    
+
     /// <summary>
     /// Creates a new UPnP server instance. After creating this instance, its root devices should be populated by calling
     /// <see cref="AddRootDevice"/> for each device.
@@ -310,7 +310,7 @@ namespace UPnP.Infrastructure.Dv
             {
               string acceptLanguage = request.Headers.Get("ACCEPT-LANGUAGE");
               CultureInfo culture = GetFirstCultureOrDefault(acceptLanguage, CultureInfo.InvariantCulture);
-  
+
               string description = null;
               DvDevice rootDevice;
               if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))

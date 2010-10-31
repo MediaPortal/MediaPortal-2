@@ -57,7 +57,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     protected int _deviceTypeVersion;
     protected string _uuid;
     protected ILocalizedDeviceInformation _deviceInformation;
-    
+
     /// <summary>
     /// Creates a new UPnP device instance at the server (device) side.
     /// </summary>

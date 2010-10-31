@@ -204,6 +204,6 @@
     <String Name="SubtitleOff" Text="Disable Subtitles"/>
     <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
-    
+
   </Section>
 </Language>

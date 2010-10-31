@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -89,7 +89,7 @@ namespace MediaPortal.UI.Players.Video
     /// List of chapters. Will be initialized lazily. <c>null</c> if not currently valid.
     /// </summary>
     protected List<String> _chapters = null;
-    
+
     protected object _guiPropertiesLock = new object();
 
     protected DvdHMSFTimeCode _currTime; // copy of current playback states, see OnDvdEvent()
@@ -98,14 +98,14 @@ namespace MediaPortal.UI.Players.Video
     protected int _buttonCount = 0;
     protected int _focusedButton = 0;
     protected DvdDomain _currDomain;
-    
+
     protected bool _handlesInput = false;
     protected ValidUOPFlag _UOPs;
     protected double _duration;
     protected double _currentTime = 0;
 
     private const string DVD_NAVIGATOR = "DVD Navigator";
-    
+
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
     protected AspectRatioMode arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
@@ -183,7 +183,7 @@ namespace MediaPortal.UI.Players.Video
 
       // first all automatically rendered pins
       FilterGraphTools.RenderOutputPins(_graphBuilder, _dvdbasefilter);
-      
+
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins
       FilterGraphTools.RenderAllManualConnectPins(_graphBuilder);
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.Players.Video
       setError = _dvdCtrl.SelectDefaultSubpictureLanguage(settings.SubtitleLanguage, DvdSubPictureLangExt.NotSpecified);
       errorText = GetErrorText(setError);
       ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.SubtitleLanguage, errorText);
- 
+
       _dvdCtrl.SetSubpictureState(settings.EnableSubtitles, DvdCmdFlags.None, out _cmdOption);
     }
 
@@ -779,7 +779,7 @@ namespace MediaPortal.UI.Players.Video
         return audioStreams[currentStream];
       }
     }
-    
+
     #endregion
 
     #region Subtitle stream handling

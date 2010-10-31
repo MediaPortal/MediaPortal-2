@@ -316,7 +316,7 @@ namespace MediaPortal.Core.Services.Threading
     }
 
     #endregion
-    
+
     #region Initialization
 
     /// <summary>

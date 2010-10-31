@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -138,11 +138,11 @@ namespace MediaPortal.Core.Services.Localization
             LANGUAGE_RESOURCES_REGISTRATION_PATH, _languagePluginStateTracker);
         pluginManager.AddItemRegistrationChangeListener(
             LANGUAGE_RESOURCES_REGISTRATION_PATH, _languageResourcesRegistrationChangeListener);
-  
+
         lock (_syncObj)
         {
           _languageDirectories = new List<string>();
-  
+
           ILogger logger = ServiceRegistration.Get<ILogger>();
           foreach (PluginResource resource in languageResources)
           {
@@ -153,7 +153,7 @@ namespace MediaPortal.Core.Services.Localization
               logger.Error("{0}: Language directory doesn't exist: {1}", GetType().Name, resource.Path);
           }
         }
-  
+
         ReLoad();
       }
       catch (Exception e)

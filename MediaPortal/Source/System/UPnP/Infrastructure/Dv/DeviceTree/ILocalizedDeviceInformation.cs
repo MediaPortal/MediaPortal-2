@@ -95,7 +95,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="culture">The culture to localize the returned data.</param>
     /// <returns>Localized string or <c>null</c>.</returns>
     string GetSerialNumber(CultureInfo culture);
-    
+
     /// <summary>
     /// Universal Product Code. 12-digit, all-numeric code that identifies the consumer package.
     /// Managed by the Uniform Code Council. This value is optional and may be <c>null</c>.

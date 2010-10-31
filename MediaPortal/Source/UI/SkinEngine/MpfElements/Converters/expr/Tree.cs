@@ -87,7 +87,7 @@ namespace Jyc.Expr
             ExprNode argNode = new ExprNode(expr); 
             _top.Add(argNode);
         }
- 
+
         internal void AddOperator(Operator expr )
         {
             _isStart = false;
@@ -136,7 +136,6 @@ namespace Jyc.Expr
                             _root = _top;
                         } 
                     } 
-                
                 } 
             }
         }
@@ -291,7 +290,5 @@ namespace Jyc.Expr
             }
         }
     }
-
- 
 }
 

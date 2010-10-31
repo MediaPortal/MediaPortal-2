@@ -103,7 +103,7 @@ namespace Dokan
             {
                 options.VolumeLabel = "DOKAN";
             }
-            
+
             Proxy proxy = new Proxy(options, operations);
 
             DOKAN_OPTIONS dokanOptions = new DOKAN_OPTIONS();

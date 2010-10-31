@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -48,7 +48,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     private volatile bool _terminated = false;
     private volatile bool _inputStreamInitialized = false;
-      
+
     private float[] _readData = new float[1];
 
     private readonly AutoResetEvent _updateThreadFinished;
@@ -58,7 +58,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     private BassStream _outputStream;
     private BassStream _vizRawStream;
     private BassStream _vizStream;
-      
+
     private readonly TimeSpan _bufferSize;
     private TimeSpan _readOffset;
     private TimeSpan _vizReadOffset;
@@ -95,7 +95,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void Dispose()
     {
       Log.Debug("PlaybackBuffer.Dispose()");
-        
+
       ResetInputStream();
     }
 
@@ -258,7 +258,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_StreamCreate");
-        
+
       _vizRawStream = BassStream.Create(handle);
 
       // Todo: apply AGC

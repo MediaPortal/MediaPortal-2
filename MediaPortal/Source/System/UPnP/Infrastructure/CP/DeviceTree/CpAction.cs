@@ -64,7 +64,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       {
         Dispose();
       }
-      
+
       public void Dispose()
       {
         lock (_syncObj)
@@ -165,7 +165,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected IList<CpArgument> _outArguments = new List<CpArgument>();
     protected bool _isOptional = true;
     protected DeviceConnection _connection = null;
-    
+
     /// <summary>
     /// Creates a new instance of <see cref="CpAction"/>.
     /// </summary>

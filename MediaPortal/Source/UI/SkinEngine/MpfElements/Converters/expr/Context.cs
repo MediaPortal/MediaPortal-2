@@ -38,6 +38,4 @@ namespace Jyc.Expr
             return this.token.ToString() + ":" + value.ToString();
         }
     }
-
-     
 }

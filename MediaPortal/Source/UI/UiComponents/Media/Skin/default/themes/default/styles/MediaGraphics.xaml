@@ -52,7 +52,7 @@
       </Path.RenderTransform>
     </Path>
   </ControlTemplate>
-  
+
   <ControlTemplate x:Key="SelectSubtitleControlTemplate">
     <Canvas  Width="18" Height="18" Margin="10,5,10,5">
       <Rectangle Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"

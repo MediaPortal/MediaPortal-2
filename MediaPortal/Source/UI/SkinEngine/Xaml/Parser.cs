@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -607,7 +607,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         return ParseValue(node.Value);
       if (!(node is XmlElement))
         return null;
-      
+
       // Handle explicit or implicit (Content) member element
       // Return value's type will be either a dict or a list, depending on contents
       IList<object> resultList = new List<object>();

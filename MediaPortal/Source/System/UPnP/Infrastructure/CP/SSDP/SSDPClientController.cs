@@ -270,7 +270,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           throw new IllegalCallException("SSDPClientController is already active");
         _isActive = true;
         IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses());
-  
+
         // Add endpoints
         foreach (IPAddress address in addresses)
         {
@@ -319,7 +319,7 @@ namespace UPnP.Infrastructure.CP.SSDP
                 NetworkHelper.IPAddrToString(config.EndPointIPAddress));
           }
         }
-  
+
         _expirationTimer = new Timer(OnExpirationTimerElapsed, null, EXPIRATION_TIMER_INTERVAL, EXPIRATION_TIMER_INTERVAL);
         SearchAll(null);
       }

@@ -89,7 +89,7 @@ namespace CommandLine
                 return null;
 
             field.SetValue(target, Activator.CreateInstance(concreteType));
-            
+
             return (IList<string>)field.GetValue(target);
         }
 

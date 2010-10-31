@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -174,7 +174,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// </summary>
     /// <returns>Enumeration of audio stream descriptors.</returns>
     IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors();
-    
+
     /// <summary>
     /// Sets a special <paramref name="geometry"/> for the <see cref="CurrentPlayer"/>, if it is a video player.
     /// The geometry will only be applied to the current player. It will be lost when the current player is disposed.

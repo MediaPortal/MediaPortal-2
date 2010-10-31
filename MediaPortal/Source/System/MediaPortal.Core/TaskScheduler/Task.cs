@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2008 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -47,7 +47,7 @@ namespace MediaPortal.Core.TaskScheduler
     TimeBased,
     IntervalBased
   }
-  
+
   /// <summary>
   /// The Schedule struct represents the schedule from a particular Task. Schedule's are either time-based or
   /// interval-based, depending on the setting of the property Type which is a value from enum ScheduleType. Depending on this
@@ -90,7 +90,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.TimeBased;
       }
     }
-    
+
     public int Day
     {
       get { return _day; }
@@ -102,7 +102,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.TimeBased;
       }
     }
-    
+
     [XmlIgnore]
     public TimeSpan Interval
     {
@@ -113,7 +113,7 @@ namespace MediaPortal.Core.TaskScheduler
         _type = ScheduleType.IntervalBased;
       }
     }
-    
+
     [XmlElement("Interval", DataType = "duration")]
     public string TimeSpanInterval
     {
@@ -130,7 +130,7 @@ namespace MediaPortal.Core.TaskScheduler
         }
       }
     }
-    
+
     public ScheduleType Type
     {
       get { return _type; }
@@ -166,7 +166,7 @@ namespace MediaPortal.Core.TaskScheduler
     private bool _forceRun = false;
     private bool _needUpdate = true;
     private string _owner = String.Empty;
-    
+
     #endregion
 
     #region Ctor
@@ -293,7 +293,7 @@ namespace MediaPortal.Core.TaskScheduler
         throw new ArgumentException("wakeup setting cannot be used together with Occurrence " + _occurrence);
       _wakeup = wakeup;
     }
-    
+
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>

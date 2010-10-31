@@ -339,7 +339,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         lock (_serverData.SyncObj)
           body = GENAMessageBuilder.BuildEventNotificationMessage(variables, !_subscriberSupportsUPnP11);
         byte[] bodyData = Encoding.UTF8.GetBytes(body);
-  
+
         AsyncRequestState state = new AsyncRequestState(_sid, _callbackURLs, _eventingState.EventKey, bodyData);
         _pendingRequests.Add(state);
         ContinueEventNotification(state);

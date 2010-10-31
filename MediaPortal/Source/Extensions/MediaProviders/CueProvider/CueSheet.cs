@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -198,7 +198,7 @@ namespace Media.Importers.MusicImporter
         {
             // array of delimiters to split the sentence with
             char[] delimiters = new char[] { '\n' };
-            
+
             // read in the full cue file
             TextReader tr = new StreamReader(filename, encoding);
             //read in file
@@ -363,7 +363,6 @@ namespace Media.Importers.MusicImporter
                     catch (Exception)
                     {
                         temp = line.ToUpper();
-                        
                     }
 
                     switch (temp)
@@ -558,7 +557,7 @@ namespace Media.Importers.MusicImporter
 
             AddTrack(trackNumber, tempString);
         }
-        
+
         /// <summary>
         /// Reallocates an array with a new size, and copies the contents
         /// of the old array to the new array.
@@ -1233,7 +1232,7 @@ namespace Media.Importers.MusicImporter
             m_PostGap = new Index(-1, 0, 0, 0);
             m_DataFile = new AudioFile();
         }
-        
+
         #endregion
 
         #region Methods

@@ -1336,7 +1336,7 @@ namespace Tao.FreeType
     /// <param name="matrix">A pointer to the source 2x2 matrix</param>
     [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
     public static extern void FT_Vector_Transform(ref FT_Vector vec, ref FT_Matrix matrix);
-    
+
     /// <summary>
     /// A function used to extract a glyph image from a slot.
     /// </summary>

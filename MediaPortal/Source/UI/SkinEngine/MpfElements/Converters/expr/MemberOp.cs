@@ -73,7 +73,7 @@ namespace Jyc.Expr
             }
 
             Type type = null;
-            
+
             BindingFlags bindingFlags = BindingFlags.Default;
             if (target is Type)
             {

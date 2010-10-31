@@ -3,7 +3,7 @@ namespace Jyc.Expr
     public class Parser
     { 
         Scanner _scanner;
-         
+
         Context _current;
         Tree _tree;
 
@@ -134,7 +134,7 @@ namespace Jyc.Expr
             Constant expr = new Constant(_current.value);
             _tree.AddOperand( expr);
         }
- 
+
         void ParseBinaryOp( )
         {
             Token token = this.PeekToken();

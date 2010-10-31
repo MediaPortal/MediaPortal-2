@@ -43,7 +43,7 @@ namespace Jyc.Expr
             result = 0; 
             if (type1 == null || type2 == null)
                 return false;
- 
+
             if (!typePriority.ContainsKey(type1))
             {
                 return false;

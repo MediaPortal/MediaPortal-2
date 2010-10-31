@@ -80,7 +80,5 @@ namespace Jyc.Expr
             ProcessArg(evaluater, argArray);
             return DoEval(evaluater, argArray );
         }
-
-       
     }
 }

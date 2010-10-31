@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected DateTime _lastTimeUsed;
     // Vertex buffer
     protected PrimitiveBuffer _buffer = new PrimitiveBuffer();
-    
+
     #endregion
 
     #region Ctor
@@ -292,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Re-use existing buffer if necessary
       _buffer.Set(ref verts, PrimitiveType.TriangleList);
-      
+
       // Preserve state
       _lastTextBoxWidth = boxWidth;
       _lastWrap = wrap;

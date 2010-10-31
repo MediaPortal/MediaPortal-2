@@ -20,15 +20,14 @@ namespace Jyc.Expr {
     [global::System.Diagnostics.DebuggerNonUserCode()]
     [global::System.Runtime.CompilerServices.CompilerGenerated()]
     internal class SR {
-        
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal SR() {
         }
-        
+
         /// <summary>
         ///   Gibt die zwischengespeicherte ResourceManager-Instanz zurück, die von dieser Klasse verwendet wird.
         /// </summary>
@@ -42,7 +41,7 @@ namespace Jyc.Expr {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Überschreibt die CurrentUICulture-Eigenschaft des aktuellen Threads für alle
         ///   Ressourcenzuordnungen, die diese stark typisierte Ressourcenklasse verwenden.
@@ -56,7 +55,7 @@ namespace Jyc.Expr {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die {0} at {1},code {2}
         /// ähnelt.
@@ -66,7 +65,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("ErrorFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die internal error
         /// ähnelt.
@@ -76,7 +75,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("InternalError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die not has {0} Before,code {1}
         /// ähnelt.
@@ -86,7 +85,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("NoParenBefore", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Not a hexadcimal Character ähnelt.
         /// </summary>
@@ -95,7 +94,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("NotHexChar", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die not support global function
         /// ähnelt.
@@ -105,7 +104,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("NotSupportGlobalFunction", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die {0} not Match,code{1}
         /// ähnelt.
@@ -115,7 +114,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("ParenNotMatch", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die unrecognise Character
         /// ähnelt.
@@ -125,7 +124,7 @@ namespace Jyc.Expr {
                 return ResourceManager.GetString("UnrecogniseChar", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Variable &apos;{0}&apos; not exist ähnelt.
         /// </summary>

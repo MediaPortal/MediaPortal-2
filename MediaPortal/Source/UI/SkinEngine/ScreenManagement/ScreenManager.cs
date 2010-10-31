@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -415,7 +415,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         // Release old resources
         _skinManager.ReleaseSkinResources();
-  
+
         Skin skin;
         Theme theme;
         // Try to prepare new skin/theme
@@ -429,7 +429,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
           if (theme == null)
             theme = skin.DefaultTheme;
-  
+
           if (!skin.IsValid)
             throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
           if (theme != null)

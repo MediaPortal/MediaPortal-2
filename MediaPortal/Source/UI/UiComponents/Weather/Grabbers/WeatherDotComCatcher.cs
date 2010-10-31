@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -305,7 +305,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       c.LocationInfo.Time = GetString(xmlElement, "tm", string.Empty); // <tm>1:12 AM</tm>
       c.LocationInfo.Lat = GetString(xmlElement, "lat", string.Empty); // <lat>49.02</lat>
       c.LocationInfo.Lon = GetString(xmlElement, "lon", string.Empty); // <lon>12.1</lon>
-      
+
       c.LocationInfo.SunRise = GetString(xmlElement, "sunr", string.Empty); // <sunr>7:14 AM</sunr> 
       if (c.LocationInfo.SunRise == "N/A")
         c.LocationInfo.SunRise = string.Empty;
@@ -317,7 +317,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
         c.LocationInfo.SunSet = string.Empty;
       else
         c.LocationInfo.SunSet = string.Format("{0}", RelocalizeTime(c.LocationInfo.SunSet));
-      
+
       c.LocationInfo.Zone = GetString(xmlElement, "zone", string.Empty); // <zone>1</zone>
       return true;
     }

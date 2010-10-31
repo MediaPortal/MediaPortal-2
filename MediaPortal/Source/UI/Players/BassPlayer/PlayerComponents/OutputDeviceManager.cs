@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -51,11 +51,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void Dispose()
     {
       Log.Debug("OutputDeviceManager.Dispose()");
-        
+
       if (_OutputDevice != null)
       {
         Log.Debug("Disposing output device");
-          
+
         _OutputDevice.Dispose();
         _OutputDevice = null;
 
@@ -92,9 +92,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void SetInputStream(BassStream stream, bool passThrough)
     {
       Log.Debug("OutputDeviceManager.SetInputStream()");
-        
+
       ResetInputStream();
-        
+
       Log.Debug("Instantiating output device");
       _OutputDevice = _OutputDeviceFactory.CreateOutputDevice();
 
@@ -112,7 +112,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       if (!_Initialized)
         throw new BassPlayerException("OutputDeviceManager not initialized");
-        
+
       if (_OutputDevice.DeviceState == DeviceState.Stopped)
       {
         Log.Debug("OutputDevice: PrepareFadeIn()");
@@ -152,10 +152,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void ClearDeviceBuffers()
     {
       Log.Debug("OutputDeviceManager.ClearDeviceBuffers()");
-        
+
       if (!_Initialized)
         throw new BassPlayerException("OutputDeviceManager not initialized");
-        
+
       _OutputDevice.ClearBuffers();
     }
 

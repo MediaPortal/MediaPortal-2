@@ -18,7 +18,7 @@ namespace Jyc.Expr
             {
                 throw EvalException.VariableNotExist(this.Name);
             }
-             
+
             object o = evaluater.VariableHolder.GetVariable(this.Name);
             if (o == null)
             {

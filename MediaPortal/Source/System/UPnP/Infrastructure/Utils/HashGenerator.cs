@@ -43,7 +43,7 @@ namespace UPnP.Infrastructure.Utils
     public static UInt32 CalculateHash(UInt32 seed, byte[] buffer, int start, int size)
     {
       UInt32 hash = seed;
-  
+
       for (int i = start; i < size; i++)
         unchecked {
           hash = (hash << 4) + buffer[i];

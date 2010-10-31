@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -43,9 +43,7 @@ namespace MediaPortal.UiComponents.Weather
     private AbstractProperty _humidity = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _wind = new WProperty(typeof(string), string.Empty); 
 
-
-   
-    // Getters :P
+    // Getters
 
     public string SmallIcon
     {
@@ -53,13 +51,11 @@ namespace MediaPortal.UiComponents.Weather
       set { _smallIcon.SetValue(value); }
     }
 
-
     public string BigIcon
     {
       get { return (string)_bigIcon.GetValue(); }
       set { _bigIcon.SetValue(value); }
     }
-
 
     public string Overview
     {
@@ -121,13 +117,11 @@ namespace MediaPortal.UiComponents.Weather
       set { _smallIcon = value; }
     }
 
-
     public AbstractProperty BigIconProperty
     {
       get { return _bigIcon; }
       set { _bigIcon = value; }
     }
-
 
     public AbstractProperty OverviewProperty
     {
@@ -182,5 +176,5 @@ namespace MediaPortal.UiComponents.Weather
       get { return _wind; }
       set { _wind = value; }
     }
-  } ;
+  }
 }

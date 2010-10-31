@@ -89,7 +89,7 @@ namespace UPnP.Infrastructure.Utils
       reader.ReadStartElement(name);
       return result;
     }
-    
+
     public static bool ReadEmptyStartElement(XmlReader reader, string localName, string ns)
     {
       bool result = reader.IsEmptyElement;

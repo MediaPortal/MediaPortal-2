@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2010 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -13,11 +13,11 @@
 
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion
@@ -54,7 +54,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       foreach (CodecInfo codecInfo in _codecList)
       {
         _items.Add(LocalizationHelper.CreateStaticString(codecInfo.Name));
-        
+
         // check if it is current the selected codec, use Guid because DsGuid's compare returns false.
         if (_currentSelection != null && _currentSelection.ToGuid() == codecInfo.GetCLSID().ToGuid())
           Selected = idx;

@@ -12,7 +12,7 @@
 
     <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
-    
+
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <StackPanel Width="500" DataContext="{Binding Source={StaticResource Model}}">

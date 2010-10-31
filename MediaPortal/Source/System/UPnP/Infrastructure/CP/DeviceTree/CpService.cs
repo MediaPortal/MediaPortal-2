@@ -62,7 +62,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected IDictionary<string, CpStateVariable> _stateVariables = new Dictionary<string, CpStateVariable>();
     protected bool _isOptional = true;
     protected DeviceConnection _connection = null;
-    
+
     /// <summary>
     /// Creates a new UPnP service instance at the client (control point) side.
     /// </summary>
@@ -139,7 +139,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       get { return _serviceType; }
     }
-  
+
     /// <summary>
     /// Returns the version of the type of this service.
     /// </summary>
