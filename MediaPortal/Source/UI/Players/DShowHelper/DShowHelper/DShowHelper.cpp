@@ -1,3 +1,23 @@
+/*
+    Copyright (C) 2007-2010 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <windows.h>
 #include <streams.h>
 #include <stdio.h>
@@ -130,7 +150,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
   while (true)
   {
     bool inUse=false;
-    for (itevrAllocator it=m_evrPresenters.begin(); it !=m_evrPresenters.end();it++)
+    for (itevrAllocator it=m_evrPresenters.begin(); it !=m_evrPresenters.end(); it++)
     {
       EVRCustomPresenter* allocator=*it;
       if (allocator->Id()==id)
@@ -188,7 +208,7 @@ __declspec(dllexport) void EvrDeinit(int id)
 		  m_bEVRLoaded = FALSE;
 	  }
   }
-  catch(...)
+  catch (...)
   {
     Log("EvrDeinit:exception");
   }
