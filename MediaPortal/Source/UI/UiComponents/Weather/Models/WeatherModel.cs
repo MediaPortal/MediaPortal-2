@@ -35,10 +35,8 @@ using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Weather.Grabbers;
 using MediaPortal.Core.TaskScheduler;
 using MediaPortal.UiComponents.Weather.Settings;
-using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
