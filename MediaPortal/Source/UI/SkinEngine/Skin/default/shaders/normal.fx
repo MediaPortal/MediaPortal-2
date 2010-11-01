@@ -7,6 +7,9 @@ sampler textureSampler = sampler_state
   MipFilter = LINEAR;
   MinFilter = LINEAR;
   MagFilter = LINEAR;
+  AddressU = BORDER;
+  AddressV = BORDER;
+  BorderColor = {1.0, 1.0, 1.0, 0.0};
 };
                           
 // application to vertex structure

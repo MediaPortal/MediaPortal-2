@@ -230,7 +230,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
-          if (uriSource.ToLower().EndsWith(".png") || uriSource.ToLower().EndsWith(".bmp"))
+          string lower = uriSource.ToLower();
+          if (lower.EndsWith(".png") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".bmp"))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             result = bmi;
