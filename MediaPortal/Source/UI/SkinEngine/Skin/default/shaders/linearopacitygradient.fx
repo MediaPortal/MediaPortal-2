@@ -21,8 +21,8 @@ sampler alphaSampler = sampler_state
 {
   Texture = <g_alphatex>;
   MipFilter = NONE;
-  MinFilter = POINT;
-  MagFilter = POINT;
+  MinFilter = NONE;
+  MagFilter = NONE;
 };
 
 // application to vertex structure

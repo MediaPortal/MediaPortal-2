@@ -5,9 +5,9 @@ float4   g_solidcolor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 sampler textureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
+  MipFilter = NONE;
+  MinFilter = NONE;
+  MagFilter = NONE;
 };
                           
 // application to vertex structure

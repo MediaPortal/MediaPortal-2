@@ -31,9 +31,9 @@ sampler alphaSampler : register (s1) = sampler_state
 sampler textureSampler : register (s0) = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
+  MipFilter = NONE;
+  MinFilter = NONE;
+  MagFilter = NONE;
 };
 
 // application to vertex structure

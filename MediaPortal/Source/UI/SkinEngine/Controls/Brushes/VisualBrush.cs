@@ -67,7 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _visualProperty = new SProperty(typeof(FrameworkElement), null);
       _autoLayoutContentProperty = new SProperty(typeof(bool), true);
-      _effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
     }
 
     void Attach()
