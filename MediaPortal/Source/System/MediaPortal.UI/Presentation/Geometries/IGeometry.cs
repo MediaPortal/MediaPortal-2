@@ -43,16 +43,16 @@ namespace MediaPortal.UI.Presentation.Geometries
     string Shader { get;}
 
     /// <summary>
-    /// Does the actual transformation of the given video area data based on the geometry <paramref name="data"/>
-    /// and the specified <paramref name="cropSettings"/> and stores the results in the specified
-    /// source rectangle <paramref name="rSource"/> and the specified destination rectangle <paramref name="rDest"/>.
+    /// Returns <c>true</c> if the source should be cropped.
     /// </summary>
-    /// <param name="data">The geometry data on which the transformation should be based.</param>
-    /// <param name="cropSettings">The cropping to be used.</param>
-    /// <param name="rSource">Returns the source rectangle. This is the rectangle which should be copied from the
-    /// source image.</param>
-    /// <param name="rDest">Returns the destination rectangle. This is the rectangle to which the copied part should
-    /// be presented in the target area.</param>
-    void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest);
+    bool Crop { get; }
+
+    /// <summary>
+    /// Does the actual transformation of the given video area.
+    /// </summary>
+    /// <param name="inputSize">The original size of the input.</param>
+    /// <param name="targetSize">The total size available.</param>
+    /// TODO: More docs, document return value
+    SizeF Transform(SizeF inputSize, SizeF targetSize);
   }
 }

@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace MediaPortal.UI.Presentation.Geometries
 {
@@ -60,34 +59,5 @@ namespace MediaPortal.UI.Presentation.Geometries
     /// to geometry instances.
     /// </summary>
     IDictionary<string, IGeometry> AvailableGeometries { get;}
-
-    /// <summary>
-    /// This method will do the transformation based on the given <paramref name="geometry"/>.
-    /// It will calculate 2 rectangles: A source and destination rectangle based on the
-    /// given geometry, video and target size.
-    /// The returned source rectangle specifies which part of the image/video should be copied.
-    /// The returned destination rectangle specifies where the copied part should be presented on screen.
-    /// </summary>
-    /// <remarks>
-    /// When presenting videos/images on the screen, we must deal with different source/target sizes and different
-    /// source/target aspect ratios. When translating from source to target, different calculation methods can be
-    /// used. The source image can be cropped, stretched or converted in another way. The <paramref name="geometry"/>
-    /// instance defines the way how this transformation is done.
-    /// Given a video size and a fixed target size (both contained in the <paramref name="data"/> parameter), this method
-    /// calculates which part of the source rectangle should be copied to which part of the target rectangle.
-    /// The sizes and aspect ratios will most probably differ; the copy routine must stretch the copied images differently
-    /// in X- and Y-direction.
-    /// </remarks>
-    /// <param name="data">The data the transformation should be based on.</param>
-    /// <param name="rSource">Rectangle specifying which part of the source image/video should be copied.</param>
-    /// <param name="rDest">Rectangle specifying to which part of the target rectangle (given in the
-    /// <paramref name="data"/>) the copied part should be presented.</param>
-    /// <param name="geometry">Geometry to be used for the calculations.</param>
-    void Transform(IGeometry geometry, GeometryData data, out Rectangle rSource, out Rectangle rDest);
-
-    /// <summary>
-    /// This method will do the transformation based on the current geometry
-    /// (see <see cref="Transform(IGeometry,GeometryData,out Rectangle,out Rectangle)"/>).
-    void Transform(GeometryData data, out Rectangle rSource, out Rectangle rDest);
   }
 }

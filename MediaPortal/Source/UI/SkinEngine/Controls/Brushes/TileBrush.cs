@@ -65,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
     protected const string PARAM_BRUSH_TRANSFORM = "g_brushtransform";
 
+    // Only used for complex cases (tiling / flipping)
     protected const string PARAM_U_OFFSET = "g_uoffset";
     protected const string PARAM_V_OFFSET = "g_voffset";
     protected const string PARAM_TILE_U = "g_tileu";
@@ -85,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected EffectAsset _effect;
     protected Vector4 _textureViewport;
     protected Vector4 _brushTransform;
+    protected Matrix _relativeTransformCache;
     #endregion
 
     #region Ctor
@@ -350,6 +352,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // This structure is used for modifying vertex texture coords to position the brush texture
       _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
 
+      _relativeTransformCache = RelativeTransform == null ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
+
       // Determine if we can use the simpler, more optimised effects
       if (Tile == TileMode.None && Stretch != Stretch.UniformToFill)
         _simplemode = true;
@@ -397,11 +401,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           break;
       }
 
-      if (RelativeTransform != null)
-        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Invert(RelativeTransform.GetTransform());
-      else
-        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Identity;
-
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
@@ -412,11 +412,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void SetSimpleEffectParameters(RenderContext renderContext)
     {
-      if (RelativeTransform != null)
-        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Invert(RelativeTransform.GetTransform());
-      else
-        _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = Matrix.Identity;
-
+      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float)(Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;

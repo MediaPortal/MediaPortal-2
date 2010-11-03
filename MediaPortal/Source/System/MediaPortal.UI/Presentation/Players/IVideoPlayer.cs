@@ -39,9 +39,19 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IVideoPlayer : IPlayer, IVolumeControl
   {
     /// <summary>
-    /// Returns the original size of the video picture.
+    /// Returns the cropped size of the video picture.
     /// </summary>
     Size VideoSize { get; }
+
+    /// <summary>
+    /// Returns the uncropped size of the video picture.
+    /// </summary>
+    Size UncroppedVideoSize { get; }
+
+    /// <summary>
+    /// Returns the maximum texture UV coords (because the video surface size may differ from the video size).
+    /// </summary>
+    SizeF SurfaceMaxUV { get; }
 
     /// <summary>
     /// Returns the aspect ratio of the video.

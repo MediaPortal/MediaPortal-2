@@ -46,24 +46,17 @@ namespace MediaPortal.UI.SkinEngine.Geometry
 
     public string Shader
     {
-      get { return "smartzoom"; }
+      get { return "videosmartzoom"; }
     }
 
-    public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
+    public bool Crop
     {
-      // make sure the crop settings are acceptable
-      cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
+      get { return true; }
+    }
 
-      int cropW = cropSettings.Left + cropSettings.Right;
-      int cropH = cropSettings.Top + cropSettings.Bottom;
-
-      // the source image dimensions when taking into
-      // account the crop settings
-      int croppedImageWidth = data.OriginalSize.Width - cropW;
-      int croppedImageHeight = data.OriginalSize.Height - cropH;
-
-      rSource = new Rectangle(cropSettings.Left, cropSettings.Top, croppedImageWidth, croppedImageHeight);
-      rDest = new Rectangle(0, 0, data.TargetSize.Width, data.TargetSize.Height);
+    public SizeF Transform(SizeF inputSize, SizeF targetSize)
+    {
+      return targetSize;
     }
 
     #endregion

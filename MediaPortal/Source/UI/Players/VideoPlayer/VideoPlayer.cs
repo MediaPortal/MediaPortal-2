@@ -130,6 +130,7 @@ namespace MediaPortal.UI.Players.Video
     protected Size _previousAspectRatio;
     protected Size _previousDisplaySize;
     protected uint _streamCount = 1;
+    protected SizeF _maxUV = new SizeF(1.0f, 1.0f);
 
     // Filter graph related 
     protected CodecHandler.CodecCapabilities _graphCapabilities; // Currently to graph added capabilities
@@ -247,12 +248,12 @@ namespace MediaPortal.UI.Players.Video
     {
       if (message.ChannelName == WindowsMessaging.CHANNEL)
       {
-        Message m = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+        Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
         if (m.LParam.Equals(_instancePtr))
         {
           if (m.Msg == WM_GRAPHNOTIFY)
           {
-            IMediaEventEx eventEx = (IMediaEventEx)_graphBuilder;
+            IMediaEventEx eventEx = (IMediaEventEx) _graphBuilder;
 
             EventCode evCode;
             IntPtr param1, param2;
@@ -310,7 +311,7 @@ namespace MediaPortal.UI.Players.Video
         }
 
         // Create the Allocator / Presenter object
-        _evrCallback = new EVRCallback(this);
+        _evrCallback = new EVRCallback();
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -328,7 +329,7 @@ namespace MediaPortal.UI.Players.Video
         OnBeforeGraphRunning();
 
         // Now run the graph, i.e. the DVD player needs a running graph before getting informations from dvd filter.
-        IMediaControl mc = (IMediaControl)_graphBuilder;
+        IMediaControl mc = (IMediaControl) _graphBuilder;
         hr = mc.Run();
         DsError.ThrowExceptionForHR(hr);
 
@@ -427,7 +428,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void CreateGraphBuilder()
     {
-      _graphBuilder = (IFilterGraph2)new FilterGraph();
+      _graphBuilder = (IFilterGraph2) new FilterGraph();
     }
 
     /// <summary>
@@ -437,9 +438,9 @@ namespace MediaPortal.UI.Players.Video
     {
       ServiceRegistration.Get<ILogger>().Debug("{0}: Initialize EVR", PlayerTitle);
 
-      _evr = (IBaseFilter)new EnhancedVideoRenderer();
+      _evr = (IBaseFilter) new EnhancedVideoRenderer();
 
-      IEVRFilterConfig config = (IEVRFilterConfig)_evr;
+      IEVRFilterConfig config = (IEVRFilterConfig) _evr;
 
       //set the number of video/subtitle/cc streams that are allowed to be connected to EVR
       config.SetNumberOfStreams(_streamCount);
@@ -448,7 +449,7 @@ namespace MediaPortal.UI.Players.Video
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
       IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
-      _allocatorKey = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, (uint)hMonitor.ToInt32());
+      _allocatorKey = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
       if (_allocatorKey < 0)
       {
         throw new VideoPlayerException("Initializing of EVR failed");
@@ -595,8 +596,8 @@ namespace MediaPortal.UI.Players.Video
           if (_graphBuilder != null)
           {
             FilterState state;
-            IMediaEventEx me = (IMediaEventEx)_graphBuilder;
-            IMediaControl mc = (IMediaControl)_graphBuilder;
+            IMediaEventEx me = (IMediaEventEx) _graphBuilder;
+            IMediaControl mc = (IMediaControl) _graphBuilder;
 
             me.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
 
@@ -696,20 +697,22 @@ namespace MediaPortal.UI.Players.Video
 
     public Size VideoSize
     {
-      get
-      {
-        if (_evrCallback == null || !_initialized) return new Size(0, 0);
-        return _evrCallback.VideoSize;
-      }
+      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.VideoSize; }
+    }
+
+    public Size UncroppedVideoSize
+    {
+      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.UncroppedVideoSize; }
     }
 
     public Size VideoAspectRatio
     {
-      get
-      {
-        if (_evrCallback == null || !_initialized) return new Size(0, 0);
-        return _evrCallback.AspectRatio;
-      }
+      get { return (_evrCallback == null) ? new Size(1, 1) : _evrCallback.AspectRatio; }
+    }
+
+    public SizeF SurfaceMaxUV
+    {
+      get { return (_evrCallback == null) ? new SizeF(1.0f, 1.0f) : _evrCallback.SurfaceMaxUV; }
     }
 
     public IGeometry GeometryOverride
@@ -1050,7 +1053,7 @@ namespace MediaPortal.UI.Players.Video
         for (int i = 0; i < streamCount; ++i)
         {
           AMMediaType sType; AMStreamSelectInfoFlags sFlag;
-          int sPDWGroup, sPLCid; 
+          int sPDWGroup, sPLCid;
           string sName;
           object pppunk, ppobject;
 
@@ -1065,7 +1068,7 @@ namespace MediaPortal.UI.Players.Video
               // if audio information is available via WaveEx format, query the channel count
               if (sType.formatType == FormatType.WaveEx && sType.formatPtr != IntPtr.Zero)
               {
-                WaveFormatEx waveFormatEx = (WaveFormatEx)Marshal.PtrToStructure(sType.formatPtr, typeof(WaveFormatEx));
+                WaveFormatEx waveFormatEx = (WaveFormatEx) Marshal.PtrToStructure(sType.formatPtr, typeof(WaveFormatEx));
                 streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
               }
               streamName = String.Format("{0} ({1})", streamName, streamAppendix);
@@ -1153,7 +1156,7 @@ namespace MediaPortal.UI.Players.Video
         }
 
         FilterState state;
-        IMediaControl mc = (IMediaControl)_graphBuilder;
+        IMediaControl mc = (IMediaControl) _graphBuilder;
         mc.GetState(10, out state);
         if (state != FilterState.Stopped)
         {
@@ -1179,7 +1182,7 @@ namespace MediaPortal.UI.Players.Video
     {
       if (_graphBuilder != null)
       {
-        _evrCallback = new EVRCallback(this);
+        _evrCallback = new EVRCallback();
         AddEvr();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);

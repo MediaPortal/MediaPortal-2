@@ -49,37 +49,15 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return null; }
     }
 
-    public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
+    public bool Crop
     {
-      float fOutputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
+      get { return true; }
+    }
 
-      // make sure the crop settings are acceptable
-      cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
-
-      // assume that the movie is widescreen first, so use full height
-      float fVertBorder = 0;
-      float fNewHeight = data.TargetSize.Height;
-      float fNewWidth = fNewHeight*fOutputFrameRatio*1.66666666667f;
-      float fHorzBorder = (fNewWidth - data.TargetSize.Width)/2.0f;
-      float fFactor = fNewWidth/data.OriginalSize.Width;
-      fFactor *= data.PixelRatio;
-      fHorzBorder = fHorzBorder/fFactor;
-
-      if ((int) fNewWidth < data.TargetSize.Width)
-      {
-        fHorzBorder = 0;
-        fNewWidth = data.TargetSize.Width;
-        fNewHeight = fNewWidth/fOutputFrameRatio;
-        fVertBorder = (fNewHeight - data.TargetSize.Height)/2.0f;
-        fFactor = fNewWidth/data.OriginalSize.Width;
-        fFactor *= data.PixelRatio;
-        fVertBorder = fVertBorder/fFactor;
-      }
-
-      rSource = new Rectangle((int) fHorzBorder, (int) fVertBorder,
-          (int) (data.OriginalSize.Width - 2.0f*fHorzBorder), (int) (data.OriginalSize.Height - 2.0f*fVertBorder));
-      rDest = new Rectangle(0, 0, data.TargetSize.Width, data.TargetSize.Height);
-      cropSettings.AdjustSource(ref rSource);
+    public SizeF Transform(SizeF inputSize, SizeF targetSize)
+    {
+      float ratio = System.Math.Max(targetSize.Width / inputSize.Width, targetSize.Height / inputSize.Height);
+      return new SizeF(inputSize.Width * ratio, inputSize.Height * ratio);
     }
 
     #endregion

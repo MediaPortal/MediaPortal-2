@@ -23,6 +23,7 @@
 #endregion
 
 using System.Drawing;
+using System;
 
 namespace MediaPortal.UI.Presentation.Geometries
 {
@@ -87,6 +88,14 @@ namespace MediaPortal.UI.Presentation.Geometries
     {
       get { return _right; }
       set { _right = value; }
+    }
+
+    public Rectangle CropRect(Size imageSize)
+    {
+      Rectangle rect = new Rectangle(Math.Max(0, _left), Math.Max(0, _top), Math.Max(0, _right), Math.Max(0, _bottom));
+      rect.Width = Math.Max(imageSize.Width - (rect.Left + rect.Width), 1);
+      rect.Height = Math.Max(imageSize.Height - (rect.Top + rect.Height), 1);
+      return rect;
     }
 
     #endregion

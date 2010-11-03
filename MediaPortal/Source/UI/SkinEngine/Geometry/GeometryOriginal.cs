@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.UI.Presentation.Geometries;
 
@@ -35,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
   /// Shader = None
   /// Characteristics: Scale down, if bigger than original (UniformToFill)
   /// </summary>
-  public class GeometryOrignal : IGeometry
+  public class GeometryOriginal : IGeometry
   {
     public const string NAME = "[Geometries.Original]";
 
@@ -51,27 +50,14 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return null; }
     }
 
-    public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
+    public bool Crop
     {
-      float outputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
+      get { return false; }
+    }
 
-      // maximize the movie width
-      int newWidth = Math.Min(data.OriginalSize.Width, data.TargetSize.Width);
-      int newHeight = (int) (newWidth/outputFrameRatio);
-
-      if (newHeight > data.TargetSize.Height)
-      {
-        newHeight = Math.Min(data.OriginalSize.Height, data.TargetSize.Height);
-        newWidth = (int) (newHeight*outputFrameRatio);
-      }
-
-      // Centre the movie
-      int iPosY = (int) ((data.TargetSize.Height - newHeight)/2.0f);
-      int iPosX = (int) ((data.TargetSize.Width - newWidth)/2.0f);
-
-      // The original zoom mode ignores cropping parameters:
-      rSource = new Rectangle(0, 0, data.OriginalSize.Width, data.OriginalSize.Height);
-      rDest = new Rectangle(iPosX, iPosY, newWidth, newHeight);
+    public SizeF Transform(SizeF inputSize, SizeF targetSize)
+    {
+      return inputSize;
     }
 
     #endregion

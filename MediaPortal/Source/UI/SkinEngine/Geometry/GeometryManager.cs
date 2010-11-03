@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Geometries;
@@ -44,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     public GeometryManager()
     {
       Add(_defaultVideoGeometry = new GeometryNormal());
-      Add(new GeometryOrignal());
+      Add(new GeometryOriginal());
       Add(new GeometryStretch());
       Add(new GeometryZoom());
       Add(new GeometryZoom149());
@@ -93,16 +92,6 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     {
       get { return _cropSettings; }
       set { _cropSettings = value ?? new CropSettings(); }
-    }
-
-    public void Transform(GeometryData data, out Rectangle rSource, out Rectangle rDest)
-    {
-      Transform(_defaultVideoGeometry, data, out rSource, out rDest);
-    }
-
-    public void Transform(IGeometry geometry, GeometryData data, out Rectangle rSource, out Rectangle rDest)
-    {
-      geometry.Transform(data, _cropSettings, out rSource, out rDest);
     }
   }
 }

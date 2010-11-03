@@ -141,7 +141,7 @@
     <Compile Include="Geometry\GeometryLetterBox.cs" />
     <Compile Include="Geometry\GeometryManager.cs" />
     <Compile Include="Geometry\GeometryNormal.cs" />
-    <Compile Include="Geometry\GeometryOrignal.cs" />
+    <Compile Include="Geometry\GeometryOriginal.cs" />
     <Compile Include="Geometry\GeometryPanAndScan.cs" />
     <Compile Include="Geometry\GeometryStretch.cs" />
     <Compile Include="Geometry\GeometryZoom.cs" />
@@ -371,6 +371,7 @@
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\font.fx" />
+    <None Include="Skin\default\shaders\fontfade.fx" />
     <None Include="Skin\default\shaders\greyscale.fx" />
     <None Include="Skin\default\shaders\lineargradient.fx" />
     <None Include="Skin\default\shaders\linearopacitygradient.fx" />
@@ -382,6 +383,10 @@
     <None Include="Skin\default\shaders\solidopacity.fx" />
     <None Include="Skin\default\shaders\tile.fx" />
     <None Include="Skin\default\shaders\tileopacity.fx" />
+    <None Include="Skin\default\shaders\tilesimple.fx" />
+    <None Include="Skin\default\shaders\tilesimpleopacity.fx" />
+    <None Include="Skin\default\shaders\videodefault.fx" />
+    <None Include="Skin\default\shaders\videosmartzoom.fx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

@@ -33,8 +33,9 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.Core;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -54,23 +55,16 @@ namespace MediaPortal.UI.Players.Video
   [ClassInterface(ClassInterfaceType.None)]
   public class EVRCallback : IEVRPresentCallback, IDisposable
   {
-    #region variables
+    #region Variables
 
-    private readonly object _lock;
+    private readonly object _lock = new object();
     private Size _videoSize;
+    private Size _originalVideoSize;
     private Size _aspectRatio;
     private Texture _texture;
     private Surface _surface;
+    private SizeF _surfaceMaxUV;
     private bool _guiBeingReinitialized = false;
-
-    #endregion
-
-    #region ctor/dtor
-
-    public EVRCallback(IPlayer player)
-    {
-      _lock = new Object();
-    }
 
     #endregion
 
@@ -85,11 +79,29 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Gets the size of the video.
+    /// Gets the size of the cropped video.
     /// </summary>
     public Size VideoSize
     {
       get { return _videoSize; }
+    }
+
+    /// <summary>
+    /// Gets the size of the uncropped video.
+    /// TODO: More docs
+    /// </summary>
+    public Size UncroppedVideoSize
+    {
+      get { return _originalVideoSize; }
+    }
+
+    /// <summary>
+    /// Returns the maximum texture UV coords (because the DX surface size may differ from the video size).
+    /// TODO: More docs
+    /// </summary>
+    public SizeF SurfaceMaxUV 
+    {
+      get { return _surfaceMaxUV; } 
     }
 
     /// <summary>
@@ -144,13 +156,13 @@ namespace MediaPortal.UI.Players.Video
     #region IEVRPresentCallback implementation
 
     /// <summary>
-    /// Callback from DShowHelper.dll to display a DirectX.Surface
+    /// Callback from DShowHelper.dll to display a DirectX surface.
     /// </summary>
-    /// <param name="cx">video width</param>
-    /// <param name="cy">video height</param>
-    /// <param name="arx">Aspect Ratio X</param>
-    /// <param name="ary">Aspect Ratio Y</param>
-    /// <param name="dwImg">address of the DirectX.Surface.</param>
+    /// <param name="cx">Video width.</param>
+    /// <param name="cy">Video height.</param>
+    /// <param name="arx">Aspect Ratio X.</param>
+    /// <param name="ary">Aspect Ratio Y.</param>
+    /// <param name="dwImg">Address of the DirectX surface.</param>
     /// <returns></returns>
     public int PresentSurface(short cx, short cy, short arx, short ary, uint dwImg)
     {
@@ -162,8 +174,12 @@ namespace MediaPortal.UI.Players.Video
         if (cx != _videoSize.Width || cy != _videoSize.Height)
           FreeTexture();
 
-        _videoSize = new Size(cx, cy);
+        _originalVideoSize = new Size(cx, cy);
         _aspectRatio = new Size(arx, ary);
+
+        Rectangle cropRect = ServiceRegistration.Get<IGeometryManager>().CropSettings.CropRect(_originalVideoSize);
+        _videoSize = cropRect.Size;
+
         VideoSizePresentDlgt vsp = VideoSizePresent;
         if (vsp != null)
         {
@@ -176,6 +192,9 @@ namespace MediaPortal.UI.Players.Video
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           _texture = new Texture(GraphicsDevice.Device, cx, cy, 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
           _surface = _texture.GetSurfaceLevel(0);
+
+          SurfaceDescription desc = _texture.GetLevelDescription(0);
+          _surfaceMaxUV = new SizeF(_videoSize.Width / (float) desc.Width, _videoSize.Height / (float) desc.Height);
         }
 
         using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))

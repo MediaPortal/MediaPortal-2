@@ -49,32 +49,16 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return null; }
     }
 
-    public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
+    public bool Crop
     {
-      float fOutputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
+      get { return true; }
+    }
 
-      // make sure the crop settings are acceptable
-      cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
-
-      // shrink movie 33% vertically
-      float fNewWidth = data.TargetSize.Width;
-      float fNewHeight = fNewWidth/fOutputFrameRatio;
-      fNewHeight *= (1.0f - 0.33333333333f);
-
-      if (fNewHeight > data.TargetSize.Height)
-      {
-        fNewHeight = data.TargetSize.Height;
-        fNewHeight *= (1.0f - 0.33333333333f);
-        fNewWidth = fNewHeight*fOutputFrameRatio;
-      }
-
-      // Centre the movie
-      float iPosY = (data.TargetSize.Height - fNewHeight)/2;
-      float iPosX = (data.TargetSize.Width - fNewWidth)/2;
-
-      rSource = new Rectangle(0, 0, data.OriginalSize.Width, data.OriginalSize.Height);
-      rDest = new Rectangle((int) iPosX, (int) iPosY, (int) (fNewWidth + 0.5f), (int) (fNewHeight + 0.5f));
-      cropSettings.AdjustSource(ref rSource);
+    public SizeF Transform(SizeF inputSize, SizeF targetSize)
+    {
+      float zoomHeight = inputSize.Height * (2.0f / 3.0f);
+      float ratio = System.Math.Min(targetSize.Width / inputSize.Width, targetSize.Height / zoomHeight);
+      return new SizeF(inputSize.Width * ratio, zoomHeight * ratio);
     }
 
     #endregion

@@ -29,7 +29,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
 {
   /// <summary>
   /// Cropping = Yes
-  /// Stretch = UniformToFill
+  /// Stretch = Uniform (fits to screen with borders where necessary)
   /// Zoom = None
   /// Shader = None
   /// </summary>
@@ -49,37 +49,15 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return null; }
     }
 
-    public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
+    public bool Crop
     {
-      float outputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
+      get { return true; }
+    }
 
-      // make sure the crop settings are acceptable
-      cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
-
-      int cropW = cropSettings.Left + cropSettings.Right;
-      int cropH = cropSettings.Top + cropSettings.Bottom;
-
-      // the source image dimensions when taking into
-      // account the crop settings
-      int croppedImageWidth = data.OriginalSize.Width - cropW;
-      int croppedImageHeight = data.OriginalSize.Height - cropH;
-
-      // maximize the movie width
-      int newWidth = data.TargetSize.Width;
-      int newHeight = (int) (newWidth/outputFrameRatio);
-
-      if (newHeight > data.TargetSize.Height)
-      {
-        newHeight = data.TargetSize.Height;
-        newWidth = (int) (newHeight*outputFrameRatio);
-      }
-
-      // Centre the movie
-      int iPosY = (int) ((data.TargetSize.Height - newHeight)/2.0f);
-      int iPosX = (int) ((data.TargetSize.Width - newWidth)/2.0f);
-
-      rSource = new Rectangle(cropSettings.Left, cropSettings.Top, croppedImageWidth, croppedImageHeight);
-      rDest = new Rectangle(iPosX, iPosY, newWidth, newHeight);
+    public SizeF Transform(SizeF inputSize, SizeF targetSize)
+    {
+      float ratio = System.Math.Min(targetSize.Width / inputSize.Width, targetSize.Height / inputSize.Height);
+      return new SizeF(inputSize.Width * ratio, inputSize.Height * ratio);
     }
 
     #endregion
