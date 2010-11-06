@@ -22,6 +22,8 @@
 
 #endregion
 
+// Define DEBUG_DRME to log activities of the DynamicResourceMarkupExtension. Setting that switch will slow down the
+// UI significantly but can be used to find problems or bugs related to this markup extension.
 //#define DEBUG_DRME
 
 using System.Collections.Generic;

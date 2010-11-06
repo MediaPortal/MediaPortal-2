@@ -22,6 +22,8 @@
 
 #endregion
 
+// Define DEBUG_BINDINGS to log binding activities. Setting that switch will slow down the UI significantly but can be
+// used to find problems or bugs related to bindings.
 //#define DEBUG_BINDINGS
 
 using System;

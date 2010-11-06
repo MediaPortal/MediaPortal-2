@@ -22,6 +22,8 @@
 
 #endregion
 
+// Define DEBUG_LAYOUT to make MP log screen layouting information. That will slow down the layouting process significantly
+// but can be used to find layouting bugs. Don't use that switch in release builds.
 //#define DEBUG_LAYOUT
 
 using System;

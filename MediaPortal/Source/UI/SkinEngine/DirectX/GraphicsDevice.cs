@@ -22,7 +22,12 @@
 
 #endregion
 
+// Define MAX_FRAMERATE to avoid MP from targeting a fixed framerate. With MAX_FRAMERATE defined,
+// the system will output as many frames as possible. But video playback might produce wrong frames with this
+// setting, so don't use it in release builds.
 //#define MAX_FRAMERATE
+
+// Define PROFILE_FRAMERATE to make MP log its current framerate every second. Don't use this setting in release builds.
 //#define PROFILE_FRAMERATE
 
 using System;
@@ -55,7 +60,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _supportsAlphaBlend;
     private static bool _supportsShaders = false;
     private static bool _firstTimeInitialisation = true;
-    private static bool _firstTimeInitialisationMemory = true;
     private static int _targetFrameRate = 0;
     private static DateTime _frameRenderingStartTime;
     private static int _fpsCounter = 0;
@@ -70,24 +74,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void Initialize(Form window)
     {
-      if (_firstTimeInitialisationMemory)
-      {
-        _firstTimeInitialisationMemory = false;
-#if NOTUSED
-        Microsoft.DirectX.DirectDraw.Device tmpDev = new Microsoft.DirectX.DirectDraw.Device(Microsoft.DirectX.DirectDraw.CreateFlags.HardwareOnly);
-        Microsoft.DirectX.DirectDraw.GetCapsStruct caps = tmpDev.GetCaps();
-        tmpDev.Dispose();
-        tmpDev = null;
-
-        int videoMemory = caps.HardwareCaps.VideoMemoryTotal / (1000 * 1000);
-        ServiceScope.Get<ILogger>().Info("DirectX: Total Video Memory: {0} MB", videoMemory);
-        if (videoMemory < 128)
-        {
-          string text = String.Format("MediaPortal 2 needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal 2 will continue but migh run slow", videoMemory);
-          MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        }
-#endif
-      }
       try
       {
         ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: Initialize DirectX");
