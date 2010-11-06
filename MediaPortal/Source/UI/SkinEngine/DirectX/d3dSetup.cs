@@ -474,9 +474,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       else
         throw new ApplicationException();
 
-      // Make sure to allow multithreaded apps if we need them
-      //presentParams.ForceNoMultiThreadedFlag = !isMultiThreaded;
-
       ServiceRegistration.Get<ILogger>().Info("DirectX: Using adapter: {0} {1} {2}",
               _graphicsSettings.AdapterOrdinal,
               MPDirect3D.Direct3D.Adapters[_graphicsSettings.AdapterOrdinal].Details.Description,
