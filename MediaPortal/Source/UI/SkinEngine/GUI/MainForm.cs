@@ -55,8 +55,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     private Thread _renderThread;
     private bool _renderThreadStopped;
-    private int _fpsCounter;
-    private DateTime _fpsTimer;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
@@ -223,11 +221,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       // The render loop is restarted after toggle windowed / fullscreen
       // Make sure we invalidate all windows so the layout is re-done 
-      // Big window layout does not fit into small window ;-)
+      // Big window layout does not fit into small window
       _screenManager.Reset();
 
-      _fpsTimer = DateTime.Now;
-      _fpsCounter = 0;
       SkinContext.RenderThread = Thread.CurrentThread;
 
       try
@@ -235,20 +231,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
         GraphicsDevice.SetRenderState();
         while (!_renderThreadStopped)
         {
-          bool shouldWait = GraphicsDevice.Render();
+          bool shouldWait = GraphicsDevice.Render(true);
           if (shouldWait || !_hasFocus)
             Thread.Sleep(20);
-          _fpsCounter += 1;
-          TimeSpan ts = DateTime.Now - _fpsTimer;
-          if (ts.TotalSeconds >= 1.0f)
-          {
-            float secs = (float) ts.TotalSeconds;
-            SkinContext.FPS = _fpsCounter / secs;
-            _fpsCounter = 0;
-            _fpsTimer = DateTime.Now;
-            if (GraphicsDevice.DeviceLost)
-              break;
-          }
+        
+          if (GraphicsDevice.DeviceLost)
+            break;
         }
       }
       finally

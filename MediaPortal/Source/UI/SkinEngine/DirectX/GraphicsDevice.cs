@@ -22,6 +22,8 @@
 
 #endregion
 
+//#define PROFILE_FRAMERATE
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -33,6 +35,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 
@@ -52,6 +55,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _supportsShaders = false;
     private static bool _firstTimeInitialisation = true;
     private static bool _firstTimeInitialisationMemory = true;
+    private static int _targetFrameRate = 0;
+    private static DateTime _frameRenderingStartTime;
+    private static int _fpsCounter = 0;
+    private static DateTime _fpsTimer;
 
     #endregion
 
@@ -88,10 +95,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = _device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+        DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
+        AdaptTargetFrameRateToDisplayMode(currentMode);
         ServiceRegistration.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
-            Height, adapterInfo.CurrentDisplayMode.Format,
-            adapterInfo.CurrentDisplayMode.RefreshRate);
+            Height, currentMode.Format, _targetFrameRate);
         GetCapabilities();
+        ResetPerformanceData();
       }
       catch (Exception ex)
       {
@@ -118,6 +127,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       set { _deviceLost = value; }
     }
 
+    /// <summary>
+    /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps.
+    /// </summary>
+    public static Int32 TargetFrameRate
+    {
+      get { return _targetFrameRate; }
+    }
+
     private static void GetCapabilities()
     {
       _anisotropy = _device.Capabilities.MaxAnisotropy;
@@ -125,7 +142,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _device.Capabilities.AdapterOrdinal,
           _device.Capabilities.DeviceType,
           _device.GetDisplayMode(0).Format,
-          Usage.RenderTarget | Usage.QueryFilter, ResourceType.Texture,
+          Usage.RenderTarget | Usage.QueryFilter,
+          ResourceType.Texture,
           Format.A8R8G8B8);
 
       _supportsAlphaBlend = MPDirect3D.Direct3D.CheckDeviceFormat(_device.Capabilities.AdapterOrdinal,
@@ -136,19 +154,27 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       int pixelShaderVersion = _device.Capabilities.PixelShaderVersion.Major;
       ServiceRegistration.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", _device.Capabilities.PixelShaderVersion.Major, _device.Capabilities.PixelShaderVersion.Minor);
       ServiceRegistration.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", _device.Capabilities.VertexShaderVersion.Major, _device.Capabilities.VertexShaderVersion.Minor);
-      if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
-        _supportsShaders = true;
-      else
-        _supportsShaders = false;
+      _supportsShaders = pixelShaderVersion >= 2 && vertexShaderVersion >= 2;
       if (_firstTimeInitialisation)
       {
         _firstTimeInitialisation = false;
-        if (pixelShaderVersion < 2 || vertexShaderVersion < 2)
+        if (!_supportsShaders)
         {
           string text = String.Format("MediaPortal 2 needs a graphics card wich supports shader model 2.0\nYour card does NOT support this.\nMediaportal 2 will continue but migh run slow");
           MessageBox.Show(text, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
       }
+    }
+
+    private static void ResetPerformanceData()
+    {
+      _fpsTimer = DateTime.Now;
+      _fpsCounter = 0;
+    }
+
+    private static void AdaptTargetFrameRateToDisplayMode(DisplayMode displayMode)
+    {
+      _targetFrameRate = displayMode.RefreshRate;
     }
 
     private static void ResetDxDevice()
@@ -168,6 +194,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         _device.Reset(_setup.PresentParameters);
       }
+      ResetPerformanceData();
     }
 
     /// <summary>
@@ -183,9 +210,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       ResetDxDevice();
       int ordinal = _device.Capabilities.AdapterOrdinal;
       AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+      DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
+      AdaptTargetFrameRateToDisplayMode(currentMode);
       ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-          adapterInfo.CurrentDisplayMode.Format,
-          adapterInfo.CurrentDisplayMode.RefreshRate);
+          currentMode.Format, _targetFrameRate);
       _backBuffer = _device.GetRenderTarget(0);
       GetCapabilities();
       return true;
@@ -206,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the directx back-buffer width.
+    /// Gets the DirectX back-buffer width.
     /// </summary>
     public static int Width
     {
@@ -214,7 +242,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets the directx back-buffer height.
+    /// Gets the DirectX back-buffer height.
     /// </summary>
     public static int Height
     {
@@ -224,6 +252,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static bool SupportsShaders
     {
       get { return _supportsShaders; }
+    }
+
+    public static DateTime LastRenderTime
+    {
+       get { return _frameRenderingStartTime; }
     }
 
     /// <summary>
@@ -322,24 +355,36 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// Renders the entire scene.
     /// </summary>
     /// <returns><c>true</c>, if the caller should wait some milliseconds before rendering the next time.</returns>
-    public static bool Render()
+    public static bool Render(bool doWaitForNextFame)
     {
       if (_device == null || _deviceLost)
         return true;
+      _frameRenderingStartTime = DateTime.Now;
       lock (_setup)
       {
         try
         {
           _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-
           _device.BeginScene();
 
           ScreenManager manager = (ScreenManager) ServiceRegistration.Get<IScreenManager>();
           manager.Render();
 
           _device.EndScene();
-          // TODO: Present.DoNotWait could be used to yield CPU time (no waiting for v-sync on CPU, only with GPU)
-          _device.PresentEx(Present.None);
+          _device.PresentEx(Present.ForceImmediate);
+
+          _fpsCounter += 1;
+          TimeSpan ts = DateTime.Now - _fpsTimer;
+          if (ts.TotalSeconds >= 1.0f)
+          {
+            float secs = (float) ts.TotalSeconds;
+            SkinContext.FPS = _fpsCounter / secs;
+#if PROFILE_FRAMERATE
+            ServiceRegistration.Get<ILogger>().Debug("RenderLoop: {0} frames per second, {1} total frames until last measurement", SkinContext.FPS, _fpsCounter);
+#endif
+            _fpsCounter = 0;
+            _fpsTimer = DateTime.Now;
+          }
         }
         catch (Direct3D9Exception e)
         {
@@ -349,7 +394,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         ServiceRegistration.Get<ContentManager>().Clean();
       }
+      if (doWaitForNextFame)
+        WaitForNextFrame();
       return false;
+    }
+
+    /// <summary>
+    /// Waits for the next frame to be drawn. It calculates the required difference to fit the <see cref="TargetFrameRate"/>.
+    /// </summary>
+    private static void WaitForNextFrame()
+    {
+      int msToNextFrame = (int) (1000f / _targetFrameRate - (DateTime.Now - _frameRenderingStartTime).Milliseconds); 
+      if (msToNextFrame > 0)
+        Thread.Sleep(msToNextFrame);
     }
 
     public static bool ReclaimDevice()
@@ -374,12 +431,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           ResetDxDevice();
           int ordinal = _device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+          DisplayMode currentMode = adapterInfo.CurrentDisplayMode;
+          AdaptTargetFrameRateToDisplayMode(currentMode);
           ServiceRegistration.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-              adapterInfo.CurrentDisplayMode.Format,
-              adapterInfo.CurrentDisplayMode.RefreshRate);
+              currentMode.Format, _targetFrameRate);
           _backBuffer = _device.GetRenderTarget(0);
           PlayersHelper.ReallocGUIResources();
           ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
+          ResetPerformanceData();
           return true;
         }
         catch (Exception ex)
