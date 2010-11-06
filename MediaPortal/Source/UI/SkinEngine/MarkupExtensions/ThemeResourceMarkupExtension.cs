@@ -30,9 +30,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Implements the MPF ThemeResource markup extension. The ThemeResource markup extension works
-  /// similar as the StaticResource markup, only the search order for resources is modified:
+  /// similar as the StaticResource markup extension, only the search order for resources is modified:
   /// The specified <see cref="ResourceKey"/> will be searched in the theme first,
-  /// then the search will continues in the current parser context.
+  /// then the search will continue in the current parser context.
   /// </summary>
   public class ThemeResourceMarkupExtension: StaticResourceBase, IEvaluableMarkupExtension
   {

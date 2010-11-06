@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       // The logical tree is not yet defined at the load time of the
       // XAML file. This is the reason we have to step up the parser's context
       // stack. We will have to simulate the process of finding a resource
-      // which is normally done by <see cref="FindResource(string)"/>.
+      // which is normally done by UIElement.FindResource(string).
       // The parser's context stack maintains a dictionary of current keyed
       // elements for each stack level because the according resource
       // dictionaries are not built yet.
