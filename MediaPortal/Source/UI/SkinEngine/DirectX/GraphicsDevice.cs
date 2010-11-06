@@ -22,6 +22,7 @@
 
 #endregion
 
+//#define MAX_FRAMERATE
 //#define PROFILE_FRAMERATE
 
 using System;
@@ -394,11 +395,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         ServiceRegistration.Get<ContentManager>().Clean();
       }
+#if (MAX_FRAMERATE == false)
       if (doWaitForNextFame)
         WaitForNextFrame();
+#endif
       return false;
     }
 
+#if (MAX_FRAMERATE == false)
     /// <summary>
     /// Waits for the next frame to be drawn. It calculates the required difference to fit the <see cref="TargetFrameRate"/>.
     /// </summary>
@@ -408,6 +412,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (msToNextFrame > 0)
         Thread.Sleep(msToNextFrame);
     }
+#endif
 
     public static bool ReclaimDevice()
     {
