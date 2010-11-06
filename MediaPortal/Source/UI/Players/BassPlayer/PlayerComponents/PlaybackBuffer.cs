@@ -331,9 +331,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (thread != null)
         return;
       _terminated = false;
-      // Don't use a background thread here - we run in a plugin. Using a background thread would prevent the
-      // plugin from being unloaded and, even worse, the thread would be started again each time a new BassPlayer
-      // instance is created.
+      // Don't just use a background thread and forget about it - because we run in a plugin. Using a background thread and
+      // not stopping it at the end of the plugin's activation time would prevent the plugin from being unloaded and,
+      // even worse, the thread would be started again each time a new BassPlayer instance is created.
       _bufferUpdateThread = new Thread(ThreadBufferUpdate) {Name = "PlaybackBuffer update thread"};
       _bufferUpdateThread.Start();
       _notifyBufferUpdateThread.Set();
