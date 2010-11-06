@@ -56,6 +56,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// </remarks>
   public abstract class SkinResources: IResourceAccessor
   {
+    #region Consts
+
     public const string STYLES_DIRECTORY = "styles";
     public const string SCREENS_DIRECTORY = "screens";
     public const string BACKGROUNDS_DIRECTORY = "backgrounds";
@@ -66,6 +68,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public const string WORKFLOW_DIRECTORY = "workflow";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
+
+    #endregion
+
+    #region Enums and classes
 
     protected enum LoadState
     {
@@ -148,6 +154,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
       #endregion
     }
+
+    #endregion
 
     #region Protected fields
 
