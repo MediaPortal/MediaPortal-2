@@ -1,0 +1,69 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BDHandler"
+    PluginId="{7C75B1E0-B977-4349-ACC2-C4B9B7EE20F1}"
+    Author="ArmandP, Morpheus_xx"
+    Copyright="GPL"
+    Description="BDHandler"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"/> <!-- VideoPlayers -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="BDHandler.dll"/>
+  </Runtime>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="0870D735-B339-4afa-8D8C-6E2C923A70C9" ClassName="MediaPortal.UI.Players.Video.BDHandlerPlugin"/>
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="BDHandlerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- The Metadata extractor. -->
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="BDHandlerMetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor.BDHandlerMetadataExtractor"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Codecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="VideoCodecs"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.VideoCodecs]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+    <ConfigSetting
+        Id="VideoAVCCodec"
+        Text="[Settings.Players.Codecs.VideoCodecs.AVC]"
+        HelpText="[Settings.Players.Codecs.VideoCodecs.AVC.Help]"
+        ClassName="MediaPortal.Plugins.BDHandler.Settings.Configuration.VideoAVCCodec"/>
+  </Register>
+
+</Plugin>
