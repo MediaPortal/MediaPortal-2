@@ -957,9 +957,9 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("FlushModelCache");
       try
       {
-        foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
-          if (!IsModelContainedInNavigationStack(modelEntry.Key))
-            _modelCache.Remove(modelEntry);
+        foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
+          if (!IsModelContainedInNavigationStack(modelId))
+            FreeModel_NoLock(modelId);
       }
       finally
       {
