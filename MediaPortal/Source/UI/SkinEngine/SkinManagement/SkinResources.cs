@@ -426,43 +426,46 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         // Method was called after the styles initialization has already finished
         return;
       // Do the actual work
-      LoadStyleResource(resourceKey);
+      LoadStyleResource(resourceKey, true);
       if (GetResourceFilePath(resourceKey) == null)
         ServiceRegistration.Get<ILogger>().Warn("SkinResources: Requested style resource '{0}' could not be found", resourceKey);
     }
 
-    protected void LoadStyleResource(string resourceKey)
+    protected void LoadStyleResource(string resourceKey, bool searchInheritedResources)
     {
-      if (_inheritedSkinResources != null)
-        _inheritedSkinResources.LoadStyleResource(resourceKey);
       PendingResource pr;
       if (_pendingStyleResources.TryGetValue(resourceKey, out pr))
       {
-        if (pr.State == LoadState.Loading)
-          throw new CircularReferenceException(
-              string.Format("SkinResources: Style resource '{0}' is part of a circular reference", resourceKey));
-        pr.State = LoadState.Loading;
-        ILogger logger = ServiceRegistration.Get<ILogger>();
-        try
+        if (pr.State != LoadState.Loading)
         {
-          logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
-          ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-              new StyleResourceModelLoader(this), false) as ResourceDictionary;
-          if (rd == null)
-            throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
-                "' doesn't contain a ResourceDictionary as root element");
-          _localStyleResources.TakeOver(rd);
-        }
-        catch (Exception ex)
-        {
-          _pendingStyleResources.Clear();
-          throw new EnvironmentException("Error loading style resource '{0}'", ex, pr.ResourcePath);
-        }
-        finally
-        {
-          _pendingStyleResources.Remove(resourceKey);
+          pr.State = LoadState.Loading;
+          ILogger logger = ServiceRegistration.Get<ILogger>();
+          try
+          {
+            logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
+            ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
+                new StyleResourceModelLoader(this), false) as ResourceDictionary;
+            if (rd == null)
+              throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
+                  "' doesn't contain a ResourceDictionary as root element");
+            _localStyleResources.TakeOver(rd);
+          }
+          catch (Exception ex)
+          {
+            _pendingStyleResources.Clear();
+            throw new EnvironmentException("Error loading style resource '{0}'", ex, pr.ResourcePath);
+          }
+          finally
+          {
+            _pendingStyleResources.Remove(resourceKey);
+          }
         }
       }
+      // Search in inherited resources after we searched through our own resources to make it possible to
+      // override style resources in a file with the same name (in that case, the current file from our own resource collection
+      // will be loaded first and thus is able to insert an overridden style before the inherited resource file is loaded).
+      if (searchInheritedResources && _inheritedSkinResources != null)
+        _inheritedSkinResources.LoadStyleResource(resourceKey, true);
     }
 
     /// <summary>
@@ -505,7 +508,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       KeyValuePair<string, PendingResource> kvp;
       while ((kvp = _pendingStyleResources.FirstOrDefault(
           kvpArg => kvpArg.Value.State == LoadState.Pending)).Key != null)
-        LoadStyleResource(kvp.Key);
+        LoadStyleResource(kvp.Key, false);
       if (_inheritedSkinResources != null)
         _inheritedSkinResources.LoadAllStyleResources();
       _pendingStyleResources = null;
