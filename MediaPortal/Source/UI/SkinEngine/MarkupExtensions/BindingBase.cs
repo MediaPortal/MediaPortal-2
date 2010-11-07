@@ -50,10 +50,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
-    // Empty enumerator for optimized use in method GetBindingsOfObject()
-    protected static readonly IEnumerable<BindingBase> EMPTY_BINDING_ENUMERABLE =
-      new List<BindingBase>();
-
     // State variables
     protected bool _active = false; // Should the binding react to changes of source properties?
     protected DependencyObject _contextObject = null; // Bound to which object? May be null.
