@@ -52,6 +52,12 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     [XmlIgnore]
+    public override int NumItems
+    {
+      get { return _itemList.Count; }
+    }
+
+    [XmlIgnore]
     public IList<MediaItem> ItemList
     {
       get { return _itemList; }

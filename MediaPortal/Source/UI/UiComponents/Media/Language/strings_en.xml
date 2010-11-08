@@ -70,6 +70,7 @@
     <String Name="SavePlaylistSuccessfulHeader" Text="Save playlist"/>
     <String Name="RemovePlaylistsHeader" Text="Remove playlists"/>
     <String Name="PlaylistInfoHeader" Text="Playlist information"/>
+    <String Name="PlaylistDetailsHeader" Text="Playlist details"/>
 
     <!-- View titles (shown in the skin) -->    
     <String Name="LocalMediaNavigationViewTitle" Text="Local media navigation"/>
@@ -197,6 +198,7 @@
     <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>
     <String Name="PlaylistNameInfoLabel" Text="Playlist name"/>
     <String Name="PlaylistTypeInfoLabel" Text="Playlist type"/>
+    <String Name="PlaylistNumItemsLabel" Text="Number of items"/>
     <String Name="PlaylistLocationInfoLabel" Text="Location"/>
     <String Name="PlaylistIdInfoLabel" Text="Internal playlist id"/>
 

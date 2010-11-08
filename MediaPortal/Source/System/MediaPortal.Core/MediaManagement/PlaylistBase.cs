@@ -28,7 +28,7 @@ using System.Xml.Serialization;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Contains playlist identification data: Name and id.
+  /// Base class for some playlist data objects.
   /// </summary>
   public abstract class PlaylistBase
   {
@@ -67,6 +67,12 @@ namespace MediaPortal.Core.MediaManagement
       get { return _name; }
       set { _name = value; }
     }
+
+    /// <summary>
+    /// Gets the number of items in this playlist.
+    /// </summary>
+    [XmlIgnore]
+    public abstract int NumItems { get; }
 
     /// <summary>
     /// Gets this playlist's type.

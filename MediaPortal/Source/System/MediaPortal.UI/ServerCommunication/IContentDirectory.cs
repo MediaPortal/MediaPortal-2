@@ -91,7 +91,7 @@ namespace MediaPortal.UI.ServerCommunication
     /// Returns the ids and names of all playlists that are stored at the server.
     /// </summary>
     /// <returns>Collection of playlist data.</returns>
-    ICollection<PlaylistIdentificationData> GetPlaylists();
+    ICollection<PlaylistInformationData> GetPlaylists();
 
     /// <summary>
     /// Saves a playlist at the server.

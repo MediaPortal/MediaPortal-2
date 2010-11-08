@@ -36,11 +36,11 @@ namespace MediaPortal.Core.UPnP
   /// <summary>
   /// Data type serializing and deserializing <see cref="IEnumerable"/> sequences of <see cref="Share"/> objects.
   /// </summary>
-  public class UPnPDtPlaylistIdentificationDataEnumeration : UPnPExtendedDataType
+  public class UPnPDtPlaylistInformationDataEnumeration : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtPlaylistIdentificationDataEnumeration";
+    public const string DATATYPE_NAME = "DtPlaylistInformationDataEnumeration";
 
-    internal UPnPDtPlaylistIdentificationDataEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtPlaylistInformationDataEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
@@ -62,17 +62,17 @@ namespace MediaPortal.Core.UPnP
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       IEnumerable pidEnumeration = (IEnumerable) value;
-      foreach (PlaylistIdentificationData pid in pidEnumeration)
+      foreach (PlaylistInformationData pid in pidEnumeration)
         pid.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<PlaylistIdentificationData> result = new List<PlaylistIdentificationData>();
+      ICollection<PlaylistInformationData> result = new List<PlaylistInformationData>();
       if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(PlaylistIdentificationData.Deserialize(reader));
+        result.Add(PlaylistInformationData.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

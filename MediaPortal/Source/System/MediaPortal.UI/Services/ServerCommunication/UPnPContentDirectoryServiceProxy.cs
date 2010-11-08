@@ -257,11 +257,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region Playlist management
 
-    public ICollection<PlaylistIdentificationData> GetPlaylists()
+    public ICollection<PlaylistInformationData> GetPlaylists()
     {
       CpAction action = GetAction("GetPlaylists");
       IList<object> outParameters = action.InvokeAction(null);
-      return (ICollection<PlaylistIdentificationData>) outParameters[0];
+      return (ICollection<PlaylistInformationData>) outParameters[0];
     }
 
     public void SavePlaylist(PlaylistRawData playlistData)

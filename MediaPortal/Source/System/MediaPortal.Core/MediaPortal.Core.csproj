@@ -114,7 +114,7 @@
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
     <Compile Include="MediaManagement\PlaylistBase.cs" />
     <Compile Include="MediaManagement\PlaylistContents.cs" />
-    <Compile Include="MediaManagement\PlaylistIdentificationData.cs" />
+    <Compile Include="MediaManagement\PlaylistInformationData.cs" />
     <Compile Include="MediaManagement\PlaylistRawData.cs" />
     <Compile Include="MediaManagement\ResourceAccess\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />
@@ -273,7 +273,7 @@
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistRawData.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistContents.cs" />
-    <Compile Include="UPnP\UPnPDtPlaylistIdentificationDataEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtPlaylistInformationDataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMPClientMetadataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaProviderMetadataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaProviderMetadata.cs" />

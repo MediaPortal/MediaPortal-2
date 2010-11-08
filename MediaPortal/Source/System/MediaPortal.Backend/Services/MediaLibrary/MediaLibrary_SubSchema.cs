@@ -267,6 +267,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    public static IDbCommand SelectPlaylistsCommand(ITransaction transaction, out int playlistIdIndex, out int playlistNameIndex,
+        out int playlistTypeIndex, out int playlistItemsCountIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT PL.PLAYLIST_ID, PL.NAME, PL.PLAYLIST_TYPE, COUNT(PC.MEDIA_ITEM_ID) " +
+          "FROM PLAYLISTS PL INNER JOIN PLAYLIST_CONTENTS PC ON PL.PLAYLIST_ID=PC.PLAYLIST_ID " +
+          "GROUP BY PL.PLAYLIST_ID, PL.NAME, PL.PLAYLIST_TYPE";
+
+      playlistIdIndex = 0;
+      playlistNameIndex = 1;
+      playlistTypeIndex = 2;
+      playlistItemsCountIndex = 3;
+      return result;
+    }
+
     public static IDbCommand SelectPlaylistIdentificationDataCommand(ITransaction transaction, Guid playlistId,
         out int playlistNameIndex, out int playlistTypeIndex)
     {

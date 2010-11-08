@@ -234,7 +234,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddStateVariable(A_ARG_TYPE_PlaylistRawData);
 
       // Used to transport an enumeration of playlist identification data (id, name) instances
-      DvStateVariable A_ARG_TYPE_PlaylistIdentificationDataEnumeration = new DvStateVariable("A_ARG_TYPE_PlaylistIdentificationDataEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtPlaylistIdentificationDataEnumeration))
+      DvStateVariable A_ARG_TYPE_PlaylistIdentificationDataEnumeration = new DvStateVariable("A_ARG_TYPE_PlaylistIdentificationDataEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtPlaylistInformationDataEnumeration))
           {
             SendEvents = false
           };
@@ -847,7 +847,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnGetPlaylists(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      ICollection<PlaylistIdentificationData> result = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
+      ICollection<PlaylistInformationData> result = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
       outParams = new List<object> {result};
       return null;
     }

@@ -31,14 +31,26 @@ using System.Xml.Serialization;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Data to identify a playlist. Playlist id and name.
+  /// Contains some playlist information data: Name, id, type and number of items.
   /// </summary>
-  public class PlaylistIdentificationData : PlaylistBase
+  public class PlaylistInformationData : PlaylistBase
   {
+    protected int _numItems;
+
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public PlaylistIdentificationData(Guid playlistId, string name, string playlistType) : base(playlistId, name, playlistType) { }
+    public PlaylistInformationData(Guid playlistId, string name, string playlistType, int numItems) :
+        base(playlistId, name, playlistType)
+    {
+      _numItems = numItems;
+    }
+
+    [XmlIgnore]
+    public override int NumItems
+    {
+      get { return _numItems; }
+    }
 
     /// <summary>
     /// Serializes this playlist instance to XML.
@@ -68,11 +80,11 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="str">XML fragment containing a serialized share descriptor instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static PlaylistIdentificationData Deserialize(string str)
+    public static PlaylistInformationData Deserialize(string str)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
       using (StringReader reader = new StringReader(str))
-        return xs.Deserialize(reader) as PlaylistIdentificationData;
+        return xs.Deserialize(reader) as PlaylistInformationData;
     }
 
     /// <summary>
@@ -80,21 +92,31 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="reader">XML reader containing a serialized share descriptor instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static PlaylistIdentificationData Deserialize(XmlReader reader)
+    public static PlaylistInformationData Deserialize(XmlReader reader)
     {
       XmlSerializer xs = GetOrCreateXMLSerializer();
-      return xs.Deserialize(reader) as PlaylistIdentificationData;
+      return xs.Deserialize(reader) as PlaylistInformationData;
     }
 
     #region Additional members for the XML serialization
 
-    internal PlaylistIdentificationData() { }
+    internal PlaylistInformationData() { }
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
       if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(PlaylistIdentificationData));
+        _xmlSerializer = new XmlSerializer(typeof(PlaylistInformationData));
       return _xmlSerializer;
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("NumItems")]
+    public int XML_NumItems
+    {
+      get { return _numItems; }
+      set { _numItems = value; }
     }
 
     #endregion

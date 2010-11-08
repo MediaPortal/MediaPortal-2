@@ -331,6 +331,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void LoadPlaylist()
     {
+      //TODO: Error handling: If loading of PL returns less entries than in saved PL => error message to user
       if (_playlist == null)
         return;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;

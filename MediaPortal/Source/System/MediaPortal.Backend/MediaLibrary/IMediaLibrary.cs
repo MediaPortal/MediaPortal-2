@@ -148,7 +148,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// Gets all playlists which are stored in the media library.
     /// </summary>
     /// <returns>Collection of playlist data.</returns>
-    ICollection<PlaylistIdentificationData> GetPlaylists();
+    ICollection<PlaylistInformationData> GetPlaylists();
 
     /// <summary>
     /// Saves the given <paramref name="playlistData"/>.

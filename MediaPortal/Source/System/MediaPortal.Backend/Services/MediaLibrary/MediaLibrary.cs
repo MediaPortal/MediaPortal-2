@@ -433,7 +433,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Playlist management
 
-    public ICollection<PlaylistIdentificationData> GetPlaylists()
+    public ICollection<PlaylistInformationData> GetPlaylists()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -442,9 +442,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int playlistIdIndex;
         int nameIndex;
         int playlistTypeIndex;
-        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistsCommand(transaction, out playlistIdIndex, out nameIndex, out playlistTypeIndex))
+        int playlistItemsCountIndex;
+        using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistsCommand(transaction,
+            out playlistIdIndex, out nameIndex, out playlistTypeIndex, out playlistItemsCountIndex))
         {
-          ICollection<PlaylistIdentificationData> result = new List<PlaylistIdentificationData>();
+          ICollection<PlaylistInformationData> result = new List<PlaylistInformationData>();
           using (IDataReader reader = command.ExecuteReader())
           {
             while (reader.Read())
@@ -452,7 +454,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Guid playlistId = DBUtils.ReadDBValue<Guid>(reader, playlistIdIndex);
               string name = DBUtils.ReadDBValue<string>(reader, nameIndex);
               string playlistType = DBUtils.ReadDBValue<string>(reader, playlistTypeIndex);
-              result.Add(new PlaylistIdentificationData(playlistId, name, playlistType));
+              int playlistItemsCount = DBUtils.ReadDBValue<int>(reader, playlistItemsCountIndex);
+              result.Add(new PlaylistInformationData(playlistId, name, playlistType, playlistItemsCount));
             }
           }
           return result;

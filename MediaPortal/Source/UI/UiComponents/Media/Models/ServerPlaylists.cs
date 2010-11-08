@@ -41,10 +41,10 @@ namespace MediaPortal.UiComponents.Media.Models
       throw new NotConnectedException();
     }
 
-    public static ICollection<PlaylistIdentificationData> GetPlaylists()
+    public static ICollection<PlaylistInformationData> GetPlaylists()
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      return contentDirectory == null ? new List<PlaylistIdentificationData>(0) :
+      return contentDirectory == null ? new List<PlaylistInformationData>(0) :
           contentDirectory.GetPlaylists();
     }
 
