@@ -99,6 +99,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Mutex on which the animator class synchronizes multithread access.
+    /// </summary>
+    public object SyncObject
+    {
+      get { return _syncObject; }
+    }
+
+    /// <summary>
     /// Starts the specified <paramref name="board"/> in the context of the specified
     /// <paramref name="element"/>.
     /// </summary>
