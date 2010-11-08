@@ -546,9 +546,7 @@ namespace MediaPortal.UiComponents.Media.Models
         catch (NotConnectedException) { }
         int numPlaylists = localPlaylists.Count + serverPlaylists.Count;
         UpdatePlaylists(_localPlaylists, localPlaylists, PlaylistLocation.Local, numPlaylists == 1);
-        if (IsHomeServerConnected)
-          // If our home server is not connected, don't try to update its playlists
-          UpdatePlaylists(_serverPlaylists, serverPlaylists, PlaylistLocation.Server, numPlaylists == 1);
+        UpdatePlaylists(_serverPlaylists, serverPlaylists, PlaylistLocation.Server, numPlaylists == 1);
         IsPlaylistsSelected = numPlaylists == 1;
       }
       finally
