@@ -29,16 +29,13 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.SkinBase
 {
   public class PlayerBackgroundManager : IBackgroundManager
   {
-    public static string DEFAULT_BACKGROUND_SCREEN = "default-background";
-    public static string VIDEO_BACKGROUND_SCREEN = "video-background";
-    public static string PICTURE_BACKGROUND_SCREEN = "picture-background";
-
     protected ICollection<Key> _registeredKeyBindings = new List<Key>();
     protected object _syncObj = new object();
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -189,16 +186,16 @@ namespace MediaPortal.UiComponents.SkinBase
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       if (playerManager.NumActiveSlots == 0)
-        return DEFAULT_BACKGROUND_SCREEN;
+        return Consts.SCREEN_DEFAULT_BACKGROUND;
       IPlayerSlotController pscPrimary = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
       if (pscPrimary.IsActive && pscPrimary.PlayerSlotState != PlayerSlotState.Stopped)
       {
         if (pscPrimary.CurrentPlayer is IVideoPlayer)
-          return VIDEO_BACKGROUND_SCREEN;
-        else if (pscPrimary.CurrentPlayer is IPicturePlayer)
-          return PICTURE_BACKGROUND_SCREEN;
+          return Consts.SCREEN_VIDEO_BACKGROUND;
+        if (pscPrimary.CurrentPlayer is IPicturePlayer)
+          return Consts.SCREEN_PICTURE_BACKGROUND;
       }
-      return DEFAULT_BACKGROUND_SCREEN;
+      return Consts.SCREEN_DEFAULT_BACKGROUND;
     }
 
     #region IBackgroundManager implementation
