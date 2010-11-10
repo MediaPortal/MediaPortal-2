@@ -23,10 +23,7 @@
 #endregion
 
 using System;
-using System.Threading;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.UI.SkinEngine.ScreenManagement;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -49,42 +46,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public int CaretIndex
     {
-      get { return (int) _caretIndexDataDescriptor.Value; }
+      get { return (int) _parentElement.GetPendingOrCurrentValue(_caretIndexDataDescriptor); }
       set { _parentElement.SetValueInRenderThread(_caretIndexDataDescriptor, value); }
     }
 
     public string Text
     {
-      get
-      {
-        Screen screen = _parentElement.Screen;
-        Animator animator = screen == null ? null : screen.Animator;
-        object syncObj = animator == null ? null : animator.SyncObject;
-        if (syncObj != null)
-          Monitor.Enter(syncObj);
-        try
-        {
-          object result;
-          if (screen == null || !screen.Animator.TryGetPendingValue(_textDataDescriptor, out result))
-            result = _textDataDescriptor.Value;
-          return (string) result;
-        }
-        finally
-        {
-          if (syncObj != null)
-            Monitor.Exit(syncObj);
-        }
-      }
-      set
-      {
-        // In fact, this is the implementation of UIElement.SetValueInRenderThread(). We repeat it here to have the
-        // code of the get and set methods in sync.
-        Screen screen = _parentElement.Screen;
-        if (screen == null || SkinContext.RenderThread == Thread.CurrentThread)
-          _textDataDescriptor.Value = value;
-        else
-          screen.Animator.SetValue(_textDataDescriptor, value);
-      }
+      get { return (string) _parentElement.GetPendingOrCurrentValue(_textDataDescriptor); }
+      set { _parentElement.SetValueInRenderThread(_textDataDescriptor, value); }
     }
 
     public abstract void HandleInput(ref Key key);

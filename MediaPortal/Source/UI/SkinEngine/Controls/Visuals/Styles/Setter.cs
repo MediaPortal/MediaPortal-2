@@ -155,8 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         // The next lines are necessary because the render thread is setting our values.
         // If the render thread wasn't able to set the value yet, we would get the old, unchanged and
         // thus wrong value dd.Value for _originalValue.
-        if (!element.TryGetPendingValue(dd, out obj))
-          obj = dd.Value;
+        element.GetPendingOrCurrentValue(dd, out obj);
         SetOriginalValue(targetObject, obj);
       }
       if (TypeConverter.Convert(Value, dd.DataType, out obj))

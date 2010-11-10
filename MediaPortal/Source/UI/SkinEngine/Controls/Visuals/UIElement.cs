@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
 using SlimDX;
@@ -803,13 +804,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         screen.Animator.SetValue(dataDescriptor, value);
     }
 
-    public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)
+    /// <summary>
+    /// Gets either the value of the given <paramref name="dataDescriptor"/> or, if there is a value to be set in the
+    /// render thread, that pending value.
+    /// </summary>
+    /// <param name="dataDescriptor">Data descriptor whose value should be returned.</param>
+    /// <param name="value">Pending value or current value.</param>
+    /// <returns><c>true</c>, if the returned value is pending to be set, else <c>false</c>.</returns>
+    public bool GetPendingOrCurrentValue(IDataDescriptor dataDescriptor, out object value)
     {
       Screen screen = Screen;
-      if (screen != null)
-        return screen.Animator.TryGetPendingValue(dataDescriptor, out value);
-      value = null;
+      Animator animator = screen == null ? null : screen.Animator;
+      if (animator != null)
+      {
+        Monitor.Enter(animator.SyncObject);
+        try
+        {
+          if (animator.TryGetPendingValue(dataDescriptor, out value))
+            return true;
+        }
+        finally
+        {
+          Monitor.Exit(animator.SyncObject);
+        }
+      }
+      value = dataDescriptor.Value;
       return false;
+    }
+
+    /// <summary>
+    /// Convenience method for calling <see cref="GetPendingOrCurrentValue(IDataDescriptor,out object)"/> if it is not
+    /// interesting whether the value was still pending or whether the current value was returned.
+    /// </summary>
+    /// <param name="dataDescriptor">Data descriptor whose value should be returned.</param>
+    /// <returns>Pending value or current value.</returns>
+    public object GetPendingOrCurrentValue(IDataDescriptor dataDescriptor)
+    {
+      object value;
+      GetPendingOrCurrentValue(dataDescriptor, out value);
+      return value;
     }
 
     public virtual void FireEvent(string eventName)
