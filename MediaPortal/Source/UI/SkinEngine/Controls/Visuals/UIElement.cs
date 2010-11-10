@@ -815,20 +815,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Screen screen = Screen;
       Animator animator = screen == null ? null : screen.Animator;
-      if (animator != null)
+      try
       {
-        Monitor.Enter(animator.SyncObject);
-        try
+        if (animator != null)
         {
+          Monitor.Enter(animator.SyncObject);
           if (animator.TryGetPendingValue(dataDescriptor, out value))
             return true;
         }
-        finally
-        {
-          Monitor.Exit(animator.SyncObject);
-        }
+        value = dataDescriptor.Value;
       }
-      value = dataDescriptor.Value;
+      finally
+      {
+        if (animator != null)
+          Monitor.Exit(animator.SyncObject);
+      }
       return false;
     }
 
