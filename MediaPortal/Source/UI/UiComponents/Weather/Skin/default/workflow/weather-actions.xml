@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Media workflow state actions -->
+<!-- Weather workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
     <PushNavigationTransition Id="E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5"
