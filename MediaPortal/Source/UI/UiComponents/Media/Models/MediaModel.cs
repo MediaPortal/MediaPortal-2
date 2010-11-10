@@ -582,7 +582,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       if (avType == AVType.Audio)
       {
-        contextName = Consts.AUDIO_CONTEXT_NAME_RES;
+        contextName = Consts.RES_AUDIO_CONTEXT_NAME;
         return true;
       }
       contextName = null;

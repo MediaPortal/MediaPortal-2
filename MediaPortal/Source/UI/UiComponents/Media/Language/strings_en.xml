@@ -72,6 +72,9 @@
     <String Name="PlaylistInfoHeader" Text="Playlist information"/>
     <String Name="PlaylistDetailsHeader" Text="Playlist details"/>
 
+    <String Name="PlaylistLoadNoPlaylistText" Text="No playlist to load"/>
+    <String Name="PlaylistLoadErrorLoadingPlaylist" Text="Error loading playlist"/>
+
     <!-- View titles (shown in the skin) -->    
     <String Name="LocalMediaNavigationViewTitle" Text="Local media navigation"/>
     <String Name="MediaItemsViewTitle" Text="Media items"/>

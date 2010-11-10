@@ -36,6 +36,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
@@ -331,15 +332,19 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void LoadPlaylist()
     {
-      //TODO: Error handling: If loading of PL returns less entries than in saved PL => error message to user
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       if (_playlist == null)
+      {
+        dialogManager.ShowDialog(SkinBase.General.Consts.RES_SYSTEM_ERROR, Consts.RES_PLAYLIST_LOAD_NO_PLAYLIST, DialogType.OkDialog, false, null);
         return;
+      }
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (cd == null)
-        return;
       AVType? avType = ConvertPlaylistTypeToAVType(_playlist.PlaylistType);
-      if (!avType.HasValue)
+      if (cd == null || !avType.HasValue)
+      {
+        dialogManager.ShowDialog(SkinBase.General.Consts.RES_SYSTEM_ERROR, Consts.RES_PLAYLIST_LOAD_ERROR_LOADING, DialogType.OkDialog, false, null);
         return;
+      }
       Guid[] necessaryMIATypes = new Guid[]
           {
               ProviderResourceAspect.ASPECT_ID,
@@ -352,43 +357,39 @@ namespace MediaPortal.UiComponents.Media.Models
               PictureAspect.ASPECT_ID,
           };
       IList<MediaItem> mediaItems;
-      if (_playlistLocation == PlaylistLocation.Local)
+      switch (_playlistLocation)
       {
-        PlaylistRawData playlistData = _playlist as PlaylistRawData;
-        if (playlistData == null)
-          return;
-        mediaItems = cd.LoadCustomPlaylist(playlistData.MediaItemIds, necessaryMIATypes, null);
+        case PlaylistLocation.Local:
+          PlaylistRawData playlistData = _playlist as PlaylistRawData;
+          if (playlistData == null)
+            return;
+          mediaItems = cd.LoadCustomPlaylist(playlistData.MediaItemIds, necessaryMIATypes, null);
+          break;
+        case PlaylistLocation.Server:
+          PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
+          mediaItems = playlistContents.ItemList;
+          break;
+        default:
+          throw new NotImplementedException(string.Format("No handler for PlaylistLocation {0}", _playlistLocation));
       }
-      else if (_playlistLocation == PlaylistLocation.Server)
-      {
-        PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
-        mediaItems = playlistContents.ItemList;
-      }
-      else
-        return;
+      // TODO: Error handling: If loading of PL returns less entries than in saved PL => error message to user
+      // TODO: Make play methods in MediaModel callable from outside and use the first one here
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext pc = pcm.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      bool created = false;
       if (playlist == null)
       {
-        // TODO: Actually, we should ask the user if he wants to load the PL concurrently to other player contexts,
-        // if there are any.
         pc = MediaModel.PreparePlayerContext(avType.Value, true, PlayerContextConcurrencyMode.None);
         playlist = pc == null ? null : pc.Playlist;
-        created = true;
       }
       if (playlist != null)
       {
         playlist.Clear();
         playlist.AddAll(mediaItems);
-        if (created)
-        {
-          pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
-          pc.Play();
-          if (avType == AVType.Video)
-            pcm.ShowFullscreenContent();
-        }
+        pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
+        pc.Play();
+        if (avType == AVType.Video)
+          pcm.ShowFullscreenContent();
       }
       NavigateBackToOverview();
     }
@@ -573,7 +574,11 @@ namespace MediaPortal.UiComponents.Media.Models
       playlistsData.Sort((a, b) => a.Name.CompareTo(b.Name));
       foreach (PlaylistBase playlistData in playlistsData)
       {
+        AVType? avType = ConvertPlaylistTypeToAVType(playlistData.PlaylistType);
+        if (!avType.HasValue)
+          continue;
         ListItem playlistItem = new ListItem(Consts.KEY_NAME, playlistData.Name);
+        playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_AV_TYPE] = avType.Value;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA] = playlistData;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION] = location;
         PlaylistBase plCopy = playlistData;

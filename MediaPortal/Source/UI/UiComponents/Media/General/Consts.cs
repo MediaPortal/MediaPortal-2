@@ -103,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAY_VIDEO_ITEMS_PIP = "[Media.PlayVideoItemsPiP]";
 
     public const string RES_VIDEO_PICTURE_CONTEXT_NAME = "[Media.VideoPictureContextName]";
-    public const string AUDIO_CONTEXT_NAME_RES = "[Media.AudioContextName]";
+    public const string RES_AUDIO_CONTEXT_NAME = "[Media.AudioContextName]";
 
     public const string RES_SYSTEM_INFORMATION = "[System.Information]";
     public const string RES_CANNOT_PLAY_ITEM_DIALOG_TEXT = "[Media.CannotPlayItemDialogText]";
@@ -178,6 +178,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT = "[Media.SavePlaylistLocalSuccessfulText]";
     public const string RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT = "[Media.SavePlaylistServerSuccessfulText]";
 
+    public const string RES_PLAYLIST_LOAD_NO_PLAYLIST = "[Media.PlaylistLoadNoPlaylistText]";
+    public const string RES_PLAYLIST_LOAD_ERROR_LOADING = "[Media.PlaylistLoadErrorLoadingPlaylist]";
+
     // Screens
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
     public const string SCREEN_MUSIC_SHOW_ITEMS = "MusicShowItems";
@@ -243,6 +246,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string KEY_PLAYLIST_TYPES = "PlaylistsType";
     public const string KEY_PLAYLIST_LOCATION = "PlaylistLocation";
+    public const string KEY_PLAYLIST_AV_TYPE = "PlaylistAVType";
     public const string KEY_PLAYLIST_DATA = "PlaylistData";
 
     // Keys for workflow state variables
