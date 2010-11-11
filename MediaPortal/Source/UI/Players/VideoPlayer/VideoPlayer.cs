@@ -139,7 +139,9 @@ namespace MediaPortal.UI.Players.Video
     // Audio related
     protected int _currentAudioStream = 0;
 
+    // Internal state and variables
     protected IGeometry _geometryOverride = null;
+    protected CropSettings _cropSettings;
 
     protected PlayerState _state;
     protected bool _isPaused = false;
@@ -150,13 +152,15 @@ namespace MediaPortal.UI.Players.Video
     protected IResourceLocator _resourceLocator;
     protected ILocalFsResourceAccessor _resourceAccessor;
     protected string _mediaItemTitle = null;
+    protected AsynchronousMessageQueue _messageQueue = null;
+
+    // Player event delegates
     protected PlayerEventDlgt _started = null;
     protected PlayerEventDlgt _stateReady = null;
     protected PlayerEventDlgt _stopped = null;
     protected PlayerEventDlgt _ended = null;
     protected PlayerEventDlgt _playbackStateChanged = null;
     protected PlayerEventDlgt _playbackError = null;
-    protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
 
@@ -164,6 +168,8 @@ namespace MediaPortal.UI.Players.Video
 
     public VideoPlayer()
     {
+      _cropSettings = ServiceRegistration.Get<IGeometryManager>().CropSettings;
+
       // EVR is available since Vista
       OperatingSystem osInfo = Environment.OSVersion;
       if (osInfo.Version.Major <= 5)
@@ -311,7 +317,7 @@ namespace MediaPortal.UI.Players.Video
         }
 
         // Create the Allocator / Presenter object
-        _evrCallback = new EVRCallback();
+        _evrCallback = new EVRCallback {CropSettings = _cropSettings};
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -697,12 +703,7 @@ namespace MediaPortal.UI.Players.Video
 
     public Size VideoSize
     {
-      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.VideoSize; }
-    }
-
-    public Size UncroppedVideoSize
-    {
-      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.UncroppedVideoSize; }
+      get { return (_evrCallback == null || !_initialized) ? new Size(0, 0) : _evrCallback.OriginalVideoSize; }
     }
 
     public Size VideoAspectRatio
@@ -719,6 +720,12 @@ namespace MediaPortal.UI.Players.Video
     {
       get { return _geometryOverride; }
       set { _geometryOverride = value; }
+    }
+
+    public CropSettings CropSettings
+    {
+      get { return _cropSettings; }
+      set { _cropSettings = value; }
     }
 
     public virtual void BeginRender(EffectAsset effect, Matrix finalTransform)
@@ -1182,7 +1189,8 @@ namespace MediaPortal.UI.Players.Video
     {
       if (_graphBuilder != null)
       {
-        _evrCallback = new EVRCallback();
+        _evrCallback = new EVRCallback {CropSettings = _cropSettings};
+        _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
@@ -1226,7 +1234,6 @@ namespace MediaPortal.UI.Players.Video
           else
             mc.Run();
         }
-        _evrCallback.VideoSizePresent += OnVideoSizePresent;
         _initialized = true;
       }
     }

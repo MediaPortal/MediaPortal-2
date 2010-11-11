@@ -22,9 +22,11 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {
@@ -39,6 +41,42 @@ namespace MediaPortal.UI.SkinEngine.Players
   public interface ISlimDXVideoPlayer : IVideoPlayer
   {
     /// <summary>
+    /// Returns the maximum texture UV coords for displaying the complete frame. The frame texture must contain
+    /// the cropped video image at its coordinates (0; 0).
+    /// </summary>
+    /// <remarks>
+    /// Standard (legacy) DirectX requires that all textures have power-of-2 dimensions. When a texture is created of
+    /// non-power-of-2 dimensions it's size is rounded up and an empty border is used to fill the extra space, which 
+    /// means that the texture coordinates of the frame (without the border) within the texture are no longer [1.0, 1.0]. 
+    /// 
+    /// This function proivdes the correct texture coordinates to use to display the whole frame without any 
+    /// border.
+    /// </remarks>
+    SizeF SurfaceMaxUV { get; }
+
+    /// <summary>
+    /// Begins the rendering of the current video frame to the given <paramref name="effect"/> with the given
+    /// <paramref name="finalTransform"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method has to call the <see cref="EffectAsset.StartRender(Texture,Matrix)"/> method with the current
+    /// video frame <see cref="Texture"/>.
+    /// </remarks>
+    /// <param name="effect">Shader effect to use for rendering.</param>
+    /// <param name="finalTransform">Final transformation to be passed to the
+    /// <see cref="EffectAsset.StartRender(Texture,Matrix)"/></param> method.
+    void BeginRender(EffectAsset effect, Matrix finalTransform);
+
+    /// <summary>
+    /// Ends the rendering of the current video frame.
+    /// </summary>
+    /// <remarks>
+    /// This method has to call the <see cref="EffectAsset.EndRender()"/> method and might also do some cleanup work for the
+    /// current render cycle.
+    /// </remarks>
+    void EndRender(EffectAsset effect);
+
+    /// <summary>
     /// Releases any GUI resources.
     /// </summary>
     void ReleaseGUIResources();
@@ -47,10 +85,5 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// Reallocs any GUI resources.
     /// </summary>
     void ReallocGUIResources();
-
-    // TODO: Tidy up from here
-
-    void BeginRender(EffectAsset effect, Matrix finalTransform);
-    void EndRender(EffectAsset effect);
   }
 }

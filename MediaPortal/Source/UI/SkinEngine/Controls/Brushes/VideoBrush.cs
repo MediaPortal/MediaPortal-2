@@ -65,6 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected EffectAsset _effect;
     protected IGeometry _currentGeometry;
     protected IGeometry _lastGeometry;
+    protected CropSettings _lastCropSettings;
     protected Size _lastVideoSize;
     protected Size _lastAspectRatio;
     protected ISlimDXVideoPlayer _renderPlayer;
@@ -171,23 +172,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void RefreshEffectParameters(IVideoPlayer player)
     {
-      Size aspectRatio = player.VideoAspectRatio;
-      Size playerSize = player.VideoSize;
+      ISlimDXVideoPlayer sdvPlayer = player as ISlimDXVideoPlayer;
+      if (sdvPlayer == null)
+        return;
+      Size aspectRatio = sdvPlayer.VideoAspectRatio;
+      Size playerSize = sdvPlayer.VideoSize;
       IGeometry geometry = ChooseVideoGeometry(player);
+      CropSettings cropSettings = player.CropSettings;
 
       // Do we need a refresh?
-      if (!_refresh && _lastVideoSize == playerSize && _lastAspectRatio == player.VideoAspectRatio && geometry == _lastGeometry)
+      if (!_refresh &&
+          _lastVideoSize == playerSize &&
+          _lastAspectRatio == player.VideoAspectRatio &&
+          _lastGeometry == geometry &&
+          _lastCropSettings == cropSettings)
         return;
 
       SizeF targetSize = _vertsBounds.Size;
-      SizeF videoSize = playerSize;
+      SizeF videoSize = cropSettings == null ? playerSize : cropSettings.CropRect(playerSize).Size;
 
       // Get Effect
       string shaderName = geometry.Shader;
       _effect = ServiceRegistration.Get<ContentManager>().GetEffect(String.IsNullOrEmpty(shaderName) ? EFFECT_DEFAULT_VIDEO : shaderName);
       
       // Correct aspect ratio for anamorphic video
-      if (!aspectRatio.IsEmpty)
+      if (!aspectRatio.IsEmpty && geometry.RequiresCorrectAspectRatio)
       {
         float pixelRatio = aspectRatio.Width / (float) aspectRatio.Height;
         videoSize.Width = videoSize.Height * pixelRatio; 
@@ -199,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       videoSize = geometry.Transform(videoSize, targetSize);
       
       // Convert brush dimensions to viewport space
-      SizeF maxuv = player.SurfaceMaxUV;
+      SizeF maxuv = sdvPlayer.SurfaceMaxUV;
       Vector4 brushRect = new Vector4(0.0f, 0.0f, videoSize.Width, videoSize.Height);
       brushRect.Z /= targetSize.Width * maxuv.Width;
       brushRect.W /= targetSize.Height * maxuv.Height;
@@ -216,7 +225,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _refresh = true;
         return;
       }
-
       _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
 
       // Cache inverse relative transform
@@ -226,6 +234,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _lastVideoSize = playerSize;
       _lastAspectRatio = aspectRatio;
       _lastGeometry = geometry;
+      _lastCropSettings = cropSettings;
 
       _refresh = false;
     }

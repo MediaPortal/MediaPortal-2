@@ -49,9 +49,9 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return null; }
     }
 
-    public bool Crop
+    public bool RequiresCorrectAspectRatio
     {
-      get { return true; }
+      get { return false; }
     }
 
     public SizeF Transform(SizeF inputSize, SizeF targetSize)

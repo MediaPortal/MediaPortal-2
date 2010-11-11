@@ -49,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return "videosmartzoom"; }
     }
 
-    public bool Crop
+    public bool RequiresCorrectAspectRatio
     {
       get { return true; }
     }

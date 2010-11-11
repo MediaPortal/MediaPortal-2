@@ -39,19 +39,9 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IVideoPlayer : IPlayer, IVolumeControl
   {
     /// <summary>
-    /// Returns the cropped size of the video picture.
+    /// Returns the original resolution of the video picture as it came from the played media.
     /// </summary>
     Size VideoSize { get; }
-
-    /// <summary>
-    /// Returns the uncropped size of the video picture.
-    /// </summary>
-    Size UncroppedVideoSize { get; }
-
-    /// <summary>
-    /// Returns the maximum texture UV coords (because the video surface size may differ from the video size).
-    /// </summary>
-    SizeF SurfaceMaxUV { get; }
 
     /// <summary>
     /// Returns the aspect ratio of the video.
@@ -63,6 +53,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// In this case, this property is <c>null</c>.
     /// </summary>
     IGeometry GeometryOverride { get; set; }
+
+    /// <summary>
+    /// Gets or sets the crop settings to be used for this player.
+    /// </summary>
+    CropSettings CropSettings { get; set; }
 
     /// <summary>
     /// Returns the names of available audio streams. The list may be ordered by relevance or by some other criterion.

@@ -40,19 +40,30 @@ namespace MediaPortal.UI.Presentation.Geometries
     /// <summary>
     /// Gets the name of the shader to use.
     /// </summary>
-    string Shader { get;}
+    string Shader { get; }
 
     /// <summary>
-    /// Returns <c>true</c> if the source should be cropped.
-    /// </summary>
-    bool Crop { get; }
+    /// Returns <c>true</c> if this geometry implementation wants it's input size 
+    /// pre-scaled to the source's correct aspect ratio before transformation.
+    /// </summary> 
+    /// <remarks>For some input sources there will be a difference between the aspect 
+    /// ratio of the actual frame and the desired output aspect. This property 
+    /// indicates whether this <see cref="IGeometry"/> implementation requires the 
+    /// difference to have been resolved before it's <see cref="Transform"/> function 
+    /// is called. 
+    /// 
+    /// The primary example of content of this type is anamorphic widescreen format video, 
+    /// used for storing widescreen video in 4:3 formats such as DVD.</remarks>
+    bool RequiresCorrectAspectRatio { get; }
 
     /// <summary>
-    /// Does the actual transformation of the given video area.
+    /// Transforms an input size (representing the size of a video frame for instance) to 
+    /// best fit into the given target size. The actual transformation performed depends 
+    /// on the implementation. 
     /// </summary>
-    /// <param name="inputSize">The original size of the input.</param>
-    /// <param name="targetSize">The total size available.</param>
-    /// TODO: More docs, document return value
+    /// <param name="inputSize">The size to be transformed.</param>
+    /// <param name="targetSize">The size to fit the input into.</param>
+    /// <returns>The input size tranformed to fit into <paramref name="targetSize>.</returns>
     SizeF Transform(SizeF inputSize, SizeF targetSize);
   }
 }
