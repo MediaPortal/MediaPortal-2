@@ -171,8 +171,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       object newValue;
       if (!ConvertBack(_targetDd.Value, _sourceDd.DataType, out newValue))
         return;
-      if (_sourceDd.Value == newValue)
-        return;
       if (_sourceObject != null)
         _sourceObject.SetBindingValue(_sourceDd, newValue);
       else
@@ -183,8 +181,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       object newValue;
       if (!Convert(_sourceDd.Value, _targetDd.DataType, out newValue))
-        return;
-      if (_targetDd.Value == newValue)
         return;
       if (_targetObject != null)
         _targetObject.SetBindingValue(_targetDd, newValue);

@@ -188,7 +188,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void SetValue(IDataDescriptor dataDescriptor, object value)
     {
       lock (_syncObject)
+      {
+        object curVal;
+        if (_valuesToSet.TryGetValue(dataDescriptor, out curVal) && curVal == value)
+          return;
+        if (dataDescriptor.Value == value)
+          return;
         _valuesToSet[dataDescriptor] = value;
+      }
     }
 
     /// <summary>
