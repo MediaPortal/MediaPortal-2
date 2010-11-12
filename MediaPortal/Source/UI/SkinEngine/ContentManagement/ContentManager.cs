@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         if (!_assets[type].TryGetValue(fileName, out texture))
         {
           texture = NewAssetInstance(fileName, thumb ? AssetType.Thumbnail : AssetType.Texture, 
-            new TextureAssetCore(fileName));
+              new TextureAssetCore(fileName));
           ((TextureAssetCore) texture.core).UseThumbnail = thumb;
         }
         else

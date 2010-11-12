@@ -42,7 +42,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       foreach (DefinitionBase db in this)
       {
-        db.Length.Length = db.Length.IsAbsolute ? db.Length.Value : 0.0;
+        double desiredLength = db.Length.IsAbsolute ? db.Length.Value : 0.0;
+        db.Length.DesiredLength = desiredLength;
+        db.Length.Length = desiredLength;
       }
     }
 
@@ -74,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         GridLength length = this[i + cellIndex].Length;
         if (length.IsAbsolute)
-          desiredLength -= length.Length;
+          desiredLength -= length.DesiredLength;
         else
           relativeCount++;
       }
@@ -82,8 +84,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         GridLength length = this[i + cellIndex].Length;
         if (length.IsAuto || length.IsAutoStretch || length.IsStar)
-          if (length.Length < desiredLength / relativeCount)
-            length.Length = desiredLength / relativeCount;
+          if (length.DesiredLength < desiredLength / relativeCount)
+            length.DesiredLength = desiredLength / relativeCount;
       }
     }
 
@@ -93,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         double cumulated = 0;
         foreach (DefinitionBase cell in this)
-          cumulated += cell.Length.Length;
+          cumulated += cell.Length.DesiredLength;
         return cumulated;
       }
     }
@@ -105,6 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       foreach (DefinitionBase cell in this)
       {
         GridLength length = cell.Length;
+        length.Length = length.DesiredLength;
         if (length.IsAbsolute || length.IsAuto) // Fixed size cells get size from cell length, auto sized cells should follow the child
           fixedLength += length.Length;
         else if (length.IsAutoStretch)

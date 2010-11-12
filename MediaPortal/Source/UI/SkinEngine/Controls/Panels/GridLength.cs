@@ -41,6 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     GridUnitType _unitType;
     double _value = 0;
     double _finalValue = 0;
+    double _desiredLength = 0;
 
     #endregion
 
@@ -124,7 +125,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
     /// <summary>
-    /// Gets or sets the calculated length for the current cell.
+    /// Gets or sets the desirec length for the current cell.
+    /// </summary>
+    public double DesiredLength
+    {
+      get { return _desiredLength; }
+      set { _desiredLength = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the final calculated length for the current cell.
     /// </summary>
     public double Length
     {
