@@ -171,12 +171,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         reversedChildren.Reverse();
         reversedChildren.RemoveAt(reversedChildren.Count - 1); // Remove first (home) element
         int numShownChildrenAfterEllipsis = 0; // Number of children which fit behind the ellipsis control
+        float ellipsisSize = Orientation == Orientation.Vertical ? desiredEllipsisSize.Height : desiredEllipsisSize.Width;
         foreach (FrameworkElement child in reversedChildren)
         {
           SizeF desiredChildSize = child.DesiredSize;
           float size = Orientation == Orientation.Vertical ? desiredChildSize.Height : desiredChildSize.Width;
-          float ellipsisSize = Orientation == Orientation.Vertical ? desiredEllipsisSize.Height : desiredEllipsisSize.Width;
-          if (availableSize >= size + ellipsisSize)
+          if (availableSize >= size + ellipsisSize ||
+              (availableSize >= size && numShownChildrenAfterEllipsis == visibleChildren.Count - 2))
           {
             availableSize -= size;
             numShownChildrenAfterEllipsis++;
@@ -230,10 +231,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             _ellipsisControl.Arrange(new RectangleF(position, childSize));
           }
 
-          childrenAfterEllipsis.RemoveRange(0, childrenAfterEllipsis.Count - numShownChildrenAfterEllipsis);
+          int numBeforeEllipsis = childrenAfterEllipsis.Count - numShownChildrenAfterEllipsis;
+          for (int i = 1; i < numBeforeEllipsis; i++)
+            childrenAfterEllipsis[i].Arrange(RectangleF.Empty);
+          childrenAfterEllipsis.RemoveRange(0, numBeforeEllipsis);
         }
-        // else:
-        //   childrenAfterEllipsis contains all children
+        else if (_ellipsisControl != null)
+          // childrenAfterEllipsis contains all children in this case
+          _ellipsisControl.Arrange(RectangleF.Empty);
 
         // Lay out all other elements after ellipsis
         foreach (FrameworkElement child in childrenAfterEllipsis)
