@@ -66,15 +66,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     /// <summary>
-    /// Gets or sets the context.
-    /// Hint: This property comes from frodos implementation, originally declared
-    /// in class <see cref="UIElement"/>. Context is used by the templating system.
-    /// We now support a more WPF-like <see cref="DependencyObject.DataContext"/>
-    /// for bindings - as long as this system isn't reworked, we join those two concepts.
-    /// We store the context in the <see cref="DependencyObject.DataContext"/>
-    /// (See <see cref="BindingMarkupExtension"/>).
+    /// Gets or sets the context. This is a convenience property for setting the <see cref="DependencyObject.DataContext"/>
+    /// with a <see cref="BindingMarkupExtension.Source"/> value of the given <paramref name="value"/>.
     /// </summary>
-    /// <value>The context.</value>
+    /// <value>The source value used as data context.</value>
     public object Context
     {
       get { return DataContext == null ? null : DataContext.Source; }

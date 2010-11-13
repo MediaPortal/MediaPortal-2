@@ -56,6 +56,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
+      HorizontalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
+      VerticalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
       TemplateControlProperty.Attach(OnTemplateControlChanged);
     }
 
@@ -63,6 +65,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
+      HorizontalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
+      VerticalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
       TemplateControlProperty.Detach(OnTemplateControlChanged);
     }
 
@@ -86,6 +90,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
+    {
+      InitializeContentPresenter();
+    }
+
+    void OnContentAlignmentChanged(AbstractProperty property, object oldValue)
     {
       InitializeContentPresenter();
     }

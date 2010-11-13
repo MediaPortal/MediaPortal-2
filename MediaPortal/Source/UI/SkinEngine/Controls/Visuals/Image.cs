@@ -215,6 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _imageSource.Dispose();
       }
 
+      _imageSourceInvalid = false;
       _imageSource = LoadImageSource(Source);
       if (_imageSource != null)
         return _imageSource;
