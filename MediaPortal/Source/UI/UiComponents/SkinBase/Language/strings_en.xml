@@ -187,20 +187,10 @@
     <String Name="DefaultFriendlyName" Text="MediaPortal 2 client"/>
     <String Name="Manufacturer" Text="Team Mediaportal"/>
     <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
-    <String Name="ModelDescription" Text="MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides other user interface parts."/>
+    <String Name="ModelDescription" Text="MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides the user interface."/>
     <String Name="ModelName" Text="MediaPortal 2 client"/>
     <String Name="ModelNumber" Text="1"/>
 <!--    <String Name="ModelUrl" Text="..."/> -->
-  </Section>
-  <Section Name="General">
-    <String Name="Name" Text="Name"/>
-    <String Name="Date" Text="Date"/>
-    <String Name="Size" Text="Size"/>
-    <String Name="View" Text="View"/>
-    <String Name="Sort" Text="Sort"/>
-    <String Name="Options" Text="Options"/>
-    <String Name="Tags" Text="Tags"/>
-    <String Name="Filename" Text="File Name"/>
   </Section>
   <Section Name="DaysOfWeek">
     <String Name="1" Text="Monday"/>
@@ -210,6 +200,13 @@
     <String Name="5" Text="Friday"/>
     <String Name="6" Text="Saturday"/>
     <String Name="7" Text="Sunday"/>
+    <String Name="Monday" Text="Monday"/>
+    <String Name="Tuesday" Text="Tuesday"/>
+    <String Name="Wednesday" Text="Wednesday"/>
+    <String Name="Thursday" Text="Thursday"/>
+    <String Name="Friday" Text="Friday"/>
+    <String Name="Saturday" Text="Saturday"/>
+    <String Name="Sunday" Text="Sunday"/>
   </Section>
   <Section Name="Months">
     <String Name="1" Text="January"/>
@@ -224,5 +221,17 @@
     <String Name="10" Text="October"/>
     <String Name="11" Text="November"/>
     <String Name="12" Text="December"/>
+    <String Name="January" Text="January"/>
+    <String Name="February" Text="February"/>
+    <String Name="March" Text="March"/>
+    <String Name="April" Text="April"/>
+    <String Name="May" Text="May"/>
+    <String Name="June" Text="June"/>
+    <String Name="July" Text="July"/>
+    <String Name="August" Text="August"/>
+    <String Name="September" Text="September"/>
+    <String Name="October" Text="October"/>
+    <String Name="November" Text="November"/>
+    <String Name="December" Text="December"/>
   </Section>
 </Language>
