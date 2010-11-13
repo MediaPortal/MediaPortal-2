@@ -27,9 +27,10 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Settings;
 
 namespace MediaPortal.UiComponents.SkinBase
@@ -39,17 +40,17 @@ namespace MediaPortal.UiComponents.SkinBase
   /// </summary>
   public class ConnectionListenerService : IConnectionListenerService, IDisposable
   {
-    public const string ATTACH_TO_SERVER_STATE_ID_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
-    public static Guid ATTACH_TO_SERVER_STATE_ID = new Guid(ATTACH_TO_SERVER_STATE_ID_STR);
-
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
+
+    protected INotification _queuedNotification = null;
 
     public ConnectionListenerService()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
-            ServerConnectionMessaging.CHANNEL
+            ServerConnectionMessaging.CHANNEL,
+            NotificationServiceMessaging.CHANNEL,
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -60,16 +61,26 @@ namespace MediaPortal.UiComponents.SkinBase
       _messageQueue.Shutdown();
     }
 
-    private static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE_ID)
-        // If we are already in the AttachToServer state, don't navigate there again
-        return;
+      if (message.ChannelName == NotificationServiceMessaging.CHANNEL)
+      {
+        INotification notification = (INotification) message.MessageData[NotificationServiceMessaging.NOTIFICATION];
+        NotificationServiceMessaging.MessageType messageType = (NotificationServiceMessaging.MessageType) message.MessageType;
+        if (messageType == NotificationServiceMessaging.MessageType.NotificationDequeued ||
+            messageType == NotificationServiceMessaging.MessageType.NotificationRemoved)
+          lock (_syncObj)
+            if (notification == _queuedNotification)
+              _queuedNotification = null;
+      }
       // Check setting which prevents the listener service to pop up server availability messages
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
       if (!settings.EnableServerListener)
+        return;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
+        // If we are already in the AttachToServer state, don't navigate there again
         return;
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
@@ -79,19 +90,37 @@ namespace MediaPortal.UiComponents.SkinBase
         {
           case ServerConnectionMessaging.MessageType.AvailableServersChanged:
             bool serversWereAdded = (bool) message.MessageData[ServerConnectionMessaging.SERVERS_WERE_ADDED];
-            if (!serversWereAdded)
-              // Don't bother the user with connection messages if servers were only removed from the network
-              return;
-            workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE_ID, new NavigationContextConfig
+            if (serversWereAdded)
+            {
+              if (_queuedNotification == null)
               {
-                  AdditionalContextVariables = new Dictionary<string, object>
-                    {
-                      {ServerAttachmentModel.AUTO_CLOSE_ON_NO_SERVER_KEY, true}
-                    }
-              });
+                INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+                notificationService.EnqueueNotification(NotificationType.UserInteractionRequired, Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE,
+                    Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT, Consts.STATE_ID_ATTACH_TO_SERVER, false);
+              }
+            }
+            else
+            {
+              ICollection<ServerDescriptor> servers = (ICollection<ServerDescriptor>) message.MessageData[ServerConnectionMessaging.AVAILABLE_SERVERS];
+              if (servers.Count == 0)
+                // No servers available any more
+                RemoveNotification();
+            }
+            break;
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+            // Home server was attached outside the notification handler
+            RemoveNotification();
             break;
         }
       }
+    }
+
+    protected void RemoveNotification()
+    {
+      if (_queuedNotification == null)
+        return;
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      notificationService.RemoveNotification(_queuedNotification);
     }
 
     #region IConnectionListenerService implementation

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.SkinBase.General
 {
@@ -42,6 +43,9 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_ONE_MORE_NOTIFICATION = "[Notifications.OneMoreNotification]";
     public const string RES_N_MORE_NOTIFICATIONS = "[Notifications.NMoreNotifications]";
 
+    public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE = "[ServerConnection.NotificationServerAvailableTitle]";
+    public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT = "[ServerConnection.NotificationServerAvailableText]";
+
     // Images and icons
     public const string REL_PATH_USER_INTERACTION_REQUIRED_ICON = "user-interaction-required-icon.png";
     public const string REL_PATH_INFO_ICON = "info-icon.png";
@@ -55,5 +59,20 @@ namespace MediaPortal.UiComponents.SkinBase.General
     // Workflow states
     public const string STR_STATE_ID_WATCH_NOTIFICATIONS = "9B1EADDC-C5CD-4a3a-B26A-91B943F680AD";
     public static readonly Guid STATE_ID_WATCH_NOTIFICATIONS = new Guid(STR_STATE_ID_WATCH_NOTIFICATIONS);
+
+    public const string STR_STATE_ID_ATTACH_TO_SERVER = "E834D0E0-BC35-4397-86F8-AC78C152E693";
+    /// <summary>
+    /// In this state, the <see cref="ServerAttachmentModel"/> shows configuration dialogs to choose one of the home server
+    /// which are present in the network.
+    /// </summary>
+    public static Guid STATE_ID_ATTACH_TO_SERVER = new Guid(STR_STATE_ID_ATTACH_TO_SERVER);
+
+    public const string STR_STATE_ID_DETACH_FROM_SERVER = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
+    /// <summary>
+    /// In this state, the <see cref="ServerAttachmentModel"/> shows a dialog where it asks the user if he really
+    /// wants to detach from the current home server.
+    /// </summary>
+    public static Guid STATE_ID_DETACH_FROM_SERVER = new Guid(STR_STATE_ID_DETACH_FROM_SERVER);
+
   }
 }

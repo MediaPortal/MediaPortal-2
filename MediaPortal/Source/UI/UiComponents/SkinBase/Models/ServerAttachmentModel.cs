@@ -34,6 +34,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
@@ -66,9 +67,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected const string UNKNOWN_SERVER_NAME_RES = "[ServerConnection.UnknownServerName]";
     protected const string UNKNOWN_SERVER_SYSTEM_RES = "[ServerConnection.UnknownServerSystem]";
 
-    protected const string ATTACH_TO_SERVER_STATE_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
-    protected const string DETACH_FROM_SERVER_STATE_STR = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
-
     public const string SERVER_DESCRIPTOR_KEY = "ServerDescriptor";
     public const string NAME_KEY = "Name";
     public const string SERVER_NAME_KEY = "ServerName";
@@ -77,18 +75,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string AUTO_CLOSE_ON_NO_SERVER_KEY = "AutoCloseOnNoServer";
 
     protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    /// <summary>
-    /// In this state, the <see cref="ServerAttachmentModel"/> shows configuration dialogs to choose one of the home server
-    /// which are present in the network.
-    /// </summary>
-    public static Guid ATTACH_TO_SERVER_STATE = new Guid(ATTACH_TO_SERVER_STATE_STR);
-
-    /// <summary>
-    /// In this state, the <see cref="ServerAttachmentModel"/> shows a dialog where it asks the user if he really
-    /// wants to detach from the current home server.
-    /// </summary>
-    public static Guid DETACH_FROM_SERVER_STATE = new Guid(DETACH_FROM_SERVER_STATE_STR);
 
     #endregion
 
@@ -392,11 +378,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _detachConfirmDialogHandle = Guid.Empty;
       _attachInfoDialogHandle = null;
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      if (newContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE)
+      if (newContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
       {
         // We are always able to enter this state
       }
-      else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
+      else if (newContext.WorkflowState.StateId == Consts.STATE_ID_DETACH_FROM_SERVER)
       {
         if (string.IsNullOrEmpty(scm.HomeServerSystemId))
           return false;
@@ -407,7 +393,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _messageQueue.Start();
-      if (newContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE)
+      if (newContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
       {
         lock (_syncObj)
           _mode = Mode.AttachToServer;
@@ -415,7 +401,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (o != null)
           _autoCloseOnNoServer = (bool) o;
       }
-      else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
+      else if (newContext.WorkflowState.StateId == Consts.STATE_ID_DETACH_FROM_SERVER)
       {
         lock (_syncObj)
           _mode = Mode.DetachFromServer;
