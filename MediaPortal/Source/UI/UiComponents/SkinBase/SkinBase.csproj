@@ -70,6 +70,7 @@
     <Compile Include="Models\LocalShares.cs" />
     <Compile Include="Models\HomeServerModel.cs" />
     <Compile Include="Models\MenuModelMessaging.cs" />
+    <Compile Include="Models\NotificationsModel.cs" />
     <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
     <Compile Include="Models\MenuModel.cs" />
     <Compile Include="Models\ServerAttachmentModel.cs" />
@@ -181,6 +182,10 @@
     <Content Include="Skin\default\media\zoom_in_enabled.png" />
     <Content Include="Skin\default\media\zoom_out_disabled.png" />
     <Content Include="Skin\default\media\zoom_out_enabled.png" />
+    <Content Include="Skin\default\media\error-icon.png" />
+    <Content Include="Skin\default\media\warning-icon.png" />
+    <Content Include="Skin\default\media\info-icon.png" />
+    <Content Include="Skin\default\media\user-interaction-required-icon.png" />
     <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
@@ -216,8 +221,7 @@
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-states.xml" />
     <Content Include="Skin\default\screens\AttachToServerDialog.xaml" />
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="Skin\default\screens\WatchSystemNotifications.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
@@ -228,6 +232,7 @@
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
     <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />
     <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
+    <Content Include="Skin\default\workflow\notifications-states.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-actions.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
   </ItemGroup>

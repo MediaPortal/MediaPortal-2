@@ -29,9 +29,11 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.SystemResolver;
+using MediaPortal.UI.Services.UiNotifications;
 using MediaPortal.UI.Shares;
 using MediaPortal.UI.Thumbnails;
 using MediaPortal.UI.UserManagement;
@@ -50,6 +52,9 @@ namespace MediaPortal.UI
     public static void RegisterUiServices()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      logger.Debug("UiExtension: Registering INotificationService service");
+      ServiceRegistration.Set<INotificationService>(new NotificationService());
 
       logger.Debug("UiExtension: Registering ISystemResolver service");
       ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
@@ -131,6 +136,9 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Removing ISystemResolver service");
       ServiceRegistration.RemoveAndDispose<ISystemResolver>();
+
+      logger.Debug("UiExtension: Removing INotificationService service");
+      ServiceRegistration.RemoveAndDispose<INotificationService>();
     }
 
     /// <summary>

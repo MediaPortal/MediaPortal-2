@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow states for showing system notifications -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <WorkflowState Id="9B1EADDC-C5CD-4a3a-B26A-91B943F680AD"
+        Name="WatchSystemNotifications" DisplayLabel="[Notifications.WatchNotificationsWorkflowStateLabel]"
+        MainScreen="WatchSystemNotifications"
+        Temporary="true"/> <!-- No workflow model necessary -->
+  </States>
+</Workflow>

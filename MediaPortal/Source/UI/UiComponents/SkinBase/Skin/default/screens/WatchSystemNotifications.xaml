@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Notifications.Title]"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <DockPanel LastChildFill="True"> <!-- Dummy element to absorb the data context assigned from our parent -->
+        <DockPanel LastChildFill="False" Margin="50" Context="{Model 843F373D-0B4B-47ba-8DD1-0D18F00FAAD3}"> <!-- NotificationsModel -->
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Image DockPanel.Dock="Top" Margin="10" Source="{Binding NotificationSymbolRelFilePath}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
+              <Label Content="{Binding Title}" Margin="10"/>
+            </StackPanel>
+          </StackPanel>
+          <StackPanel DockPanel.Dock="Top" DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
+            <Label Margin="10" DockPanel.Dock="Top" Content="{Binding Text}"
+                HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"/>
+          </StackPanel>
+          <Grid DockPanel.Dock="Bottom" IsVisible="{Binding !HasSubWorkflow}" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Button Name="ButtonOk" Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}"
+                MinWidth="200" Content="[System.Ok]"
+                HorizontalAlignment="Center" HorizontalContentAlignment="Center" Command="{Command DequeueNotification}"/>
+          </Grid>
+          <Grid DockPanel.Dock="Bottom" IsVisible="{Binding HasSubWorkflow}" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Button Name="ButtonHandle" Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}"
+                MinWidth="200" Content="[Notifications.Handle]"
+                HorizontalAlignment="Center" HorizontalContentAlignment="Center" Command="{Command HandleNotificationSubWorkflow}"/>
+            <Button Name="ButtonDiscard" Grid.Column="1" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}"
+                MinWidth="200" Content="[System.Discard]"
+                HorizontalAlignment="Center" HorizontalContentAlignment="Center" Command="{Command DequeueNotification}"/>
+          </Grid>
+          <Label DockPanel.Dock="Bottom" Margin="10" HorizontalAlignment="Center" Content="{Binding NMoreNotificationsText}"
+              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+        </DockPanel>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

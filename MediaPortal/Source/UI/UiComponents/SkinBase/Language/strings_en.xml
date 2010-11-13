@@ -7,6 +7,7 @@
     <String Name="Finish" Text="Finish"/>
     <String Name="Ok" Text="Ok"/>
     <String Name="Cancel" Text="Cancel"/>
+    <String Name="Discard" Text="Discard"/>
     <String Name="Back" Text="Back"/>
     <String Name="Continue" Text="Continue"/>
     <String Name="Add" Text="Add"/>
@@ -63,6 +64,13 @@
     <String Name="AttachButton" Text="Attach"/>
     <String Name="AttachInfoDialogHeader" Text="Server attached"/>
     <String Name="AttachInfoDialogText" Text="This MediaPortal 2 client was attached to its new home server '{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+  </Section>
+  <Section Name="Notifications">
+    <String Name="Title" Text="Notifications"/>
+    <String Name="OneMoreNotification" Text="(1 more)"/>
+    <String Name="NMoreNotifications" Text="({0} more)"/>
+    <String Name="WatchNotificationsWorkflowStateLabel" Text="Notifications"/>
+    <String Name="Handle" Text="Handle"/>
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>

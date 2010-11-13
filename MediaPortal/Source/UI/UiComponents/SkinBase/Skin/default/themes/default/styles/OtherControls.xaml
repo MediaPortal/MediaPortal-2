@@ -954,7 +954,7 @@
                 </Grid>
               </Grid>
               <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0,5,0,5"> <!-- Workaround to avoid layouting problems with LayoutTransform -->
-                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">
+                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
                   <StackPanel.LayoutTransform>
                     <TransformGroup>
                       <ScaleTransform ScaleX="1" ScaleY="0"/>
@@ -1117,6 +1117,34 @@
                   Source="{Binding PipPictureSourcePath}"/>
             </Grid>
           </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ****************************** Notification area ********************************** -->
+
+  <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+
+  <Style x:Key="NotificationControlStyle" TargetType="{x:Type ContentPresenter}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ContentPresenter}">
+          <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
+            <Button Command="{Command GoToNotification}" Style="{ThemeResource ButtonStyle}">
+              <Grid> <!-- Outer grid is needed because of DataContext used by Button -->
+                <Grid Context="{StaticResource NotificationsModel}"> <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
+                  <Image Source="{Binding NotificationSymbolRelFilePath}" Width="48" Stretch="Uniform"/>
+                  <StackPanel Orientation="Horizontal" IsVisible="{Binding IsMoreThanOneNotificationAvailable}"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Label Content="(" FontSize="{ThemeResource TinyFontSize}"/>
+                    <Label Content="{Binding NumNotificationsTotal}" FontSize="{ThemeResource TinyFontSize}"/>
+                    <Label Content=")" FontSize="{ThemeResource TinyFontSize}"/>
+                  </StackPanel>
+                </Grid>
+              </Grid>
+            </Button>
+          </StackPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

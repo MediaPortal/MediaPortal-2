@@ -97,6 +97,8 @@
     <Compile Include="Presentation\Models\BaseTimerControlledModel.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\SkinResources\SkinResourcesMessaging.cs" />
+    <Compile Include="Presentation\UiNotifications\INotificationService.cs" />
+    <Compile Include="Presentation\UiNotifications\NotificationServiceMessaging.cs" />
     <Compile Include="Presentation\Workflow\MethodCallAction.cs" />
     <Compile Include="Presentation\Workflow\MethodDelegateAction.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowContributor.cs" />
@@ -138,6 +140,8 @@
     <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
     <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
+    <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
+    <Compile Include="Services\UiNotifications\NotificationService.cs" />
     <Compile Include="Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />

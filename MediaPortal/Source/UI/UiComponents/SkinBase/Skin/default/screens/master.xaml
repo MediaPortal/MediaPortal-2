@@ -37,6 +37,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
+  <Grid.Resources>
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+  </Grid.Resources>
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
     <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
@@ -50,9 +53,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.ColumnDefinitions>
       <StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
           HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-        <StackPanel.Resources>
-          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
-        </StackPanel.Resources>
         <StackPanel.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
             <Binding Path="HasInputFocus"/>
@@ -86,7 +86,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Command>
           </Button.Command>
         </Button>
-      </StackPanel>
+      </StackPanel> <!-- WindowButtonsPanel -->
       <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="1" Grid.Row="0">
         <Label x:Name="HeaderLabel"
             FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
@@ -106,7 +106,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </LinearGradientBrush>
           </Label.OpacityMask>
         </Label>
-      </StackPanel>
+      </StackPanel> <!-- HeaderTextPanel -->
       <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
           HorizontalAlignment="Right" VerticalAlignment="Top">
         <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
@@ -118,8 +118,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
             AutoVisibility="True"
             SlotIndex="1"/>
       </StackPanel>
-    </Grid>
-    <mp_special_controls:WorkflowNavigationBar DockPanel.Dock="Bottom" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
+    </Grid> <!-- HeaderPanel -->
+    <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
+      <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"/>
+    </Grid> <!-- FooterPanel -->
 
 <!-- Not sure if and how we should show shortcuts...
     <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
