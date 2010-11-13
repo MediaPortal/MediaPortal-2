@@ -17,11 +17,11 @@
             <Image DockPanel.Dock="Top" Margin="10" Source="{Binding NotificationSymbolRelFilePath}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <StackPanel DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
-              <Label Content="{Binding Title}" Margin="10"/>
+              <Label x:Name="TitleLabel" Content="{Binding Title}" Wrap="True" Margin="10"/>
             </StackPanel>
           </StackPanel>
           <StackPanel DockPanel.Dock="Top" DataContext="{Binding CurrentNotification}" HorizontalAlignment="Left">
-            <Label Margin="10" DockPanel.Dock="Top" Content="{Binding Text}"
+            <Label x:Name="TextLabel" Margin="10" DockPanel.Dock="Top" Content="{Binding Text}" Wrap="True"
                 HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"/>
           </StackPanel>
           <Grid DockPanel.Dock="Bottom" IsVisible="{Binding !HasSubWorkflow}" HorizontalAlignment="Stretch">
