@@ -73,8 +73,8 @@ namespace MediaPortal.UI.ServerCommunication
     }
 
     // Message data
-    public const string AVAILABLE_SERVERS = "AvailableServers"; // Contains a collection of ServerDescriptor instances
-    public const string SERVERS_WERE_ADDED = "ServersWereAdded"; // Contains a bool
+    public const string AVAILABLE_SERVERS = "AvailableServers"; // Type: ICollection<ServerDescriptor>
+    public const string SERVERS_WERE_ADDED = "ServersWereAdded"; // Type: bool
 
     /// <summary>
     /// Sends a <see cref="MessageType.HomeServerConnected"/> or <see cref="MessageType.HomeServerDisconnected"/> message.
