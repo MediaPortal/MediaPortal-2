@@ -76,13 +76,20 @@ namespace MediaPortal.Core.General
     public SystemName(string hostName)
     {
       _hostName = GetCanonicalForm(hostName);
-      IPHostEntry hostEntry = Dns.GetHostEntry(_hostName);
-      ICollection<string> aliases = new List<string>();
-      foreach (string alias in hostEntry.Aliases)
-        aliases.Add(GetCanonicalForm(alias));
-      foreach (IPAddress address in hostEntry.AddressList)
-        aliases.Add(NetworkUtils.IPAddrToString(address));
-      _aliases = aliases.ToArray();
+      try
+      {
+        IPHostEntry hostEntry = Dns.GetHostEntry(_hostName);
+        ICollection<string> aliases = new List<string>();
+        foreach (string alias in hostEntry.Aliases)
+          aliases.Add(GetCanonicalForm(alias));
+        foreach (IPAddress address in hostEntry.AddressList)
+          aliases.Add(NetworkUtils.IPAddrToString(address));
+        _aliases = aliases.ToArray();
+      }
+      catch (SocketException) // Could occur if the nameserver doesn't answer, for example
+      {
+        _aliases = new string[0];
+      }
     }
 
     #endregion
