@@ -18,7 +18,7 @@
     </ResourceWrapper>
 
     <!-- Menu_Command -->
-    <InvokeCommand x:Key="Menu_Command" CommandStencil="{CommandStencil Source={StaticResource PlayerConfigurationDialogModel},Path=ExecuteMenuItem}">
+    <InvokeCommand x:Key="Menu_Command" CommandStencil="{CommandStencil Source={StaticResource PlayerConfigurationDialogModel},Path=Select}">
       <InvokeCommand.CommandParameters>
         <LateBoundValue BindingValue="{Binding}"/>
       </InvokeCommand.CommandParameters>

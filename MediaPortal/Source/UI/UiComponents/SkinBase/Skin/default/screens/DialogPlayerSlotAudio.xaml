@@ -19,7 +19,7 @@
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource PlayerConfigurationDialogModel}" Path="ExecuteMenuItem"/>
+        Source="{StaticResource PlayerConfigurationDialogModel}" Path="Select"/>
 
   </Include.Resources>
 </Include>

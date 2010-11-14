@@ -567,7 +567,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _playerChooseGeometryHeader; }
     }
 
-    public void ExecuteMenuItem(ListItem item)
+    public void Select(ListItem item)
     {
       if (item == null)
         return;

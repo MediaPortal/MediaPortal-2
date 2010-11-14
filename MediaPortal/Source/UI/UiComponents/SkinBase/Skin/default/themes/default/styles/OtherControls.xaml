@@ -1100,7 +1100,7 @@
           <Border x:Name="PiPBorder" Grid.Column="1" Grid.Row="1"
               Context="{Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}"
               BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}"
-              IsVisible="{Binding IsPipVisible}"> <!-- DataContext model = PlayerBackgroundModel -->
+              IsVisible="{Binding IsPipVisible}"> <!-- DataContext model = PlayerModel -->
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
