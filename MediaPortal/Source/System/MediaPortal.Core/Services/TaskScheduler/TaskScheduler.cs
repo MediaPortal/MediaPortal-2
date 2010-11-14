@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     protected IntervalWork _work = null;
 
     /// <summary>
-    /// Mutex object to serialize access to the registered tasks and next TaskID.
+    /// Mutex object to serialize access to the registered tasks and next task id.
     /// </summary>
     protected object _taskMutex = new object();
 

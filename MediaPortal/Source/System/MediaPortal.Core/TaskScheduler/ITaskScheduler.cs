@@ -34,6 +34,9 @@ namespace MediaPortal.Core.TaskScheduler
   /// as a reference to the interested listeners on this message queue.
   /// Listeners then can act on the generate message to perform time or interval based tasks.
   /// </summary>
+  /// <remarks>
+  /// The counting of the task id starts with <c>0</c>, i.e. <c>-1</c> can be used as an invalid task id.
+  /// </remarks>
   public interface ITaskScheduler
   {
     /// <summary>
@@ -47,37 +50,37 @@ namespace MediaPortal.Core.TaskScheduler
     void Shutdown();
 
     /// <summary>
-    /// Adds a task to the task scheduler
+    /// Adds a task to the task scheduler.
     /// </summary>
-    /// <param name="newTask">task to add to the scheduler</param>
-    /// <returns>ID assigned to the given task</returns>
+    /// <param name="newTask">Task to add to the scheduler.</param>
+    /// <returns>ID assigned to the given task.</returns>
     int AddTask(Task newTask);
 
     /// <summary>
-    /// Updates an already registered task
+    /// Updates an already registered task.
     /// </summary>
-    /// <param name="taskId">ID of the task to update</param>
-    /// <param name="updatedTask">the updated task</param>
+    /// <param name="taskId">ID of the task to update.</param>
+    /// <param name="updatedTask">The updated task.</param>
     void UpdateTask(int taskId, Task updatedTask);
 
     /// <summary>
-    /// Removes a task from the task scheduler
+    /// Removes a task from the task scheduler.
     /// </summary>
-    /// <param name="taskId">ID of the task to remove</param>
+    /// <param name="taskId">ID of the task to remove.</param>
     void RemoveTask(int taskId);
 
     /// <summary>
-    /// Gets a registered task from the task scheduler
+    /// Gets a registered task from the task scheduler.
     /// </summary>
-    /// <param name="taskId">ID of the task to get</param>
-    /// <returns>task with given ID</returns>
+    /// <param name="taskId">ID of the task to get.</param>
+    /// <returns>Task with given ID.</returns>
     Task GetTask(int taskId);
 
     /// <summary>
-    /// Gets all registered tasks for the given owner from the task scheduler
+    /// Gets all registered tasks for the given owner from the task scheduler.
     /// </summary>
-    /// <param name="ownerId">owner ID to get a task list for</param>
-    /// <returns>list of tasks for given owner</returns>
+    /// <param name="ownerId">owner ID to get a task list for.</param>
+    /// <returns>List of tasks for given owner.</returns>
     IList<Task> GetTasks(string ownerId);
   }
 }

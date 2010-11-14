@@ -61,7 +61,6 @@ namespace MediaPortal.Core.Services.TaskScheduler
     {
       if (_tasks.Contains(task))
         throw new ArgumentException("Task is already in task list!");
-      else
       {
         int index = _tasks.BinarySearch(task, _comparer);
         if (index < 0)
@@ -160,32 +159,16 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public int Compare(Task x, Task y)
     {
       if (x == null && y == null)
-      {
         return 0;
-      }
-      else if (x == null)
-      {
+      if (x == null)
         return -1;
-      }
-      else if (y == null)
-      {
+      if (y == null)
         return 1;
-      }
-      else
-      {
-        if (x.NextRun < y.NextRun)
-        {
-          return -1;
-        }
-        else if (x.NextRun > y.NextRun)
-        {
-          return 1;
-        }
-        else
-        {
-          return 0;
-        }
-      }
+      if (x.NextRun < y.NextRun)
+        return -1;
+      if (x.NextRun > y.NextRun)
+        return 1;
+      return 0;
     }
 
     #endregion
