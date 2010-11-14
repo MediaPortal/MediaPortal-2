@@ -138,6 +138,14 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
+    /// Gets the information whether this navigation data is currently enabled.
+    /// </summary>
+    public bool IsEnabled
+    {
+      get { return _currentScreenData.IsEnabled; }
+    }
+
+    /// <summary>
     /// Releases resources which are needed by the current screen.
     /// </summary>
     public void Disable()

@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
@@ -56,8 +55,8 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public bool IsActionVisible(NavigationContext context)
     {
-      NavigationData navigationData = MediaModel.GetNavigationData(context);
-      return navigationData != null;
+      NavigationData navigationData = MediaNavigationModel.GetNavigationData(context, false);
+      return navigationData != null && navigationData.IsEnabled;
     }
 
     public bool IsActionEnabled(NavigationContext context)
@@ -67,9 +66,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public void Execute()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      MediaModel model = (MediaModel) workflowManager.GetModel(MediaModel.MEDIA_MODEL_ID);
-      model.AddCurrentViewToPlaylist();
+      MediaNavigationModel.AddCurrentViewToPlaylist();
     }
 
     #endregion

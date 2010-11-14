@@ -207,6 +207,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     #endregion
 
+    public bool IsEnabled
+    {
+      get { return _navigationData != null; }
+    }
+
     public abstract void Reload();
 
     /// <summary>
@@ -215,7 +220,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// </summary>
     public virtual void CreateScreenData(NavigationData navigationData)
     {
-      if (_navigationData != null)
+      if (IsEnabled)
         throw new IllegalCallException("Screen data is already initialized");
       _navigationData = navigationData;
       _numItemsStrProperty = new WProperty(typeof(string), string.Empty);

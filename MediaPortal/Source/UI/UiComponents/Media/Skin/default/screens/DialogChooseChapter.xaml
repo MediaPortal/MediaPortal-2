@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
@@ -17,6 +17,6 @@
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource VideoPlayerModel}" Path="PlayerUIContributor.ExecuteMenuItem"/>
+        Source="{StaticResource VideoPlayerModel}" Path="PlayerUIContributor.Select"/>
   </Include.Resources>
 </Include>

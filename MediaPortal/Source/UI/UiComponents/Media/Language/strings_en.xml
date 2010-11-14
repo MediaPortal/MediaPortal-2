@@ -56,6 +56,9 @@
     <String Name="SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel" Text="Edit playlist name"/>
     <String Name="SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel" Text="Successful"/>
     <String Name="SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel" Text="Failed"/>
+    <String Name="PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel" Text="Play/enqueue items"/>
+    <String Name="CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel" Text="Play action"/>
+    <String Name="CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel" Text="Play action"/>
 
     <!-- Screen headers -->
     <String Name="LocalMediaHeader" Text="Local media"/>
@@ -204,6 +207,9 @@
     <String Name="PlaylistNumItemsLabel" Text="Number of items"/>
     <String Name="PlaylistLocationInfoLabel" Text="Location"/>
     <String Name="PlaylistIdInfoLabel" Text="Internal playlist id"/>
+    <String Name="PlaylistLoadItemsMissingTitle" Text="Items missing"/>
+    <String Name="PlaylistLoadSomeItemsMissingText" Text="Not all items of the playlist could be loaded. Some items are missing."/>
+    <String Name="PlaylistLoadAllItemsMissingText" Text="The playlist could not be loaded, all items of the playlist are missing."/>
 
     <!-- DVDPlayerUIContributor -->
     <String Name="SubtitleOff" Text="Disable Subtitles"/>

@@ -37,6 +37,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
@@ -372,26 +373,29 @@ namespace MediaPortal.UiComponents.Media.Models
         default:
           throw new NotImplementedException(string.Format("No handler for PlaylistLocation {0}", _playlistLocation));
       }
-      // TODO: Error handling: If loading of PL returns less entries than in saved PL => error message to user
-      // TODO: Make play methods in MediaModel callable from outside and use the first one here
-      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-      IPlayerContext pc = pcm.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      IPlaylist playlist = pc == null ? null : pc.Playlist;
-      if (playlist == null)
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      // Add notification if not all media items could be loaded
+      if (mediaItems.Count == 0)
       {
-        pc = MediaModel.PreparePlayerContext(avType.Value, true, PlayerContextConcurrencyMode.None);
-        playlist = pc == null ? null : pc.Playlist;
+        DefaultNotification notification = new DefaultNotification(NotificationType.Info,
+            Consts.RES_PLAYLIST_LOAD_ITEMS_MISSING_TITLE, Consts.RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT)
+          {
+              Timeout = DateTime.Now + Consts.TS_PLAYLIST_LOAD_ITEMS_MISSING_NOTIFICATION
+          };
+        notificationService.EnqueueNotification(notification, false);
+        // No further processing - we don't have any items to load
+        return;
       }
-      if (playlist != null)
+      if (_playlist.NumItems > mediaItems.Count)
       {
-        playlist.Clear();
-        playlist.AddAll(mediaItems);
-        pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
-        pc.Play();
-        if (avType == AVType.Video)
-          pcm.ShowFullscreenContent();
+        DefaultNotification notification = new DefaultNotification(NotificationType.Info,
+            Consts.RES_PLAYLIST_LOAD_ITEMS_MISSING_TITLE, Consts.RES_PLAYLIST_LOAD_SOME_ITEMS_MISSING_TEXT)
+          {
+              Timeout = DateTime.Now + Consts.TS_PLAYLIST_LOAD_ITEMS_MISSING_NOTIFICATION
+          };
+        notificationService.EnqueueNotification(notification, false);
       }
-      NavigateBackToOverview();
+      PlayItemsModel.CheckQueryPlayAction(() => mediaItems, avType.Value);
     }
 
     public void NavigateRemovePlaylistSaveWorkflow()

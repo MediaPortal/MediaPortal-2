@@ -2,7 +2,7 @@
 <!-- Media workflow states -->
 <Workflow DescriptorVersion="1.0">
   <States>
-    <!-- Media main screen(s) -->
+    <!-- Media navigation -->
 
     <WorkflowState Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         Name="LocalMediaNavigation-Root"
@@ -23,6 +23,21 @@
         Name="PicturesNavigation-Root"
         DisplayLabel="[Media.PicturesNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
+    <!-- Play items -->
+
+    <DialogState Id="D93C8FA5-130F-4b5e-BE0B-79D6200CE8D2"
+        Name="PlayOrEnqueueItems"
+        DisplayLabel="[Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
+    <DialogState Id="B79E395B-2276-4cde-B4CC-BB4F3E201EFF"
+        Name="CheckQueryPlayActionSingleItem"
+        DisplayLabel="[Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
+    <DialogState Id="895C4853-6D52-4c0f-9B16-B7DA789CBF6A"
+        Name="CheckQueryPlayActionMultipleItems"
+        DisplayLabel="[Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
 
     <!-- CP/FSC states -->
 

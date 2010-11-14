@@ -296,8 +296,9 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <summary>
     /// Execute selected menu item for subtitle and chapter selection.
     /// </summary>
-    /// <param name="item"></param>
-    public void ExecuteMenuItem(ListItem item)
+    /// <param name="item">One of the items of <see cref="SubtitleMenuItems"/> or
+    /// <see cref="ChapterMenuItems"/>.</param>
+    public void Select(ListItem item)
     {
       if (item == null)
         return;
