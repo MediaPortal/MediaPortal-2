@@ -63,14 +63,15 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string STR_STATE_ID_ATTACH_TO_SERVER = "E834D0E0-BC35-4397-86F8-AC78C152E693";
     /// <summary>
     /// In this state, the <see cref="ServerAttachmentModel"/> shows configuration dialogs to choose one of the home server
-    /// which are present in the network.
+    /// which are present in the network. This state is valid if there is no home server attached. Else, this state is invalid.
     /// </summary>
     public static Guid STATE_ID_ATTACH_TO_SERVER = new Guid(STR_STATE_ID_ATTACH_TO_SERVER);
 
     public const string STR_STATE_ID_DETACH_FROM_SERVER = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
     /// <summary>
     /// In this state, the <see cref="ServerAttachmentModel"/> shows a dialog where it asks the user if he really
-    /// wants to detach from the current home server.
+    /// wants to detach from the current home server. This state is valid if there is a home server attached. Else, this state
+    /// is invalid.
     /// </summary>
     public static Guid STATE_ID_DETACH_FROM_SERVER = new Guid(STR_STATE_ID_DETACH_FROM_SERVER);
 

@@ -380,11 +380,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       if (newContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
       {
-        // We are always able to enter this state
+        if (scm.HomeServerSystemId != null)
+          return false;
       }
       else if (newContext.WorkflowState.StateId == Consts.STATE_ID_DETACH_FROM_SERVER)
       {
-        if (string.IsNullOrEmpty(scm.HomeServerSystemId))
+        if (scm.HomeServerSystemId == null)
           return false;
       }
       return true;
