@@ -52,8 +52,8 @@ namespace MediaPortal.UI.Presentation.Screens
     }
 
     // Message data
-    public const string DIALOG_HANDLE = "DialogHandle"; // Dialog handle stored as Guid
-    public const string DIALOG_RESULT = "DialogResult"; // Dialog result stored as DialogResult
+    public const string DIALOG_HANDLE = "DialogHandle"; // Type: Guid
+    public const string DIALOG_RESULT = "DialogResult"; // Type: DialogResult
 
     public static void SendDialogManagerMessage(Guid dialogHandle, DialogResult result)
     {
