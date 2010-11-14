@@ -46,6 +46,7 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     NotificationType Type { get; }
     string Title { get; }
     string Text { get; }
+    DateTime? Timeout { get; }
     Guid? HandlerWorkflowState { get; }
     string CustomIconPath { get; }
 
@@ -72,6 +73,11 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     /// Gets the list of queued notifications. The next entry to be dequeued is at the end of the returned list.
     /// </summary>
     IList<INotification> Notifications { get; }
+
+    /// <summary>
+    /// Gets or sets a flag indicating whether this service automatically removes timed-out notifications.
+    /// </summary>
+    bool CheckForTimeouts { get; set; }
 
     /// <summary>
     /// Enqueues a new basic notification which is simply shown to the user and discarded.

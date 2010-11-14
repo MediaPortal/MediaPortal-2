@@ -26,12 +26,14 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.TaskScheduler;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.UiNotifications
 {
-  public class NotificationService : INotificationService
+  public class NotificationService : IDisposable, INotificationService
   {
     #region Classes
 
@@ -40,6 +42,11 @@ namespace MediaPortal.UI.Services.UiNotifications
     #region Consts
 
     public const int PENDING_NOTIFICATIONS_THRESHOLD = 10;
+    public const int TASK_ID_INVALID = -1;
+
+    public const string STR_TASK_OWNER = "NotificationService";
+
+    public static readonly TimeSpan TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS = TimeSpan.FromSeconds(10);
 
     #endregion
 
@@ -48,8 +55,50 @@ namespace MediaPortal.UI.Services.UiNotifications
     protected object _syncObj = new object();
     protected IList<INotification> _normalQueue = new List<INotification>();
     protected IList<INotification> _urgentQueue = new List<INotification>();
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _notificationTimeoutTaskId = TASK_ID_INVALID;
 
     #endregion
+
+    public NotificationService()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            TaskSchedulerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
+      {
+        if ((TaskSchedulerMessaging.MessageType) message.MessageType == TaskSchedulerMessaging.MessageType.DUE &&
+            ((Task) message.MessageData[TaskSchedulerMessaging.TASK]).ID == _notificationTimeoutTaskId)
+          CheckTimeouts();
+      }
+    }
+
+    protected void CheckTimeouts()
+    {
+      ICollection<INotification> notifications = new List<INotification>(_normalQueue);
+      CollectionUtils.AddAll(notifications, _urgentQueue);
+      DateTime now = DateTime.Now;
+      foreach (INotification notification in notifications)
+      {
+        DateTime? timeout = notification.Timeout;
+        if (!timeout.HasValue)
+          continue;
+        if (timeout.Value < now)
+          RemoveNotification(notification);
+      }
+    }
 
     #region INotificationService implementation
 
@@ -60,6 +109,29 @@ namespace MediaPortal.UI.Services.UiNotifications
         IList<INotification> result = new List<INotification>(_normalQueue);
         CollectionUtils.AddAll(result, _urgentQueue);
         return result;
+      }
+    }
+
+    public bool CheckForTimeouts
+    {
+      get { return _notificationTimeoutTaskId != TASK_ID_INVALID; }
+      set
+      {
+        ITaskScheduler taskScheduler = ServiceRegistration.Get<ITaskScheduler>();
+        if (value)
+        {
+          if (_notificationTimeoutTaskId != TASK_ID_INVALID)
+            return;
+          _notificationTimeoutTaskId = taskScheduler.AddTask(
+              new Task(STR_TASK_OWNER, TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS));
+        }
+        else
+        {
+          if (_notificationTimeoutTaskId == TASK_ID_INVALID)
+            return;
+          taskScheduler.RemoveTask(_notificationTimeoutTaskId);
+          _notificationTimeoutTaskId = TASK_ID_INVALID;
+        }
       }
     }
 

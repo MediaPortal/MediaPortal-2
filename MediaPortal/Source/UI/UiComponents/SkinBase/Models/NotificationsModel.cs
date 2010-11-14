@@ -23,11 +23,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Runtime;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
@@ -36,9 +38,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Model which provides data about available system notifications.
+  /// Used as workflow model and as pure UI model.
   /// </summary>
-  public class NotificationsModel : IDisposable
+  public class NotificationsModel : IDisposable, IWorkflowModel
   {
+    #region Consts
+
+    public const string STR_MODEL_ID = "843F373D-0B4B-47ba-8DD1-0D18F00FAAD3";
+    public static readonly Guid MODEL_ID = new Guid(STR_MODEL_ID);
+    
+    #endregion
+
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
@@ -263,6 +273,57 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       DequeueNotification();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(notification.HandlerWorkflowState.Value);
+    }
+
+    #endregion
+
+    #region Implementation of IWorkflowModel
+
+    public Guid ModelId
+    {
+      get { return MODEL_ID; }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      notificationService.CheckForTimeouts = false;
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      notificationService.CheckForTimeouts = true;
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      // Nothing to do
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+      // Nothing to do
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

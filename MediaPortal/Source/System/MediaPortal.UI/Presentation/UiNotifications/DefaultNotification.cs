@@ -33,6 +33,7 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     protected string _text;
     protected Guid? _handlerWorkflowState = null;
     protected string _customIconPath = null;
+    protected DateTime? _timeout = null;
 
     public DefaultNotification(NotificationType type, string title, string text)
     {
@@ -62,6 +63,12 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     public string Text
     {
       get { return _text; }
+    }
+
+    public DateTime? Timeout
+    {
+      get { return _timeout; }
+      set { _timeout = value; }
     }
 
     public Guid? HandlerWorkflowState
