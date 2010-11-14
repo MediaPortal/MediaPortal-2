@@ -50,13 +50,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _isPipVideoVisibleProperty;
     protected AbstractProperty _isPipPictureVisibleProperty;
     protected AbstractProperty _piPPictureSourcePathProperty;
+    protected AbstractProperty _primaryPictureSourcePathProperty;
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isMutedProperty;
     protected AbstractProperty _volumeProperty;
 
-    protected IResourceLocator _currentPictureSourceLocator = null;
-    protected ILocalFsResourceAccessor _currentPictureResourceAccessor = null;
+    protected IResourceLocator[] _currentPictureSourceLocator = new IResourceLocator[] {null, null};
+    protected ILocalFsResourceAccessor[] _currentPictureResourceAccessor = new ILocalFsResourceAccessor[] {null, null};
 
     public PlayerModel()
     {
@@ -64,6 +65,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _isPipVideoVisibleProperty = new WProperty(typeof(bool), false);
       _isPipPictureVisibleProperty = new WProperty(typeof(bool), false);
       _piPPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
+      _primaryPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isMutedProperty = new WProperty(typeof(bool), false);
@@ -76,7 +78,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public override void Dispose()
     {
       base.Dispose();
-      DisposePictureResourceAccessor();
+      DisposePictureResourceAccessor(PlayerManagerConsts.PRIMARY_SLOT);
+      DisposePictureResourceAccessor(PlayerManagerConsts.SECONDARY_SLOT);
     }
 
     void SubscribeToMessages()
@@ -95,29 +98,34 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      IPlayerContext primaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
-      IPlayer player = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer;
-      IVideoPlayer pipVideoPlayer = player as IVideoPlayer;
-      IPicturePlayer pipPicturePlayer = player as IPicturePlayer;
+      IPlayer primaryPlayer = primaryPlayerContext == null ? null : primaryPlayerContext.CurrentPlayer;
+      IPlayer secondaryPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer;
+      IPicturePlayer primaryPicturePlayer = primaryPlayer as IPicturePlayer;
+      IVideoPlayer pipVideoPlayer = secondaryPlayer as IVideoPlayer;
+      IPicturePlayer pipPicturePlayer = secondaryPlayer as IPicturePlayer;
       Size videoAspectRatio = pipVideoPlayer == null ? new Size(4, 3) : pipVideoPlayer.VideoAspectRatio;
       IsPipVisible = playerContextManager.IsPipActive;
       IsPipVideoVisible = pipVideoPlayer != null;
       IsPipPictureVisible = pipPicturePlayer != null;
-      PipPictureSourcePath = pipPicturePlayer == null ? string.Empty : CheckLocalResourcePath(pipPicturePlayer.CurrentPictureResourceLocator);
+      PipPictureSourcePath = pipPicturePlayer == null ? string.Empty : CheckLocalResourcePath(PlayerManagerConsts.SECONDARY_SLOT, pipPicturePlayer.CurrentPictureResourceLocator);
+      PrimaryPictureSourcePath = primaryPicturePlayer == null ? string.Empty : CheckLocalResourcePath(PlayerManagerConsts.PRIMARY_SLOT, primaryPicturePlayer.CurrentPictureResourceLocator);
       IsMuted = playerManager.Muted;
       PipWidth = DEFAULT_PIP_WIDTH;
       PipHeight = pipVideoPlayer == null ? DEFAULT_PIP_HEIGHT : PipWidth*videoAspectRatio.Height/videoAspectRatio.Width;
       Volume = playerManager.Volume;
     }
 
-    protected string CheckLocalResourcePath(IResourceLocator resourceLocator)
+    protected string CheckLocalResourcePath(int slot, IResourceLocator resourceLocator)
     {
-      if (_currentPictureSourceLocator != resourceLocator)
+      if (_currentPictureSourceLocator[slot] != resourceLocator)
       {
-        DisposePictureResourceAccessor();
+        DisposePictureResourceAccessor(slot);
+        _currentPictureSourceLocator[slot] = resourceLocator;
         try
         {
-          _currentPictureResourceAccessor = resourceLocator.CreateLocalFsAccessor();
+          _currentPictureResourceAccessor[slot] = resourceLocator.CreateLocalFsAccessor();
         }
         catch (Exception e)
         {
@@ -125,14 +133,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return string.Empty;
         }
       }
-      return _currentPictureResourceAccessor.LocalFileSystemPath;
+      return _currentPictureResourceAccessor[slot].LocalFileSystemPath;
     }
 
-    protected void DisposePictureResourceAccessor()
+    protected void DisposePictureResourceAccessor(int slot)
     {
-      if (_currentPictureResourceAccessor != null)
-        _currentPictureResourceAccessor.Dispose();
-      _currentPictureResourceAccessor = null;
+      if (_currentPictureResourceAccessor[slot] != null)
+        _currentPictureResourceAccessor[slot].Dispose();
+      _currentPictureResourceAccessor[slot] = null;
     }
 
     public Guid ModelId
@@ -184,6 +192,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (string) _piPPictureSourcePathProperty.GetValue(); }
       internal set { _piPPictureSourcePathProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PrimaryPictureSourcePathProperty
+    {
+      get { return _primaryPictureSourcePathProperty; }
+    }
+
+    public string PrimaryPictureSourcePath
+    {
+      get { return (string) _primaryPictureSourcePathProperty.GetValue(); }
+      internal set { _primaryPictureSourcePathProperty.SetValue(value); }
     }
 
     public AbstractProperty PipWidthProperty

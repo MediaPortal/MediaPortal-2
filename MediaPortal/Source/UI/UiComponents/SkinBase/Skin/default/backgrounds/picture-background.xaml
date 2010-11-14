@@ -7,23 +7,30 @@ Picture background
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <Grid.Resources>
-    <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
-  </Grid.Resources>
-  <Grid.Background>
-    <VideoBrush Stream="0"/>
-  </Grid.Background>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="Auto"/>
-    <ColumnDefinition Width="50"/>
   </Grid.ColumnDefinitions>
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="50"/>
   </Grid.RowDefinitions>
-  <Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="3"
-      Source="{Binding Source={StaticResource PlayerBackgroundModel},Path=PipPictureSourcePath}"/>
-  <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
+  <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="True">
+    <Image DockPanel.Dock="Center" Grid.ColumnSpan="3" Grid.RowSpan="3"
+        Source="{Binding Source={StaticResource PlayerBackgroundModel},Path=PrimaryPictureSourcePath}"/>
+  </DockPanel>
+  <Grid Grid.Column="0" Grid.Row="0">
+    <Grid.Resources>
+      <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="50"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="50"/>
+    </Grid.RowDefinitions>
+    <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
+  </Grid>
 </Grid>
