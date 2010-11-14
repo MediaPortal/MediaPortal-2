@@ -79,7 +79,7 @@ namespace MediaPortal.UiComponents.SkinBase
       if (!settings.EnableServerListener)
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
+      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_ATTACH_TO_SERVER)
         // If we are already in the AttachToServer state, don't navigate there again
         return;
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
@@ -96,7 +96,7 @@ namespace MediaPortal.UiComponents.SkinBase
               {
                 INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
                 notificationService.EnqueueNotification(NotificationType.UserInteractionRequired, Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE,
-                    Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT, Consts.STATE_ID_ATTACH_TO_SERVER, false);
+                    Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT, Consts.WF_STATE_ID_ATTACH_TO_SERVER, false);
               }
             }
             else

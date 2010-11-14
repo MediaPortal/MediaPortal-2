@@ -378,12 +378,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _detachConfirmDialogHandle = Guid.Empty;
       _attachInfoDialogHandle = null;
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      if (newContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
+      if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_ATTACH_TO_SERVER)
       {
         if (scm.HomeServerSystemId != null)
           return false;
       }
-      else if (newContext.WorkflowState.StateId == Consts.STATE_ID_DETACH_FROM_SERVER)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_DETACH_FROM_SERVER)
       {
         if (scm.HomeServerSystemId == null)
           return false;
@@ -394,7 +394,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _messageQueue.Start();
-      if (newContext.WorkflowState.StateId == Consts.STATE_ID_ATTACH_TO_SERVER)
+      if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_ATTACH_TO_SERVER)
       {
         lock (_syncObj)
           _mode = Mode.AttachToServer;
@@ -402,7 +402,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (o != null)
           _autoCloseOnNoServer = (bool) o;
       }
-      else if (newContext.WorkflowState.StateId == Consts.STATE_ID_DETACH_FROM_SERVER)
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_DETACH_FROM_SERVER)
       {
         lock (_syncObj)
           _mode = Mode.DetachFromServer;

@@ -91,10 +91,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       Guid currentWorkflowStateId = workflowManager.CurrentNavigationContext.WorkflowState.StateId;
       if (numNotifications == 0)
       {
-        if (currentWorkflowStateId == Consts.STATE_ID_WATCH_NOTIFICATIONS)
-          workflowManager.NavigatePopToState(Consts.STATE_ID_WATCH_NOTIFICATIONS, true);
+        if (currentWorkflowStateId == Consts.WF_STATE_ID_WATCH_NOTIFICATIONS)
+          workflowManager.NavigatePopToState(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS, true);
       }
-      IsNotificationsHintVisible = currentWorkflowStateId != Consts.STATE_ID_WATCH_NOTIFICATIONS && numNotifications > 0;
+      IsNotificationsHintVisible = currentWorkflowStateId != Consts.WF_STATE_ID_WATCH_NOTIFICATIONS && numNotifications > 0;
       NumNotificationsTotal = numNotifications;
       IsNotificationsAvailable = numNotifications > 0;
       IsMoreThanOneNotificationAvailable = numNotifications > 1;
@@ -252,7 +252,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public void GoToNotification()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.STATE_ID_WATCH_NOTIFICATIONS);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS);
     }
 
     public void HandleNotificationSubWorkflow()
