@@ -133,8 +133,6 @@ namespace MediaPortal.Core.General
       if (string.Equals(_hostName, LOCALHOST, StringComparison.InvariantCultureIgnoreCase) ||
           _hostName == LOOPBACK_IPv4_ADDRESS || _hostName == LOOPBACK_IPv6_ADDRESS)
         return true;
-      if (string.Equals(_hostName, LocalHostName, StringComparison.InvariantCultureIgnoreCase))
-        return true;
       if (string.Equals(_hostName, LOCAL_HOST_DNS_NAME, StringComparison.InvariantCultureIgnoreCase))
         return true;
       return IsALocalAddress();
