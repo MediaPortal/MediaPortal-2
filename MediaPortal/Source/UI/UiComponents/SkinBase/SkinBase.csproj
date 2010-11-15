@@ -96,7 +96,6 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\media\preview.png" />
     <Content Include="Skin\default\media\server-attach-icon.png" />
     <Content Include="Skin\default\media\server-config-icon.png" />
     <Content Include="Skin\default\media\server-disconnected-icon.png" />
