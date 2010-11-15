@@ -43,7 +43,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public static readonly Guid CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string CURRENT_MEDIA_RESOURCE = "[Players.CurrentMedia]";
+    public const string CURRENT_MEDIA_RESOURCE = "[Players.CurrentMediaInfo]";
 
     #endregion
 

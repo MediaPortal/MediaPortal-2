@@ -110,7 +110,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IPicturePlayer pp = primaryPlayer as IPicturePlayer;
       IVideoPlayer vp = primaryPlayer as IVideoPlayer;
       IAudioPlayer ap = primaryPlayer as IAudioPlayer;
-      bool visible = pp != null || vp != null || ap != null && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
+      bool visible = (pp != null || vp != null || ap != null) && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
       IResourceString displayTitleRes;
       if (ap != null)
         displayTitleRes = LocalizationHelper.CreateResourceString(RES_AUDIO_VISUALIZATION);

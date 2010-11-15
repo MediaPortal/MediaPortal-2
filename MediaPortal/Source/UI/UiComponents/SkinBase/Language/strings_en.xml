@@ -76,7 +76,7 @@
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
-    <String Name="CurrentMedia" Text="Current media"/>
+    <String Name="CurrentMediaInfo" Text="Current media info"/>
     <String Name="FullscreenVideo" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->
     <String Name="FullscreenPicture" Text="Fullscreen picture"/>
     <String Name="AudioVisualization" Text="Audio visualization"/>
@@ -140,7 +140,8 @@
     <String Name="SharesOverview" Text="Shares overview"/>
     <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
     <String Name="NoSharesAvailable" Text="There are no shares available"/>
-    <String Name="ShareInformation" Text="Share information"/>
+    <String Name="ShareInformationHeader" Text="Share information"/>
+    <String Name="ShareData" Text="Share data"/>
     <String Name="ShareNameInfo" Text="Name:"/>
     <String Name="ShareMediaProviderInfo" Text="Base media provider:"/>
     <String Name="ShareSystem" Text="System:"/>

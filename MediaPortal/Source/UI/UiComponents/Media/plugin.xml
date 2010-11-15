@@ -2,7 +2,7 @@
     DescriptorVersion="1.0" 
     Name="Media"
     PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"
-    Author="Team MediaPortal"
+    Author="Albert"
     Copyright="GPL"
     Description="Media Navigation Plugin"
     PluginVersion="1.0">
