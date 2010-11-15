@@ -29,6 +29,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Xml.Serialization;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Core.General
@@ -86,8 +87,9 @@ namespace MediaPortal.Core.General
           aliases.Add(NetworkUtils.IPAddrToString(address));
         _aliases = aliases.ToArray();
       }
-      catch (SocketException) // Could occur if the nameserver doesn't answer, for example
+      catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
       {
+        ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS", e);
         _aliases = new string[0];
       }
     }
