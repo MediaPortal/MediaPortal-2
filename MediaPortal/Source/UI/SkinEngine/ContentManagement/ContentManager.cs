@@ -214,7 +214,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       FontFamily family = FontManager.GetFontFamily(fontFamily);
       if (family == null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("SkinEngine.ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
+        ServiceRegistration.Get<ILogger>().Warn("SkinEngine.ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
         family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
         if (family == null)
           return null;
@@ -386,7 +386,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private AssetInstance NewAssetInstance(string key, AssetType type, IAssetCore newcore)
     {
       AssetInstance inst = new AssetInstance { core = newcore };
-      ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
+      // Albert, 2010-11-16: The following line produces too many messages in log
+      //ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
       newcore.AllocationChanged += OnAssetAllocationChanged;
       _assets[(int) type].Add(key, inst);
       return inst;
