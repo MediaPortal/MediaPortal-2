@@ -52,10 +52,12 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
+    // TODO: Remove
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIMENSIONS =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Dimensions", 10, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
+    // TODO: Document
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
