@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool BackgroundDisabled
     {
-      get { return MediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
+      get { return _mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
     }
 
     public MediaWorkflowStateType MediaWorkflowStateType

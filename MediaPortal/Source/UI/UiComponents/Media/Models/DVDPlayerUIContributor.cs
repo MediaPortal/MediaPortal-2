@@ -71,29 +71,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Properties
 
-    public MediaWorkflowStateType MediaWorkflowStateType
-    {
-      get { return _mediaWorkflowStateType; }
-    }
-
-    public string Screen
-    {
-      get
-      {
-        // Using special screens for DVD player
-        if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
-          return Consts.SCREEN_CURRENTLY_PLAYING_DVD;
-        if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
-          return Consts.SCREEN_FULLSCREEN_DVD;
-        return null;
-      }
-    }
-
-    public bool BackgroundDisabled
-    {
-      get { return MediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
-    }
-
     public AbstractProperty DvdPlayerHandlesInputProperty
     {
       get { return _dvdPlayerHandlesInputProperty; }
@@ -305,6 +282,33 @@ namespace MediaPortal.UiComponents.Media.Models
       ICommand command = item.Command;
       if (command != null)
         command.Execute();
+    }
+
+    #endregion
+
+    #region IPlayerUIContributor implementation
+
+    public MediaWorkflowStateType MediaWorkflowStateType
+    {
+      get { return _mediaWorkflowStateType; }
+    }
+
+    public string Screen
+    {
+      get
+      {
+        // Using special screens for DVD player
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
+          return Consts.SCREEN_CURRENTLY_PLAYING_DVD;
+        if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
+          return Consts.SCREEN_FULLSCREEN_DVD;
+        return null;
+      }
+    }
+
+    public bool BackgroundDisabled
+    {
+      get { return _mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent; }
     }
 
     #endregion
