@@ -467,7 +467,10 @@ namespace MediaPortal.UI.Services.Players
           CheckActive();
           IReusablePlayer rp = _player as IReusablePlayer;
           if (rp != null)
+          {
             result = rp.NextItem(locator, mimeType, startTime);
+            OnPlayerStarted(rp);
+          }
           if (result)
             return true;
           if (CreatePlayer(locator, mimeType))
