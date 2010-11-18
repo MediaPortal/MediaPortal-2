@@ -436,7 +436,8 @@ namespace MediaPortal.UI.Services.Players
       {
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         // No locking necessary
-        return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
+        IPlayer player = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
+        return player is IVideoPlayer || player is IPicturePlayer;
       }
     }
 
