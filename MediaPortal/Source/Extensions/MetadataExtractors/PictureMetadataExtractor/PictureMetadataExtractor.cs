@@ -145,14 +145,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
           pictureAspect.SetAttribute(PictureAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
           pictureAspect.SetAttribute(PictureAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
-          pictureAspect.SetAttribute(PictureAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime + "s");
+          pictureAspect.SetAttribute(PictureAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime.ToString());
           pictureAspect.SetAttribute(PictureAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
-          pictureAspect.SetAttribute(PictureAspect.ATTR_FNUMBER, "F" + (double) exif.FNumber);
-          pictureAspect.SetAttribute(PictureAspect.ATTR_DIMENSIONS, string.Format("{0}x{1}", exif.PixXDim, exif.PixYDim));
+          pictureAspect.SetAttribute(PictureAspect.ATTR_FNUMBER, string.Format("F {0}", (double) exif.FNumber));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-          pictureAspect.SetAttribute(PictureAspect.ATTR_SHUTTER_SPEED, exif.MeteringMode.ToString());
+          //FIXME: create exif extraction or remove aspect.
+          //pictureAspect.SetAttribute(PictureAspect.ATTR_SHUTTER_SPEED, exif.ShutterSpeed.ToString());
         }
         return true;
       }

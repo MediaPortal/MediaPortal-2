@@ -27,6 +27,8 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -49,8 +51,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AbstractProperty _isPipVisibleProperty;
     protected AbstractProperty _isPipVideoVisibleProperty;
     protected AbstractProperty _isPipPictureVisibleProperty;
-    protected AbstractProperty _piPPictureSourcePathProperty;
+    protected AbstractProperty _pipPictureSourcePathProperty;
+    protected AbstractProperty _pipPictureRotateDegreesProperty;
     protected AbstractProperty _primaryPictureSourcePathProperty;
+    protected AbstractProperty _primaryPictureRotateDegreesProperty;
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isMutedProperty;
@@ -64,8 +68,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _isPipVisibleProperty = new WProperty(typeof(bool), false);
       _isPipVideoVisibleProperty = new WProperty(typeof(bool), false);
       _isPipPictureVisibleProperty = new WProperty(typeof(bool), false);
-      _piPPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
+      _pipPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
+      _pipPictureRotateDegreesProperty = new WProperty(typeof(int), 0);
       _primaryPictureSourcePathProperty = new WProperty(typeof(string), string.Empty);
+      _primaryPictureRotateDegreesProperty = new WProperty(typeof(int), 0);
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isMutedProperty = new WProperty(typeof(bool), false);
@@ -113,7 +119,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       PrimaryPictureSourcePath = primaryPicturePlayer == null ? string.Empty : CheckLocalResourcePath(PlayerManagerConsts.PRIMARY_SLOT, primaryPicturePlayer.CurrentPictureResourceLocator);
       IsMuted = playerManager.Muted;
       PipWidth = DEFAULT_PIP_WIDTH;
-      PipHeight = pipVideoPlayer == null ? DEFAULT_PIP_HEIGHT : PipWidth*videoAspectRatio.Height/videoAspectRatio.Width;
+      PipHeight = pipVideoPlayer == null ? DEFAULT_PIP_HEIGHT : PipWidth * videoAspectRatio.Height / videoAspectRatio.Width;
       Volume = playerManager.Volume;
     }
 
@@ -122,6 +128,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (_currentPictureSourceLocator[slot] != resourceLocator)
       {
         DisposePictureResourceAccessor(slot);
+        GetRotationMetadata(slot);
         _currentPictureSourceLocator[slot] = resourceLocator;
         try
         {
@@ -141,6 +148,40 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (_currentPictureResourceAccessor[slot] != null)
         _currentPictureResourceAccessor[slot].Dispose();
       _currentPictureResourceAccessor[slot] = null;
+    }
+
+    /// <summary>
+    /// Reads the rotation info from current MediaItem's PictureAspect.
+    /// </summary>
+    /// <param name="slot">slot</param>
+    protected void GetRotationMetadata(int slot)
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext playerContext = playerContextManager.GetPlayerContext(slot);
+
+      MediaItem currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
+      MediaItemAspect pictureAspect;
+      if (currentMediaItem != null && currentMediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
+      {
+        Int32 rotationInfo = (int)pictureAspect[PictureAspect.ATTR_ORIENTATION];
+        AbstractProperty currentRotation = slot == 0 ? _primaryPictureRotateDegreesProperty : _pipPictureRotateDegreesProperty;
+        switch (rotationInfo)
+        {
+          //case 1:
+          default:
+            currentRotation.SetValue(0);
+            break;
+          case 3:
+            currentRotation.SetValue(180);
+            break;
+          case 6:
+            currentRotation.SetValue(90);
+            break;
+          case 8:
+            currentRotation.SetValue(270);
+            break;
+        }
+      }
     }
 
     public Guid ModelId
@@ -183,15 +224,26 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       internal set { _isPipPictureVisibleProperty.SetValue(value); }
     }
 
-    public AbstractProperty PiPPictureSourcePathProperty
+    public AbstractProperty PipPictureSourcePathProperty
     {
-      get { return _piPPictureSourcePathProperty; }
+      get { return _pipPictureSourcePathProperty; }
     }
 
     public string PipPictureSourcePath
     {
-      get { return (string) _piPPictureSourcePathProperty.GetValue(); }
-      internal set { _piPPictureSourcePathProperty.SetValue(value); }
+      get { return (string) _pipPictureSourcePathProperty.GetValue(); }
+      internal set { _pipPictureSourcePathProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PipPictureRotateDegreesProperty
+    {
+      get { return _pipPictureRotateDegreesProperty; }
+    }
+
+    public int PipPictureRotateDegrees
+    {
+      get { return (int) _pipPictureRotateDegreesProperty.GetValue(); }
+      internal set { _pipPictureRotateDegreesProperty.SetValue(value); }
     }
 
     public AbstractProperty PrimaryPictureSourcePathProperty
@@ -203,6 +255,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (string) _primaryPictureSourcePathProperty.GetValue(); }
       internal set { _primaryPictureSourcePathProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PrimaryPictureRotateDegreesProperty
+    {
+      get { return _primaryPictureRotateDegreesProperty; }
+    }
+
+    public int PrimaryPictureRotateDegrees
+    {
+      get { return (int) _primaryPictureRotateDegreesProperty.GetValue(); }
+      internal set { _primaryPictureRotateDegreesProperty.SetValue(value); }
     }
 
     public AbstractProperty PipWidthProperty

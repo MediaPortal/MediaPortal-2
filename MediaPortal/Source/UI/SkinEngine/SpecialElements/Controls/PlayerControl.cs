@@ -451,7 +451,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
+          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer || player is IPicturePlayer;
           string pcName = playerContext == null ? NO_PLAYER_RESOURCE : LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
           Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;

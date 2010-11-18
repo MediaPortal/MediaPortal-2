@@ -17,7 +17,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnrenu.org/licenses/>.
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #endregion

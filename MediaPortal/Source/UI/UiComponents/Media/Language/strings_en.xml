@@ -191,7 +191,7 @@
     <String Name="CannotPlayItemsDialogText" Text="Unable to play media items"/>
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
-
+    
     <String Name="GlobalPlaylists" Text="Global playlists"/>
     <String Name="LocalPlaylists" Text="Local playlists"/>
     <String Name="NoPlaylistsInThisList" Text="- No playlists in this list -"/>
@@ -216,5 +216,16 @@
     <String Name="ChooseChapterDialogHeader" Text="Choose chapter"/>
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
 
+    <!-- Picture player related -->
+    <String Name="PictureCurrentlyPlayingHeader" Text="Current picture"/>
+    <String Name="PictureCurrentlyPlayingInformation" Text="Current picture information"/>
+    <String Name="PictureDimensions" Text="Dimensions"/>
+    <String Name="PictureMake" Text="Camera make"/>
+    <String Name="PictureModel" Text="Camera model"/>
+    <String Name="PictureISOSpeedLabel" Text="ISO speed"/>
+    <String Name="PictureFNumberLabel" Text="F number"/>
+    <String Name="PictureShutterSpeedLabel" Text="Shutter speed"/>
+    <String Name="PictureMeteringModeLabel" Text="Metering mode"/>
+    <String Name="PictureExposureTimeLabel" Text="Exposure time"/>
   </Section>
 </Language>

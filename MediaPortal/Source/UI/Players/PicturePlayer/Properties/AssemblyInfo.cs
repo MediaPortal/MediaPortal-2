@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PicturePlayer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TSS")]
-[assembly: AssemblyProduct("PicturePlayer")]
-[assembly: AssemblyCopyright("Copyright © TSS 2007")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("MediaPortal 2")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

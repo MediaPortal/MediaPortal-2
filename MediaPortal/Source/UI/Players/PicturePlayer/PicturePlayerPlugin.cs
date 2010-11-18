@@ -23,107 +23,36 @@
 #endregion
 
 using System;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 
-using MediaPortal.UI.Media.MediaManagement;
-
-
-namespace Media.Players.PicturePlayer
+namespace MediaPortal.UI.Players.Pictures
 {
-  public class PicturePlayerPlugin : IPluginStateTracker, IPlayerBuilder
+  public class PicturePlayerPlugin : IPlayerBuilder
   {
-    PicturePlayerSettings _settings;
+    #region IPlayerBuilder implementation
 
-    #region IPluginStateTracker implementation
-
-    public void Activated(PluginRuntime pluginRuntime)
+    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      _settings = new PicturePlayerSettings();
-    }
-
-    public bool RequestEnd()
-    {
-      return false; // TODO: The player plugin should be able to be disabled
-    }
-
-    public void Stop() { }
-
-    public void Continue() { }
-
-    public void Shutdown() { }
-
-    #endregion
-
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-    }
-
-    #endregion
-
-    #region IPlayerBuilder Members
-
-    /// <summary>
-    /// Determines whether this instance can play the specified media item.
-    /// </summary>
-    /// <param name="mediaItem">The media item.</param>
-    /// <param name="uri">The URI.</param>
-    /// <returns>
-    /// 	<c>true</c> if this instance can play the specified media item; otherwise, <c>false</c>.
-    /// </returns>
-    public bool CanPlay(IMediaItem mediaItem, Uri uri)
-    {
-      return IsImageFile(mediaItem, uri.AbsolutePath);
-    }
-
-    /// <summary>
-    /// Gets the player.
-    /// </summary>
-    /// <param name="mediaItem">The media item.</param>
-    /// <param name="uri">The URI.</param>
-    /// <returns></returns>
-    public IPlayer GetPlayer(IMediaItem mediaItem, Uri uri)
-    {
-      if (IsImageFile(mediaItem, uri.AbsolutePath))
-      {
-        return new PicturePlayer();
-      }
-      return null;
-    }
-
-    /// <summary>
-    /// Determines whether the media item is an image
-    /// </summary>
-    /// <param name="mediaItem">The media item.</param>
-    /// <param name="filename">The filename.</param>
-    /// <returns>
-    /// 	<c>true</c> if media item is an image; otherwise, <c>false</c>.
-    /// </returns>
-    bool IsImageFile(IMediaItem mediaItem, string filename)
-    {
-      string ext = System.IO.Path.GetExtension(filename);
-
       // First check the Mime Type
-      if (mediaItem.MetaData.ContainsKey("MimeType"))
+      if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("image"))
+        return null;
+      PicturePlayer player = new PicturePlayer();
+      try
       {
-        string mimeType = mediaItem.MetaData["MimeType"] as string;
-        if (mimeType != null)
-        {
-          if (mimeType.Contains("image"))
-          {
-            if (_settings.SupportedExtensions.IndexOf(ext) > -1)
-              return true;
-          }
-        }
+        player.SetMediaItemLocator(locator);
       }
-
-      if (_settings.SupportedExtensions.IndexOf(ext) > -1)
-        return true;
-
-      return false;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PicturePlayer: Error playing media item '{0}'", e, locator);
+        player.Dispose();
+        return null;
+      }
+      return player;
     }
+
     #endregion
   }
 }

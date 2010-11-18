@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2010 Team MediaPortal
 
 /*
     Copyright (C) 2007-2010 Team MediaPortal
@@ -22,16 +22,28 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UI.Presentation.Players
+namespace MediaPortal.UI.Players.Pictures.Settings.Configuration
 {
-  /// <summary>
-  /// Interface for a picture player. Holds all methods which are common to all picture players.
-  /// </summary>
-  public interface IPicturePlayer : IPlayer
+  public class SlideShowImageDuration : NumberSelect
   {
-    IResourceLocator CurrentPictureResourceLocator { get; }
-    bool SlideShowEnabled { get; set; }
+    #region Public Methods
+
+    public override void Load()
+    {
+      _type = NumberType.FloatingPoint;
+      _step = 0.5;
+      _value = SettingsManager.Load<PicturePlayerSettings>().SlideShowImageDuration;
+    }
+
+    public override void Save()
+    {
+      PicturePlayerSettings settings = SettingsManager.Load<PicturePlayerSettings>();
+      settings.SlideShowImageDuration = (double) _value;
+      SettingsManager.Save(settings);
+    }
+
+    #endregion
   }
 }

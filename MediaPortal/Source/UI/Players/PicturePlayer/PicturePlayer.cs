@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2010 Team MediaPortal
 
 /*
     Copyright (C) 2007-2010 Team MediaPortal
@@ -23,164 +23,285 @@
 #endregion
 
 using System;
-using System.Drawing;
+using System.Threading;
 using MediaPortal.Core;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
+using MediaPortal.UI.Players.Pictures.Settings;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Core.Messaging;
 
-using MediaPortal.UI.Media.MediaManagement;
-using MediaPortal.UI.Presentation.Screens;
-
-namespace Media.Players.PicturePlayer
+namespace MediaPortal.UI.Players.Pictures
 {
-  public class PicturePlayer : IPlayer
+  public class PicturePlayer : IDisposable, IPicturePlayer, IPlayerEvents, IReusablePlayer
   {
-    public const string PICTUREVIEWERQUEUE_NAME = "PictureViewer";
+    #region Consts
 
-    IMediaItem _mediaItem;
-    PlaybackState _state;
+    public const string STR_PLAYER_ID = "9B1B6861-1757-40b2-9227-98A36D6CC9D7";
+    public static readonly Guid PLAYER_ID = new Guid(STR_PLAYER_ID);
 
-    /// <summary>
-    /// Plays the file
-    /// </summary>
-    /// <param name="item"></param>
-    public void Play(IMediaItem item)
+    protected TimeSpan TS_INFINITE = TimeSpan.FromMilliseconds(-1);
+
+    #endregion
+
+    #region Protected fields
+
+    protected readonly object _syncObj = new object();
+
+    protected volatile PlayerState _state;
+    protected string _mediaItemTitle = string.Empty;
+
+    protected IResourceLocator _currentLocator;
+    protected TimeSpan _slideShowImageDuration;
+    protected Timer _slideShowTimer = null;
+    protected bool _slideShowEnabled = true;
+
+    // Data and events for the communication with the player manager.
+    protected PlayerEventDlgt _started = null;
+    protected PlayerEventDlgt _stateReady = null;
+    protected PlayerEventDlgt _stopped = null;
+    protected PlayerEventDlgt _ended = null;
+    protected PlayerEventDlgt _playbackStateChanged = null;
+    protected PlayerEventDlgt _playbackError = null;
+
+    #endregion
+
+    public PicturePlayer()
     {
-      //here we simply show the picture viewer window
-      //from the my pictures window
-      //and tell it to show the image
-      _state = PlaybackState.Playing;
-      _mediaItem = item;
-      ServiceRegistration.Get<IScreenManager>().PrepareScreen("pictureviewer");
-      SystemMessage msg = new SystemMessage();
-      msg.MessageData["action"] = "show";
-      msg.MessageData["mediaitem"] = item;
-      ServiceRegistration.Get<IMessageBroker>().Send(PICTUREVIEWERQUEUE_NAME, msg);
-      ServiceRegistration.Get<IScreenManager>().ShowScreen("pictureviewer");
+      _state = PlayerState.Stopped;
     }
 
-    #region IPlayer Members
-
-    /// <summary>
-    /// stops playback
-    /// </summary>
-    public void Stop()
+    public void Dispose()
     {
-      //remove this player
-      ServiceRegistration.Get<IPlayerCollection>().Remove(this);
-      //goto the previous window
-      ServiceRegistration.Get<IScreenManager>().ShowPreviousScreen();
+      if (_slideShowTimer != null)
+      {
+        _slideShowTimer.Dispose();
+        _slideShowTimer = null;
+      }
+    }
+
+    #region Protected members
+
+    protected void PlaybackEnded()
+    {
+      lock (_syncObj)
+      {
+        if (_state != PlayerState.Active)
+          return;
+        _state = PlayerState.Ended;
+      }
+      FireEnded();
+    }
+
+    internal void FireStarted()
+    {
+      // The delegate is final so we can invoke it without the need of a local copy
+      if (_started != null)
+        _started(this);
+    }
+
+    internal void FireStateReady()
+    {
+      // The delegate is final so we can invoke it without the need of a local copy
+      if (_stateReady != null)
+        _stateReady(this);
+    }
+
+    internal void FireStopped()
+    {
+      // The delegate is final so we can invoke it without the need of a local copy
+      if (_stopped != null)
+        _stopped(this);
+    }
+
+    internal void FireEnded()
+    {
+      // The delegate is final so we can invoke it without the need of a local copy
+      if (_ended != null)
+        _ended(this);
+    }
+
+    internal void FirePlaybackStateChanged()
+    {
+      // The delegate is final so we can invoke it without the need of a local copy
+      if (_playbackStateChanged != null)
+        _playbackStateChanged(this);
+    }
+
+    protected void FireNextItemRequest()
+    {
+      RequestNextItemDlgt dlgt = NextItemRequest;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
+    protected void ReloadSettings()
+    {
+      PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
+      double durationSec = settings.SlideShowImageDuration;
+      _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
+    }
+
+    protected void DisposeTimer()
+    {
+      lock (_syncObj)
+        if (_slideShowTimer != null)
+        {
+          _slideShowTimer.Dispose();
+          _slideShowTimer = null;
+        }
+    }
+
+    protected void CheckTimer()
+    {
+      lock (_syncObj)
+      {
+        if (_state == PlayerState.Active)
+        {
+          if (_slideShowTimer == null && _slideShowEnabled)
+            _slideShowTimer = new Timer(OnSlideShowNewPicture, null, _slideShowImageDuration, TS_INFINITE);
+          if (_slideShowTimer != null && !_slideShowEnabled)
+            DisposeTimer();
+        }
+        else
+        {
+          if (_slideShowTimer != null)
+            DisposeTimer();
+        }
+      }
+    }
+
+    void OnSlideShowNewPicture(object state)
+    {
+      NextItemRequest(this);
     }
 
     #endregion
 
-    #region IPlayer properties
+    #region Public methods
 
     /// <summary>
-    /// gets the Name of the Player
+    /// Sets the new picture to be played.
     /// </summary>
-    /// <value></value>
-    public string Name
+    /// <param name="locator">Resource locator of the picture item.</param>
+    public void SetMediaItemLocator(IResourceLocator locator)
     {
-      get
+      ReloadSettings();
+      lock (_syncObj)
       {
-        return "PicturePlayer";
+        _state = PlayerState.Active;
+        _currentLocator = locator;
+        if (_slideShowTimer != null)
+          _slideShowTimer.Change(_slideShowImageDuration, TS_INFINITE);
+        else
+          CheckTimer();
       }
     }
 
-    /// <summary>
-    /// gets the playback state
-    /// </summary>
-    /// <value></value>
-    public PlaybackState State
+    #endregion
+
+    #region IPlayer implementation
+
+    public Guid PlayerId
+    {
+      get { return PLAYER_ID; }
+    }
+
+    public string Name
+    {
+      get { return "Picture"; }
+    }
+
+    public PlayerState State
     {
       get { return _state; }
     }
 
-    /// <summary>
-    /// gets/sets the width/height for the video window
-    /// </summary>
-    /// <value></value>
-    public System.Drawing.Size DisplaySize
+    public string MediaItemTitle
     {
       get
       {
-        return new System.Drawing.Size(0, 0);
-
-      }
-      set
-      {
-
+        lock (_syncObj)
+          return _mediaItemTitle;
       }
     }
 
-    public Size Size { get { return new Size(0, 0); } }
+    public void SetMediaItemTitleHint(string title)
+    {
+      lock (_syncObj)
+        _mediaItemTitle = title;
+    }
 
-    /// <summary>
-    /// gets/sets the position on screen where the video should be drawn
-    /// </summary>
-    /// <value></value>
-    public System.Drawing.Point DisplayPosition
+    public void Stop()
+    {
+      lock (_syncObj)
+      {
+        if (_state != PlayerState.Active)
+          return;
+        _state = PlayerState.Stopped;
+      }
+      FireStopped();
+    }
+
+    #endregion
+
+    #region IPlayerEvents implementation
+
+    // Not implemented thread-safe by design
+    public void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stateReady, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt playbackStateChanged, PlayerEventDlgt playbackError)
+    {
+      _started = started;
+      _stateReady = stateReady;
+      _stopped = stopped;
+      _ended = ended;
+      _playbackStateChanged = playbackStateChanged;
+      _playbackError = playbackError;
+    }
+
+    // Not implemented thread-safe by design
+    public void ResetPlayerEvents()
+    {
+      _started = null;
+      _stateReady = null;
+      _stopped = null;
+      _ended = null;
+      _playbackStateChanged = null;
+      _playbackError = null;
+    }
+
+    #endregion
+
+    #region IReusablePlayer implementation
+
+    public event RequestNextItemDlgt NextItemRequest;
+
+    public bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime)
+    {
+      SetMediaItemLocator(locator);
+      return true;
+    }
+
+    #endregion
+
+    #region IPicturePlayer implementation
+
+    public bool SlideShowEnabled
+    {
+      get { return _slideShowEnabled; }
+      set
+      {
+        _slideShowEnabled = value;
+        CheckTimer();
+      }
+    }
+
+    public IResourceLocator CurrentPictureResourceLocator
     {
       get
       {
-
-        return new System.Drawing.Point(0, 0);
+        lock (_syncObj)
+          return _currentLocator;
       }
-      set
-      {
-
-      }
-    }
-
-    /// <summary>
-    /// gets/sets wheter video is paused
-    /// </summary>
-    /// <value></value>
-    public bool Paused
-    {
-      get
-      {
-        return false;
-      }
-      set
-      {
-
-      }
-    }
-
-    /// <summary>
-    /// returns the current play time
-    /// </summary>
-    /// <value></value>
-    public TimeSpan CurrentTime
-    {
-      get
-      {
-        return new TimeSpan(0, 0, 0);
-      }
-      set
-      {
-
-      }
-    }
-
-
-    /// <summary>
-    /// returns the duration of the movie
-    /// </summary>
-    /// <value></value>
-    public TimeSpan Duration
-    {
-      get { return new TimeSpan(0, 0, 3); }
-    }
-
-    /// <summary>
-    /// Restarts playback from the start.
-    /// </summary>
-    public void Restart()
-    {
-
     }
 
     #endregion

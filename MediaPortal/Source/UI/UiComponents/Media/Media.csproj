@@ -82,6 +82,7 @@
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
     <Compile Include="Models\LocalPlaylists.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
+    <Compile Include="Models\PicturePlayerUIContributor.cs" />
     <Compile Include="Models\NavigationData.cs" />
     <Compile Include="Models\Navigation\FilterItem.cs" />
     <Compile Include="Models\PlayItemsModel.cs" />
@@ -180,6 +181,8 @@
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingPicture.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentPicture.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml">

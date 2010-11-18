@@ -73,12 +73,17 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
     {
-      if (!(player is IVideoPlayer))
-        return null;
+      // Return the more specific player types first
+      if (player is IPicturePlayer)
+        return typeof(PicturePlayerUIContributor);
+
       if (player is IDVDPlayer)
         return typeof(DVDPlayerUIContributor);
-      // else TODO: More specific UI contributor implementations for specific players: Subtitle, ...
-      return typeof(DefaultVideoPlayerUIContributor);
+
+      if ((player is IVideoPlayer))
+        return typeof(DefaultVideoPlayerUIContributor);
+
+      return null;
     }
 
     #region Members to be accessed from the GUI

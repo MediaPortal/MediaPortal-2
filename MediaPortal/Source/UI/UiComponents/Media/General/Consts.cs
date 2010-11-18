@@ -221,7 +221,8 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string SCREEN_FULLSCREEN_VIDEO = "FullscreenContentVideo";
     public const string SCREEN_CURRENTLY_PLAYING_VIDEO = "CurrentlyPlayingVideo";
-
+    public static string SCREEN_FULLSCREEN_PICTURE = "FullscreenContentPicture";
+    public static string SCREEN_CURRENTLY_PLAYING_PICTURE = "CurrentlyPlayingPicture";
     public const string SCREEN_FULLSCREEN_DVD = "FullscreenContentDVD";
     public const string SCREEN_CURRENTLY_PLAYING_DVD = "CurrentlyPlayingDVD";
 

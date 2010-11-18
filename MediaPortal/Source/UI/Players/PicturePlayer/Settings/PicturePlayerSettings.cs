@@ -24,22 +24,25 @@
 
 using MediaPortal.Core.Settings;
 
-namespace Media.Players.PicturePlayer
+namespace MediaPortal.UI.Players.Pictures.Settings
 {
+  /// <summary>
+  /// Picture player settings.
+  /// </summary>
   public class PicturePlayerSettings
   {
-    #region variables
-    private string _supportedExtensions=".jpg,.png,.bmp,.gif";
-    #endregion
+    public const int DEFAULT_SLIDE_SHOW_IMAGE_DURATION = 4;
+
+    protected double _slideShowImageDuration = DEFAULT_SLIDE_SHOW_IMAGE_DURATION;
 
     /// <summary>
-    /// Softstop
+    /// Duration in seconds until the next image is shown in slideshow mode.
     /// </summary>
-    [Setting(SettingScope.User, ".jpg,.png,.bmp,.gif")]
-    public string SupportedExtensions
+    [Setting(SettingScope.User, DEFAULT_SLIDE_SHOW_IMAGE_DURATION)]
+    public double SlideShowImageDuration
     {
-      get { return _supportedExtensions; }
-      set { _supportedExtensions = value; }
+      get { return _slideShowImageDuration; }
+      set { _slideShowImageDuration = value; }
     }
   }
 }
