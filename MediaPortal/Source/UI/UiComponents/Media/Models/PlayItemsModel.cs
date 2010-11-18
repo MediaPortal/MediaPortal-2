@@ -558,11 +558,6 @@ namespace MediaPortal.UiComponents.Media.Models
         if (!play)
           return;
         pc.Play();
-        if (pc.AVType == AVType.Video)
-        {
-          IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-          pcm.ShowFullscreenContent();
-        }
       }
       finally
       {
@@ -570,6 +565,11 @@ namespace MediaPortal.UiComponents.Media.Models
           screenManager.CloseDialog(dialogInstanceId.Value);
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS, true);
+      }
+      if (pc.AVType == AVType.Video)
+      {
+        IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
+        pcm.ShowFullscreenContent();
       }
     }
 
