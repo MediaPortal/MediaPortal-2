@@ -474,6 +474,8 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (_playlistLocationList == null)
           _playlistLocationList = new ItemsList();
+        else
+          _playlistLocationList.Clear();
 
         ListItem locationItem = new ListItem(Consts.KEY_NAME, Consts.RES_SAVE_PL_LOCALLY);
         locationItem.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION] = PlaylistLocation.Local;
