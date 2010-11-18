@@ -39,7 +39,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected Guid _currentlyPlayingWorkflowStateId;
     protected Guid _fullscreenContentWorkflowStateId;
     protected AbstractProperty _currentPlayerIndexProperty;
-    protected object _syncObj = new object();
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
     protected IPlayerUIContributor _playerUIContributor = null;
     protected bool _inactive = false;
