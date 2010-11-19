@@ -136,7 +136,7 @@ namespace MediaPortal.UI.Players.Pictures
 
     protected void ReloadSettings()
     {
-      PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
+      PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>() ?? new PicturePlayerSettings();
       double durationSec = settings.SlideShowImageDuration;
       _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
     }
