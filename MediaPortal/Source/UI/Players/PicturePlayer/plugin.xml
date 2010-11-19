@@ -17,7 +17,7 @@
   </Runtime>
 
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="3BD29059-A2AC-4983-BDBA-D3080D1CA19D" ClassName="MediaPortal.UI.Players.Pictures.PicturePlayerPlugin"/>
+    <PlayerBuilder Id="3BD29059-A2AC-4983-BDBA-D3080D1CA19D" ClassName="MediaPortal.UI.Players.Picture.PicturePlayerBuilder"/>
   </Register>
 
   <!-- Language resources -->
@@ -47,6 +47,6 @@
         Id="SlideShowImageDuration"
         Text="[Settings.Players.Pictures.SlideShowImageDuration]"
         HelpText="[Settings.Players.Pictures.SlideShowImageDuration.Help]"
-        ClassName="MediaPortal.UI.Players.Pictures.Settings.Configuration.SlideShowImageDuration"/>
+        ClassName="MediaPortal.UI.Players.Picture.Settings.Configuration.SlideShowImageDuration"/>
   </Register>
 </Plugin>

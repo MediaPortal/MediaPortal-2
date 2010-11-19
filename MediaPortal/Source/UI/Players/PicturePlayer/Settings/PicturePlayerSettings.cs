@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.UI.Players.Pictures.Settings
+namespace MediaPortal.UI.Players.Picture.Settings
 {
   /// <summary>
   /// Picture player settings.

@@ -28,9 +28,9 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 
-namespace MediaPortal.UI.Players.Pictures
+namespace MediaPortal.UI.Players.Picture
 {
-  public class PicturePlayerPlugin : IPlayerBuilder
+  public class PicturePlayerBuilder : IPlayerBuilder
   {
     #region IPlayerBuilder implementation
 

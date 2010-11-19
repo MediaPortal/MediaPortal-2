@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UI.Players.Pictures.Settings.Configuration
+namespace MediaPortal.UI.Players.Picture.Settings.Configuration
 {
   public class SlideShowImageDuration : NumberSelect
   {

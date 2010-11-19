@@ -27,10 +27,10 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Settings;
-using MediaPortal.UI.Players.Pictures.Settings;
+using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.UI.Players.Pictures
+namespace MediaPortal.UI.Players.Picture
 {
   public class PicturePlayer : IDisposable, IPicturePlayer, IPlayerEvents, IReusablePlayer
   {
