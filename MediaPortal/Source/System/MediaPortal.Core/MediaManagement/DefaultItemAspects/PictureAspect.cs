@@ -57,13 +57,45 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Dimensions", 10, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
-    // TODO: Document
+    /// <summary>
+    /// Contains the EXIF orientation info. Use <see cref="OrientationToDegrees"/> to get a translated angle in degree.
+    /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_SHUTTER_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ShutterSpeed", 50, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Translates the EXIF orientation info to an angle in degrees. The value should be used to apply a RotateTransform 
+    /// to show a picture correctly oriented.
+    /// </summary>
+    /// <param name="orientationInfo">orientation info</param>
+    /// <param name="degrees">degrees</param>
+    /// <returns>true if successful translated</returns>
+    public static bool OrientationToDegrees(int orientationInfo, out int degrees)
+    {
+      switch (orientationInfo)
+      {
+        case 1:
+          degrees = 0;
+          break;
+        case 3:
+          degrees = 180;
+          break;
+        case 6:
+          degrees = 90;
+          break;
+        case 8:
+          degrees = 270;
+          break;
+        default:
+          degrees = 0;
+          return false;
+      }
+      return true;
+    }
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name

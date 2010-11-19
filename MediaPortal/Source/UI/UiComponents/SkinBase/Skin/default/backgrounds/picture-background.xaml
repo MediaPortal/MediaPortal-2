@@ -14,7 +14,11 @@
   </Grid.Resources>
   <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="True">
     <Image DockPanel.Dock="Center" Grid.ColumnSpan="3" Grid.RowSpan="3" Stretch="Uniform"
-        Source="{Binding Source={StaticResource PlayerModel},Path=PrimaryPictureSourcePath}"/>
+        Source="{Binding Source={StaticResource PlayerModel},Path=PrimaryPictureSourcePath}">
+      <Image.LayoutTransform>
+        <RotateTransform Angle="{Binding Source={StaticResource PlayerModel},Path=PrimaryPictureRotateDegrees}" />
+      </Image.LayoutTransform>
+    </Image>
   </DockPanel>
   <Grid Grid.Column="0" Grid.Row="0">
     <Grid.ColumnDefinitions>

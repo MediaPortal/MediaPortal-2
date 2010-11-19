@@ -336,23 +336,7 @@ namespace MediaPortal.UiComponents.Media.Models
           PictureMeteringMode = (string) pictureAspect[PictureAspect.ATTR_METERING_MODE];
 
           Int32 rotationDegree;
-          Int32 rotationInfo = (int) pictureAspect[PictureAspect.ATTR_ORIENTATION];
-          switch (rotationInfo)
-          {
-            case 1:
-            default:
-              rotationDegree = 0;
-              break;
-            case 3:
-              rotationDegree = 180;
-              break;
-            case 6:
-              rotationDegree = 90;
-              break;
-            case 8:
-              rotationDegree = 270;
-              break;
-          }
+          PictureAspect.OrientationToDegrees((int) pictureAspect[PictureAspect.ATTR_ORIENTATION], out rotationDegree);
           PictureRotation = rotationDegree;
         }
       }

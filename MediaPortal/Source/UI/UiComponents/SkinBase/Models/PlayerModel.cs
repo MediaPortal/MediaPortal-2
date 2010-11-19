@@ -163,24 +163,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       MediaItemAspect pictureAspect;
       if (currentMediaItem != null && currentMediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
       {
-        Int32 rotationInfo = (int)pictureAspect[PictureAspect.ATTR_ORIENTATION];
+        Int32 rotationDegree;
+        PictureAspect.OrientationToDegrees((int) pictureAspect[PictureAspect.ATTR_ORIENTATION],
+                                                            out rotationDegree);
         AbstractProperty currentRotation = slot == 0 ? _primaryPictureRotateDegreesProperty : _pipPictureRotateDegreesProperty;
-        switch (rotationInfo)
-        {
-          //case 1:
-          default:
-            currentRotation.SetValue(0);
-            break;
-          case 3:
-            currentRotation.SetValue(180);
-            break;
-          case 6:
-            currentRotation.SetValue(90);
-            break;
-          case 8:
-            currentRotation.SetValue(270);
-            break;
-        }
+        currentRotation.SetValue(rotationDegree);
       }
     }
 
