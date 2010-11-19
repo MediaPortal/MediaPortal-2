@@ -19,7 +19,7 @@
   </Runtime>
 
   <Register Location="/Players/Builders">
-    <PlayerBuilder Id="0870D735-B339-4afa-8D8C-6E2C923A70C9" ClassName="MediaPortal.UI.Players.Video.BDHandlerPlugin"/>
+    <PlayerBuilder Id="0870D735-B339-4afa-8D8C-6E2C923A70C9" ClassName="MediaPortal.UI.Players.Video.BDPlayerBuilder"/>
   </Register>
 
   <!-- Language resources -->
@@ -30,8 +30,8 @@
   <!-- The Metadata extractor. -->
   <Register Location="/Media/MetadataExtractors">
     <Instance
-        Id="BDHandlerMetadataExtractor"
-        ClassName="MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor.BDHandlerMetadataExtractor"/>
+        Id="BluRayMetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.BluRayMetadataExtractor"/>
   </Register>
 
   <!-- Root Sections -->

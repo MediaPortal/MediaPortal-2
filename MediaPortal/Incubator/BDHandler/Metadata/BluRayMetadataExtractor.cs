@@ -29,23 +29,24 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.UI.Players.Video;
 
-namespace MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor
+namespace MediaPortal.Media.MetadataExtractors
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for BluRay discs.
   /// </summary>
-  public class BDHandlerMetadataExtractor : IMetadataExtractor
+  public class BluRayMetadataExtractor : IMetadataExtractor
   {
     #region Public constants
 
     /// <summary>
-    /// GUID string for the BDHandlerMetadataExtractor.
+    /// GUID string for the BluRayMetadataExtractor.
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "E23918BB-297F-463b-8AEB-2BDCE9998028";
 
     /// <summary>
-    /// BDHandlerMetadataExtractor GUID.
+    /// BluRayMetadataExtractor GUID.
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
@@ -61,12 +62,12 @@ namespace MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor
 
     #region Ctor
 
-    static BDHandlerMetadataExtractor()
+    static BluRayMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
     }
 
-    public BDHandlerMetadataExtractor()
+    public BluRayMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", true, 
           SHARE_CATEGORIES, new[]
@@ -99,14 +100,18 @@ namespace MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor
             MediaItemAspect mediaAspect;
             if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
               extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-            MediaItemAspect movieAspect;
-            if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out movieAspect))
-              extractedAspectData[VideoAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(VideoAspect.Metadata);
+            MediaItemAspect videoAspect;
+            if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+              extractedAspectData[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
 
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, mediaItemAccessor.ResourceName);
             mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
-            //TODO: add more available BDInfo Metadata here!
+            using (IResourceAccessor resourceAccessor = fsra.LocalResourcePath.CreateLocalMediaItemAccessor())
+            {
+              string bdmvDirectory = resourceAccessor.ResourcePathName;
+              BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
+              mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE,bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
+            }
             return true;
           }
         }
@@ -117,7 +122,7 @@ namespace MediaPortal.Media.MetadataExtractors.BDHandlerMetadataExtractor
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
         if (mediaItemAccessor != null)
-          ServiceRegistration.Get<ILogger>().Info("BDHandlerMetadataExtractor: Exception reading source '{0}'", mediaItemAccessor.ResourcePathName);
+          ServiceRegistration.Get<ILogger>().Info("BluRayMetadataExtractor: Exception reading source '{0}'", mediaItemAccessor.ResourcePathName);
         return false;
       }
     }

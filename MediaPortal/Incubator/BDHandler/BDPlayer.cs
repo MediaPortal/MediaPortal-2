@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2010 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2010 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,37 +34,47 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
-using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.Video
 {
-
+  /// <summary>
+  /// BDPlayer implements a BluRay player based on the raw files. Currently there is no menu support available.
+  /// </summary>
   public class BDPlayer : VideoPlayer, IDVDPlayer, ISubtitlePlayer
   {
-
+    #region Consts and delegates
+       
     // "MPC - Mpeg Source (Gabest)
-    public static Guid MpcMpegSourceFilter
-    {
-      get
-      {
-        return new Guid("{1365BE7A-C86A-473C-9A41-C0A6E82C9FA3}");
-      }
-    }
-    public static string MpcMegSourceFilterName = "MPC - Mpeg Source (Gabest)";
     public static CodecInfo MpcMpegSourceFilterInfo = new CodecInfo()
                                                         {
-                                                          CLSID = MpcMpegSourceFilter.ToString(),
+                                                          CLSID = "{1365BE7A-C86A-473C-9A41-C0A6E82C9FA3}",
                                                           Name = "MPC - Mpeg Source (Gabest)"
                                                         };
-    public static double MinimalFullFeatureLength = 3000;
+
+    public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
+    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
+
+    /// <summary>
+    /// Delegate for starting a BDInfo thread.
+    /// </summary>
+    /// <param name="path">Path to scan</param>
+    /// <returns>BDInfo</returns>
+    delegate BDInfoExt ScanProcess(string path);
+
+    #endregion
+
+    #region Variables
 
     private double[] _chapterTimestamps;
     private string[] _chapterNames;
 
     private string[] _subtitles;
-    public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
+
+    #endregion
+
+    #region Constructor
 
     /// <summary>
     /// Constructs a BDPlayer player object.
@@ -50,6 +84,10 @@ namespace MediaPortal.UI.Players.Video
       PlayerTitle = "BDPlayer"; // for logging
       _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.AudioMPEG;
     }
+
+    #endregion
+
+    #region VideoPlayer overrides 
 
     protected override void CreateGraphBuilder()
     {
@@ -88,14 +126,9 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddFileSource()
     {
       string strFile = _resourceAccessor.LocalFileSystemPath;
+      
       // Render the file
-      string path = strFile.ToLower();
-
-      //if (strFile.Length < 4)
-      {
-        path = Path.Combine(strFile, @"BDMV\index.bdmv");
-        strFile = path;
-      }
+      strFile = Path.Combine(strFile.ToLower(), @"BDMV\index.bdmv");
 
       // only continue with playback if a feature was selected or the extension was m2ts.
       if (DoFeatureSelection(ref strFile))
@@ -110,7 +143,7 @@ namespace MediaPortal.UI.Players.Video
         }
         else
         {
-          BDHandlerCore.LogError("Unable to load DirectShowFilter: {0}", MpcMegSourceFilterName);
+          BDPlayerBuilder.LogError("Unable to load DirectShowFilter: {0}", MpcMpegSourceFilterInfo.Name);
           throw new Exception("Unable to load DirectShowFilter");
         }
       }
@@ -133,26 +166,30 @@ namespace MediaPortal.UI.Players.Video
       AnalyseStreams();
     }
 
+    #endregion
+
+    #region Methods
+
     /// <summary>
     /// Analyzes the current graph and extracts information about chapter markers and subtitle streams.
     /// </summary>
     /// <returns></returns>
     public bool AnalyseStreams()
     {
-      BDHandlerCore.LogDebug("Analyzing streams to filter duplicates...");
+      BDPlayerBuilder.LogDebug("Analyzing streams to filter duplicates...");
       try
       {
         IAMExtendedSeeking pEs = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
         if (pEs != null)
         {
-          int markerCount = 0;
+          int markerCount;
           if (pEs.get_MarkerCount(out markerCount) == 0 && markerCount > 0)
           {
             _chapterTimestamps = new double[markerCount];
             _chapterNames = new string[markerCount];
             for (int i = 1; i <= markerCount; i++)
             {
-              double markerTime = 0;
+              double markerTime;
               pEs.GetMarkerTime(i, out markerTime);
               _chapterTimestamps[i - 1] = markerTime;
               _chapterNames[i - 1] = GetChapterName(i);
@@ -162,7 +199,7 @@ namespace MediaPortal.UI.Players.Video
 
         if (StreamSelector != null)
         {
-          int cStreams = 0;
+          int cStreams;
           StreamSelector.Count(out cStreams);
 
           List<String> subtitles = new List<String>();
@@ -197,17 +234,17 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    delegate BDInfo ScanProcess(string path);
+    #endregion
 
     /// <summary>
     /// Scans a bluray folder and returns a BDInfo object
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    private BDInfo ScanWorker(string path)
+    private BDInfoExt ScanWorker(string path)
     {
-      BDHandlerCore.LogInfo("Scanning bluray structure: {0}", path);
-      BDInfo bluray = new BDInfo(path.ToUpper());
+      BDPlayerBuilder.LogInfo("Scanning bluray structure: {0}", path);
+      BDInfoExt bluray = new BDInfoExt(path.ToUpper());
       bluray.Scan();
       return bluray;
     }
@@ -233,7 +270,7 @@ namespace MediaPortal.UI.Players.Video
           Thread.Sleep(100);
         }
 
-        BDInfo bluray = scanner.EndInvoke(result);
+        BDInfoExt bluray = scanner.EndInvoke(result);
         List<TSPlaylistFile> allPlayLists = bluray.PlaylistFiles.Values.Where(p => p.IsValid).OrderByDescending(p => p.TotalLength).Distinct().ToList();
 
         // this will be the title of the dialog, we strip the dialog of weird characters that might wreck the font engine.
@@ -242,26 +279,26 @@ namespace MediaPortal.UI.Players.Video
         //GUIWaitCursor.Hide();
 
         // Feature selection logic 
-        TSPlaylistFile listToPlay = null;
+        TSPlaylistFile listToPlay;
         if (allPlayLists.Count == 0)
         {
-          BDHandlerCore.LogInfo("No playlists found, bypassing dialog.", allPlayLists.Count);
+          BDPlayerBuilder.LogInfo("No playlists found, bypassing dialog.", allPlayLists.Count);
           return true;
         }
         if (allPlayLists.Count == 1)
         {
           // if we have only one playlist to show just move on
-          BDHandlerCore.LogInfo("Found one valid playlist, bypassing dialog.", filePath);
+          BDPlayerBuilder.LogInfo("Found one valid playlist, bypassing dialog.", filePath);
           listToPlay = allPlayLists[0];
         }
         else
         {
           // Show selection dialog
-          BDHandlerCore.LogInfo("Found {0} playlists, showing selection dialog.", allPlayLists.Count);
+          BDPlayerBuilder.LogInfo("Found {0} playlists, showing selection dialog.", allPlayLists.Count);
 
           // first make an educated guess about what the real features are (more than one chapter, no loops and longer than one hour)
           // todo: make a better filter on the playlists containing the real features
-          List<TSPlaylistFile> playLists = allPlayLists.Where(p => (p.Chapters.Count > 1 || p.TotalLength >= MinimalFullFeatureLength) && !p.HasLoops).ToList();
+          List<TSPlaylistFile> playLists = allPlayLists.Where(p => (p.Chapters.Count > 1 || p.TotalLength >= MINIMAL_FULL_FEATURE_LENGTH) && !p.HasLoops).ToList();
 
           // if the filter yields zero results just list all playlists 
           if (playLists.Count == 0)
@@ -375,7 +412,7 @@ namespace MediaPortal.UI.Players.Video
       }
       catch (Exception e)
       {
-        BDHandlerCore.LogError("Exception while reading bluray structure {0} {1}", e.Message, e.StackTrace);
+        BDPlayerBuilder.LogError("Exception while reading bluray structure {0} {1}", e.Message, e.StackTrace);
         return true;
       }
     }
@@ -504,7 +541,7 @@ namespace MediaPortal.UI.Players.Video
     public void OnMouseClick(float x, float y)
     { }
 
-    public void OnKeyPress(MediaPortal.UI.Control.InputManager.Key key)
+    public void OnKeyPress(Control.InputManager.Key key)
     { }
 
     #endregion
