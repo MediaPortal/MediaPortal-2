@@ -151,8 +151,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-          //FIXME: create exif extraction or remove aspect.
-          //pictureAspect.SetAttribute(PictureAspect.ATTR_SHUTTER_SPEED, exif.ShutterSpeed.ToString());
         }
         return true;
       }

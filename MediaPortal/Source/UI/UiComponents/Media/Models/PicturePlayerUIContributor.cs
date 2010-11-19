@@ -57,7 +57,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _pictureDimensionsProperty;
     protected AbstractProperty _pictureISOSpeedProperty;
     protected AbstractProperty _pictureMeteringModeProperty;
-    protected AbstractProperty _pictureShutterSpeedProperty;
     protected AbstractProperty _pictureSourceProperty;
     protected AbstractProperty _pictureRotationProperty;
 
@@ -222,17 +221,6 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _pictureMeteringModeProperty.SetValue(value); }
     }
 
-    public AbstractProperty PictureShutterSpeedProperty
-    {
-      get { return _pictureShutterSpeedProperty; }
-    }
-
-    public string PictureShutterSpeed
-    {
-      get { return (string) _pictureShutterSpeedProperty.GetValue(); }
-      set { _pictureShutterSpeedProperty.SetValue(value); }
-    }
-
     #endregion
 
     #endregion
@@ -280,7 +268,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _pictureDimensionsProperty = new WProperty(typeof(string), string.Empty);
       _pictureISOSpeedProperty = new WProperty(typeof(string), string.Empty);
       _pictureMeteringModeProperty = new WProperty(typeof(string), string.Empty);
-      _pictureShutterSpeedProperty = new WProperty(typeof(string), string.Empty);
     }
 
     #endregion
@@ -316,7 +303,6 @@ namespace MediaPortal.UiComponents.Media.Models
           PictureMake = string.Empty;
           PictureModel = string.Empty;
           PictureISOSpeed = string.Empty;
-          PictureShutterSpeed = string.Empty;
           PictureExposureTime = string.Empty;
           PictureFNumber = string.Empty;
           PictureFlashMode = string.Empty;
@@ -325,11 +311,10 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         else
         {
-          PictureDimensions = (string) pictureAspect[PictureAspect.ATTR_DIMENSIONS];
+          PictureDimensions = String.Format("{0} x {1}", pictureAspect[PictureAspect.ATTR_WIDTH],pictureAspect[PictureAspect.ATTR_HEIGHT]);
           PictureMake = (string) pictureAspect[PictureAspect.ATTR_MAKE];
           PictureModel = (string) pictureAspect[PictureAspect.ATTR_MODEL];
           PictureISOSpeed = (string) pictureAspect[PictureAspect.ATTR_ISO_SPEED];
-          PictureShutterSpeed = (string) pictureAspect[PictureAspect.ATTR_SHUTTER_SPEED];
           PictureExposureTime = (string) pictureAspect[PictureAspect.ATTR_EXPOSURE_TIME];
           PictureFNumber = (string) pictureAspect[PictureAspect.ATTR_FNUMBER];
           PictureFlashMode = (string) pictureAspect[PictureAspect.ATTR_FLASH_MODE];

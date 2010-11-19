@@ -52,9 +52,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
-    // TODO: Remove
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIMENSIONS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Dimensions", 10, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
     /// <summary>
@@ -64,8 +61,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SHUTTER_SPEED =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("ShutterSpeed", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Translates the EXIF orientation info to an angle in degrees. The value should be used to apply a RotateTransform 
@@ -108,11 +103,9 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_EXPOSURE_TIME,
             ATTR_FLASH_MODE,
             ATTR_FNUMBER,
-            ATTR_DIMENSIONS,
             ATTR_ISO_SPEED,
             ATTR_ORIENTATION,
             ATTR_METERING_MODE,
-            ATTR_SHUTTER_SPEED,
         });
   }
 }
