@@ -17,8 +17,8 @@
       <StackPanel Margin="20" DataContext="{Binding Source={StaticResource Model}}">
         <Label Content="[Media.AddToPlaylistProgressText]"/>
         <Label Margin="20" Content="{Binding NumItemsAddedToPlaylistText}" HorizontalAlignment="Center"/>
-        <Button Style="{ThemeResource ButtonStyle}" Content="[System.Cancel]"
-            Command="{Command Source={StaticResource Model},Path=CancelAddToPlaylist}"/>
+        <Button Style="{ThemeResource DialogButtonStyle}" Content="[Media.StopAddToPlaylistButton]"
+            Command="{Command Source={StaticResource Model},Path=StopAddToPlaylist}"/>
       </StackPanel>
     </ResourceWrapper>
 

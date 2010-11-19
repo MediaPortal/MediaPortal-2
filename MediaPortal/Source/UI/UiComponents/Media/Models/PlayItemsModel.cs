@@ -65,7 +65,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ItemsList _playMenuItems = null;
 
     protected AbstractProperty _numItemsAddedToPlaylistTextProperty = new WProperty(typeof(string), string.Empty);
-    protected bool _cancelAddToPlaylist;
+    protected bool _stopAddToPlaylist;
 
     #endregion
 
@@ -94,9 +94,9 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _numItemsAddedToPlaylistTextProperty.SetValue(value); }
     }
 
-    public void CancelAddToPlaylist()
+    public void StopAddToPlaylist()
     {
-      _cancelAddToPlaylist = true;
+      _stopAddToPlaylist = true;
     }
 
     /// <summary>
@@ -540,17 +540,17 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       Guid? dialogInstanceId = screenManager.ShowDialog(Consts.DIALOG_ADD_TO_PLAYLIST_PROGRESS,
-          (dialogName, instanceId) => CancelAddToPlaylist());
+          (dialogName, instanceId) => StopAddToPlaylist());
       try
       {
         int numItems = 0;
-        _cancelAddToPlaylist = false;
+        _stopAddToPlaylist = false;
         SetNumItemsAddedToPlaylist(0);
         ICollection<MediaItem> items = new List<MediaItem>();
         foreach (MediaItem item in getMediaItemsFunction())
         {
           SetNumItemsAddedToPlaylist(numItems++);
-          if (_cancelAddToPlaylist)
+          if (_stopAddToPlaylist)
             break;
           items.Add(item);
         }

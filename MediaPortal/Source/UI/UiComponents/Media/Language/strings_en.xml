@@ -125,6 +125,7 @@
     <String Name="AddToPlaylistProgressDialogHeader" Text="Progress"/>
     <String Name="AddToPlaylistProgressText" Text="Adding items to playlist..."/>
     <String Name="NItemsAdded" Text="{0} items added"/>
+    <String Name="StopAddToPlaylistButton" Text="Stop"/>
 
     <String Name="PlayAudioItems" Text="Play audio items"/>
     <String Name="EnqueueAudioItems" Text="Enqueue audio items"/>

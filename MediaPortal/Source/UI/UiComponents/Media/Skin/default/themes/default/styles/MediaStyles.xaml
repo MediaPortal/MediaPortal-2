@@ -360,7 +360,7 @@
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Template>
                   <ControlTemplate TargetType="{x:Type Button}">
-                    <Control x:Name="PiPControl" Grid.Column="0" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
+                    <Control x:Name="PiPControl" Style="{ThemeResource PipControlStyle}"/>
                   </ControlTemplate>
                 </Button.Template>
                 <Button.Triggers>
