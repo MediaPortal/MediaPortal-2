@@ -9,8 +9,8 @@
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.AddToPlaylistProgressDialogHeader]"/>
 
-    <!-- MediaModel -->
-    <Model x:Key="Model" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+    <!-- PlayItemsModel -->
+    <Model x:Key="Model" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
