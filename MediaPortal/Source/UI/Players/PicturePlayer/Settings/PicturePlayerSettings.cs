@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.UI.Players.Picture.Settings
@@ -32,8 +33,11 @@ namespace MediaPortal.UI.Players.Picture.Settings
   public class PicturePlayerSettings
   {
     public const int DEFAULT_SLIDE_SHOW_IMAGE_DURATION = 4;
+    public static readonly List<string> DEFAULT_SUPPORTED_EXTENSIONS =
+        new List<string>(".bmp,.png,.jpg,.jpeg".Split(','));
 
     protected double _slideShowImageDuration = DEFAULT_SLIDE_SHOW_IMAGE_DURATION;
+    protected List<string> _SupportedExtensions = new List<string>(DEFAULT_SUPPORTED_EXTENSIONS);
 
     /// <summary>
     /// Duration in seconds until the next image is shown in slideshow mode.
@@ -43,6 +47,13 @@ namespace MediaPortal.UI.Players.Picture.Settings
     {
       get { return _slideShowImageDuration; }
       set { _slideShowImageDuration = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public List<string> SupportedExtensions
+    {
+      get { return _SupportedExtensions; }
+      set { _SupportedExtensions = value; }
     }
   }
 }

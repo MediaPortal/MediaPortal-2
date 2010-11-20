@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlayerRegistration.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
     <Compile Include="Settings\Configuration\AudioCodec.cs" />
     <Compile Include="Settings\Configuration\ClosedCaptions.cs" />

@@ -23,9 +23,13 @@
 #endregion
 
 using System;
+using System.IO;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
+using Ui.Players.BassPlayer.Settings;
 using Ui.Players.BassPlayer.Utils;
 
 namespace Ui.Players.BassPlayer.PlayerComponents
@@ -50,10 +54,13 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// Creates an IInputSource object for a given mediaitem.
     /// </summary>
     /// <param name="resourceLocator">Locator instance to the media item to create the input source for.</param>
+    /// <param name="mimeType">Mime type of the media item, if present. May be <c>null</c>.</param>
     /// <returns>Input source object for the given <paramref name="resourceLocator"/> or <c>null</c>, if no input source
     /// could be created.</returns>
-    public IInputSource CreateInputSource(IResourceLocator resourceLocator)
+    public IInputSource CreateInputSource(IResourceLocator resourceLocator, string mimeType)
     {
+      if (!CanPlay(resourceLocator, mimeType))
+        return null;
       IResourceAccessor accessor = resourceLocator.CreateAccessor();
       string filePath = accessor.ResourcePathName;
       IInputSource result;
@@ -74,6 +81,19 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
       return result;
+    }
+
+    public static bool CanPlay(IResourceLocator locator, string mimeType)
+    {
+      // First check the Mime Type
+      if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("audio"))
+        return false;
+
+      IResourceAccessor accessor = locator.CreateAccessor();
+      string ext = Path.GetExtension(accessor.ResourcePathName);
+
+      BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
+      return settings.SupportedExtensions.IndexOf(ext) > -1;
     }
 
     #endregion

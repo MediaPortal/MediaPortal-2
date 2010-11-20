@@ -232,7 +232,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (!string.IsNullOrEmpty(uriSource))
         {
           string lower = uriSource.ToLower();
-          if (lower.EndsWith(".png") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".bmp"))
+          // Remember to adapt list of supported extensions for picture player plugin...
+          if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             result = bmi;

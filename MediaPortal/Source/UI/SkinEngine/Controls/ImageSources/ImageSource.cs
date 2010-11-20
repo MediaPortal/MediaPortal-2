@@ -79,7 +79,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         ObjectChanged(this);
     }
 
-
     /// <summary>
     /// This is a helper provided to assist derived Sources when scaling their content to
     /// the owner size.

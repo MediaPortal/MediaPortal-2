@@ -199,15 +199,16 @@ namespace Ui.Players.BassPlayer
     /// <summary>
     /// Enqueues a play workitem for the given mediaitem.
     /// </summary>
-    /// <param name="locator"></param>
+    /// <param name="locator">Resource locator of the to-be-played item.</param>
+    /// <param name="mimeType">Mime type of the to-be-played item, if given. May be <c>null</c>.</param>
     /// <remarks>
     /// The workitem will actually be executed on the controller's mainthread.
     /// </remarks>
-    public void SetMediaItemLocator(IResourceLocator locator)
+    public void SetMediaItemLocator(IResourceLocator locator, string mimeType)
     {
       if (_externalState != PlayerState.Stopped)
         Stop();
-      IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator);
+      IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator, mimeType);
       if (inputSource == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("Unable to play '{0}'", locator);
@@ -406,7 +407,7 @@ namespace Ui.Players.BassPlayer
 
     public bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime)
     {
-      IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator);
+      IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator, mimeType);
       if (inputSource == null)
         return false;
       lock (_syncObj)

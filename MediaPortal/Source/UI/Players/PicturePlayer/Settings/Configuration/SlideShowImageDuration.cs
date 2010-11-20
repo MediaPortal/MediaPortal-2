@@ -40,7 +40,7 @@ namespace MediaPortal.UI.Players.Picture.Settings.Configuration
     public override void Save()
     {
       PicturePlayerSettings settings = SettingsManager.Load<PicturePlayerSettings>();
-      settings.SlideShowImageDuration = (double) _value;
+      settings.SlideShowImageDuration = _value;
       SettingsManager.Save(settings);
     }
 

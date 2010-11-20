@@ -36,8 +36,7 @@ namespace MediaPortal.UI.Players.Picture
 
     public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      // First check the Mime Type
-      if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("image"))
+      if (!PicturePlayer.CanPlay(locator, mimeType))
         return null;
       PicturePlayer player = new PicturePlayer();
       try

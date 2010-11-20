@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
@@ -38,47 +36,11 @@ namespace MediaPortal.UI.Players.Video
   /// </summary>
   public class VideoPlayerBuilder : IPlayerBuilder
   {
-    public static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
-    public static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();
-
-    static VideoPlayerBuilder()
-    {
-      EXTENSIONS2PLAYER.Add(".avi", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".ts", typeof(TsVideoPlayer));
-      EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
-      EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
-      EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));
-      // TODO: Go on with extensions mapping
-
-      MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
-      MIMETYPES2PLAYER.Add("video/mp2t", typeof(TsVideoPlayer));
-      MIMETYPES2PLAYER.Add("video/dvd", typeof(DvdPlayer));
-      // TODO: Go on with mime types mapping
-    }
-
-    protected static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
-    {
-      string path = locator.NativeResourcePath.LastPathSegment.Path;
-      string extension = Path.GetExtension(path).ToLowerInvariant();
-
-      Type playerType;
-      if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
-        return playerType;
-      // 2nd chance: if no mimetype match, try extensions
-      if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
-        return playerType;
-      return null;
-    }
-
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      Type playerType = GetPlayerTypeForMediaItem(locator, mimeType);
+      Type playerType = PlayerRegistration.GetPlayerTypeForMediaItem(locator, mimeType);
       if (playerType == null)
         return null;
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);

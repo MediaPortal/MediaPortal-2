@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
@@ -197,6 +198,19 @@ namespace MediaPortal.UI.Players.Picture
       }
     }
 
+    public static bool CanPlay(IResourceLocator locator, string mimeType)
+    {
+      // First check the Mime Type
+      if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("image"))
+        return false;
+
+      IResourceAccessor accessor = locator.CreateAccessor();
+      string ext = Path.GetExtension(accessor.ResourcePathName);
+
+      PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
+      return settings.SupportedExtensions.IndexOf(ext) > -1;
+    }
+
     #endregion
 
     #region IPlayer implementation
@@ -277,6 +291,8 @@ namespace MediaPortal.UI.Players.Picture
 
     public bool NextItem(IResourceLocator locator, string mimeType, StartTime startTime)
     {
+      if (!CanPlay(locator, mimeType))
+        return false;
       SetMediaItemLocator(locator);
       return true;
     }

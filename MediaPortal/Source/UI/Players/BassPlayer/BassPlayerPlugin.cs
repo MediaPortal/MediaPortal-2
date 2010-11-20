@@ -23,14 +23,12 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
-using Ui.Players.BassPlayer.Settings;
+using Ui.Players.BassPlayer.PlayerComponents;
 
 namespace Ui.Players.BassPlayer
 {
@@ -66,19 +64,12 @@ namespace Ui.Players.BassPlayer
 
     public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = Path.GetExtension(accessor.ResourcePathName);
-
-      // First check the Mime Type
-      if (!string.IsNullOrEmpty(mimeType) && !mimeType.Contains("audio"))
-        return null;
-      BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
-      if (settings.SupportedExtensions.IndexOf(ext) > -1)
+      if (InputSourceFactory.CanPlay(locator, mimeType))
       {
         BassPlayer player = new BassPlayer(_pluginDirectory);
         try
         {
-          player.SetMediaItemLocator(locator);
+          player.SetMediaItemLocator(locator, mimeType);
         }
         catch (Exception e)
         {
