@@ -57,7 +57,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected TextureAsset _texture0 = null;
     protected EffectAsset _effect = null;
     protected PrimitiveBuffer _geometry = new PrimitiveBuffer();
+
+    protected RectangleF _oldRect;
+    protected Stretch _oldStretchMode;
+    protected StretchDirection _oldStretchDirection;
     protected bool _needsSetup = true;
+
     #endregion
 
     #region Ctor
@@ -246,8 +251,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       if (IsAllocated)
       {
+        _needsSetup |= _oldRect != ownerRect || _oldStretchMode != stretchMode || _oldStretchDirection != stretchDirection;
         if (_needsSetup)
+        {
+          _oldRect = ownerRect;
+          _oldStretchMode = stretchMode;
+          _oldStretchDirection = stretchDirection;
           Setup(ownerRect, stretchMode, stretchDirection);
+        }
         if (_effect != null)
         {
           // Render
