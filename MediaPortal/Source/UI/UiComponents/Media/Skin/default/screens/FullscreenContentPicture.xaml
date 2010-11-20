@@ -37,10 +37,10 @@
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
-        IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
+    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left"
+        IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
       <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-          Style="{ThemeResource PrimaryVideoOSDStyle}"
+          Style="{ThemeResource PrimaryPictureOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           SlotIndex="0"/>
     </DockPanel> <!-- OSD_LeftPanel -->
