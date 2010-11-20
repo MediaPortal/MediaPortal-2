@@ -1,6 +1,6 @@
 <Plugin
     DescriptorVersion="1.0" 
-    Name="Configuration Model"
+    Name="Configuration UI plugin"
     PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"
     Author="Albert"
     Copyright="GPL"
