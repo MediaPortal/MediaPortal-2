@@ -30,12 +30,14 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -143,12 +145,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Always add items to playlist. This allows audio playlists as well as video playlists.
       pc.Playlist.Add(item);
-      // TODO: Save playlist somewhere in this plugin so that it is still able to be accessed later,
-      // after the player has closed
-      pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
-      pc.Play();
-      if (play && avType == AVType.Video)
-        pcm.ShowFullscreenContent();
+
+      CompletePlayOrEnqueue(pc, play);
     }
 
     /// <summary>
@@ -230,6 +228,16 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Protected members
+
+    protected static void CompletePlayOrEnqueue(IPlayerContext pc, bool play)
+    {
+      IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      pc.CloseWhenFinished = settings.ClosePlayerWhenFinished; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
+      pc.Play();
+      if (play && pc.AVType == AVType.Video)
+        pcm.ShowFullscreenContent();
+    }
 
     protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
@@ -555,6 +563,8 @@ namespace MediaPortal.UiComponents.Media.Models
           items.Add(item);
         }
         pc.Playlist.AddAll(items);
+
+        CompletePlayOrEnqueue(pc, play);
         if (!play)
           return;
         pc.Play();
@@ -566,11 +576,6 @@ namespace MediaPortal.UiComponents.Media.Models
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS, true);
       }
-      if (pc.AVType == AVType.Video)
-      {
-        IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
-        pcm.ShowFullscreenContent();
-      }
     }
 
     protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
@@ -581,9 +586,6 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContext pc = PreparePlayerContext(avType, play, concurrencyMode);
       if (pc == null)
         return;
-
-      // TODO: Save playlist here so that we are still able access it later, after the player has closed
-      pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
