@@ -322,7 +322,8 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
+                <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0"
+                    IsVisible="{Binding HasAudio}">
                   <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
