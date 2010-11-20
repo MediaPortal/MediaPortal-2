@@ -33,7 +33,7 @@ using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.Picture
 {
-  public class PicturePlayer : IDisposable, IPicturePlayer, IPlayerEvents, IReusablePlayer
+  public class PicturePlayer : IDisposable, IPicturePlayer, IPlayerEvents, IReusablePlayer, IMediaPlaybackControl
   {
     #region Consts
 
@@ -48,13 +48,15 @@ namespace MediaPortal.UI.Players.Picture
 
     protected readonly object _syncObj = new object();
 
-    protected volatile PlayerState _state;
+    protected PlayerState _state;
+    protected bool _isPaused = false;
     protected string _mediaItemTitle = string.Empty;
 
     protected IResourceLocator _currentLocator;
     protected TimeSpan _slideShowImageDuration;
     protected Timer _slideShowTimer = null;
     protected bool _slideShowEnabled = true;
+    protected DateTime _playbackStartTime = DateTime.MinValue;
 
     // Data and events for the communication with the player manager.
     protected PlayerEventDlgt _started = null;
@@ -156,7 +158,7 @@ namespace MediaPortal.UI.Players.Picture
     {
       lock (_syncObj)
       {
-        if (_state == PlayerState.Active)
+        if (_state == PlayerState.Active && !IsPaused)
         {
           if (_slideShowTimer == null && _slideShowEnabled)
             _slideShowTimer = new Timer(OnSlideShowNewPicture, null, _slideShowImageDuration, TS_INFINITE);
@@ -195,6 +197,7 @@ namespace MediaPortal.UI.Players.Picture
           _slideShowTimer.Change(_slideShowImageDuration, TS_INFINITE);
         else
           CheckTimer();
+        _playbackStartTime = DateTime.Now;
       }
     }
 
@@ -227,7 +230,11 @@ namespace MediaPortal.UI.Players.Picture
 
     public PlayerState State
     {
-      get { return _state; }
+      get
+      {
+        lock (_syncObj)
+          return _state;
+      }
     }
 
     public string MediaItemTitle
@@ -252,6 +259,7 @@ namespace MediaPortal.UI.Players.Picture
         if (_state != PlayerState.Active)
           return;
         _state = PlayerState.Stopped;
+        _currentLocator = null;
       }
       FireStopped();
     }
@@ -317,6 +325,100 @@ namespace MediaPortal.UI.Players.Picture
       {
         lock (_syncObj)
           return _currentLocator;
+      }
+    }
+
+    #endregion
+
+    #region IMediaPlaybackControl implementation
+
+    public TimeSpan CurrentTime
+    {
+      get
+      {
+        lock (_syncObj)
+        {
+          if (_isPaused)
+            return TimeSpan.Zero;
+          return DateTime.Now - _playbackStartTime;
+        }
+      }
+      set
+      {
+        lock (_syncObj)
+          _playbackStartTime = DateTime.Now - value;
+      }
+    }
+
+    public TimeSpan Duration
+    {
+      get { return _slideShowImageDuration; }
+    }
+
+    public double PlaybackRate
+    {
+      get { return 1.0; }
+    }
+
+    public bool SetPlaybackRate(double value)
+    {
+      return false;
+    }
+
+    public bool IsPlayingAtNormalRate
+    {
+      get { return true; }
+    }
+
+    public bool IsSeeking
+    {
+      get { return false; }
+    }
+
+    public bool IsPaused
+    {
+      get
+      {
+        lock (_syncObj)
+          return _isPaused;
+      }
+    }
+
+    public bool CanSeekForwards
+    {
+      get { return false; }
+    }
+
+    public bool CanSeekBackwards
+    {
+      get { return false; }
+    }
+
+    public void Pause()
+    {
+      lock (_syncObj)
+      {
+        _isPaused = true;
+        DisposeTimer();
+      }
+    }
+
+    public void Resume()
+    {
+      lock (_syncObj)
+      {
+        _isPaused = false;
+        CurrentTime = TimeSpan.Zero;
+        CheckTimer();
+      }
+    }
+
+    public void Restart()
+    {
+      lock (_syncObj)
+      {
+        DisposeTimer();
+        CheckTimer();
       }
     }
 
