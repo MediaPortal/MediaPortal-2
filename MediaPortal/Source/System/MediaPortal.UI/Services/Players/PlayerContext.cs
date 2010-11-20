@@ -388,7 +388,10 @@ namespace MediaPortal.UI.Services.Players
       if (psc == null)
         return;
       lock (SyncObj)
+      {
         psc.Stop();
+        _playlist.ResetStatus();
+      }
     }
 
     public void Pause()
