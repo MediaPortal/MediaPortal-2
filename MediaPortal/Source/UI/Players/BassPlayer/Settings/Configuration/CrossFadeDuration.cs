@@ -25,7 +25,7 @@
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace Ui.Players.BassPlayer.Settings.Configuration.Players
+namespace Ui.Players.BassPlayer.Settings.Configuration
 {
   public class CrossFadeDuration : NumberSelect
   {

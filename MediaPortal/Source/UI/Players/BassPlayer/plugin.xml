@@ -55,11 +55,11 @@
         Id="CrossFadingEnabled"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
-        ClassName="Ui.Players.BassPlayer.Settings.Configuration.Players.CrossFadingEnabled"/>
+        ClassName="Ui.Players.BassPlayer.Settings.Configuration.CrossFadingEnabled"/>
     <ConfigSetting
         Id="CrossFadeDuration"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
-        ClassName="Ui.Players.BassPlayer.Settings.Configuration.Players.CrossFadeDuration"/>
+        ClassName="Ui.Players.BassPlayer.Settings.Configuration.CrossFadeDuration"/>
   </Register>
 </Plugin>
