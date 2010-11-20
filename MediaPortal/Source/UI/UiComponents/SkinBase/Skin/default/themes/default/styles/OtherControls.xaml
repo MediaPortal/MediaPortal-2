@@ -931,7 +931,8 @@
                 </Grid>
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="1" Color="{ThemeResource DefaultPlayerControlMediaItemColor}"
                     Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    IsVisible="{Binding HasAudio}">
                   <Grid Name="AudioIndicatorNoMouse">
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"
                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
