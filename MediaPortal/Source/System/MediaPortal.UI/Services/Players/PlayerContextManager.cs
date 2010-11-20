@@ -180,8 +180,12 @@ namespace MediaPortal.UI.Services.Players
             if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
               return;
             if (!pc.NextItem())
+            {
               if (pc.CloseWhenFinished)
                 pc.Close();
+              else
+                psc.Stop();
+            }
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];

@@ -173,7 +173,7 @@ namespace MediaPortal.UI.Players.Picture
 
     void OnSlideShowNewPicture(object state)
     {
-      NextItemRequest(this);
+      FireEnded();
     }
 
     #endregion
