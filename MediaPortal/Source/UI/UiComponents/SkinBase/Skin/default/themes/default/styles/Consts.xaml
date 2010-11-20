@@ -26,4 +26,6 @@
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="8"/>
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
+
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
 </ResourceDictionary>

@@ -13,12 +13,18 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
 
-  <Image x:Name="FullscreenImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform"
-      Source="{Binding PlayerUIContributor.PictureSource}">
-    <Image.LayoutTransform>
-      <RotateTransform Angle="{Binding PlayerUIContributor.PictureRotation}" />
-    </Image.LayoutTransform>
-  </Image>
+  <mp_special_controls:PlayerControl x:Name="FullscreenPicture" Grid.Column="0" Grid.Row="0"
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SlotIndex="0">
+    <mp_special_controls:PlayerControl.TemplateControl>
+      <Image Stretch="Uniform"
+          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+          Source="{Binding PictureSourcePath}">
+        <Image.LayoutTransform>
+          <RotateTransform Angle="{Binding PictureRotateDegrees}" />
+        </Image.LayoutTransform>
+      </Image>
+    </mp_special_controls:PlayerControl.TemplateControl>
+  </mp_special_controls:PlayerControl>
 
   <Grid x:Name="PipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
     <Grid.ColumnDefinitions>

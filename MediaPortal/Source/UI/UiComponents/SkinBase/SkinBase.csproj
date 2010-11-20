@@ -73,12 +73,12 @@
     <Compile Include="Models\NotificationsModel.cs" />
     <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
     <Compile Include="Models\MenuModel.cs" />
+    <Compile Include="Models\GeneralPlayerModel.cs" />
     <Compile Include="Models\ServerAttachmentModel.cs" />
     <Compile Include="Models\ServerShares.cs" />
     <Compile Include="Models\SharesConfigModel.cs" />
     <Compile Include="Models\ShareProxy.cs" />
     <Compile Include="PlayerBackgroundManager.cs" />
-    <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\ScreenSaverModel.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\DateFormat.cs" />

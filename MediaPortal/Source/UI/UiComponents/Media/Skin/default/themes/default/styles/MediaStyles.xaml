@@ -416,13 +416,9 @@
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
+                  Style="{ThemeResource PipControlStyle}"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
-                <Button.Template>
-                  <ControlTemplate TargetType="{x:Type Button}">
-                    <Control x:Name="PiPControl" Style="{ThemeResource PipControlStyle}"/>
-                  </ControlTemplate>
-                </Button.Template>
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
                     <Setter TargetName="PiPBorder" Property="BorderBrush" Value="{ThemeResource OSDPipBorderFocusColor}"/>

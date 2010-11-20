@@ -1098,26 +1098,30 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="PiPBorder" Grid.Column="1" Grid.Row="1"
-              Context="{Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}"
-              BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}"
-              IsVisible="{Binding IsPipVisible}"> <!-- DataContext model = PlayerModel -->
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-              <Control IsVisible="{Binding IsPipVideoVisible}" Width="{Binding PipWidth}" Height="{Binding PipHeight}">
-                <Control.Background>
-                  <VideoBrush Stream="1"/>
-                </Control.Background>
-              </Control>
-              <Image IsVisible="{Binding IsPipPictureVisible}" Width="{Binding PipWidth}" Stretch="Uniform"
-                  Source="{Binding PipPictureSourcePath}"/>
-            </Grid>
-          </Border>
+          <mp_special_controls:PlayerControl x:Name="PiPControl" AutoVisibility="True" SlotIndex="1"
+              FixedVideoWidth="{ThemeResource PiPVideoWidth}">
+            <mp_special_controls:PlayerControl.TemplateControl>
+              <Border
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Control IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
+                    <Control.Background>
+                      <VideoBrush Stream="1"/>
+                    </Control.Background>
+                  </Control>
+                  <Image IsVisible="{Binding IsPicturePlayerPresent}" Width="{ThemeResource PiPVideoWidth}" Stretch="Uniform"
+                      Source="{Binding PictureSourcePath}"/>
+                </Grid>
+              </Border>
+            </mp_special_controls:PlayerControl.TemplateControl>
+          </mp_special_controls:PlayerControl>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

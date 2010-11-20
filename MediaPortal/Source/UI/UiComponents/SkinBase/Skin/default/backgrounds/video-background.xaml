@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!--
-Video background
--->
-
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <Grid.Resources>
-    <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
-  </Grid.Resources>
   <Grid.Background>
     <VideoBrush Stream="0"/>
   </Grid.Background>

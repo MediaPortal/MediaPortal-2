@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -131,6 +132,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _videoStoryPlotProperty;
     protected AbstractProperty _audioArtistsProperty;
     protected AbstractProperty _audioYearProperty;
+    protected AbstractProperty _pictureSourcePathProperty;
+    protected AbstractProperty _pictureRotateDegreesProperty;
 
     protected AbstractProperty _fullscreenContentWFStateIDProperty;
     protected AbstractProperty _currentlyPlayingWFStateIDProperty;
@@ -138,6 +141,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPiPResource;
     protected IResourceString _playbackRateHintResource;
+
+    protected IResourceLocator _currentPictureSourceLocator = null;
+    protected ILocalFsResourceAccessor _currentPictureResourceAccessor = null;
 
     #endregion
 
@@ -195,6 +201,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _videoYearProperty = new SProperty(typeof(int?), null);
       _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
+      _pictureSourcePathProperty = new SProperty(typeof(string), string.Empty);
+      _pictureRotateDegreesProperty = new SProperty(typeof(int), 0);
 
       _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
       _audioYearProperty = new SProperty(typeof(int?), null);
@@ -347,6 +355,46 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       ShowMouseControls = inputManager.IsMouseUsed && screen != null && screen.HasInputFocus;
     }
 
+    protected int GetRotationMetadata(MediaItem mediaItem)
+    {
+      MediaItemAspect pictureAspect;
+      if (mediaItem != null && mediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
+      {
+        Int32 rotationDegree;
+        PictureAspect.OrientationToDegrees((int) pictureAspect[PictureAspect.ATTR_ORIENTATION], out rotationDegree);
+        return rotationDegree;
+      }
+      return 0;
+    }
+
+    protected string CheckPictureSourcePath(IResourceLocator locator)
+    {
+      if (_currentPictureSourceLocator != locator)
+      {
+        DisposePictureResourceAccessor();
+        _currentPictureSourceLocator = locator;
+        if (_currentPictureSourceLocator != null)
+          try
+          {
+            _currentPictureResourceAccessor = _currentPictureSourceLocator.CreateLocalFsAccessor();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for picture '{0}'",
+                e, _currentPictureSourceLocator);
+            return null;
+          }
+      }
+      return _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
+    }
+
+    protected void DisposePictureResourceAccessor()
+    {
+      if (_currentPictureResourceAccessor != null)
+        _currentPictureResourceAccessor.Dispose();
+      _currentPictureResourceAccessor = null;
+    }
+
     protected void UpdateProperties()
     {
       if (_updating)
@@ -370,6 +418,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           FullscreenContentWFStateID = playerContext.FullscreenContentWorkflowStateId;
           CurrentlyPlayingWFStateID = playerContext.CurrentlyPlayingWorkflowStateId;
         }
+
+        _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
 
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
@@ -399,9 +449,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
           }
         }
-        IsPicturePlayerPresent = pp != null;
+        if (pp == null)
+        {
+          IsPicturePlayerPresent = false;
+          DisposePictureResourceAccessor();
+          PictureRotateDegrees = 0;
+        }
+        else
+        {
+          IsPicturePlayerPresent = true;
+          PictureSourcePath = CheckPictureSourcePath(pp.CurrentPictureResourceLocator);
+          PictureRotateDegrees = GetRotationMetadata(_currentMediaItem);
+        }
 
-        _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
         MediaItemAspect mediaAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
           mediaAspect = null;
@@ -1249,6 +1309,34 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (string) _videoStoryPlotProperty.GetValue(); }
       internal set { _videoStoryPlotProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PictureSourcePathProperty
+    {
+      get { return _pictureSourcePathProperty; }
+    }
+
+    /// <summary>
+    /// Gets the local file path to the current picture, if <see cref="IsPicturePlayerPresent"/> is <c>true</c>.
+    /// </summary>
+    public string PictureSourcePath
+    {
+      get { return (string) _pictureSourcePathProperty.GetValue(); }
+      set { _pictureSourcePathProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PictureRotateDegreesProperty
+    {
+      get { return _pictureRotateDegreesProperty; }
+    }
+
+    /// <summary>
+    /// Retuns the rotation of the current picture in degrees, if <see cref="IsPicturePlayerPresent"/> is <c>true</c>.
+    /// </summary>
+    public int PictureRotateDegrees
+    {
+      get { return (int) _pictureRotateDegreesProperty.GetValue(); }
+      set { _pictureRotateDegreesProperty.SetValue(value); }
     }
 
     public AbstractProperty AudioArtistsProperty

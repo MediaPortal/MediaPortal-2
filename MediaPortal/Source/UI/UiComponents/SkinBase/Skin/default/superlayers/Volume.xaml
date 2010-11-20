@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Border DockPanel.Dock="Bottom" Height="100" Margin="200,0,200,50" BorderBrush="{ThemeResource PlayControlsFillColor}" BorderThickness="5"
       CornerRadius="10">
-    <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}"> <!-- Model = PlayerModel -->
+    <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}"> <!-- Model = GeneralPlayerModel -->
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>

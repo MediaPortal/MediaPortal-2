@@ -42,6 +42,8 @@ namespace MediaPortal.UiComponents.SkinBase
 
     internal void DoInstall()
     {
+      RegisterKeyBindings();
+
       // Set initial background
       UpdateBackground();
 
@@ -49,7 +51,6 @@ namespace MediaPortal.UiComponents.SkinBase
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            PlayerManagerMessaging.CHANNEL,
-           PlayerContextManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -63,24 +64,10 @@ namespace MediaPortal.UiComponents.SkinBase
       _messageQueue = null;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
-      {
-        UpdateKeyBindings();
         UpdateBackground();
-      }
-      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
-      {
-        PlayerContextManagerMessaging.MessageType messageType =
-            (PlayerContextManagerMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
-            UpdateKeyBindings();
-            break;
-        }
-      }
     }
 
     /// <summary>
@@ -94,62 +81,49 @@ namespace MediaPortal.UiComponents.SkinBase
     }
 
     /// <summary>
-    /// Updates the globally registered key bindings depending on the current player. Will be called when the
-    /// currently active player changes.
-    /// </summary>
-    protected void UpdateKeyBindings()
-    {
-      UnregisterKeyBindings();
-      RegisterKeyBindings();
-    }
-
-    /// <summary>
     /// Registers key bindings for the currently active player, if there is a player active.
     /// </summary>
     protected void RegisterKeyBindings()
     {
-      IPlayerContext currentPSC = GetCurrentPlayerContext();
-      if (currentPSC == null)
-        return;
       // TODO: Is there a ZoomMode/Change Aspect Ratio key in any input device (keyboard, IR, ...)? If yes,
       // we should register it here too
       lock (_syncObj)
       {
         // ------------------ Play controls ---------------------
         AddKeyBinding_NeedLock(
-            Key.Play, PlayerModel.Play);
+            Key.Play, GeneralPlayerModel.Play);
         AddKeyBinding_NeedLock(
-            Key.Pause, PlayerModel.Pause);
+            Key.Pause, GeneralPlayerModel.Pause);
         AddKeyBinding_NeedLock(
-            Key.PlayPause, PlayerModel.TogglePause);
+            Key.PlayPause, GeneralPlayerModel.TogglePause);
         AddKeyBinding_NeedLock(
-            Key.Printable(' '), PlayerModel.TogglePause);
+            Key.Printable(' '), GeneralPlayerModel.TogglePause);
         AddKeyBinding_NeedLock(
-            Key.Stop, PlayerModel.Stop);
+            Key.Stop, GeneralPlayerModel.Stop);
         AddKeyBinding_NeedLock(
-            Key.Rew, PlayerModel.SeekBackward);
+            Key.Rew, GeneralPlayerModel.SeekBackward);
         AddKeyBinding_NeedLock(
-            Key.Fwd, PlayerModel.SeekForward);
+            Key.Fwd, GeneralPlayerModel.SeekForward);
         AddKeyBinding_NeedLock(
-            Key.Previous, PlayerModel.Previous);
+            Key.Previous, GeneralPlayerModel.Previous);
         AddKeyBinding_NeedLock(
-            Key.Next, PlayerModel.Next);
+            Key.Next, GeneralPlayerModel.Next);
 
         // ------------------------ Volume -----------------------
         AddKeyBinding_NeedLock(
-            Key.Mute, PlayerModel.ToggleMute);
+            Key.Mute, GeneralPlayerModel.ToggleMute);
         AddKeyBinding_NeedLock(
-            Key.VolumeUp, PlayerModel.VolumeUp);
+            Key.VolumeUp, GeneralPlayerModel.VolumeUp);
         AddKeyBinding_NeedLock(
-            Key.VolumeDown, PlayerModel.VolumeDown);
+            Key.VolumeDown, GeneralPlayerModel.VolumeDown);
 
         // --------------------- Player management --------------------
         AddKeyBinding_NeedLock(
-            Key.Blue, PlayerModel.ToggleCurrentPlayer);
+            Key.Blue, GeneralPlayerModel.ToggleCurrentPlayer);
         AddKeyBinding_NeedLock(
-            Key.Printable('c'), PlayerModel.ToggleCurrentPlayer);
+            Key.Printable('c'), GeneralPlayerModel.ToggleCurrentPlayer);
 
-        // Albert, 2010-08-25: I don't think we should register player specific key bindings here.
+        // Don't register player specific key bindings here.
         // They should only be available in the FSC/CP states.
       }
     }

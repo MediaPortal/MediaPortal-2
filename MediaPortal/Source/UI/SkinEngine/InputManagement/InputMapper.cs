@@ -36,6 +36,14 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       switch (keycode)
       {
+        case Keys.Add:
+          if (alt)
+            return Key.VolumeUp;
+          break;
+        case Keys.Subtract:
+          if (alt)
+            return Key.VolumeDown;
+          break;
         case Keys.Cancel:
           return Key.Escape;
         case Keys.Clear:
