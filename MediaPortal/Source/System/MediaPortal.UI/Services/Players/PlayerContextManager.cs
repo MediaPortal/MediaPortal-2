@@ -185,6 +185,8 @@ namespace MediaPortal.UI.Services.Players
                 pc.Close();
               else
                 psc.Stop();
+              if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
+                StepOutOfFSC();
             }
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
@@ -197,6 +199,8 @@ namespace MediaPortal.UI.Services.Players
             // we close the correct one
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               pc.Close();
+            if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
+              StepOutOfFSC();
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
@@ -302,6 +306,26 @@ namespace MediaPortal.UI.Services.Players
     {
       IPlayerContext currentPC = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       return currentPC == null ? new Guid?() : currentPC.FullscreenContentWorkflowStateId;
+    }
+
+    /// <summary>
+    /// Check if one of our tracked workflow states is a FSC state. If yes, go out of that state.
+    /// </summary>
+    protected void StepOutOfFSC()
+    {
+      for (int i = 0; i < _playerWfStateInstances.Count; i++)
+      {
+        PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
+        if (wfStateInstance.WFStateType == PlayerWFStateType.FullscreenContent)
+        { // Found FSC state - step out of it
+          ServiceRegistration.Get<ILogger>().Debug("PlayerContextManager: Leaving FSC Workflow State '{0}'", wfStateInstance.WFStateId);
+          lock (SyncObj)
+            // Remove all workflow states until the removed player workflow state
+            _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
+          ServiceRegistration.Get<IWorkflowManager>().NavigatePopToState(wfStateInstance.WFStateId, true);
+          return;
+        }
+      }
     }
 
     /// <summary>
