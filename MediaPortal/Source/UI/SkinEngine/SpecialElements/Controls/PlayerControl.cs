@@ -99,6 +99,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _mediaItemTitleProperty;
     protected AbstractProperty _nextMediaItemTitleProperty;
     protected AbstractProperty _hasNextMediaItemProperty;
+    protected AbstractProperty _hasAudioProperty;
     protected AbstractProperty _volumeProperty;
     protected AbstractProperty _isAudioProperty;
     protected AbstractProperty _isMutedProperty;
@@ -161,6 +162,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
       _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
       _hasNextMediaItemProperty = new SProperty(typeof(bool), false);
+      _hasAudioProperty = new SProperty(typeof(bool), true);
       _volumeProperty = new SProperty(typeof(int), 0);
       _isAudioProperty = new SProperty(typeof(bool), false);
       _isMutedProperty = new SProperty(typeof(bool), false);
@@ -415,6 +417,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
           NextMediaItemTitle = string.Empty;
           HasNextMediaItem = false;
+          HasAudio = false;
           IsAudio = false;
           IsPlaying = false;
           IsPaused = false;
@@ -451,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer || player is IPicturePlayer;
+          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && (player is IVideoPlayer || player is IPicturePlayer);
           string pcName = playerContext == null ? NO_PLAYER_RESOURCE : LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
           Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;
@@ -481,6 +484,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           IVolumeControl volumeControl = player as IVolumeControl;
           Volume = volumeControl != null ? volumeControl.Volume : 0;
 
+          HasAudio = player is IAudioPlayer || player is IVideoPlayer;
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
           IsAudio = playerSlotController.IsAudioSlot;
           IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
@@ -631,18 +635,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     #endregion
-
-    public override void Allocate()
-    {
-      base.Allocate();
-      StartTimer();
-    }
-
-    public override void Deallocate()
-    {
-      base.Deallocate();
-      StopTimer();
-    }
 
     #region Public members to be accessed via the GUI
 
@@ -813,6 +805,20 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _hasNextMediaItemProperty.GetValue(); }
       set { _hasNextMediaItemProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasAudioProperty
+    {
+      get { return _hasAudioProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information if the slot with the <see cref="SlotIndex"/> can provide an audio signal.
+    /// </summary>
+    public bool HasAudio
+    {
+      get { return (bool) _hasAudioProperty.GetValue(); }
+      internal set { _hasAudioProperty.SetValue(value); }
     }
 
     public AbstractProperty VolumeProperty
@@ -1476,6 +1482,22 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       playerContextManager.SwitchPipPlayers();
       // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
       // if necessary
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      StartTimer();
+    }
+
+    public override void Deallocate()
+    {
+      base.Deallocate();
+      StopTimer();
     }
 
     #endregion
