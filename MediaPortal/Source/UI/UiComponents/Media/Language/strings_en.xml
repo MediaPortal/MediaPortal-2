@@ -229,4 +229,10 @@
     <String Name="PictureMeteringModeLabel" Text="Metering mode"/>
     <String Name="PictureExposureTimeLabel" Text="Exposure time"/>
   </Section>
+  <Section Name="Settings">
+    <String Name="Players" Text="Players"/>
+
+    <String Name="Players.ClosePlayersWhenFinished" Text="Close players when finished"/>
+    <String Name="Players.ClosePlayersWhenFinished.Help" Text="Enable this setting to make MediaPortal close finished players automatically"/>
+  </Section>
 </Language>

@@ -134,6 +134,7 @@
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
+    <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
   </ItemGroup>
   <ItemGroup>
