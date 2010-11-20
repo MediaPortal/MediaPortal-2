@@ -287,8 +287,16 @@ namespace MediaPortal.UiComponents.Media.Models
         if (_currentResourceLocator != _player.CurrentPictureResourceLocator)
         {
           IResourceLocator locator = _player.CurrentPictureResourceLocator;
-          using (ILocalFsResourceAccessor fsResourceAccessor = locator.CreateLocalFsAccessor())
-            PictureSource = fsResourceAccessor.LocalFileSystemPath;
+          if (locator != null)
+            try
+            {
+              using (ILocalFsResourceAccessor fsResourceAccessor = locator.CreateLocalFsAccessor())
+                PictureSource = fsResourceAccessor.LocalFileSystemPath;
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Error("PicturePlayerUIContributor: Could not create local FS resource accessor for {0}", e, locator);
+            }
           _currentResourceLocator = locator;
         }
 
