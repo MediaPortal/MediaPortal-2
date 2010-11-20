@@ -28,6 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Xaml;
 using SlimDX;
 using SlimDX.Direct3D9;
 using SizeF = System.Drawing.SizeF;
@@ -154,6 +155,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         element.SetScreen(Screen);
         element.VisualParent = this;
+        if (element.TemplateNameScope == null)
+          // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
+          // which normally sets the TemplateNameScope.
+          element.TemplateNameScope = new NameScope();
       }
       _initializedTemplateControl = element;
       InvalidateLayout();
