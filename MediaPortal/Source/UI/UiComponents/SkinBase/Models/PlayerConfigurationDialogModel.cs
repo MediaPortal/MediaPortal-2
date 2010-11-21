@@ -175,6 +175,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    /// <summary>
+    /// Gets a name for a player context.
+    /// </summary>
+    /// <param name="playerContextManager">Player context manager.</param>
+    /// <param name="playerSlot">Number of the player slot, <c>0</c> to <c>1</c>.</param>
+    /// <returns></returns>
     protected static string GetNameForPlayerContext(IPlayerContextManager playerContextManager, int playerSlot)
     {
       IPlayerContext pc = playerContextManager.GetPlayerContext(playerSlot);
@@ -185,7 +191,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         IResourceString playerOfType = LocalizationHelper.CreateResourceString(RES_PLAYER_OF_TYPE); // "{0} player"
         IResourceString slotNo = LocalizationHelper.CreateResourceString(RES_SLOT_NO); // "Slot #{0}"
-        return playerOfType.Evaluate(pc.AVType.ToString()) + " (" + slotNo.Evaluate(playerSlot.ToString()) + ")"; // "Video player (Slot #1)"
+        return playerOfType.Evaluate(pc.AVType.ToString()) + " (" + slotNo.Evaluate((playerSlot + 1).ToString()) + ")"; // "Video player (Slot #1)"
       }
       return player.Name + ": " + player.MediaItemTitle;
     }
