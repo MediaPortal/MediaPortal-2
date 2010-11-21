@@ -182,7 +182,7 @@ namespace MediaPortal.UI.Views
             ProviderResourceAspect.Metadata);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
-      return new MediaItem(Guid.NewGuid(), aspects);
+      return new MediaItem(Guid.Empty, aspects);
     }
   }
 }
