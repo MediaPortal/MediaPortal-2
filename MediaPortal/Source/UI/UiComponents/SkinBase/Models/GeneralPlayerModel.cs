@@ -33,7 +33,8 @@ using MediaPortal.UI.Presentation.Screens;
 namespace MediaPortal.UiComponents.SkinBase.Models
 {
   /// <summary>
-  /// This model controls the global volume.
+  /// This model provides properties for the global volume and mute state. It also provides methods for global player
+  /// commands. For player slot specific commands, the SkinEngine's <c>PlayerControl</c> should be used.
   /// </summary>
   public class GeneralPlayerModel : BaseMessageControlledModel
   {

@@ -28,7 +28,6 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.General;
@@ -45,7 +44,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected MediaWorkflowStateType _mediaWorkflowStateType;
     protected IPicturePlayer _player;
-    protected IResourceLocator _currentResourceLocator = null;
     protected AbstractProperty _pictureWidthProperty;
     protected AbstractProperty _pictureHeightProperty;
     protected AbstractProperty _pictureMakeProperty;
@@ -57,8 +55,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _pictureDimensionsProperty;
     protected AbstractProperty _pictureISOSpeedProperty;
     protected AbstractProperty _pictureMeteringModeProperty;
-    protected AbstractProperty _pictureSourceProperty;
-    protected AbstractProperty _pictureRotationProperty;
 
     #endregion
 
@@ -74,28 +70,6 @@ namespace MediaPortal.UiComponents.Media.Models
     public IPicturePlayer PicturePlayerInstance
     {
       get { return _player; }
-    }
-
-    public AbstractProperty PictureSourceProperty
-    {
-      get { return _pictureSourceProperty; }
-    }
-
-    public string PictureSource
-    {
-      get { return (string) _pictureSourceProperty.GetValue(); }
-      set { _pictureSourceProperty.SetValue(value); }
-    }
-
-    public AbstractProperty PictureRotationProperty
-    {
-      get { return _pictureRotationProperty; }
-    }
-
-    public int PictureRotation
-    {
-      get { return (int) _pictureRotationProperty.GetValue(); }
-      set { _pictureRotationProperty.SetValue(value); }
     }
 
     #region Picture Metadata related properties
@@ -254,9 +228,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _mediaWorkflowStateType = stateType;
       _player = player as IPicturePlayer;
 
-      _pictureRotationProperty = new WProperty(typeof(int), 0);
-      _pictureSourceProperty = new WProperty(typeof(string), string.Empty);
-
       _pictureWidthProperty = new WProperty(typeof(int), null);
       _pictureHeightProperty = new WProperty(typeof(int), null);
       _pictureMakeProperty = new WProperty(typeof(string), string.Empty);
@@ -284,22 +255,6 @@ namespace MediaPortal.UiComponents.Media.Models
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(_slotIndex);
 
-        if (_currentResourceLocator != _player.CurrentPictureResourceLocator)
-        {
-          IResourceLocator locator = _player.CurrentPictureResourceLocator;
-          if (locator != null)
-            try
-            {
-              using (ILocalFsResourceAccessor fsResourceAccessor = locator.CreateLocalFsAccessor())
-                PictureSource = fsResourceAccessor.LocalFileSystemPath;
-            }
-            catch (Exception e)
-            {
-              ServiceRegistration.Get<ILogger>().Error("PicturePlayerUIContributor: Could not create local FS resource accessor for {0}", e, locator);
-            }
-          _currentResourceLocator = locator;
-        }
-
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
         MediaItemAspect pictureAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
@@ -315,7 +270,6 @@ namespace MediaPortal.UiComponents.Media.Models
           PictureFNumber = string.Empty;
           PictureFlashMode = string.Empty;
           PictureMeteringMode = string.Empty;
-          PictureRotation = 0;
         }
         else
         {
@@ -327,10 +281,6 @@ namespace MediaPortal.UiComponents.Media.Models
           PictureFNumber = (string) pictureAspect[PictureAspect.ATTR_FNUMBER];
           PictureFlashMode = (string) pictureAspect[PictureAspect.ATTR_FLASH_MODE];
           PictureMeteringMode = (string) pictureAspect[PictureAspect.ATTR_METERING_MODE];
-
-          Int32 rotationDegree;
-          PictureAspect.OrientationToDegrees((int) pictureAspect[PictureAspect.ATTR_ORIENTATION], out rotationDegree);
-          PictureRotation = rotationDegree;
         }
       }
       catch (Exception e)
