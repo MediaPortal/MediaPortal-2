@@ -27,6 +27,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Settings;
+using MediaPortal.Utilities;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Settings;
@@ -90,7 +91,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         return false;
 
       IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = Path.GetExtension(accessor.ResourcePathName);
+      string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
 
       BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
       return settings.SupportedExtensions.IndexOf(ext) > -1;

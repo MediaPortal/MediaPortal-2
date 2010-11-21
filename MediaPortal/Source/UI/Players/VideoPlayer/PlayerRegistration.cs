@@ -26,11 +26,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Players.Video
 {
   public class PlayerRegistration
   {
+    /// <summary>
+    /// List of (lower-case!) extensions which are played with one of our players.
+    /// TODO: Move to settings like in PicturePlayer and BassPlayer.
+    /// </summary>
     public static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
     public static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();
 
@@ -56,7 +61,7 @@ namespace MediaPortal.UI.Players.Video
     public static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
     {
       string path = locator.NativeResourcePath.LastPathSegment.Path;
-      string extension = Path.GetExtension(path).ToLowerInvariant();
+      string extension = StringUtils.TrimToEmpty(Path.GetExtension(path)).ToLowerInvariant();
 
       Type playerType;
       if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))

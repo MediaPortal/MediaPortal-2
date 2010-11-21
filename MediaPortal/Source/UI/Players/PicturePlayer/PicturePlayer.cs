@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Players.Picture
 {
@@ -208,10 +209,10 @@ namespace MediaPortal.UI.Players.Picture
         return false;
 
       IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = Path.GetExtension(accessor.ResourcePathName);
+      string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
 
       PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
-      return settings.SupportedExtensions.Find(t => t.ToLowerInvariant() == ext.ToLowerInvariant()) != null;
+      return settings.SupportedExtensions.IndexOf(ext) > -1;
     }
 
     #endregion

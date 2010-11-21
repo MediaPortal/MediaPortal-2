@@ -169,6 +169,9 @@ namespace Ui.Players.BassPlayer.Settings
       set { _CrossFadeEnabled = value; }
     }
 
+    /// <summary>
+    /// Gets or sets the (lower-case!) list of extensions which will be played with this player.
+    /// </summary>
     [Setting(SettingScope.Global)]
     public List<string> SupportedExtensions
     {

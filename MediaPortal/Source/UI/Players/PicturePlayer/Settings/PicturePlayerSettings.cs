@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.UI.Players.Picture.Settings
@@ -49,6 +50,9 @@ namespace MediaPortal.UI.Players.Picture.Settings
       set { _slideShowImageDuration = value; }
     }
 
+    /// <summary>
+    /// Gets or sets a list of (lower-case!) extensions which are played with this picture player.
+    /// </summary>
     [Setting(SettingScope.Global)]
     public List<string> SupportedExtensions
     {
