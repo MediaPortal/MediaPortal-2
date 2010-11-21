@@ -211,7 +211,7 @@ namespace MediaPortal.UI.Players.Picture
       string ext = Path.GetExtension(accessor.ResourcePathName);
 
       PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
-      return settings.SupportedExtensions.IndexOf(ext) > -1;
+      return settings.SupportedExtensions.Find(t => t.ToLowerInvariant() == ext.ToLowerInvariant()) != null;
     }
 
     #endregion
