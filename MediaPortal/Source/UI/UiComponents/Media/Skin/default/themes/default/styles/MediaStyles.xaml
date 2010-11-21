@@ -331,12 +331,16 @@
               </DockPanel> <!-- HeadLine -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="10,10,10,0"
                   IsVisible="{Binding ShowMouseControls}" >
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                    Command="{Command Previous}"/>
                 <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                     Command="{Command Play}"/>
                 <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                     Command="{Command Pause}"/>
                 <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                     Command="{Command Stop}"/>
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                    Command="{Command Next}"/>
               </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
           </Border> <!-- OSD_Background -->
