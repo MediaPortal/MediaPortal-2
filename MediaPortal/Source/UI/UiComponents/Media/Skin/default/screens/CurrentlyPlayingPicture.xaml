@@ -14,7 +14,7 @@
 
     <ResourceWrapper x:Key="Contents_Element">
       <GroupBox Header="[Media.PictureCurrentlyPlayingInformation]" Style="{ThemeResource ContentGroupBoxStyle}">
-        <Grid Margin="20" Context="{StaticResource Model}"
+        <Grid Margin="20" DataContext="{Binding Source={StaticResource Model},Path=PlayerUIContributor}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -30,25 +30,25 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="PictureDimensionsLabel" Grid.Row="0" Grid.Column="0" Content="[Media.PictureDimensions]"/>
-          <Label x:Name="PictureDimensions" Grid.Row="0" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureDimensions}"/>
+          <Label x:Name="PictureDimensions" Grid.Row="0" Grid.Column="1" Content="{Binding PictureDimensions}"/>
 
           <Label x:Name="PictureMakeLabel" Grid.Row="1" Grid.Column="0" Content="[Media.PictureMake]"/>
-          <Label x:Name="PictureMake" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding PlayerUIContributor.PictureMake}"/>
+          <Label x:Name="PictureMake" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding PictureMake}"/>
 
           <Label x:Name="PictureModelLabel" Grid.Row="2" Grid.Column="0" Content="[Media.PictureModel]"/>
-          <Label x:Name="PictureModel" Grid.Row="2" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureModel}"/>
+          <Label x:Name="PictureModel" Grid.Row="2" Grid.Column="1" Content="{Binding PictureModel}"/>
 
           <Label x:Name="PictureISOSpeedLabel" Grid.Row="3" Grid.Column="0" Content="[Media.PictureISOSpeedLabel]"/>
-          <Label x:Name="PictureISOSpeed" Grid.Row="3" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureISOSpeed}"/>
+          <Label x:Name="PictureISOSpeed" Grid.Row="3" Grid.Column="1" Content="{Binding PictureISOSpeed}"/>
 
           <Label x:Name="PictureExposureTimeLabel" Grid.Row="4" Grid.Column="0" Content="[Media.PictureExposureTimeLabel]"/>
-          <Label x:Name="PictureExposureTime" Grid.Row="4" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureExposureTime}"/>
+          <Label x:Name="PictureExposureTime" Grid.Row="4" Grid.Column="1" Content="{Binding PictureExposureTime}"/>
 
           <Label x:Name="PictureFNumberLabel" Grid.Row="5" Grid.Column="0" Content="[Media.PictureFNumberLabel]"/>
-          <Label x:Name="PictureFNumber" Grid.Row="5" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureFNumber}"/>
+          <Label x:Name="PictureFNumber" Grid.Row="5" Grid.Column="1" Content="{Binding PictureFNumber}"/>
 
           <Label x:Name="PictureMeteringModeLabel" Grid.Row="6" Grid.Column="0" Content="[Media.PictureMeteringModeLabel]"/>
-          <Label x:Name="PictureMeteringMode" Grid.Row="6" Grid.Column="1" Content="{Binding PlayerUIContributor.PictureMeteringMode}"/>
+          <Label x:Name="PictureMeteringMode" Grid.Row="6" Grid.Column="1" Content="{Binding PictureMeteringMode}"/>
         </Grid>
       </GroupBox>
     </ResourceWrapper>

@@ -260,21 +260,21 @@
 
                 <!-- DVD specific feature buttons -->
                 <StackPanel x:Name="DvdButtons" Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Context="{StaticResource VideoPlayerModel}">
+                    DataContext="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor}">
                   <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0" 
-                      Command="{Command PlayerUIContributor.ShowDvdMenu}"/>
+                      Command="{Command ShowDvdMenu}"/>
                   <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding PlayerUIContributor.ChaptersAvailable}"
-                      Command="{Command PlayerUIContributor.PrevChapter}"/>
+                      IsVisible="{Binding ChaptersAvailable}"
+                      Command="{Command PrevChapter}"/>
                   <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding PlayerUIContributor.ChaptersAvailable}"
-                      Command="{Command PlayerUIContributor.OpenChooseChapterDialog}"/>
+                      IsVisible="{Binding ChaptersAvailable}"
+                      Command="{Command OpenChooseChapterDialog}"/>
                   <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding PlayerUIContributor.ChaptersAvailable}"
-                      Command="{Command PlayerUIContributor.NextChapter}"/>
+                      IsVisible="{Binding ChaptersAvailable}"
+                      Command="{Command NextChapter}"/>
                   <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding PlayerUIContributor.SubtitlesAvailable}"
-                      Command="{Command PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                      IsVisible="{Binding SubtitlesAvailable}"
+                      Command="{Command OpenChooseSubtitleDialog}"/>
                 </StackPanel> <!-- DvdButtons -->
               </StackPanel> <!-- PlayControlsPanel -->
               <!-- PlayControlsPanel -->
