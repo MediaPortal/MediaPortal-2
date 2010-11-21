@@ -43,7 +43,7 @@
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Finish]" IsEnabled="{Binding IsPlaylistNameValid}"
+              Content="[System.Continue]" IsEnabled="{Binding IsPlaylistNameValid}"
               Command="{Command SavePlaylistAndFinish}"/>
         </Grid>
       </Grid>
