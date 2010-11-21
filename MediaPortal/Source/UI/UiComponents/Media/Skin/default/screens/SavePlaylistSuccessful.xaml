@@ -24,7 +24,8 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Wrap="True"/>
+        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Wrap="True"
+            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -34,11 +35,8 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Back]" IsEnabled="False"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="OkButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Finish]"
+              Content="[System.Ok]"
               Command="{Command NavigateRemovePlaylistSaveWorkflow}"/>
         </Grid>
       </Grid>

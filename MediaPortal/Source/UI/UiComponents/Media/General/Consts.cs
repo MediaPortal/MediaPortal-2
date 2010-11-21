@@ -51,7 +51,6 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_PLAYLISTS_OVERVIEW = "4A0981A3-2051-46f7-89ED-2DD3A9237DE9";
     public const string STR_WF_STATE_ID_PLAYLIST_INFO = "00E50877-E3BF-4361-A57D-15F5B495FDEF";
     public const string STR_WF_STATE_ID_PLAYLISTS_REMOVE = "BF716CDF-638C-4716-98F8-935FA85BC4D8";
-    public const string STR_WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS = "D4901494-4CC9-4321-B48B-34444473E173";
     public const string STR_WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION = "D41DC5C7-71B0-4bf5-AE8E-FE2F3BC04FF1";
     public const string STR_WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME = "A967AEC6-C470-4ef6-B034-F192983AA02E";
 
@@ -82,7 +81,6 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_PLAYLISTS_OVERVIEW = new Guid(STR_WF_STATE_ID_PLAYLISTS_OVERVIEW);
     public static readonly Guid WF_STATE_ID_PLAYLIST_INFO = new Guid(STR_WF_STATE_ID_PLAYLIST_INFO);
     public static readonly Guid WF_STATE_ID_PLAYLISTS_REMOVE = new Guid(STR_WF_STATE_ID_PLAYLISTS_REMOVE);
-    public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS);
     public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION);
     public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
 
@@ -185,6 +183,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SAVE_PL_AT_SERVER = "[Media.SavePLAtServer]";
 
     public const string RES_SAVE_PLAYLIST_FAILED_TEXT = "[Media.SavePlaylistFailedText]";
+    public const string RES_SAVE_PLAYLIST_FAILED_LOCAL_MEDIAITEMS_TEXT = "[Media.CannotSavePlaylistWithLocalMediaItems]";
     public const string RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT = "[Media.SavePlaylistLocalSuccessfulText]";
     public const string RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT = "[Media.SavePlaylistServerSuccessfulText]";
 
@@ -265,6 +264,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_PLAYLIST_LOCATION = "PlaylistLocation";
     public const string KEY_PLAYLIST_AV_TYPE = "PlaylistAVType";
     public const string KEY_PLAYLIST_DATA = "PlaylistData";
+    public const string KEY_MESSAGE = "Message";
 
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";

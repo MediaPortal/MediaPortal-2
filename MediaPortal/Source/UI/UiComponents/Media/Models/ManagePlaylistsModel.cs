@@ -141,6 +141,7 @@ namespace MediaPortal.UiComponents.Media.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             UpdateProperties();
+            UpdatePlaylistLocations();
             UpdatePlaylists(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
@@ -149,6 +150,7 @@ namespace MediaPortal.UiComponents.Media.Models
             else
             {
               UpdateProperties();
+              UpdatePlaylistLocations();
               UpdatePlaylists(false);
             }
             break;
@@ -327,8 +329,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       catch (Exception e)
       {
-        _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_TEXT, e.Message);
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED);
+        SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_TEXT, e.Message));
       }
     }
 
@@ -403,7 +404,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION, true);
-      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS, true);
+      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED, true);
     }
 
     public void NavigateBackToOverview()
@@ -450,13 +451,25 @@ namespace MediaPortal.UiComponents.Media.Models
       playlist.ExportPlaylistRawData(playlistData);
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (ContainsLocalMediaItems(playlistData))
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS);
+        SaveFailed(Consts.RES_SAVE_PLAYLIST_FAILED_LOCAL_MEDIAITEMS_TEXT);
       else
         workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION, new NavigationContextConfig
           {
               AdditionalContextVariables = new Dictionary<string, object>
                 {
                     {Consts.KEY_PLAYLIST_DATA, playlistData}
+                }
+          });
+    }
+
+    public static void SaveFailed(string errorMessage)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED, new NavigationContextConfig
+          {
+              AdditionalContextVariables = new Dictionary<string, object>
+                {
+                    {Consts.KEY_MESSAGE, errorMessage}
                 }
           });
     }
@@ -626,8 +639,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
         _localPlaylistsHandler = new LocalPlaylists();
         _localPlaylistsHandler.Refresh();
-
-        UpdatePlaylistLocations();
       }
       finally
       {
@@ -678,12 +689,9 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       if (!push)
         return;
-      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS)
+      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION)
       {
-        // Nothing to do
-      }
-      else if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION)
-      {
+        UpdatePlaylistLocations();
         _playlist = GetCurrentPlaylist(navigationContext);
         _playlistLocation = PlaylistLocation.None;
       }
@@ -697,8 +705,13 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       else if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED)
       {
-        // Nothing to do
+        _message = GetMessage(navigationContext);
       }
+    }
+
+    protected string GetMessage(NavigationContext navigationContext)
+    {
+      return (string) navigationContext.GetContextVariable(Consts.KEY_MESSAGE, false);
     }
 
     protected PlaylistBase GetCurrentPlaylist(NavigationContext navigationContext)
@@ -734,8 +747,6 @@ namespace MediaPortal.UiComponents.Media.Models
         return true;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_INFO)
         return GetCurrentPlaylist(newContext) != null && GetCurrentPlaylistLocation(newContext) != null;
-      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CANNOT_SAVE_LOCAL_ITEMS)
-        return true;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION)
         return GetCurrentPlaylist(newContext) is PlaylistRawData;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME)

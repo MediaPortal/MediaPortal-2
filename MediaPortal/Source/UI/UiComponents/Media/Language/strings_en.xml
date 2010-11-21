@@ -52,7 +52,6 @@
     <String Name="PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel" Text="Playlists"/>
     <String Name="PlaylistInfoWorkflowStateNavigationContextDisplayLabel" Text="Playlist info"/>
     <String Name="RemovePlaylistsWorkflowStateNavigationContextDisplayLabel" Text="Remove playlists"/>
-    <String Name="SavePlaylistCannotSaveLocalMediaItemsWorkflowStateNavigationContextDisplayLabel" Text="Failed"/>
     <String Name="SavePlaylistChooseLocationWorkflowStateNavigationContextDisplayLabel" Text="Choose location"/>
     <String Name="SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel" Text="Edit playlist name"/>
     <String Name="SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel" Text="Successful"/>
@@ -68,7 +67,6 @@
     <String Name="PicturesHeader" Text="Pictures"/>
 
     <String Name="PlaylistsOverviewHeader" Text="Playlists"/>
-    <String Name="SavePlaylistCannotSaveLocalMediaItemsHeader" Text="Save playlist"/>
     <String Name="SavePlaylistChooseLocationHeader" Text="Save playlist"/>
     <String Name="SavePlaylistEditNameHeader" Text="Save playlist"/>
     <String Name="SavePlaylistFailedHeader" Text="Save playlist"/>

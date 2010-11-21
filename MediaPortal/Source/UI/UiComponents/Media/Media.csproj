@@ -176,7 +176,6 @@
     <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
     <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
     <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
-    <Content Include="Skin\default\screens\SavePlaylistCannotSaveLocalMediaItems.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
