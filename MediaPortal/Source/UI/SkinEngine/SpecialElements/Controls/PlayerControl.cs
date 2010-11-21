@@ -51,25 +51,25 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
   {
     #region Consts
 
-    public const string NO_MEDIA_ITEM_RESOURCE = "[PlayerControl.NoMediaItem]";
-    public const string NO_PLAYER_RESOURCE = "[PlayerControl.NoPlayer]";
-    public const string PLAYER_PLAYING_RESOURCE = "[PlayerControl.Playing]";
-    public const string PLAYER_PAUSED_RESOURCE = "[PlayerControl.Paused]";
-    public const string PLAYER_SEEKING_FORWARD_RESOURCE = "[PlayerControl.SeekingForward]";
-    public const string PLAYER_SEEKING_BACKWARD_RESOURCE = "[PlayerControl.SeekingBackward]";
-    public const string PLAYER_SLOWMOTION_BACKWARD_RESOURCE = "[PlayerControl.SlowMotionBackward]";
-    public const string PLAYER_SLOWMOTION_FORWARD_RESOURCE = "[PlayerControl.SlowMotionForward]";
-    public const string PLAYER_STOPPED_RESOURCE = "[PlayerControl.Stopped]";
-    public const string PLAYER_ENDED_RESOURCE = "[PlayerControl.Ended]";
-    public const string PLAYER_ACTIVE_RESOURCE = "[PlayerControl.Active]";
-    public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
-    public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
-    public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
-    public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPiP]";
-    public const string PLAYBACK_RATE_HINT_RESOURCE = "[PlayerControl.PlaybackRateHint]";
+    public const string RES_NO_MEDIA_ITEM = "[PlayerControl.NoMediaItem]";
+    public const string RES_NO_PLAYER = "[PlayerControl.NoPlayer]";
+    public const string RES_PLAYER_PLAYING = "[PlayerControl.Playing]";
+    public const string RES_PLAYER_PAUSED = "[PlayerControl.Paused]";
+    public const string RES_PLAYER_SEEKING_FORWARD = "[PlayerControl.SeekingForward]";
+    public const string RES_PLAYER_SEEKING_BACKWARD = "[PlayerControl.SeekingBackward]";
+    public const string RES_PLAYER_SLOWMOTION_BACKWARD = "[PlayerControl.SlowMotionBackward]";
+    public const string RES_PLAYER_SLOWMOTION_FORWARD = "[PlayerControl.SlowMotionForward]";
+    public const string RES_PLAYER_STOPPED = "[PlayerControl.Stopped]";
+    public const string RES_PLAYER_ENDED = "[PlayerControl.Ended]";
+    public const string RES_PLAYER_ACTIVE = "[PlayerControl.Active]";
+    public const string RES_UNKNOWN_MEDIA_ITEM = "[PlayerControl.UnknownMediaItem]";
+    public const string RES_UNKNOWN_PLAYER_CONTEXT_NAME = "[PlayerControl.UnknownPlayerContextName]";
+    public const string RES_HEADER_NORMAL = "[PlayerControl.HeaderNormal]";
+    public const string RES_HEADER_PIP = "[PlayerControl.HeaderPiP]";
+    public const string RES_PLAYBACK_RATE_HINT = "[PlayerControl.PlaybackRateHint]";
 
-    public const string PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
-    public static Guid PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID = new Guid(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR);
+    public const string STR_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
+    public static Guid STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG);
 
     public const string KEY_PLAYER_SLOT = "PlayerSlot";
     public const string KEY_SHOW_MUTE = "ShowMute";
@@ -81,9 +81,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     #region Protected fields
 
     // Direct properties/fields
-    protected AbstractProperty _slotIndexProperty;
+    protected AbstractProperty _playerContextProperty;
     protected AbstractProperty _autoVisibilityProperty;
-    protected bool _stickToPlayerContext;
     protected float _fixedVideoWidth;
     protected float _fixedVideoHeight;
     protected Timer _timer;
@@ -159,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void Init()
     {
-      _slotIndexProperty = new SProperty(typeof(int), 0);
+      _playerContextProperty = new SProperty(typeof(PlayerChoice), PlayerChoice.PrimaryPlayer);
       _autoVisibilityProperty = new SProperty(typeof(bool), false);
       _isPlayerPresentProperty = new SProperty(typeof(bool), false);
       _isVideoPlayerPresentProperty = new SProperty(typeof(bool), false);
@@ -192,7 +191,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _canSeekBackwardProperty = new SProperty(typeof(bool), false);
       _isPlayerActiveProperty = new SProperty(typeof(bool), false);
       _isPipProperty = new SProperty(typeof(bool), false);
-      _stickToPlayerContext = false;
       _fixedVideoWidth = 0f;
       _fixedVideoHeight = 0f;
       _videoWidthProperty = new SProperty(typeof(float), 0f);
@@ -213,21 +211,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _timer = new Timer(200) {Enabled = false};
       _timer.Elapsed += OnTimerElapsed;
 
-      _headerNormalResource = LocalizationHelper.CreateResourceString(HEADER_NORMAL_RESOURCE);
-      _headerPiPResource = LocalizationHelper.CreateResourceString(HEADER_PIP_RESOURCE);
-      _playbackRateHintResource = LocalizationHelper.CreateResourceString(PLAYBACK_RATE_HINT_RESOURCE);
+      _headerNormalResource = LocalizationHelper.CreateResourceString(RES_HEADER_NORMAL);
+      _headerPiPResource = LocalizationHelper.CreateResourceString(RES_HEADER_PIP);
+      _playbackRateHintResource = LocalizationHelper.CreateResourceString(RES_PLAYBACK_RATE_HINT);
     }
 
     void Attach()
     {
-      _slotIndexProperty.Attach(OnPropertyChanged);
+      _playerContextProperty.Attach(OnPropertyChanged);
       _autoVisibilityProperty.Attach(OnPropertyChanged);
       _isMutedProperty.Attach(OnMuteChanged);
     }
 
     void Detach()
     {
-      _slotIndexProperty.Detach(OnPropertyChanged);
+      _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
     }
 
@@ -237,9 +235,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       base.DeepCopy(source, copyManager);
       PlayerControl pc = (PlayerControl) source;
 
-      SlotIndex = pc.SlotIndex;
+      PlayerContext = pc.PlayerContext;
       AutoVisibility = pc.AutoVisibility;
-      _stickToPlayerContext = pc._stickToPlayerContext;
       _fixedVideoWidth = pc._fixedVideoWidth;
       _fixedVideoHeight = pc._fixedVideoHeight;
 
@@ -318,13 +315,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
-      {
-        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
-        if (messageType == PlayerManagerMessaging.MessageType.PlayerSlotsChanged && _stickToPlayerContext)
-          SlotIndex = 1 - SlotIndex; // Will trigger an Update
-        else
-          UpdateProperties();
-      }
+        UpdateProperties();
       else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
         UpdateProperties();
       else if (message.ChannelName == SystemMessaging.CHANNEL)
@@ -345,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected IPlayerContext GetPlayerContext()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      return playerContextManager.GetPlayerContext(SlotIndex);
+      return playerContextManager.GetPlayerContext(PlayerContext);
     }
 
     protected void CheckShowMouseControls()
@@ -395,6 +386,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _currentPictureResourceAccessor = null;
     }
 
+    // Hack! The following code was copied from PlayerConfigurationDialogModel.OpenAudioMenuDialog.
+    // Actually, we are now allowed to access the SkinBase plugin, because we have not declared an explicit dependency...
+    protected static void OpenAudioMenuDialog(int slotIndex, bool showMute)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, new NavigationContextConfig
+        {
+          AdditionalContextVariables = new Dictionary<string, object>
+            {
+                {KEY_PLAYER_SLOT, slotIndex},
+                {KEY_SHOW_MUTE, showMute}
+            }
+        });
+    }
+
     protected void UpdateProperties()
     {
       if (_updating)
@@ -404,9 +410,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       {
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(SlotIndex);
-        IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
-        IPlayer player = playerSlotController.CurrentPlayer;
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerContext);
+        IPlayerSlotController playerSlotController = playerContext == null ? null : playerContext.PlayerSlotController;
+        IPlayer player = playerSlotController == null ? null : playerSlotController.CurrentPlayer;
+        int slotIndex = playerSlotController == null ? -1 : playerSlotController.SlotIndex;
 
         if (playerContext == null)
         {
@@ -473,8 +480,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           audioAspect = null;
         if (player == null)
         {
-          Title = playerContext == null ? NO_PLAYER_RESOURCE : playerContext.Name;
-          MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
+          Title = playerContext == null ? RES_NO_PLAYER : playerContext.Name;
+          MediaItemTitle = RES_NO_MEDIA_ITEM;
           NextMediaItemTitle = string.Empty;
           HasNextMediaItem = false;
           HasAudio = false;
@@ -514,8 +521,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && (player is IVideoPlayer || player is IPicturePlayer);
-          string pcName = playerContext == null ? NO_PLAYER_RESOURCE : LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
+          IsPip = slotIndex == PlayerManagerConsts.SECONDARY_SLOT && (player is IVideoPlayer || player is IPicturePlayer);
+          string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
           Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;
           if (mit == null)
@@ -523,10 +530,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             if (mediaAspect != null)
               mit = mediaAspect[MediaAspect.ATTR_TITLE] as string;
             if (mit == null)
-              mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
+              mit = RES_UNKNOWN_MEDIA_ITEM;
           }
           MediaItemTitle = mit;
-          MediaItem nextMediaItem = playerContext == null ? null : playerContext.Playlist[1];
+          MediaItem nextMediaItem = playerContext.Playlist[1];
           if (nextMediaItem == null)
           {
             NextMediaItemTitle = null;
@@ -547,7 +554,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           HasAudio = player is IAudioPlayer || player is IVideoPlayer;
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
           IsAudio = playerSlotController.IsAudioSlot;
-          IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
+          IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == slotIndex;
           TimeSpan currentTime = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.CurrentTime;
           TimeSpan duration = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.Duration;
           if (duration.TotalMilliseconds == 0)
@@ -573,19 +580,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               if (mediaPlaybackControl == null)
               {
                 playing = true;
-                PlayerStateText = PLAYER_ACTIVE_RESOURCE;
+                PlayerStateText = RES_PLAYER_ACTIVE;
               }
               else
               {
                 if (mediaPlaybackControl.IsPaused)
                 {
                   paused = true;
-                  PlayerStateText = PLAYER_PAUSED_RESOURCE;
+                  PlayerStateText = RES_PLAYER_PAUSED;
                 }
                 else if (mediaPlaybackControl.IsPlayingAtNormalRate)
                 {
                   playing = true;
-                  PlayerStateText = PLAYER_PLAYING_RESOURCE;
+                  PlayerStateText = RES_PLAYER_PLAYING;
                 }
                 else
                 {
@@ -595,23 +602,23 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
                   if (playbackRate > 1.0)
                   {
                     seekingForward = true;
-                    playerStateTextResource = PLAYER_SEEKING_FORWARD_RESOURCE;
+                    playerStateTextResource = RES_PLAYER_SEEKING_FORWARD;
                   }
                   else if (playbackRate < -1.0)
                   {
                     seekingBackward = true;
-                    playerStateTextResource = PLAYER_SEEKING_BACKWARD_RESOURCE;
+                    playerStateTextResource = RES_PLAYER_SEEKING_BACKWARD;
                   }
                   else if (playbackRate > 0.0)
                   {
                     seekingForward = true;
-                    playerStateTextResource = PLAYER_SLOWMOTION_FORWARD_RESOURCE;
+                    playerStateTextResource = RES_PLAYER_SLOWMOTION_FORWARD;
                     format = "0.#";
                   }
                   else // playbackRate < 0.0
                   {
                     seekingBackward = true;
-                    playerStateTextResource = PLAYER_SLOWMOTION_BACKWARD_RESOURCE;
+                    playerStateTextResource = RES_PLAYER_SLOWMOTION_BACKWARD;
                     format = "0.#";
                   }
                   seekHint = _playbackRateHintResource.Evaluate(string.Format("{0:" + format + "}", Math.Abs(playbackRate)));
@@ -620,10 +627,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
               }
               break;
             case PlayerState.Stopped:
-              PlayerStateText = PLAYER_STOPPED_RESOURCE;
+              PlayerStateText = RES_PLAYER_STOPPED;
               break;
             case PlayerState.Ended:
-              PlayerStateText = PLAYER_ENDED_RESOURCE;
+              PlayerStateText = RES_PLAYER_ENDED;
               break;
           }
           IsPlaying = playing;
@@ -675,7 +682,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         CheckShowMouseControls();
         if (AutoVisibility)
         {
-          bool isVisible = playerSlotController.IsActive;
+          bool isVisible = playerSlotController != null && playerSlotController.IsActive;
           SimplePropertyDataDescriptor dd;
           if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsVisible", out dd))
             SetValueInRenderThread(dd, isVisible);
@@ -700,19 +707,18 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #region Configuration properties, to be set from the outside
 
-    public AbstractProperty SlotIndexProperty
+    public AbstractProperty PlayerContextProperty
     {
-      get { return _slotIndexProperty; }
+      get { return _playerContextProperty; }
     }
 
     /// <summary>
-    /// Index of the underlaying player slot. Will be updated automatically if <see cref="StickToPlayerContext"/> is
-    /// set to <c>true</c> and the player manager changes its player slots.
+    /// Determines, which player's properties are tracked by this player control.
     /// </summary>
-    public int SlotIndex
+    public PlayerChoice PlayerContext
     {
-      get { return (int) _slotIndexProperty.GetValue(); }
-      set { _slotIndexProperty.SetValue(value); }
+      get { return (PlayerChoice) _playerContextProperty.GetValue(); }
+      set { _playerContextProperty.SetValue(value); }
     }
 
     public AbstractProperty AutoVisibilityProperty
@@ -728,16 +734,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _autoVisibilityProperty.GetValue(); }
       set { _autoVisibilityProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// If set to <c>true</c>, this <see cref="PlayerControl"/> will automatically change its <see cref="SlotIndex"/> when
-    /// the player slots get exchanged by the <see cref="IPlayerManager"/>.
-    /// </summary>
-    public bool StickToPlayerContext
-    {
-      get { return _stickToPlayerContext; }
-      set { _stickToPlayerContext = value; }
     }
 
     /// <summary>
@@ -873,7 +869,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Gets the information if the slot with the <see cref="SlotIndex"/> can provide an audio signal.
+    /// Gets the information if the current player context can provide an audio signal.
     /// </summary>
     public bool HasAudio
     {
@@ -901,7 +897,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Gets the information if the slot with the <see cref="SlotIndex"/> is the audio slot.
+    /// Gets the information if the current player context currently provides the audio signal.
     /// </summary>
     public bool IsAudio
     {
@@ -1408,28 +1404,22 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       IPlayerContext playerContext = GetPlayerContext();
+      if (playerContext == null)
+        return;
+      IPlayerSlotController psc = playerContext.PlayerSlotController;
       IList<AudioStreamDescriptor> audioStreamDescriptors =
           new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors());
+      int slotIndex = psc.SlotIndex;
       if (audioStreamDescriptors.Count <= 1)
         if (IsAudio)
           playerManager.Muted ^= true;
         else
         {
-          playerManager.AudioSlotIndex = SlotIndex;
+          playerManager.AudioSlotIndex = slotIndex;
           playerManager.Muted = false;
         }
       else
-      {
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new NavigationContextConfig
-          {
-            AdditionalContextVariables = new Dictionary<string, object>
-              {
-                  {KEY_PLAYER_SLOT, SlotIndex},
-                  {KEY_SHOW_MUTE, IsAudio}
-              }
-          });
-      }
+        OpenAudioMenuDialog(slotIndex, IsAudio);
     }
 
     /// <summary>
@@ -1557,7 +1547,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public void MakeCurrent()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      playerContextManager.CurrentPlayerIndex = SlotIndex;
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerContext);
+      if (pc == null)
+        return;
+      IPlayerSlotController psc = pc.PlayerSlotController;
+      if (psc == null)
+        return;
+      playerContextManager.CurrentPlayerIndex = psc.SlotIndex;
     }
 
     /// <summary>

@@ -48,6 +48,12 @@ namespace MediaPortal.UiComponents.Media.Models
       return typeof(DefaultAudioPlayerUIContributor);
     }
 
+    protected override void Update()
+    {
+      // base.Update is abstract
+      // Nothing to do here
+    }
+
     #region Members to be accessed from the GUI
 
     #endregion

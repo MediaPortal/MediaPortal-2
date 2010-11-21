@@ -34,7 +34,11 @@ namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for video players.
+  /// Contains the UI contributor and general properties about OSD.
   /// </summary>
+  /// <remarks>
+  /// <seealso cref="IPlayerUIContributor"/>
+  /// </remarks>
   public class VideoPlayerModel : BasePlayerModel
   {
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
@@ -43,22 +47,18 @@ namespace MediaPortal.UiComponents.Media.Models
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
 
     protected AbstractProperty _isOSDVisibleProperty;
-    protected AbstractProperty _pipWidthProperty;
-    protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isPipProperty;
 
     public VideoPlayerModel() : base(Consts.WF_STATE_ID_CURRENTLY_PLAYING_VIDEO, Consts.WF_STATE_ID_FULLSCREEN_VIDEO)
     {
       _isOSDVisibleProperty = new WProperty(typeof(bool), false);
-      _pipWidthProperty = new WProperty(typeof(float), 0f);
-      _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isPipProperty = new WProperty(typeof(bool), false);
       // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
     protected override void Update()
     {
-      base.Update();
+      // base.Update is abstract
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
@@ -66,9 +66,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
       IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < Consts.TS_VIDEO_INFO_TIMEOUT || _inactive;
       IsPip = pipPlayer != null;
-      PipHeight = Consts.DEFAULT_PIP_HEIGHT;
-      PipWidth = pipPlayer == null ? Consts.DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
-      CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
     protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
@@ -108,28 +105,6 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get { return (bool) _isPipProperty.GetValue(); }
       set { _isPipProperty.SetValue(value); }
-    }
-
-    public AbstractProperty PipWidthProperty
-    {
-      get { return _pipWidthProperty; }
-    }
-
-    public float PipWidth
-    {
-      get { return (float) _pipWidthProperty.GetValue(); }
-      set { _pipWidthProperty.SetValue(value); }
-    }
-
-    public AbstractProperty PipHeightProperty
-    {
-      get { return _pipHeightProperty; }
-    }
-
-    public float PipHeight
-    {
-      get { return (float) _pipHeightProperty.GetValue(); }
-      set { _pipHeightProperty.SetValue(value); }
     }
 
     public void ShowVideoInfo()

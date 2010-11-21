@@ -716,6 +716,9 @@ namespace MediaPortal.UI.Services.Players
           case PlayerChoice.CurrentPlayer:
             slotIndex = _currentPlayerIndex;
             break;
+          case PlayerChoice.NotCurrentPlayer:
+            slotIndex = 1 - _currentPlayerIndex;
+            break;
         }
         return GetPlayerContextInternal(slotIndex);
       }

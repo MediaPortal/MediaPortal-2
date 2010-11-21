@@ -14,7 +14,7 @@
   </Grid.RowDefinitions>
 
   <mp_special_controls:PlayerControl x:Name="FullscreenPicture" Grid.Column="0" Grid.Row="0"
-      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SlotIndex="0">
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
     <mp_special_controls:PlayerControl.TemplateControl>
       <Image Stretch="Uniform"
           DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -47,14 +47,13 @@
         IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
       <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource PrimaryPictureOSDStyle}"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          SlotIndex="0"/>
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     </DockPanel> <!-- OSD_LeftPanel -->
     <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource SecondaryMediaOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          AutoVisibility="true" SlotIndex="1"/>
+          AutoVisibility="true"/>
     </DockPanel> <!-- OSD_RightPanel -->
   </DockPanel> <!-- OSD_LayoutPanel -->
   <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>

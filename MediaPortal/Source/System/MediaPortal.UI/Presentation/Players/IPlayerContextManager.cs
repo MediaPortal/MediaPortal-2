@@ -100,6 +100,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// The player which is marked as "current player".
     /// </summary>
     CurrentPlayer,
+
+    /// <summary>
+    /// The player which is not marked as "current player".
+    /// </summary>
+    NotCurrentPlayer,
   }
 
   /// <summary>

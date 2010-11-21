@@ -41,15 +41,15 @@ namespace MediaPortal.UiComponents.Media.Models
   /// We group all kinds of players by their AV-Type (all kinds of video players form the "V"ideo group and all kinds of audio
   /// players form the "A"udio group). All media items which are played by a player of the video group can be together in
   /// one single playlist and all audio media items can be in a single playlist.
-  /// That given, the situation is that while advancing in a single playlist, multiple player types can be shown in a sequence;
-  /// normal video players, image players, DVD players, subtitled players etc.
+  /// So, while advancing in a single playlist, multiple player types can be shown in a sequence; normal video players,
+  /// image players, DVD players, subtitled players etc.
   /// All those players need special FSC and CP screens because they need to present different information and functions to the
-  /// user.
+  /// user (e.g. DVD players show buttons for the DVD menu).
   /// But because of the fact that all of those share a single playlist and thus are located in a single player context,
   /// all of them need to share a single FSC workflow state and a single CP workflow state. Those states are attended by the
   /// <see cref="VideoPlayerModel"/> respectively by the <see cref="AudioPlayerModel"/>.
   /// To make it possible that different screens can be shown per specific player type, there will be an implementation
-  /// of this interface for each specific supported player type.
+  /// of this interface for each specific supported player type, which then is accessible via the <see cref="VideoPlayerModel"/>.
   /// </para>
   /// </remarks>
   public interface IPlayerUIContributor : IDisposable

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -38,7 +37,6 @@ namespace MediaPortal.UiComponents.Media.Models
   {
     protected Guid _currentlyPlayingWorkflowStateId;
     protected Guid _fullscreenContentWorkflowStateId;
-    protected AbstractProperty _currentPlayerIndexProperty;
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
     protected IPlayerUIContributor _playerUIContributor = null;
     protected bool _inactive = false;
@@ -48,7 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _currentlyPlayingWorkflowStateId = currentlyPlayingWorkflowStateId;
       _fullscreenContentWorkflowStateId = fullscreenContentWorkflowStateId;
-      _currentPlayerIndexProperty = new WProperty(typeof(int), 0);
       _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
       _messageQueue.SubscribeToMessageChannel(PlayerContextManagerMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -66,12 +63,6 @@ namespace MediaPortal.UiComponents.Media.Models
           UpdatePlayerContributor();
           break;
       }
-    }
-
-    protected override void Update()
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
     protected void UpdatePlayerContributor()
@@ -103,17 +94,6 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="stateType">The media workflow state type, we need the UI contributor for.</param>
     /// <returns>Type of the player UI contributor to use.</returns>
     protected abstract Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType);
-
-    public AbstractProperty CurrentPlayerIndexProperty
-    {
-      get { return _currentPlayerIndexProperty; }
-    }
-
-    public int CurrentPlayerIndex
-    {
-      get { return (int) _currentPlayerIndexProperty.GetValue(); }
-      set { _currentPlayerIndexProperty.SetValue(value); }
-    }
 
     public IPlayerUIContributor PlayerUIContributor
     {

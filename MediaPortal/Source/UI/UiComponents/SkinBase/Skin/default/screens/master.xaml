@@ -111,12 +111,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
           HorizontalAlignment="Right" VerticalAlignment="Top">
         <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
             HorizontalAlignment="Left" VerticalAlignment="Top"
-            AutoVisibility="True"
-            SlotIndex="0"/>
+            AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
         <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
             HorizontalAlignment="Left" VerticalAlignment="Top"
-            AutoVisibility="True"
-            SlotIndex="1"/>
+            AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
     </Grid> <!-- HeaderPanel -->
     <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">

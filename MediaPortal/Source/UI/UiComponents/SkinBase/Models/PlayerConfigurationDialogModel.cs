@@ -43,12 +43,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   /// </summary>
   public class PlayerConfigurationDialogModel : IDisposable, IWorkflowModel
   {
+    #region Enums
+
     enum NavigationMode
     {
       SimpleChoice,
       SuccessorDialog,
       ExitPCWorkflow,
     }
+
+    #endregion
 
     #region Consts
 
@@ -127,6 +131,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     #endregion
+
+    #region Private & protected members
 
     private void InitializeMessageQueue()
     {
@@ -520,6 +526,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    #endregion
+
+    #region Public members to be called from other modules
+
     public static void OpenChooseGeometryDialog(IPlayerContext playerContext)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -550,6 +560,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             }
         });
     }
+
+    #endregion
 
     #region Members to be accessed from the GUI
 

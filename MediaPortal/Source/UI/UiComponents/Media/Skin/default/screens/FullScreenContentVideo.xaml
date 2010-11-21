@@ -37,14 +37,13 @@
         LastChildFill="false">
       <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource PrimaryVideoOSDStyle}"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          SlotIndex="0"/>
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     </DockPanel> <!-- OSD_LeftPanel -->
     <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" LastChildFill="false">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource SecondaryMediaOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          AutoVisibility="true" SlotIndex="1"/>
+          AutoVisibility="true"/>
     </DockPanel> <!-- OSD_RightPanel -->
   </DockPanel> <!-- OSD_LayoutPanel -->
   <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>

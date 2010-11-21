@@ -13,9 +13,7 @@
       <GroupBox Header="[Media.AudioCurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
         <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
           <DockPanel.Context>
-            <mp_special_controls:PlayerControl
-                SlotIndex="{Binding Source={Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC},Path=CurrentPlayerIndex}"/>
-                <!-- Model = Audio player model -->
+            <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"/>
           </DockPanel.Context>
           <Grid DockPanel.Dock="Top"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
