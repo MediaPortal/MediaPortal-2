@@ -114,6 +114,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #endregion
 
+    #region Ctor & dtor
+
     public PlayerConfigurationDialogModel()
     {
       InitializeMessageQueue();
@@ -123,6 +125,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       _messageQueue.Shutdown();
     }
+
+    #endregion
 
     private void InitializeMessageQueue()
     {
@@ -532,6 +536,19 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(STATE_ID_PLAYER_CONFIGURATION_DIALOG);
+    }
+
+    public static void OpenAudioMenuDialog(int slotIndex, bool showMute)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, new NavigationContextConfig
+        {
+          AdditionalContextVariables = new Dictionary<string, object>
+            {
+                {KEY_PLAYER_SLOT, slotIndex},
+                {KEY_SHOW_MUTE, showMute}
+            }
+        });
     }
 
     #region Members to be accessed from the GUI
