@@ -17,7 +17,7 @@
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="120"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>

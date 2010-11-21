@@ -54,7 +54,7 @@
               <ColumnDefinition Width="10"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="ReImportButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+            <Button x:Name="LoadButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
                 Content="[Media.LoadPlaylistButton]" IsEnabled="{Binding IsHomeServerConnected}"
                 Command="{Command LoadPlaylist}"/>
           </Grid>

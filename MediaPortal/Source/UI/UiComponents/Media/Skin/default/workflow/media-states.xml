@@ -95,6 +95,11 @@
         MainScreen="RemovePlaylists"
         DisplayLabel="[Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
+    <WorkflowState Id="D4901494-4CC9-4321-B48B-34444473E173"
+        Name="SavePlaylistCannotSaveLocalMediaItems"
+        MainScreen="SavePlaylistCannotSaveLocalMediaItems"
+        DisplayLabel="[Media.SavePlaylistCannotSaveLocalMediaItemsWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
     <WorkflowState Id="D41DC5C7-71B0-4bf5-AE8E-FE2F3BC04FF1"
         Name="SavePlaylistChooseLocation"
         MainScreen="SavePlaylistChooseLocation"
