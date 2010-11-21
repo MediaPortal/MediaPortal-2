@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected fields
 
     protected bool _updating = false;
-    protected int _slotIndex = 0;
+    protected PlayerChoice _playerContext;
     protected MediaItem _currentMediaItem = null;
 
     protected MediaWorkflowStateType _mediaWorkflowStateType;
@@ -225,6 +225,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
+      _playerContext = stateType == MediaWorkflowStateType.CurrentlyPlaying ? PlayerChoice.CurrentPlayer : PlayerChoice.PrimaryPlayer;
       _mediaWorkflowStateType = stateType;
       _player = player as IPicturePlayer;
 
@@ -253,7 +254,7 @@ namespace MediaPortal.UiComponents.Media.Models
       try
       {
         IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(_slotIndex);
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(_playerContext);
 
         _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
         MediaItemAspect pictureAspect;
