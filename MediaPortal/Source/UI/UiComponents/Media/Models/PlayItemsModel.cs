@@ -564,10 +564,6 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         pc.Playlist.AddAll(items);
 
-        CompletePlayOrEnqueue(pc, play);
-        if (!play)
-          return;
-        pc.Play();
       }
       finally
       {
@@ -576,6 +572,11 @@ namespace MediaPortal.UiComponents.Media.Models
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAY_OR_ENQUEUE_ITEMS, true);
       }
+      // Must be done after the dialog is closed
+      CompletePlayOrEnqueue(pc, play);
+      if (!play)
+        return;
+      pc.Play();
     }
 
     protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
