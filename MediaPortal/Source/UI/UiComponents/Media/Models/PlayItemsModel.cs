@@ -30,6 +30,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -63,6 +64,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected DialogCloseWatcher _dialogCloseWatcher = null;
 
+    // Choice dialog for media type for LocalMedia navigation
+    protected ItemsList _mediaTypeChoiceMenuItems = null;
+
     // Play menu
     protected ItemsList _playMenuItems = null;
 
@@ -72,6 +76,14 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Public members
+
+    /// <summary>
+    /// Provides a list of items to be shown in the choice dialog for the AV type.
+    /// </summary>
+    public ItemsList MediaTypeChoiceMenuItems
+    {
+      get { return _mediaTypeChoiceMenuItems; }
+    }
 
     /// <summary>
     /// Provides a list of items to be shown in the play menu.
@@ -209,6 +221,26 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
+    /// First shows a menu to choose which media type should be played (Video, Audio, Picture), then
+    /// filters the items returned from the given <paramref name="getMediaItemsFunction"/>, checks if we need to show a
+    /// menu for playing those items and shows that menu or adds all items to the playlist at once, starting playing,
+    /// if no player is active and thus no menu needs to be shown.
+    /// </summary>
+    /// <param name="getMediaItemsFunction">Function which returns the media items to be added to the playlist. This function
+    /// might take some time to return the items; in that case, a progress dialog will be shown.</param>
+    public static void CheckQueryPlayAction(GetMediaItemsDlgt getMediaItemsFunction)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_GET_MEDIA_ITEMS_FUNCTION, getMediaItemsFunction},
+              }
+        });
+    }
+
+    /// <summary>
     /// Checks if we need to show a menu for playing the specified <paramref name="item"/> and shows that
     /// menu or plays the item, if no player is active and thus no menu needs to be shown.
     /// </summary>
@@ -268,6 +300,12 @@ namespace MediaPortal.UiComponents.Media.Models
       if (play)
         pc.Playlist.Clear();
       return pc;
+    }
+
+    protected void LeaveQueryAVTypeState()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, true);
     }
 
     protected void LeaveCheckQueryPlayActionMultipleItemsState()
@@ -594,6 +632,59 @@ namespace MediaPortal.UiComponents.Media.Models
       dlgt.BeginInvoke(pc, getMediaItemsFunction, play, null, null);
     }
 
+    protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction,
+        ICollection<Guid> consideredMediaItemAspectTypes)
+    {
+      foreach (MediaItem mediaItem in getMediaItemsFunction())
+      {
+        bool matches = false;
+        foreach (Guid aspectType in consideredMediaItemAspectTypes)
+          if (mediaItem.Aspects.ContainsKey(aspectType))
+          {
+            matches = true;
+            break;
+          }
+        if (matches)
+          yield return mediaItem;
+      }
+    }
+
+    protected void CheckQueryPlayAction_Continue(GetMediaItemsDlgt getMediaItemsFunction,
+        ICollection<Guid> consideredMediaItemAspectTypes, AVType avType)
+    {
+      LeaveQueryAVTypeState();
+      CheckQueryPlayAction(() => FilterMediaItems(getMediaItemsFunction, consideredMediaItemAspectTypes), avType);
+    }
+
+    protected void CheckQueryPlayAction_ShowMediaTypeChoice(GetMediaItemsDlgt getMediaItemsFunction)
+    {
+      _mediaTypeChoiceMenuItems = new ItemsList
+        {
+            new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_AUDIO)
+              {
+                  Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
+                      getMediaItemsFunction, new Guid[] {AudioAspect.Metadata.AspectId}, AVType.Audio))
+              },
+            new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_VIDEOS)
+              {
+                  Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
+                      getMediaItemsFunction, new Guid[] {VideoAspect.Metadata.AspectId}, AVType.Video))
+              },
+            new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_IMAGES)
+              {
+                  Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
+                      getMediaItemsFunction, new Guid[] {PictureAspect.Metadata.AspectId}, AVType.Video))
+              },
+            new ListItem(Consts.KEY_NAME, Consts.RES_ADD_VIDEOS_AND_IMAGES)
+              {
+                  Command = new MethodDelegateCommand(() => CheckQueryPlayAction_Continue(
+                      getMediaItemsFunction, new Guid[] {VideoAspect.Metadata.AspectId, PictureAspect.Metadata.AspectId}, AVType.Video))
+              },
+        };
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog(Consts.SCREEN_CHOOSE_AV_TYPE_DIALOG, (dialogName, dialogInstanceId) => LeaveQueryAVTypeState());
+    }
+
     protected void PrepareState(NavigationContext context)
     {
       Guid workflowStateId = context.WorkflowState.StateId;
@@ -616,10 +707,16 @@ namespace MediaPortal.UiComponents.Media.Models
         AVType avType = (AVType) context.GetContextVariable(KEY_AV_TYPE, false);
         CheckPlayMenuInternal(getMediaItemsFunction, avType);
       }
+      else if (workflowStateId == Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS)
+      {
+        GetMediaItemsDlgt getMediaItemsFunction = (GetMediaItemsDlgt) context.GetContextVariable(KEY_GET_MEDIA_ITEMS_FUNCTION, false);
+        CheckQueryPlayAction_ShowMediaTypeChoice(getMediaItemsFunction);
+      }
     }
 
     protected void ReleaseModelData()
     {
+      _mediaTypeChoiceMenuItems = null;
       _playMenuItems = null;
       if (_dialogCloseWatcher != null)
       {

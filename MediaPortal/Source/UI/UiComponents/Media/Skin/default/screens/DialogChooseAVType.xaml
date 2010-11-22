@@ -6,17 +6,15 @@
     Source="screens\simple_dialog_menu.xaml"
     >
   <Include.Resources>
-    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
-
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.ChooseAVTypeDialogHeader]"/>
 
-    <Model x:Key="MediaNavigationModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+    <Model x:Key="PlayItemsModel" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
 
-    <ResourceWrapper x:Key="Menu_Items" Resource="{Binding Source={StaticResource MediaNavigationModel},Path=MediaTypeChoiceMenuItems}"/>
+    <ResourceWrapper x:Key="Menu_Items" Resource="{Binding Source={StaticResource PlayItemsModel},Path=MediaTypeChoiceMenuItems}"/>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource MediaNavigationModel}" Path="Select"/>
+        Source="{StaticResource PlayItemsModel}" Path="Select"/>
   </Include.Resources>
 </Include>

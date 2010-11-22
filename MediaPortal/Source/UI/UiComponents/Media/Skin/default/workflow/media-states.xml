@@ -38,6 +38,10 @@
         Name="CheckQueryPlayActionMultipleItems"
         DisplayLabel="[Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
+    <DialogState Id="9F73CA87-732F-4017-9B1D-11DAFEED7FEC"
+        Name="CheckQueryPlayActionMultipleItems_ChooseMediaType"
+        DisplayLabel="[Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
 
     <!-- CP/FSC states -->
 

@@ -33,7 +33,6 @@ using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -68,20 +67,9 @@ namespace MediaPortal.UiComponents.Media.Models
     // Screen data is stored in current navigation context
     protected NavigationContext _currentNavigationContext = null;
 
-    // Choice dialog for media type for LocalMedia navigation
-    protected ItemsList _mediaTypeChoiceMenuItems = null;
-
     #endregion
 
     #region Public members
-
-    /// <summary>
-    /// Provides a list of items to be shown in the choice dialog for the AV type.
-    /// </summary>
-    public ItemsList MediaTypeChoiceMenuItems
-    {
-      get { return _mediaTypeChoiceMenuItems; }
-    }
 
     /// <summary>
     /// Gets the current media navigation mode.
@@ -169,25 +157,6 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
-    protected IEnumerable<MediaItem> FilterMediaItemsFromCurrentView(ICollection<Guid> consideredMediaItemAspectTypes)
-    {
-      NavigationData navigationData = NavigationData;
-      if (navigationData == null)
-        yield break;
-      foreach (MediaItem mediaItem in navigationData.CurrentScreenData.GetAllMediaItems())
-      {
-        bool matches = false;
-        foreach (Guid aspectType in consideredMediaItemAspectTypes)
-          if (mediaItem.Aspects.ContainsKey(aspectType))
-          {
-            matches = true;
-            break;
-          }
-        if (matches)
-          yield return mediaItem;
-      }
-    }
-
     protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView()
     {
       NavigationData navigationData = NavigationData;
@@ -215,30 +184,7 @@ namespace MediaPortal.UiComponents.Media.Models
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
           break;
         case MediaNavigationMode.LocalMedia:
-          // Albert, 2010-08-14: Is it possible to guess the AV type of the current view? We cannot derive the AV type from
-          // the current view's media categories (at least not in the general case - we only know the default media categories)
-          // IF it would be possible to guess the AV type, we didn't need to ask the user here.
-          _mediaTypeChoiceMenuItems = new ItemsList
-            {
-                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_AUDIO)
-                  {
-                      Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(() => FilterMediaItemsFromCurrentView(new Guid[] {AudioAspect.Metadata.AspectId}), AVType.Audio))
-                  },
-                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_VIDEOS)
-                  {
-                      Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(() => FilterMediaItemsFromCurrentView(new Guid[] {VideoAspect.Metadata.AspectId}), AVType.Video))
-                  },
-                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_ALL_IMAGES)
-                  {
-                      Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(() => FilterMediaItemsFromCurrentView(new Guid[] {PictureAspect.Metadata.AspectId}), AVType.Video))
-                  },
-                new ListItem(Consts.KEY_NAME, Consts.RES_ADD_VIDEOS_AND_IMAGES)
-                  {
-                      Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(() => FilterMediaItemsFromCurrentView(new Guid[] {VideoAspect.Metadata.AspectId, PictureAspect.Metadata.AspectId}), AVType.Video))
-                  },
-            };
-          IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-          screenManager.ShowDialog(Consts.SCREEN_CHOOSE_AV_TYPE_DIALOG);
+          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView);
           break;
       }
     }
@@ -388,7 +334,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void ReleaseModelData()
     {
       _currentNavigationContext = null;
-      _mediaTypeChoiceMenuItems = null;
     }
 
     #endregion

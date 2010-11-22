@@ -59,6 +59,7 @@
     <String Name="PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel" Text="Play/enqueue items"/>
     <String Name="CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel" Text="Play action"/>
     <String Name="CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel" Text="Play action"/>
+    <String Name="CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel" Text="Choose media type"/>
 
     <!-- Screen headers -->
     <String Name="LocalMediaHeader" Text="Local media"/>
