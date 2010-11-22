@@ -57,6 +57,7 @@ namespace MediaPortal.UI.Presentation.Screens
           }
           return false;
         }, true);
+      _watcher.Start();
     }
     
     public void Dispose()
