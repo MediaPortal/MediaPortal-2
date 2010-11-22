@@ -213,13 +213,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
     {
       CpAction action = GetAction("Browse");
-      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
       IList<object> inParameters = new List<object> {systemId, path.Serialize(),
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
-          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes), onlineStateStr};
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (ICollection<MediaItem>) outParameters[0];
     }

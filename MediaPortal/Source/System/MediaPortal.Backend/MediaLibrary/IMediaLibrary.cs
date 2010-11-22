@@ -110,11 +110,9 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain at least one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
-    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
-    /// are currently online are returned.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline);
+        IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given

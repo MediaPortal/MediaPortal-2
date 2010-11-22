@@ -380,7 +380,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
@@ -781,16 +780,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
-      string onlineStateStr = (string) inParams[4];
-      bool all;
-      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
-      if (error != null)
-      {
-        outParams = null;
-        return error;
-      }
       ICollection<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Browse(systemId, path,
-          necessaryMIATypes, optionalMIATypes, !all);
+          necessaryMIATypes, optionalMIATypes);
       outParams = new List<object> {mediaItems};
       return null;
     }

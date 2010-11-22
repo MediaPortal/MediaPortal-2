@@ -59,7 +59,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _parent.Browse(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, false);
+        return _parent.Browse(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
       }
     }
 
@@ -369,7 +369,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline)
+        IEnumerable<Guid> optionalRequestedMIATypeIDs)
     {
       const char ESCAPE_CHAR = '!';
       string pathStr = SqlUtils.LikeEscape(StringUtils.CheckSuffix(path.Serialize(), "/"), ESCAPE_CHAR);
@@ -386,7 +386,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     pathStr + "%/%", ESCAPE_CHAR))
           });
       MediaItemQuery query = new MediaItemQuery(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, filter);
-      return Search(query, filterOnlyOnline);
+      return Search(query, false);
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
