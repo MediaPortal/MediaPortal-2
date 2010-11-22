@@ -153,7 +153,6 @@
     <Compile Include="MediaManagement\ResourceAccess\ResourcePathMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
     <Compile Include="Messaging\MessageWatcher.cs" />
-    <Compile Include="Messaging\MessageWatcherCollection.cs" />
     <Compile Include="Services\Dokan\DokanNet.cs" />
     <Compile Include="Services\Dokan\DokanOperations.cs" />
     <Compile Include="Services\Dokan\Proxy.cs" />

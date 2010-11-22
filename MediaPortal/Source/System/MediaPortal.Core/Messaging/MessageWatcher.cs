@@ -41,26 +41,31 @@ namespace MediaPortal.Core.Messaging
   /// <remarks>
   /// The caller must hold a strong reference to instances of this class, else it might be collected by the garbage collector.
   /// </remarks>
-  public class MessageWatcher : IDisposable, IMessageReceiver
+  public class MessageWatcher : IDisposable
   {
-    protected bool _registered = false;
-    protected object _owner;
-    protected string _messageChannel;
+    protected AsynchronousMessageQueue _messageQueue;
     protected MessageHandlerDlgt _handler;
     protected bool _autoDispose;
+    protected bool _isDisposed;
 
     public MessageWatcher(object owner, string messageChannel, MessageHandlerDlgt handler, bool autoDispose)
     {
-      _owner = owner;
-      _messageChannel = messageChannel;
       _handler = handler;
       _autoDispose = autoDispose;
-      Register();
+      _messageQueue = new AsynchronousMessageQueue(owner, new string[] {messageChannel});
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (_handler(message) && _autoDispose)
+        Dispose();
     }
 
     public void Dispose()
     {
-      Unregister();
+      _isDisposed = true;
+      _messageQueue.Shutdown();
     }
 
     public bool AutoDispose
@@ -69,32 +74,14 @@ namespace MediaPortal.Core.Messaging
       set { _autoDispose = value; }
     }
 
-    public void Register()
+    public void Start()
     {
-      if (_registered)
-        return;
-      IMessageBroker broker = ServiceRegistration.Get<IMessageBroker>();
-      broker.RegisterMessageReceiver(_messageChannel, this);
-      _registered = true;
+      _messageQueue.Start();
     }
 
-    public void Unregister()
+    public void Shutdown()
     {
-      if (!_registered)
-        return;
-      IMessageBroker broker = ServiceRegistration.Get<IMessageBroker>();
-      broker.UnregisterMessageReceiver(_messageChannel, this);
-      _registered = false;
+      _messageQueue.Shutdown();
     }
-
-    #region Implementation of IMessageReceiver
-
-    public void Receive(SystemMessage message)
-    {
-      if (_handler(message) && _autoDispose)
-        Dispose();
-    }
-
-    #endregion
   }
 }
