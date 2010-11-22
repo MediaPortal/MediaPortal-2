@@ -134,7 +134,8 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Action which can be called from outside when there is an enabled navigation data present.
+    /// Action which can be called from outside when there is an enabled navigation data present
+    /// (<see cref="IsNavigationDataEnabled"/>.
     /// </summary>
     public static void AddCurrentViewToPlaylist()
     {

@@ -44,6 +44,12 @@ namespace MediaPortal.UiComponents.Media.Models
 {
   public delegate IEnumerable<MediaItem> GetMediaItemsDlgt();
 
+  /// <summary>
+  /// Workflow model which attends all play items workflow states. As entrance point see static methods
+  /// <see cref="PlayOrEnqueueItem"/>, <see cref="PlayOrEnqueueItems"/>, <see cref="CheckQueryPlayAction(MediaItem)"/>,
+  /// <see cref="CheckQueryPlayAction(GetMediaItemsDlgt,AVType)"/> and
+  /// <see cref="CheckQueryPlayAction(GetMediaItemsDlgt)"/>.
+  /// </summary>
   public class PlayItemsModel : IWorkflowModel
   {
     #region Consts
