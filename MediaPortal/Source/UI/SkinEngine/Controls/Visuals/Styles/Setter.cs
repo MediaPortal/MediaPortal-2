@@ -150,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         return;
       object obj;
       if (!WasApplied(targetObject))
-      { // We have to the original property value the first time for this target object
+      { // We have to initialize the original property value the first time for this target object
 
         // The next lines are necessary because the render thread is setting our values.
         // If the render thread wasn't able to set the value yet, we would get the old, unchanged and
