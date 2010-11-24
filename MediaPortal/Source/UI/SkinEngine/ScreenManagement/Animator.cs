@@ -190,9 +190,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObject)
       {
         object curVal;
-        if (_valuesToSet.TryGetValue(dataDescriptor, out curVal) && curVal == value)
-          return;
-        if (dataDescriptor.Value == value)
+        if (_valuesToSet.TryGetValue(dataDescriptor, out curVal))
+        {
+          if (curVal == value)
+            return;
+        }
+        else if (dataDescriptor.Value == value)
           return;
         _valuesToSet[dataDescriptor] = value;
       }
@@ -242,12 +245,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _scheduledAnimations.Remove(ac);
         }
         stoppedAnimations.Clear();
-
         CollectionUtils.AddAll(values, _valuesToSet);
-        _valuesToSet.Clear();
       }
       foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values) // Outside the lock - will change properties in the screen
         valueToSet.Key.Value = valueToSet.Value;
+      lock (_syncObject)
+      {
+        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values)
+          if (_valuesToSet[valueToSet.Key] == valueToSet.Value)
+            _valuesToSet.Remove(valueToSet.Key);
+      }
     }
 
     protected void ResetAllValues(AnimationContext ac)
