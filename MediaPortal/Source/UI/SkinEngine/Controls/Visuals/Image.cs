@@ -207,19 +207,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected ImageSource GetLoadedSource()
     {
-      if (_imageSource != null && !_imageSourceInvalid)
-        return _imageSource;
-      if (_imageSource != null && _imageSource != Source && _imageSource != FallbackSource)
+      // If our image source has changed we need to ensure we deallocate the old one completely
+      if (_imageSource != null && (_imageSourceInvalid || !_imageSource.IsAllocated))
       {
-        _imageSource.Deallocate();
-        _imageSource.Dispose();
+        if (_imageSourceInvalid && _imageSource != FallbackSource && _imageSource != Source)
+        {
+          _imageSource.Deallocate();
+          _imageSource.Dispose();
+        }
+        _imageSource = null;
       }
 
-      _imageSourceInvalid = false;
-      _imageSource = LoadImageSource(Source);
-      if (_imageSource != null)
-        return _imageSource;
-      _imageSource = LoadImageSource(FallbackSource);
+      // Find a new image source
+      if (_imageSource == null)
+      {
+        _imageSourceInvalid = false;
+        _imageSource = LoadImageSource(Source);
+        if (_imageSource != null)
+          return _imageSource;
+        _imageSource = LoadImageSource(FallbackSource);
+      }
       return _imageSource;
     }
 

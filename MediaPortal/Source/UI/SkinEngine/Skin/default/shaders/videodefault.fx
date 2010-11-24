@@ -41,13 +41,13 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   OUT.Position = mul(IN.Position, worldViewProj);
 
   // Apply relative transform
-  float4 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform);
+  float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
 
-  // Transform vertex coords to place video texture
-  pos.xy = pos.xy * g_brushtransform.zw - g_brushtransform.xy;
+  // Transform vertex coords to place brush texture
+  pos = pos * g_brushtransform.zw - g_brushtransform.xy;
 
   // Apply other transformation
-  OUT.Texcoord = mul(pos, g_transform).xy;
+  OUT.Texcoord = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
 }
 
 void renderPixelShader(in v2p IN, out p2f OUT)

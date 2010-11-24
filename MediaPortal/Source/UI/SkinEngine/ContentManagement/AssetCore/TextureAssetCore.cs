@@ -237,22 +237,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             }
             else
             {
-              ImageInformation imgInfo = ImageInformation.FromStream(stream);
+              info = ImageInformation.FromStream(stream);
               stream.Seek(0, SeekOrigin.Begin);
-              if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
-              {
-                using (Image imgSource = Image.FromStream(stream))
-                {
-                  info = Scale(imgSource, imgInfo);
-                }
-              }
-              else
-              {
-                info = ImageInformation.FromStream(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-                _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                    Pool.Default, Filter.None, Filter.None, 0);
-              }
+              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
+                  Pool.Default, Filter.None, Filter.None, 0);
             }
           }
           catch (Exception)
@@ -275,19 +263,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           else
           {
             ImageInformation imgInfo = ImageInformation.FromFile(_sourceFileName);
-            if (imgInfo.Width > GraphicsDevice.Width || imgInfo.Height > GraphicsDevice.Height)
-            {
-              using (Image imgSource = Image.FromFile(_sourceFileName))
-              {
-                info = Scale(imgSource, imgInfo);
-              }
-            }
-            else
-            {
-              info = ImageInformation.FromFile(_sourceFileName);
-              _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                  Pool.Default, Filter.None, Filter.None, 0);
-            }
+            info = ImageInformation.FromFile(_sourceFileName);
+            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
+                Pool.Default, Filter.None, Filter.None, 0);
           }
         }
         catch (Exception)

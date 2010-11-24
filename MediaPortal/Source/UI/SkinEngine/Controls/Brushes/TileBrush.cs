@@ -301,8 +301,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         // Convert brush dimensions to viewport space
         Vector2 brushSize = BrushDimensions;
-        brushSize.X /= w * maxuv.X;
-        brushSize.Y /= h * maxuv.Y;
+        brushSize.X /= w;
+        brushSize.Y /= h;
         switch (Stretch)
         {
           case Stretch.None:
@@ -330,12 +330,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         // Align brush in viewport
         brushRect = AlignBrushInViewport(brushSize);
       }
-      else
-      {
-        // Compensate for any texture borders
-        brushRect.Z /= maxuv.X;
-        brushRect.W /= maxuv.Y;
-      }
+      // Compensate for any texture borders
+      brushRect.Z /= maxuv.X;
+      brushRect.W /= maxuv.Y;
 
       float repeatx = 1.0f / brushRect.Z;
       float repeaty = 1.0f / brushRect.W;
