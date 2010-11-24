@@ -26,6 +26,7 @@ using System;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -44,6 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected float _scrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
     protected float _actualScrollOffsetY = 0;
+    protected bool _forcedOpacityMask = false;
 
     #endregion
 
@@ -161,11 +163,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return IsInArea(x, y) && base.IsChildRenderedAt(child, x, y);
     }
 
+    public override void Render(RenderContext parentRenderContext)
+    {
+      if (OpacityMask == null && (TotalHeight > ActualHeight || TotalWidth > ActualWidth))
+      {
+        SolidColorBrush brush = new SolidColorBrush();
+        brush.Color = Color.Black;
+        OpacityMask = brush;
+        _forcedOpacityMask = true;
+      }
+      else if (_forcedOpacityMask && TotalHeight <= ActualHeight && TotalWidth <= ActualWidth && OpacityMask != null)
+      {
+        OpacityMask.Dispose();
+        OpacityMask = null;
+        _opacityMaskContext.Dispose();
+        _opacityMaskContext = null;
+        _forcedOpacityMask = false;
+      }
+      base.Render(parentRenderContext);
+    }
+
     public override void DoRender(RenderContext localRenderContext)
     {
       base.DoRender(localRenderContext); // Do the actual rendering
-      // The following line cuts all child output outside our bounds. The style for ScrollContentPresenter must
-      // use an opacity brush to avoid drawing children outside our range.
+      // After rendering our children (in DoRender) the following line resets the RenderContext's bounds so
+      // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
       localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 

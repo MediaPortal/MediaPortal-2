@@ -89,7 +89,7 @@
             <!-- Content -->
             <!-- The opacity mask is necessary to avoid drawing children outside the ScrollContentPresenter's range -->
             <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Content}"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" OpacityMask="#FF000000"/>
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!-- ScrollBar X -->
             <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0" Margin="2">
               <Grid.ColumnDefinitions>

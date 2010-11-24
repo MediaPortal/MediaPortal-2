@@ -1417,20 +1417,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void UpdateOpacityMask(RectangleF bounds, int width, int height, float zPos)
     {
-      PositionColored2Textured[] verts = new PositionColored2Textured[6];
+      PositionColored2Textured[] verts = new PositionColored2Textured[4];
 
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
-          
-      float left = bounds.Left-1.0f;
-      float right = bounds.Right-1.0f;
-      float top = bounds.Top-1.0f;
-      float bottom = bounds.Bottom-1.0f;
+
+      float left = bounds.Left - 1.2f;
+      float top = bounds.Top - 1.2f;
+      float right = bounds.Right - 0.8f;
+      float bottom = bounds.Bottom - 0.8f;
 
       float uLeft = bounds.Left / width;
-      float uRight = bounds.Right / width;
       float vTop = bounds.Top / height;
+      float uRight = bounds.Right / width;
       float vBottom = bounds.Bottom / height;
 
       // Upper left
