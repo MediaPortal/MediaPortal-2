@@ -798,7 +798,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
       Screen screen = Screen;
-      if (screen == null || SkinContext.RenderThread == Thread.CurrentThread)
+      if (screen == null)
         dataDescriptor.Value = value;
       else
         screen.Animator.SetValue(dataDescriptor, value);
