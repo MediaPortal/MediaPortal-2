@@ -7,5 +7,7 @@
 
     <String Name="ErrorFloatingPointValue" Text="'{0}' is not a valid floating point number"/>
     <String Name="ErrorIntegerValue" Text="'{0}' is not a valid integer number"/>
+    <String Name="ErrorNumericLowerLimit" Text="'{0}' exceeds the lower limit of '{1}'"/>
+    <String Name="ErrorNumericUpperLimit" Text="'{0}' exceeds the upper limit of '{1}'"/>
   </Section>
 </Language>

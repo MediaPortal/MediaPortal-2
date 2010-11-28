@@ -33,7 +33,8 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
-  /// Configuration controller for the <see cref="NumberSelect"/> configuration setting.
+  /// Configuration controller for the <see cref="NumberSelect"/> and <see cref="LimitedNumberSelect"/> configuration setting.
+  /// For <see cref="NumberSelect"/> the value's min/max definitions are used as internal limit.
   /// </summary>
   public class NumberSelectController : DialogConfigurationController
   {
@@ -41,6 +42,9 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     public const string ERROR_FLOATING_POINT_VALUE_RESOURCE = "[Configuration.ErrorFloatingPointValue]";
     public const string ERROR_INTEGER_VALUE_RESOURCE = "[Configuration.ErrorIntegerValue]";
+
+    public const string ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE = "[Configuration.ErrorNumericLowerLimit]";
+    public const string ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE = "[Configuration.ErrorNumericUpperLimit]";
 
     #endregion
 
@@ -50,6 +54,8 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     {
       bool TrySetValue(string value, out string errorText);
       object Value { get; }
+      double LowerLimit { get; set; }
+      double UpperLimit { get; set; }
       void Up();
       void Down();
     }
@@ -62,6 +68,8 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       protected IResourceString _errorTextResource;
       protected double _step;
       protected int _maxNumDigits;
+      protected double _lowerLimit = double.MinValue;
+      protected double _upperLimit = double.MaxValue;
 
       #endregion
 
@@ -86,8 +94,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
           // The following formular tries to find a sensible number of decimal digits to preserve.
           // We use at least one digit and a maximum of 4 digits, depending on the logarithm of our value.
           return Math.Max(1, 4 - (int) Math.Log10(Math.Abs(_value) + 1));
-        else
-          return _maxNumDigits;
+        return _maxNumDigits;
       }
 
       protected void RoundValue()
@@ -100,15 +107,22 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         double result;
         if (ToDouble(value, out result))
         {
+          if (result > _upperLimit)
+          {
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _upperLimit.ToString());
+            return false;
+          }
+          if (result < _lowerLimit)
+          {
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString());
+            return false;
+          }
           _value = result;
           errorText = string.Empty;
           return true;
         }
-        else
-        {
-          errorText = LocalizationHelper.CreateResourceString(ERROR_FLOATING_POINT_VALUE_RESOURCE).Evaluate(value);
-          return false;
-        }
+        errorText = LocalizationHelper.CreateResourceString(ERROR_FLOATING_POINT_VALUE_RESOURCE).Evaluate(value);
+        return false;
       }
 
       public object Value
@@ -116,16 +130,34 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         get { return _value; }
       }
 
+      public double LowerLimit
+      {
+        get { return _lowerLimit; }
+        set { _lowerLimit = value; }
+      }
+
+      public double UpperLimit
+      {
+        get { return _upperLimit; }
+        set { _upperLimit = value; }
+      }
+
       public void Up()
       {
-        _value += _step;
-        RoundValue();
+        if (_value + _step <= _upperLimit)
+        {
+          _value += _step;
+          RoundValue();
+        }
       }
 
       public void Down()
       {
-        _value -= _step;
-        RoundValue();
+        if (_value - _step >= _lowerLimit)
+        {
+          _value -= _step;
+          RoundValue();
+        }
       }
 
       public override string ToString()
@@ -143,6 +175,8 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       protected int _value;
       protected IResourceString _errorTextResource;
       protected int _step;
+      protected int _lowerLimit = int.MinValue;
+      protected int _upperLimit = int.MaxValue;
 
       #endregion
 
@@ -157,15 +191,22 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         int result;
         if (int.TryParse(value, out result))
         {
+          if (result > _upperLimit)
+          {
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _upperLimit.ToString());
+            return false;
+          }
+          if (result < _lowerLimit)
+          {
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString());
+            return false;
+          } 
           _value = result;
           errorText = string.Empty;
           return true;
         }
-        else
-        {
-          errorText = LocalizationHelper.CreateResourceString(ERROR_INTEGER_VALUE_RESOURCE).Evaluate(value);
-          return false;
-        }
+        errorText = LocalizationHelper.CreateResourceString(ERROR_INTEGER_VALUE_RESOURCE).Evaluate(value);
+        return false;
       }
 
       public override string ToString()
@@ -180,14 +221,28 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         get { return _value; }
       }
 
+      public double LowerLimit
+      {
+        get { return _lowerLimit; }
+        set { _lowerLimit = (int)value; }
+      }
+
+      public double UpperLimit
+      {
+        get { return _upperLimit; }
+        set { _upperLimit = (int)value; }
+      }
+
       public void Up()
       {
-        _value += _step;
+        if (_value + _step <= _upperLimit)
+          _value += _step;
       }
 
       public void Down()
       {
-        _value -= _step;
+        if (_value - _step >= _lowerLimit) 
+          _value -= _step;
       }
     }
 
@@ -253,13 +308,25 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         default:
           throw new InvalidDataException("NumberType '{0}' is not supported", numberSelect.ValueType);
       }
+      GetLimits();
       Value = _numberModel.ToString();
+    }
+
+    private void GetLimits()
+    {
+      LimitedNumberSelect limitedNumberSelect = _setting as LimitedNumberSelect;
+      if (limitedNumberSelect != null)
+      {
+        _numberModel.LowerLimit = limitedNumberSelect.LowerLimit;
+        _numberModel.UpperLimit = limitedNumberSelect.UpperLimit;
+      }
     }
 
     protected override void UpdateSetting()
     {
       NumberSelect numberSelect = (NumberSelect) _setting;
-      numberSelect.Value = (double) _numberModel.Value;
+      GetLimits();
+      numberSelect.Value = (double)_numberModel.Value;
       base.UpdateSetting();
     }
 
