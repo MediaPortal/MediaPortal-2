@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       try
       {
         // Check if we can create an item accessor - if we get an exception, the path is not valid
-        IResourceAccessor ra = rp.CreateLocalMediaItemAccessor();
+        IResourceAccessor ra = rp.CreateLocalResourceAccessor();
         ra.Dispose();
         return true;
       }
@@ -156,7 +156,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         return string.Empty;
       try
       {
-        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+        IResourceAccessor ra = path.CreateLocalResourceAccessor();
         try
         {
           return ra.ResourcePathName;
@@ -175,7 +175,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected override IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path)
     {
-      IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor accessor = path.CreateLocalResourceAccessor();
       ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
       if (res != null)
         foreach (IFileSystemResourceAccessor childAccessor in res)
@@ -203,7 +203,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       try
       {
-        IResourceAccessor ra = ChoosenResourcePath.CreateLocalMediaItemAccessor();
+        IResourceAccessor ra = ChoosenResourcePath.CreateLocalResourceAccessor();
         try
         {
           return ra.ResourceName;

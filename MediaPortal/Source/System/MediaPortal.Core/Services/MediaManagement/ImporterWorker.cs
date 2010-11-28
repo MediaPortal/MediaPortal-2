@@ -513,7 +513,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (state == ImportJobState.Scheduled)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
-          IResourceAccessor accessor = importJob.BasePath.CreateLocalMediaItemAccessor();
+          IResourceAccessor accessor = importJob.BasePath.CreateLocalResourceAccessor();
           IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
           if (fsra != null)
           { // Prepare complex import process
@@ -541,25 +541,27 @@ namespace MediaPortal.Core.Services.MediaManagement
           PendingImportResource pendingImportResource;
           lock (importJob.SyncObj)
             pendingImportResource = importJob.PendingResources.FirstOrDefault();
-          IFileSystemResourceAccessor fsra = pendingImportResource.ResourceAccessor;
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'", fsra.ResourcePathName);
-          if (fsra.IsFile)
-            ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
-          else if (fsra.IsDirectory)
+          if (pendingImportResource.IsValid)
           {
-            CheckImportStillRunning(importJob.State);
-            Guid? currentDirectoryId = ImportDirectory(importJob, pendingImportResource.ParentDirectory, fsra, metadataExtractors, mediaItemAspectTypes,
-                mediaBrowsing, resultHandler, mediaAccessor);
-            CheckImportStillRunning(importJob.State);
-            if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
-              // Enqueue subdirectories to work queue
-              lock (importJob.SyncObj)
-                foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
-                  importJob.PendingResources.Add(new PendingImportResource(currentDirectoryId.Value, childDirectory));
+            IFileSystemResourceAccessor fsra = pendingImportResource.ResourceAccessor;
+            ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'", fsra.ResourcePathName);
+            if (fsra.IsFile)
+              ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
+            else if (fsra.IsDirectory)
+            {
+              CheckImportStillRunning(importJob.State);
+              Guid? currentDirectoryId = ImportDirectory(importJob, pendingImportResource.ParentDirectory, fsra, metadataExtractors, mediaItemAspectTypes,
+                  mediaBrowsing, resultHandler, mediaAccessor);
+              CheckImportStillRunning(importJob.State);
+              if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
+                // Enqueue subdirectories to work queue
+                lock (importJob.SyncObj)
+                  foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
+                    importJob.PendingResources.Add(new PendingImportResource(currentDirectoryId.Value, childDirectory));
+            }
+            else
+              ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
           }
-          else
-            ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
-
           lock (importJob.SyncObj)
             importJob.PendingResources.Remove(pendingImportResource);
         }

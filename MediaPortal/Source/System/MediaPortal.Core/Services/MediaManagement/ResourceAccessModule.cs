@@ -143,7 +143,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           return resource.ResourceAccessor;
         // TODO: Security check. Only deliver resources which are located inside local shares.
         ServiceRegistration.Get<ILogger>().Debug("ResourceAccessModule: Access of resource '{0}'", resourcePathStr);
-        IResourceAccessor result = resourcePath.CreateLocalMediaItemAccessor();
+        IResourceAccessor result = resourcePath.CreateLocalResourceAccessor();
         _resourceAccessorCache[resourcePathStr] = new CachedResource(result);
         return result;
       }

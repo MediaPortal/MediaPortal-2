@@ -317,7 +317,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <exception cref="IllegalCallException">If one of the referenced media providers is not available in the system or
     /// has the wrong type, or if this path doesn't represent a valid resource in this system.</exception>
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
-    public IResourceAccessor CreateLocalMediaItemAccessor()
+    public IResourceAccessor CreateLocalResourceAccessor()
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();

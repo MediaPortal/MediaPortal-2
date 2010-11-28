@@ -309,7 +309,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return new UPnPError(600, "Invalid resource path");
       if (!IsAllowedToAccess(path))
         return new UPnPError(600, "Access is not allowed to this resource path");
-      IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor ra = path.CreateLocalResourceAccessor();
       try
       {
         outParams = new List<object> {ra.ResourcePathName};
@@ -331,7 +331,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return new UPnPError(600, "Invalid resource path");
       if (!IsAllowedToAccess(path))
         return new UPnPError(600, "Access is not allowed to this resource path");
-      IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor ra = path.CreateLocalResourceAccessor();
       try
       {
         outParams = new List<object> {ra.ResourceName};
@@ -353,7 +353,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return new UPnPError(600, "Invalid resource path");
       if (!IsAllowedToAccess(path))
         return new UPnPError(600, "Access is not allowed to this resource path");
-      IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor accessor = path.CreateLocalResourceAccessor();
       ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
       IList<ResourcePathMetadata> result = null;
       if (res != null)
@@ -380,7 +380,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return new UPnPError(600, "Invalid resource path");
       if (!IsAllowedToAccess(path))
         return new UPnPError(600, "Access is not allowed to this resource path");
-      IResourceAccessor accessor = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor accessor = path.CreateLocalResourceAccessor();
       ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetFiles(accessor);
       IList<ResourcePathMetadata> result = null;
       if (res != null)
@@ -409,7 +409,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       try
       {
         // Check if we can create an item accessor - if we get an exception, the path is not valid
-        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+        IResourceAccessor ra = path.CreateLocalResourceAccessor();
         ra.Dispose();
         result = true;
       }
@@ -438,7 +438,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       try
       {
         // Check if we can create an item accessor - if we get an exception, the path is not valid
-        IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+        IResourceAccessor ra = path.CreateLocalResourceAccessor();
         isFileSystemResource = ra is IFileSystemResourceAccessor;
         isFile = ra.IsFile;
         resourcePathDisplayName = ra.ResourcePathName;
@@ -499,7 +499,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);
       string relativePathStr = (string) inParams[1];
-      IResourceAccessor ra = path.CreateLocalMediaItemAccessor();
+      IResourceAccessor ra = path.CreateLocalResourceAccessor();
       string serializedPath = null;
       try
       {

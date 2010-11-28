@@ -42,6 +42,7 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
     protected Guid _parentDirectory;
     protected IFileSystemResourceAccessor _resourceAccessor;
+    protected bool _isValid = true;
 
     public PendingImportResource(Guid parentDirectory, IFileSystemResourceAccessor resourceAccessor)
     {
@@ -59,6 +60,12 @@ namespace MediaPortal.Core.Services.MediaManagement
     public IFileSystemResourceAccessor ResourceAccessor
     {
       get { return _resourceAccessor; }
+    }
+
+    [XmlIgnore]
+    public bool IsValid
+    {
+      get { return _isValid; }
     }
 
     public override string ToString()
@@ -89,11 +96,18 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _resourceAccessor.LocalResourcePath.Serialize(); } 
       set
       {
-        IResourceAccessor ra = ResourcePath.Deserialize(value).CreateLocalMediaItemAccessor();
-        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
-        if (fsra == null)
-          ServiceRegistration.Get<ILogger>().Error("PendingImportResource: Could not load resource '{0}': It is no filesystem resource", value);
-        _resourceAccessor = fsra;
+        try
+        {
+          IResourceAccessor ra = ResourcePath.Deserialize(value).CreateLocalResourceAccessor();
+          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+          if (fsra == null)
+            ServiceRegistration.Get<ILogger>().Error("PendingImportResource: Could not load resource '{0}': It is no filesystem resource", value);
+          _resourceAccessor = fsra;
+        }
+        catch (Exception)
+        {
+          _isValid = false;
+        }
       }
     }
 

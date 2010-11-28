@@ -126,7 +126,7 @@ namespace MediaPortal.UI.Views
         // Collect all metadata extractors which fill our desired media item aspects
         if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, miaTypeIDs))
           metadataExtractorIds.Add(extractor.Key);
-      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
+      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor();
       // Add all items at the specified path
       ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
       if (files != null)
@@ -154,7 +154,7 @@ namespace MediaPortal.UI.Views
     protected void UpdateDisplayName()
     {
       _viewDisplayName = string.IsNullOrEmpty(_overrideName) ?
-          _viewPath.CreateLocalMediaItemAccessor().ResourceName : _overrideName;
+          _viewPath.CreateLocalResourceAccessor().ResourceName : _overrideName;
     }
 
     /// <summary>
