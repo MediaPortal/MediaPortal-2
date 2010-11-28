@@ -220,7 +220,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (playerUIContributor != null)
         screen = playerUIContributor.Screen;
       _lastScreenName = screen;
-      return ScreenUpdateMode.AutoWorkflowManager;
+      return string.IsNullOrEmpty(screen) ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
     }
   }
 }
