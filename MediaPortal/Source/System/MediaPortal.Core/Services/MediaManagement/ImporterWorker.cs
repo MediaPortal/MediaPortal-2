@@ -35,6 +35,7 @@ using MediaPortal.Core.Runtime;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -57,11 +58,16 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
     protected static IEnumerable<Guid> IMPORTER_MIA_ID_ENUMERATION = new Guid[]
         {
-          ImporterAspect.ASPECT_ID
+          ImporterAspect.ASPECT_ID,
+        };
+    protected static IEnumerable<Guid> IMPORTER_PROVIDER_MIA_ID_ENUMERATION = new Guid[]
+        {
+          ImporterAspect.ASPECT_ID,
+          ProviderResourceAspect.ASPECT_ID,
         };
     protected static IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new Guid[]
         {
-          DirectoryAspect.ASPECT_ID
+          DirectoryAspect.ASPECT_ID,
         };
     protected static IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] {};
 
@@ -401,7 +407,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (importJob.JobType == ImportJobType.Refresh)
         {
           foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
-              IMPORTER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION))
+              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION))
           {
             MediaItemAspect providerResourceAspect;
             if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerResourceAspect))
@@ -426,8 +432,10 @@ namespace MediaPortal.Core.Services.MediaManagement
                     path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
                     mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
                     importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
-                  // We can skip this file; it was imported after the last change time of the item
+                { // We can skip this file; it was imported after the last change time of the item
+                  path2Item.Remove(serializedFilePath);
                   continue;
+                }
                 if (ImportResource(fileAccessor, directoryId, metadataExtractors, mediaItemAspectTypes,
                     resultHandler, mediaAccessor))
                   path2Item.Remove(serializedFilePath);
@@ -446,6 +454,18 @@ namespace MediaPortal.Core.Services.MediaManagement
           foreach (string pathStr in path2Item.Keys)
           {
             ResourcePath path = ResourcePath.Deserialize(pathStr);
+            try
+            {
+              IResourceAccessor ra = path.CreateLocalResourceAccessor();
+              if (!ra.IsFile)
+                // Don't touch directories because they will be imported in a different call of ImportDirectory
+                continue;
+            }
+            catch (IllegalCallException)
+            {
+              // This happens if the resource doesn't exist any more - we also catch missing directories here
+            }
+            // Delete all remaining items
             resultHandler.DeleteMediaItem(path);
             CheckImportStillRunning(importJob.State);
           }
