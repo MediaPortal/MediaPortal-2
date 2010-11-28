@@ -32,7 +32,7 @@ namespace MediaPortal.UI.Players.Picture.Settings.Configuration
 
     public override void Load()
     {
-      _lowerLimit = 1;
+      _lowerLimit = 0;
       _upperLimit = 60;
       _type = NumberType.FloatingPoint;
       _step = 0.5;

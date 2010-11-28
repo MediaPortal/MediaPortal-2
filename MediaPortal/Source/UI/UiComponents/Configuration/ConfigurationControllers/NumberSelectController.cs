@@ -33,7 +33,7 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
-  /// Configuration controller for the <see cref="NumberSelect"/> and <see cref="LimitedNumberSelect"/> configuration setting.
+  /// Configuration controller for the <see cref="NumberSelect"/> and <see cref="LimitedNumberSelect"/> configuration settings.
   /// For <see cref="NumberSelect"/> the value's min/max definitions are used as internal limit.
   /// </summary>
   public class NumberSelectController : DialogConfigurationController
@@ -109,12 +109,12 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         {
           if (result > _upperLimit)
           {
-            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _upperLimit.ToString());
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString(), _upperLimit.ToString());
             return false;
           }
           if (result < _lowerLimit)
           {
-            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString());
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString(), _upperLimit.ToString());
             return false;
           }
           _value = result;
@@ -144,20 +144,20 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
       public void Up()
       {
-        if (_value + _step <= _upperLimit)
-        {
+        if (_value + _step > _upperLimit)
+          _value = _upperLimit;
+        else
           _value += _step;
-          RoundValue();
-        }
+        RoundValue();
       }
 
       public void Down()
       {
-        if (_value - _step >= _lowerLimit)
-        {
+        if (_value - _step > _upperLimit)
+          _value = _upperLimit;
+        else
           _value -= _step;
-          RoundValue();
-        }
+        RoundValue();
       }
 
       public override string ToString()
@@ -193,12 +193,12 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         {
           if (result > _upperLimit)
           {
-            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _upperLimit.ToString());
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_UPPER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString(), _upperLimit.ToString());
             return false;
           }
           if (result < _lowerLimit)
           {
-            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString());
+            errorText = LocalizationHelper.CreateResourceString(ERROR_NUMERIC_LOWER_LIMIT_ERROR_RESOURCE).Evaluate(value, _lowerLimit.ToString(), _upperLimit.ToString());
             return false;
           } 
           _value = result;
@@ -235,13 +235,17 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
       public void Up()
       {
-        if (_value + _step <= _upperLimit)
+        if (_value + _step > _upperLimit)
+          _value = _upperLimit;
+        else
           _value += _step;
       }
 
       public void Down()
       {
-        if (_value - _step >= _lowerLimit) 
+        if (_value - _step < _lowerLimit)
+          _value = _lowerLimit;
+        else
           _value -= _step;
       }
     }
