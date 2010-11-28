@@ -23,23 +23,20 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Xml;
-using MediaPortal.Core.ClientCommunication;
+using MediaPortal.Core.MediaManagement;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing enumerations of <see cref="MPClientMetadata"/> objects.
+  /// Data type serializing and deserializing <see cref="MediaItem"/> objects.
   /// </summary>
-  public class UPnPDtMPClientMetadataEnumeration : UPnPExtendedDataType
+  public class UPnPDtMediaItem : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtClientMetadataEnumeration";
+    public const string DATATYPE_NAME = "DtMediaItem";
 
-    internal UPnPDtMPClientMetadataEnumeration() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMediaItem() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
@@ -50,28 +47,24 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsNullable
     {
-      get { return false; }
+      get { return true; }
     }
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(IEnumerable).IsAssignableFrom(type);
+      return typeof(MediaItem).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable clientData = (IEnumerable) value;
-      foreach (MPClientMetadata metadata in clientData)
-        metadata.Serialize(writer);
+      MediaItem mediaItem = (MediaItem) value;
+      mediaItem.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<MPClientMetadata> result = new List<MPClientMetadata>();
-      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
-        return result;
-      while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(MPClientMetadata.Deserialize(reader));
+      reader.ReadStartElement(); // Read start of enclosing element
+      MediaItem result = MediaItem.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

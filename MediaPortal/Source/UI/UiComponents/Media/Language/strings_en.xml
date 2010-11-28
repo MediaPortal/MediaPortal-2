@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
-    <!-- Menu items for the four Media navigation parts -->
+    <!-- Menu items for the five Media navigation parts -->
+    <String Name="BrowseMediaMenuItem" Text="Browse media"/>
     <String Name="LocalMediaMenuItem" Text="Local media"/>
     <String Name="MusicMenuItem" Text="Music"/>
     <String Name="MoviesMenuItem" Text="Movies"/>
@@ -23,6 +24,7 @@
     <String Name="ShowAllPictureItemsMenuItem" Text="Show all"/>
 
     <!-- Navbar display labels for sub view navigation -->
+    <String Name="BrowseMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
     <String Name="LocalMediaNavigationNavbarDisplayLabel" Text="{0}"/> <!-- For example: "R.E.M." -->
     <String Name="FilterArtistNavbarDisplayLabel" Text="Artist: {0}"/> <!-- For example: "Artist: R.E.M." -->
     <String Name="FilterAlbumNavbarDisplayLabel" Text="Album: {0}"/>
@@ -39,6 +41,7 @@
     <String Name="FilterSystemNavbarDisplayLabel" Text="System: {0}"/>
 
     <!-- Display labels for workflow navigation contexts -->
+    <String Name="BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Browse media"/>
     <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
     <String Name="MusicNavigationRootWorkflowNavigationContextDisplayLabel" Text="Music library"/>
     <String Name="MoviesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Movies library"/>
@@ -62,6 +65,7 @@
     <String Name="CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel" Text="Choose media type"/>
 
     <!-- Screen headers -->
+    <String Name="BrowseMediaHeader" Text="Browse media"/>
     <String Name="LocalMediaHeader" Text="Local media"/>
     <String Name="MusicHeader" Text="Music"/>
     <String Name="MoviesHeader" Text="Movies"/>
@@ -80,7 +84,8 @@
     <String Name="PlaylistLoadErrorLoadingPlaylist" Text="Error loading playlist"/>
     <String Name="CannotSavePlaylistWithLocalMediaItems" Text="A playlist can only be saved if all media items were queried from the home server (i.e. not by disconnected local media navigation)."/>
 
-    <!-- View titles (shown in the skin) -->    
+    <!-- View titles (shown in the skin) -->
+    <String Name="BrowseMediaNavigationViewTitle" Text="Browse media navigation"/>
     <String Name="LocalMediaNavigationViewTitle" Text="Local media navigation"/>
     <String Name="MediaItemsViewTitle" Text="Media items"/>
     <String Name="MovieItemsViewTitle" Text="Movies"/>
@@ -99,6 +104,7 @@
     <String Name="ChooseSystemViewTitle" Text="Choose a system"/>
 
     <!-- View names (names for the view instances) -->
+    <String Name="BrowseMediaRootViewName" Text="Browse media"/>
     <String Name="LocalMediaRootViewName" Text="Local media"/>
     <String Name="MusicRootViewName" Text="Music"/>
     <String Name="MoviesRootViewName" Text="Movies"/>

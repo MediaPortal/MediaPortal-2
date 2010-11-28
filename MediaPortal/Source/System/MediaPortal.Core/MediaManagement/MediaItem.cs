@@ -94,11 +94,12 @@ namespace MediaPortal.Core.MediaManagement
     {
       try
       {
-        if (reader.IsEmptyElement)
-          return;
+        // First read attributes, then check for empty start element
         if (!reader.MoveToAttribute("Id"))
           throw new ArgumentException("Id attribute not present");
         _id = new Guid(reader.Value);
+        if (reader.IsEmptyElement)
+          return;
       }
       finally
       {

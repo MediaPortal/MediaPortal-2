@@ -3,11 +3,17 @@
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
     <WorkflowContributorAction Id="17D2390E-5B05-4fbd-89F6-24D60CEB427F"
-        Name="Home->LocalMedia"
+        Name="Home->BrowseLocalMedia"
         DisplayCategory="a-Media"
         SortOrder="a"
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="6455D863-CCF2-403d-8C36-754299B61319"/> <!-- LocalMedia action -->
+    <WorkflowContributorAction Id="93442DF7-186D-42e5-A0F5-CF1493E68F49"
+        Name="Home->BrowseMedia"
+        DisplayCategory="a-Media"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="92F6CE34-CB28-40f7-9136-AB576F479F94"/> <!-- BrowseMedia action -->
     <WorkflowContributorAction Id="30715D73-4205-417f-80AA-E82F0834171F"
         Name="Home->Music"
         DisplayCategory="a-Media"

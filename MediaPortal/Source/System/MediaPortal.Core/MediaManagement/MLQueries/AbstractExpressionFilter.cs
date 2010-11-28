@@ -45,12 +45,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public string Expression
     {
       get { return _expression; }
+      set { _expression = value; }
     }
 
     [XmlIgnore]
     public char? EscapeChar
     {
       get { return _escapeChar; }
+      set { _escapeChar = value; }
     }
 
     #region Additional members for the XML serialization

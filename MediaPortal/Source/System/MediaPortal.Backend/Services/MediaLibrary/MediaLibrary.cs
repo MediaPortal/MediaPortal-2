@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
@@ -57,9 +58,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public MediaItem LoadItem(ResourcePath path,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _parent.Browse(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+      }
+
+      public ICollection<MediaItem> Browse(Guid parentDirectoryId,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
       }
     }
 
@@ -72,14 +80,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public void UpdateMediaItem(ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
       {
-        _parent.AddOrUpdateMediaItem(_parent.LocalSystemId, path, updatedAspects);
+        return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, updatedAspects);
       }
 
       public void DeleteMediaItem(ResourcePath path)
       {
-        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path);
+        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
+      }
+
+      public void DeleteUnderPath(ResourcePath path)
+      {
+        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
       }
     }
 
@@ -90,6 +103,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
 
+    protected MediaItemQuery _queryLoadItem;
+    protected RelationalFilter _filterLoadItemSystemId;
+    protected RelationalFilter _filterLoadItemPath;
+
+    protected MediaItemQuery _queryBrowse;
+    protected RelationalFilter _filterBrowseParentDirectory;
+
     public MediaLibrary()
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
@@ -97,6 +117,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
+
+      _queryLoadItem = new MediaItemQuery(new List<Guid>(), new List<Guid>(),
+          new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+            {
+              _filterLoadItemSystemId = new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, null),
+              _filterLoadItemPath = new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, null)
+            }));
+      _queryBrowse = new MediaItemQuery(new List<Guid>(), new List<Guid>(),
+          _filterBrowseParentDirectory = new RelationalFilter(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, RelationalOperator.EQ, null));
     }
 
     public void Dispose()
@@ -181,7 +210,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath)
+    public int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
       string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
@@ -199,9 +228,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (basePath != null)
         {
-          commandStr = commandStr + " AND " + pathAttribute + " LIKE @PATH ESCAPE '\\'";
-          DBUtils.AddParameter(command, "PATH",
-              SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%", DBUtils.GetDBType(typeof(string)));
+          commandStr += " AND (";
+          if (inclusive)
+            commandStr += pathAttribute + " = @PATH1 OR ";
+          commandStr +=
+              pathAttribute + " LIKE @PATH2 ESCAPE '\\' OR " +
+              pathAttribute + " LIKE @PATH3 ESCAPE '\\'" +
+              ")";
+          string path = StringUtils.RemovePrefixIfPresent(basePath.Serialize(), "/");
+          string escapedPath = SqlUtils.LikeEscape(path, '\\');
+          if (inclusive)
+            // The path itself
+            DBUtils.AddParameter(command, "PATH1", path, DBUtils.GetDBType(typeof(string)));
+          // Normal children
+          DBUtils.AddParameter(command, "PATH2", escapedPath + "/_%", DBUtils.GetDBType(typeof(string)));
+          // Chained children
+          DBUtils.AddParameter(command, "PATH3", escapedPath + ">_%", DBUtils.GetDBType(typeof(string)));
         }
 
         commandStr = commandStr + ")";
@@ -269,9 +311,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             "Unable to update the MediaLibrary's subschema version to expected version {0}.{1}",
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
       _miaManagement = new MIA_Management();
+      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
+    }
+
+    public void ActivateImporterWorker()
+    {
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
-      NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
     public void Shutdown()
@@ -368,25 +414,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    public MediaItem LoadItem(string systemId, ResourcePath path,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
     {
-      const char ESCAPE_CHAR = '!';
-      string pathStr = SqlUtils.LikeEscape(StringUtils.CheckSuffix(path.Serialize(), "/"), ESCAPE_CHAR);
-      BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-          {
-            // Compare system
-            new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemId),
-            // Compare parent folder
-            new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-                pathStr + '%', ESCAPE_CHAR),
-            // Exclude sub folders
-            new NotFilter(
-                new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-                    pathStr + "%/%", ESCAPE_CHAR))
-          });
-      MediaItemQuery query = new MediaItemQuery(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, filter);
-      return Search(query, false);
+      lock (_syncObj)
+      {
+        _filterLoadItemSystemId.FilterValue = systemId;
+        _filterLoadItemPath.FilterValue = path.Serialize();
+        _queryLoadItem.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        _queryLoadItem.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        return Search(_queryLoadItem, false).FirstOrDefault();
+      }
+    }
+
+    public ICollection<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    {
+      lock (_syncObj)
+      {
+        _filterBrowseParentDirectory.FilterValue = parentDirectoryId;
+        _queryBrowse.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        _queryBrowse.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        return Search(_queryBrowse, false);
+      }
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
@@ -612,7 +662,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Media import
 
-    public void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -627,10 +677,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           mediaItemId = AddMediaItem(database, transaction);
 
-          MediaItemAspect providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
-          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, providerResourceAspect, true);
+          MediaItemAspect pra = new MediaItemAspect(ProviderResourceAspect.Metadata);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
+          pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
 
           importerAspect = new MediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
@@ -639,10 +690,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
         importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
         importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
-        if (wasCreated)
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, true);
-        else
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, false);
+
+        _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, wasCreated);
 
         // Update
         foreach (MediaItemAspect mia in mediaItemAspects)
@@ -650,12 +699,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
             // Simply skip unknown MIA types. All types should have been added before import.
             continue;
+          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
+              mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          { // Those aspects are managed by the MediaLibrary
+            ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
+            continue;
+          }
           if (wasCreated)
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
           else
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
         }
         transaction.Commit();
+        return mediaItemId.Value;
       }
       catch (Exception e)
       {
@@ -665,13 +721,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void DeleteMediaItemOrPath(string systemId, ResourcePath path)
+    public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        DeleteAllMediaItemsUnderPath(transaction, systemId, path);
+        DeleteAllMediaItemsUnderPath(transaction, systemId, path, inclusive);
         transaction.Commit();
       }
       catch (Exception e)
@@ -776,7 +832,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] {shareId}))
           command.ExecuteNonQuery();
 
-        DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath);
+        DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
         transaction.Commit();
       }
       catch (Exception e)
@@ -800,7 +856,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesOfSystemCommand(transaction, systemId))
           command.ExecuteNonQuery();
 
-        DeleteAllMediaItemsUnderPath(transaction, systemId, null);
+        DeleteAllMediaItemsUnderPath(transaction, systemId, null, true);
 
         transaction.Commit();
       }
@@ -850,7 +906,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             numAffected = RelocateMediaItems(transaction, originalShare.SystemId, originalShare.BaseResourcePath, baseResourcePath);
             break;
           case RelocationMode.Remove:
-            numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.SystemId, originalShare.BaseResourcePath);
+            numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.SystemId, originalShare.BaseResourcePath, true);
             Share updatedShare = GetShare(transaction, shareId);
             TryScheduleLocalShareImport(updatedShare);
             break;

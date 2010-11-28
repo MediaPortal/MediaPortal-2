@@ -37,7 +37,7 @@ namespace MediaPortal.UI.Views
   /// <summary>
   /// View which is based on a media library query.
   /// </summary>
-  public class MediaLibraryViewSpecification : ViewSpecification
+  public class MediaLibraryQueryViewSpecification : ViewSpecification
   {
     #region Protected fields
 
@@ -51,7 +51,7 @@ namespace MediaPortal.UI.Views
 
     #region Ctor
 
-    public MediaLibraryViewSpecification(string viewDisplayName, IFilter filter,
+    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
@@ -98,10 +98,10 @@ namespace MediaPortal.UI.Views
       }
     }
 
-    public MediaLibraryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
     {
       IFilter combinedFilter = _filter == null ? filter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {_filter, filter});
-      return new MediaLibraryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
         {
             MaxNumItems = _maxNumItems
         };
@@ -132,7 +132,7 @@ namespace MediaPortal.UI.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryViewSpecification subViewSpecification = CreateSubViewSpecification(group.GroupName, group.AdditionalFilter);
+              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(group.GroupName, group.AdditionalFilter);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);

@@ -49,6 +49,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public ICollection<Guid> MediaItemIds
     {
       get { return _mediaItemIds; }
+      set { _mediaItemIds = new List<Guid>(value); }
     }
 
     public override string ToString()
@@ -67,6 +68,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlArray("MediaItemIds", IsNullable = false)]
     public List<Guid> XML_MediaItemIds
     {
       get { return _mediaItemIds; }

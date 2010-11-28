@@ -4,6 +4,11 @@
   <States>
     <!-- Media navigation -->
 
+    <WorkflowState Id="387044A0-83BA-435d-B262-C90CF70A9858"
+        Name="BrowseMediaNavigation-Root"
+        DisplayLabel="[Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel]"
+        WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
     <WorkflowState Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         Name="LocalMediaNavigation-Root"
         DisplayLabel="[Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel]"

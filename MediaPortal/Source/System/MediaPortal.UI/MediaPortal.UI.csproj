@@ -168,10 +168,12 @@
     <Compile Include="UserManagement\IRole.cs" />
     <Compile Include="UserManagement\IUser.cs" />
     <Compile Include="UserManagement\IUserService.cs" />
+    <Compile Include="Views\AllSharesViewSpecification.cs" />
+    <Compile Include="Views\MediaLibraryBrowseViewSpecification.cs" />
     <Compile Include="Views\SimpleTextSearchViewSpecification.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
     <Compile Include="Views\LocalDirectoryViewSpecification.cs" />
-    <Compile Include="Views\MediaLibraryViewSpecification.cs" />
+    <Compile Include="Views\MediaLibraryQueryViewSpecification.cs" />
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />

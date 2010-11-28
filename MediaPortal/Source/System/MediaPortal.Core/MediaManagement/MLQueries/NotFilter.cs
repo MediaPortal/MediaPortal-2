@@ -42,6 +42,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public IFilter InnerFilter
     {
       get { return _innerFilter; }
+      set { _innerFilter = value; }
     }
 
     #region Additional members for the XML serialization
@@ -55,7 +56,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("BooleanCombination", typeof(BooleanCombinationFilter))]
     [XmlElement("In", typeof(InFilter))]
     [XmlElement("Like", typeof(LikeFilter))]
-    [XmlElement("SimilarTo", typeof(SimilarToFilter))]
     [XmlElement("Not", typeof(NotFilter))]
     [XmlElement("Relational", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]

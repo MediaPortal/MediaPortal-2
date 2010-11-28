@@ -31,6 +31,7 @@ namespace MediaPortal.UiComponents.Media.General
   {
     public const string STR_MODULE_ID_MEDIA = "53130C0E-D19C-4972-92F4-DB6665E51CBC";
 
+    public const string STR_WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT = "387044A0-83BA-435d-B262-C90CF70A9858";
     public const string STR_WF_STATE_ID_LOCAL_MEDIA_NAVIGATION = "B393C6D8-9F37-4481-B403-0D5B17F52EC8";
     public const string STR_WF_STATE_ID_MUSIC_NAVIGATION_ROOT = "F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB";
     public const string STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT = "22ED8702-3887-4acb-ACB4-30965220AFF0";
@@ -64,6 +65,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid MODULE_ID_MEDIA = new Guid(STR_MODULE_ID_MEDIA);
 
+    public static readonly Guid WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_LOCAL_MEDIA_NAVIGATION);
     public static readonly Guid WF_STATE_ID_MUSIC_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MUSIC_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
@@ -119,6 +121,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_CANNOT_PLAY_ITEM_DIALOG_TEXT = "[Media.CannotPlayItemDialogText]";
     public const string RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT = "[Media.CannotPlayItemsDialogText]";
 
+    public const string RES_BROWSE_MEDIA_ROOT_VIEW_NAME = "[Media.BrowseMediaRootViewName]";
     public const string RES_LOCAL_MEDIA_ROOT_VIEW_NAME = "[Media.LocalMediaRootViewName]";
     public const string RES_MUSIC_VIEW_NAME = "[Media.MusicRootViewName]";
     public const string RES_MOVIES_VIEW_NAME = "[Media.MoviesRootViewName]";
@@ -140,6 +143,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SHOW_ALL_MOVIE_ITEMS_MENU_ITEM = "[Media.ShowAllMovieItemsMenuItem]";
     public const string RES_SHOW_ALL_PICTURE_ITEMS_MENU_ITEM = "[Media.ShowAllPictureItemsMenuItem]";
 
+    public const string RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.BrowseMediaNavigationNavbarDisplayLabel]";
     public const string RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
     public const string RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterArtistNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
@@ -197,6 +201,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadAllItemsMissingText]";
 
     // Screens
+    public const string SCREEN_BROWSE_MEDIA_NAVIGATION = "BrowseMediaNavigation";
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
     public const string SCREEN_MUSIC_SHOW_ITEMS = "MusicShowItems";
     public const string SCREEN_MUSIC_FILTER_BY_ARTIST = "MusicFilterByArtist";

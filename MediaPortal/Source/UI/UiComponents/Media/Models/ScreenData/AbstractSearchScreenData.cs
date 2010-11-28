@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     protected AbstractProperty _simpleSearchTextProperty;
     protected Timer _searchTimer;
-    protected MediaLibraryViewSpecification _baseViewSpecification = null;
+    protected MediaLibraryQueryViewSpecification _baseViewSpecification = null;
 
     #endregion
 
@@ -125,7 +125,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     protected void InitializeSearch(ViewSpecification baseViewSpecification)
     {
-      _baseViewSpecification = baseViewSpecification as MediaLibraryViewSpecification;
+      _baseViewSpecification = baseViewSpecification as MediaLibraryQueryViewSpecification;
       if (_baseViewSpecification == null)
         return;
       if (_simpleSearchTextProperty == null)

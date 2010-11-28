@@ -33,7 +33,7 @@ using UPnP.Infrastructure.Utils;
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="MediaItemAspect"/> objects.
+  /// Data type serializing and deserializing enumerations of <see cref="MediaItemAspect"/> objects.
   /// </summary>
   public class UPnPDtMediaItemAspectEnumeration : UPnPExtendedDataType
   {

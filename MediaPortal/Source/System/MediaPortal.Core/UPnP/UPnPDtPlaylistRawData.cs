@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using UPnP.Infrastructure.Common;
@@ -31,7 +30,7 @@ using UPnP.Infrastructure.Common;
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="IEnumerable"/> sequences of <see cref="Share"/> objects.
+  /// Data type serializing and deserializing enumerations of <see cref="PlaylistRawData"/> objects.
   /// </summary>
   public class UPnPDtPlaylistRawData : UPnPExtendedDataType
   {

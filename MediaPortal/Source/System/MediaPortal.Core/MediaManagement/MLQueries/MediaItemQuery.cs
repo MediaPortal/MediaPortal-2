@@ -109,7 +109,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("BooleanCombinationFilter", typeof(BooleanCombinationFilter))]
     [XmlElement("InFilter", typeof(InFilter))]
     [XmlElement("LikeFilter", typeof(LikeFilter))]
-    [XmlElement("SimilarToFilter", typeof(SimilarToFilter))]
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
@@ -153,8 +152,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
         IFilter filter)
     {
-      _necessaryRequestedMIATypeIDs = necessaryRequestedMIATypeIDs == null ? new HashSet<Guid>() : new HashSet<Guid>(necessaryRequestedMIATypeIDs);
-      _optionalRequestedMIATypeIDs = optionalRequestedMIATypeIDs == null ? new HashSet<Guid>() : new HashSet<Guid>(optionalRequestedMIATypeIDs);
+      SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+      SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
       _filter = filter;
     }
 
@@ -174,14 +173,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public ICollection<Guid> NecessaryRequestedMIATypeIDs
     {
       get { return _necessaryRequestedMIATypeIDs; }
-      set { _necessaryRequestedMIATypeIDs = new HashSet<Guid>(value); }
+      set { SetNecessaryRequestedMIATypeIDs(value); }
     }
 
     [XmlIgnore]
     public ICollection<Guid> OptionalRequestedMIATypeIDs
     {
       get { return _optionalRequestedMIATypeIDs; }
-      set { _optionalRequestedMIATypeIDs = new HashSet<Guid>(value); }
+      set { SetOptionalRequestedMIATypeIDs(value); }
     }
 
     [XmlIgnore]
@@ -199,6 +198,16 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     }
 
     #endregion
+
+    public void SetNecessaryRequestedMIATypeIDs(IEnumerable<Guid> value)
+    {
+      _necessaryRequestedMIATypeIDs = value == null ? new HashSet<Guid>() : new HashSet<Guid>(value);
+    }
+
+    public void SetOptionalRequestedMIATypeIDs(IEnumerable<Guid> value)
+    {
+      _optionalRequestedMIATypeIDs = value == null ? new HashSet<Guid>() : new HashSet<Guid>(value);
+    }
 
     public static void SerializeFilter(XmlWriter writer, IFilter filter)
     {
@@ -292,12 +301,12 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("BooleanCombinationFilter", typeof(BooleanCombinationFilter))]
     [XmlElement("InFilter", typeof(InFilter))]
     [XmlElement("LikeFilter", typeof(LikeFilter))]
-    [XmlElement("SimilarToFilter", typeof(SimilarToFilter))]
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
     [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
+    // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
     public object XML_Filter
     {
       get { return _filter; }

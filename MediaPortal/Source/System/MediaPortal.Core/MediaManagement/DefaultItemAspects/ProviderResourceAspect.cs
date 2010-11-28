@@ -49,11 +49,18 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
 
+    /// <summary>
+    /// Contains id of the parent directory item.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENT_DIRECTORY_ID =
+        MediaItemAspectMetadata.CreateAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
+
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,
             ATTR_RESOURCE_ACCESSOR_PATH,
+            ATTR_PARENT_DIRECTORY_ID,
         });
   }
 }

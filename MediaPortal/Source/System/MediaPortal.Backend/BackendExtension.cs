@@ -72,6 +72,14 @@ namespace MediaPortal.Backend
       ServiceRegistration.Get<IBackendServer>().Startup();
     }
 
+    /// <summary>
+    /// To be called after all media item aspects are present.
+    /// </summary>
+    public static void ActivateImporterWorker()
+    {
+      ServiceRegistration.Get<IMediaLibrary>().ActivateImporterWorker();
+    }
+
     public static void ShutdownBackendServices()
     {
       ServiceRegistration.Get<IClientManager>().Shutdown();

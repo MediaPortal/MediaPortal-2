@@ -105,6 +105,7 @@
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\NoLogger.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
@@ -136,7 +137,6 @@
     <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\SerializationHelper.cs" />
-    <Compile Include="MediaManagement\MLQueries\SimilarToFilter.cs" />
     <Compile Include="MediaManagement\ResourceAccess\ProviderPathSegment.cs" />
     <Compile Include="MediaManagement\ResourceAccess\LocalFsMediaProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />
@@ -165,6 +165,7 @@
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
     <Compile Include="MediaManagement\ResourceAccess\RemoteResourceToLocalFsAccessBridge.cs" />
+    <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceInformationService.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceAccessorBase.cs" />
     <Compile Include="Services\MediaManagement\RemoteFileSystemResourceAccessor.cs" />
@@ -272,6 +273,7 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItem.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistRawData.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistContents.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistInformationDataEnumeration.cs" />

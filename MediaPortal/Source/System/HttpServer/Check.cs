@@ -49,7 +49,8 @@ namespace HttpServer
     ///// <param name="minValue"></param>
     ///// <param name="value">Parameter value</param>
     ///// <param name="parameterOrErrorMessage">Parameter name, or error description.</param>
-    ///// <exception cref="ArgumentException">value is null.</exception>    //public static void Min(int minValue, object value, string parameterOrErrorMessage)
+    ///// <exception cref="ArgumentException">value is null.</exception>
+    //public static void Min(int minValue, object value, string parameterOrErrorMessage)
     //{
     //  if (value != null)
     //    return;

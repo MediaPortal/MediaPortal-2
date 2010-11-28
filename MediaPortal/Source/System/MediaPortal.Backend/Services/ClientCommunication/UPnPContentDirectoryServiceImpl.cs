@@ -96,6 +96,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_ResourcePath);
 
+      // Used to transport an enumeration of directories data
+      DvStateVariable A_ARG_TYPE_ResourcePaths = new DvStateVariable("A_ARG_TYPE_ResourcePaths", new DvExtendedDataType(UPnPExtendedDataTypes.DtResourcePathMetadataEnumeration))
+        {
+            SendEvents = false
+        };
+      AddStateVariable(A_ARG_TYPE_ResourcePaths);
+
       // Used to hold names for several objects
       DvStateVariable A_ARG_TYPE_Name = new DvStateVariable("A_ARG_TYPE_Name", new DvStandardDataType(UPnPStandardDataType.String))
           {
@@ -161,6 +168,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         AllowedValueList = new List<string> { "CaseSensitive", "CaseInsensitive" }
       };
       AddStateVariable(A_ARG_TYPE_CapitalizationMode);
+
+      // Used to transport a single media item with some media item aspects
+      DvStateVariable A_ARG_TYPE_MediaItem = new DvStateVariable("A_ARG_TYPE_MediaItem", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItem))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItem);
 
       // Used to transport a collection of media items with some media item aspects
       DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemEnumeration))
@@ -374,10 +388,21 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(textSearchAction);
 
-      DvAction browseAction = new DvAction("Browse", OnBrowse,
+      DvAction loadItemAction = new DvAction("LoadItem", OnLoadItem,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
+          });
+      AddAction(loadItemAction);
+
+      DvAction browseAction = new DvAction("Browse", OnBrowse,
+          new DvArgument[] {
+            new DvArgument("ParentDirectory", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
           },
@@ -473,11 +498,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       DvAction addOrUpdateMediaItemAction = new DvAction("AddOrUpdateMediaItem", OnAddOrUpdateMediaItem,
           new DvArgument[] {
+            new DvArgument("ParentDirectoryId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("UpdatedMediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
           },
           new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true),
           });
       AddAction(addOrUpdateMediaItemAction);
 
@@ -485,6 +512,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("Inclusive", A_ARG_TYPE_Bool, ArgumentDirection.In),
           },
           new DvArgument[] {
           });
@@ -773,16 +801,28 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnLoadItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
-      ICollection<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Browse(systemId, path,
+      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
           necessaryMIATypes, optionalMIATypes);
-      outParams = new List<object> {mediaItems};
+      outParams = new List<object> {mediaItem};
+      return null;
+    }
+
+    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      ICollection<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes);
+
+      outParams = new List<object> {result};
       return null;
     }
 
@@ -897,11 +937,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      string systemId = (string) inParams[0];
-      ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
-      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>) inParams[2];
-      ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(systemId, path, mediaItemAspects);
-      outParams = null;
+      Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
+      string systemId = (string) inParams[1];
+      ResourcePath path = ResourcePath.Deserialize((string) inParams[2]);
+      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>) inParams[3];
+      Guid mediaItemId = ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemAspects);
+      outParams = new List<object> {MarshallingHelper.SerializeGuid(mediaItemId)};
       return null;
     }
 
@@ -910,7 +951,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
-      ServiceRegistration.Get<IMediaLibrary>().DeleteMediaItemOrPath(systemId, path);
+      bool inclusive = (bool) inParams[2];
+      ServiceRegistration.Get<IMediaLibrary>().DeleteMediaItemOrPath(systemId, path, inclusive);
       outParams = null;
       return null;
     }

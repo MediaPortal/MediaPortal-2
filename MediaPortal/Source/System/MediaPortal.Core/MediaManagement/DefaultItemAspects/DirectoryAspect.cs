@@ -22,17 +22,24 @@
 
 #endregion
 
-namespace MediaPortal.UiComponents.Media.Models
+using System;
+
+namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Represents different parts of the media library/system which can be navigated by the media model.
+  /// Contains the metadata specification of the "Directory" media item aspect which is assigned
+  /// to all directory items.
   /// </summary>
-  public enum MediaNavigationMode
+  public static class DirectoryAspect
   {
-    BrowseLocalMedia,
-    BrowseMedia,
-    Music,
-    Movies,
-    Pictures
+    /// <summary>
+    /// Media item aspect id of the directory aspect.
+    /// </summary>
+    public static Guid ASPECT_ID = new Guid("1EEEF2D0-D52F-40f7-A12A-9908C2DAED1A");
+
+    public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+        // TODO: Localize name
+        ASPECT_ID, "Directory", new MediaItemAspectMetadata.AttributeSpecification[] {
+        });
   }
 }

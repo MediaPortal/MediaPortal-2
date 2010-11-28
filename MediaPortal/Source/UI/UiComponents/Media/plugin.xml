@@ -26,7 +26,8 @@
     <Model Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2" Name="EditPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.EditPlaylistModel"/>
     <Model Id="039151B6-800B-4279-A1BE-7F421EEA8C9A" Name="ManagePlaylistsModel" ClassName="MediaPortal.UiComponents.Media.Models.ManagePlaylistsModel"/>
 
-    <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="LocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LocalMediaAction"/>
+    <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="BrowseLocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseLocalMediaAction"/>
+    <Model Id="92F6CE34-CB28-40f7-9136-AB576F479F94" Name="BrowseMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseMediaAction"/>
     <Model Id="D8922F2B-5B56-4218-93B1-570616BAAEAD" Name="MusicContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.MusicAction"/>
     <Model Id="598F813D-D575-4229-A8E6-5ABCE0EDCDB8" Name="MoviesContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.MoviesAction"/>
     <Model Id="E6E42CDB-07F7-4055-8EF9-0AA35904FAB5" Name="AddToPlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.AddViewToPlaylistAction"/>

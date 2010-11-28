@@ -60,24 +60,35 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IMediaBrowsing implementation
 
-      public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-          IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public MediaItem LoadItem(ResourcePath path,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _contentDirectory.Browse(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+      }
+
+      public ICollection<MediaItem> Browse(Guid parentDirectoryId,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
       }
 
       #endregion
 
       #region IImportResultHandler implementation
 
-      public void UpdateMediaItem(ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
       {
-        _contentDirectory.AddOrUpdateMediaItem(_localSystemId, path, updatedAspects);
+        return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
       }
 
       public void DeleteMediaItem(ResourcePath path)
       {
-        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path);
+        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, true);
+      }
+
+      public void DeleteUnderPath(ResourcePath path)
+      {
+        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, false);
       }
 
       #endregion

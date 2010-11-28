@@ -30,7 +30,9 @@ namespace MediaPortal.Core.MediaManagement
 {
   public interface IMediaBrowsing
   {
-    ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+    MediaItem LoadItem(ResourcePath path,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+    ICollection<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         IEnumerable<Guid> optionalRequestedMIATypeIDs);
   }
 }

@@ -39,6 +39,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public MediaItemAspectMetadata.AttributeSpecification AttributeType
     {
       get { return _attributeType; }
+      set { _attributeType = value; }
     }
 
     #region Additional members for the XML serialization

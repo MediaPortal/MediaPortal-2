@@ -876,8 +876,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
 
         // Main table
-        mainStatementBuilder.Append(StringUtils.Join(", ", terms));
-        mainStatementBuilder.Append(", ");
+        foreach (string term in terms)
+        {
+          mainStatementBuilder.Append(term);
+          mainStatementBuilder.Append(", ");
+        }
         string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", "PK");
         string fkMediaItemConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_MEDIA_ITEMS_FK", "FK");
         mainStatementBuilder.Append(
@@ -1398,7 +1401,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       // terms = all inline attributes
       // sqlValues = all inline attribute values
-      if (terms1.Count > 0)
+      if (add || terms1.Count > 0)
       {
         // Main query
         StringBuilder mainQueryBuilder = new StringBuilder();
@@ -1420,7 +1423,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         // values = all inline attribute values plus media item ID
         if (add)
         {
-          mainQueryBuilder.Append(", ");
+          if (terms1.Count > 0)
+            mainQueryBuilder.Append(", ");
           mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME); // Append the ID column as a normal attribute
           mainQueryBuilder.Append(") VALUES (");
           terms2.Add("@MEDIA_ITEM_ID");

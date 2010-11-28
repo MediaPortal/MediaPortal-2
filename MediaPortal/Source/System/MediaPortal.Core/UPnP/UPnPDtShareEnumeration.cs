@@ -33,7 +33,7 @@ using UPnP.Infrastructure.Utils;
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="IEnumerable"/> sequences of <see cref="Share"/> objects.
+  /// Data type serializing and deserializing enumerations of <see cref="Share"/> objects.
   /// </summary>
   public class UPnPDtShareEnumeration : UPnPExtendedDataType
   {

@@ -76,7 +76,9 @@ namespace MediaPortal.UI.ServerCommunication
         bool onlyOnline, GroupingFunction groupingFunction);
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
-    ICollection<MediaItem> Browse(string systemId, ResourcePath path,
+    MediaItem LoadItem(string systemId, ResourcePath path,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+    ICollection<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter);
@@ -139,9 +141,9 @@ namespace MediaPortal.UI.ServerCommunication
 
     #region Media import
 
-    void AddOrUpdateMediaItem(string systemId, ResourcePath path,
+    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects);
-    void DeleteMediaItemOrPath(string systemId, ResourcePath path);
+    void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
 
     #endregion
   }

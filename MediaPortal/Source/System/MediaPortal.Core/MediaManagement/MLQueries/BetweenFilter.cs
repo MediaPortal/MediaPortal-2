@@ -45,12 +45,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public object Value1
     {
       get { return _value1; }
+      set { _value1 = value; }
     }
 
     [XmlIgnore]
     public object Value2
     {
       get { return _value2; }
+      set { _value2 = value; }
     }
 
     #region Additional members for the XML serialization

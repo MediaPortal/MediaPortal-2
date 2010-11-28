@@ -85,13 +85,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void Reload()
     {
       lock (_syncObj)
-      CreateFilterValuesList();
+      ReloadFilterValuesList(false);
     }
 
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      CreateFilterValuesList();
+      ReloadFilterValuesList(true);
     }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
@@ -103,9 +103,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Updates the GUI data for a filter values selection screen which reflects the available filter values for
     /// the current base view specification of our <see cref="AbstractScreenData._navigationData"/>.
     /// </summary>
-    protected void CreateFilterValuesList()
+    protected void ReloadFilterValuesList(bool createNewList)
     {
-      MediaLibraryViewSpecification currentVS = _navigationData.BaseViewSpecification as MediaLibraryViewSpecification;
+      MediaLibraryQueryViewSpecification currentVS = _navigationData.BaseViewSpecification as MediaLibraryQueryViewSpecification;
       if (currentVS == null)
       { // Should never happen
         ServiceRegistration.Get<ILogger>().Error("FilterScreenData: Wrong type of media library view '{0}'", _navigationData.BaseViewSpecification);
@@ -126,7 +126,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       try
       {
-        ItemsList items = new ItemsList();
+        ItemsList items;
+        if (createNewList)
+          items = new ItemsList();
+        else
+        {
+          items = _items;
+          items.Clear();
+        }
 
         try
         {
@@ -166,7 +173,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             {
               string filterTitle = filterValue.Title;
               IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { currentVS.Filter, filterValue.Filter});
-              MediaLibraryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, combinedFilter);
               ListItem filterValueItem = new FilterItem(filterTitle, filterValue.NumItems)
                 {
                     Command = grouping ? new MethodDelegateCommand(() => NavigateToGroup(subVS)) :
@@ -189,7 +196,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           lock (_syncObj)
             _buildingList = false;
-          CreateFilterValuesList();
+          ReloadFilterValuesList(createNewList);
         }
         else
         {

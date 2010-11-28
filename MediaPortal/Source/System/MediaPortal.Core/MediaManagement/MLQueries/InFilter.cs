@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
@@ -31,18 +32,19 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// </summary>
   public class InFilter : AbstractAttributeFilter
   {
-    protected object[] _values;
+    protected List<object> _values;
 
     public InFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        object[] values) : base(attributeType)
+        IEnumerable<object> values) : base(attributeType)
     {
-      _values = values;
+      _values = new List<object>(values);
     }
 
     [XmlIgnore]
-    public object[] Values
+    public ICollection<object> Values
     {
       get { return _values; }
+      set { _values = new List<object>(value); }
     }
 
     #region Additional members for the XML serialization
@@ -53,10 +55,11 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlArray("Values", IsNullable = false)]
+    // Necessary to have an object ARRAY here, else the serialization algorithm cannot cope with polymorph values
     public object[] XML_Values
     {
-      get { return _values; }
-      set { _values = value; }
+      get { return _values.ToArray(); }
+      set { _values = new List<object>(value); }
     }
 
     #endregion

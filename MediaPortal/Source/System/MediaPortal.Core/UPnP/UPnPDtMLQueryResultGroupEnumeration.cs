@@ -26,7 +26,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
-using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
@@ -34,7 +33,7 @@ using UPnP.Infrastructure.Utils;
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="IEnumerable"/> sequences of <see cref="Share"/> objects.
+  /// Data type serializing and deserializing enumerations of <see cref="MLQueryResultGroup"/> objects.
   /// </summary>
   public class UPnPDtMLQueryResultGroupEnumeration : UPnPExtendedDataType
   {

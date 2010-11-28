@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
+    <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\SavePlaylistAction.cs" />
     <Compile Include="Actions\ManagePlaylistsAction.cs">
       <SubType>Code</SubType>
@@ -72,7 +73,7 @@
     <Compile Include="Actions\MusicAction.cs" />
     <Compile Include="Actions\ShowPlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
-    <Compile Include="Actions\LocalMediaAction.cs" />
+    <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractShowMLItemsScreenData.cs" />
+    <Compile Include="Models\ScreenData\BrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesFilterBySystemScreenData.cs" />
     <Compile Include="Models\ScreenData\MusicFilterBySystemScreenData.cs" />
     <Compile Include="Models\ScreenData\MoviesFilterBySystemScreenData.cs" />
@@ -148,6 +150,7 @@
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
+    <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc" />
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\default\screens\MusicShowItems.xaml" />

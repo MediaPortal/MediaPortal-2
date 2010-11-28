@@ -27,7 +27,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
-  public class LocalMediaAction : TrackServerConnectionBaseAction
+  public class BrowseLocalMediaAction : TrackServerConnectionBaseAction
   {
     #region Consts
 
@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     #endregion
 
-    public LocalMediaAction() :
+    public BrowseLocalMediaAction() :
         base(false, Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT, LOCAL_MEDIA_RESOURCE) { }
   }
 }

@@ -42,13 +42,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class CompiledGroupedAttributeValueQuery
   {
     protected readonly MIA_Management _miaManagement;
-    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
+    protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
     protected readonly CompiledFilter _filter;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
-        ICollection<MediaItemAspectMetadata> necessaryRequestedMIATypes,
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
         CompiledFilter filter)
     {
@@ -90,7 +90,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
         necessaryMIATypes.Add(miam);
       }
-
       return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
     }
 
@@ -109,7 +108,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
           {
             QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-            MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIATypes,
+            MainQueryBuilder builder = new MainQueryBuilder(_miaManagement,
+                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {},
                 new QueryAttribute[] {selectAttributeQA}, _filter, null);
             IDictionary<QueryAttribute, string> qa2a;
             builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out bindVars);

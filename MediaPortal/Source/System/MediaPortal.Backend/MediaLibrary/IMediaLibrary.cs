@@ -59,6 +59,7 @@ namespace MediaPortal.Backend.MediaLibrary
     #region Startup & Shutdown
 
     void Startup();
+    void ActivateImporterWorker();
     void Shutdown();
 
     #endregion
@@ -103,16 +104,27 @@ namespace MediaPortal.Backend.MediaLibrary
         bool filterOnlyOnline, GroupingFunction groupingFunction);
 
     /// <summary>
-    /// Lists all media items of the given location.
+    /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="path"/>.
     /// </summary>
-    /// <param name="systemId">ID of the system whose location is to browse.</param>
-    /// <param name="path">Path of the location to browse.</param>
+    /// <param name="systemId">System id of the item to load.</param>
+    /// <param name="path">Native resource path of the item to load.</param>
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
-    /// If a media item at the given location doesn't contain at least one of those media item aspects, it won't be returned.</param>
+    /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
+    /// <returns></returns>
+    MediaItem LoadItem(string systemId, ResourcePath path,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+
+    /// <summary>
+    /// Lists all media items with the given parent directory.
+    /// </summary>
+    /// <param name="parentDirectoryId">Media item id of the parent directory item to browse.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
+    /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
     /// <returns>Result collection of media items at the given location.</returns>
-    ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs);
+    ICollection<MediaItem> Browse(Guid parentDirectoryId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -201,10 +213,13 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <summary>
     /// Adds or updates the media item specified by its location (<paramref name="systemId"/> and <paramref name="path"/>).
     /// </summary>
-    /// <param name="systemId">The ID of the system where the media item to be updated is located.</param>
+    /// <param name="parentDirectoryId">Id of the parent directory's media item or <see cref="Guid.Empty"/>, if the
+    /// parent directory is not present in the media library.</param>
+    /// <param name="systemId">The Id of the system where the media item to be updated is located.</param>
     /// <param name="path">The path at the given system of the media item to be updated.</param>
     /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
-    void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
+    /// <returns>Id of the media item which has been added or updated.</returns>
+    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
     /// Deletes all media items and directories from the media library which are located at the client with the given
@@ -214,7 +229,10 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="path">The path of the media item or directory at the system of the given client to be deleted.
     /// The path can be the full path of a media item or just the first part of the path in case of a directory.
     /// If this parameter is set to <c>null</c>, all media items of the given client will be deleted.</param>
-    void DeleteMediaItemOrPath(string systemId, ResourcePath path);
+    /// <param name="inclusive">If set to <c>true</c>, the media item with the given <paramref name="path"/> will
+    /// also be deleted. If set to <c>false</c>, only sub directories will be deleted. This parameter is only used
+    /// if <paramref name="path"/> is not <c>null</c>.</param>
+    void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
 
     #endregion
 

@@ -41,13 +41,13 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   public class BooleanCombinationFilter : IFilter
   {
     protected BooleanOperator _operator;
-    protected IFilter[] _operands;
+    protected List<IFilter> _operands;
 
     public BooleanCombinationFilter(BooleanOperator op, IEnumerable<IFilter> operands)
     {
       _operator = op;
-      _operands = operands.ToArray();
-      if (_operands.Length == 0)
+      _operands = new List<IFilter>(operands);
+      if (_operands.Count == 0)
         throw new ArgumentException("The filter operands enumeration must not be empty");
     }
 
@@ -55,12 +55,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public BooleanOperator Operator
     {
       get { return _operator; }
+      set { _operator = value; }
     }
 
     [XmlIgnore]
-    public IFilter[] Operands
+    public ICollection<IFilter> Operands
     {
       get { return _operands; }
+      set { _operands = new List<IFilter>(value); }
     }
 
     public static IFilter CombineFilters(BooleanOperator op, IEnumerable<IFilter> filters)
@@ -99,19 +101,20 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlArrayItem("BooleanCombination", typeof(BooleanCombinationFilter))]
     [XmlArrayItem("In", typeof(InFilter))]
     [XmlArrayItem("Like", typeof(LikeFilter))]
-    [XmlArrayItem("SimilarTo", typeof(SimilarToFilter))]
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
     [XmlArrayItem("Empty", typeof(EmptyFilter))]
     [XmlArrayItem("False", typeof(FalseFilter))]
     [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
+    // Necessary to have an object ARRAY here, else the serialization algorithm cannot cope with polymorph values
     public object[] XML_Operands
     {
-      get { return _operands; }
+      get { return _operands.ToArray(); }
       set
       {
-        _operands = new IFilter[value.Length];
-        Array.Copy(value, _operands, value.Length);
+        _operands = new List<IFilter>(value.Length);
+        foreach (IFilter filter in value)
+          _operands.Add(filter);
       }
     }
 

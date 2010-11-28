@@ -122,7 +122,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       BooleanCombinationFilter boolFilter = filter as BooleanCombinationFilter;
       if (boolFilter != null)
       {
-        int numOperands = boolFilter.Operands.Length;
+        int numOperands = boolFilter.Operands.Count;
         IEnumerator enumOperands = boolFilter.Operands.GetEnumerator();
         if (!enumOperands.MoveNext())
           return;
@@ -358,23 +358,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
-      SimilarToFilter similarToFilter = filter as SimilarToFilter;
-      if (similarToFilter != null)
-      {
-        resultParts.Add(attributeOperand);
-        resultParts.Add(" SIMILAR TO ");
-        BindVar bindVar = new BindVar("V" + _bindVarCounter++, similarToFilter.Expression, attributeType);
-        resultParts.Add("@" + bindVar.Name);
-        resultBindVars.Add(bindVar);
-        if (similarToFilter.EscapeChar.HasValue)
-        {
-          bindVar = new BindVar("E" + _bindVarCounter++, similarToFilter.EscapeChar.ToString(), typeof(Char));
-          resultParts.Add(" ESCAPE @" + bindVar.Name);
-          resultBindVars.Add(bindVar);
-        }
-        return;
-      }
-
       BetweenFilter betweenFilter = filter as BetweenFilter;
       if (betweenFilter != null)
       {
@@ -393,7 +376,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       InFilter inFilter = filter as InFilter;
       if (inFilter != null)
       {
-        if (inFilter.Values.Length == 0)
+        if (inFilter.Values.Count == 0)
         {
           resultParts.Add("1 = 2"); // No comparison values means filter is always false
           return;

@@ -212,11 +212,22 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public ICollection<MediaItem> Browse(string systemId, ResourcePath path,
+    public MediaItem LoadItem(string systemId, ResourcePath path,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+    {
+      CpAction action = GetAction("LoadItem");
+      IList<object> inParameters = new List<object> {systemId, path.Serialize(),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (MediaItem) outParameters[0];
+    }
+
+    public ICollection<MediaItem> Browse(Guid parentDirectory,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
     {
       CpAction action = GetAction("Browse");
-      IList<object> inParameters = new List<object> {systemId, path.Serialize(),
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(parentDirectory),
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
       IList<object> outParameters = action.InvokeAction(inParameters);
@@ -314,18 +325,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     #region Media import
 
-    public void AddOrUpdateMediaItem(string systemId, ResourcePath path,
+    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       CpAction action = GetAction("AddOrUpdateMediaItem");
-      IList<object> inParameters = new List<object> {systemId, path.Serialize(), mediaItemAspects};
-      action.InvokeAction(inParameters);
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(parentDirectoryId),
+            systemId,
+            path.Serialize(),
+            mediaItemAspects
+        };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
     }
 
-    public void DeleteMediaItemOrPath(string systemId, ResourcePath path)
+    public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
     {
       CpAction action = GetAction("DeleteMediaItemOrPath");
-      IList<object> inParameters = new List<object> {systemId, path.Serialize()};
+      IList<object> inParameters = new List<object> {systemId, path.Serialize(), inclusive};
       action.InvokeAction(inParameters);
     }
 

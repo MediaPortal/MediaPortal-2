@@ -76,15 +76,15 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </summary>
     /// <remarks>
     /// The media navigation mode determines the media library part which is navigated: Music, Movies or Pictures. Another
-    /// navigation mode is LocalMedia, which is completely decoupled from the media library.
+    /// navigation mode is BrowseLocalMedia, which is completely decoupled from the media library.
     /// </remarks>
     public MediaNavigationMode Mode
     {
       get
       {
         if (_currentNavigationContext == null)
-          return MediaNavigationMode.LocalMedia;
-        return (_currentNavigationContext.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.LocalMedia;
+          return MediaNavigationMode.BrowseLocalMedia;
+        return (_currentNavigationContext.GetContextVariable(Consts.KEY_NAVIGATION_MODE, true) as MediaNavigationMode?) ?? MediaNavigationMode.BrowseLocalMedia;
       }
       internal set
       {
@@ -184,7 +184,8 @@ namespace MediaPortal.UiComponents.Media.Models
         case MediaNavigationMode.Pictures:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
           break;
-        case MediaNavigationMode.LocalMedia:
+        case MediaNavigationMode.BrowseLocalMedia:
+        case MediaNavigationMode.BrowseMedia:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView);
           break;
       }
@@ -205,7 +206,7 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_MUSIC_VIEW_NAME,
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MUSIC_VIEW_NAME,
             null, Consts.NECESSARY_MUSIC_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -231,7 +232,7 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
             null, Consts.NECESSARY_MOVIE_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -256,7 +257,7 @@ namespace MediaPortal.UiComponents.Media.Models
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
-        ViewSpecification rootViewSpecification = new MediaLibraryViewSpecification(Consts.RES_PICTURES_VIEW_NAME,
+        ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_PICTURES_VIEW_NAME,
             null, Consts.NECESSARY_PICTURE_MIAS, null, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
@@ -274,14 +275,19 @@ namespace MediaPortal.UiComponents.Media.Models
             currentStateId, rootViewSpecification, sd, availableScreens);
       }
       else
-      { // If we were called with a supported root state, we should be in state WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT here
-        if (currentStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT)
+      {
+        // If we were called with a supported root state, we should be either in state WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT
+        // or WF_STATE_ID_MEDIA_BROWSE_NAVIGATION_ROOT here
+        if (currentStateId != Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT &&
+            currentStateId != Consts.WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT)
         {
           // Error case: We cannot handle the given state
           ServiceRegistration.Get<ILogger>().Warn("MediaNavigationModel: Unknown root workflow state with ID '{0}', initializing local media navigation", currentStateId);
           // We simply use the local media mode as fallback for this case, so we go on
+          currentStateId = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
         }
-        Mode = MediaNavigationMode.LocalMedia;
+        Mode = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ? MediaNavigationMode.BrowseLocalMedia :
+            MediaNavigationMode.BrowseMedia;
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
           {
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -301,21 +307,27 @@ namespace MediaPortal.UiComponents.Media.Models
                 };
             return null;
           };
-        ViewSpecification rootViewSpecification = new LocalSharesViewSpecification(Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME,
-            new Guid[]
-                {
-                    ProviderResourceAspect.ASPECT_ID,
-                    MediaAspect.ASPECT_ID,
-                },
-            new Guid[]
-                {
-                    AudioAspect.ASPECT_ID,
-                    VideoAspect.ASPECT_ID,
-                    PictureAspect.ASPECT_ID,
-                });
-        // Dynamic screens remain null - local media doesn't provide dynamic filters
-        navigationData = new NavigationData(Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME, currentStateId,
-            currentStateId, rootViewSpecification, new LocalMediaNavigationScreenData(picd), null);
+        Guid[] necessaryMIATypeIDs = new Guid[]
+            {
+                ProviderResourceAspect.ASPECT_ID,
+                MediaAspect.ASPECT_ID,
+            };
+        Guid[] optionalMIATypeIDs = new Guid[]
+            {
+                AudioAspect.ASPECT_ID,
+                VideoAspect.ASPECT_ID,
+                PictureAspect.ASPECT_ID,
+            };
+        string viewName = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+            Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
+        ViewSpecification rootViewSpecification = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+            (ViewSpecification) new LocalSharesViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs) :
+            new AllSharesViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs);
+        // Dynamic screens remain null - browse media states don't provide dynamic filters
+        AbstractScreenData screenData = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
+            (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd, false);
+        navigationData = new NavigationData(viewName, currentStateId,
+            currentStateId, rootViewSpecification, screenData, null);
       }
       SetNavigationData(navigationData, _currentNavigationContext);
     }

@@ -82,6 +82,7 @@ namespace MediaPortal.Backend.Database
     /// <item><see cref="Double"/></item>
     /// <item><see cref="Int32"/></item>
     /// <item><see cref="Int64"/></item>
+    /// <item><see cref="Guid"/></item>
     /// </list>
     /// </remarks>
     /// <param name="dotNetType">Type to get the SQL type pendant for.</param>

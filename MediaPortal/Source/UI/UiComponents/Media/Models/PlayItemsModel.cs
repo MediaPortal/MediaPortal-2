@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected DialogCloseWatcher _dialogCloseWatcher = null;
 
-    // Choice dialog for media type for LocalMedia navigation
+    // Choice dialog for media type for untyped media navigation
     protected ItemsList _mediaTypeChoiceMenuItems = null;
 
     // Play menu

@@ -31,7 +31,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// </summary>
   public class LikeFilter : AbstractExpressionFilter
   {
-    private readonly bool _caseSensitive = true;
+    private bool _caseSensitive = true;
 
     public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
         string expression, char? escapeChar, bool caseSensitive) : base(attributeType, expression, escapeChar) 
@@ -48,6 +48,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public bool CaseSensitive
     {
       get { return _caseSensitive; }
+      set { _caseSensitive = value; }
     }
 
     public override string ToString()

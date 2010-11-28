@@ -132,6 +132,7 @@ namespace MediaPortal.Core
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(DirectoryAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);

@@ -81,12 +81,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public RelationalOperator Operator
     {
       get { return _operator; }
+      set { _operator = value; }
     }
 
     [XmlIgnore]
     public object FilterValue
     {
       get { return _filterValue; }
+      set { _filterValue = value; }
     }
 
     #region Additional members for the XML serialization

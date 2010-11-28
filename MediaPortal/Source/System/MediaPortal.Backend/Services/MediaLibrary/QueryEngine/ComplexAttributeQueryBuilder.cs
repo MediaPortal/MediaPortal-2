@@ -36,7 +36,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// </summary>
   public class ComplexAttributeQueryBuilder : BaseQueryBuilder
   {
-    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
+    protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIAs;
 
     protected readonly MediaItemAspectMetadata.AttributeSpecification _queryAttribute;
     protected readonly CompiledFilter _filter;
@@ -52,7 +52,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public ComplexAttributeQueryBuilder(
         MIA_Management miaManagement,
         MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
-        ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter) : base(miaManagement)
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter) : base(miaManagement)
     {
       _queryAttribute = complexQueryAttribute;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;

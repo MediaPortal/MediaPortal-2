@@ -295,8 +295,9 @@ namespace MediaPortal.Core.MediaManagement
         if (spec.IsCollectionAttribute)
         {
           IEnumerable values = GetCollectionAttribute(spec);
-          foreach (object obj in values)
-            SerializeValue(writer, obj, spec.AttributeType);
+          if (values != null)
+            foreach (object obj in values)
+              SerializeValue(writer, obj, spec.AttributeType);
         }
         else
           SerializeValue(writer, GetAttributeValue(spec), spec.AttributeType);
@@ -353,6 +354,8 @@ namespace MediaPortal.Core.MediaManagement
       {
         if (obj == null)
           XmlSerialization.WriteNull(writer);
+        else if (type == typeof(Guid))
+          writer.WriteValue(((Guid) obj).ToString());
         else
           writer.WriteValue(obj);
       }
@@ -363,7 +366,11 @@ namespace MediaPortal.Core.MediaManagement
 
     public static object DeserializeValue(XmlReader reader, Type type)
     {
-      return XmlSerialization.ReadNull(reader) ? null : reader.ReadElementContentAs(type, null);
+      if (XmlSerialization.ReadNull(reader))
+      return null;
+      if (type == typeof(Guid))
+        return new Guid(reader.ReadElementContentAsString());
+      return reader.ReadElementContentAs(type, null);
     }
 
     protected void CheckCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)

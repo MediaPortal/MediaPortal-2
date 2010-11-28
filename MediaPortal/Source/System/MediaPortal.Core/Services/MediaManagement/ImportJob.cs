@@ -25,9 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -71,7 +69,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected object _syncObj = new object();
     protected ImportJobType _jobType;
     protected ResourcePath _basePath;
-    protected IList<IFileSystemResourceAccessor> _pendingResources = new List<IFileSystemResourceAccessor>();
+    protected List<PendingImportResource> _pendingResources = new List<PendingImportResource>();
     protected HashSet<Guid> _metadataExtractorIds;
     protected bool _includeSubDirectories;
     protected ImportJobState _state = ImportJobState.None;
@@ -127,7 +125,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <see cref="ImportJobState.Started"/>.
     /// </summary>
     [XmlIgnore]
-    public ICollection<IFileSystemResourceAccessor> PendingResources
+    public ICollection<PendingImportResource> PendingResources
     {
       get { return _pendingResources; }
     }
@@ -172,7 +170,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!(obj is ImportJob))
         return false;
       ImportJob other = (ImportJob) obj;
-      return _basePath == other._basePath && _jobType == other._jobType && _includeSubDirectories == other._includeSubDirectories;
+      return _basePath == other._basePath && _jobType == other._jobType &&
+          _includeSubDirectories == other._includeSubDirectories &&
+          _state == other._state;
     }
 
     public override int GetHashCode()
@@ -224,33 +224,10 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     [XmlArray("PendingResources", IsNullable = false)]
     [XmlArrayItem("Resource")]
-    // The XmlSerializer only calls our setter if we declare the property as array instead of a list
-    public string[] XML_PendingResources
+    public List<PendingImportResource> XML_PendingResources
     {
-      get
-      {
-        string[] result = new string[_pendingResources.Count];
-        int ct = 0;
-        foreach (IFileSystemResourceAccessor resource in _pendingResources)
-          result[ct++] = resource.LocalResourcePath.Serialize();
-        return result;
-      }
-      set
-      {
-        foreach (string path in value)
-          try
-          {
-            IResourceAccessor ra = ResourcePath.Deserialize(path).CreateLocalMediaItemAccessor();
-            if (!(ra is IFileSystemResourceAccessor))
-              throw new IllegalCallException("'{0}' is no filesystem resource");
-            _pendingResources.Add((IFileSystemResourceAccessor) ra);
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("ImportJob '{0}': cannot add pending import resource '{1}'", e,
-                _basePath.Serialize(), path);
-          }
-      }
+      get { return _pendingResources; }
+      set { _pendingResources = value; }
     }
 
     /// <summary>

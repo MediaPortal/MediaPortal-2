@@ -230,7 +230,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           command.ExecuteNonQuery();
 
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-        mediaLibrary.DeleteMediaItemOrPath(clientSystemId, null);
+        mediaLibrary.DeleteMediaItemOrPath(clientSystemId, null, true);
         mediaLibrary.RemoveSharesOfSystem(clientSystemId);
 
         transaction.Commit();

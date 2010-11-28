@@ -72,7 +72,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     #endregion
 
-    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
+    protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIAs;
+    protected readonly IEnumerable<MediaItemAspectMetadata> _optionalRequestedMIAs;
 
     /// <summary>
     /// Attributes which are selected the in main query (=which are requested to be returned, in contrast to those
@@ -87,6 +88,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
+    /// <param name="optionalRequestedMIAs">MIAs which will be returned if they are attached to items which are
+    /// already returned.</param>
     /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
     /// <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
     /// cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
@@ -94,11 +97,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="filter">Filter to restrict the result set.</param>
     /// <param name="sortInformation">List of sorting criteria.</param>
     public MainQueryBuilder(MIA_Management miaManagement,
-        ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs,
+        IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
         IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter,
         IList<SortInformation> sortInformation) : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
+      _optionalRequestedMIAs = optionalRequestedMIAs;
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _filter = filter;
       _sortInformation = sortInformation;
@@ -152,6 +157,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           miaTypeTableQueries.Add(miaType, tqd);
         }
         tableJoins.Add(new TableJoin("INNER JOIN", tqd,
+            new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+      }
+
+      // Ensure that the tables for all optional MIAs are requested first (LEFT OUTER JOIN)
+      // That is necessary to make empty optional MIA types available in the result
+      foreach (MediaItemAspectMetadata miaType in _optionalRequestedMIAs)
+      {
+        TableQueryData tqd;
+        if (!tableQueries.TryGetValue(miaType, out tqd))
+        {
+          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+          miaTypeTableQueries.Add(miaType, tqd);
+        }
+        tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqd,
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 

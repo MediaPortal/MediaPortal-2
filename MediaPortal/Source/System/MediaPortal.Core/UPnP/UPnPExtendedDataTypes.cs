@@ -36,6 +36,7 @@ namespace MediaPortal.Core.UPnP
     public static readonly UPnPExtendedDataType DtShareEnumeration = new UPnPDtShareEnumeration();
     public static readonly UPnPExtendedDataType DtMediaItemAspectMetadata = new UPnPDtMediaItemAspectMetadata();
     public static readonly UPnPExtendedDataType DtMediaItemQuery = new UPnPDtMediaItemQuery();
+    public static readonly UPnPExtendedDataType DtMediaItem = new UPnPDtMediaItem();
     public static readonly UPnPExtendedDataType DtMediaItemEnumeration = new UPnPDtMediaItemEnumeration();
     public static readonly UPnPExtendedDataType DtMediaItemsFilter = new UPnPDtMediaItemsFilter();
     public static readonly UPnPExtendedDataType DtMediaItemAttributeValues = new UPnPDtMediaItemAttributeValues();
@@ -58,6 +59,7 @@ namespace MediaPortal.Core.UPnP
       AddDataType(DtShareEnumeration);
       AddDataType(DtMediaItemAspectMetadata);
       AddDataType(DtMediaItemQuery);
+      AddDataType(DtMediaItem);
       AddDataType(DtMediaItemEnumeration);
       AddDataType(DtMediaItemsFilter);
       AddDataType(DtMediaItemAttributeValues);
