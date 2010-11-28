@@ -26,12 +26,14 @@ using MediaPortal.Core.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.Picture.Settings.Configuration
 {
-  public class SlideShowImageDuration : NumberSelect
+  public class SlideShowImageDuration : LimitedNumberSelect
   {
     #region Public Methods
 
     public override void Load()
     {
+      _lowerLimit = 1;
+      _upperLimit = 60;
       _type = NumberType.FloatingPoint;
       _step = 0.5;
       _value = SettingsManager.Load<PicturePlayerSettings>().SlideShowImageDuration;
