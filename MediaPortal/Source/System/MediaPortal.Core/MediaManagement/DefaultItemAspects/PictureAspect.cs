@@ -54,6 +54,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
+
     /// <summary>
     /// Contains the EXIF orientation info. Use <see cref="OrientationToDegrees"/> to get a translated angle in degree.
     /// </summary>
@@ -66,9 +67,10 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Translates the EXIF orientation info to an angle in degrees. The value should be used to apply a RotateTransform 
     /// to show a picture correctly oriented.
     /// </summary>
-    /// <param name="orientationInfo">orientation info</param>
-    /// <param name="degrees">degrees</param>
-    /// <returns>true if successful translated</returns>
+    /// <param name="orientationInfo">Orientation info, stored in attribute <see cref="ATTR_ORIENTATION"/>.</param>
+    /// <param name="degrees">Returns the number degrees the picture has to be rotated in clockwise direction.</param>
+    /// <returns><c>true</c>, if the given <paramref name="orientationInfo"/> could successfully be translated to
+    /// a rotation, else <c>false</c>.</returns>
     public static bool OrientationToDegrees(int orientationInfo, out int degrees)
     {
       switch (orientationInfo)
