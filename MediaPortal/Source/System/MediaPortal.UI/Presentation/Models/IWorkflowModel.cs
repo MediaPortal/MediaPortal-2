@@ -53,7 +53,7 @@ namespace MediaPortal.UI.Presentation.Models
   /// <para>
   /// The workflow manager manages workflow contexts on a stack. Each workflow step/state/context
   /// is put onto the stack. The current workflow state composite consists of all the workflow states
-  /// from the root of the stack to its top. This workflow state composite can be thought of as the
+  /// from the root of the stack to its top. Such a workflow state composite can be thought of as the
   /// menu line showing all navigation steps so far.
   /// </para>
   /// <para>
@@ -63,8 +63,8 @@ namespace MediaPortal.UI.Presentation.Models
   /// </example>
   /// During the navigation, the workflow state composite is built up by selecting the appropriate menu entries
   /// or other controls in the GUI which trigger the state transitions.<br/>
-  /// Workflow states can be attended by their workflow model. This gives the model the ability to
-  /// be notified about state changes, so it can do initialization and disposal tasks.
+  /// Workflow states can be attended by a workflow model. This gives the model the ability to
+  /// be notified about state changes to do initialization and disposal tasks.
   /// In the example above, the <i>Home</i> state doesn't have a workflow model, and all following states are
   /// attended by the <i>Media</i> model.
   /// </para>
@@ -133,8 +133,6 @@ namespace MediaPortal.UI.Presentation.Models
   /// State 2 -> 1:
   /// <c>configurationModel.ExitModelContext([Settings], [Home]);</c>
   /// </para>
-  /// The <see cref="UpdateScreen"/> method is only called if the corresponding workflow state doesn't have
-  /// a workflow main screen set.
   /// </remarks>
   public interface IWorkflowModel
   {
