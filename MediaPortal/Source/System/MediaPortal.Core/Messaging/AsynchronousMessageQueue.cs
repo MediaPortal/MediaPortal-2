@@ -83,11 +83,12 @@ namespace MediaPortal.Core.Messaging
           ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
           if (messageType == SystemMessaging.MessageType.SystemStateChanged)
             if (sss.CurrentState == SystemState.ShuttingDown || sss.CurrentState == SystemState.Ending)
-              // It is necessary to block the main thread as long as our message delivery thread is terminated to
-              // avoid asynchronous threads during the shutdown phase.
+              // It is necessary to block the main thread until our message delivery thread has delivered all pending
+              // messages to avoid asynchronous threads during the shutdown phase.
               // It's a bit illegal to call the Shutdown() method which acquires a lock in this synchronous message
               // handler method. But as we know that the SystemStateChanged message is only called by our application
               // main thread which doesn't hold locks, this won't cause deadlocks.
+              // How ugly, but that's life.
               _owner.Shutdown();
         }
       }
@@ -238,21 +239,21 @@ namespace MediaPortal.Core.Messaging
     }
 
     /// <summary>
-    /// Shuts this async message listener thread down. No more messages will be delivered asynchronously when
-    /// this method returns. If this method is called from the message delivery thread, it cannot wait until all
-    /// messages were delivered. In this case, this method returns <c>true</c>. Else it returns <c>false</c>.
+    /// Shuts this async message listener thread down and waits for the last message to be delivered if possible.
     /// </summary>
     /// <remarks>
     /// A message queue being shut down can be restarted later by calling <see cref="Start"/> again.
+    /// Be very careful with this method. It blocks until all messages are delivered, which means it must not
+    /// be called while holding locks, according to the MP2 multithreading guidelines.
+    /// 
+    /// If this method is called from the message delivery thread, it cannot wait until all
+    /// messages were delivered. In this case, this method possibly returns before all messages could be delivered,
+    /// returning <c>true</c>. Else it returns <c>false</c>.
     /// </remarks>
-    /// <returns><c>true</c>, if there are still messages being delivered. <c>false</c>, if no more messages will be
+    /// <returns><c>true</c>, if there are still messages pending to be delivered. <c>false</c>, if no more messages will be
     /// delivered by this queue.</returns>
     public bool Shutdown()
     {
-      if (_shutdownWatcher != null)
-        _shutdownWatcher.Remove();
-      _shutdownWatcher = null;
-      UnregisterFromAllMessageChannels();
       Terminate();
       Thread threadToJoin;
       lock (_syncObj)
@@ -273,12 +274,20 @@ namespace MediaPortal.Core.Messaging
     }
 
     /// <summary>
-    /// Terminates this message queue. Once the queue is terminated, no more messages are delivered.
-    /// This method terminates this queue asynchronously, which means it is possible that messages are still
+    /// Terminates this message queue. Once the queue is terminated, no further messages are delivered.
+    /// But as this method runs asynchronously to the message delivery thread, it is possible that a message is still being
     /// delivered when this method returns.
     /// </summary>
+    /// <remarks>
+    /// This method requests its internal lock, so it must not be called while holding other locks, according to the
+    /// MP2 multithreading guidelines.
+    /// </remarks>
     public void Terminate()
     {
+      if (_shutdownWatcher != null)
+        _shutdownWatcher.Remove();
+      _shutdownWatcher = null;
+      UnregisterFromAllMessageChannels();
       lock (_syncObj)
       {
         _terminated = true;
