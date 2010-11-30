@@ -231,12 +231,14 @@ namespace MediaPortal.UiComponents.Media.Models
                 IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
                 // The last screen could have stepped into a deeper media navigation context when it had produced
                 // sub views. So we first have to revert our workflow to the base workflow id before moving to the new screen.
-                if (!workflowManager.NavigatePopToState(_baseWorkflowStateId, false))
-                {
-                  // If the WF manager didn't change the state, update the screen manually
+                if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == _baseWorkflowStateId)
+                { // If we're already in the correct the state, update the screen manually
                   _currentScreenData.CreateScreenData(this);
                   SwitchToCurrentScreen();
                 }
+                else
+                  // WF-Manager updates the screen for us
+                  workflowManager.NavigatePopToState(_baseWorkflowStateId, false);
               })
           {
               DisplayCategory = FILTERS_WORKFLOW_CATEGORY,

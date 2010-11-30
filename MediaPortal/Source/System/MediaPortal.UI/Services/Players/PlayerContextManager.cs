@@ -378,9 +378,7 @@ namespace MediaPortal.UI.Services.Players
             lock (playerManager.SyncObj)
               // Remove all workflow states until the player workflow state which doesn't fit any more
               _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
-            if (!workflowManager.NavigatePopToState(wfStateInstance.WFStateId, true))
-              // Because of some reason, we could not pop the old state, so don't push new state
-              newStateId = null;
+            workflowManager.NavigatePopToState(wfStateInstance.WFStateId, true);
             if (newStateId.HasValue)
             {
               log.Debug("PlayerContextManager: ... Auto-switching to new '{0}' Workflow State '{1}'",

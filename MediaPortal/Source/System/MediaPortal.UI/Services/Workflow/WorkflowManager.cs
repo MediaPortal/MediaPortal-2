@@ -695,6 +695,114 @@ namespace MediaPortal.UI.Services.Workflow
         logger.Info("WorkflowManager: Error showing screen '{0}'", screen);
     }
 
+    // Called asynchronously.
+    protected void NavigatePushInternal(Guid stateId, NavigationContextConfig config)
+    {
+      EnterWriteLock("NavigatePush");
+      try
+      {
+        WorkflowState state;
+        if (!_states.TryGetValue(stateId, out state))
+          throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
+
+        if (DoPushNavigationContext(state, config))
+          UpdateScreen_NeedsLock(true);
+        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
+    // Called asynchronously.
+    protected void NavigatePushTransientInternal(WorkflowState state, NavigationContextConfig config)
+    {
+      EnterWriteLock("NavigatePushTransient");
+      try
+      {
+        if (DoPushNavigationContext(state, config))
+          UpdateScreen_NeedsLock(true);
+        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
+    // Called asynchronously.
+    protected void NavigatePopInternal(int count)
+    {
+      EnterWriteLock("NavigatePop");
+      try
+      {
+        DoPopNavigationContext(count);
+        UpdateScreen_NeedsLock(false);
+        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
+    // Called asynchronously.
+    protected bool NavigatePopToStateInternal(Guid stateId, bool inclusive)
+    {
+      EnterWriteLock("NavigatePopToState");
+      try
+      {
+        if (!IsStateContainedInNavigationStack(stateId))
+          return false;
+        bool removed = false;
+        while (CurrentNavigationContext.WorkflowState.StateId != stateId)
+        {
+          removed = true;
+          if (!DoPopNavigationContext(1))
+            break;
+        }
+        if (inclusive)
+        {
+          removed = true;
+          DoPopNavigationContext(1);
+        }
+        if (removed)
+        {
+          UpdateScreen_NeedsLock(false);
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+          return true;
+        }
+        else
+          return false;
+      }
+      finally
+      {
+        ExitWriteLock();
+      }
+    }
+
+    // Called asynchronously.
+    protected void StartBatchUpdateInternal()
+    {
+      // We delegate the update lock for screens to the screen manager because it is easier to do it there.
+      // If we wanted to implement a native batch update mechanism in this service, we would have to cope with
+      // simple cases like static workflow state screens as well as with complex cases like screen updates which
+      // are done by workflow models.
+      // But with a batch update, the internal state of workflow models, which has been established by calls to
+      // EnterModelContext/ChangeModelContext/ExitModelContext, will become out-of-sync with screen update requests,
+      // which would need to take place after the actual workflow model state change.
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.StartBatchUpdate();
+    }
+
+    protected void EndBatchUpdateInternal()
+    {
+      // See comment in method StartBatchUpdate()
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.EndBatchUpdate();
+    }
+
     #endregion
 
     #region IWorkflowManager implementation
@@ -761,23 +869,12 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    protected delegate void AsyncDelegate();
+
     public void NavigatePush(Guid stateId, NavigationContextConfig config)
     {
-      EnterWriteLock("NavigatePush");
-      try
-      {
-        WorkflowState state;
-        if (!_states.TryGetValue(stateId, out state))
-          throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
-
-        if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock(true);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
-      }
-      finally
-      {
-        ExitWriteLock();
-      }
+      AsyncDelegate dlgt = () => NavigatePushInternal(stateId, config);
+      dlgt.BeginInvoke(null, null);
     }
 
     public void NavigatePush(Guid stateId)
@@ -787,66 +884,20 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePushTransient(WorkflowState state, NavigationContextConfig config)
     {
-      EnterWriteLock("NavigatePushTransient");
-      try
-      {
-        if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock(true);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
-      }
-      finally
-      {
-        ExitWriteLock();
-      }
+      AsyncDelegate dlgt = () => NavigatePushTransientInternal(state, config);
+      dlgt.BeginInvoke(null, null);
     }
 
     public void NavigatePop(int count)
     {
-      EnterWriteLock("NavigatePop");
-      try
-      {
-        DoPopNavigationContext(count);
-        UpdateScreen_NeedsLock(false);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
-      }
-      finally
-      {
-        ExitWriteLock();
-      }
+      AsyncDelegate dlgt = () => NavigatePopInternal(count);
+      dlgt.BeginInvoke(null, null);
     }
 
-    public bool NavigatePopToState(Guid stateId, bool inclusive)
+    public void NavigatePopToState(Guid stateId, bool inclusive)
     {
-      EnterWriteLock("NavigatePopToState");
-      try
-      {
-        if (!IsStateContainedInNavigationStack(stateId))
-          return false;
-        bool removed = false;
-        while (CurrentNavigationContext.WorkflowState.StateId != stateId)
-        {
-          removed = true;
-          if (!DoPopNavigationContext(1))
-            break;
-        }
-        if (inclusive)
-        {
-          removed = true;
-          DoPopNavigationContext(1);
-        }
-        if (removed)
-        {
-          UpdateScreen_NeedsLock(false);
-          WorkflowManagerMessaging.SendNavigationCompleteMessage();
-          return true;
-        }
-        else
-          return false;
-      }
-      finally
-      {
-        ExitWriteLock();
-      }
+      AsyncDelegate dlgt = () => NavigatePopToStateInternal(stateId, inclusive);
+      dlgt.BeginInvoke(null, null);
     }
 
     public bool NavigatePopModel(Guid modelId)
@@ -878,22 +929,14 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void StartBatchUpdate()
     {
-      // We delegate the update lock for screens to the screen manager because it is easier to do it there.
-      // If we wanted to implement a native batch update mechanism in this service, we would have to cope with
-      // simple cases like static workflow state screens as well as with complex cases like screen updates which
-      // are done by workflow models.
-      // But with a batch update, the internal state of workflow models, which has been established by calls to
-      // EnterModelContext/ChangeModelContext/ExitModelContext, will become out-of-sync with screen update requests,
-      // which would need to take place after the actual workflow model state change.
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.StartBatchUpdate();
+      AsyncDelegate dlgt = StartBatchUpdateInternal;
+      dlgt.BeginInvoke(null, null);
     }
 
     public void EndBatchUpdate()
     {
-      // See comment in method StartBatchUpdate()
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.EndBatchUpdate();
+      AsyncDelegate dlgt = EndBatchUpdateInternal;
+      dlgt.BeginInvoke(null, null);
     }
 
     public object GetModel(Guid modelId)

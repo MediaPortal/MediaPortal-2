@@ -108,6 +108,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.
     /// </summary>
+    /// <remarks>
+    /// This method is save to be called while holding locks.
+    /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
     /// <param name="config">Configuration for the new state. May be left <c>null</c>, if no special configuration
     /// is required.</param>
@@ -116,6 +119,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <summary>
     /// Convenience method for <see cref="NavigatePush(Guid,NavigationContextConfig)"/> with the config set to <c>null</c>.
     /// </summary>
+    /// <remarks>
+    /// This method is save to be called while holding locks.
+    /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
     void NavigatePush(Guid stateId);
 
@@ -128,6 +134,8 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// A transient workflow state is a state which is built by the application on-the-fly and not stored in
     /// the workflow manager. After popping the state away from the navigation context stack, it is not
     /// referenced by the workflow manager any more.
+    /// 
+    /// This method is save to be called while holding locks.
     /// </remarks>
     /// <param name="state">Id of the new transient state to add and enter.</param>
     /// <param name="config">Configuration for the new state.</param>
@@ -137,6 +145,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// Removes the <paramref name="count"/> youngest navigation context levels from the
     /// <see cref="NavigationContextStack"/>. This realizes a "back" navigation.
     /// </summary>
+    /// <remarks>
+    /// This method is save to be called while holding locks.
+    /// </remarks>
     /// <param name="count">Number of navigation levels to remove.</param>
     void NavigatePop(int count);
 
@@ -146,12 +157,13 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// the navigation stack. This realizes a "cancel" navigation which breaks the current workflow
     /// until the specified state.
     /// </summary>
+    /// <remarks>
+    /// This method is save to be called while holding locks.
+    /// </remarks>
     /// <param name="stateId">Id of the state until that the navigation stack should be cleaned.</param>
     /// <param name="inclusive">If set to <c>true</c>, the specified state will be popped too, else
     /// it will remain on top of the workflow navigation stack.</param>
-    /// <returns><c>true</c>, if the given state was found on the workflow navigation stack and was removed, else
-    /// <c>false</c>.</returns>
-    bool NavigatePopToState(Guid stateId, bool inclusive);
+    void NavigatePopToState(Guid stateId, bool inclusive);
 
     /// <summary>
     /// Removes all workflow states while the model with the given <paramref name="modelId"/> is present as workflowModel
@@ -170,12 +182,17 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// workflow navigation which spans multiple calls to the navigation methods, like "pop" navigations followed
     /// by "push" navigations. After the batch navigation, method <see cref="EndBatchUpdate"/> must be called which
     /// updates the screen for the new workflow state.
+    /// 
+    /// This method is save to be called while holding locks.
     /// </remarks>
     void StartBatchUpdate();
 
     /// <summary>
     /// Ends a batch workflow navigation and updates the screen for the new workflow state.
     /// </summary>
+    /// <remarks>
+    /// This method is save to be called while holding locks.
+    /// </remarks>
     void EndBatchUpdate();
 
     /// <summary>
