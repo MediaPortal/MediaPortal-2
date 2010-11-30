@@ -252,7 +252,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       // Nothing to do here
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here
     }

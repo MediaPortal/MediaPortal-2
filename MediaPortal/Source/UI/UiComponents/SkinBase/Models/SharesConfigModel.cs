@@ -816,7 +816,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       // Nothing to do here
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareState(newContext.WorkflowState.StateId, false);
     }

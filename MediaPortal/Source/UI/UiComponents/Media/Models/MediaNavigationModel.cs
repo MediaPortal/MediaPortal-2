@@ -402,7 +402,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // available in sub workflows, for example to make the GetMediaItemsFromCurrentView method work
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // The last navigation data was not disabled so we don't need to enable it here
     }

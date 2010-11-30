@@ -726,7 +726,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       // Nothing to do here: We don't stop the message queue in our sub states, so we don't need to update our properties again
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do here: We didn't stop the message queue in our sub states, so we don't need to update our properties again
     }

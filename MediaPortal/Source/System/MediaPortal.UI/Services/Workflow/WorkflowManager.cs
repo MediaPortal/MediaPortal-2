@@ -559,7 +559,7 @@ namespace MediaPortal.UI.Services.Workflow
                   newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
               try
               {
-                workflowModel.ReActivate(oldContext, newContext);
+                workflowModel.Reactivate(oldContext, newContext);
               }
               catch (Exception e)
               {

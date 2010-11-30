@@ -236,7 +236,7 @@ namespace MediaPortal.UiComponents.Media.Models
       _messageQueue.Shutdown();
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       _messageQueue.Start();
       UpdatePlaylist();

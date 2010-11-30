@@ -781,7 +781,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // Nothing to do here
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareState(newContext, false);
     }

@@ -208,7 +208,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       // Nothing to do
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // Nothing to do
     }

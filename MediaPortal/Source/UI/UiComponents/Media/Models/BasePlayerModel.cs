@@ -202,7 +202,7 @@ namespace MediaPortal.UiComponents.Media.Models
       _inactive = true;
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       _inactive = false;
     }

@@ -124,7 +124,7 @@ namespace MediaPortal.UI.Presentation.Models
   /// State 4 -> 3:
   /// <c>configurationModel.CanEnterState([New share name], [Shares]);</c>
   /// <c>mediaModel.ExitModelContext([New share name], [Shares]);</c>
-  /// <c>configurationModel.ReActivate([New share name], [Shares]);</c>
+  /// <c>configurationModel.Reactivate([New share name], [Shares]);</c>
   /// <c>configurationModel.UpdateScreen([Shares]);</c>
   /// State 3 -> 2:
   /// <c>configurationModel.CanEnterState([Shares], [Settings]);</c>
@@ -134,6 +134,8 @@ namespace MediaPortal.UI.Presentation.Models
   /// <c>configurationModel.ExitModelContext([Settings], [Home]);</c>
   /// </para>
   /// </remarks>
+  // TODO: Create methods Activate and Deactivate to execute initialization/deinitialization like message queue setup etc.
+  // EnterModelContext and ExitModelContext can then be replaced by ChangeModelContext.
   public interface IWorkflowModel
   {
     /// <summary>
@@ -156,7 +158,7 @@ namespace MediaPortal.UI.Presentation.Models
     /// onto the navigation context stack.
     /// When the <paramref name="newContext"/> is already on the navigation context stack, this method will be called
     /// before reactivating/changing to the <paramref name="newContext"/>. When in that case this method returns
-    /// <c>false</c>, the methods <see cref="ReActivate"/> and <see cref="ChangeModelContext"/> won't be called for
+    /// <c>false</c>, the methods <see cref="Reactivate"/> and <see cref="ChangeModelContext"/> won't be called for
     /// the rejected <paramref name="newContext"/>. If this method returns <c>false</c> for each of its states being on the
     /// context stack, only the method <see cref="ExitModelContext"/> will be called for the last remaining navigation context
     /// on the navigation context stack which contains a state of this model.
@@ -245,9 +247,9 @@ namespace MediaPortal.UI.Presentation.Models
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by another workflow model.</param>
-    /// <param name="newContext">The workflow navigation context which was re-activated and which will
+    /// <param name="newContext">The workflow navigation context which was reactivated and which will
     /// continue to be attended by this model now.</param>
-    void ReActivate(NavigationContext oldContext, NavigationContext newContext);
+    void Reactivate(NavigationContext oldContext, NavigationContext newContext);
 
     /// <summary>
     /// Adds additional menu actions which are created dynamically for the state of the specified

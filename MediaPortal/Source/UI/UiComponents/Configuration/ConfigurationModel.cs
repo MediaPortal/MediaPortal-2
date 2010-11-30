@@ -407,7 +407,7 @@ namespace MediaPortal.UiComponents.Configuration
       // until we step in again.
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareConfigLocation(oldContext, newContext);
     }
