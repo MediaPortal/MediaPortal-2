@@ -108,7 +108,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       NumNotificationsTotal = numNotifications;
       IsNotificationsAvailable = numNotifications > 0;
       IsMoreThanOneNotificationAvailable = numNotifications > 1;
-      if (numNotifications == 1)
+      if (numNotifications <= 1)
         NMoreNotificationsText = string.Empty;
       else if (numNotifications == 2)
         NMoreNotificationsText = LocalizationHelper.Translate(Consts.RES_ONE_MORE_NOTIFICATION);
