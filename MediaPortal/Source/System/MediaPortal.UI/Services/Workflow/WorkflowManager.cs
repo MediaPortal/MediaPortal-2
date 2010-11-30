@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
@@ -869,11 +870,9 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    protected delegate void AsyncDelegate();
-
     public void NavigatePush(Guid stateId, NavigationContextConfig config)
     {
-      AsyncDelegate dlgt = () => NavigatePushInternal(stateId, config);
+      ParameterlessMethod dlgt = () => NavigatePushInternal(stateId, config);
       dlgt.BeginInvoke(null, null);
     }
 
@@ -884,19 +883,19 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePushTransient(WorkflowState state, NavigationContextConfig config)
     {
-      AsyncDelegate dlgt = () => NavigatePushTransientInternal(state, config);
+      ParameterlessMethod dlgt = () => NavigatePushTransientInternal(state, config);
       dlgt.BeginInvoke(null, null);
     }
 
     public void NavigatePop(int count)
     {
-      AsyncDelegate dlgt = () => NavigatePopInternal(count);
+      ParameterlessMethod dlgt = () => NavigatePopInternal(count);
       dlgt.BeginInvoke(null, null);
     }
 
     public void NavigatePopToState(Guid stateId, bool inclusive)
     {
-      AsyncDelegate dlgt = () => NavigatePopToStateInternal(stateId, inclusive);
+      ParameterlessMethod dlgt = () => NavigatePopToStateInternal(stateId, inclusive);
       dlgt.BeginInvoke(null, null);
     }
 
@@ -929,13 +928,13 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void StartBatchUpdate()
     {
-      AsyncDelegate dlgt = StartBatchUpdateInternal;
+      ParameterlessMethod dlgt = StartBatchUpdateInternal;
       dlgt.BeginInvoke(null, null);
     }
 
     public void EndBatchUpdate()
     {
-      AsyncDelegate dlgt = EndBatchUpdateInternal;
+      ParameterlessMethod dlgt = EndBatchUpdateInternal;
       dlgt.BeginInvoke(null, null);
     }
 
