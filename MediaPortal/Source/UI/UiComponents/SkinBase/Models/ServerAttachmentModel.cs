@@ -173,7 +173,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (_mode == Mode.None)
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePop(1);
+      workflowManager.NavigatePopAsync(1);
     }
 
     protected void SynchronizeAvailableServers()

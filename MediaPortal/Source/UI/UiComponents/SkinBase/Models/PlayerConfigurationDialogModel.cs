@@ -427,21 +427,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           UpdatePlayerConfigurationMenu();
           if (_playerConfigurationMenu.Count == 0)
             // Automatically close player configuration dialog if no menu items are available any more
-            workflowManager.NavigatePopToState(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
         }
         if (_inChooseAudioStreamDialog)
         {
           UpdateAudioStreamsMenu();
           if (_audioStreamsMenu.Count <= 1)
             // Automatically close audio stream choice dialog if less than two audio streams are available
-            workflowManager.NavigatePopToState(STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(STATE_ID_CHOOSE_AUDIO_STREAM_DIALOG, true);
         }
         if (_inPlayerSlotAudioMenuDialog)
         {
           UpdatePlayerSlotAudioMenu();
           if (_playerSlotAudioMenu.Count <= 1)
             // Automatically close audio stream choice dialog if less than two audio streams are available
-            workflowManager.NavigatePopToState(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG, true);
         }
         if (_inPlayerChooseGeometryMenuDialog)
         {
@@ -449,7 +449,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (_playerGeometryMenuPlayerContext == null || !_playerGeometryMenuPlayerContext.IsValid ||
               !(_playerGeometryMenuPlayerContext.CurrentPlayer is IVideoPlayer))
             // Automatically close audio stream choice dialog
-            workflowManager.NavigatePopToState(STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
+            workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
           else
             UpdatePlayerChooseGeometryMenu();
         }

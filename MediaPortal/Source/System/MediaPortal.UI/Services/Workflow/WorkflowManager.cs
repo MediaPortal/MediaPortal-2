@@ -670,7 +670,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (push)
         {
           logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
-          Guid? dialogInstanceId = screenManager.ShowDialog(screen, (dialogName, instanceId) => NavigatePopToState(currentContext.WorkflowState.StateId, true));
+          Guid? dialogInstanceId = screenManager.ShowDialog(screen, (dialogName, instanceId) => NavigatePopToStateAsync(currentContext.WorkflowState.StateId, true));
           if (dialogInstanceId.HasValue)
           {
             currentContext.DialogInstanceId = dialogInstanceId.Value;
@@ -872,6 +872,11 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePush(Guid stateId, NavigationContextConfig config)
     {
+      NavigatePushInternal(stateId, config);
+    }
+
+    public void NavigatePushAsync(Guid stateId, NavigationContextConfig config)
+    {
       ParameterlessMethod dlgt = () => NavigatePushInternal(stateId, config);
       dlgt.BeginInvoke(null, null);
     }
@@ -881,7 +886,17 @@ namespace MediaPortal.UI.Services.Workflow
       NavigatePush(stateId, null);
     }
 
+    public void NavigatePushAsync(Guid stateId)
+    {
+      NavigatePushAsync(stateId, null);
+    }
+
     public void NavigatePushTransient(WorkflowState state, NavigationContextConfig config)
+    {
+      NavigatePushTransientInternal(state, config);
+    }
+
+    public void NavigatePushTransientAsync(WorkflowState state, NavigationContextConfig config)
     {
       ParameterlessMethod dlgt = () => NavigatePushTransientInternal(state, config);
       dlgt.BeginInvoke(null, null);
@@ -889,11 +904,21 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePop(int count)
     {
+      NavigatePopInternal(count);
+    }
+
+    public void NavigatePopAsync(int count)
+    {
       ParameterlessMethod dlgt = () => NavigatePopInternal(count);
       dlgt.BeginInvoke(null, null);
     }
 
     public void NavigatePopToState(Guid stateId, bool inclusive)
+    {
+      NavigatePopToStateInternal(stateId, inclusive);
+    }
+
+    public void NavigatePopToStateAsync(Guid stateId, bool inclusive)
     {
       ParameterlessMethod dlgt = () => NavigatePopToStateInternal(stateId, inclusive);
       dlgt.BeginInvoke(null, null);
@@ -928,11 +953,21 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void StartBatchUpdate()
     {
+      StartBatchUpdateInternal();
+    }
+
+    public void StartBatchUpdateAsync()
+    {
       ParameterlessMethod dlgt = StartBatchUpdateInternal;
       dlgt.BeginInvoke(null, null);
     }
 
     public void EndBatchUpdate()
+    {
+      EndBatchUpdateInternal();
+    }
+
+    public void EndBatchUpdateAsync()
     {
       ParameterlessMethod dlgt = EndBatchUpdateInternal;
       dlgt.BeginInvoke(null, null);

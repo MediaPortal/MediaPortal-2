@@ -341,7 +341,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the CP state, the player context manager will automatically track changes of the current player and adapt the
     /// "currently playing" state to match the new current player.
     /// </remarks>
-    void ShowCurrentlyPlaying();
+    void ShowCurrentlyPlaying(bool asynchronously);
 
     /// <summary>
     /// Switches to the "fullscreen content" workflow state for the primary player.
@@ -351,7 +351,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the FSC state, the player context manager will automatically track changes of the primary player and adapt the
     /// "fullscreen content" state to match the new primary player.
     /// </remarks>
-    void ShowFullscreenContent();
+    void ShowFullscreenContent(bool asynchronously);
 
     /// <summary>
     /// Returns the audio/video type of the specified media <paramref name="item"/>. The audio/video type of a media

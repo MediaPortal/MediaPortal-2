@@ -274,7 +274,7 @@ namespace MediaPortal.UiComponents.Media.Models
       pc.CloseWhenFinished = settings.ClosePlayerWhenFinished; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       pc.Play();
       if (play && pc.AVType == AVType.Video)
-        pcm.ShowFullscreenContent();
+        pcm.ShowFullscreenContent(true);
     }
 
     protected static IPlayerContext PreparePlayerContext(AVType avType, bool play, PlayerContextConcurrencyMode concurrencyMode)

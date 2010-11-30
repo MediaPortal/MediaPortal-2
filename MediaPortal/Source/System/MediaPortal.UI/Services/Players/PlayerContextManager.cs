@@ -322,7 +322,7 @@ namespace MediaPortal.UI.Services.Players
           lock (SyncObj)
             // Remove all workflow states until the removed player workflow state
             _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
-          ServiceRegistration.Get<IWorkflowManager>().NavigatePopToState(wfStateInstance.WFStateId, true);
+          ServiceRegistration.Get<IWorkflowManager>().NavigatePopToStateAsync(wfStateInstance.WFStateId, true);
           return;
         }
       }
@@ -344,7 +344,7 @@ namespace MediaPortal.UI.Services.Players
         // Only automatically change workflow states in running state
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.StartBatchUpdate();
+      workflowManager.StartBatchUpdateAsync();
       ILogger log = ServiceRegistration.Get<ILogger>();
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       try
@@ -378,12 +378,12 @@ namespace MediaPortal.UI.Services.Players
             lock (playerManager.SyncObj)
               // Remove all workflow states until the player workflow state which doesn't fit any more
               _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
-            workflowManager.NavigatePopToState(wfStateInstance.WFStateId, true);
+            workflowManager.NavigatePopToStateAsync(wfStateInstance.WFStateId, true);
             if (newStateId.HasValue)
             {
               log.Debug("PlayerContextManager: ... Auto-switching to new '{0}' Workflow State '{1}'",
                   stateName, newStateId.Value);
-              workflowManager.NavigatePush(newStateId.Value);
+              workflowManager.NavigatePushAsync(newStateId.Value);
             }
             break;
           }
@@ -391,7 +391,7 @@ namespace MediaPortal.UI.Services.Players
       }
       finally
       {
-        workflowManager.EndBatchUpdate();
+        workflowManager.EndBatchUpdateAsync();
       }
     }
 
@@ -655,7 +655,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public void ShowCurrentlyPlaying()
+    public void ShowCurrentlyPlaying(bool asynchronously)
     {
       Guid currentlyPlayingStateId;
       lock (SyncObj)
@@ -668,10 +668,13 @@ namespace MediaPortal.UI.Services.Players
         currentlyPlayingStateId = pc.CurrentlyPlayingWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(currentlyPlayingStateId);
+      if (asynchronously)
+        workflowManager.NavigatePushAsync(currentlyPlayingStateId);
+      else
+        workflowManager.NavigatePush(currentlyPlayingStateId);
     }
 
-    public void ShowFullscreenContent()
+    public void ShowFullscreenContent(bool asynchronously)
     {
       Guid fullscreenContentStateId;
       lock (SyncObj)
@@ -684,7 +687,10 @@ namespace MediaPortal.UI.Services.Players
         fullscreenContentStateId = pc.FullscreenContentWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(fullscreenContentStateId);
+      if (asynchronously)
+        workflowManager.NavigatePushAsync(fullscreenContentStateId);
+      else
+        workflowManager.NavigatePush(fullscreenContentStateId);
     }
 
     public AVType GetTypeOfMediaItem(MediaItem item)
