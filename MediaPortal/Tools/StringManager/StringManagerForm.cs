@@ -71,7 +71,7 @@ namespace MediaPortal.Tools.StringManager
     //translate
     private Dictionary<string, List<string>> _missingList;
     private List<LanguageInfo> _languageList;
-    private Dictionary<string, StringLocalised> _editList;
+    private Dictionary<string, StringLocalized> _editList;
     private StringFile _defaultStrings;
     private StringFile _targetStrings;
     private bool _modifiedSection;
@@ -229,10 +229,12 @@ namespace MediaPortal.Tools.StringManager
       try
       {
         XmlSerializer s = new XmlSerializer(typeof(StringFile));
-        using (XmlTextWriter writer = new XmlNoNamespaceWriter(new StreamWriter(path)))
+        XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+        ns.Add("", "");
+        using (XmlTextWriter writer = new /*XmlNoNamespaceWriter*/ XmlTextWriter(new StreamWriter(path)))
         {
           writer.Formatting = Formatting.Indented;
-          s.Serialize(writer, stringFile);
+          s.Serialize(writer, stringFile, ns);
         }
         return true;
       }
@@ -281,10 +283,10 @@ namespace MediaPortal.Tools.StringManager
       // Build section trees
       treeSections.Nodes.Clear();
       tvSections.Nodes.Clear();
-      foreach (StringSection section in _defaultStrings.sections)
+      foreach (StringSection section in _defaultStrings.Sections)
       {
-        treeSections.Nodes.Add(section.name);
-        tvSections.Nodes.Add(section.name);
+        treeSections.Nodes.Add(section.SectionName);
+        tvSections.Nodes.Add(section.SectionName);
       }
     }
 
@@ -350,12 +352,13 @@ namespace MediaPortal.Tools.StringManager
     {
       // Build section trees
       tvCreateSections.Nodes.Clear();
-      foreach (StringSection section in _defaultStrings.sections)
+      foreach (StringSection section in _defaultStrings.Sections)
       {
         TreeNode node = new TreeNode();
-        node.Text = section.name;
-        if (section.isNew)
-          node.ForeColor = Color.Blue;
+        node.Text = section.SectionName;
+        node.Tag = section;
+        //if (section.isNew)
+        //  node.ForeColor = Color.Blue;
         tvCreateSections.Nodes.Add(node);
       }
     }
@@ -364,13 +367,13 @@ namespace MediaPortal.Tools.StringManager
     #region Translate
     private void SetTargetSection()
     {
-      string name = _defaultStrings.sections[_currentSection].name;
+      string name = _defaultStrings._sections[_currentSection].SectionName;
       if (_targetStrings != null)
       {
         int index = 0;
-        foreach (StringSection section in _targetStrings.sections)
+        foreach (StringSection section in _targetStrings.Sections)
         {
-          if (section.name == name)
+          if (section.SectionName == name)
           {
             _targetSection = index;
             return;
@@ -409,23 +412,23 @@ namespace MediaPortal.Tools.StringManager
       {
         if (_targetSection >= 0)
         {
-          StringSection section = _targetStrings.sections[_targetSection];
-          section.localisedStrings = new List<StringLocalised>();
-          foreach (StringLocalised newString in _editList.Values)
+          StringSection section = _targetStrings._sections[_targetSection];
+          section._localizedStrings = new List<StringLocalized>();
+          foreach (StringLocalized newString in _editList.Values)
           {
-            section.localisedStrings.Add(newString);
+            section.LocalizedStrings.Add(newString);
           }
         }
         else
         {
           StringSection section = new StringSection();
-          section.name = _defaultStrings.sections[_currentSection].name;
-          section.localisedStrings = new List<StringLocalised>();
-          foreach (StringLocalised newString in _editList.Values)
+          section._name = _defaultStrings._sections[_currentSection].SectionName;
+          section._localizedStrings = new List<StringLocalized>();
+          foreach (StringLocalized newString in _editList.Values)
           {
-            section.localisedStrings.Add(newString);
+            section.LocalizedStrings.Add(newString);
           }
-          _targetStrings.sections.Add(section);
+          _targetStrings.Sections.Add(section);
         }
         _modifiedSection = false;
       }
@@ -435,16 +438,16 @@ namespace MediaPortal.Tools.StringManager
     {
       if (treeSections.SelectedNode != null && _targetStrings != null)
       {
-        _editList = new Dictionary<string, StringLocalised>();
+        _editList = new Dictionary<string, StringLocalized>();
         if (_targetSection >= 0)
         {
-          StringSection section = _targetStrings.sections[_targetSection];
+          StringSection section = _targetStrings._sections[_targetSection];
           listTranslateStrings.Items.Clear();
 
-          foreach (StringLocalised targetString in section.localisedStrings)
+          foreach (StringLocalized targetString in section.LocalizedStrings)
           {
-            if (!_editList.ContainsKey(targetString.name))
-              _editList.Add(targetString.name, targetString);
+            if (!_editList.ContainsKey(targetString.StringName))
+              _editList.Add(targetString.StringName, targetString);
           }
         }
       }
@@ -455,14 +458,14 @@ namespace MediaPortal.Tools.StringManager
       if (treeSections.SelectedNode != null && _targetStrings != null)
       {
         listTranslateStrings.Items.Clear();
-        StringSection section = _defaultStrings.sections[_currentSection];
+        StringSection section = _defaultStrings._sections[_currentSection];
         int index = 0;
-        foreach (StringLocalised defaultString in section.localisedStrings)
+        foreach (StringLocalized defaultString in section.LocalizedStrings)
         {
           ListViewItem stringItem;
-          if (_editList.ContainsKey(defaultString.name))
+          if (_editList.ContainsKey(defaultString.StringName))
           {
-            stringItem = new ListViewItem(_editList[defaultString.name].text);
+            stringItem = new ListViewItem(_editList[defaultString.StringName].Text);
           }
           else
           {
@@ -507,40 +510,40 @@ namespace MediaPortal.Tools.StringManager
 
     private void BuildMissingList()
     {
-      Dictionary<string, Dictionary<string, StringLocalised>> searchStrings = new Dictionary<string, Dictionary<string, StringLocalised>>();
+      Dictionary<string, Dictionary<string, StringLocalized>> searchStrings = new Dictionary<string, Dictionary<string, StringLocalized>>();
 
-      foreach (StringSection section in _targetStrings.sections)
+      foreach (StringSection section in _targetStrings.Sections)
       {
-        Dictionary<string, StringLocalised> sectionList = new Dictionary<string, StringLocalised>();
+        Dictionary<string, StringLocalized> sectionList = new Dictionary<string, StringLocalized>();
 
-        foreach (StringLocalised str in section.localisedStrings)
+        foreach (StringLocalized str in section.LocalizedStrings)
         {
-          if (!sectionList.ContainsKey(str.name))
-            sectionList.Add(str.name, str);
+          if (!sectionList.ContainsKey(str.StringName))
+            sectionList.Add(str.StringName, str);
         }
-        searchStrings.Add(section.name, sectionList);
+        searchStrings.Add(section.SectionName, sectionList);
       }
 
       _missingList = new Dictionary<string, List<string>>();
-      foreach (StringSection section in _defaultStrings.sections)
+      foreach (StringSection section in _defaultStrings.Sections)
       {
-        if (searchStrings.ContainsKey(section.name))
+        if (searchStrings.ContainsKey(section.SectionName))
         {
           List<string> missingStrings = new List<string>();
-          foreach (StringLocalised str in section.localisedStrings)
+          foreach (StringLocalized str in section.LocalizedStrings)
           {
-            if (!searchStrings[section.name].ContainsKey(str.name))
-              missingStrings.Add(str.name);
+            if (!searchStrings[section.SectionName].ContainsKey(str.StringName))
+              missingStrings.Add(str.StringName);
           }
           if (missingStrings.Count > 0)
-            _missingList.Add(section.name, missingStrings);
+            _missingList.Add(section.SectionName, missingStrings);
         }
         else
         {
           List<string> missingStrings = new List<string>();
-          foreach (StringLocalised str in section.localisedStrings)
-            missingStrings.Add(str.name);
-          _missingList.Add(section.name, missingStrings);
+          foreach (StringLocalized str in section.LocalizedStrings)
+            missingStrings.Add(str.StringName);
+          _missingList.Add(section.SectionName, missingStrings);
         }
       }
     }
@@ -614,14 +617,14 @@ namespace MediaPortal.Tools.StringManager
     {
       if (_textBoxStringsPath.Text == string.Empty)
       {
-        tabsModes.Controls[0].Enabled = false;
+        tabsModes.Controls[(int)Tabs.Create].Enabled = false;
         _textBoxStringsPath.ForeColor = Color.Red;
         return;
       }
 
       if (IsValidLanguagePath(_textBoxStringsPath.Text))
       {
-        tabsModes.Controls[0].Enabled = true;
+        tabsModes.Controls[(int)Tabs.Create].Enabled = true;
         _textBoxStringsPath.ForeColor = Color.Black;
 
         if (_textBoxStringsPath.Text != _stringPath)
@@ -648,13 +651,13 @@ namespace MediaPortal.Tools.StringManager
     {
       if (_textBoxSolution.Text == string.Empty)
       {
-        tabsModes.Controls[1].Enabled = false;
+        tabsModes.Controls[(int)Tabs.Manage].Enabled = false;
         _textBoxSolution.ForeColor = Color.Red;
       }
 
       if (_textBoxSolution.Text != string.Empty && File.Exists(_textBoxSolution.Text))
       {
-        tabsModes.Controls[1].Enabled = true;
+        tabsModes.Controls[(int)Tabs.Manage].Enabled = true;
         _textBoxSolution.ForeColor = Color.Black;
       }
       else
@@ -707,7 +710,7 @@ namespace MediaPortal.Tools.StringManager
     private void btnNewStrings_Click(object sender, EventArgs e)
     {
       _defaultStrings = new StringFile();
-      _defaultStrings.languageName = "en";
+      _defaultStrings._languageName = "en";
       tabsModes.Controls[(int)Tabs.Create].Enabled = true;
       tabsModes.SelectedIndex = (int)Tabs.Create;
     }
@@ -724,12 +727,12 @@ namespace MediaPortal.Tools.StringManager
       StoreEditList();
 
       _currentSection = treeSections.SelectedNode.Index;
-      StringSection section = _defaultStrings.sections[_currentSection];
+      StringSection section = _defaultStrings._sections[_currentSection];
       listDefaultStrings.Items.Clear();
-      foreach (StringLocalised defaultString in section.localisedStrings)
+      foreach (StringLocalized defaultString in section.LocalizedStrings)
       {
-        ListViewItem stringItem = new ListViewItem(defaultString.name);
-        stringItem.SubItems.Add(defaultString.text);
+        ListViewItem stringItem = new ListViewItem(defaultString.StringName);
+        stringItem.SubItems.Add(defaultString.Text);
         listDefaultStrings.Items.Add(stringItem);
       }
       SetTargetSection();
@@ -787,13 +790,13 @@ namespace MediaPortal.Tools.StringManager
       string name = listDefaultStrings.Items[e.Item].Text;
       if (_editList.ContainsKey(name))
       {
-        _editList[name].text = e.Label;
+        _editList[name]._text= e.Label;
       }
       else
       {
-        StringLocalised newString = new StringLocalised();
-        newString.name = name;
-        newString.text = e.Label;
+        StringLocalized newString = new StringLocalized();
+        newString._name = name;
+        newString._text = e.Label;
         _editList.Add(name, newString);
       }
       btnSave.Enabled = true;
@@ -827,8 +830,8 @@ namespace MediaPortal.Tools.StringManager
           _languageList.Add(newlanguage.Selected);
           DrawLanguageList(newlanguage.Selected.Name);
           _targetStrings = new StringFile();
-          _targetStrings.languageName = newlanguage.Selected.Name;
-          _targetStrings.sections = new List<StringSection>();
+          _targetStrings._languageName = newlanguage.Selected.Name;
+          _targetStrings._sections = new List<StringSection>();
         }
       }
     }
@@ -931,12 +934,12 @@ namespace MediaPortal.Tools.StringManager
     private void tvSections_AfterSelect(object sender, TreeViewEventArgs e)
     {
       _currentSection = tvSections.SelectedNode.Index;
-      StringSection section = _defaultStrings.sections[_currentSection];
+      StringSection section = _defaultStrings._sections[_currentSection];
       lvStrings.Items.Clear();
-      foreach (StringLocalised defaultString in section.localisedStrings)
+      foreach (StringLocalized defaultString in section.LocalizedStrings)
       {
-        ListViewItem stringItem = new ListViewItem(defaultString.name);
-        stringItem.SubItems.Add(defaultString.text);
+        ListViewItem stringItem = new ListViewItem(defaultString.StringName);
+        stringItem.SubItems.Add(defaultString.Text);
         lvStrings.Items.Add(stringItem);
       }
     }
@@ -945,7 +948,7 @@ namespace MediaPortal.Tools.StringManager
     {
       if (lvStrings.SelectedItems.Count > 0)
       {
-        string stringId = _defaultStrings.sections[_currentSection].name + "." + lvStrings.SelectedItems[0].Text;
+        string stringId = _defaultStrings._sections[_currentSection].SectionName + "." + lvStrings.SelectedItems[0].Text;
 
         if (_matchedStrings == null)
         {
@@ -983,12 +986,12 @@ namespace MediaPortal.Tools.StringManager
     #region Create Tab
     private void btnAddSection_Click(object sender, EventArgs e)
     {
-      if (!_defaultStrings.IsSection(_textBoxNewSection.Text))
+      if (!_defaultStrings.IsSection(_textBoxNewSection.Text) && _textBoxNewSection.Text!=String.Empty)
       {
         StringSection section = new StringSection();
-        section.name = _textBoxNewSection.Text;
-        section.isNew = true;
-        _defaultStrings.sections.Add(section);
+        section._name = _textBoxNewSection.Text;
+//        section.isNew = true;
+        _defaultStrings.Sections.Add(section);
         _textBoxNewSection.Text = string.Empty;
         btnSaveNewStrings.Enabled = true;
         DrawCreateSectionsTreeView();
@@ -1003,12 +1006,12 @@ namespace MediaPortal.Tools.StringManager
     {
       if (tvCreateSections.SelectedNode != null)
       {
-        if (!_defaultStrings.sections[tvCreateSections.SelectedNode.Index].IsString(_textBoxNewString.Text))
+        if (!_defaultStrings._sections[tvCreateSections.SelectedNode.Index].IsString(_textBoxNewString.Text))
         {
-          StringLocalised str = new StringLocalised();
-          str.name = _textBoxNewString.Text;
-          str.isNew = true;
-          _defaultStrings.sections[tvCreateSections.SelectedNode.Index].localisedStrings.Add(str);
+          StringLocalized str = new StringLocalized();
+          str._name = _textBoxNewString.Text;
+//          str.isNew = true;
+          _defaultStrings._sections[tvCreateSections.SelectedNode.Index].LocalizedStrings.Add(str);
           _textBoxNewString.Text = string.Empty;
           btnSaveNewStrings.Enabled = true;
         }
