@@ -60,7 +60,7 @@ namespace MediaPortal.Tools.StringManager
     // Settings
     private string _settingFile;
     private string _stringPath;
-
+    MatchCollection matches;
     //Strings
     private LocalisationStrings _strings;
     // Create
@@ -282,6 +282,7 @@ namespace MediaPortal.Tools.StringManager
 
       // Build section trees
       treeSections.Nodes.Clear();
+     
       tvSections.Nodes.Clear();
       foreach (StringSection section in _defaultStrings.Sections)
       {
@@ -304,8 +305,7 @@ namespace MediaPortal.Tools.StringManager
         {
           TextReader reader = new StreamReader(Path.Combine(project.dir, file));
           string source = reader.ReadToEnd();
-          Regex stringSearch = new Regex("(StringId|Get<ILocalisation>\\(\\)\\.ToString)\\(\"(?<section>[a-z^\\.]+)\", \"(?<name>[a-z0-9\\.]+)\"\\)");
-
+          Regex stringSearch = new Regex(@"\""\[(?<section>[\w^\\]+)\.(?<name>[\w]+)]\""");
           MatchCollection matches = stringSearch.Matches(source);
           foreach (Match stringId in matches)
           {
@@ -327,9 +327,9 @@ namespace MediaPortal.Tools.StringManager
 
       if (skinDir.Exists)
       {
-        Regex stringSearch = new Regex("\\[(?<section>[a-z^\\.]+)\\.(?<name>[a-z0-9\\.]+)\\]");
+        Regex stringSearch = new Regex(@"\""\[(?<section>[\w^\\]+)\.(?<name>[\w]+)]\""");
 
-        foreach (FileInfo file in skinDir.GetFiles("*.xml"))
+        foreach (FileInfo file in skinDir.GetFiles("*.x*",SearchOption.AllDirectories))
         {
           TextReader reader = new StreamReader(file.FullName);
           string source = reader.ReadToEnd();
@@ -601,7 +601,7 @@ namespace MediaPortal.Tools.StringManager
       }
     }
 
-    private void tabsModes_TabIndexChanged(object sender, EventArgs e)
+    private void tabsModes_Selected(object sender, System.Windows.Forms.TabControlEventArgs e)
     {
       switch (tabsModes.SelectedIndex)
       {
@@ -625,6 +625,7 @@ namespace MediaPortal.Tools.StringManager
       if (IsValidLanguagePath(_textBoxStringsPath.Text))
       {
         tabsModes.Controls[(int)Tabs.Create].Enabled = true;
+        tabsModes.Controls[(int)Tabs.Translate].Enabled = true;
         _textBoxStringsPath.ForeColor = Color.Black;
 
         if (_textBoxStringsPath.Text != _stringPath)
@@ -710,6 +711,7 @@ namespace MediaPortal.Tools.StringManager
     private void btnNewStrings_Click(object sender, EventArgs e)
     {
       _defaultStrings = new StringFile();
+      _defaultStrings._sections = new List<StringSection>();
       _defaultStrings._languageName = "en";
       tabsModes.Controls[(int)Tabs.Create].Enabled = true;
       tabsModes.SelectedIndex = (int)Tabs.Create;
@@ -731,8 +733,8 @@ namespace MediaPortal.Tools.StringManager
       listDefaultStrings.Items.Clear();
       foreach (StringLocalized defaultString in section.LocalizedStrings)
       {
-        ListViewItem stringItem = new ListViewItem(defaultString.StringName);
-        stringItem.SubItems.Add(defaultString.Text);
+        ListViewItem stringItem = new ListViewItem(defaultString.Text);
+        stringItem.SubItems.Add(defaultString.StringName);
         listDefaultStrings.Items.Add(stringItem);
       }
       SetTargetSection();
@@ -832,6 +834,7 @@ namespace MediaPortal.Tools.StringManager
           _targetStrings = new StringFile();
           _targetStrings._languageName = newlanguage.Selected.Name;
           _targetStrings._sections = new List<StringSection>();
+          cbLanguages_SelectedIndexChanged(this, new EventArgs());
         }
       }
     }
@@ -989,6 +992,7 @@ namespace MediaPortal.Tools.StringManager
       if (!_defaultStrings.IsSection(_textBoxNewSection.Text) && _textBoxNewSection.Text!=String.Empty)
       {
         StringSection section = new StringSection();
+        section._localizedStrings = new List<StringLocalized>();
         section._name = _textBoxNewSection.Text;
 //        section.isNew = true;
         _defaultStrings.Sections.Add(section);
@@ -1004,6 +1008,8 @@ namespace MediaPortal.Tools.StringManager
 
     private void btnAddString_Click(object sender, EventArgs e)
     {
+      if (_textBoxNewString.Text == String.Empty) return;
+
       if (tvCreateSections.SelectedNode != null)
       {
         if (!_defaultStrings._sections[tvCreateSections.SelectedNode.Index].IsString(_textBoxNewString.Text))
@@ -1012,8 +1018,13 @@ namespace MediaPortal.Tools.StringManager
           str._name = _textBoxNewString.Text;
 //          str.isNew = true;
           _defaultStrings._sections[tvCreateSections.SelectedNode.Index].LocalizedStrings.Add(str);
+          ListViewItem lvi = new ListViewItem(str.Text);
+          lvi.SubItems.Add(str.StringName);
+          lvCreateStrings.Items.Add(lvi);
+
           _textBoxNewString.Text = string.Empty;
           btnSaveNewStrings.Enabled = true;
+          
         }
         else
         {
@@ -1026,8 +1037,11 @@ namespace MediaPortal.Tools.StringManager
       }
     }
 
+
+
     private void btnSaveNewStrings_Click(object sender, EventArgs e)
     {
+      SaveStrings(_defaultStrings, _stringPath, "en");
       btnSaveNewStrings.Enabled = false;
     }
 
@@ -1041,6 +1055,41 @@ namespace MediaPortal.Tools.StringManager
       }
     }
     #endregion
+
+    private void tvCreateSections_AfterSelect(object sender, TreeViewEventArgs e)
+    {
+      lvCreateStrings.Items.Clear();
+      if (tvCreateSections.SelectedNode.Tag != null)
+      {
+        StringSection stringSection = (StringSection)tvCreateSections.SelectedNode.Tag;
+        if (stringSection.LocalizedStrings != null)
+        {
+          foreach (StringLocalized str in stringSection.LocalizedStrings)
+          {
+            ListViewItem lvi = new ListViewItem(str.Text);
+            lvi.SubItems.Add(str.StringName);
+            lvCreateStrings.Items.Add(lvi);
+          }
+          columnHeader9.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+          columnHeader10.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+        }
+      }
+    }
     #endregion
+
+    private void lvCreateStrings_AfterLabelEdit(object sender, LabelEditEventArgs e)
+    {
+      if (e.Label == null)
+        return;
+      StringSection stringSection = (StringSection)tvCreateSections.SelectedNode.Tag;
+      foreach (StringLocalized str in stringSection.LocalizedStrings)
+      {
+        if (str.StringName == lvCreateStrings.Items[e.Item].SubItems[1].Text)
+        {
+          str._text = e.Label;
+        }
+      }
+      btnSaveNewStrings.Enabled = true;
+    }
   }
 }

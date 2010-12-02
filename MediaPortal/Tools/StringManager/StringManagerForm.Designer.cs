@@ -63,7 +63,6 @@ namespace MediaPortal.Tools.StringManager
       this.lvCreateStrings = new System.Windows.Forms.ListView();
       this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
       this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
-      this.columnHeader11 = new System.Windows.Forms.ColumnHeader();
       this.label5 = new System.Windows.Forms.Label();
       this.tvCreateSections = new System.Windows.Forms.TreeView();
       this.tabTranslate = new System.Windows.Forms.TabPage();
@@ -76,7 +75,6 @@ namespace MediaPortal.Tools.StringManager
       this.listDefaultStrings = new System.Windows.Forms.ListView();
       this.columnName = new System.Windows.Forms.ColumnHeader();
       this.columnText = new System.Windows.Forms.ColumnHeader();
-      this.columnDescription = new System.Windows.Forms.ColumnHeader();
       this.lSections = new System.Windows.Forms.Label();
       this.treeSections = new System.Windows.Forms.TreeView();
       this.tabManage = new System.Windows.Forms.TabPage();
@@ -140,7 +138,7 @@ namespace MediaPortal.Tools.StringManager
       this.tabsModes.Size = new System.Drawing.Size(668, 464);
       this.tabsModes.TabIndex = 0;
       this.tabsModes.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabsModes_Selecting);
-      this.tabsModes.TabIndexChanged += new System.EventHandler(this.tabsModes_TabIndexChanged);
+      this.tabsModes.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabsModes_Selected);
       // 
       // tabCreate
       // 
@@ -221,8 +219,7 @@ namespace MediaPortal.Tools.StringManager
                   | System.Windows.Forms.AnchorStyles.Left)));
       this.lvCreateStrings.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader9,
-            this.columnHeader10,
-            this.columnHeader11});
+            this.columnHeader10});
       this.lvCreateStrings.LabelEdit = true;
       this.lvCreateStrings.Location = new System.Drawing.Point(212, 60);
       this.lvCreateStrings.MultiSelect = false;
@@ -231,21 +228,17 @@ namespace MediaPortal.Tools.StringManager
       this.lvCreateStrings.TabIndex = 6;
       this.lvCreateStrings.UseCompatibleStateImageBehavior = false;
       this.lvCreateStrings.View = System.Windows.Forms.View.Details;
+      this.lvCreateStrings.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lvCreateStrings_AfterLabelEdit);
       // 
       // columnHeader9
       // 
-      this.columnHeader9.Text = "Name";
+      this.columnHeader9.Text = "Text";
       this.columnHeader9.Width = 122;
       // 
       // columnHeader10
       // 
-      this.columnHeader10.Text = "Text";
+      this.columnHeader10.Text = "Name";
       this.columnHeader10.Width = 180;
-      // 
-      // columnHeader11
-      // 
-      this.columnHeader11.Text = "Description";
-      this.columnHeader11.Width = 250;
       // 
       // label5
       // 
@@ -268,6 +261,7 @@ namespace MediaPortal.Tools.StringManager
       this.tvCreateSections.Size = new System.Drawing.Size(186, 343);
       this.tvCreateSections.TabIndex = 4;
       this.tvCreateSections.VisibleChanged += new System.EventHandler(this.tvCreateSections_VisibleChanged);
+      this.tvCreateSections.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvCreateSections_AfterSelect);
       // 
       // tabTranslate
       // 
@@ -362,8 +356,7 @@ namespace MediaPortal.Tools.StringManager
                   | System.Windows.Forms.AnchorStyles.Left)));
       this.listDefaultStrings.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnName,
-            this.columnText,
-            this.columnDescription});
+            this.columnText});
       this.listDefaultStrings.FullRowSelect = true;
       this.listDefaultStrings.Location = new System.Drawing.Point(165, 32);
       this.listDefaultStrings.MultiSelect = false;
@@ -378,18 +371,13 @@ namespace MediaPortal.Tools.StringManager
       // 
       // columnName
       // 
-      this.columnName.Text = "Name";
+      this.columnName.Text = "Text";
       this.columnName.Width = 80;
       // 
       // columnText
       // 
-      this.columnText.Text = "Text";
+      this.columnText.Text = "Name";
       this.columnText.Width = 180;
-      // 
-      // columnDescription
-      // 
-      this.columnDescription.Text = "Description";
-      this.columnDescription.Width = 250;
       // 
       // lSections
       // 
@@ -788,7 +776,6 @@ namespace MediaPortal.Tools.StringManager
       this.ResumeLayout(false);
 
     }
-
     #endregion
 
     private System.Windows.Forms.TabControl tabsModes;
@@ -801,7 +788,6 @@ namespace MediaPortal.Tools.StringManager
     private System.Windows.Forms.ListView listDefaultStrings;
     private System.Windows.Forms.ColumnHeader columnName;
     private System.Windows.Forms.ColumnHeader columnText;
-    private System.Windows.Forms.ColumnHeader columnDescription;
     private System.Windows.Forms.ListView listTranslateStrings;
     private System.Windows.Forms.ColumnHeader columnText2;
     private System.Windows.Forms.TabPage tabSettings;
@@ -848,7 +834,6 @@ namespace MediaPortal.Tools.StringManager
     private System.Windows.Forms.ListView lvCreateStrings;
     private System.Windows.Forms.ColumnHeader columnHeader9;
     private System.Windows.Forms.ColumnHeader columnHeader10;
-    private System.Windows.Forms.ColumnHeader columnHeader11;
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.TreeView tvCreateSections;
     private System.Windows.Forms.Button btnSaveNewStrings;
