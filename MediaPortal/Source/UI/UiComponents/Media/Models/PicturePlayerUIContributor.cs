@@ -274,7 +274,7 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         else
         {
-          PictureDimensions = String.Format("{0} x {1}", pictureAspect[PictureAspect.ATTR_WIDTH],pictureAspect[PictureAspect.ATTR_HEIGHT]);
+          PictureDimensions = String.Format("{0} x {1}", pictureAspect[PictureAspect.ATTR_WIDTH], pictureAspect[PictureAspect.ATTR_HEIGHT]);
           PictureMake = (string) pictureAspect[PictureAspect.ATTR_MAKE];
           PictureModel = (string) pictureAspect[PictureAspect.ATTR_MODEL];
           PictureISOSpeed = (string) pictureAspect[PictureAspect.ATTR_ISO_SPEED];
@@ -286,7 +286,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Error updating properties", e);
+        ServiceRegistration.Get<ILogger>().Warn("PicturePlayerUIContributor: Error updating properties", e);
       }
       finally
       {

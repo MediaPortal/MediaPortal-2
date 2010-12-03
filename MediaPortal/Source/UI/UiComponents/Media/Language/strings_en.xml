@@ -228,14 +228,15 @@
     <!-- Picture player related -->
     <String Name="PictureCurrentlyPlayingHeader" Text="Current picture"/>
     <String Name="PictureCurrentlyPlayingInformation" Text="Current picture information"/>
-    <String Name="PictureDimensions" Text="Dimensions"/>
-    <String Name="PictureMake" Text="Camera make"/>
-    <String Name="PictureModel" Text="Camera model"/>
-    <String Name="PictureISOSpeedLabel" Text="ISO speed"/>
-    <String Name="PictureFNumberLabel" Text="F number"/>
-    <String Name="PictureShutterSpeedLabel" Text="Shutter speed"/>
-    <String Name="PictureMeteringModeLabel" Text="Metering mode"/>
-    <String Name="PictureExposureTimeLabel" Text="Exposure time"/>
+    <String Name="PictureTitleLabel" Text="Picture: "/>
+    <String Name="PictureDimensions" Text="Dimensions: "/>
+    <String Name="PictureMake" Text="Camera make: "/>
+    <String Name="PictureModel" Text="Camera model: "/>
+    <String Name="PictureISOSpeedLabel" Text="ISO speed: "/>
+    <String Name="PictureFNumberLabel" Text="F number: "/>
+    <String Name="PictureShutterSpeedLabel" Text="Shutter speed: "/>
+    <String Name="PictureMeteringModeLabel" Text="Metering mode: "/>
+    <String Name="PictureExposureTimeLabel" Text="Exposure time: "/>
   </Section>
   <Section Name="Settings">
     <String Name="Players" Text="Players"/>
