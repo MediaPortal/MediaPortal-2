@@ -478,6 +478,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         MediaItemAspect audioAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
           audioAspect = null;
+        IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == slotIndex;
         if (player == null)
         {
           Title = playerContext == null ? RES_NO_PLAYER : playerContext.Name;
@@ -491,7 +492,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           IsSeekingForward = false;
           IsSeekingBackward = false;
           SeekHint = string.Empty;
-          IsCurrentPlayer = false;
           PercentPlayed = 0f;
           CurrentTime = string.Empty;
           Duration = string.Empty;
@@ -554,7 +554,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           HasAudio = player is IAudioPlayer || player is IVideoPlayer;
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
           IsAudio = playerSlotController.IsAudioSlot;
-          IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == slotIndex;
           TimeSpan currentTime = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.CurrentTime;
           TimeSpan duration = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.Duration;
           if (duration.TotalMilliseconds == 0)
