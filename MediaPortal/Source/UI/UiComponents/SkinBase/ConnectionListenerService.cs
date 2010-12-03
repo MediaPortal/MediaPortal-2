@@ -77,11 +77,10 @@ namespace MediaPortal.UiComponents.SkinBase
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
       if (!settings.EnableServerListener)
+      {
+        RemoveNotification();
         return;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_ATTACH_TO_SERVER)
-        // If we are already in the AttachToServer state, don't navigate there again
-        return;
+      }
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType =
@@ -91,14 +90,7 @@ namespace MediaPortal.UiComponents.SkinBase
           case ServerConnectionMessaging.MessageType.AvailableServersChanged:
             bool serversWereAdded = (bool) message.MessageData[ServerConnectionMessaging.SERVERS_WERE_ADDED];
             if (serversWereAdded)
-            {
-              if (_queuedNotification == null)
-              {
-                INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
-                notificationService.EnqueueNotification(NotificationType.UserInteractionRequired, Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE,
-                    Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT, Consts.WF_STATE_ID_ATTACH_TO_SERVER, false);
-              }
-            }
+              QueueNotification();
             else
             {
               ICollection<ServerDescriptor> servers = (ICollection<ServerDescriptor>) message.MessageData[ServerConnectionMessaging.AVAILABLE_SERVERS];
@@ -113,6 +105,20 @@ namespace MediaPortal.UiComponents.SkinBase
             break;
         }
       }
+    }
+
+    protected void QueueNotification()
+    {
+      if (_queuedNotification != null)
+        return;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_ATTACH_TO_SERVER)
+        // If we are already in the AttachToServer state, don't queue message again
+        return;
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      _queuedNotification = notificationService.EnqueueNotification(NotificationType.UserInteractionRequired,
+          Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE,
+          Consts.RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT, Consts.WF_STATE_ID_ATTACH_TO_SERVER, false);
     }
 
     protected void RemoveNotification()
