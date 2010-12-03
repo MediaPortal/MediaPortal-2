@@ -186,7 +186,9 @@ namespace MediaPortal.UI.Services.Players
               else
                 psc.Stop();
               if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
-                StepOutOfFSC();
+                StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
+              if (psc.SlotIndex == CurrentPlayerIndex)
+                StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
             }
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
@@ -200,7 +202,9 @@ namespace MediaPortal.UI.Services.Players
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               pc.Close();
             if (psc.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT)
-              StepOutOfFSC();
+              StepOutOfPlayerWFState(PlayerWFStateType.FullscreenContent);
+            if (psc.SlotIndex == CurrentPlayerIndex)
+              StepOutOfPlayerWFState(PlayerWFStateType.CurrentlyPlaying);
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
@@ -309,16 +313,16 @@ namespace MediaPortal.UI.Services.Players
     }
 
     /// <summary>
-    /// Check if one of our tracked workflow states is a FSC state. If yes, go out of that state.
+    /// Check if one of our tracked workflow states has the given <paramref name="type"/>. If yes, go out of that state.
     /// </summary>
-    protected void StepOutOfFSC()
+    protected void StepOutOfPlayerWFState(PlayerWFStateType type)
     {
       for (int i = 0; i < _playerWfStateInstances.Count; i++)
       {
         PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
-        if (wfStateInstance.WFStateType == PlayerWFStateType.FullscreenContent)
+        if (wfStateInstance.WFStateType == type)
         { // Found FSC state - step out of it
-          ServiceRegistration.Get<ILogger>().Debug("PlayerContextManager: Leaving FSC Workflow State '{0}'", wfStateInstance.WFStateId);
+          ServiceRegistration.Get<ILogger>().Debug("PlayerContextManager: Leaving {0} Workflow State '{1}'", type, wfStateInstance.WFStateId);
           lock (SyncObj)
             // Remove all workflow states until the removed player workflow state
             _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
