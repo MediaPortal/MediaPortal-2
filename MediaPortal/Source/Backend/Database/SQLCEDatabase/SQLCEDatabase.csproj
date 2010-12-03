@@ -55,6 +55,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="References\sqlceca35.dll">
+    </Content>
+    <Content Include="References\sqlcecompact35.dll">
+    </Content>
+    <Content Include="References\sqlceer35EN.dll">
+    </Content>
+    <Content Include="References\sqlceme35.dll">
+    </Content>
+    <Content Include="References\sqlceoledb35.dll">
+    </Content>
+    <Content Include="References\sqlceqp35.dll">
+    </Content>
+    <Content Include="References\sqlcese35.dll">
+    </Content>
+    <Content Include="References\System.Data.SqlServerCe.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\System\MediaPortal.Backend\MediaPortal.Backend.csproj">
@@ -79,8 +94,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)\References\*.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
