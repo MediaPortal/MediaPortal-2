@@ -95,7 +95,10 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(ProjectDir)\References\*.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /NP /XD .svn
+@REM Reset RoboCopy's exit code which is different from 0
+IF %2525ERRORLEVEL%2525 LSS 8 SET ERRORLEVEL=0
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
