@@ -22,7 +22,9 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
@@ -39,6 +41,17 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       MediaModelSettings settings = SettingsManager.Load<MediaModelSettings>();
       settings.ClosePlayerWhenFinished = _yes;
       SettingsManager.Save(settings);
+      UpdatePlayerContexts();
+    }
+
+    protected void UpdatePlayerContexts()
+    {
+      IPlayerContext pc = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      if (pc != null)
+        pc.CloseWhenFinished = _yes;
+      pc = ServiceRegistration.Get<IPlayerContextManager>().GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+      if (pc != null)
+        pc.CloseWhenFinished = _yes;
     }
   }
 }
