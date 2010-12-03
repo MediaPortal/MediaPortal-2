@@ -49,23 +49,24 @@ namespace MediaPortal.UI.Services.Players
       _playerContext = context;
     }
 
-    protected void InitializePlayIndexList()
+    protected IList<int> BuildPlayIndexList()
     {
       lock (_syncObj)
       {
-        _playIndexList = new List<int>(_itemList.Count);
+        IList<int> result = new List<int>(_itemList.Count);
         for (int i = 0; i < _itemList.Count; i++)
-          _playIndexList.Add(i);
+          result.Add(i);
         if (_playMode == PlayMode.Shuffle)
         {
           for (int i = 0; i < _itemList.Count; i++)
           {
             int swapTarget = rnd.Next(_itemList.Count);
-            int tmp = _playIndexList[i];
-            _playIndexList[i] = _playIndexList[swapTarget];
-            _playIndexList[swapTarget] = tmp;
+            int tmp = result[i];
+            result[i] = result[swapTarget];
+            result[swapTarget] = tmp;
           }
         }
+        return result;
       }
     }
 
@@ -76,7 +77,7 @@ namespace MediaPortal.UI.Services.Players
         if (_currentPlayIndex == -1)
           return -1;
         if (_playIndexList == null)
-          InitializePlayIndexList();
+          _playIndexList = BuildPlayIndexList();
         if (_playIndexList.Count == 0)
           return -1;
         if (_repeatMode == RepeatMode.One)
@@ -105,10 +106,13 @@ namespace MediaPortal.UI.Services.Players
         if (currentItemIndex == -1)
           _currentPlayIndex = -1;
         else
-            // Find current played item in shuffled index list
+        { // Find current played item in shuffled index list
+          if (_playIndexList == null)
+            _playIndexList = BuildPlayIndexList();
           foreach (int i in _playIndexList)
             if (_playIndexList[i] == currentItemIndex)
               _currentPlayIndex = i;
+        }
       PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
     }
 
@@ -132,7 +136,7 @@ namespace MediaPortal.UI.Services.Players
           if (_playIndexList == null)
             return;
           int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
-          InitializePlayIndexList();
+          _playIndexList = BuildPlayIndexList();
           SetCurrentPlayIndexByItemIndex(currentItemIndex);
         }
       }
@@ -362,7 +366,7 @@ namespace MediaPortal.UI.Services.Players
         }
         if (numFound != 2)
         { // Playlist and index list are out-of-sync. This should never happen...
-          InitializePlayIndexList();
+          _playIndexList = BuildPlayIndexList();
           _currentPlayIndex = -1;
           return;
         }
