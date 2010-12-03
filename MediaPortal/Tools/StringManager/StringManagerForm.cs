@@ -231,7 +231,7 @@ namespace MediaPortal.Tools.StringManager
         XmlSerializer s = new XmlSerializer(typeof(StringFile));
         XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
         ns.Add("", "");
-        using (XmlTextWriter writer = new /*XmlNoNamespaceWriter*/ XmlTextWriter(new StreamWriter(path)))
+        using (XmlTextWriter writer = new XmlTextWriter(new StreamWriter(path)))
         {
           writer.Formatting = Formatting.Indented;
           s.Serialize(writer, stringFile, ns);
@@ -608,6 +608,9 @@ namespace MediaPortal.Tools.StringManager
         case (int)Tabs.Create:
           DrawCreateSectionsTreeView();
           break;
+        case (int)Tabs.Translate:
+          LoadDefaultStrings();
+          break;
       }
     }
     #endregion
@@ -643,7 +646,15 @@ namespace MediaPortal.Tools.StringManager
       else
       {
         if (Directory.Exists(_textBoxStringsPath.Text))
+        {
+          if (_textBoxStringsPath.Text != _stringPath)
+          {
+            //Save current path
+            _stringPath = _textBoxStringsPath.Text;
+          }
           btnNewStrings.Enabled = true;
+          tabsModes.Controls[(int)Tabs.Translate].Enabled = false;
+        }
         _textBoxStringsPath.ForeColor = Color.Red;
       }
     }
@@ -1041,7 +1052,8 @@ namespace MediaPortal.Tools.StringManager
 
     private void btnSaveNewStrings_Click(object sender, EventArgs e)
     {
-      SaveStrings(_defaultStrings, _stringPath, "en");
+      SaveStrings(_defaultStrings, _textBoxStringsPath.Text, "en");
+      this.tbStringsPath_TextChanged(this, new EventArgs());
       btnSaveNewStrings.Enabled = false;
     }
 

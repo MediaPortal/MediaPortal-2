@@ -218,8 +218,8 @@ namespace MediaPortal.Tools.StringManager
       this.lvCreateStrings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                   | System.Windows.Forms.AnchorStyles.Left)));
       this.lvCreateStrings.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader9,
-            this.columnHeader10});
+            this.columnHeader10,
+            this.columnHeader9});
       this.lvCreateStrings.LabelEdit = true;
       this.lvCreateStrings.Location = new System.Drawing.Point(212, 60);
       this.lvCreateStrings.MultiSelect = false;
@@ -232,12 +232,14 @@ namespace MediaPortal.Tools.StringManager
       // 
       // columnHeader9
       // 
-      this.columnHeader9.Text = "Text";
+      this.columnHeader9.DisplayIndex = 0;
+      this.columnHeader9.Text = "Name";
       this.columnHeader9.Width = 122;
       // 
       // columnHeader10
       // 
-      this.columnHeader10.Text = "Name";
+      this.columnHeader10.DisplayIndex = 1;
+      this.columnHeader10.Text = "Text";
       this.columnHeader10.Width = 180;
       // 
       // label5
@@ -355,8 +357,8 @@ namespace MediaPortal.Tools.StringManager
       this.listDefaultStrings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                   | System.Windows.Forms.AnchorStyles.Left)));
       this.listDefaultStrings.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnName,
-            this.columnText});
+            this.columnText,
+            this.columnName});
       this.listDefaultStrings.FullRowSelect = true;
       this.listDefaultStrings.Location = new System.Drawing.Point(165, 32);
       this.listDefaultStrings.MultiSelect = false;
@@ -371,12 +373,14 @@ namespace MediaPortal.Tools.StringManager
       // 
       // columnName
       // 
-      this.columnName.Text = "Text";
+      this.columnName.DisplayIndex = 0;
+      this.columnName.Text = "Name";
       this.columnName.Width = 80;
       // 
       // columnText
       // 
-      this.columnText.Text = "Name";
+      this.columnText.DisplayIndex = 1;
+      this.columnText.Text = "Text";
       this.columnText.Width = 180;
       // 
       // lSections
