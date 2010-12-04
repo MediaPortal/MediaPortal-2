@@ -55,5 +55,6 @@ namespace MediaPortal.Core.Runtime
   public interface ISystemStateService
   {
     SystemState CurrentState { get; }
+    void Hibernate();
   }
 }

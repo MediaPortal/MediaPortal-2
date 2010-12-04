@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Runtime;
 
 namespace MediaPortal.Core.Services.Runtime
@@ -42,6 +43,12 @@ namespace MediaPortal.Core.Services.Runtime
     public SystemState CurrentState
     {
       get { return _state; }
+    }
+
+    public void Hibernate()
+    {
+      // TODO
+      ServiceRegistration.Get<ILogger>().Info("SystemStateService: ------ The hibernate function is not implemented yet -----");
     }
 
     #endregion

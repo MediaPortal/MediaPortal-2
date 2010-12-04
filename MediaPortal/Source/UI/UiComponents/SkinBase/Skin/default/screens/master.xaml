@@ -73,19 +73,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             HorizontalAlignment="Left"
             Command="{Command Source={Service Window},Path=Minimize}"/>
         <Button x:Name="HibernateButton" Style="{ThemeResource HibernateButtonStyle}" Margin="3"
-            HorizontalAlignment="Left">
-          <Button.Command>
-            <Command Source="{Service DialogManager}" Path="ShowDialog">
-              <Command.Parameters>
-                <ResourceWrapper Resource="[Dialogs.InfoHeaderText]"/>
-                <ResourceWrapper Resource="The hibernate function is not implemented yet."/>
-                <ResourceWrapper Resource="OkDialog"/>
-                <ResourceWrapper Resource="False"/>
-                <ResourceWrapper Resource="Ok"/>
-              </Command.Parameters>
-            </Command>
-          </Button.Command>
-        </Button>
+            HorizontalAlignment="Left"
+            Command="{Command Source={Service Window},Path=Hibernate}"/>
       </StackPanel> <!-- WindowButtonsPanel -->
       <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="1" Grid.Row="0">
         <Label x:Name="HeaderLabel"

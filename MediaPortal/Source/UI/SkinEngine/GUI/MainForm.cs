@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.General;
@@ -270,6 +271,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public void Restore()
     {
       WindowState = _mode == ScreenMode.NormalWindowed ? FormWindowState.Normal : FormWindowState.Maximized;
+    }
+
+    public void Hibernate()
+    {
+      ServiceRegistration.Get<ISystemStateService>().Hibernate();
     }
 
     public void SwitchMode(ScreenMode mode)

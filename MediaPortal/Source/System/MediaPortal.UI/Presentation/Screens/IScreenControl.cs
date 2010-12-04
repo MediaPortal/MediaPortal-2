@@ -54,6 +54,11 @@ namespace MediaPortal.UI.Presentation.Screens
     void Restore();
 
     /// <summary>
+    /// Suspends the current Windows session to disc.
+    /// </summary>
+    void Hibernate();
+
+    /// <summary>
     /// Switches between windowed and fullscreen mode.
     /// </summary>
     /// <param name="mode">The requested mode.</param>
