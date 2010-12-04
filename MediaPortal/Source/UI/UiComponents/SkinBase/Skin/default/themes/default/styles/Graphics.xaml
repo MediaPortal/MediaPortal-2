@@ -85,7 +85,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="25"/>
       </Grid.RowDefinitions>
-      <Label Content="X" FontSize="15" Margin="3"
+      <Label Content="X" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
           HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </ControlTemplate>
@@ -98,7 +98,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="25"/>
       </Grid.RowDefinitions>
-      <Label Content="M" FontSize="15" Margin="3"
+      <Label Content="M" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
           HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </ControlTemplate>
@@ -111,8 +111,22 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="25"/>
       </Grid.RowDefinitions>
-      <Label Content="H" FontSize="15" Margin="3"
+      <Label Content="H" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NavigateBackControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5"
+          Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
     </Grid>
   </ControlTemplate>
 

@@ -45,6 +45,11 @@
         <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
       </MultiBinding>
     </DockPanel.IsVisible>
+    <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" LastChildFill="false">
       <DockPanel.IsVisible>
         <!-- The OSD should be only available when DVD is not in menu mode -->

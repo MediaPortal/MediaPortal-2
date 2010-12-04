@@ -33,6 +33,11 @@
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       IsVisible="{Binding IsOSDVisible}">
+    <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
         LastChildFill="false">
       <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"

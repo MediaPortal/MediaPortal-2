@@ -43,6 +43,11 @@
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control>
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left"
         IsVisible="{Binding IsOSDVisible}" LastChildFill="False">
       <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
