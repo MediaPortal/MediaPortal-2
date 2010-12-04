@@ -8,8 +8,8 @@
     <ProjectGuid>{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Helpers.ReloadScreen</RootNamespace>
-    <AssemblyName>ReloadScreen</AssemblyName>
+    <RootNamespace>MediaPortal.Helpers.ReloadSkin</RootNamespace>
+    <AssemblyName>ReloadSkin</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -65,7 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReloadScreenPlugin.cs" />
+    <Compile Include="ReloadSkinPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

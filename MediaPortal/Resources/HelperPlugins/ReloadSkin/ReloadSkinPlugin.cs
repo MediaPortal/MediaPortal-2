@@ -29,21 +29,34 @@ using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.Helpers.ReloadScreen
+namespace MediaPortal.Helpers.ReloadSkin
 {
-  public class ReloadScreenPlugin : IPluginStateTracker
+  public class ReloadSkinPlugin : IPluginStateTracker
   {
     #region Consts
 
-    public static readonly Key REFRESH_KEY = Key.F4;
+    // F5 is already used for media screen refresh
+    public static readonly Key RELOAD_SCREEN_KEY = Key.F3;
+    public static readonly Key RELOAD_THEME_KEY = Key.F4;
 
     #endregion
 
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
+    protected object _syncObj = new object();
 
     #endregion
+
+    protected void DropMessageQueue()
+    {
+      lock (_syncObj)
+      {
+        if (_messageQueue != null)
+          _messageQueue.Terminate();
+        _messageQueue = null;
+      }
+    }
 
     #region Implementation of IPluginStateTracker
 
@@ -51,10 +64,10 @@ namespace MediaPortal.Helpers.ReloadScreen
     {
       ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState == SystemState.Running)
-        AddKeyAction();
+        AddKeyActions();
       else
       {
-        _messageQueue = new AsynchronousMessageQueue(typeof(ReloadScreenPlugin), new string[]
+        _messageQueue = new AsynchronousMessageQueue(typeof(ReloadSkinPlugin), new string[]
           {
               SystemMessaging.CHANNEL
           });
@@ -72,23 +85,31 @@ namespace MediaPortal.Helpers.ReloadScreen
         {
           SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
           if (newState == SystemState.Running)
-            AddKeyAction();
+          {
+            AddKeyActions();
+            DropMessageQueue();
+          }
         }
       }
-      _messageQueue.Shutdown();
-      _messageQueue = null;
     }
 
-    static void AddKeyAction()
+    static void AddKeyActions()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.AddKeyBinding(REFRESH_KEY, RefreshScreenAction); // Use F4 because F5 is already used for media screen refresh
+      inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, ReloadScreenAction);
+      inputManager.AddKeyBinding(RELOAD_THEME_KEY, ReloadThemeAction);
     }
 
-    static void RefreshScreenAction()
+    static void ReloadScreenAction()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.Reload();
+    }
+
+    static void ReloadThemeAction()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ReloadSkinAndTheme();
     }
 
     public bool RequestEnd()
@@ -99,7 +120,9 @@ namespace MediaPortal.Helpers.ReloadScreen
     public void Stop()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.RemoveKeyBinding(REFRESH_KEY);
+      inputManager.RemoveKeyBinding(RELOAD_SCREEN_KEY);
+      inputManager.RemoveKeyBinding(RELOAD_THEME_KEY);
+      DropMessageQueue();
     }
 
     public void Continue()

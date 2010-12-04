@@ -404,9 +404,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// After calling this method, the <see cref="SkinContext.SkinResources"/>
     /// contents can be requested.
     /// </summary>
-    /// <param name="skinName">The name of the skin to be prepared.</param>
+    /// <param name="skinName">The name of the skin to be prepared or <c>null</c> to use the current skin.</param>
     /// <param name="themeName">The name of the theme for the specified skin to be prepared,
-    /// or <c>null</c> for the default theme of the skin.</param>
+    /// or <c>null</c> for the default theme of the given skin.</param>
     protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
     {
       ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
@@ -422,13 +422,21 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         try
         {
           // Prepare new skin data
-          skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
-          if (skin == null)
+
+          if (skinName == null)
             skin = defaultSkin;
-          theme = themeName == null ? null :
-              (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
-          if (theme == null)
+          else if (!_skinManager.Skins.TryGetValue(skinName, out skin))
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ScreenManager.PrepareSkinAndTheme_NeedsLocks: Skin '{0}' not found", skinName);
+            return;
+          }
+          if (themeName == null)
             theme = skin.DefaultTheme;
+          else if (!skin.Themes.TryGetValue(themeName, out theme))
+          {
+            ServiceRegistration.Get<ILogger>().Warn("ScreenManager.PrepareSkinAndTheme_NeedsLocks: Theme '{0}' not found in skin '{1}'", themeName, skin.Name);
+            return;
+          }
 
           if (!skin.IsValid)
             throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
@@ -462,7 +470,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'", ex,
               skin == null ? "<undefined>" : skin.Name, theme == null ? "<undefined>" : theme.Name);
           Skin fallbackSkin = _skin ?? defaultSkin; // Either the previous skin (_skin) or the default skin
-          Theme fallbackTheme = ((fallbackSkin == _skin) ? _theme : null) ?? fallbackSkin.DefaultTheme; // Use the previous theme if previous skin is our fallback
+          Theme fallbackTheme = fallbackSkin.DefaultTheme;
           if (fallbackSkin == skin && fallbackTheme == theme)
           {
             ServiceRegistration.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
@@ -808,13 +816,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// to this skin with the specified <paramref name="newThemeName"/>, or the
     /// default theme for this skin.
     /// </summary>
+    /// <param name="newSkinName">Name of the skin to load or <c>null</c> to use the current skin.</param>
+    /// <param name="newThemeName">Name of the theme to load or <c>null</c>, if the default theme should be used.</param>
     public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
       lock (_syncObj)
       {
-        if (newSkinName == _skin.Name &&
-            newThemeName == (_theme == null ? null : _theme.Name)) return;
-        ServiceRegistration.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
+        ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'",
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
@@ -829,7 +837,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         PlayersHelper.ReleaseGUIResources();
 
-        // FIXME Albert78: Find a better way to make ContentManager observe the current skin
         ServiceRegistration.Get<ContentManager>().Clear();
 
         WaitForPendingOperations();
@@ -1129,12 +1136,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void SwitchTheme(string newThemeName)
     {
-      SwitchSkinAndTheme(_skin.Name, newThemeName);
+      SwitchSkinAndTheme(null, newThemeName);
     }
 
     public void SwitchSkin(string newSkinName)
     {
       SwitchSkinAndTheme(newSkinName, null);
+    }
+
+    public void ReloadSkinAndTheme()
+    {
+      SwitchSkinAndTheme(_skin.Name, _theme == null ? null : _theme.Name);
     }
 
     public Guid? ShowScreen(string screenName)

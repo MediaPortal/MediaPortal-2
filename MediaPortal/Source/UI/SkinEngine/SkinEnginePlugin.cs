@@ -32,6 +32,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Geometry;
 using MediaPortal.UI.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
@@ -102,6 +103,7 @@ namespace MediaPortal.UI.SkinEngine
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
       ServiceRegistration.Set<IScreenManager>(_screenManager);
+      GraphicsDevice.ScreenManager = _screenManager;
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
       ServiceRegistration.Set<ISkinResourceManager>(_screenManager.SkinResourceManager);

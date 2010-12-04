@@ -1,0 +1,15 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ReloadSkin"
+    PluginId="{8A3E438C-2304-4119-BF3A-0EB8A287B59C}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="true" 
+    Description="Reloads all current screens by pressing F3 and reloads the theme by pressing F4"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ReloadSkin.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Helpers.ReloadSkin.ReloadSkinPlugin"/>
+  </Runtime>
+</Plugin>

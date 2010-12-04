@@ -37,7 +37,6 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -60,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _supportsAlphaBlend;
     private static bool _supportsShaders = false;
     private static bool _firstTimeInitialisation = true;
+    private static ScreenManager _screenManager = null;
     private static int _targetFrameRate = 0;
     private static DateTime _frameRenderingStartTime;
     private static int _fpsCounter = 0;
@@ -204,6 +204,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _backBuffer = _device.GetRenderTarget(0);
       GetCapabilities();
       return true;
+    }
+
+    public static ScreenManager ScreenManager
+    {
+      get { return _screenManager; }
+      set { _screenManager = value; }
     }
 
     public static bool IsWindowed
@@ -354,8 +360,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
           _device.BeginScene();
 
-          ScreenManager manager = (ScreenManager) ServiceRegistration.Get<IScreenManager>();
-          manager.Render();
+          _screenManager.Render();
 
           _device.EndScene();
           _device.PresentEx(Present.ForceImmediate);

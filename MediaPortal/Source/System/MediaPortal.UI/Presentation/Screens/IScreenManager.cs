@@ -113,6 +113,11 @@ namespace MediaPortal.UI.Presentation.Screens
     void SwitchTheme(string newThemeName);
 
     /// <summary>
+    /// Reloads skin and theme.
+    /// </summary>
+    void ReloadSkinAndTheme();
+
+    /// <summary>
     /// Shows the screen with the given <paramref name="screenName"/>. All dialogs will be closed.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
