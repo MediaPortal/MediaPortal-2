@@ -33,6 +33,7 @@ using System.Text;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
@@ -484,11 +485,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         //Device.IsUsingEventHandlers = false;
 
         GraphicsDevice.Device = new DeviceEx(MPDirect3D.Direct3D,
-                                           _graphicsSettings.AdapterOrdinal,
-                                           _graphicsSettings.DevType,
-                                           _ourRenderTarget.Handle,
-                                           createFlags | CreateFlags.Multithreaded,
-                                           _presentParams);
+            _graphicsSettings.AdapterOrdinal,
+            _graphicsSettings.DevType,
+            _ourRenderTarget.Handle,
+            createFlags | CreateFlags.Multithreaded,
+            _presentParams);
 
         //GraphicsDevice.Device.DeviceResizing += _cancelEventHandler;
         // Cache our local objects
@@ -503,20 +504,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // the window size to 1000x600 until after the display mode has
         // changed to 1024x768, because windows cannot be larger than the
         // desktop.
-        //if (_windowed)
-        {
-          // Make sure main window isn't topmost, so error message is visible
-          /*Size currentClientSize = this.ClientSize;
-
-          this.Size = this.ClientSize;
-          this.SendToBack();
-          this.BringToFront();
-          this.ClientSize = currentClientSize;
-          this.TopMost = alwaysOnTop;*/
-        }
 
         StringBuilder sb = new StringBuilder();
-
 
         // Store device description
         if (deviceInfo.DevType == DeviceType.Reference)
@@ -561,44 +550,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // Set device stats string
         _deviceStats = sb.ToString();
         ServiceRegistration.Get<ILogger>().Info("DirectX: {0}", _deviceStats);
-        // Set up the fullscreen cursor
-        /*if (showCursorWhenFullscreen && !windowed)
-        {
-          Cursor ourCursor = this.Cursor;
-          GraphicsDevice.Device.SetCursor(ourCursor, true);
-          GraphicsDevice.Device.ShowCursor(true);
-        }
-
-        // Confine cursor to fullscreen window
-        if (clipCursorWhenFullscreen && !windowed)
-          Rectangle rcWindow = this.ClientRectangle;*/
-
-        // Setup the event handlers for our device
-        //GraphicsDevice.Device.DeviceLost += new System.EventHandler(this.OnDeviceLost);
-        //GraphicsDevice.Device.DeviceReset += new EventHandler(this.OnDeviceReset);
-        //GraphicsDevice.Device.Disposing += new System.EventHandler(this.OnDeviceDisposing);
-        //GraphicsDevice.Device.DeviceResizing += new System.ComponentModel.CancelEventHandler(this.EnvironmentResized);
-
-        // Initialize the app's device-dependent objects
-        try
-        {
-          //InitializeDeviceObjects();
-          //OnDeviceReset(null, null);
-          //active = true;
-        }
-        catch (Exception)
-        {
-          //Log.Error("D3D: InitializeDeviceObjects - Exception: {0}", ex.ToString());
-          // Cleanup before we try again
-          //OnDeviceLost(null, null);
-          //OnDeviceDisposing(null, null);
-          GraphicsDevice.Device.Dispose();
-          GraphicsDevice.Device = null;
-          //if (this.Disposing)
-          //  return;
-        }
       }
-      catch (Exception)
+      catch (Exception e)
       {
         // If that failed, fall back to the reference rasterizer
         if (deviceInfo.DevType == DeviceType.Hardware)
@@ -607,16 +560,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           {
             _graphicsSettings.IsWindowed = true;
 
-            // Make sure main window isn't topmost, so error message is visible
-            /*Size currentClientSize = this.ClientSize;
-            this.Size = this.ClientSize;
-            this.SendToBack();
-            this.BringToFront();
-            this.ClientSize = currentClientSize;
-            this.TopMost = alwaysOnTop;*/
-
             // Let the user know we are switching from HAL to the reference rasterizer
-            HandleException(null, ApplicationMessage.WarnSwitchToRef);
+            HandleException(e, ApplicationMessage.WarnSwitchToRef);
 
             InitializeEnvironment();
           }
@@ -625,7 +570,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     protected virtual bool ConfirmDevice(Capabilities caps, VertexProcessingType vertexProcessingType,
-                                         Format adapterFormat, Format backBufferFormat)
+        Format adapterFormat, Format backBufferFormat)
     {
       return true;
     }
@@ -637,29 +582,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <param name="Type">Extra information on how to handle the exception</param>
     public void HandleException(Exception e, ApplicationMessage Type)
     {
+      ServiceRegistration.Get<ILogger>().Error(e);
       // Build a message to display to the user
-      string strMsg = string.Empty;
+      IList<string> strMsg = new List<string>();
       if (e != null)
-        strMsg = e.Message;
-      //Log.Error("D3D: Exception: {0} {1} {2}", strMsg, strSource, strStack);
-      if (ApplicationMessage.ApplicationMustExit == Type)
+        strMsg.Add(e.Message);
+      MessageBoxIcon icon = MessageBoxIcon.Exclamation;
+      switch (Type)
       {
-        strMsg += "\n\nMediaPortal has to be closed.";
-        MessageBox.Show(strMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-        // Close the window, which shuts down the app
-        //if (this.IsHandleCreated)
-        //  this.Close();
+        case ApplicationMessage.ApplicationMustExit:
+          strMsg.Add("MediaPortal has to be closed.");
+          icon = MessageBoxIcon.Error;
+          break;
+        case ApplicationMessage.WarnSwitchToRef:
+          strMsg.Add("\n\nSwitching to the reference rasterizer, a software device that implements the entire\n" +
+              "Direct3D feature set, but runs very slowly.");
+          icon = MessageBoxIcon.Information;
+          break;
       }
-      else
-      {
-        if (ApplicationMessage.WarnSwitchToRef == Type)
-          strMsg = "\n\nSwitching to the reference rasterizer,\n";
-
-        strMsg += "a software device that implements the entire\n";
-        strMsg += "Direct3D feature set, but runs very slowly.";
-        MessageBox.Show(strMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
-      }
+      MessageBox.Show(StringUtils.Join("\n\n", strMsg), "Error DirectX layer", MessageBoxButtons.OK, icon);
     }
 
     #region Various Exceptions
