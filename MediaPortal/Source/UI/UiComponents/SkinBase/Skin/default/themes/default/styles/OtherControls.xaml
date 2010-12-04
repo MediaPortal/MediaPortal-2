@@ -996,6 +996,41 @@
 
   <!-- ****************************** Workflow navigation bar ********************************** -->
 
+  <Storyboard x:Key="FocusedNavbarContainerStoryboard" FillBehavior="HoldEnd">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_LineLeft" Storyboard.TargetProperty="Stroke">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_LineLeft" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowLeft" Storyboard.TargetProperty="Stroke">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowLeft" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_Center_Back" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_Center_Border" Storyboard.TargetProperty="Stroke">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowRight" Storyboard.TargetProperty="Stroke">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowRight" Storyboard.TargetProperty="Fill">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- Container style for the entries in the workflow navigation bar -->
   <Style x:Key="WorkflowNavigationBarContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
@@ -1005,37 +1040,51 @@
                - AdditionalProperties[IsFirst] is true for the first item
                - Executing the Command will navigate the workflow to the underlaying workflow state
           -->
-          <Grid>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="15"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="15"/>
-            </Grid.ColumnDefinitions>
-            <Path x:Name="WorkflowNavigationBarItemContainer_LineLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
-                IsVisible="{Binding AdditionalProperties[IsFirst]}"
-                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
-                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
-                Data="M20,0 L0,0 0,20 20,20"/>
-            <Path x:Name="WorkflowNavigationBarItemContainer_ArrowLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
-                IsVisible="{Binding !AdditionalProperties[IsFirst]}"
-                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
-                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
-                Data="M30,0 L0,0 20,10 0,20 30,20"/>
-            <Path x:Name="WorkflowNavigationBarItemContainer_Center_Back" Grid.Row="0" Grid.Column="1" Stretch="Fill"
-                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
-                Data="M0,0 L100,0 L100,20 0,20 z"/>
-            <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
-                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
-                Data="M100,0 L0,0 M0,20 L100,20"/>
-            <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
-                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
-                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
-                Data="M0,0 L10,0 30,10 10,20 0,20"/>
-            <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Stretch"/>
-          </Grid>
+          <Button Command="{Binding Command}">
+            <Button.TemplateControl>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="15"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="15"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="WorkflowNavigationBarItemContainer_LineLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
+                    IsVisible="{Binding AdditionalProperties[IsFirst]}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M20,0 L0,0 0,20 20,20"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_ArrowLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
+                    IsVisible="{Binding !AdditionalProperties[IsFirst]}"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M30,0 L0,0 20,10 0,20 30,20"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_Center_Back" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M0,0 L100,0 L100,20 0,20 z"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                    Data="M100,0 L0,0 M0,20 L100,20"/>
+                <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
+                    Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                    Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                    Data="M0,0 L10,0 30,10 10,20 0,20"/>
+                <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Stretch"/>
+              </Grid>
+            </Button.TemplateControl>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedNavbarContainerStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
