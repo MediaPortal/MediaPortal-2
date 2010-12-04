@@ -117,11 +117,11 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       if (!ParseFile(city, file))
       {
         ServiceRegistration.Get<ILogger>().Info("Models.Weather.WeatherDotComCatcher: Could not Parse Data from {0} for City {1}.",
-                                         file, city.Name);
+            file, city.Name);
         return false;
       }
       ServiceRegistration.Get<ILogger>().Info(
-        "Models.Weather.WeatherDotComCatcher: Fetching of weather data was successful for {0}.", city.Name);
+          "Models.Weather.WeatherDotComCatcher: Fetching of weather data was successful for {0}.", city.Name);
       city.HasData = true;
       return true;
     }
@@ -340,14 +340,14 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       SplitLongString(ref condition, 8, 15); //split to 2 lines if needed
       c.Condition.Condition = condition;
       c.Condition.Temperature =
-        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "tmp", 0), DEGREE_CHARACTER, _unitTemperature);
+          string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "tmp", 0), DEGREE_CHARACTER, _unitTemperature);
       c.Condition.FeelsLikeTemp =
-        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "flik", 0), DEGREE_CHARACTER, _unitTemperature);
+          string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "flik", 0), DEGREE_CHARACTER, _unitTemperature);
       c.Condition.Wind = ParseWind(xmlElement.SelectSingleNode("wind"), _unitSpeed);
       c.Condition.Humidity = string.Format("{0}%", GetIntegerDef(xmlElement, "hmid", 0));
       c.Condition.UVIndex = ParseUVIndex(xmlElement.SelectSingleNode("uv"));
       c.Condition.DewPoint =
-        string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "dewp", 0), DEGREE_CHARACTER, _unitTemperature);
+          string.Format("{0}{1}{2}", GetIntegerDef(xmlElement, "dewp", 0), DEGREE_CHARACTER, _unitTemperature);
       return true;
     }
 
@@ -528,6 +528,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     /// <returns></returns>
     private static string LocalizeDay(string dayName)
     {
+      // TODO: Use DaysOfWek.dayName
       switch (dayName)
       {
         case "Monday":
