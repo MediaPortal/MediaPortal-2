@@ -316,6 +316,16 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    /// <summary>
+    /// Synchronous method which pushes the given workflow <paramref name="state"/> onto the navigation stack.
+    /// </summary>
+    /// <remarks>
+    /// This method rethrows all exceptions which are thrown by workflow models. In case an exception is thrown,
+    /// the internal state is still valid but the caller must pop the current navigation context from the workflow stack.
+    /// </remarks>
+    /// <param name="state">Workflow state to push.</param>
+    /// <param name="config">Additional navigation context configuration.</param>
+    /// <returns><c>true</c> if the push action was successful, else <c>false</c>.</returns>
     protected bool DoPushNavigationContext(WorkflowState state, NavigationContextConfig config)
     {
       if (config == null)
@@ -329,6 +339,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (current != null && current.WorkflowState.IsTemporary && state.WorkflowType == WorkflowType.Workflow)
         {
           logger.Info("Current workflow state '{0}' is temporary, popping it from navigation stack", current.WorkflowState.Name);
+          // The next statement can throw an exception - don't catch it - our caller should pop the current navigation context
           DoPopNavigationContext(1);
         }
 
@@ -485,6 +496,16 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
+    /// <summary>
+    /// Pops <paramref name="count"/> workflow navigation contexts from the context stack.
+    /// </summary>
+    /// <remarks>
+    /// This method rethrows all exceptions which are thrown by workflow models. In that case, the internal state is still
+    /// valid but the caller must pop the current navigation context from the workflow stack.
+    /// </remarks>
+    /// <param name="count">Number of navigation contexts to pop.</param>
+    /// <returns><c>true</c> if the given <paramref name="count"/> of context stack frames could be removed from the
+    /// navigation context stack. <c>false</c> if the context stack contains less than <c>count + 1</c> contexts.</returns>
     protected bool DoPopNavigationContext(int count)
     {
       EnterWriteLock("DoPopNavigationContext");
@@ -540,7 +561,7 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error exiting model context of workflow model '{0}' at workflow state '{1}'", e,
                     predecessorWorkflowModel.ModelId, oldContext.WorkflowState.StateId);
-                delayedExceptions.Add(e);
+                // No need to rethrow the exception - we have left the erroneous model and will enter a not-erroneous workflow state
               }
             }
           // else: same model is currently active - model context change will be handled in the next block
@@ -562,6 +583,7 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error reactivating workflow model '{0}' for workflow state '{1}'", e,
                     workflowModel.ModelId, newContext.WorkflowState.StateId);
+                // The current model produced an exception - rethrow it to make the caller pop the new workflow context from the stack
                 delayedExceptions.Add(e);
               }
             }
@@ -577,6 +599,7 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error changing model context of workflow model '{0}' from workflow state '{1}' to workflow state '{2}'",
                   e, workflowModel.ModelId, oldContext.WorkflowState.StateId, newContext.WorkflowState.StateId);
+                // The current model produced an exception - rethrow it to make the caller pop the new workflow context from the stack
                 delayedExceptions.Add(e);
               }
             }
@@ -629,7 +652,11 @@ namespace MediaPortal.UI.Services.Workflow
     /// </summary>
     /// <remarks>
     /// If the batch update mode is set, this method will just cache the screen update.
+    /// 
+    /// This method just rethrows all exceptions thrown by models. It also throws an <see cref="EnvironmentException"/>
+    /// if the screen to be loaded could not be loaded.
     /// </remarks>
+    /// <exception cref="EnvironmentException">If the screen to be loaded could not be loaded.</exception>
     protected void UpdateScreen_NeedsLock(bool push)
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
