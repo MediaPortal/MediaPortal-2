@@ -68,10 +68,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "Extensions\Metada
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPlay", "UI\UiComponents\AutoPlay\AutoPlay.csproj", "{4E73672B-B668-4153-A6F2-0F45B5C3724B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "..\..\Resources\Test\TestPlugin\TestPlugin.csproj", "{2271D75E-E1CB-4C55-84CE-B2E9A716F209}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReloadSkin", "..\Resources\HelperPlugins\ReloadSkin\ReloadSkin.csproj", "{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -236,20 +232,6 @@ Global
 		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Debug|x86.ActiveCfg = Debug|x86
 		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Release|Any CPU.ActiveCfg = Release|x86
 		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Release|x86.ActiveCfg = Release|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Debug|x86.ActiveCfg = Debug|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Debug|x86.Build.0 = Debug|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Release|Any CPU.ActiveCfg = Release|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Release|x86.ActiveCfg = Release|x86
-		{2271D75E-E1CB-4C55-84CE-B2E9A716F209}.Release|x86.Build.0 = Release|x86
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Debug|x86.ActiveCfg = Debug|x86
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Debug|x86.Build.0 = Debug|x86
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Release|x86.ActiveCfg = Release|x86
-		{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
