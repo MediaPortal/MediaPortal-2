@@ -106,7 +106,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
     protected bool _setFocus = false;
-    protected Matrix _inverseFinalTransform = Matrix.Identity;
+    protected Matrix? _inverseFinalTransform = null;
+    protected PointF? _mouseMovePending = null;
 
     #endregion
 
@@ -1056,9 +1057,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected void TransformMouseCoordinates(ref float x, ref float y)
+    protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
-      _inverseFinalTransform.Transform(ref x, ref y);
+      if (_inverseFinalTransform.HasValue)
+      {
+        _inverseFinalTransform.Value.Transform(ref x, ref y);
+        return true;
+      }
+      return false;
     }
 
     public override void OnMouseMove(float x, float y)
@@ -1067,7 +1073,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         float xTrans = x;
         float yTrans = y;
-        TransformMouseCoordinates(ref xTrans, ref yTrans);
+        if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
+          _mouseMovePending = new PointF(x, y);
         if (ActualBounds.Contains(xTrans, yTrans))
         {
           if (!IsMouseOver)
@@ -1374,6 +1381,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix,
           renderTransformMatrix, RenderTransformOrigin, Opacity);
       _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
+      if (_mouseMovePending.HasValue)
+      {
+        OnMouseMove(_mouseMovePending.Value.X, _mouseMovePending.Value.Y);
+        _mouseMovePending = null;
+      }
 
       if (OpacityMask == null)
         // Simply render without opacity mask

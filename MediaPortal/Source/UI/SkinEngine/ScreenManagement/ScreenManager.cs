@@ -130,7 +130,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _backgroundScreen = background;
           _backgroundScreen.ScreenState = Screen.State.Running;
         }
-        background.Show();
         return true;
       }
 
@@ -522,11 +521,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         DialogData dd = dialogData;
         _dialogStack.Push(dd);
 
-        FocusScreen(dialogData.DialogScreen);
         dialogData.DialogScreen.ScreenState = Screen.State.Running;
       }
-      // Don't hold the lock while showing the screen
-      dialogData.DialogScreen.Show();
+      // Don't hold the lock while focusing the screen
+      FocusScreen(dialogData.DialogScreen);
     }
 
     protected bool IsDialogPresent(Guid dialogInstanceId)
@@ -540,6 +538,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates)
     {
+      Screen screenToFocus = null;
       ICollection<DialogData> oldDialogData = new List<DialogData>();
       lock(_syncObj)
       {
@@ -578,11 +577,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_dialogStack.Count == 0)
         { // Last dialog was removed, attach input to screen
           if (_currentScreen != null)
-            FocusScreen(_currentScreen);
+            screenToFocus = _currentScreen;
         }
         else
-          FocusScreen(_dialogStack.Peek().DialogScreen);
+          screenToFocus = _dialogStack.Peek().DialogScreen;
       }
+      FocusScreen(screenToFocus);
       foreach (DialogData dd in oldDialogData)
         DoCloseDialog(dd, fireCloseDelegates);
     }
@@ -637,7 +637,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       screen.ScreenState = Screen.State.Running;
       FocusScreen(screen);
-      screen.Show();
     }
 
     protected internal void DoSetSuperLayer(Screen screen)
@@ -654,10 +653,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentSuperLayer = screen;
       }
       if (screen != null)
-      {
         screen.ScreenState = Screen.State.Running;
-        screen.Show();
-      }
     }
 
     protected internal void DoReloadScreens()

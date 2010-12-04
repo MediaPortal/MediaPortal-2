@@ -370,6 +370,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseWheeled += OnMouseWheel;
         HasInputFocus = true;
       }
+      PretendMouseMove();
     }
 
     public void DetachInput()
@@ -400,11 +401,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public void Show()
-    {
-      PretendMouseMove();
-    }
-
     public void Close()
     {
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
@@ -429,7 +425,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_visual)
       {
         IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-        if (HasInputFocus && inputManager.IsMouseUsed)
+        if (inputManager.IsMouseUsed)
           _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
       }
     }
