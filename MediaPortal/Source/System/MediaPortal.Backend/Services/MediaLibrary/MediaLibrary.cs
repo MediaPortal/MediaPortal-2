@@ -655,7 +655,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IFilter filter = new MediaItemIdFilter(mediaItemIds);
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
-      return Search(query, false);
+      // Sort media items
+      IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
+      foreach (MediaItem item in Search(query, false))
+        searchResult[item.MediaItemId] = item;
+      IList<MediaItem> result = new List<MediaItem>(searchResult.Count);
+      foreach (Guid mediaItemId in mediaItemIds)
+      {
+        MediaItem item;
+        if (searchResult.TryGetValue(mediaItemId, out item))
+          result.Add(item);
+      }
+      return result;
     }
 
     #endregion
