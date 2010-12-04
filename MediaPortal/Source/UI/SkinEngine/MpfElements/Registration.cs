@@ -302,7 +302,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       {
         try
         {
-          Color color = (Color)
+          Color color = value is Color ? (Color) value : (Color)
               TypeDescriptor.GetConverter(typeof(Color)).ConvertFromString(value.ToString());
           SolidColorBrush b = new SolidColorBrush
             {

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
@@ -91,21 +92,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
       double time = 0;
-      Color start = (Color) patc.StartValue;
+      Color start = ColorAnimation.ConvertToColor(patc.StartValue);
       for (int i = 0; i < KeyFrames.Count; ++i)
       {
         ColorKeyFrame key = KeyFrames[i];
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
           double progress = (timepassed - time);
+          object value = null;
           if (progress == 0)
-            patc.DataDescriptor.Value = key.Value;
+            value = key.Value;
           else
           {
             progress /= (key.KeyTime.TotalMilliseconds - time);
             Color result = key.Interpolate(start, progress);
-            patc.DataDescriptor.Value = result;
+            value = result;
           }
+          if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
+            patc.DataDescriptor.Value = value;
+          else
+            throw new InvalidCastException(string.Format("Cannot from {0} to {1}", value == null ? null : value.GetType(), patc.DataDescriptor.DataType));
           return;
         }
         else

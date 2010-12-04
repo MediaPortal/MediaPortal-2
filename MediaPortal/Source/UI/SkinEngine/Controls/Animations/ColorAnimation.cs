@@ -21,8 +21,11 @@
 */
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
@@ -100,6 +103,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
+    public static Color ConvertToColor(object value)
+    {
+      if (value == null)
+        return Color.Black;
+      if (value is Color)
+        return (Color) value;
+      SolidColorBrush scb = value as SolidColorBrush;
+      if (scb != null)
+        return scb.Color;
+      throw new InvalidCastException(string.Format("Cannot cast from {0} to Color", value.GetType()));
+    }
+
     #region Animation methods
 
     internal override void DoAnimation(TimelineContext context, uint timepassed)
@@ -107,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
 
-      Color from = From ?? (Color) patc.StartValue;
+      Color from = From ?? ConvertToColor(patc.StartValue);
       Color to = To ?? (By.HasValue ? Color.FromArgb(
           from.A + By.Value.A,
           from.R + By.Value.R,
@@ -130,7 +145,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       distB *= timepassed;
       distB += from.B;
 
-      patc.DataDescriptor.Value = Color.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
+      object value = Color.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
+      if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
+        patc.DataDescriptor.Value = value;
+      else
+        throw new InvalidCastException(string.Format("Cannot from {0} to {1}", value == null ? null : value.GetType(), patc.DataDescriptor.DataType));
+      patc.DataDescriptor.Value = value;
     }
 
     #endregion
