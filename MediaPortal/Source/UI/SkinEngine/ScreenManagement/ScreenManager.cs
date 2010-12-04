@@ -63,13 +63,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    public const string ERROR_LOADING_SKIN_RESOURCE_TEXT_RES = "[ScreenManager.ErrorLoadingSkinResource]";
-    public const string SCREEN_MISSING_TEXT_RES = "[ScreenManager.ScreenMissing]";
-    public const string SCREEN_BROKEN_TEXT_RES = "[ScreenManager.ScreenBroken]";
-    public const string BACKGROUND_SCREEN_MISSING_TEXT_RES = "[ScreenManager.BackgroundScreenMissing]";
-    public const string SUPER_LAYER_MISSING_TEXT_RES = "[ScreenManager.SuperLayerScreenMissing]";
-    public const string BACKGROUND_SCREEN_BROKEN_TEXT_RES = "[ScreenManager.BackgroundScreenBroken]";
-    public const string SUPER_LAYER_BROKEN_TEXT_RES = "[ScreenManager.SuperLayerScreenBroken]";
+    public const string RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES = "[ScreenManager.ErrorLoadingSkinResource]";
+    public const string RES_SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
+    public const string RES_SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
+    public const string RES_BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
+    public const string RES_SUPER_LAYER_MISSING_TEXT = "[ScreenManager.SuperLayerScreenMissing]";
+    public const string RES_BACKGROUND_SCREEN_BROKEN_TEXT = "[ScreenManager.BackgroundScreenBroken]";
+    public const string RES_SUPER_LAYER_BROKEN_TEXT = "[ScreenManager.SuperLayerScreenBroken]";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
@@ -929,18 +929,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           switch (screenType)
           {
             case ScreenType.ScreenOrDialog:
-              errorText = SCREEN_MISSING_TEXT_RES;
+              errorText = RES_SCREEN_MISSING_TEXT;
               break;
             case ScreenType.Background:
-              errorText = BACKGROUND_SCREEN_MISSING_TEXT_RES;
+              errorText = RES_BACKGROUND_SCREEN_MISSING_TEXT;
               break;
             case ScreenType.SuperLayer:
-              errorText = SUPER_LAYER_MISSING_TEXT_RES;
+              errorText = RES_SUPER_LAYER_MISSING_TEXT;
               break;
             default:
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
-          ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+          ServiceRegistration.Get<IDialogManager>().ShowDialog(RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
               LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
               DialogType.OkDialog, false, null);
           return null;
@@ -957,18 +957,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           switch (screenType)
           {
             case ScreenType.ScreenOrDialog:
-              errorText = SCREEN_BROKEN_TEXT_RES;
+              errorText = RES_SCREEN_BROKEN_TEXT;
               break;
             case ScreenType.Background:
-              errorText = BACKGROUND_SCREEN_BROKEN_TEXT_RES;
+              errorText = RES_BACKGROUND_SCREEN_BROKEN_TEXT;
               break;
             case ScreenType.SuperLayer:
-              errorText = SUPER_LAYER_BROKEN_TEXT_RES;
+              errorText = RES_SUPER_LAYER_BROKEN_TEXT;
               break;
             default:
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
-          ServiceRegistration.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+          ServiceRegistration.Get<IDialogManager>().ShowDialog(RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
               LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
               DialogType.OkDialog, false, null);
         }

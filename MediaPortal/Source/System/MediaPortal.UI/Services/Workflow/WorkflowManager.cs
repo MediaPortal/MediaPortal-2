@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -76,7 +77,7 @@ namespace MediaPortal.UI.Services.Workflow
 
       public void Stop(PluginItemRegistration itemRegistration)
       {
-        _parent.RemoveModelFromNavigationStack(new Guid(itemRegistration.Metadata.Id));
+        _parent.NavigatePopModel(new Guid(itemRegistration.Metadata.Id));
       }
 
       public void Continue(PluginItemRegistration itemRegistration)
@@ -291,23 +292,6 @@ namespace MediaPortal.UI.Services.Workflow
       ServiceRegistration.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
     }
 
-    protected void RemoveModelFromNavigationStack(Guid modelId)
-    {
-      EnterWriteLock("RemoveModelFromNavigationStack");
-      try
-      {
-        // Pop all navigation contexts until requested model isn't used any more
-        while (IsModelContainedInNavigationStack(modelId))
-          if (!DoPopNavigationContext(1))
-            break;
-        UpdateScreen_NeedsLock(false);
-      }
-      finally
-      {
-        ExitWriteLock();
-      }
-    }
-
     protected static IEnumerable<WorkflowAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowAction> actions)
     {
       foreach (WorkflowAction action in actions)
@@ -402,6 +386,9 @@ namespace MediaPortal.UI.Services.Workflow
           return false;
         }
 
+        // Store model exceptions
+        IList<Exception> delayedExceptions = new List<Exception>();
+
         // Push new context
         logger.Debug("WorkflowManager: Entering workflow state '{0}'", state.Name);
         _navigationContextStack.Push(newContext);
@@ -425,6 +412,7 @@ namespace MediaPortal.UI.Services.Workflow
             catch (Exception e)
             {
               logger.Error("WorkflowManager: Error deactivating workflow model '{0}'", e, predecessorWorkflowModel.ModelId);
+              delayedExceptions.Add(e);
             }
           }
         // else: same model is currently active - model context change will be handled in the next block
@@ -447,6 +435,7 @@ namespace MediaPortal.UI.Services.Workflow
             {
               logger.Error("WorkflowManager: Error entering model context of workflow model '{0}' for workflow state '{1}'", e,
                   workflowModel.ModelId, newContext.WorkflowState.StateId);
+              delayedExceptions.Add(e);
             }
           }
           else
@@ -461,6 +450,7 @@ namespace MediaPortal.UI.Services.Workflow
             {
               logger.Error("WorkflowManager: Error changing model context of workflow model '{0}' from workflow state '{1}' to workflow state '{2}'",
                 e, workflowModel.ModelId, predecessor.WorkflowState.StateId, newContext.WorkflowState.StateId);
+              delayedExceptions.Add(e);
             }
           }
         if (state.WorkflowType == WorkflowType.Workflow)
@@ -479,10 +469,12 @@ namespace MediaPortal.UI.Services.Workflow
             {
               logger.Error("WorkflowManager: Error updating menu actions in workflow model '{0}' for workflow state '{1}'", e,
                   workflowModel.ModelId, newContext.WorkflowState.StateId);
+              delayedExceptions.Add(e);
             }
           newContext.SetMenuActions(menuActions.Values);
         }
-
+        if (delayedExceptions.Count > 0)
+          throw delayedExceptions.First();
         WorkflowManagerMessaging.SendStatePushedMessage(newContext);
         return true;
       }
@@ -521,6 +513,10 @@ namespace MediaPortal.UI.Services.Workflow
             if (dialogInstanceId.HasValue)
               screenManager.CloseDialogs(oldContext.DialogInstanceId.Value, false);
           }
+          
+          // Store model exceptions
+          IList<Exception> delayedExceptions = new List<Exception>();
+
           NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
           Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
           IWorkflowModel workflowModel = workflowModelId.HasValue ?
@@ -544,6 +540,7 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error exiting model context of workflow model '{0}' at workflow state '{1}'", e,
                     predecessorWorkflowModel.ModelId, oldContext.WorkflowState.StateId);
+                delayedExceptions.Add(e);
               }
             }
           // else: same model is currently active - model context change will be handled in the next block
@@ -565,6 +562,7 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error reactivating workflow model '{0}' for workflow state '{1}'", e,
                     workflowModel.ModelId, newContext.WorkflowState.StateId);
+                delayedExceptions.Add(e);
               }
             }
             else
@@ -579,10 +577,13 @@ namespace MediaPortal.UI.Services.Workflow
               {
                 logger.Error("WorkflowManager: Error changing model context of workflow model '{0}' from workflow state '{1}' to workflow state '{2}'",
                   e, workflowModel.ModelId, oldContext.WorkflowState.StateId, newContext.WorkflowState.StateId);
+                delayedExceptions.Add(e);
               }
             }
           }
           oldContext.Dispose();
+          if (delayedExceptions.Count > 0)
+            throw delayedExceptions.First();
         }
         WorkflowManagerMessaging.SendStatesPoppedMessage(removedContexts);
         return true;
@@ -638,6 +639,7 @@ namespace MediaPortal.UI.Services.Workflow
       IWorkflowModel workflowModel = workflowModelId.HasValue ?
           GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
       string screen = currentContext.WorkflowState.MainScreen;
+
       ScreenUpdateMode updateMode = ScreenUpdateMode.AutoWorkflowManager;
       if (workflowModel != null)
         try
@@ -648,6 +650,7 @@ namespace MediaPortal.UI.Services.Workflow
         {
           logger.Error("WorkflowManager: Error updating screen of workflow model '{0}' for workflow state '{1}'", e,
               workflowModel.ModelId, currentContext.WorkflowState.StateId);
+          throw;
         }
 
       if (updateMode == ScreenUpdateMode.ManualWorkflowModel)
@@ -693,7 +696,7 @@ namespace MediaPortal.UI.Services.Workflow
       if (result)
         logger.Info("WorkflowManager: Screen '{0}' successfully shown", screen);
       else
-        logger.Info("WorkflowManager: Error showing screen '{0}'", screen);
+        throw new EnvironmentException("Error showing screen '{0}'", screen);
     }
 
     // Called asynchronously.
@@ -705,10 +708,17 @@ namespace MediaPortal.UI.Services.Workflow
         WorkflowState state;
         if (!_states.TryGetValue(stateId, out state))
           throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
-
-        if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock(true);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        try
+        {
+          if (DoPushNavigationContext(state, config))
+            UpdateScreen_NeedsLock(true);
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePushInternal: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
+        }
       }
       finally
       {
@@ -722,9 +732,17 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("NavigatePushTransient");
       try
       {
-        if (DoPushNavigationContext(state, config))
-          UpdateScreen_NeedsLock(true);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        try
+        {
+          if (DoPushNavigationContext(state, config))
+            UpdateScreen_NeedsLock(true);
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePushTransientInternal: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
+        }
       }
       finally
       {
@@ -738,9 +756,17 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("NavigatePop");
       try
       {
-        DoPopNavigationContext(count);
-        UpdateScreen_NeedsLock(false);
-        WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        try
+        {
+          if (DoPopNavigationContext(count))
+            UpdateScreen_NeedsLock(false);
+          WorkflowManagerMessaging.SendNavigationCompleteMessage();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePopInternal: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
+        }
       }
       finally
       {
@@ -754,28 +780,37 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("NavigatePopToState");
       try
       {
-        if (!IsStateContainedInNavigationStack(stateId))
+        try
+        {
+          if (!IsStateContainedInNavigationStack(stateId))
+            return false;
+          bool removed = false;
+          while (CurrentNavigationContext.WorkflowState.StateId != stateId)
+          {
+            removed = true;
+            if (!DoPopNavigationContext(1))
+              break;
+          }
+          if (inclusive)
+          {
+            removed = true;
+            DoPopNavigationContext(1);
+          }
+          if (removed)
+          {
+            UpdateScreen_NeedsLock(false);
+            WorkflowManagerMessaging.SendNavigationCompleteMessage();
+            return true;
+          }
+          else
+            return false;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePopToStateInternal: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
           return false;
-        bool removed = false;
-        while (CurrentNavigationContext.WorkflowState.StateId != stateId)
-        {
-          removed = true;
-          if (!DoPopNavigationContext(1))
-            break;
         }
-        if (inclusive)
-        {
-          removed = true;
-          DoPopNavigationContext(1);
-        }
-        if (removed)
-        {
-          UpdateScreen_NeedsLock(false);
-          WorkflowManagerMessaging.SendNavigationCompleteMessage();
-          return true;
-        }
-        else
-          return false;
       }
       finally
       {
@@ -929,21 +964,30 @@ namespace MediaPortal.UI.Services.Workflow
       EnterWriteLock("NavigatePopModel");
       try
       {
-        bool removed = false;
-        while (IsModelContainedInNavigationStack(modelId))
+        try
         {
-          removed = true;
-          if (!DoPopNavigationContext(1))
-            break;
+          bool removed = false;
+          while (IsModelContainedInNavigationStack(modelId))
+          {
+            removed = true;
+            if (!DoPopNavigationContext(1))
+              break;
+          }
+          if (removed)
+          {
+            UpdateScreen_NeedsLock(false);
+            WorkflowManagerMessaging.SendNavigationCompleteMessage();
+            return true;
+          }
+          else
+            return false;
         }
-        if (removed)
+        catch (Exception e)
         {
-          UpdateScreen_NeedsLock(false);
-          WorkflowManagerMessaging.SendNavigationCompleteMessage();
-          return true;
-        }
-        else
+          ServiceRegistration.Get<ILogger>().Error("WorkflowManager.NavigatePopModel: Error in workflow model or screen", e);
+          NavigatePopInternal(1);
           return false;
+        }
       }
       finally
       {
