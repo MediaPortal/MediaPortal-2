@@ -36,12 +36,12 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class ServiceScopeMarkupExtension: IEvaluableMarkupExtension
+  public class ServiceRegistrationMarkupExtension: IEvaluableMarkupExtension
   {
     #region Protected fields
 
     protected static IDictionary<string, Type> TYPE_MAPPING = new Dictionary<string, Type>();
-    static ServiceScopeMarkupExtension()
+    static ServiceRegistrationMarkupExtension()
     {
       TYPE_MAPPING.Add("ScreenManager", typeof(IScreenManager));
       TYPE_MAPPING.Add("WorkflowManager", typeof(IWorkflowManager));
@@ -55,9 +55,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #endregion
 
-    public ServiceScopeMarkupExtension() { }
+    public ServiceRegistrationMarkupExtension() { }
 
-    public ServiceScopeMarkupExtension(string interfaceName)
+    public ServiceRegistrationMarkupExtension(string interfaceName)
     {
       _interfaceName = interfaceName;
     }
@@ -81,9 +81,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     bool IEvaluableMarkupExtension.Evaluate(out object value)
     {
       if (_interfaceName == null)
-        throw new XamlBindingException("ServiceScopeMarkupExtension: Property InterfaceName has to be set");
+        throw new XamlBindingException("ServiceRegistrationMarkupExtension: Property InterfaceName has to be set");
       if (!TYPE_MAPPING.ContainsKey(_interfaceName))
-        throw new XamlBindingException("ServiceScopeMarkupExtension: Type '{0}' is not known", _interfaceName);
+        throw new XamlBindingException("ServiceRegistrationMarkupExtension: Type '{0}' is not known", _interfaceName);
       Type t = TYPE_MAPPING[_interfaceName];
       try
       {
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("ServiceScopeMarkupExtension: Error getting service '{0}'", ex, t.Name);
+        ServiceRegistration.Get<ILogger>().Error("ServiceRegistrationMarkupExtension: Error getting service '{0}'", ex, t.Name);
       }
       value = null;
       return false;

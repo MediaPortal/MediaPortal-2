@@ -188,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));
       _objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStencilMarkupExtension));
       _objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.GetModelMarkupExtension));
-      _objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceScopeMarkupExtension));
+      _objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceRegistrationMarkupExtension));
       _objectClassRegistrations.Add("Color", typeof(SkinEngine.MarkupExtensions.ColorMarkupExtension));
 
       // Others

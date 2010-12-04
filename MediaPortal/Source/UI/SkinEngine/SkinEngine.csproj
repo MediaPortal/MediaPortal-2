@@ -309,7 +309,7 @@
     <Compile Include="MarkupExtensions\BindingBase.cs" />
     <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\DynamicResourceMarkupExtension.cs" />
-    <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\ServiceRegistrationMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
     <Compile Include="MarkupExtensions\TreeHelper.cs" />
     <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
