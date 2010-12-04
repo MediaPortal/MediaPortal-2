@@ -31,6 +31,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -940,9 +941,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             default:
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
-          ServiceRegistration.Get<IDialogManager>().ShowDialog(RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
+          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
           return null;
         }
         Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = element};
@@ -968,9 +969,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             default:
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
-          ServiceRegistration.Get<IDialogManager>().ShowDialog(RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
+          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
         }
         catch (Exception)
         {
