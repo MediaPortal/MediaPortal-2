@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _caretIndexProperty;
     protected AbstractProperty _textProperty;
+    protected AbstractProperty _internalTextProperty;
     protected AbstractProperty _colorProperty;
     protected AbstractProperty _preferredTextLengthProperty;
     protected AbstractProperty _textAlignProperty;
@@ -50,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
-    bool _editText = false; 
+    bool _internalUpdate = false; 
 
     #endregion
 
@@ -66,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _caretIndexProperty = new SProperty(typeof(int), 0);
       _textProperty = new SProperty(typeof(string), string.Empty);
+      _internalTextProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
 
       _preferredTextLengthProperty = new SProperty(typeof(int?), null);
@@ -78,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _textProperty.Attach(OnTextChanged);
+      _internalTextProperty.Attach(OnInternalTextChanged);
       _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
       _textAlignProperty.Attach(OnTextAlignChanged);
@@ -88,6 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
+      _internalTextProperty.Detach(OnInternalTextChanged);
       _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
       _textAlignProperty.Detach(OnTextAlignChanged);
@@ -127,9 +131,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTextChanged(AbstractProperty prop, object oldValue)
     {
       string text = Text ?? string.Empty;
-      // The skin is setting the text, so update the caret
-      if (!_editText)
+      if (!_internalUpdate)
+        // The skin is setting the text, so update the caret
         CaretIndex = text.Length;
+      InternalText = text;
+    }
+
+    void OnInternalTextChanged(AbstractProperty prop, object oldValue)
+    {
+      string text = InternalText ?? string.Empty;
+      _internalUpdate = true;
+      try
+      {
+        Text = text;
+      }
+      finally
+      {
+        _internalUpdate = false;
+      }
       if (_asset == null)
         AllocFont();
       else
@@ -145,16 +164,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractTextInputHandler CreateTextInputHandler()
     {
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
-      SimplePropertyDataDescriptor textPropertyDataDescriptor;
+      SimplePropertyDataDescriptor internalTextPropertyDataDescriptor;
       SimplePropertyDataDescriptor caretIndexDataDescriptor;
       if (!SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(
-          this, "Text", out textPropertyDataDescriptor) ||
+          this, "InternalText", out internalTextPropertyDataDescriptor) ||
           !SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(
           this, "CaretIndex", out caretIndexDataDescriptor))
-        throw new FatalException("One of the properties 'Text' or 'CaretIndex' was not found");
+        throw new FatalException("One of the properties 'InternalText' or 'CaretIndex' was not found");
       return settings.CellPhoneInputStyle ?
-          (AbstractTextInputHandler) new CellPhoneTextInputHandler(this, textPropertyDataDescriptor, caretIndexDataDescriptor) :
-          new DefaultTextInputHandler(this, textPropertyDataDescriptor, caretIndexDataDescriptor);
+          (AbstractTextInputHandler) new CellPhoneTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor) :
+          new DefaultTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor);
     }
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)
@@ -169,11 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       AbstractTextInputHandler textInputHandler = _textInputHandler;
       if (textInputHandler != null)
-      {
-        _editText = true;
         textInputHandler.HandleInput(ref key);
-        _editText = false;
-      }
       base.OnKeyPreview(ref key);
     }
 
@@ -211,6 +226,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (string) _textProperty.GetValue(); }
       set { _textProperty.SetValue(value); }
+    }
+
+    public AbstractProperty InternalTextProperty
+    {
+      get { return _internalTextProperty; }
+    }
+
+    public string InternalText
+    {
+      get { return (string) _internalTextProperty.GetValue(); }
+      set { _internalTextProperty.SetValue(value); }
     }
 
     public AbstractProperty ColorProperty
