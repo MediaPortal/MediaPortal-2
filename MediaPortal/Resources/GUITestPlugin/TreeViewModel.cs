@@ -117,7 +117,7 @@ namespace MediaPortal.Test.GUITestPlugin
     {
     }
 
-    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
     }
 
