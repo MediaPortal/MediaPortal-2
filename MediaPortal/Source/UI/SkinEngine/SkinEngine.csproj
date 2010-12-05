@@ -392,18 +392,22 @@
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\System\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\UiComponents\Configuration\Configuration.csproj">
       <Project>{9665887D-BEBF-4051-9151-7F189356682C}</Project>
       <Name>Configuration</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -432,10 +436,9 @@ robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
 robocopy "$(ProjectDir)Skin" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin" /MIR /NP /XD .svn
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)SlimDX.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /NP /XD .svn
 @REM Reset RoboCopy's exit code which is different from 0
-IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL=0
+IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
 </PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>

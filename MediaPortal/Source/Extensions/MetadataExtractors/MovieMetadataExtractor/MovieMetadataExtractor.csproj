@@ -48,14 +48,17 @@
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\MediaInfoLib\MediaInfoLib.csproj">
       <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
       <Name>MediaInfoLib</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

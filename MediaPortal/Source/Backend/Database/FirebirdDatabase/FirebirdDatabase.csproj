@@ -42,6 +42,7 @@
     <Reference Include="FirebirdSql.Data.FirebirdClient, Version=2.5.0.0, Culture=neutral, PublicKeyToken=3750abcc3150b00c, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\FirebirdSql.Data.FirebirdClient.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -60,14 +61,17 @@
     <ProjectReference Include="..\..\..\System\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

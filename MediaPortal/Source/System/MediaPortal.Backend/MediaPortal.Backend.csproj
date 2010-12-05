@@ -101,18 +101,22 @@
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">
       <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
       <Name>HttpServer</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

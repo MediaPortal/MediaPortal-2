@@ -66,18 +66,17 @@
     <ProjectReference Include="..\..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\System\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
-      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
-      <Name>Media %28UI\UiComponents\Media%29</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
