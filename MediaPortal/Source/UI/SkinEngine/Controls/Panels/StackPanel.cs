@@ -324,7 +324,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected static void Bound(ref int value, int upperBound, int lowerBound)
+    protected static void Bound(ref int value, int lowerBound, int upperBound)
     {
       if (value < lowerBound)
         value = lowerBound;
@@ -345,10 +345,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         startIndex = endIndex;
         endIndex = tmp;
       }
-      if (startIndex >= elements.Count)
-        startIndex = elements.Count - 1;
-      if (endIndex < 0)
-        endIndex = 0;
       double result = 0;
       for (int i = startIndex; i < endIndex; i++)
         result += elements[i].ActualWidth;
@@ -368,10 +364,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         startIndex = endIndex;
         endIndex = tmp;
       }
-      if (startIndex >= elements.Count)
-        startIndex = elements.Count - 1;
-      if (endIndex < 0)
-        endIndex = 0;
       double result = 0;
       for (int i = startIndex; i < endIndex; i++)
         result += elements[i].ActualHeight;
