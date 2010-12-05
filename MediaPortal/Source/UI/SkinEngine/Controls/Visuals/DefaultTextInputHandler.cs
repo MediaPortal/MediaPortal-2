@@ -40,18 +40,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (key == Key.BackSpace)
       {
-        if (CaretIndex > 0)
+        int caretIndex = CaretIndex;
+        if (caretIndex > 0)
         {
-          Text = Text.Remove(CaretIndex - 1, 1);
-          CaretIndex--;
+          Text = Text.Remove(caretIndex - 1, 1);
+          CaretIndex = caretIndex - 1;
         }
         key = Key.None;
       }
+      else if (key == Key.Delete)
+      {
+        string text = Text;
+        int caretIndex = CaretIndex;
+        if (caretIndex < text.Length)
+          Text = text.Remove(caretIndex, 1);
+      }
       else if (key == Key.Left)
       {
-        if (CaretIndex > 0)
+        int caretIndex = CaretIndex;
+        if (caretIndex > 0)
         {
-          CaretIndex--;
+          CaretIndex = caretIndex - 1;
           // Only consume the key if we can move the cared - else the key can be used by
           // the focus management, for example
           key = Key.None;
@@ -59,9 +68,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else if (key == Key.Right)
       {
-        if (CaretIndex < Text.Length)
+        int caretIndex = CaretIndex;
+        string text = Text;
+        if (caretIndex < text.Length)
         {
-          CaretIndex++;
+          CaretIndex = caretIndex + 1;
           // Only consume the key if we can move the cared - else the key can be used by
           // the focus management, for example
           key = Key.None;
@@ -79,8 +90,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       } 
       else if (key.IsPrintableKey)
       {
-        Text = Text.Insert(CaretIndex, key.RawCode.Value.ToString());
-        CaretIndex++;
+        int caretIndex = CaretIndex;
+        Text = Text.Insert(caretIndex, key.RawCode.Value.ToString());
+        CaretIndex = caretIndex + 1;
         key = Key.None;
       }
     }
