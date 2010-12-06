@@ -141,13 +141,8 @@ namespace MediaPortal.UI.Services.Players
 
     protected void RegisterPlayerEvents_NoLock(IPlayer player)
     {
-      IPlayerEvents pe;
-      IReusablePlayer rp;
-      lock (SyncObj)
-      {
-        pe = player as IPlayerEvents;
-        rp = player as IReusablePlayer;
-      }
+      IPlayerEvents pe = player as IPlayerEvents;
+      IReusablePlayer rp = player as IReusablePlayer;
       if (pe != null)
         try
         {
@@ -171,13 +166,8 @@ namespace MediaPortal.UI.Services.Players
 
     protected void ResetPlayerEvents_NoLock(IPlayer player)
     {
-      IPlayerEvents pe;
-      IReusablePlayer rp;
-      lock (SyncObj)
-      {
-        pe = player as IPlayerEvents;
-        rp = player as IReusablePlayer;
-      }
+      IPlayerEvents pe = player as IPlayerEvents;
+      IReusablePlayer rp = player as IReusablePlayer;
       if (pe != null)
         try
         {
