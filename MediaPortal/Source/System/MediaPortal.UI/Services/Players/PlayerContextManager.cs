@@ -739,18 +739,15 @@ namespace MediaPortal.UI.Services.Players
 
     public ICollection<AudioStreamDescriptor> GetAvailableAudioStreams()
     {
-      lock (SyncObj)
+      ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
+      for (int i = 0; i < 2; i++)
       {
-        ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
-        for (int i = 0; i < 2; i++)
-        {
-          IPlayerContext playerContext = GetPlayerContext(i);
-          if (playerContext == null)
-            continue;
-          CollectionUtils.AddAll(result, playerContext.GetAudioStreamDescriptors());
-        }
-        return result;
+        IPlayerContext playerContext = GetPlayerContext(i);
+        if (playerContext == null)
+          continue;
+        CollectionUtils.AddAll(result, playerContext.GetAudioStreamDescriptors());
       }
+      return result;
     }
 
     public bool SetAudioStream(AudioStreamDescriptor stream)

@@ -79,8 +79,8 @@ namespace MediaPortal.UI.Services.Players
       {
         SetSlotState(PlayerSlotState.Stopped);
         if (player.State != PlayerState.Stopped)
-          stopPlayer = _player;
-        disposePlayer = _player as IDisposable;
+          stopPlayer = player;
+        disposePlayer = player as IDisposable;
       }
       if (stopPlayer != null)
         try
@@ -473,7 +473,6 @@ namespace MediaPortal.UI.Services.Players
           // We need to simulate the PlayerStopped event, as the ReleasePlayer_NoLock() method discards all further player events
           PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
         }
-        _player = null;
       }
       ReleasePlayer_NoLock();
     }
