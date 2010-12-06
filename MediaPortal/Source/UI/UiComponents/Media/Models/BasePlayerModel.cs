@@ -106,7 +106,7 @@ namespace MediaPortal.UiComponents.Media.Models
       lock (_syncObj)
         oldPlayerUIContributor = _playerUIContributor;
       bool backgroundDisabled = false;
-      string screenName = _lastScreenName;
+      string screenName = null;
       try
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
@@ -133,7 +133,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
         screenManager.BackgroundDisabled = backgroundDisabled;
-        if (screenName != _lastScreenName)
+        if (screenName != _lastScreenName && screenName != null)
           screenManager.ExchangeScreen(screenName);
         _lastScreenName = screenName;
       }
@@ -214,13 +214,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      IPlayerUIContributor playerUIContributor;
-      lock (_syncObj)
-        playerUIContributor = _playerUIContributor;
-      if (playerUIContributor != null)
-        screen = playerUIContributor.Screen;
-      _lastScreenName = screen;
-      return string.IsNullOrEmpty(screen) ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
+      return ScreenUpdateMode.ManualWorkflowModel;
     }
   }
 }
