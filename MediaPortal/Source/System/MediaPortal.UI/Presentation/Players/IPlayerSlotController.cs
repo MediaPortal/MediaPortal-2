@@ -121,7 +121,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     /// <summary>
     /// Gets the player playing the current item of this player slot.
-    /// The current player can chainge, for example when the playlist advances.
+    /// The current player can change, for example when the playlist advances.
     /// </summary>
     IPlayer CurrentPlayer { get; }
 

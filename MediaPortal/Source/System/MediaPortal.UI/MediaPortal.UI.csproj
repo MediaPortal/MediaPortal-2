@@ -125,7 +125,6 @@
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
-    <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />
     <Compile Include="Services\Players\PlayerContext.cs" />
     <Compile Include="Services\Players\PlayerContextManager.cs" />
     <Compile Include="Services\Players\PlayerManager.cs" />

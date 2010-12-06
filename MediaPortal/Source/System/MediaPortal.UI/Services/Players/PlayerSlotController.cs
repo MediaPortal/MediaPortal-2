@@ -34,14 +34,13 @@ namespace MediaPortal.UI.Services.Players
 {
   /// <summary>
   /// Controller for one player slot. This class manages a player slot state, a current player, the audio setting
-  /// (audio slot, volume, muted state), context variables and a <see cref="PlayerBuilderRegistration"/> instance.
+  /// (audio slot, volume, muted state) and context variables.
   /// </summary>
   internal class PlayerSlotController : IPlayerSlotController
   {
     protected PlayerManager _playerManager;
     protected int _slotIndex;
     protected bool _isAudioSlot = false;
-    protected PlayerBuilderRegistration _builderRegistration = null;
     protected IPlayer _player = null;
     protected readonly IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected PlayerSlotState _slotState = PlayerSlotState.Inactive;
@@ -61,131 +60,75 @@ namespace MediaPortal.UI.Services.Players
     }
 
     /// <summary>
-    /// Creates a new player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
-    /// </summary>
-    /// <param name="locator">Resource locator of the media item to be played.</param>
-    /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
-    /// <returns><c>true</c>, if the player could be created, else <c>false</c>.</returns>
-    internal bool CreatePlayer(IResourceLocator locator, string mimeType)
-    {
-      lock (_playerManager.SyncObj)
-      {
-        ReleasePlayer();
-        _playerManager.BuildPlayer(locator, mimeType, this);
-        if (_player != null)
-        {
-          // Initialize new player
-          CheckAudio();
-          RegisterPlayerEvents();
-          return true;
-        }
-        return false;
-      }
-    }
-
-    /// <summary>
     /// Releases the current player.
     /// </summary>
-    internal void ReleasePlayer()
+    internal void ReleasePlayer_NoLock()
     {
-      lock (_playerManager.SyncObj)
+      IPlayer player;
+      lock (SyncObj)
       {
-        if (_player != null)
-        {
-          ResetPlayerEvents();
-          SetSlotState(PlayerSlotState.Stopped);
-          if (_player.State != PlayerState.Stopped)
-            try
-            {
-              _player.Stop();
-            }
-            catch (Exception e)
-            {
-              ServiceRegistration.Get<ILogger>().Warn("Error stopping player '{0}'", e, _player);
-            }
-          IDisposable d = _player as IDisposable;
-          if (d != null)
-            try
-            {
-              d.Dispose();
-            }
-            catch (Exception e)
-            {
-              ServiceRegistration.Get<ILogger>().Warn("Error disposing player '{0}'", e, d);
-            }
-          _player = null;
-        }
-        _playerManager.RevokePlayer(this);
-      }
-    }
-
-    /// <summary>
-    /// Returns the builder registration of the current player.
-    /// </summary>
-    /// <remarks>
-    /// Access to the returned object has to be synchronized via the <see cref="_playerManager"/>'s
-    /// <see cref="PlayerManager.SyncObj"/>.
-    /// </remarks>
-    internal PlayerBuilderRegistration BuilderRegistration
-    {
-      get { return _builderRegistration; }
-    }
-
-    /// <summary>
-    /// Assigns both the current player and the builder registration.
-    /// </summary>
-    /// <param name="player">The player to be assigned to the <see cref="CurrentPlayer"/> property.</param>
-    /// <param name="builderRegistration">The builder registration to be assigned to the <see cref="BuilderRegistration"/>
-    /// property.</param>
-    internal void AssignPlayerAndBuilderRegistration(IPlayer player, PlayerBuilderRegistration builderRegistration)
-    {
-      lock (_playerManager.SyncObj)
-      {
-        _player = player;
-        _builderRegistration = builderRegistration;
-        _builderRegistration.UsingSlotControllers.Add(this);
-      }
-    }
-
-    /// <summary>
-    /// Releases both the current player and the builder registration.
-    /// </summary>
-    internal void ResetPlayerAndBuilderRegistration()
-    {
-      lock (_playerManager.SyncObj)
-      {
+        player = _player;
         _player = null;
-        if (_builderRegistration != null)
-        {
-          _builderRegistration.UsingSlotControllers.Remove(this);
-          _builderRegistration = null;
-        }
       }
+      if (player == null)
+        return;
+      ResetPlayerEvents_NoLock(player);
+      IPlayer stopPlayer = null;
+      IDisposable disposePlayer;
+      lock (_playerManager.SyncObj)
+      {
+        SetSlotState(PlayerSlotState.Stopped);
+        if (player.State != PlayerState.Stopped)
+          stopPlayer = _player;
+        disposePlayer = _player as IDisposable;
+      }
+      if (stopPlayer != null)
+        try
+        {
+          stopPlayer.Stop();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error stopping player '{0}'", e, _player);
+        }
+      if (disposePlayer != null)
+        try
+        {
+          disposePlayer.Dispose();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error disposing player '{0}'", e, disposePlayer);
+        }
     }
 
-    protected void CheckAudio()
+    protected void CheckAudio_NoLock()
     {
+      bool mute;
+      int volume;
+      IVolumeControl vc;
       lock (SyncObj)
       {
         if (_player == null)
           return;
-        bool mute = !_isAudioSlot || _isMuted;
-        try
-        {
-          IVolumeControl vc = _player as IVolumeControl;
-          if (vc != null && mute && !vc.Mute)
-            // If we are switching the audio off, first disable the audio before setting the volume -
-            // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
-            vc.Mute = true;
-          if (vc != null)
-            vc.Volume = _volume;
-          if (vc != null)
-            vc.Mute = mute;
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
-        }
+        mute = !_isAudioSlot || _isMuted;
+        vc = _player as IVolumeControl;
+        volume = _volume;
+      }
+      try
+      {
+        if (vc != null && mute && !vc.Mute)
+          // If we are switching the audio off, first disable the audio before setting the volume -
+          // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
+          vc.Mute = true;
+        if (vc != null)
+          vc.Volume = volume;
+        if (vc != null)
+          vc.Mute = mute;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
       }
     }
 
@@ -196,59 +139,63 @@ namespace MediaPortal.UI.Services.Players
           throw new IllegalCallException("PlayerSlotController: PSC is not active");
     }
 
-    protected void RegisterPlayerEvents()
+    protected void RegisterPlayerEvents_NoLock(IPlayer player)
     {
+      IPlayerEvents pe;
+      IReusablePlayer rp;
       lock (SyncObj)
       {
-        IPlayerEvents pe = _player as IPlayerEvents;
-        if (pe != null)
-          try
-          {
-            pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStateReady, OnPlayerStopped, OnPlayerEnded,
-                OnPlaybackStateChanged, OnPlaybackError);
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
-          }
-        IReusablePlayer rp = _player as IReusablePlayer;
-        if (rp != null)
-          try
-          {
-            rp.NextItemRequest += OnNextItemRequest;
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
-          }
+        pe = player as IPlayerEvents;
+        rp = player as IReusablePlayer;
       }
+      if (pe != null)
+        try
+        {
+          pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStateReady, OnPlayerStopped, OnPlayerEnded,
+              OnPlaybackStateChanged, OnPlaybackError);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
+        }
+      if (rp != null)
+        try
+        {
+          rp.NextItemRequest += OnNextItemRequest;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
+        }
     }
 
-    protected void ResetPlayerEvents()
+    protected void ResetPlayerEvents_NoLock(IPlayer player)
     {
+      IPlayerEvents pe;
+      IReusablePlayer rp;
       lock (SyncObj)
       {
-        IPlayerEvents pe = _player as IPlayerEvents;
-        if (pe != null)
-          try
-          {
-            pe.ResetPlayerEvents();
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
-          }
-        IReusablePlayer rp = _player as IReusablePlayer;
-        if (rp != null)
-          try
-          {
-            rp.NextItemRequest -= OnNextItemRequest;
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
-          }
+        pe = player as IPlayerEvents;
+        rp = player as IReusablePlayer;
       }
+      if (pe != null)
+        try
+        {
+          pe.ResetPlayerEvents();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
+        }
+      if (rp != null)
+        try
+        {
+          rp.NextItemRequest -= OnNextItemRequest;
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
+        }
     }
 
     internal void OnPlayerStarted(IPlayer player)
@@ -288,15 +235,19 @@ namespace MediaPortal.UI.Services.Players
 
     protected void SetSlotState(PlayerSlotState slotState)
     {
+      PlayerSlotState oldSlotState;
       lock (SyncObj)
       {
         if (slotState == _slotState)
           return;
         if (slotState == PlayerSlotState.Inactive)
           _activationSequence++;
-        PlayerSlotState oldSlotState = _slotState;
+        oldSlotState = _slotState;
         _slotState = slotState;
-        InvokeSlotStateChanged(slotState);
+      }
+      InvokeSlotStateChanged(slotState); // Outside the lock
+      lock (SyncObj)
+      {
         if (oldSlotState == PlayerSlotState.Inactive && slotState != PlayerSlotState.Inactive)
           PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotActivated);
         if (oldSlotState != PlayerSlotState.Inactive || slotState != PlayerSlotState.Stopped)
@@ -349,14 +300,15 @@ namespace MediaPortal.UI.Services.Players
       }
       internal set
       {
+        bool wasChanged;
         lock (SyncObj)
         {
-          bool wasChanged = value != _isAudioSlot;
+          wasChanged = value != _isAudioSlot;
           _isAudioSlot = value;
-          CheckAudio();
-          if (wasChanged)
-            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, this);
         }
+        CheckAudio_NoLock();
+        if (wasChanged)
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, this);
       }
     }
 
@@ -370,10 +322,8 @@ namespace MediaPortal.UI.Services.Players
       internal set
       {
         lock (SyncObj)
-        {
           _isMuted = value;
-          CheckAudio();
-        }
+        CheckAudio_NoLock();
       }
     }
 
@@ -387,10 +337,8 @@ namespace MediaPortal.UI.Services.Players
       set
       {
         lock (SyncObj)
-        {
           _volume = value;
-          CheckAudio();
-        }
+        CheckAudio_NoLock();
       }
     }
 
@@ -403,6 +351,7 @@ namespace MediaPortal.UI.Services.Players
       }
       internal set
       {
+        bool doSetInactive = false;
         lock (SyncObj)
         {
           if (value == IsActive)
@@ -410,8 +359,13 @@ namespace MediaPortal.UI.Services.Players
           if (value)
             SetSlotState(PlayerSlotState.Stopped);
           else
+            doSetInactive = true;
+        }
+        if (doSetInactive)
+        {
+          Reset(); // Outside the lock
+          lock (SyncObj)
           {
-            Reset();
             _isAudioSlot = false;
             SetSlotState(PlayerSlotState.Inactive);
           }
@@ -460,41 +414,62 @@ namespace MediaPortal.UI.Services.Players
 
     public bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
     {
-      bool result = false;
-      lock (SyncObj)
-        try
+      IPlayer player = null;
+      try
+      {
+        IReusablePlayer rp;
+        lock (SyncObj)
         {
           CheckActive();
-          IReusablePlayer rp = _player as IReusablePlayer;
-          if (rp != null)
+          player = _player;
+          rp = _player as IReusablePlayer;
+        }
+        if (rp != null)
+        {
+          if (rp.NextItem(locator, mimeType, startTime))
           {
-            result = rp.NextItem(locator, mimeType, startTime);
             OnPlayerStarted(rp);
-          }
-          if (result)
             return true;
-          if (CreatePlayer(locator, mimeType))
-          {
-            OnPlayerStarted(_player);
-            IMediaPlaybackControl mpc = _player as IMediaPlaybackControl;
-            if (mpc != null)
-              mpc.Resume();
-            return result = true;
           }
-          return false;
         }
-        catch (Exception e)
+        ReleasePlayer_NoLock();
+        player = _playerManager.BuildPlayer_NoLock(locator, mimeType);
+        if (player != null)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
-          return result = false;
+          IMediaPlaybackControl mpc;
+          IDisposable disposePlayer = null;
+          lock (SyncObj)
+          {
+            if (_player != null)
+              disposePlayer = _player as IDisposable; // If we got a race condition between the locks
+            _player = player;
+            mpc = player as IMediaPlaybackControl;
+          }
+          RegisterPlayerEvents_NoLock(player);
+          CheckAudio_NoLock();
+          if (disposePlayer != null)
+            disposePlayer.Dispose();
+          OnPlayerStarted(player);
+          if (mpc != null)
+            mpc.Resume();
+          return true;
         }
-        finally
+        return false;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
+        player = null;
+        return false;
+      }
+      finally
+      {
+        if (player != null)
         {
-          if (result)
-            SetSlotState(PlayerSlotState.Playing);
-          if (_player != null)
-            _player.SetMediaItemTitleHint(mediaItemTitle);
+          SetSlotState(PlayerSlotState.Playing);
+          player.SetMediaItemTitleHint(mediaItemTitle);
         }
+      }
     }
 
     public void Stop()
@@ -505,20 +480,19 @@ namespace MediaPortal.UI.Services.Players
         if (_slotState != PlayerSlotState.Stopped)
         {
           SetSlotState(PlayerSlotState.Stopped);
-          // We need to simulate the PlayerStopped event, as the ReleasePlayer() method discards all further player events
+          // We need to simulate the PlayerStopped event, as the ReleasePlayer_NoLock() method discards all further player events
           PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
         }
-        ReleasePlayer();
+        _player = null;
       }
+      ReleasePlayer_NoLock();
     }
 
     public void Reset()
     {
+      Stop();
       lock (SyncObj)
-      {
-        Stop();
         _contextVariables.Clear();
-      }
     }
 
    #endregion

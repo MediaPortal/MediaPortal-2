@@ -141,7 +141,7 @@ namespace MediaPortal.UI.Presentation.Players
     void SwitchSlots();
 
     /// <summary>
-    /// Executes the given method on each active slot.
+    /// Executes the given <paramref name="execute"/> method on each player slot (active and inactive).
     /// </summary>
     /// <param name="execute">Method to execute.</param>
     void ForEach(PlayerSlotWorkerDelegate execute);

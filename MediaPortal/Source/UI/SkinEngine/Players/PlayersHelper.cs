@@ -66,12 +66,12 @@ namespace MediaPortal.UI.SkinEngine.Players
 
     public static void ReleaseGUIResources()
     {
-      ServiceRegistration.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+      ServiceRegistration.Get<IPlayerManager>().ForEach(ReleaseGUIResources);
     }
 
     public static void ReallocGUIResources()
     {
-      ServiceRegistration.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+      ServiceRegistration.Get<IPlayerManager>().ForEach(ReallocGUIResources);
     }
   }
 }

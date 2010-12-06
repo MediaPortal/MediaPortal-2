@@ -30,7 +30,6 @@ using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -63,32 +62,19 @@ namespace MediaPortal.UI.Services.Players
 
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
-        lock (_playerManager.SyncObj)
-        {
-          PlayerBuilderRegistration builderRegistration = _playerManager.GetPlayerBuilderRegistration(itemRegistration.Metadata.Id);
-          if (builderRegistration == null)
-            return true;
-          if (builderRegistration.IsInUse)
-            return false;
-          builderRegistration.Suspended = true;
-          return true;
-        }
+        // Albert, 2010-12-06: It's too difficult to revoke a player builder. We cannot guarantee that no player of that
+        // player builder is currently in use by other threads, so we simply don't allow to revoke them.
+        return false;
       }
 
       public void Stop(PluginItemRegistration itemRegistration)
       {
-        _playerManager.RevokePlayerBuilder(itemRegistration.Metadata.Id);
+        // Nothing to do
       }
 
       public void Continue(PluginItemRegistration itemRegistration)
       {
-        lock (_playerManager.SyncObj)
-        {
-          PlayerBuilderRegistration builderRegistration = _playerManager.GetPlayerBuilderRegistration(itemRegistration.Metadata.Id);
-          if (builderRegistration == null)
-            return;
-          builderRegistration.Suspended = false;
-        }
+        // Nothing to do
       }
     }
 
@@ -117,7 +103,7 @@ namespace MediaPortal.UI.Services.Players
               // item registration listener was only registered for the PLAYERBUILDERS_REGISTRATION_PATH,
               // but you never know...
               continue;
-            _playerManager.RequestPlayerBuilder(item.Id);
+            _playerManager.LoadPlayerBuilder(item.Id);
           }
       }
 
@@ -147,7 +133,11 @@ namespace MediaPortal.UI.Services.Players
     protected PlayerBuilderPluginItemStateTracker _playerBuilderPluginItemStateTracker;
     protected PlayerBuilderRegistrationChangeListener _playerBuilderRegistrationChangeListener;
     internal PlayerSlotController[] _slots;
-    internal IDictionary<string, PlayerBuilderRegistration> _playerBuilders = new Dictionary<string, PlayerBuilderRegistration>();
+
+    /// <summary>
+    /// Maps player builder plugin item ids to player builders.
+    /// </summary>
+    internal IDictionary<string, IPlayerBuilder> _playerBuilders = new Dictionary<string, IPlayerBuilder>();
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -223,40 +213,38 @@ namespace MediaPortal.UI.Services.Players
       _messageQueue = null;
     }
 
+    /// <summary>
+    /// Iterates synchronously over all player slot controllers (active and inactive). No lock is being requested so if
+    /// a lock is needed, this should be done outside or inside the <paramref name="execute"/> worker.
+    /// </summary>
+    /// <param name="execute"></param>
     internal void ForEachInternal(PlayerSlotWorkerInternalDelegate execute)
     {
-      lock (_syncObj)
-        foreach (PlayerSlotController psc in _slots)
-          try
-          {
-            if (psc.IsActive)
-              execute(psc);
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
-          }
+      foreach (PlayerSlotController psc in _slots)
+        try
+        {
+          execute(psc);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Problem executing batch action for player slot controller {0}", e, psc.SlotIndex);
+        }
     }
 
-    internal PlayerBuilderRegistration GetPlayerBuilderRegistration(string playerBuilderId)
-    {
-      PlayerBuilderRegistration result;
-      lock (_syncObj)
-        return _playerBuilders.TryGetValue(playerBuilderId, out result) ? result : null;
-    }
+    #region Player builders
 
     protected void LoadPlayerBuilders()
     {
       lock (_syncObj)
       {
         IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-        foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(PLAYERBUILDERS_REGISTRATION_PATH))
-          RequestPlayerBuilder(itemMetadata.Id);
         pluginManager.AddItemRegistrationChangeListener(PLAYERBUILDERS_REGISTRATION_PATH, _playerBuilderRegistrationChangeListener);
+        foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(PLAYERBUILDERS_REGISTRATION_PATH))
+          LoadPlayerBuilder(itemMetadata.Id);
       }
     }
 
-    protected void RequestPlayerBuilder(string playerBuilderId)
+    protected void LoadPlayerBuilder(string playerBuilderId)
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       IPlayerBuilder playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
@@ -266,36 +254,11 @@ namespace MediaPortal.UI.Services.Players
         ServiceRegistration.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
         return;
       }
-      PlayerBuilderRegistration registration = new PlayerBuilderRegistration(playerBuilder);
       lock (_syncObj)
-        _playerBuilders.Add(playerBuilderId, registration);
+        _playerBuilders.Add(playerBuilderId, playerBuilder);
     }
 
-    internal void RevokePlayerBuilder(string playerBuilderId)
-    {
-      PlayerBuilderRegistration registration = GetPlayerBuilderRegistration(playerBuilderId);
-      if (registration == null)
-        return;
-      lock (_syncObj)
-      {
-        // Unregister player builder from internal player builder collection
-        _playerBuilders.Remove(playerBuilderId);
-        // Release slots with players built by the to-be-removed player builder
-        ForEachInternal(psc =>
-        {
-          if (registration.UsingSlotControllers.Contains(psc))
-            psc.ReleasePlayer();
-        });
-      }
-    }
-
-    protected void RemovePlayerBuilder(string playerBuilderId)
-    {
-      RevokePlayerBuilder(playerBuilderId);
-      // Revoke player builder plugin item usage
-      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      pluginManager.RevokePluginItem(PLAYERBUILDERS_REGISTRATION_PATH, playerBuilderId, _playerBuilderPluginItemStateTracker);
-    }
+    #endregion
 
     protected void CleanupSlotOrder()
     {
@@ -304,65 +267,32 @@ namespace MediaPortal.UI.Services.Players
           SwitchSlots();
     }
 
-    protected int GetIndexOfPlayer(IPlayer player)
-    {
-      lock (_syncObj)
-        for (int i = 0; i < 2; i++)
-          if (ReferenceEquals(_slots[i].CurrentPlayer, player))
-            return i;
-      return -1;
-    }
-
     /// <summary>
-    /// Will build the player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
+    /// Tries to build a player for the media resource specified by the given resource <paramref name="locator"/>
+    /// and <paramref name="mimeType"/>.
     /// </summary>
     /// <param name="locator">Resource locator to access the to-be-played media item.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
-    /// <param name="psc">Player slot controller which calls this method and which wants its
-    /// <see cref="PlayerSlotController.CurrentPlayer"/> property built.</param>
-    /// <returns><c>true</c>, if the player could successfully be played, else <c>false</c>.</returns>
-    internal bool BuildPlayer(IResourceLocator locator, string mimeType, PlayerSlotController psc)
+    /// <returns>Player which was built or <c>null</c>, if no player could be built for the given parameters.</returns>
+    internal IPlayer BuildPlayer_NoLock(IResourceLocator locator, string mimeType)
     {
+      ICollection<IPlayerBuilder> builders;
       lock (_syncObj)
+        builders = new List<IPlayerBuilder>(_playerBuilders.Values);
+      foreach (IPlayerBuilder playerBuilder in builders)
       {
-        if (psc.CurrentPlayer != null || psc.BuilderRegistration != null)
-          throw new IllegalCallException("Player slot controller has already a player assigned");
-        foreach (PlayerBuilderRegistration builderRegistration in _playerBuilders.Values)
+        try
         {
-          if (builderRegistration.Suspended)
-            continue;
-          // Build player
-          try
-          {
-            IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
-            if (player != null)
-            {
-              psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
-              return true;
-            }
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
-          }
+          IPlayer player = playerBuilder.GetPlayer(locator, mimeType);
+          if (player != null)
+            return player;
         }
-        return false;
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
+        }
       }
-    }
-
-    /// <summary>
-    /// Will revoke the current player of the specified <paramref name="psc"/>.
-    /// </summary>
-    /// <param name="psc">Player slot controller which calls this method and which wants its
-    /// <see cref="PlayerSlotController.CurrentPlayer"/> released.</param>
-    internal void RevokePlayer(PlayerSlotController psc)
-    {
-      lock (_syncObj)
-      {
-        if (psc.BuilderRegistration != null)
-          psc.BuilderRegistration.UsingSlotControllers.Remove(psc);
-        psc.ResetPlayerAndBuilderRegistration();
-      }
+      return null;
     }
 
     internal PlayerSlotController GetPlayerSlotControllerInternal(int slotIndex)
@@ -430,14 +360,14 @@ namespace MediaPortal.UI.Services.Players
           if (oldAudioSlotIndex == value)
             return;
           PlayerSlotController currentAudioSlot = oldAudioSlotIndex == -1 ? null : _slots[oldAudioSlotIndex];
-          if (currentAudioSlot != null)
-            currentAudioSlot.IsAudioSlot = false;
           PlayerSlotController newAudioSlot = GetPlayerSlotControllerInternal(value);
           if (newAudioSlot == null)
             return;
           if (!newAudioSlot.IsActive)
             // Don't move the audio slot to an inactive player slot
             return;
+          if (currentAudioSlot != null)
+            currentAudioSlot.IsAudioSlot = false;
           // Message will be sent by the next command
           newAudioSlot.IsAudioSlot = true;
         }
@@ -454,7 +384,12 @@ namespace MediaPortal.UI.Services.Players
           if (_isMuted == value)
             return;
           _isMuted = value;
-          ForEachInternal(psc => { psc.IsMuted = _isMuted; });
+          ForEachInternal(psc =>
+            {
+              // Locking is done outside
+              if (psc.IsActive)
+                psc.IsMuted = _isMuted;
+            });
           if (_isMuted)
             PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersMuted);
           else
@@ -468,19 +403,24 @@ namespace MediaPortal.UI.Services.Players
       get { return _volume; }
       set
       {
+        int vol = value;
         lock (_syncObj)
         {
-          if (_volume == value)
+          if (_volume == vol)
             return;
-          if (value < 0)
-            _volume = 0;
-          else if (value > 100)
-            _volume = 100;
-          else
-            _volume = value;
-          ForEach(psc => { psc.Volume = _volume; });
-          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.VolumeChanged);
+          if (vol < 0)
+            vol = 0;
+          else if (vol > 100)
+            vol = 100;
+          _volume = vol;
         }
+        ForEachInternal(psc =>
+          {
+            // Lock is acquired outside
+            if (psc.IsActive)
+              psc.Volume = vol;
+          });
+        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.VolumeChanged);
       }
     }
 

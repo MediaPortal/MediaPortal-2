@@ -134,18 +134,17 @@ namespace MediaPortal.UI.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
-    protected bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
+    protected bool DoPlay_NoLock(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
     {
       _currentMediaItem = null;
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      lock (SyncObj)
-        if (psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime))
-        {
-          Play();
-          return true;
-        }
+      if (psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime))
+      {
+        Play();
+        return true;
+      }
       return false;
     }
 
@@ -156,7 +155,7 @@ namespace MediaPortal.UI.Services.Players
       string mediaItemTitle;
       if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
         return false;
-      bool result = DoPlay(locator, mimeType, mediaItemTitle, startTime);
+      bool result = DoPlay_NoLock(locator, mimeType, mediaItemTitle, startTime);
       _currentMediaItem = item;
       return result;
     }
@@ -302,7 +301,7 @@ namespace MediaPortal.UI.Services.Players
 
     public bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle)
     {
-      return DoPlay(locator, mimeType, mediaItemTitle, StartTime.AtOnce);
+      return DoPlay_NoLock(locator, mimeType, mediaItemTitle, StartTime.AtOnce);
     }
 
     public IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors()
@@ -387,11 +386,11 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return;
+      psc.Stop();
+      IPlaylist playlist;
       lock (SyncObj)
-      {
-        psc.Stop();
-        _playlist.ResetStatus();
-      }
+        playlist = _playlist;
+      playlist.ResetStatus();
     }
 
     public void Pause()
@@ -462,8 +461,6 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
-      // will lock the PM as well
       int countLeft = _playlist.ItemList.Count; // Limit number of tries to current playlist size. If the PL doesn't contain any playable item, this avoids an endless loop.
       do // Loop: Try until we find an item which is able to play
       {
@@ -478,8 +475,6 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
-      // will lock the PM as well
       int countLeft = _playlist.ItemList.Count; // Limit number of tries to current playlist size. If the PL doesn't contain any playable item, this avoids an endless loop.
       bool playOk;
       do // Loop: Try until we find an item we can play

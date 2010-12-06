@@ -133,8 +133,8 @@ namespace MediaPortal.UI.Players.Video
     protected SizeF _maxUV = new SizeF(1.0f, 1.0f);
 
     // Filter graph related 
-    protected CodecHandler.CodecCapabilities _graphCapabilities; // Currently to graph added capabilities
-    protected CodecHandler.CodecCapabilities _requiredCapabilities; // Required capabilities to playback
+    protected CodecHandler.CodecCapabilities _graphCapabilities; // Capabilities which are currently added to graph
+    protected CodecHandler.CodecCapabilities _requiredCapabilities; // Required capabilities for playback
 
     // Audio related
     protected int _currentAudioStream = 0;
@@ -190,6 +190,15 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _resourceAccessor);
       FilterGraphTools.TryDispose(ref _resourceLocator);
       UnsubscribeFromMessages();
+    }
+
+    public object SyncObj
+    {
+      get
+      {
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        return playerManager.SyncObj;
+      }
     }
 
     void InitMediaSubTypes()
@@ -593,7 +602,7 @@ namespace MediaPortal.UI.Players.Video
     {
       StopSeeking();
       _initialized = false;
-      lock (_resourceAccessor)
+      lock (SyncObj)
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
 
@@ -746,7 +755,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_resourceAccessor)
+        lock (SyncObj)
         {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();
@@ -802,7 +811,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_resourceAccessor)
+        lock (SyncObj)
         {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();
