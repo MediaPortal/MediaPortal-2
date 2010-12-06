@@ -259,10 +259,9 @@ namespace MediaPortal.UI.Services.Players
               return PlaybackState.Playing;
             if (mpc.IsPaused)
               return PlaybackState.Paused;
-            else if (mpc.IsSeeking)
+            if (mpc.IsSeeking)
               return PlaybackState.Seeking;
-            else
-              return PlaybackState.Playing;
+            return PlaybackState.Playing;
           case PlayerState.Ended:
             return PlaybackState.Ended;
           case PlayerState.Stopped:
@@ -337,10 +336,7 @@ namespace MediaPortal.UI.Services.Players
       IVideoPlayer player = CurrentPlayer as IVideoPlayer;
       if (player == null)
         return;
-      bool changed = player.GeometryOverride != geometry;
       player.GeometryOverride = geometry;
-      if (changed)
-        PlayerGeometryMessaging.SendGeometryChangedMessage(slotController.SlotIndex);
     }
 
     public void SetContextVariable(string key, object value)

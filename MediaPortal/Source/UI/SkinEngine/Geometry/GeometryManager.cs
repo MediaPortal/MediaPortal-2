@@ -72,13 +72,12 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get { return _defaultVideoGeometry; }
       set
       {
-        bool changed = _defaultVideoGeometry != value;
+        if (_defaultVideoGeometry == value)
+          return;
         _defaultVideoGeometry = value;
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         PlayerSettings settings = settingsManager.Load<PlayerSettings>();
         settings.DefaultGeometry = _defaultVideoGeometry == null ? null : _defaultVideoGeometry.Name;
-        if (changed)
-          PlayerGeometryMessaging.SendGeometryChangedMessage(PlayerGeometryMessaging.ALL_PLAYERS);
         settingsManager.Save(settings);
       }
     }

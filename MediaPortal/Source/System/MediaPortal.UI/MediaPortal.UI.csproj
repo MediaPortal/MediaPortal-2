@@ -58,7 +58,6 @@
     <Compile Include="Presentation\DataObjects\ItemsList.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Geometries\CropSettings.cs" />
-    <Compile Include="Presentation\Geometries\PlayerGeometryMessaging.cs" />
     <Compile Include="Presentation\ISkinEngine.cs" />
     <Compile Include="Presentation\DataObjects\TreeItem.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
