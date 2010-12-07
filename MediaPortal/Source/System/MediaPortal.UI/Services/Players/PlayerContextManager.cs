@@ -499,8 +499,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_currentPlayerIndex == value)
             return;
-          PlayerContext newCurrent = GetPlayerContextInternal(value);
-          if (newCurrent == null || !newCurrent.IsValid)
+          if (value != PlayerManagerConsts.PRIMARY_SLOT && value != PlayerManagerConsts.SECONDARY_SLOT && value != -1)
             return;
           _currentPlayerIndex = value;
           CheckMediaWorkflowStates_Async();
