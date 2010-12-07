@@ -76,6 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public VideoBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -84,18 +85,47 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _geometryProperty = new SProperty(typeof(string), "");
       _borderColorProperty = new SProperty(typeof(Color), Color.Black);
 
-      _imageContext = new ImageContext();
-      _imageContext.OnRefresh = OnImagecontextRefresh;
-      _imageContext.ExtraParameters = new System.Collections.Generic.Dictionary<string, object>();
+      _imageContext = new ImageContext
+        {
+            OnRefresh = OnImagecontextRefresh,
+            ExtraParameters = new System.Collections.Generic.Dictionary<string, object>()
+        };
+    }
+
+    void Attach()
+    {
+      _geometryProperty.Attach(OnGeometryChange);
+    }
+
+    void Detach()
+    {
+      _geometryProperty.Detach(OnGeometryChange);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       VideoBrush b = (VideoBrush) source;
       Stream = b.Stream;
       Geometry = b.Geometry;
       BorderColor = b.BorderColor;
+      Attach();
+    }
+
+    void OnGeometryChange(AbstractProperty prop, object oldVal)
+    {
+      IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
+      IGeometry geometry;
+      string name = Geometry;
+      if (String.IsNullOrEmpty(name))
+        _currentGeometry = null;
+      else if (geometryManager.AvailableGeometries.TryGetValue(name, out geometry))
+        _currentGeometry = geometry;
+      else {
+        ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
+        _currentGeometry = null;
+      }
     }
 
     #endregion
@@ -122,21 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public string Geometry
     {
       get { return (string) _geometryProperty.GetValue(); }
-      set
-      { 
-        _geometryProperty.SetValue(value);
-        IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
-        IGeometry geometry;
-        string name = value;
-        if (String.IsNullOrEmpty(name))
-          _currentGeometry = null;
-        else if (geometryManager.AvailableGeometries.TryGetValue(name, out geometry))
-          _currentGeometry = geometry;
-        else {
-          ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
-          _currentGeometry = null;
-        }
-      }
+      set { _geometryProperty.SetValue(value); }
     }
 
     public AbstractProperty GeometryProperty
