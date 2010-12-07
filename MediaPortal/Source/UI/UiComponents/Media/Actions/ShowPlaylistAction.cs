@@ -54,11 +54,6 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     #endregion
 
-    public ShowPlaylistAction()
-    {
-      Update();
-    }
-
     private void SubscribeToMessages()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]

@@ -24,6 +24,7 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
@@ -42,17 +43,94 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     #endregion
 
-    protected bool ShowSavePLAction()
+    #region Protected fields
+
+    protected AsynchronousMessageQueue _messageQueue = null;
+    protected readonly object _syncObj = new object();
+
+    protected bool _isVisible;
+    protected string _displayTitleResource;
+
+    #endregion
+
+    private void SubscribeToMessages()
     {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_SHOW_PLAYLIST ||
-          workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_EDIT_PLAYLIST;
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            PlayerManagerMessaging.CHANNEL,
+            PlayerContextManagerMessaging.CHANNEL,
+            WorkflowManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    protected bool ShowSaveCurrentPLAction()
+    private void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            Update();
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+            Update();
+            break;
+        }
+      }
+      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            Update();
+            break;
+        }
+      }
+    }
+
+    protected void FireStateChanged()
+    {
+      ContributorStateChangeDelegate d = StateChanged;
+      if (d != null) d();
+    }
+
+    protected void Update()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW;
+      bool showSavePL = workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_SHOW_PLAYLIST ||
+          workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_EDIT_PLAYLIST;
+      bool showSaveCurrentPL = workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW;
+      string displayTitleResource = showSavePL ? SAVE_PLAYLIST_RES : SAVE_CURRENT_PLAYLIST_RES;
+      bool isVisible = (showSavePL || showSaveCurrentPL) &&
+          ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerIndex > -1;
+      lock (_syncObj)
+      {
+        if (isVisible == _isVisible && displayTitleResource == _displayTitleResource)
+          return;
+        _isVisible = isVisible;
+        _displayTitleResource = displayTitleResource;
+      }
+      FireStateChanged();
     }
 
     #region IWorkflowContributor implementation
@@ -61,25 +139,22 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public IResourceString DisplayTitle
     {
-      get
-      {
-        return ShowSavePLAction() ? LocalizationHelper.CreateResourceString(SAVE_PLAYLIST_RES) :
-            LocalizationHelper.CreateResourceString(SAVE_CURRENT_PLAYLIST_RES);
-      }
+      get { return LocalizationHelper.CreateResourceString(_displayTitleResource); }
     }
 
     public void Initialize()
     {
+      SubscribeToMessages();
     }
 
     public void Uninitialize()
     {
+      UnsubscribeFromMessages();
     }
 
     public bool IsActionVisible(NavigationContext context)
     {
-      return (ShowSavePLAction() || ShowSaveCurrentPLAction()) &&
-          ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerIndex > -1;
+      return _isVisible;
     }
 
     public bool IsActionEnabled(NavigationContext context)
