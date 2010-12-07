@@ -24,8 +24,6 @@
 
 using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.ContentManagement;
-using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
@@ -55,26 +53,9 @@ namespace MediaPortal.UI.SkinEngine.Players
     SizeF SurfaceMaxUV { get; }
 
     /// <summary>
-    /// Begins the rendering of the current video frame to the given <paramref name="effect"/> with the given
-    /// <paramref name="finalTransform"/>.
+    /// Returns the texture for the current frame. May be <c>null</c>.
     /// </summary>
-    /// <remarks>
-    /// This method has to call the <see cref="EffectAsset.StartRender(Texture,Matrix)"/> method with the current
-    /// video frame <see cref="Texture"/>.
-    /// </remarks>
-    /// <param name="effect">Shader effect to use for rendering.</param>
-    /// <param name="finalTransform">Final transformation to be passed to the
-    /// <see cref="EffectAsset.StartRender(Texture,Matrix)"/></param> method.
-    void BeginRender(EffectAsset effect, Matrix finalTransform);
-
-    /// <summary>
-    /// Ends the rendering of the current video frame.
-    /// </summary>
-    /// <remarks>
-    /// This method has to call the <see cref="EffectAsset.EndRender()"/> method and might also do some cleanup work for the
-    /// current render cycle.
-    /// </remarks>
-    void EndRender(EffectAsset effect);
+    Texture Texture { get; } 
 
     /// <summary>
     /// Releases any GUI resources.

@@ -251,8 +251,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       _player = p;
     }
 
-
-
     public void SetSubtitleOption(SubtitleOption option)
     {
       if (option.type == SubtitleType.None)
@@ -847,6 +845,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         }
       }
     }
+
     public void ReleaseResources()
     {
       _reinitialzing = true;
@@ -857,6 +856,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
       _primitiveContext.Dispose();
     }
+
     public void ReallocResources()
     {
       _reinitialzing = false;

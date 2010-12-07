@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     #region Consts
 
     protected const string EFFECT_FONT = "font";
-    protected const string EFFECT_FONT_FADE = "fontfade";
+    protected const string EFFECT_FONT_FADE = "font_fade";
 
     protected const string PARAM_SCROLL_POSITION = "g_scrollpos";
     protected const string PARAM_TEXT_RECT = "g_textbox";

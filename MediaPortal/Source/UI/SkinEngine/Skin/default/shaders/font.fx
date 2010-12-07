@@ -1,3 +1,8 @@
+/*
+** Used by Rendering.TextBuffer
+** Renders text from a character set packed into a texture. Supports scrolling and clipping to a boundary box.
+*/
+
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture	g_texture; // Color texture 
 float4 g_scrollpos;
@@ -5,7 +10,7 @@ float4 g_textbox;
 float4 g_color;
 float4 g_alignment;
 
-sampler textureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
   MipFilter = LINEAR;
@@ -14,14 +19,14 @@ sampler textureSampler = sampler_state
 };
 
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position     : POSITION;
   float4 ClipPosition : COLOR0;
@@ -29,12 +34,12 @@ struct v2p
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   float4 pos = IN.Position;
   // Align text
@@ -55,20 +60,20 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   OUT.Texcoord = IN.Texcoord;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   // Clip to textBox
   clip(IN.ClipPosition.xy);
   clip(g_textbox.zw - IN.ClipPosition.xy);
   OUT.Color = g_color;
-  OUT.Color.a = tex2D(textureSampler, IN.Texcoord);
+  OUT.Color.a = tex2D(TextureSampler, IN.Texcoord);
 }
 
 technique simple
 {
   pass p0
   {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader  = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader  = compile ps_2_0 RenderPixelShader();
   }
 }

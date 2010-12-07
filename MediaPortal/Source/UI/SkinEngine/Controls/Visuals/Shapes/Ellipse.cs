@@ -33,34 +33,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Ellipse : Shape
   {
-    /// <summary>
-    /// Returns the geometry representing this <see cref="Shape"/> 
-    /// </summary>
-    /// <param name="rect">The rect to fit the shape into.</param>
-    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
-    public override PositionColored2Textured[] GetGeometry(RectangleF rect)
-    {
-      PositionColored2Textured[] verts;
-      using (GraphicsPath path = GetEllipse(_innerRect))
-      {
-        float centerX;
-        float centerY;
-        TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-        TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-      }
-      return verts;
-    }
-
     protected override void DoPerformLayout(RenderContext context)
     {
       base.DoPerformLayout(context);
 
       // Setup brushes
-      PositionColored2Textured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (GraphicsPath path = GetEllipse(_innerRect))
         {
+          PositionColored2Textured[] verts;
           float centerX;
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);

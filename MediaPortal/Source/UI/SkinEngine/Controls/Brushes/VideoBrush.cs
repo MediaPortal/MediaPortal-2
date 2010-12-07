@@ -28,12 +28,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Geometries;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 using SlimDX;
 using MediaPortal.UI.Presentation.Players;
@@ -45,15 +43,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Consts
 
-    protected const string EFFECT_DEFAULT_VIDEO = "videodefault";
+    protected const string EFFECT_BASE_VIDEO = "video_base";
 
     protected const string PARAM_TRANSFORM = "g_transform";
-    protected const string PARAM_OPACITY = "g_opacity";
-
-    protected const string PARAM_TEXTURE = "g_texture";
-    protected const string PARAM_ALPHATEX = "g_alphatex";
     protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
-    protected const string PARAM_BRUSH_TRANSFORM = "g_brushtransform";
 
     #endregion
 
@@ -62,16 +55,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _streamProperty;
     protected AbstractProperty _geometryProperty;
     protected AbstractProperty _borderColorProperty;
-    protected EffectAsset _effect;
+
     protected IGeometry _currentGeometry;
+    protected Matrix _relativeTransformCache;
+    protected ImageContext _imageContext;
+    protected SizeF _scaledVideoSize;
+
     protected IGeometry _lastGeometry;
+    protected string _lastEffect;
     protected CropSettings _lastCropSettings;
     protected Size _lastVideoSize;
     protected Size _lastAspectRatio;
-    protected ISlimDXVideoPlayer _renderPlayer;
-    protected Matrix _relativeTransformCache;
-    protected Vector4 _brushTransform;
-    protected bool _refresh;
+    protected int _lastDeviceWidth;
+    protected int _lastDeviceHeight;
+    protected Vector4 _lastFrameData;
     #endregion
 
     #region Ctor
@@ -86,6 +83,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _streamProperty = new SProperty(typeof(int), 0);
       _geometryProperty = new SProperty(typeof(string), "");
       _borderColorProperty = new SProperty(typeof(Color), Color.Black);
+
+      _imageContext = new ImageContext();
+      _imageContext.OnRefresh = OnImagecontextRefresh;
+      _imageContext.ExtraParameters = new System.Collections.Generic.Dictionary<string, object>();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -101,13 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public AbstractProperty StreamProperty
-    {
-      get { return _streamProperty; }
-    }
-
     /// <summary>
-    /// Gets or sets the video stream number.
+    /// Gets or sets the player stream number.
     /// </summary>
     public int Stream
     {
@@ -115,9 +111,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _streamProperty.SetValue(value); }
     }
 
-    public AbstractProperty GeometryProperty
+    public AbstractProperty StreamProperty
     {
-      get { return _geometryProperty; }
+      get { return _streamProperty; }
     }
 
     /// <summary>
@@ -126,25 +122,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public string Geometry
     {
       get { return (string) _geometryProperty.GetValue(); }
-      set { 
-          _geometryProperty.SetValue(value);
-          IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
-          IGeometry geometry;
-          string name = value;
-          if (String.IsNullOrEmpty(name))
-            _currentGeometry = null;
-          else if (geometryManager.AvailableGeometries.TryGetValue(name, out geometry))
-            _currentGeometry = geometry;
-          else {
-            ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
-            _currentGeometry = null;
-          }
+      set
+      { 
+        _geometryProperty.SetValue(value);
+        IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
+        IGeometry geometry;
+        string name = value;
+        if (String.IsNullOrEmpty(name))
+          _currentGeometry = null;
+        else if (geometryManager.AvailableGeometries.TryGetValue(name, out geometry))
+          _currentGeometry = geometry;
+        else {
+          ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
+          _currentGeometry = null;
+        }
       }
     }
 
-    public AbstractProperty BorderColorProperty
+    public AbstractProperty GeometryProperty
     {
-      get { return _borderColorProperty; }
+      get { return _geometryProperty; }
     }
 
     /// <summary>
@@ -154,6 +151,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       get { return (Color) _borderColorProperty.GetValue(); }
       set { _borderColorProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BorderColorProperty
+    {
+      get { return _borderColorProperty; }
     }
 
     #endregion
@@ -179,70 +181,58 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Size playerSize = sdvPlayer.VideoSize;
       IGeometry geometry = ChooseVideoGeometry(player);
       CropSettings cropSettings = player.CropSettings;
+      string effectName = player.EffectOverride;
 
       // Do we need a refresh?
-      if (!_refresh &&
-          _lastVideoSize == playerSize &&
+      if (_lastVideoSize == playerSize &&
           _lastAspectRatio == player.VideoAspectRatio &&
           _lastGeometry == geometry &&
-          _lastCropSettings == cropSettings)
+          _lastEffect == effectName &&
+          _lastCropSettings == cropSettings &&
+          _lastDeviceWidth == GraphicsDevice.Width &&
+          _lastDeviceHeight == GraphicsDevice.Height)
         return;
 
       SizeF targetSize = _vertsBounds.Size;
-      SizeF videoSize = cropSettings == null ? playerSize : cropSettings.CropRect(playerSize).Size;
 
-      // Get Effect
-      string shaderName = geometry.Shader;
-      _effect = ServiceRegistration.Get<ContentManager>().GetEffect(String.IsNullOrEmpty(shaderName) ? EFFECT_DEFAULT_VIDEO : shaderName);
+      _scaledVideoSize = cropSettings == null ? playerSize : cropSettings.CropRect(playerSize).Size;
       
       // Correct aspect ratio for anamorphic video
       if (!aspectRatio.IsEmpty && geometry.RequiresCorrectAspectRatio)
       {
         float pixelRatio = aspectRatio.Width / (float) aspectRatio.Height;
-        videoSize.Width = videoSize.Height * pixelRatio; 
+        _scaledVideoSize.Width = _scaledVideoSize.Height * pixelRatio; 
       }
       // Adjust target size to match final Skin scaling
-      targetSize.Width *= (GraphicsDevice.Width / (float) SkinContext.SkinResources.SkinWidth);
-      targetSize.Height *= (GraphicsDevice.Height / (float) SkinContext.SkinResources.SkinHeight);
-      // Adjust video size to fit desired geometry
-      videoSize = geometry.Transform(videoSize, targetSize);
+      targetSize = ImageContext.AdjustForSkinAR(targetSize);
       
-      // Convert brush dimensions to viewport space
-      SizeF maxuv = sdvPlayer.SurfaceMaxUV;
-      Vector4 brushRect = new Vector4(0.0f, 0.0f, videoSize.Width, videoSize.Height);
-      brushRect.Z /= targetSize.Width * maxuv.Width;
-      brushRect.W /= targetSize.Height * maxuv.Height;
+      // Adjust video size to fit desired geometry
+      _scaledVideoSize = geometry.Transform(_scaledVideoSize, targetSize);
 
-      // Center texture
-      brushRect.X += (1.0f - brushRect.Z) / 2.0f;
-      brushRect.Y += (1.0f - brushRect.W) / 2.0f;
-
-      // Determine correct 2D transoform for mapping the texture to the correct place
-      float repeatx = 1.0f / brushRect.Z;
-      float repeaty = 1.0f / brushRect.W;
-      if (repeatx < 0.001f || repeaty < 0.001f)
-      {
-        _refresh = true;
-        return;
-      }
-      _brushTransform = new Vector4(brushRect.X * repeatx, brushRect.Y * repeaty, repeatx, repeaty);
-
-      // Cache inverse relative transform
+      // Cache inverse RelativeTransform
       _relativeTransformCache = (RelativeTransform == null) ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
 
+      // Prepare our ImageContext
+      _imageContext.FrameSize = targetSize;
+      _imageContext.ShaderBase = EFFECT_BASE_VIDEO;
+      _imageContext.ShaderTransform = geometry.Shader;
+      _imageContext.ShaderEffect = player.EffectOverride;
+
       // Store state
+      _lastFrameData = new Vector4(playerSize.Width, playerSize.Height, 0.0f, 0.0f);
       _lastVideoSize = playerSize;
       _lastAspectRatio = aspectRatio;
       _lastGeometry = geometry;
       _lastCropSettings = cropSettings;
-
-      _refresh = false;
+      _lastEffect = effectName;
+      _lastDeviceWidth = GraphicsDevice.Width;
+      _lastDeviceHeight = GraphicsDevice.Height;
     }
 
-    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
+    protected void OnImagecontextRefresh()
     {
-      _refresh = true;
-      base.OnPropertyChanged(prop, oldValue);
+      _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
+      _imageContext.ExtraParameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
     }
 
     #endregion
@@ -260,42 +250,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>(false);
       if (playerManager == null)
-      {
-        _renderPlayer = null;
-        return false;
-      }
-      // The Stream property could change between the calls of BeginRenderBrush and EndRender,
-      // so we memorize the rendering player for the EndRender method
-      _renderPlayer = playerManager[Stream] as ISlimDXVideoPlayer;
-      if (_renderPlayer == null) return false;
-
-      RefreshEffectParameters(_renderPlayer);
-
-      if (_effect == null)
         return false;
 
-      _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
-      _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
-      _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
+      if (player == null) 
+          return false;
 
-      GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, BorderColor.ToArgb());
+      RefreshEffectParameters(player);
 
-      _renderPlayer.BeginRender(_effect, renderContext.Transform);
-
-      return true;
+      // NOTE: It appears that render textures are always allocated to the exact size (not nearest power-of-2), which makes this SurfaceMaxUV stuff
+      // unnecessary. It is unclear whether this is how it is done by every graphics driver though, so I'll leave it in for the 
+      // time being.
+      SizeF maxuv = player.SurfaceMaxUV;
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, player.Texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
-      throw new NotImplementedException("VideoBrush doesn't support use rendered as an opacity brush");
+      throw new NotImplementedException("VideoBrush doesn't support being rendered as an opacity brush");
     }
 
     public override void EndRender()
     {
-      if (_renderPlayer == null) return;
-      _renderPlayer.EndRender(_effect);
-      _renderPlayer = null;
+      _imageContext.EndRender();
     }
 
     #endregion

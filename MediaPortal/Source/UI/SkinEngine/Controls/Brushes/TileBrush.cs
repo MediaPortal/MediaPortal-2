@@ -52,9 +52,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Consts
 
     protected const string EFFECT_TILE = "tile";
-    protected const string EFFECT_TILE_OPACITY = "tileopacity";
-    protected const string EFFECT_TILE_SIMPLE = "tilesimple";
-    protected const string EFFECT_TILE_OPACITY_SIMPLE = "tilesimpleopacity";
+    protected const string EFFECT_TILE_OPACITY = "tile_opacity";
+    protected const string EFFECT_TILE_SIMPLE = "tile_simple";
+    protected const string EFFECT_TILE_OPACITY_SIMPLE = "tile_simple_opacity";
 
     protected const string PARAM_TRANSFORM = "g_transform";
     protected const string PARAM_OPACITY = "g_opacity";

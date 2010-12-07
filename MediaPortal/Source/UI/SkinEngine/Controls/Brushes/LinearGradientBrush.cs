@@ -40,8 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Consts
 
     protected const string EFFECT_LINEARGRADIENT = "lineargradient";
-    protected const string EFFECT_LINEAROPACITYGRADIENT = "linearopacitygradient";
-    protected const string EFFECT_SOLID = "solid";
+    protected const string EFFECT_LINEAROPACITYGRADIENT = "lineargradient_opacity";
 
     protected const string PARAM_TRANSFORM = "g_transform";
     protected const string PARAM_OPACITY = "g_opacity";
@@ -51,8 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected const string PARAM_ALPHATEX = "g_alphatex";
     protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
     protected const string PARAM_LOWERVERTSBOUNDS = "g_lowervertsbounds";
-
-    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
 
     #endregion
 

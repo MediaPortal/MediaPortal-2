@@ -186,6 +186,13 @@ namespace MediaPortal.UI.Presentation.Players
     void OverrideGeometry(IGeometry geometry);
 
     /// <summary>
+    /// Sets a special <paramref name="effect"/> for the <see cref="CurrentPlayer"/>, if it is a compatible player.
+    /// The effect will only be applied to the current player. It will be lost when the current player is disposed.
+    /// </summary>
+    /// <param name="geometry">The geometry to be used with the <see cref="CurrentPlayer"/>.</param>
+    void OverrideEffect(string effect);
+
+    /// <summary>
     /// Sets a user-defined context variable in this player context.
     /// </summary>
     /// <param name="key">The key to access the variable.</param>

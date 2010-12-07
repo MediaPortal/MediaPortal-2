@@ -24,8 +24,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -34,55 +32,77 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.Thumbnails;
+using SlimDX;
 using SlimDX.Direct3D9;
+
+// TODO: Add support for web thumbnails? Requires changing IAsyncThumbnailGenerator
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
-  // TODO: Tidy up
   public class TextureAssetCore : TemporaryAssetBase, IAssetCore
   {
     public event AssetAllocationHandler AllocationChanged = delegate { };
 
-    #region Variables
+    #region Consts / Enums
 
-    private enum State
+    protected enum State
     {
-      Unknown,
-      Creating,
-      Created,
-      DoesNotExist
+      None,
+      LoadingThumb,
+      LoadingAsync,
+      Loaded,
+      Failed
     };
 
-    private Texture _texture = null;
-    private int _width;
-    private int _height;
-    private float _maxV;
-    private float _maxU;
-    private readonly string _textureName;
-    private State _state = State.Unknown;
-    private string _sourceFileName;
-    private WebClient _webClient;
-    private byte[] _buffer;
-    private bool _useThumbnail = true;
-    private int _allocationSize = 0;
+    #endregion
+
+    #region Protected fields
+
+    protected readonly string _textureName;
+    protected Texture _texture = null;
+    protected bool _useThumbnail = true;
+    protected int _width = 0;
+    protected int _height = 0;
+    protected int _decodeWidth = 0;
+    protected int _decodeHeight = 0;
+    protected float _maxV;
+    protected float _maxU;
+    protected int _allocationSize = 0;
+    protected State _state = State.None;
+
+    protected WebClient _webClient;
+    protected FileStream _fileStream;
+    protected byte[] _imageBuffer;
+    protected DataStream _imageDataStream;
 
     #endregion
+
+    #region Ctor
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TextureAsset"/> class.
+    /// </summary>
+    /// <param name="textureName">Name of the texture.</param>
+    public TextureAssetCore(string textureName) : this(textureName, 0, 0)
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TextureAsset"/> class.
     /// </summary>
     /// <param name="textureName">Name of the texture.</param>
-    public TextureAssetCore(string textureName)
+    /// <param name="decodeWidth">Width to re-scale the texture to.</param>
+    /// <param name="decodeHeight">Height to rescale the texture to.</param>
+    public TextureAssetCore(string textureName, int decodeWidth, int decodeHeight)
     {
       _textureName = textureName;
+      if (string.IsNullOrEmpty(_textureName))
+        _state = State.Failed;
+      _decodeWidth = decodeWidth;
+      _decodeHeight = decodeHeight;
     }
 
-    public TextureAssetCore(Texture texture, float maxU, float maxV)
-    {
-      _texture = texture;
-      _maxU = maxU;
-      _maxV = maxV;
-    }
+    #endregion
+
+    #region Public properties
 
     public Texture Texture
     {
@@ -124,181 +144,248 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _maxV; }
     }
 
+    public bool LoadFailed
+    {
+      get { return _state == State.Failed; }
+    }
+
+    #endregion
+
+    #region Public methods
+
     /// <summary>
     /// Loads the specified texture from the file.
     /// </summary>
-    public void Allocate()
+    public virtual void Allocate()
+    {
+      Allocate(false);
+    }
+
+    /// <summary>
+    /// Loads the specified texture from the file asyncronously.
+    /// </summary>
+    public virtual void AllocateAsync()
+    {
+      Allocate(true);
+    }
+
+    /// <summary>
+    /// Allows allocation to be re-attempted after a failed texture load.
+    /// </summary>
+    public void ClearFailedState()
+    {
+      _state = State.None;
+    }
+
+    #endregion
+
+    #region Protected allocation helpers
+
+        /// <summary>
+    /// Loads the specified texture from the file.
+    /// </summary>
+    protected void Allocate(bool async)
     {
       KeepAlive();
-      if (string.IsNullOrEmpty(_textureName))
-      {
-        _state = State.DoesNotExist;
+      if (IsAllocated || _state == State.Failed || _state == State.LoadingAsync)
         return;
-      }
-      if (_state == State.DoesNotExist)
-      {
-        return;
-      }
-      byte[] thumbData = null;
-      ImageType imageType = ImageType.Unknown;
-      ImageInformation info = new ImageInformation();
 
-      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      if (_state == State.Unknown)
+      // Has an Asyncronous load or web download completed?
+      if (CheckAsyncCompletion())
+        return;
+
+      // Is the path a local skin file?
+      string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
+        SkinResources.MEDIA_DIRECTORY + "\\" + _textureName);
+      
+      if (sourceFilePath == null || !File.Exists(sourceFilePath))
       {
-        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
-            SkinResources.MEDIA_DIRECTORY + "\\" + _textureName);
-        if (sourceFilePath != null && File.Exists(sourceFilePath))
+        // Is it an absolute Uri?
+        Uri uri;
+        if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
         {
-          _sourceFileName = sourceFilePath;
-          _state = State.Created;
+          ServiceRegistration.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
+          _state = State.Failed;
+          return;
         }
-
-        if (_state == State.Unknown)
+        else if (uri.IsFile)
+          sourceFilePath = uri.LocalPath;
+        else
         {
-          Uri uri;
-          if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
-          {
-            ServiceRegistration.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
-            _state = State.DoesNotExist;
-            return;
-          }
-
-          if (uri.IsFile)
-          {
-            _sourceFileName = uri.LocalPath;
-            if (UseThumbnail)
-            {
-              if (generator.GetThumbnail(_sourceFileName, out thumbData, out imageType))
-                _state = State.Created;
-              else if (generator.IsCreating(_sourceFileName))
-                _state = State.Creating;
-              else
-              {
-                generator.CreateThumbnail(_sourceFileName);
-                _state = State.Creating;
-              }
-            }
-            else
-            {
-              _state = State.Created;
-            }
-          }
-          else
-          {
-            if (_state == State.Unknown)
-            {
-              if (_webClient == null)
-              {
-                _state = State.Creating;
-                _webClient = new WebClient
-                  {
-                      CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
-                  };
-                _webClient.DownloadDataCompleted += _webClient_DownloadDataCompleted;
-                _webClient.DownloadDataAsync(uri);
-                return;
-              }
-            }
-          }
+          AllocateFromWeb(uri);      
+          return;
         }
       }
-
-      if (_state == State.Creating && _webClient == null && !generator.IsCreating(_sourceFileName))
-        _state = generator.GetThumbnail(_sourceFileName, out thumbData, out imageType) ? State.Created : State.DoesNotExist;
-
-      if (_state == State.Creating)
-        return;
-      if (_state == State.DoesNotExist)
-        return;
-      if (_webClient != null)
+      
+      if (UseThumbnail)
       {
-        thumbData = _buffer;
-        _buffer = null;
-        _webClient.Dispose();
-        _webClient = null;
+        IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
+        ImageType imageType;
+        if (generator.GetThumbnail(sourceFilePath, out _imageBuffer, out imageType))
+          AllocateFromInternalBuffer();
+        else
+          _state = State.LoadingThumb;
       }
-
-      if (_texture != null)
-        Free();
-      if (thumbData != null)
-      {
-        using (MemoryStream stream = new MemoryStream(thumbData))
-        {
-          try
-          {
-            //ServiceRegistration.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
-            if (UseThumbnail)
-            {
-              info = ImageInformation.FromStream(stream);
-              stream.Seek(0, SeekOrigin.Begin);
-              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                  Pool.Default, Filter.None, Filter.None, 0);
-            }
-            else
-            {
-              info = ImageInformation.FromStream(stream);
-              stream.Seek(0, SeekOrigin.Begin);
-              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                  Pool.Default, Filter.None, Filter.None, 0);
-            }
-          }
-          catch (Exception)
-          {
-            _state = State.DoesNotExist;
-          }
-        }
-      }
+      else if (async)
+        AllocateFromFileAsync(sourceFilePath);
       else
+        AllocateFromFile(sourceFilePath);
+    }
+
+    protected bool CheckAsyncCompletion()
+    {
+      if (_state == State.Loaded)
       {
-        //        ServiceRegistration.Get<ILogger>().Debug("TEXTURE alloc from file:{0}", _sourceFileName);
-        try
-        {
-          if (UseThumbnail)
-          {
-            info = ImageInformation.FromFile(_sourceFileName);
-            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                Pool.Default, Filter.None, Filter.None, 0);
-          }
-          else
-          {
-            ImageInformation imgInfo = ImageInformation.FromFile(_sourceFileName);
-            info = ImageInformation.FromFile(_sourceFileName);
-            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-                Pool.Default, Filter.None, Filter.None, 0);
-          }
-        }
-        catch (Exception)
-        {
-          _state = State.DoesNotExist;
-        }
+        if (_imageDataStream != null)
+          AllocateFromInternalDataStream();
+        else if (_imageBuffer != null)
+          AllocateFromInternalBuffer();
+        else
+          throw new InvalidDataException("Unexpected data state encountered");
+        return true;
       }
+      return false;
+    }
+
+    protected void AllocateFromFile(string path)
+    {
+      ImageInformation info;
+      _texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
+          Pool.Default, Filter.None, Filter.None, 0, out info);
+      FinalizeAllocation(info.Width, info.Height);
+    }
+
+    protected void AllocateFromFileAsync(string path)
+    {
+      try {
+        // Create a FileStream for Asyncronous access.
+        _fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 2048, true); 
+        if (_fileStream.Length == 0)
+          throw new IOException("Image file is empty");
+
+        // Prepare for file loading
+        _imageBuffer = new byte[4096];
+        _imageDataStream = new DataStream(_fileStream.Length, true, true);
+        _state = State.LoadingAsync;
+
+        // Read first chunk
+        _fileStream.BeginRead(_imageBuffer, 0, _imageBuffer.Length, AllocateAsyncCallback, null);
+      }
+      catch (IOException e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Contentmanager: Image '{0}' could not be opened: {1}", e);
+        _state = State.Failed;
+        FreeTemporaryResources();
+      }
+    }
+
+    protected void AllocateFromInternalDataStream()
+    {
+      ImageInformation info;
+      _imageDataStream.Seek(0, SeekOrigin.Begin);
+      _texture = Texture.FromStream(GraphicsDevice.Device, _imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
+          Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+      FinalizeAllocation(info.Width, info.Height);
+    }
+
+    protected void AllocateFromInternalBuffer()
+    {
+      ImageInformation info;
+      _texture = Texture.FromMemory(GraphicsDevice.Device, _imageBuffer, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8, 
+        Pool.Default, Filter.None, Filter.None, 0, out info);
+      FinalizeAllocation(info.Width, info.Height);
+    }
+
+    protected void AllocateFromWeb(Uri uri)
+    {
+      if (_webClient != null)
+        _webClient.Dispose();
+      
+      // Try an load it as a web resource
+      _webClient = new WebClient
+        {
+            CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
+        };
+      _webClient.DownloadDataCompleted += WebDownloadComplete;
+      _webClient.DownloadDataAsync(uri);
+      _state = State.LoadingAsync;
+    }
+
+    void FinalizeAllocation(int fileWidth, int fileHeight)
+    {
       if (_texture != null)
       {
         SurfaceDescription desc = _texture.GetLevelDescription(0);
-        _width = info.Width;
-        _height = info.Height;
-        _maxU = info.Width / ((float) desc.Width);
-        _maxV = info.Height / ((float) desc.Height);
-        _allocationSize = info.Width * info.Height * 4;
+        _width = fileWidth;
+        _height = fileHeight;
+        _maxU = fileWidth / ((float) desc.Width);
+        _maxV = fileHeight / ((float) desc.Height);
+        _allocationSize = desc.Width * desc.Height * 4;
         AllocationChanged(AllocationSize);
+        _state = State.None;
       }
+      else
+        _state = State.Failed;
+
+      FreeTemporaryResources();
     }
 
-    private void _webClient_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+    void FreeTemporaryResources()
     {
+      if (_fileStream != null)
+        _fileStream.Dispose();
+      _fileStream = null;
+
+      if (_imageDataStream != null)
+        _imageDataStream.Dispose();
+      _imageDataStream = null;
+
+      if (_webClient != null)
+        _webClient.Dispose();
+      _webClient = null;
+
+      _imageBuffer = null;
+    }
+
+    #endregion
+
+    #region Asyncronous callbacks
+
+    protected void WebDownloadComplete(object sender, DownloadDataCompletedEventArgs e)
+    {
+      FreeTemporaryResources();
       if (e.Error != null)
       {
         ServiceRegistration.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);
-        _webClient.Dispose();
-        _webClient = null;
-        _state = State.DoesNotExist;
+        _state = State.Failed;
         return;
       }
-      //Trace.WriteLine("downloaded " + _textureName);
-      _buffer = e.Result;
-      _state = State.Created;
+      // Store image data for allocation later
+      _imageBuffer = e.Result;
+      _state = State.Loaded;
     }
+
+    protected void AllocateAsyncCallback(IAsyncResult result)
+    {
+      int read = _fileStream.EndRead(result);
+
+      if (read == 0)
+      {
+        // File read complete
+        _state = State.Loaded;
+        _fileStream.Dispose();
+        _fileStream = null;
+        _imageBuffer = null;
+      }
+      else
+      {
+        // Read next chunk
+        _imageDataStream.Write(_imageBuffer, 0, read);
+        _fileStream.BeginRead(_imageBuffer, 0, _imageBuffer.Length, AllocateAsyncCallback, null);
+      }
+    }
+
+    #endregion
 
     #region IAssetCore implementation
 
@@ -314,60 +401,68 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public void Free()
     {
-      //      Trace.WriteLine(String.Format("  Dispose texture:{0}", _textureName));
       if (_texture != null)
       {
         lock (_texture)
         {
-          //ServiceRegistration.Get<ILogger>().Debug("TEXTURE dispose from {0}", _textureName);
           AllocationChanged(-AllocationSize);
           _texture.Dispose();
           _texture = null;
         }
       }
-      _state = State.Unknown;
+      FreeTemporaryResources();
     }
 
     #endregion
 
-    ImageInformation Scale(Image imgSource, ImageInformation imgInfo)
+    protected void FireAllocationChanged(int allocation)
     {
-      ImageInformation info;
-      Rectangle rDest = new Rectangle();
-      if (imgInfo.Width >= imgInfo.Height)
+      AllocationChanged(allocation);
+    }
+  }
+
+  /// <summary>
+  /// A version of TextureAssetCore that provides simple access to solid color textures for internal use.
+  /// </summary>
+  public class ColorTextureAssetCore : TextureAssetCore
+  {
+    protected const int TEXTURE_SIZE = 16;
+    protected Color _color;
+
+    public ColorTextureAssetCore(Color color) : base(color.ToString())
+    {
+      _color = color;
+      _maxU = 1.0f;
+      _maxV = 1.0f;
+    }
+    
+    public override void Allocate()
+    {
+      if (!IsAllocated)
       {
-        float ar = imgInfo.Height / (float) imgInfo.Width;
-        rDest.Width = GraphicsDevice.Width;
-        rDest.Height = (int) (GraphicsDevice.Width * ar);
-      }
-      else
-      {
-        float ar = imgInfo.Width / (float) imgInfo.Height;
-        rDest.Height = GraphicsDevice.Height;
-        rDest.Width = (int) (GraphicsDevice.Height * ar);
-      }
-      using (Bitmap bmPhoto = new Bitmap(rDest.Width, rDest.Height, PixelFormat.Format24bppRgb))
-      {
-        using (Graphics grPhoto = Graphics.FromImage(bmPhoto))
+        byte[] buffer = new byte[TEXTURE_SIZE*TEXTURE_SIZE*4];
+        int offset = 0;
+        while (offset < TEXTURE_SIZE*TEXTURE_SIZE*4)
         {
-          grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
-          grPhoto.DrawImage(imgSource,
-              new Rectangle(0, 0, rDest.Width, rDest.Height),
-              new Rectangle(0, 0, imgSource.Width, imgSource.Height),
-              GraphicsUnit.Pixel);
+          buffer[offset++] = _color.R;
+          buffer[offset++] = _color.G;
+          buffer[offset++] = _color.B;
+          buffer[offset++] = _color.A;
         }
 
-        using (MemoryStream stream = new MemoryStream())
-        {
-          bmPhoto.Save(stream, ImageFormat.Bmp);
-          stream.Seek(0, SeekOrigin.Begin);
-          info = ImageInformation.FromStream(stream);
-          stream.Seek(0, SeekOrigin.Begin);
-          _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
-              Pool.Default, Filter.None, Filter.None, 0);
-        }
+        _texture = new Texture(GraphicsDevice.Device, TEXTURE_SIZE, TEXTURE_SIZE, 1, Usage.Dynamic, Format.A8R8G8B8,
+              Pool.Default);
+
+        DataRectangle rect = _texture.LockRectangle(0, LockFlags.Discard);
+        rect.Data.Write(buffer, 0, buffer.Length);
+        _texture.UnlockRectangle(0);
+
+        _width = TEXTURE_SIZE;
+        _height = TEXTURE_SIZE;
+
+        _allocationSize = TEXTURE_SIZE*TEXTURE_SIZE*4;
+        base.FireAllocationChanged(_allocationSize);
       }
-      return info;
     }
   }
 }

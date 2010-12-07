@@ -63,8 +63,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _stretchDirectionProperty;
     protected AbstractProperty _stretchProperty;
     protected AbstractProperty _thumbnailProperty;
+    protected AbstractProperty _skinNeutralProperty;
     protected ImageSource _imageSource = null;
     protected bool _imageSourceInvalid = true;
+    protected bool _imageSourceSetup = false;
     protected string _warnURI = null;
 
     #endregion
@@ -84,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchDirectionProperty = new SProperty(typeof(StretchDirection), StretchDirection.Both);
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
       _thumbnailProperty = new SProperty(typeof(bool), false);
+      _skinNeutralProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -93,6 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchProperty.Attach(OnLayoutChanged);
       _stretchDirectionProperty.Attach(OnLayoutChanged);
       _thumbnailProperty.Attach(OnLayoutChanged);
+      _skinNeutralProperty.Attach(OnLayoutChanged);
     }
 
     void Detach()
@@ -102,6 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchProperty.Detach(OnLayoutChanged);
       _stretchDirectionProperty.Detach(OnLayoutChanged);
       _thumbnailProperty.Detach(OnLayoutChanged);
+      _skinNeutralProperty.Detach(OnLayoutChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -114,6 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       StretchDirection = i.StretchDirection;
       Stretch = i.Stretch;
       Thumbnail = i.Thumbnail;
+      SkinNeutralAR = i.SkinNeutralAR;
       _imageSourceInvalid = true;
       Attach();
     }
@@ -131,37 +137,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateLayout();
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="Stretch"/> mode that will be used to fit the <see cref="ImageSource"/> into the control.
+    /// </summary>
+    public Stretch Stretch
+    {
+      get { return (Stretch)_stretchProperty.GetValue(); }
+      set { _stretchProperty.SetValue(value); }
+    }
+
     public AbstractProperty StretchProperty
     {
       get { return _stretchProperty; }
     }
 
-    public Stretch Stretch
+    /// <summary>
+    /// Gets or sets a whether the <see cref="ImageSource"/> will be scaled up, down or either way top fit the control.
+    /// </summary>
+    public StretchDirection StretchDirection
     {
-      get { return (Stretch) _stretchProperty.GetValue(); }
-      set { _stretchProperty.SetValue(value); }
-    }
-
-    public AbstractProperty SourceProperty
-    {
-      get { return _sourceProperty; }
-    }
-
-    public object Source
-    {
-      get { return _sourceProperty.GetValue(); }
-      set { _sourceProperty.SetValue(value); }
-    }
-
-    public AbstractProperty FallbackSourceProperty
-    {
-      get { return _fallbackSourceProperty; }
-    }
-
-    public object FallbackSource
-    {
-      get { return _fallbackSourceProperty.GetValue(); }
-      set { _fallbackSourceProperty.SetValue(value); }
+      get { return (StretchDirection)_stretchDirectionProperty.GetValue(); }
+      set { _stretchDirectionProperty.SetValue(value); }
     }
 
     public AbstractProperty StretchDirectionProperty
@@ -169,10 +165,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _stretchDirectionProperty; }
     }
 
-    public StretchDirection StretchDirection
+    /// <summary>
+    /// Gets or sets the primary <see cref="ImageSource"/> to display.
+    /// </summary>
+    public object Source
     {
-      get { return (StretchDirection) _stretchDirectionProperty.GetValue(); }
-      set { _stretchDirectionProperty.SetValue(value); }
+      get { return _sourceProperty.GetValue(); }
+      set { _sourceProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SourceProperty
+    {
+      get { return _sourceProperty; }
+    }
+
+    /// <summary>
+    /// Gets of sets the backup <see cref="ImageSource"/> that will be used if the primary <see cref="Source"/> cannot be loaded.
+    /// </summary>
+    public object FallbackSource
+    {
+      get { return _fallbackSourceProperty.GetValue(); }
+      set { _fallbackSourceProperty.SetValue(value); }
+    }
+
+    public AbstractProperty FallbackSourceProperty
+    {
+      get { return _fallbackSourceProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the <see cref="ImageSource"/> should be displayed as a thumbnail, which is a more efficient way of 
+    /// displaying large images scaled down to small areas.
+    /// </summary>
+    public bool Thumbnail
+    {
+      get { return (bool) _thumbnailProperty.GetValue(); }
+      set { _thumbnailProperty.SetValue(value); }
     }
 
     public AbstractProperty ThumbnailProperty
@@ -180,10 +208,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _thumbnailProperty; }
     }
 
-    public bool Thumbnail
+    /// <summary>
+    /// Gets or sets a value that determines whther the skin AR is compensated for when calculating image stretching
+    /// </summary>
+    public bool SkinNeutralAR
     {
-      get { return (bool) _thumbnailProperty.GetValue(); }
-      set { _thumbnailProperty.SetValue(value); }
+      get { return (bool)_skinNeutralProperty.GetValue(); }
+      set { _skinNeutralProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SkinNeutralARProperty
+    {
+      get { return _skinNeutralProperty; }
     }
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
@@ -258,16 +294,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
       }
       if (result != null && !result.IsAllocated)
+      {
+        _imageSourceSetup = false;
         result.Allocate();
+      }
       return result;
     }
 
     public override void DoRender(RenderContext localRenderContext)
     {
-      base.DoRender(localRenderContext);
       ImageSource source = GetLoadedSource();
-      if (source != null)
-        source.Render(localRenderContext, _innerRect, Stretch, StretchDirection);
+      if (source == null)
+        base.DoRender(localRenderContext);
+      else
+      {
+        if ((_performLayout || !_imageSourceSetup) && source.IsAllocated)
+        {
+          source.Setup(_innerRect, localRenderContext.ZOrder, SkinNeutralAR);
+          _imageSourceSetup = true;
+        }
+        base.DoRender(localRenderContext);
+        source.Render(localRenderContext, Stretch, StretchDirection);
+      }
     }
 
     public override void Allocate()

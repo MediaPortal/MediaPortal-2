@@ -93,6 +93,7 @@
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\ImageSources\BitmapImage.cs" />
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
+    <Compile Include="Controls\ImageSources\MultiImage.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\UniformGrid.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
+    <Compile Include="Rendering\ImageContext.cs" />
     <Compile Include="Rendering\PrimitiveBuffer.cs" />
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\TextBuffer.cs" />
@@ -371,22 +373,40 @@
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\font.fx" />
-    <None Include="Skin\default\shaders\fontfade.fx" />
+    <None Include="Skin\default\shaders\font_fade.fx" />
+
     <None Include="Skin\default\shaders\greyscale.fx" />
     <None Include="Skin\default\shaders\lineargradient.fx" />
-    <None Include="Skin\default\shaders\linearopacitygradient.fx" />
     <None Include="Skin\default\shaders\normal.fx" />
     <None Include="Skin\default\shaders\radialgradient.fx" />
-    <None Include="Skin\default\shaders\radialopacitygradient.fx" />
-    <None Include="Skin\default\shaders\smartzoom.fx" />
     <None Include="Skin\default\shaders\solid.fx" />
-    <None Include="Skin\default\shaders\solidopacity.fx" />
     <None Include="Skin\default\shaders\tile.fx" />
-    <None Include="Skin\default\shaders\tileopacity.fx" />
-    <None Include="Skin\default\shaders\tilesimple.fx" />
-    <None Include="Skin\default\shaders\tilesimpleopacity.fx" />
-    <None Include="Skin\default\shaders\videodefault.fx" />
-    <None Include="Skin\default\shaders\videosmartzoom.fx" />
+    <None Include="Skin\default\shaders\effects\denoise.fx" />
+    <None Include="Skin\default\shaders\effects\greyscale.fx" />
+    <None Include="Skin\default\shaders\effects\invert.fx" />
+    <None Include="Skin\default\shaders\effects\none.fx" />
+    <None Include="Skin\default\shaders\effects\sepia.fx" />
+    <None Include="Skin\default\shaders\effects\sharpen.fx" />
+    <None Include="Skin\default\shaders\effects\sharpen_complex.fx" />
+    <None Include="Skin\default\shaders\imagecontext_base.fx" />
+    <None Include="Skin\default\shaders\imagecontext_default.fx" />
+    <None Include="Skin\default\shaders\imagecontext_transition_base.fx" />
+    <None Include="Skin\default\shaders\lineargradient_opacity.fx" />
+    <None Include="Skin\default\shaders\radialgradient_opacity.fx" />
+    <None Include="Skin\default\shaders\solid_opacity.fx" />
+    <None Include="Skin\default\shaders\tile_opacity.fx" />
+    <None Include="Skin\default\shaders\tile_simple.fx" />
+    <None Include="Skin\default\shaders\tile_simple_opacity.fx" />
+    <None Include="Skin\default\shaders\transforms\none.fx" />
+    <None Include="Skin\default\shaders\transforms\smart_zoom.fx" />
+    <None Include="Skin\default\shaders\video_base.fx" />
+    <None Include="Skin\default\shaders\transitions\dissolve.fx" />
+    <None Include="Skin\default\shaders\transitions\fade.fx" />
+    <None Include="Skin\default\shaders\transitions\granular_dissolve.fx" />
+    <None Include="Skin\default\shaders\transitions\wipe_down-right.fx" />
+    <None Include="Skin\default\shaders\transitions\wipe_down.fx" />
+    <None Include="Skin\default\shaders\transitions\wipe_right.fx" />
+    <None Include="Skin\default\shaders\transitions\wipe_up-left.fx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

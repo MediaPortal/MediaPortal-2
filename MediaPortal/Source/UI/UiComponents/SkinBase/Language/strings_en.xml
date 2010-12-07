@@ -90,6 +90,7 @@
     <String Name="MuteOff" Text="Mute off"/>
     <String Name="ClosePlayerContext" Text="Close {0}"/> <!-- for example "Close video player" -->
     <String Name="ChoosePlayerGeometry" Text="Zoom mode"/>
+    <String Name="ChoosePlayerEffect" Text="Effect"/>
   </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>

@@ -56,32 +56,54 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     EffectHandle _handleTexture;
     EffectHandle _handleTechnique;
 
+    /// <summary>
+    /// EffectAssetCore constructor.
+    /// </summary>
+    /// <param name="effectName"> The name of the shader file or a semi-colon seperated list of filenames,
+    /// all which will be assumed to be in the directory specified by <see cref="SkinResources.SHADERS_DIRECTORY"/>.
+    /// The files will be concatenated in reverse order to create the final effect.
     public EffectAssetCore(string effectName)
     {
       _parameterValues = new Dictionary<string, object>();
-      _effectName = effectName;
+       _effectName = effectName;
     }
 
     public bool Allocate()
     {
-      string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(
-          string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY, _effectName));
-      if (effectFilePath == null || !File.Exists(effectFilePath))
+      string[] files = _effectName.Split(';');
+      if (files.Length == 0) 
         return false;
-      string effectShader;
-      using (StreamReader reader = new StreamReader(effectFilePath))
-        effectShader = reader.ReadToEnd();
+
+      string effectShader = "";
       Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
       Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
+      for (int i = files.Length-1; i >= 0; --i)
+      {
+        string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY, files[i]));
+        if (effectFilePath == null)
+          return false;
+        if (!File.Exists(effectFilePath))
+        {
+          ServiceRegistration.Get<ILogger>().Error("Effect file {0} does not exist", effectFilePath);
+          return false;
+        }
 
-      const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-      //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
-      effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
-      effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
+        string partialShader;
+        using (StreamReader reader = new StreamReader(effectFilePath))
+          partialShader = reader.ReadToEnd();
+
+        //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
+        partialShader = partialShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
+        partialShader = partialShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
+
+        // Concatenate
+        effectShader += partialShader + Environment.NewLine;
+      }
 
       string errors = string.Empty;
       try
       {
+        const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
         _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
         _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
         _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
@@ -90,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
       catch
       {
-        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", effectFilePath);
+        ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", _effectName);
         ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         return false;
       }

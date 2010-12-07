@@ -1,12 +1,22 @@
+﻿/*
+** Used by Controls.Brushes.VideoBrush
+** This a partial shader used for rendering video frames with various effects. In order for it to work it must be assembled 
+** with other files containing definitions for:
+
+	float2 PixelTransform(in float2 texcoord);
+	float4 PixelEffect(in float2 texcoord, in sampler TextureSampler, in float4 framedata) : COLOR;
+*/
+
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
 texture   g_texture; // Color texture 
 float     g_opacity;
 float4x4  g_relativetransform;
-float4    g_brushtransform;
+float4    g_imagetransform;
+float4    g_framedata; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
 
-sampler textureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
   MipFilter = LINEAR;
@@ -17,26 +27,26 @@ sampler textureSampler = sampler_state
 };
 
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position   : POSITION;
   float2 Texcoord   : TEXCOORD0;
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
 
@@ -44,21 +54,23 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   float2 pos = mul(float4(IN.Texcoord.x, IN.Texcoord.y, 0.0, 1.0), g_relativetransform).xy;
 
   // Transform vertex coords to place brush texture
-  pos = pos * g_brushtransform.zw - g_brushtransform.xy;
+  pos = pos * g_imagetransform.zw - g_imagetransform.xy;
 
   // Apply other transformation
   OUT.Texcoord = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(textureSampler, IN.Texcoord);
+  float2 texcoord = PixelTransform(IN.Texcoord);
+
+  OUT.Color = PixelEffect(texcoord, TextureSampler, g_framedata);
   OUT.Color[3] *= g_opacity;
 }
 
 technique simple {
   pass p0 {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader = compile ps_2_0 RenderPixelShader();
   }
 }

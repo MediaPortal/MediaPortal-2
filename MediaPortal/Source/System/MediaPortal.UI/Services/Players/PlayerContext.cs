@@ -339,6 +339,17 @@ namespace MediaPortal.UI.Services.Players
       player.GeometryOverride = geometry;
     }
 
+    public void OverrideEffect(string effect)
+    {
+      IPlayerSlotController slotController = _slotController;
+      if (slotController == null)
+        return;
+      IVideoPlayer player = CurrentPlayer as IVideoPlayer;
+      if (player == null)
+        return;
+      player.EffectOverride = effect;
+    }
+
     public void SetContextVariable(string key, object value)
     {
       IPlayerSlotController psc = _slotController;

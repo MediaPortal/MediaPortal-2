@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
 
     public string Shader
     {
-      get { return "videosmartzoom"; }
+      get { return @"transforms\smart_zoom"; }
     }
 
     public bool RequiresCorrectAspectRatio

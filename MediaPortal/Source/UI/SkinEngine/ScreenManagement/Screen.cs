@@ -392,7 +392,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_visual)
       {
-        _visual.Deallocate();
         _visual.Allocate();
         _visual.Initialize();
 

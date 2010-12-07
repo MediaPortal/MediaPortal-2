@@ -33,11 +33,27 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public TextureAsset(TextureAssetCore core) : base(core) { }
 
     /// <summary>
-    /// Attempts to allocate the texture resource.
+    /// Loads the specified texture from the file / Uri.
     /// </summary>
-    public void Allocate()
+    public virtual void Allocate()
     {
       _assetCore.Allocate();
+    }
+
+    /// <summary>
+    /// Loads the specified texture from the file / Uri asyncronously.
+    /// </summary>
+    public virtual void AllocateAsync()
+    {
+      _assetCore.AllocateAsync();
+    }
+
+    /// <summary>
+    /// Allows allocation to be re-attempted after a failed texture load.
+    /// </summary>
+    public void ClearFailedState()
+    {
+      _assetCore.ClearFailedState();
     }
 
     /// <summary>
@@ -98,6 +114,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public float MaxV
     {
       get { return _assetCore.MaxV; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this texture could not be laoded.
+    /// </summary>
+    public bool LoadFailed
+    {
+      get { return _assetCore.LoadFailed; }
     }
 
     /// <summary>

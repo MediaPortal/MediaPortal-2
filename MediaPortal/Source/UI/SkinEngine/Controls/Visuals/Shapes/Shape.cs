@@ -22,9 +22,7 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using MediaPortal.Utilities.DeepCopy;
@@ -199,16 +197,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       get { return (double) _strokeThicknessProperty.GetValue(); }
       set { _strokeThicknessProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Returns the geometry representing this <see cref="Shape"/> 
-    /// </summary>
-    /// <param name="rect">The rect to fit the shape into.</param>
-    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
-    public virtual PositionColored2Textured[] GetGeometry(RectangleF rect)
-    {
-      return null;
     }
 
     protected void PerformLayout(RenderContext context)

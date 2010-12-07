@@ -1,7 +1,14 @@
+/*
+** Unused?
+** Applies a blur filter to a texture? From the name it seems this was intended to be used as a dialog background effect
+** (like Aero title bars) but I believe this is not currently possible as it would require pre-rendering the whole screen
+** to a buffer and then supplying it to this function.
+*/
+
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture  g_texture; // Color texture 
 
-sampler textureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
   MipFilter = LINEAR;
@@ -10,7 +17,7 @@ sampler textureSampler = sampler_state
 };
                           
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float4 Color     : COLOR0;
@@ -19,7 +26,7 @@ struct a2v
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position   : POSITION;
   float4 Color      : COLOR0;
@@ -28,12 +35,12 @@ struct v2p
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
   OUT.Color = IN.Color;
@@ -41,7 +48,7 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   OUT.Texcoord1 = IN.Texcoord1;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   // Calculate the offsets
   float2 Offset;
@@ -49,14 +56,14 @@ void renderPixelShader(in v2p IN, out p2f OUT)
   Offset.y = 0.5f / float(256);
   // Create the blur
   // By extracting pixels from the texture we can shift them as we extract them.
-  float4 top = tex2D(textureSampler, float2(IN.Texcoord.x, IN.Texcoord.y + Offset.y));
-  float4 top_left = tex2D(textureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y + Offset.y));
-  float4 top_right = tex2D(textureSampler, float2(IN.Texcoord.x + Offset.x, IN.Texcoord.y + Offset.y));
-  float4 bottom = tex2D(textureSampler, float2(IN.Texcoord.x, IN.Texcoord.y - Offset.y));
-  float4 bottom_left = tex2D(textureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y - Offset.y));
-  float4 bottom_right = tex2D(textureSampler, float2(IN.Texcoord.x + Offset.x, IN.Texcoord.y + Offset.y));
-  float4 left = tex2D(textureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y));
-  float4 right = tex2D(textureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y));
+  float4 top = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y + Offset.y));
+  float4 top_left = tex2D(TextureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y + Offset.y));
+  float4 top_right = tex2D(TextureSampler, float2(IN.Texcoord.x + Offset.x, IN.Texcoord.y + Offset.y));
+  float4 bottom = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y - Offset.y));
+  float4 bottom_left = tex2D(TextureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y - Offset.y));
+  float4 bottom_right = tex2D(TextureSampler, float2(IN.Texcoord.x + Offset.x, IN.Texcoord.y + Offset.y));
+  float4 left = tex2D(TextureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y));
+  float4 right = tex2D(TextureSampler, float2(IN.Texcoord.x - Offset.x, IN.Texcoord.y));
 
   // Extract the color from the texture
   float4 average = (top + bottom + right + left + top_left + top_right + bottom_left + bottom_right) / 8;
@@ -81,7 +88,7 @@ technique simple
 {
   pass p0
   {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader  = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader  = compile ps_2_0 RenderPixelShader();
   }
 }

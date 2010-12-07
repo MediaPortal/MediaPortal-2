@@ -22,11 +22,15 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.Settings;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Geometry
 {
@@ -91,6 +95,28 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     {
       get { return _cropSettings; }
       set { _cropSettings = value ?? new CropSettings(); }
+    }
+
+    public IDictionary<string, string> AvailableEffects
+    {
+      get
+      {
+        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+        string search = String.Format(@"{0}\\effects(\\[^(\*\+\?\%\*\:\|<>\\)]+)*\.fx$", SkinResources.SHADERS_DIRECTORY);
+        IDictionary<string, string> files = SkinContext.SkinResources.GetResourceFilePaths(search);
+        Dictionary<string, string> effects = new Dictionary<string, string>();
+        foreach (KeyValuePair<string, string> kv in files)
+        {
+          String name = Path.GetFileNameWithoutExtension(kv.Key);
+          name.Replace('_', ' ');
+          name = info.ToTitleCase(name);
+          string key = kv.Key;
+          key = key.Remove(0, SkinResources.SHADERS_DIRECTORY.Length+1);
+          key = key.Remove(key.Length - 3, 3);
+          effects[key] = name;
+        }
+        return effects;
+      }
     }
   }
 }

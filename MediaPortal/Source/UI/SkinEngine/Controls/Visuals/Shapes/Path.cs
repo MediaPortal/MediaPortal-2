@@ -78,34 +78,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Returns the geometry representing this <see cref="Shape"/> 
-    /// </summary>
-    /// <param name="rect">The rect to fit the shape into.</param>
-    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
-    public override PositionColored2Textured[] GetGeometry(RectangleF rect)
-    {
-      PositionColored2Textured[] verts;
-      using (GraphicsPath path = CalculateTransformedPath(_innerRect))
-      {
-        using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
-        {
-          PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-          using (GraphicsPath subPath = new GraphicsPath())
-          {
-            for (int i = 0; i < subPathVerts.Length; i++)
-            {
-              bool isClosed;
-              gpi.NextSubpath(subPath, out isClosed);
-              TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
-            }
-          }
-          GraphicsPathHelper.Flatten(subPathVerts, out verts);
-        }
-      }
-      return verts;
-    }
-
     protected override void DoPerformLayout(RenderContext context)
     {
       base.DoPerformLayout(context);

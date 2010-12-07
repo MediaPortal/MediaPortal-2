@@ -50,13 +50,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public abstract void Deallocate();
 
     /// <summary>
+    /// Performs setup of the source based on the target rect to fill.
+    /// </summary>
+    /// <param name="ownerRect">The client area of the owner control we will be rendering to.</param>
+    /// <param name="zOrder">Z-Order of the image.</param>
+    /// <param name="skinNeutralAR">If set to <c>true</c>, the size calculation will take into account that
+    /// the screen might be stretched. The image will still be drawn with its natural aspect ratio. If set to
+    /// <c>false</c>, the image will simply be stretched as every other control on the screen.</param>
+    public abstract void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR);
+
+    /// <summary>
     /// Renders this image source to the client area using the passed <paramref name="renderContext"/>.
     /// </summary>
     /// <param name="renderContext">The current rendering context</param>
-    /// <param name="ownerRect">The client area of the owner control we will be rendering to.</param>
-    /// <param name="stretchMode">The type of strething to perform when the image doesn't fit the client area.</param>
+    /// <param name="stretchMode">The type of stretching to perform when the image doesn't fit the client area.</param>
     /// <param name="stretchDirection">The condition required for stretching to take place.</param>
-    public abstract void Render(RenderContext renderContext, RectangleF ownerRect, Stretch stretchMode, StretchDirection stretchDirection);
+    public abstract void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection);
 
     /// <summary>
     /// Gets the original size (before stretching) of the centent represented by this source.

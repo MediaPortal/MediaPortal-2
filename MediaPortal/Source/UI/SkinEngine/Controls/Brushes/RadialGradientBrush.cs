@@ -40,8 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Consts
 
     protected const string EFFECT_RADIALGRADIENT = "radialgradient";
-    protected const string EFFECT_RADIALOPACITYGRADIENT = "radialopacitygradient";
-    protected const string EFFECT_SOLID = "solid";
+    protected const string EFFECT_RADIALOPACITYGRADIENT = "radialgradient_opacity";
 
     protected const string PARAM_TRANSFORM = "g_transform";
     protected const string PARAM_RELATIVE_TRANSFORM = "g_relativetransform";
@@ -53,8 +52,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected const string PARAM_ALPHATEX = "g_alphatex";
     protected const string PARAM_UPPERVERTSBOUNDS = "g_uppervertsbounds";
     protected const string PARAM_LOWERVERTSBOUNDS = "g_lowervertsbounds";
-
-    protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
 
     #endregion
 

@@ -1,8 +1,9 @@
 /*
- * SkinEngine Shader - tile.fx
- * This effect implements general TileBrush functionality. Some simple cases 
- * are handled in an optimised way by tilesimple.fx
+ * Used by Control.Brushes.TileBrush (also ImageBrush, VisualBrush)
+ * Renders an image allowing cropping to a defined sub-area, transformations and different wrapping modes. Some simple cases 
+ * are handled in an optimised way by tilesimple.fx.
 */
+
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
@@ -16,7 +17,7 @@ float	  g_voffset;
 int		  g_tileu;
 int		  g_tilev;
 
-sampler textureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
   MipFilter = LINEAR;
@@ -28,26 +29,26 @@ sampler textureSampler = sampler_state
 };
 
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position   : POSITION;
   float2 Texcoord   : TEXCOORD0;
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
 
@@ -100,15 +101,15 @@ float2 wrapTextureCoord(float2 pos, float2 offset, float2 size)
   return fraction + wrap;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(textureSampler, wrapTextureCoord(IN.Texcoord, g_textureviewport.xy, g_textureviewport.zw));
+  OUT.Color = tex2D(TextureSampler, wrapTextureCoord(IN.Texcoord, g_textureviewport.xy, g_textureviewport.zw));
   OUT.Color[3] *= g_opacity;
 }
 
 technique simple {
   pass p0 {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader = compile ps_2_0 RenderPixelShader();
   }
 }

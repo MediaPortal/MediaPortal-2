@@ -1,20 +1,21 @@
 /*
- * SkinEngine Shader - tilesimple.fx
- * This effect implements certain TileBrush functionality in an optimised way.
- * See the code in TileBrush.RefreshEffectParameters for specific cases.
+** Used by Control.Brushes.TileBrush (also ImageBrush, VisualBrush)
+** A simpler, more optimised version of tileopacity.fx that doesn't allow cropping or wrapping.
 */
+
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
-texture   g_texture; // Color texture 
+texture   g_texture; // Color texture
+texture   g_alphatex; // Alpha texture 
 float     g_opacity;
 float4x4  g_relativetransform;
-float4    g_textureviewport;
+float4	  g_textureviewport;
 float4    g_brushtransform;
 
-sampler textureSampler = sampler_state
+sampler AlphaSampler : register (s1) = sampler_state
 {
-  Texture = <g_texture>;
+  Texture = <g_alphatex>;
   MipFilter = LINEAR;
   MinFilter = LINEAR;
   MagFilter = LINEAR;
@@ -23,27 +24,36 @@ sampler textureSampler = sampler_state
   BorderColor = {1.0, 1.0, 1.0, 0.0};
 };
 
+sampler TextureSampler : register (s0) = sampler_state
+{
+  Texture = <g_texture>;
+  MipFilter = LINEAR;
+  MinFilter = LINEAR;
+  MagFilter = LINEAR;
+};
+
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float2 Texcoord  : TEXCOORD0;  // vertex texture coords 
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position   : POSITION;
-  float2 Texcoord   : TEXCOORD0;
+  float2 Texcoord0  : TEXCOORD0;
+  float2 Texcoord1  : TEXCOORD1;
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
 
@@ -56,18 +66,19 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   // Apply other transformation
   pos = (pos - g_textureviewport.xy) / g_textureviewport.zw;
   pos = mul(float4(pos.x, pos.y, 0.0, 1.0), g_transform).xy;
-  OUT.Texcoord = pos * g_textureviewport.zw + g_textureviewport.xy;
+  OUT.Texcoord0 = pos * g_textureviewport.zw + g_textureviewport.xy;
+  OUT.Texcoord1 = IN.Texcoord;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(textureSampler, IN.Texcoord);
-  OUT.Color[3] *= g_opacity;
+  OUT.Color = tex2D(TextureSampler, IN.Texcoord1);
+  OUT.Color[3] *= g_opacity * tex2D(AlphaSampler, IN.Texcoord0)[3];
 }
 
 technique simple {
   pass p0 {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader = compile ps_2_0 RenderPixelShader();
   }
 }

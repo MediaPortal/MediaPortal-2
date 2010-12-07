@@ -114,25 +114,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Returns the geometry representing this <see cref="Shape"/> 
-    /// </summary>
-    /// <param name="rect">The rect to fit the shape into.</param>
-    /// <returns>An array of vertices forming triangle list that defines this shape.</returns>
-    public override PositionColored2Textured[] GetGeometry(RectangleF rect)
-    {
-      PositionColored2Textured[] verts;
-      using (GraphicsPath path = CreateRectanglePath(_innerRect))
-      {
-        if (path.PointCount == 0)
-          return null;
-        float centerX = rect.Width / 2 + rect.Left;
-        float centerY = rect.Height / 2 + rect.Top;
-        TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-      }
-      return verts;
-    }
-
     protected override void ArrangeOverride()
     {
       base.ArrangeOverride();

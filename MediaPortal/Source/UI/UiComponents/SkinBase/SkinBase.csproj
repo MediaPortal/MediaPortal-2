@@ -130,7 +130,7 @@
     <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
-    <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
+    <Content Include="Skin\default\screens\DialogPlayerChooseEffect.xaml" />
     <Content Include="Skin\default\screens\GenericDialog.xaml" />
     <Content Include="Skin\default\screens\DialogVirtualKeyboard.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />

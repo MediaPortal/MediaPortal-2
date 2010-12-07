@@ -1,7 +1,12 @@
+/*
+** Unused?
+** Renders a texture with it's color channels averaged.
+*/
+
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture  g_texture; // Color texture 
 
-sampler textureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
   MipFilter = LINEAR;
@@ -10,7 +15,7 @@ sampler textureSampler = sampler_state
 };
                           
 // application to vertex structure
-struct a2v
+struct VS_Input
 {
   float4 Position  : POSITION0;
   float4 Color     : COLOR0;
@@ -19,7 +24,7 @@ struct a2v
 };
 
 // vertex shader to pixelshader structure
-struct v2p
+struct VS_Output
 {
   float4 Position   : POSITION;
   float4 Color      : COLOR0;
@@ -28,12 +33,12 @@ struct v2p
 };
 
 // pixel shader to frame
-struct p2f
+struct PS_Output
 {
   float4 Color : COLOR0;
 };
 
-void renderVertexShader(in a2v IN, out v2p OUT)
+void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 {
   OUT.Position = mul(IN.Position, worldViewProj);
   OUT.Color = IN.Color;
@@ -41,9 +46,9 @@ void renderVertexShader(in a2v IN, out v2p OUT)
   OUT.Texcoord1 = IN.Texcoord1;
 }
 
-void renderPixelShader(in v2p IN, out p2f OUT)
+void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(textureSampler, IN.Texcoord) * IN.Color;
+  OUT.Color = tex2D(TextureSampler, IN.Texcoord) * IN.Color;
   OUT.Color[0] = (OUT.Color[0] + OUT.Color[1] + OUT.Color[2])/3.0f;
   OUT.Color[1] = OUT.Color[0];
   OUT.Color[2] = OUT.Color[0];
@@ -53,7 +58,7 @@ technique simple
 {
   pass p0
   {
-    VertexShader = compile vs_2_0 renderVertexShader();
-    PixelShader  = compile ps_2_0 renderPixelShader();
+    VertexShader = compile vs_2_0 RenderVertexShader();
+    PixelShader  = compile ps_2_0 RenderPixelShader();
   }
 }

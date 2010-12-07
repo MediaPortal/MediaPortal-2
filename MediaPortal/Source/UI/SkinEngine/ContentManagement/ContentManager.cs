@@ -23,12 +23,13 @@
 #endregion
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
-using MediaPortal.UI.SkinEngine.Fonts;
+using System.Drawing;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
+using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
@@ -85,14 +86,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private const int DICTIONARY_CLEANUP_INTERVAL = 60 * 1000;
     #endregion
 
-    #region Protected variables
+    #region private variables
 
     private static readonly ContentManager _instance = new ContentManager();
     private readonly Dictionary<string, AssetInstance>[] _assets = null;
     private DateTime _timerA = SkinContext.FrameRenderingStartTime;
     private DateTime _timerB = SkinContext.FrameRenderingStartTime;
     private int _totalAllocation = 0;
-
 
     private int _lastCleanedAssetType = 0;
     private double _nextCleanupInterval = LONG_CLEANUP_INTERVAL;
@@ -126,37 +126,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) from the specified file.
     /// </summary>
     /// <param name="fileName">Name of the file (.jpg, .png).</param>
-    /// <param name="thumb">True to load the image as a thumbnail, false otherwise.</param>
+    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, false otherwise.</param>
     /// <returns>A <see cref="TextureAsset"/> object.</returns>
     public TextureAsset GetTexture(string fileName, bool thumb)
     {
-      int type = (int) (thumb ? AssetType.Thumbnail : AssetType.Texture);
-      AssetInstance texture;
-      TextureAsset asset = null;
-      lock (_assets[type])
-      {
-        if (!_assets[type].TryGetValue(fileName, out texture))
-        {
-          texture = NewAssetInstance(fileName, thumb ? AssetType.Thumbnail : AssetType.Texture, 
-              new TextureAssetCore(fileName));
-          ((TextureAssetCore) texture.core).UseThumbnail = thumb;
-        }
-        else
-          asset = texture.asset.Target as TextureAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null) 
-      {
-        asset = new TextureAsset(texture.core as TextureAssetCore);
-        if (texture.asset == null)
-          texture.asset = new WeakReference(asset);
-      }
-      return asset;
+      return GetCreateTexture(fileName, fileName, 0, 0, thumb);
     }
 
     public TextureAsset GetTexture(string fileName)
     {
-      return GetTexture(fileName, 0, 0);
+      return GetTexture(fileName, false);
     }
 
     /// <summary>
@@ -166,11 +145,44 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="fileName">Name of the file (.jpg, .png).</param>
     /// <param name="width">Restricts the size to the given width.</param>
     /// <param name="height">Restricts the size to the given height.</param>
-    /// <returns>Texture asset with the given parameters.</returns>
-    public TextureAsset GetTexture(string fileName, int width, int height)
+    /// <param name="thumb"><c>true</c> to load the image as a thumbnail, false otherwise.</param>
+    /// <returns>A texture asset with the given parameters.</returns>
+    public TextureAsset GetTexture(string fileName, int width, int height, bool thumb)
     {
-      // Todo: Add support for resticted size
-      return GetTexture(fileName, false);
+      if (width == 0 && height == 0)
+        return GetTexture(fileName, thumb);
+
+      string key = String.Format("{0}:[{1},{2}]", fileName, width, height);
+      return GetCreateTexture(fileName, key, width, height, thumb);
+    }
+
+    /// <summary>
+    /// Retrieves a <see cref="TextureAsset"/> (creating it if necessary) fiklled with the given color.
+    /// </summary>
+    /// <param name="color">The color to fill the texture with.</param>
+    /// <returns>A texture asset filled with the given color.</returns>
+    public TextureAsset GetColorTexture(Color color)
+    {
+      AssetInstance texture;
+      TextureAsset asset = null;
+      string key = ':' + color.ToString(); // The ':' is to make absolutely sure that the key isn't a valid filename.
+      lock (_assets[(int) AssetType.Texture])
+      {
+        if (!_assets[(int) AssetType.Texture].TryGetValue(key, out texture))
+        {
+          texture = NewAssetInstance(key, AssetType.Texture, new ColorTextureAssetCore(color));
+        }
+        else
+          asset = texture.asset.Target as TextureAsset;
+      }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null)
+      {
+        asset = new TextureAsset(texture.core as TextureAssetCore);
+        if (texture.asset == null)
+          texture.asset = new WeakReference(asset);
+      }
+      return asset;
     }
 
     /// <summary>
@@ -363,7 +375,34 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     #endregion
 
-    #region Protected asset management methods
+    #region private asset management methods
+
+    private TextureAsset GetCreateTexture(string fileName, string key, int width, int height, bool thumb)
+    {
+      int type = (int)(thumb ? AssetType.Thumbnail : AssetType.Texture);
+      AssetInstance texture;
+      TextureAsset asset = null;
+
+      lock (_assets[type])
+      {
+        if (!_assets[type].TryGetValue(fileName, out texture))
+        {
+          texture = NewAssetInstance(key, thumb ? AssetType.Thumbnail : AssetType.Texture,
+              new TextureAssetCore(fileName, width, height));
+          ((TextureAssetCore)texture.core).UseThumbnail = thumb;
+        }
+        else
+          asset = texture.asset.Target as TextureAsset;
+      }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null)
+      {
+        asset = new TextureAsset(texture.core as TextureAssetCore);
+        if (texture.asset == null)
+          texture.asset = new WeakReference(asset);
+      }
+      return asset;
+    }
 
     /// <summary>
     /// This function is run asyncronously to remove de-referenced and de-allocated assets from the list.

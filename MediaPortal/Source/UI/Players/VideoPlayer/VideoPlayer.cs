@@ -41,12 +41,10 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
-using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -141,6 +139,7 @@ namespace MediaPortal.UI.Players.Video
 
     // Internal state and variables
     protected IGeometry _geometryOverride = null;
+    protected string _effectOverride = null;
     protected CropSettings _cropSettings;
 
     protected PlayerState _state;
@@ -731,24 +730,16 @@ namespace MediaPortal.UI.Players.Video
       set { _geometryOverride = value; }
     }
 
+    public string EffectOverride
+    {
+      get { return _effectOverride; }
+      set { _effectOverride = value; }
+    }
+
     public CropSettings CropSettings
     {
       get { return _cropSettings; }
       set { _cropSettings = value; }
-    }
-
-    public virtual void BeginRender(EffectAsset effect, Matrix finalTransform)
-    {
-      if (!_initialized) return;
-      if (_evrCallback == null) return;
-      effect.StartRender(_evrCallback.Texture, finalTransform);
-    }
-
-    public virtual void EndRender(EffectAsset effect)
-    {
-      if (!_initialized) return;
-      if (_evrCallback == null) return;
-      effect.EndRender();
     }
 
     public virtual TimeSpan CurrentTime
@@ -1246,6 +1237,11 @@ namespace MediaPortal.UI.Players.Video
         _initialized = true;
       }
     }
+
+    public Texture Texture 
+    {
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
+    } 
 
     #endregion
   }

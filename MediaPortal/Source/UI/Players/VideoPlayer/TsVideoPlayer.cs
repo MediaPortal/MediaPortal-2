@@ -31,8 +31,6 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.SkinEngine.ContentManagement;
-using SlimDX;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -510,19 +508,6 @@ namespace MediaPortal.UI.Players.Video
         if (_renderer != null)
           _renderer.OnSeek(CurrentTime.TotalSeconds);
       }
-    }
-
-    public override void BeginRender(EffectAsset effect, Matrix finalTransform)
-    {
-      base.BeginRender(effect, finalTransform);
-      _renderer.FinalTransform = finalTransform;
-    }
-
-    public override void EndRender(EffectAsset effect)
-    {
-      base.EndRender(effect);
-      if (_renderer != null)
-        _renderer.Render();
     }
 
     public override void ReleaseGUIResources()

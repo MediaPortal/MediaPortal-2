@@ -67,6 +67,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public static Guid STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_SLOT_AUDIO_MENU_DIALOG);
     public const string STR_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = "D46F66DD-9E91-4788-ADFE-EBD96F1A489E";
     public static Guid STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG);
+    public const string STR_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = "DAD585DF-16FC-45AB-A6D7-FE5600080C7A";
+    public static Guid STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = new Guid(STR_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG);
 
     public const string KEY_PLAYER_SLOT = "PlayerSlot";
     public const string KEY_PLAYER_CONTEXT = "PlayerContext";
@@ -84,6 +86,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected const string RES_MUTE_OFF = "[Players.MuteOff]";
     protected const string RES_CLOSE_PLAYER_CONTEXT = "[Players.ClosePlayerContext]";
     protected const string RES_CHOOSE_PLAYER_GEOMETRY = "[Players.ChoosePlayerGeometry]";
+    protected const string RES_CHOOSE_PLAYER_EFFECT = "[Players.ChoosePlayerEffect]";
 
     protected const string RES_PLAYER_SLOT_AUDIO_MENU = "[Players.PlayerSlotAudioMenu]";
 
@@ -115,6 +118,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected IPlayerContext _playerGeometryMenuPlayerContext = null;
     protected ItemsList _playerChooseGeometryMenu = new ItemsList();
     protected string _playerChooseGeometryHeader = null;
+
+    // Mode 5: Choose rendering effect for a special player slot
+    protected bool _inPlayerChooseEffectMenuDialog = false;
+    protected IPlayerContext _playerEffectMenuPlayerContext = null;
+    protected ItemsList _playerChooseEffectMenu = new ItemsList();
+    protected string _playerChooseEffectHeader = null;
 
     #endregion
 
@@ -255,6 +264,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             };
           item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerChooseGeometryHeader = entryName;
+          _playerConfigurationMenu.Add(item);
+        }
+        // Change rendering effect
+        for (int i = 0; i < videoPCs.Count; i++)
+        {
+          IPlayerContext pc = videoPCs[i];
+          string zoomMode = LocalizationHelper.CreateResourceString(RES_CHOOSE_PLAYER_EFFECT).Evaluate();
+          string entryName = videoPCs.Count > 1 ?
+              string.Format("{0} ({1})", zoomMode, GetNameForPlayerContext(playerContextManager, i)) : zoomMode;
+          ListItem item = new ListItem(KEY_NAME, entryName)
+          {
+            Command = new MethodDelegateCommand(() => OpenChooseEffectDialog(pc))
+          };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
+          _playerChooseEffectHeader = entryName;
           _playerConfigurationMenu.Add(item);
         }
         // Audio streams
@@ -412,6 +436,25 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    protected void UpdatePlayerChooseEffectMenu()
+    {
+      if (_playerChooseEffectMenu.Count == 0)
+      {
+        IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
+        IDictionary<string, string> effects = geometryManager.AvailableEffects;
+        foreach (KeyValuePair<string, string> nameToEffect in effects)
+        {
+          string file = nameToEffect.Key;
+          ListItem item = new ListItem(KEY_NAME, nameToEffect.Value)
+          {
+            Command = new MethodDelegateCommand(() => SetEffect(_playerEffectMenuPlayerContext, file))
+          };
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+          _playerChooseEffectMenu.Add(item);
+        }
+      }
+    }
+
     /// <summary>
     /// Updates the menu items for the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream"
     /// and closes the dialogs when their entries are not valid any more.
@@ -448,10 +491,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           // Automatically close geometry choice dialog if current player is no video player
           if (_playerGeometryMenuPlayerContext == null || !_playerGeometryMenuPlayerContext.IsValid ||
               !(_playerGeometryMenuPlayerContext.CurrentPlayer is IVideoPlayer))
-            // Automatically close audio stream choice dialog
+            // Automatically close geometry stream choice dialog
             workflowManager.NavigatePopToStateAsync(STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG, true);
           else
             UpdatePlayerChooseGeometryMenu();
+        }
+        if (_inPlayerChooseEffectMenuDialog)
+        {
+          // Automatically close Effect choice dialog if current player is no video player
+          if (_playerEffectMenuPlayerContext == null || !_playerEffectMenuPlayerContext.IsValid ||
+              !(_playerEffectMenuPlayerContext.CurrentPlayer is IVideoPlayer))
+            // Automatically close effect stream choice dialog
+            while (_inPlayerChooseEffectMenuDialog)
+              workflowManager.NavigatePop(1);
+          else
+            UpdatePlayerChooseEffectMenu();
         }
       }
     }
@@ -495,6 +549,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         UpdatePlayerChooseGeometryMenu();
         _inPlayerChooseGeometryMenuDialog = true;
       }
+      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      {
+        _playerEffectMenuPlayerContext = newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) as IPlayerContext;
+        UpdatePlayerChooseEffectMenu();
+        _inPlayerChooseEffectMenuDialog = true;
+      }
     }
 
     protected void ExitContext(NavigationContext oldContext)
@@ -520,6 +580,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _inPlayerChooseGeometryMenuDialog = false;
         _playerChooseGeometryMenu.Clear();
       }
+      else if (oldContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      {
+        _inPlayerChooseEffectMenuDialog = false;
+        _playerChooseEffectMenu.Clear();
+      }
     }
 
     #endregion
@@ -536,6 +601,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               {KEY_PLAYER_CONTEXT, playerContext}
           }
         });
+    }
+
+    public static void OpenChooseEffectDialog(IPlayerContext playerContext)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, new NavigationContextConfig
+      {
+        AdditionalContextVariables = new Dictionary<string, object>
+          {
+              {KEY_PLAYER_CONTEXT, playerContext}
+          }
+      });
     }
 
     public static void OpenPlayerConfigurationDialog()
@@ -586,9 +663,19 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _playerChooseGeometryMenu; }
     }
 
+    public ItemsList PlayerChooseEffectMenu
+    {
+      get { return _playerChooseEffectMenu; }
+    }
+
     public string PlayerChooseGeometryHeader
     {
       get { return _playerChooseGeometryHeader; }
+    }
+
+    public string PlayerChooseEffectHeader
+    {
+      get { return _playerChooseEffectHeader; }
     }
 
     public void Select(ListItem item)
@@ -667,6 +754,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         playerContext.OverrideGeometry(geometry);
     }
 
+    public void SetEffect(IPlayerContext playerContext, string effect)
+    {
+      if (playerContext != null)
+        playerContext.OverrideEffect(effect);
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
@@ -695,6 +788,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return true;
       }
       else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG)
+      {
+        // Check if we got our necessary player context parameter
+        if (newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) != null)
+          return true;
+      }
+      else if (newContext.WorkflowState.StateId == STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
       {
         // Check if we got our necessary player context parameter
         if (newContext.GetContextVariable(KEY_PLAYER_CONTEXT, false) != null)

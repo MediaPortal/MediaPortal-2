@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Consts
 
     protected const string EFFECT_SOLID = "solid";
-    protected const string EFFECT_SOLIDOPACITY = "solidopacity";
+    protected const string EFFECT_SOLIDOPACITY = "solid_opacity";
 
     protected const string PARAM_SOLIDCOLOR = "g_solidcolor";
 

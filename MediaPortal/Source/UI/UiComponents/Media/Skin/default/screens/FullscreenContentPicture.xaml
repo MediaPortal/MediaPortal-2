@@ -16,9 +16,10 @@
   <mp_special_controls:PlayerControl x:Name="FullscreenPicture" Grid.Column="0" Grid.Row="0"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
     <mp_special_controls:PlayerControl.TemplateControl>
-      <Image Stretch="Uniform"
-          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-          Source="{Binding PictureSourcePath}">
+      <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
+        <Image.Source>
+          <MultiImage UriSource="{Binding PictureSourcePath}" Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"/>
+        </Image.Source>
         <Image.LayoutTransform>
           <RotateTransform Angle="{Binding PictureRotateDegrees}" />
         </Image.LayoutTransform>

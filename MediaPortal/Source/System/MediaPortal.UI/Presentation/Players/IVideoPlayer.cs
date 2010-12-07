@@ -55,6 +55,12 @@ namespace MediaPortal.UI.Presentation.Players
     IGeometry GeometryOverride { get; set; }
 
     /// <summary>
+    /// Gets or sets an effect to be used for this player. If this property is not set, a default effect will be used.
+    /// In this case, this property is <c>null</c>.
+    /// </summary>
+    string EffectOverride { get; set; }
+
+    /// <summary>
     /// Gets or sets the crop settings to be used for this player.
     /// </summary>
     CropSettings CropSettings { get; set; }
