@@ -32,7 +32,6 @@ using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -47,7 +46,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     enum NavigationMode
     {
-      SimpleChoice,
       SuccessorDialog,
       ExitPCWorkflow,
     }
@@ -230,7 +228,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
               };
-            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
+            item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
             _playerConfigurationMenu.Add(item);
           }
         }
@@ -241,7 +239,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             {
                 Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
             };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerConfigurationMenu.Add(item);
         }
         // Change geometry
@@ -306,7 +304,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerConfigurationMenu.Add(item);
         }
         // Close player
@@ -409,7 +407,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               {
                   Command = new MethodDelegateCommand(PlayersMute)
               };
-          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.SimpleChoice;
+          item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerSlotAudioMenu.Add(item);
         }
 
@@ -686,21 +684,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (command != null)
         command.Execute();
       object obj;
-      NavigationMode mode = NavigationMode.SimpleChoice;
+      NavigationMode mode = NavigationMode.ExitPCWorkflow;
       if (item.AdditionalProperties.TryGetValue(KEY_NAVIGATION_MODE, out obj))
         mode = (NavigationMode) obj;
-      switch (mode)
+      if (mode == NavigationMode.ExitPCWorkflow)
       {
-        case NavigationMode.SimpleChoice:
-          IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-          screenManager.CloseTopmostDialog();
-          break;
-        case NavigationMode.ExitPCWorkflow:
-          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-          workflowManager.NavigatePopToState(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
-          break;
-        default:
-          break;
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        workflowManager.NavigatePopToState(STATE_ID_PLAYER_CONFIGURATION_DIALOG, true);
       }
     }
 
