@@ -639,9 +639,6 @@ namespace MediaPortal.UI.Players.Video
           FreeCodecs();
 
           FreeResources();
-
-          // Dispose the resource accessor; i.e. to stop the Tve3 provider's timeshifting
-          FilterGraphTools.TryDispose(ref _resourceAccessor);
         }
       }
       // Dispose resource locator and accessor
@@ -1052,9 +1049,11 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        if (StreamSelector == null)
+          return new string[] { AUDIO_STREAM_NAME };
+
         int streamCount = 0;
-        if (StreamSelector != null)
-          StreamSelector.Count(out streamCount);
+        StreamSelector.Count(out streamCount);
 
         List<String> streams = new List<String>();
         for (int i = 0; i < streamCount; ++i)
