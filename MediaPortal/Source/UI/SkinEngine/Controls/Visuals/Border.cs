@@ -286,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
           // for example GroupBox). To create a completely filled background, we need a closed figure.
           path.CloseFigure();
-          PositionColored2Textured[] verts;
+          PositionColoredTextured[] verts;
           float centerX, centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
           {
-            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+            PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
             using (GraphicsPath subPath = new GraphicsPath())
             {
               for (int i = 0; i < subPathVerts.Length; i++)
@@ -319,7 +319,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
                     out subPathVerts[i], null);
               }
             }
-            PositionColored2Textured[] verts;
+            PositionColoredTextured[] verts;
             GraphicsPathHelper.Flatten(subPathVerts, out verts);
             BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
 

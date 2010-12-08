@@ -187,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public virtual void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       UpdateBounds(ref verts);
       float w = _vertsBounds.Width;
@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (adaptVertsToBrushTexture)
         for (int i = 0; i < verts.Length; i++)
         {
-          PositionColored2Textured vert = verts[i];
+          PositionColoredTextured vert = verts[i];
           float x = vert.X;
           float u = x - xoff;
           u /= w;
@@ -223,7 +223,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         }
     }
 
-    protected void UpdateBounds(ref PositionColored2Textured[] verts)
+    protected void UpdateBounds(ref PositionColoredTextured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       float maxy = 0;
       for (int i = 0; i < verts.Length; i++)
       {
-        PositionColored2Textured vert = verts[i];
+        PositionColoredTextured vert = verts[i];
         if (vert.X < minx) minx = vert.X;
         if (vert.Y < miny) miny = vert.Y;
 

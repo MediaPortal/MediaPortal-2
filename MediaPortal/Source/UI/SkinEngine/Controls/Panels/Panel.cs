@@ -254,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
-        PositionColored2Textured[] verts = new PositionColored2Textured[6];
+        PositionColoredTextured[] verts = new PositionColoredTextured[6];
         unchecked
         {
           verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);

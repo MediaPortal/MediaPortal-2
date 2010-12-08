@@ -133,7 +133,6 @@
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Controls\Visuals\VirtualKeyboardPresenter.cs" />
     <Compile Include="DirectX\D3DSettings.cs" />
-    <Compile Include="DirectX\PositionColored2Textured.cs" />
     <Compile Include="DirectX\PositionColoredTextured.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
@@ -374,7 +373,6 @@
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\font.fx" />
     <None Include="Skin\default\shaders\font_fade.fx" />
-
     <None Include="Skin\default\shaders\greyscale.fx" />
     <None Include="Skin\default\shaders\lineargradient.fx" />
     <None Include="Skin\default\shaders\normal.fx" />

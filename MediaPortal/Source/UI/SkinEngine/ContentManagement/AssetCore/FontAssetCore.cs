@@ -353,12 +353,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <param name="textSize">Output size of the created text.</param>
     /// <param name="lineIndex">Output indices of the first vertex for of each line of text.</param>
     /// <returns>An array of vertices representing a triangle list.</returns>
-    public PositionColored2Textured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
+    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
     {
       if (!IsAllocated)
         Allocate();
 
-      List<PositionColored2Textured> verts = new List<PositionColored2Textured>();
+      List<PositionColoredTextured> verts = new List<PositionColoredTextured>();
       float[] lineWidth = new float[text.Length];
       int liney = _charSet.RenderedSize - _charSet.Base;
       float sizeScale = size / _charSet.RenderedSize;
@@ -378,7 +378,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       /// Stores the line widths as the Z coordinate of the verices. This means alignment
       ///     can be performed by a vertex shader durng rendering
-      PositionColored2Textured[] vertArray = verts.ToArray();
+      PositionColoredTextured[] vertArray = verts.ToArray();
       for (int i = 0; i < lineIndex.Length; ++i)
       {
         float width = lineWidth[i];
@@ -392,7 +392,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return vertArray;
     }
 
-    protected float CreateTextLine(string line, float y, float sizeScale, bool kerning, ref List<PositionColored2Textured> verts)
+    protected float CreateTextLine(string line, float y, float sizeScale, bool kerning, ref List<PositionColoredTextured> verts)
     {
       int x = 0;
 
@@ -416,17 +416,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return x * sizeScale;
     }
 
-    protected void CreateQuad(BitmapCharacter c, float sizeScale, float x, float y, ref List<PositionColored2Textured> verts)
+    protected void CreateQuad(BitmapCharacter c, float sizeScale, float x, float y, ref List<PositionColoredTextured> verts)
     {
       x += c.XOffset;
       y += c.YOffset;
-      PositionColored2Textured tl = new PositionColored2Textured(
+      PositionColoredTextured tl = new PositionColoredTextured(
           x * sizeScale, y * sizeScale, 1.0f,
           (c.X + 0.5f) / (float) _charSet.Width,
           c.Y / (float) _charSet.Height,
           0
           );
-      PositionColored2Textured br = new PositionColored2Textured(
+      PositionColoredTextured br = new PositionColoredTextured(
           (x + c.Width) * sizeScale,
           (y + c.Height) * sizeScale,
           1.0f,
@@ -434,8 +434,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           (c.Y + c.Height - 0.5f) / (float) _charSet.Height,
           0
           );
-      PositionColored2Textured bl = new PositionColored2Textured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
-      PositionColored2Textured tr = new PositionColored2Textured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, 0);
+      PositionColoredTextured bl = new PositionColoredTextured(tl.X, br.Y, 1.0f, tl.Tu1, br.Tv1, 0);
+      PositionColoredTextured tr = new PositionColoredTextured(br.X, tl.Y, 1.0f, br.Tu1, tl.Tv1, 0);
 
       verts.Add(tl);
       verts.Add(bl);

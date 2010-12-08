@@ -1429,7 +1429,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void UpdateOpacityMask(RectangleF bounds, int width, int height, float zPos)
     {
-      PositionColored2Textured[] verts = new PositionColored2Textured[4];
+      PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
@@ -1491,7 +1491,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Helpers
 
-    protected void SetPrimitiveContext(ref PrimitiveBuffer _buffer, ref PositionColored2Textured[] verts, PrimitiveType type)
+    protected void SetPrimitiveContext(ref PrimitiveBuffer _buffer, ref PositionColoredTextured[] verts, PrimitiveType type)
     {
       if (_buffer == null)
         _buffer = new PrimitiveBuffer();

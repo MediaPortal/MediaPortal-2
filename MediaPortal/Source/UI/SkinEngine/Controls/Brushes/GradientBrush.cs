@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Protected fields
 
-    protected PositionColored2Textured[] _verts;
+    protected PositionColoredTextured[] _verts;
     protected AbstractProperty _colorInterpolationModeProperty;
     protected AbstractProperty _gradientStopsProperty;
     protected AbstractProperty _spreadMethodProperty;

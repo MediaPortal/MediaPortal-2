@@ -69,29 +69,48 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public float Tu1; //16..19
     public float Tv1; //20..23
 
-    public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture1 | VertexFormat.Diffuse;
+    public static readonly VertexFormat Format = VertexFormat.Position | VertexFormat.Texture2 | VertexFormat.Diffuse;
 
     public static readonly VertexElement[] Declarator = new VertexElement[]
       {
         new VertexElement(0, 0, DeclarationType.Float3, DeclarationMethod.Default, DeclarationUsage.Position, 0),
         new VertexElement(0, 12, DeclarationType.Color, DeclarationMethod.Default, DeclarationUsage.Color, 0),
-        new VertexElement(0, 16, DeclarationType.Float2, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate,0),
+        new VertexElement(0, 16, DeclarationType.Float2, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 0),
         VertexElement.VertexDeclarationEnd
       };
 
     public static readonly int StrideSize = 24;
 
-
-    public static VertexBuffer Create(int verticeCount)
+    public PositionColoredTextured(float x, float y, float z, float u1, float v1, int color)
     {
-      return new VertexBuffer(GraphicsDevice.Device, StrideSize * verticeCount, Usage.WriteOnly, Format, Pool.Default);
+      X = x;
+      Y = y;
+      Z = z;
+      Tu1 = u1;
+      Tv1 = v1;
+      Color = color;
     }
 
-    public static void Set(VertexBuffer buffer, ref PositionColoredTextured[] verts)
+    public PositionColoredTextured(Vector3 position, float u1, float v1, int color)
     {
-      using (DataStream stream = buffer.Lock(0, 0, LockFlags.None))
-        stream.WriteRange(verts);
-      buffer.Unlock();
+      X = position.X;
+      Y = position.Y;
+      Z = position.Z;
+      Tu1 = u1;
+      Tv1 = v1;
+      Color = color;
+    }
+
+    /// <summary>Gets and sets the position</summary>
+    public Vector3 Position
+    {
+      get { return new Vector3(X, Y, Z); }
+      set
+      {
+        X = value.X;
+        Y = value.Y;
+        Z = value.Z;
+      }
     }
   }
 }

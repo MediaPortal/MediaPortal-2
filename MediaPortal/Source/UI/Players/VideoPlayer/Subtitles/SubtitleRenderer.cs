@@ -775,7 +775,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       if (_wx0 != wx || _wy0 != wy || _wwidth0 != wwidth || _wheight0 != wheight)
       {
         ServiceRegistration.Get<ILogger>().Debug("Subtitle: Setting vertices");
-        PositionColored2Textured[] verts = new PositionColored2Textured[4];
+        PositionColoredTextured[] verts = new PositionColoredTextured[4];
         int color;
         unchecked
         {

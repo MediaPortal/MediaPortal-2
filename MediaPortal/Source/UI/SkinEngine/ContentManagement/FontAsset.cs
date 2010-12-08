@@ -147,7 +147,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="textSize">Output size of the created text.</param>
     /// <param name="lineIndex">Output indices of the first vertex for of each line of text.</param>
     /// <returns>An array of vertices representing a triangle list.</returns>
-    public PositionColored2Textured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
+    public PositionColoredTextured[] CreateText(string[] text, float size, bool kerning, out SizeF textSize, out int[] lineIndex)
     {
       return _assetCore.CreateText(text, size, kerning, out textSize, out lineIndex);
     }

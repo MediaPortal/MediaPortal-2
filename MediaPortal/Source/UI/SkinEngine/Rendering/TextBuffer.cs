@@ -288,7 +288,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Get text quads
       string[] lines = wrap ? WrapText(boxWidth) : _text.Split(Environment.NewLine.ToCharArray());
-      PositionColored2Textured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
+      PositionColoredTextured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
 
       // Re-use existing buffer if necessary
       _buffer.Set(ref verts, PrimitiveType.TriangleList);

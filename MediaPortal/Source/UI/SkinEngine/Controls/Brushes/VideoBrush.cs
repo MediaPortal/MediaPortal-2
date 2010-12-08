@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public members
 
-    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
       if (ServiceRegistration.Get<IPlayerManager>(false) == null)

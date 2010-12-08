@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="vertices">The vertex data to copy.</param>
     /// <param name="primitiveType">The primitive type to be used when rendering.</param>
-    public PrimitiveBuffer(ref PositionColored2Textured[] vertices, PrimitiveType primitiveType)
+    public PrimitiveBuffer(ref PositionColoredTextured[] vertices, PrimitiveType primitiveType)
     {
       Set(ref vertices, primitiveType);
     }
@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="firstVertex">The index of the first vertex to copy.</param>
     /// <param name="numVertices">The number of vertices to copy.</param>
     /// <param name="primitiveType">The primitive type to be used when rendering.</param>
-    public PrimitiveBuffer(ref PositionColored2Textured[] vertices, int firstVertex, int numVertices, PrimitiveType primitiveType)
+    public PrimitiveBuffer(ref PositionColoredTextured[] vertices, int firstVertex, int numVertices, PrimitiveType primitiveType)
     {
       Set(ref vertices, primitiveType);
     }
@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       if (_vertexBuffer != null)
         Dispose();
-      _vertexBuffer = new VertexBuffer(GraphicsDevice.Device, PositionColored2Textured.StrideSize * numVertices, Usage.WriteOnly, PositionColored2Textured.Format, Pool.Default);
+      _vertexBuffer = new VertexBuffer(GraphicsDevice.Device, PositionColoredTextured.StrideSize * numVertices, Usage.WriteOnly, PositionColoredTextured.Format, Pool.Default);
       ++_allocationCount;
     }
 
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     /// <param name="vertices">The vertex data to copy.</param>
     /// <param name="primitiveType">The primitive type to be used when rendering.</param>
-    public void Set(ref PositionColored2Textured[] vertices,  PrimitiveType primitiveType)
+    public void Set(ref PositionColoredTextured[] vertices,  PrimitiveType primitiveType)
     {
       int numVertices = vertices.Length;
       if (_vertexBuffer == null || numVertices > VertexCount)
@@ -188,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     public VertexFormat VertexFormat
     {
-      get { return PositionColored2Textured.Format; }
+      get { return PositionColoredTextured.Format; }
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     public int StrideSize
     {
-      get { return PositionColored2Textured.StrideSize; }
+      get { return PositionColoredTextured.StrideSize; }
     }
 
     /// <summary>

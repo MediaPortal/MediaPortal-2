@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.DoPerformLayout(context);
 
       // Setup brushes
-      PositionColored2Textured[] verts;
+      PositionColoredTextured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (GraphicsPath path = CreateRectanglePath(_innerRect))

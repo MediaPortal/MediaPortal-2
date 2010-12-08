@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           {
             using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
             {
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
               using (GraphicsPath subPath = new GraphicsPath())
               {
                 for (int i = 0; i < subPathVerts.Length; i++)
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                   TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
                 }
               }
-              PositionColored2Textured[] verts;
+              PositionColoredTextured[] verts;
               GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {
@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           {
             using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
             {
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              PositionColoredTextured[][] subPathVerts = new PositionColoredTextured[gpi.SubpathCount][];
               using (GraphicsPath subPath = new GraphicsPath())
               {
                 for (int i = 0; i < subPathVerts.Length; i++)
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                                                                    out subPathVerts[i], null);
                 }
               }
-              PositionColored2Textured[] verts;
+              PositionColoredTextured[] verts;
               GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {

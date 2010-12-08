@@ -272,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Setup(RectangleF ownerRect, float zOrder, bool skinNeutralAR)
     {
-      PositionColored2Textured[] verts = new PositionColored2Textured[4];
+      PositionColoredTextured[] verts = new PositionColoredTextured[4];
 
       // Upper left
       verts[0].X = ownerRect.Left;

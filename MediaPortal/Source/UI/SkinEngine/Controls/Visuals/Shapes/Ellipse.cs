@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         using (GraphicsPath path = GetEllipse(_innerRect))
         {
-          PositionColored2Textured[] verts;
+          PositionColoredTextured[] verts;
           float centerX;
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);

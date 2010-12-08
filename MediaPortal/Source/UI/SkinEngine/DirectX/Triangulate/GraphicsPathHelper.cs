@@ -30,7 +30,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   public class GraphicsPathHelper
   {
-    public static void Flatten(PositionColored2Textured[][] subPathVerts, out PositionColored2Textured[] verts)
+    public static void Flatten(PositionColoredTextured[][] subPathVerts, out PositionColoredTextured[] verts)
     {
       int numVertices = 0;
       for (int i = 0; i < subPathVerts.Length; i++)
@@ -41,11 +41,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         verts = null;
         return;
       }
-      verts = new PositionColored2Textured[numVertices];
+      verts = new PositionColoredTextured[numVertices];
       long offset = 0;
       for (int i = 0; i < subPathVerts.Length; i++)
       {
-        PositionColored2Textured[] spv = subPathVerts[i];
+        PositionColoredTextured[] spv = subPathVerts[i];
         if (spv == null)
           continue;
         long length = spv.Length;
