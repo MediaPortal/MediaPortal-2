@@ -40,7 +40,8 @@ namespace MediaPortal.UiComponents.Media.Models
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
     protected IPlayerUIContributor _playerUIContributor = null;
     protected bool _inactive = false;
-    protected string _lastScreenName = null;
+    protected string _screenName = null;
+    protected bool _backgroundDisabled = false;
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
     {
@@ -105,24 +106,22 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerUIContributor oldPlayerUIContributor;
       lock (_syncObj)
         oldPlayerUIContributor = _playerUIContributor;
-      bool backgroundDisabled = false;
-      string screenName = null;
       try
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
         { // Player UI contributor is already correct, but maybe must be initialized
           if (oldPlayerUIContributor.MediaWorkflowStateType != stateType)
             oldPlayerUIContributor.Initialize(stateType, player);
-          backgroundDisabled = oldPlayerUIContributor.BackgroundDisabled;
-          screenName = oldPlayerUIContributor.Screen;
+          _backgroundDisabled = oldPlayerUIContributor.BackgroundDisabled;
+          _screenName = oldPlayerUIContributor.Screen;
           return;
         }
         IPlayerUIContributor playerUIContributor = InstantiatePlayerUIContributor(playerUIContributorType);
         if (playerUIContributor != null)
         {
           playerUIContributor.Initialize(stateType, player);
-          backgroundDisabled = playerUIContributor.BackgroundDisabled;
-          screenName = playerUIContributor.Screen;
+          _backgroundDisabled = playerUIContributor.BackgroundDisabled;
+          _screenName = playerUIContributor.Screen;
         }
         lock (_syncObj)
           _playerUIContributor = playerUIContributor;
@@ -131,11 +130,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       finally
       {
-        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-        screenManager.BackgroundDisabled = backgroundDisabled;
-        if (screenName != _lastScreenName && screenName != null)
-          screenManager.ExchangeScreen(screenName);
-        _lastScreenName = screenName;
+        UpdateScreen();
       }
     }
 
@@ -163,6 +158,14 @@ namespace MediaPortal.UiComponents.Media.Models
         // The "fullscreen content" screen is always bound to the "primary player"
         return playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       return null;
+    }
+
+    protected void UpdateScreen()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      string currentScreen = screenManager.ActiveScreenName;
+      if (currentScreen != _screenName && _screenName != null)
+        screenManager.ShowScreen(_screenName);
     }
 
     public abstract Guid ModelId { get; }
@@ -214,6 +217,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
+      UpdateScreen();
       return ScreenUpdateMode.ManualWorkflowModel;
     }
   }
