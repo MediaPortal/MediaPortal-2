@@ -64,7 +64,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public const string SUPER_LAYERS_DIRECTORY = "superlayers";
     public const string FONTS_DIRECTORY = "fonts";
     public const string SHADERS_DIRECTORY = "shaders";
-    public const string MEDIA_DIRECTORY = "media";
+    public const string IMAGES_DIRECTORY = "images";
+    public const string SOUNDS_DIRECTORY = "sounds";
     public const string WORKFLOW_DIRECTORY = "workflow";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";

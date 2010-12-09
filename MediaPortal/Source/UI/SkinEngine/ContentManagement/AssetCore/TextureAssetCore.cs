@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       // Is the path a local skin file?
       string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
-        SkinResources.MEDIA_DIRECTORY + "\\" + _textureName);
+        SkinResources.IMAGES_DIRECTORY + "\\" + _textureName);
       
       if (sourceFilePath == null || !File.Exists(sourceFilePath))
       {

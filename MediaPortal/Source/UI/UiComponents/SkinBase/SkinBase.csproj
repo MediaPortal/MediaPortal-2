@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -99,34 +99,34 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\media\server-attach-icon.png" />
-    <Content Include="Skin\default\media\server-config-icon.png" />
-    <Content Include="Skin\default\media\server-disconnected-icon.png" />
-    <Content Include="Skin\default\media\server-icon.png" />
-    <Content Include="Skin\default\media\server-search-icon.png" />
+    <Content Include="Skin\default\images\server-attach-icon.png" />
+    <Content Include="Skin\default\images\server-config-icon.png" />
+    <Content Include="Skin\default\images\server-disconnected-icon.png" />
+    <Content Include="Skin\default\images\server-icon.png" />
+    <Content Include="Skin\default\images\server-search-icon.png" />
     <Content Include="Skin\default\skin.xml" />
     <Content Include="Skin\default\workflow\home-states.xml" />
     <Content Include="Skin\default\fonts\default-font.xml" />
-    <Content Include="Skin\default\media\defaultAudioBig.png" />
-    <Content Include="Skin\default\media\defaultDVDRomBig.png" />
-    <Content Include="Skin\default\media\DefaultFolderBackBig.png" />
-    <Content Include="Skin\default\media\DefaultFolderBig.png" />
-    <Content Include="Skin\default\media\defaultPictureBig.png" />
-    <Content Include="Skin\default\media\DefaultUser.png" />
-    <Content Include="Skin\default\media\music.png" />
-    <Content Include="Skin\default\media\radio.png" />
-    <Content Include="Skin\default\media\Videos.png" />
-    <Content Include="Skin\default\media\playlist.png" />
-    <Content Include="Skin\default\media\settings.png" />
-    <Content Include="Skin\default\media\login_users.png" />
-    <Content Include="Skin\default\media\rotate_left_enabled.png" />
-    <Content Include="Skin\default\media\rotate_right_enabled.png" />
-    <Content Include="Skin\default\media\zoom_in.png" />
-    <Content Include="Skin\default\media\zoom_out.png" />
-    <Content Include="Skin\default\media\error-icon.png" />
-    <Content Include="Skin\default\media\warning-icon.png" />
-    <Content Include="Skin\default\media\info-icon.png" />
-    <Content Include="Skin\default\media\user-interaction-required-icon.png" />
+    <Content Include="Skin\default\images\defaultAudioBig.png" />
+    <Content Include="Skin\default\images\defaultDVDRomBig.png" />
+    <Content Include="Skin\default\images\DefaultFolderBackBig.png" />
+    <Content Include="Skin\default\images\DefaultFolderBig.png" />
+    <Content Include="Skin\default\images\defaultPictureBig.png" />
+    <Content Include="Skin\default\images\DefaultUser.png" />
+    <Content Include="Skin\default\images\music.png" />
+    <Content Include="Skin\default\images\radio.png" />
+    <Content Include="Skin\default\images\Videos.png" />
+    <Content Include="Skin\default\images\playlist.png" />
+    <Content Include="Skin\default\images\settings.png" />
+    <Content Include="Skin\default\images\login_users.png" />
+    <Content Include="Skin\default\images\rotate_left_enabled.png" />
+    <Content Include="Skin\default\images\rotate_right_enabled.png" />
+    <Content Include="Skin\default\images\zoom_in.png" />
+    <Content Include="Skin\default\images\zoom_out.png" />
+    <Content Include="Skin\default\images\error-icon.png" />
+    <Content Include="Skin\default\images\warning-icon.png" />
+    <Content Include="Skin\default\images\info-icon.png" />
+    <Content Include="Skin\default\images\user-interaction-required-icon.png" />
     <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />

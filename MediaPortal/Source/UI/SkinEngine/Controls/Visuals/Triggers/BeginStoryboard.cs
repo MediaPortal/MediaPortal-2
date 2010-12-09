@@ -48,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public BeginStoryboard()
     {
       Init();
+      Attach();
     }
 
     void Init()
@@ -57,26 +58,55 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), HandoffBehavior.SnapshotAndReplace);
     }
 
+    void Attach()
+    {
+      _nameProperty.Attach(OnNameChanged);
+    }
+
+    void Detach()
+    {
+      _nameProperty.Detach(OnNameChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
       _tempName = s.Name;
       HandoffBehavior = s.HandoffBehavior;
+      Attach();
 
       copyManager.CopyCompleted += OnCopyCompleted;
     }
 
     #endregion
 
-    #region Public properties
-
     void OnCopyCompleted(ICopyManager copymanager)
     {
       Name = _tempName;
       _tempName = null;
     }
+
+    void OnNameChanged(AbstractProperty prop, object oldVal)
+    {
+      string oldName = (string) oldVal;
+      INameScope ns = FindNameScope();
+      if (ns != null && !string.IsNullOrEmpty(oldName))
+        ns.UnregisterName(oldName);
+      if (ns != null)
+        try
+        {
+          ns.RegisterName(Name, this);
+        }
+        catch (ArgumentException)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
+        }
+    }
+
+    #region Public properties
 
     public AbstractProperty StoryboardProperty
     {
@@ -98,22 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public string Name
     {
       get { return _nameProperty.GetValue() as string; }
-      set
-      {
-        INameScope ns = FindNameScope();
-        if (ns != null)
-          ns.UnregisterName(Name);
-        _nameProperty.SetValue(value);
-        if (ns != null)
-          try
-          {
-            ns.RegisterName(Name, this);
-          }
-          catch (ArgumentException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
-          }
-      }
+      set { _nameProperty.SetValue(value); }
     }
 
     public AbstractProperty HandoffBehaviorProperty
