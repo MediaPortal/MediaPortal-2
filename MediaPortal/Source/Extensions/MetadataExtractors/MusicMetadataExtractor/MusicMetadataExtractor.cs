@@ -183,6 +183,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       return end > -1 ? fileName.Substring(start + 1, end - start - 1) : null;
     }
 
+    protected static void PatchID3v2Enumeration(IList<string> valuesList, string part1, string part2)
+    {
+      int index1 = valuesList.IndexOf(part1);
+      int index2 = valuesList.IndexOf(part2);
+      if (index1 != -1 && index2 == index1 + 1)
+      {
+        valuesList.RemoveAt(index2);
+        valuesList.RemoveAt(index1);
+        valuesList.Insert(index1, part1 + "/" + part2);
+      }
+    }
+
+    protected static IEnumerable<string> PatchID3v2Enumeration(IEnumerable<string> valuesEnumer)
+    {
+      // We have to cope with a very stupid problem; The ID3Tag specification v2 (http://www.id3.org/d3v2.3.0, search for TPE1)
+      // uses the "/" character to separate artists/performers/lyricists etc., but what to do if an artist name contains
+      // that character? We'll do a hack for the most common artists of that kind
+      if (valuesEnumer == null)
+        return null;
+      IList<string> values = new List<string>(valuesEnumer);
+      if (values.Count == 0)
+        return null;
+      PatchID3v2Enumeration(values, "AC", "DC");
+      return values;
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -238,9 +264,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, artists);
+        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, PatchID3v2Enumeration(artists));
         musicAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, tag.Tag.AlbumArtists);
+        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, PatchID3v2Enumeration(tag.Tag.AlbumArtists));
         musicAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
         mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
         musicAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, tag.Tag.Composers);
