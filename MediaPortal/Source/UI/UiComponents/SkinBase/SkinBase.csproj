@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -105,6 +105,8 @@
     <Content Include="Skin\default\images\server-icon.png" />
     <Content Include="Skin\default\images\server-search-icon.png" />
     <Content Include="Skin\default\skin.xml" />
+    <Content Include="Skin\default\sounds\button6.wav" />
+    <Content Include="Skin\default\sounds\button7.wav" />
     <Content Include="Skin\default\workflow\home-states.xml" />
     <Content Include="Skin\default\fonts\default-font.xml" />
     <Content Include="Skin\default\images\defaultAudioBig.png" />
