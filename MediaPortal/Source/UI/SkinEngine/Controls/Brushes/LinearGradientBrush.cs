@@ -146,7 +146,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      if (_gradientBrushTexture == null)
+      if (_gradientBrushTexture == null || _refresh)
       {
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         if (_gradientBrushTexture == null)
@@ -191,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (tex == null)
         return;
-      if (_gradientBrushTexture == null)
+      if (_gradientBrushTexture == null || _refresh)
       {
         _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         if (_gradientBrushTexture == null)
