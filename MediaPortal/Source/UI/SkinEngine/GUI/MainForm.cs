@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _previousWindowState = FormWindowState.Normal;
 
       if (appSettings.FullScreen)
-        SwitchToFullscreen();
+        SwitchToFullscreen(appSettings.FSScreenNum);
       else
         SwitchToWindowedSize(Location, desiredWindowedSize, false);
 
@@ -107,11 +107,20 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _adaptToSizeEnabled = true;
     }
 
-    protected void SwitchToFullscreen()
+    protected int GetScreenNum()
     {
-      Location = new Point(0, 0);
-      // TODO Albert78: Use the bounds of the screen MP is displayed on
-      ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
+      return Array.IndexOf(System.Windows.Forms.Screen.AllScreens, System.Windows.Forms.Screen.FromControl(this));
+    }
+
+    protected void SwitchToFullscreen(int screenNum)
+    {
+      System.Windows.Forms.Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+      System.Windows.Forms.Screen screen = screenNum < 0 || screenNum >= screens.Length ?
+          System.Windows.Forms.Screen.PrimaryScreen :
+          System.Windows.Forms.Screen.AllScreens[screenNum];
+      Rectangle rect = screen.Bounds;
+      Location = rect.Location;
+      ClientSize = rect.Size;
       FormBorderStyle = FormBorderStyle.None;
       _mode = ScreenMode.FullScreen;
     }
@@ -294,6 +303,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (mode == _mode)
         return;
 
+      int screenNum = GetScreenNum();
+      settings.FSScreenNum = screenNum;
       settings.FullScreen = newFullscreen;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
@@ -306,7 +317,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         if (newFullscreen)
         {
           StoreClientBounds();
-          SwitchToFullscreen();
+          SwitchToFullscreen(screenNum);
         }
         else
           SwitchToWindowedSize(_previousWindowLocation, _previousWindowClientSize, _previousWindowState == FormWindowState.Maximized);

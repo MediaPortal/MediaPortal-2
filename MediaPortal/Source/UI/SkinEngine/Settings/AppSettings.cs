@@ -28,6 +28,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
 {
   public class AppSettings
   {
+    protected int _fsScreenNum;
     protected bool _fullScreen;
     protected bool _cellPhoneInputStyle;
 
@@ -36,6 +37,17 @@ namespace MediaPortal.UI.SkinEngine.Settings
     {
       get { return _fullScreen; }
       set { _fullScreen = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the number of the screen where the application is displayed in fullscreen.
+    /// The value is an index in the array <see cref="System.Windows.Forms.Screen.AllScreens"/>.
+    /// </summary>
+    [Setting(SettingScope.User, -1)]
+    public int FSScreenNum
+    {
+      get { return _fsScreenNum; }
+      set { _fsScreenNum = value; }
     }
 
     [Setting(SettingScope.User, false)]
