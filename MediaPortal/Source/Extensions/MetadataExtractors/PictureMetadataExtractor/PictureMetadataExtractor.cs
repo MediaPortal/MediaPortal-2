@@ -70,6 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Image.ToString());
 
+      // TODO: Move extensions to settings like in MusicMetadataExtractor
       PICTURE_EXTENSIONS.Add(".jpg");
       PICTURE_EXTENSIONS.Add(".jpeg");
       PICTURE_EXTENSIONS.Add(".png");

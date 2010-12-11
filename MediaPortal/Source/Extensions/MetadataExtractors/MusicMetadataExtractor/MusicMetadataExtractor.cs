@@ -25,10 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
+using MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using TagLib;
 using File = TagLib.File;
@@ -59,6 +62,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 
     protected static IList<string> SHARE_CATEGORIES = new List<string>();
     protected static IList<string> AUDIO_EXTENSIONS = new List<string>();
+    protected static IList<string> UNSPLITTABLE_VALUES = new List<string>();
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
@@ -108,19 +112,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Audio.ToString());
 
-      AUDIO_EXTENSIONS.Add(".ape");
-      AUDIO_EXTENSIONS.Add(".flac");
-      AUDIO_EXTENSIONS.Add(".mp3");
-      AUDIO_EXTENSIONS.Add(".ogg");
-      AUDIO_EXTENSIONS.Add(".wv");
-      AUDIO_EXTENSIONS.Add(".wav");
-      AUDIO_EXTENSIONS.Add(".wma");
-      AUDIO_EXTENSIONS.Add(".mp4");
-      AUDIO_EXTENSIONS.Add(".m4a");
-      AUDIO_EXTENSIONS.Add(".m4p");
-      AUDIO_EXTENSIONS.Add(".mpc");
-      AUDIO_EXTENSIONS.Add(".mp+");
-      AUDIO_EXTENSIONS.Add(".mpp");
+      MusicMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MusicMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+      InitializeUnsplittableValues(settings);
+    }
+
+    /// <summary>
+    /// (Re)initializes the audio extensions for which this <see cref="MusicMetadataExtractor"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(MusicMetadataExtractorSettings settings)
+    {
+      AUDIO_EXTENSIONS = new List<string>(settings.AudioExtensions.Select(e => e.ToLowerInvariant()));
+    }
+
+    /// <summary>
+    /// (Re)initializes the unsplittable artists collection for which this <see cref="MusicMetadataExtractor"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeUnsplittableValues(MusicMetadataExtractorSettings settings)
+    {
+      UNSPLITTABLE_VALUES = new List<string>(settings.UnsplittableValues.Select(v => v.ToLowerInvariant()));
     }
 
     public MusicMetadataExtractor()
@@ -183,15 +195,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       return end > -1 ? fileName.Substring(start + 1, end - start - 1) : null;
     }
 
-    protected static void PatchID3v2Enumeration(IList<string> valuesList, string part1, string part2)
+    /// <summary>
+    /// Patches an enumeration of artists or other values that have been potentially been separated by the tag reader
+    /// although the artist name contains one or more "/" in its name and thus should not be treated as different artists.
+    /// </summary>
+    /// <param name="valuesList">List of artists or other values, which have potentially been separated.</param>
+    /// <param name="parts">Parts which belong together, for example <c>{"AC", "DC"}</c>.</param>
+    protected static void PatchID3v2Enumeration(IList<string> valuesList,IList<string> parts)
     {
-      int index1 = valuesList.IndexOf(part1);
-      int index2 = valuesList.IndexOf(part2);
-      if (index1 != -1 && index2 == index1 + 1)
+      int index = CollectionUtils.IndexOf<string, string>(valuesList, parts, StringComparer.InvariantCultureIgnoreCase);
+      if (index != -1)
       {
-        valuesList.RemoveAt(index2);
-        valuesList.RemoveAt(index1);
-        valuesList.Insert(index1, part1 + "/" + part2);
+        string[] origParts = new string[parts.Count];
+        for (int i = 0; i < parts.Count; i++)
+        {
+          origParts[i] = valuesList[index];
+          valuesList.RemoveAt(index);
+        }
+        valuesList.Insert(index, StringUtils.Join("/", origParts));
       }
     }
 
@@ -205,7 +226,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       IList<string> values = new List<string>(valuesEnumer);
       if (values.Count == 0)
         return null;
-      PatchID3v2Enumeration(values, "AC", "DC");
+      foreach (string artist in UNSPLITTABLE_VALUES)
+      {
+        string[] artistNameParts = artist.Split('/');
+        PatchID3v2Enumeration(values, new List<string>(artistNameParts)); 
+      }
       return values;
     }
 

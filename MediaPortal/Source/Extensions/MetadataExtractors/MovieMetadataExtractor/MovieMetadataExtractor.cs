@@ -71,6 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
 
       // TODO: Validate those formats - can they correctly be processed by our MediaInfo library?
+      // TODO: Move extensions to settings like in MusicMetadataExtractor
       MOVIE_EXTENSIONS.Add(".mkv"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ogm"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".avi"); // Not confirmed yet

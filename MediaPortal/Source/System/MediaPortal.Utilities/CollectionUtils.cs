@@ -321,6 +321,54 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
+    /// Returns the index of <paramref name="subList"/> in the given <paramref name="list"/>.
+    /// </summary>
+    /// <param name="list">List to search through.</param>
+    /// <param name="subList">Sublist to find.</param>
+    /// <returns>Index of the sub sequence, if it is present or <c>-1</c> if not.</returns>
+    public static int IndexOf<T>(IList<T> list, IList<T> subList) where T : IEqualityComparer<T>
+    {
+      for (int i = 0; i < list.Count - subList.Count + 1; i++)
+      {
+        bool allEqual = true;
+        for (int j = 0; j < subList.Count; j++)
+          if (!list[i + j].Equals(subList[j]))
+          {
+            allEqual = false;
+            break;
+          }
+        if (allEqual)
+          return i;
+      }
+      return -1;
+    }
+
+    /// <summary>
+    /// Returns the index of <paramref name="subList"/> in the given <paramref name="list"/>.
+    /// </summary>
+    /// <param name="list">List to search through.</param>
+    /// <param name="subList">Sublist to find.</param>
+    /// <param name="comparer">Comparer to compare elements.</param>
+    /// <returns>Index of the sub sequence, if it is present or <c>-1</c> if not.</returns>
+    public static int IndexOf<S, T>(IList<S> list, IList<T> subList, IEqualityComparer<S> comparer)
+        where T : class, S
+    {
+      for (int i = 0; i < list.Count - subList.Count + 1; i++)
+      {
+        bool allEqual = true;
+        for (int j = 0; j < subList.Count; j++)
+          if (!comparer.Equals(list[i + j], subList[j]))
+          {
+            allEqual = false;
+            break;
+          }
+        if (allEqual)
+          return i;
+      }
+      return -1;
+    }
+
+    /// <summary>
     /// Exchanges the items at index <paramref name="index1"/> and <paramref name="index2"/> in the specified
     /// <paramref name="list"/>.
     /// </summary>
