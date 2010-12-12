@@ -1,6 +1,6 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="FirebirdDatabase"
+    Name="SQLCEDatabase"
     PluginId="{2A8624CA-6E65-414f-A0DB-22FB62A36DC7}"
     Author="offbyone"
     Copyright="GPL"
