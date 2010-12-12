@@ -245,7 +245,13 @@ namespace Ui.Players.BassPlayer
 
     public TimeSpan GetDuration()
     {
-      BassStream outputStream = _playbackProcessor.OutputStream;
+      PlaybackSession session = _playbackProcessor.PlaybackSession;
+      if (session == null)
+        return TimeSpan.Zero;
+      IInputSource source = session.CurrentInputSource;
+      if (source == null)
+        return TimeSpan.Zero;
+      BassStream outputStream = source.OutputStream;
       if (outputStream == null)
         return TimeSpan.Zero;
       return outputStream.Length;
