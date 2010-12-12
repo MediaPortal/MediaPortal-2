@@ -106,7 +106,7 @@ namespace MediaPortal.Media.MetadataExtractors
 
             mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
-            using (IResourceAccessor resourceAccessor = fsra.LocalResourcePath.CreateLocalMediaItemAccessor())
+            using (IResourceAccessor resourceAccessor = fsra.LocalResourcePath.CreateLocalResourceAccessor())
             {
               string bdmvDirectory = resourceAccessor.ResourcePathName;
               BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
