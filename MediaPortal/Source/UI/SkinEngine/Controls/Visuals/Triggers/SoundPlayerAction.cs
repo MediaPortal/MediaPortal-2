@@ -23,7 +23,9 @@
 #endregion
 
 using System.Media;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -34,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Private fields
 
     protected AbstractProperty _sourceProperty;
+    protected bool _disableOnAudioOutput = true;
 
     #endregion
 
@@ -54,6 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       base.DeepCopy(source, copyManager);
       SoundPlayerAction s = (SoundPlayerAction) source;
       Source = copyManager.GetCopy(s.Source);
+      DisableOnAudioOutput = s.DisableOnAudioOutput;
     }
 
     #endregion
@@ -71,10 +75,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _sourceProperty.SetValue(value); }
     }
 
+    public bool DisableOnAudioOutput
+    {
+      get { return _disableOnAudioOutput; }
+      set { _disableOnAudioOutput = value; }
+    }
+
     #endregion
 
     public override void Execute(UIElement element)
     {
+      if (_disableOnAudioOutput)
+      {
+        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+        IPlayer player1 = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
+        IPlayer player2 = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
+        if (player1 is IAudioPlayer || player1 is IVideoPlayer || player2 is IAudioPlayer || player2 is IVideoPlayer)
+          return;
+      }
       string source = Source;
       if (!string.IsNullOrEmpty(source))
       {

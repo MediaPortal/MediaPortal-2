@@ -222,7 +222,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -232,7 +232,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -275,7 +275,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -285,7 +285,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -348,7 +348,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -358,7 +358,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -410,7 +410,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -420,7 +420,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -473,7 +473,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -483,7 +483,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -609,14 +609,14 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -655,7 +655,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -665,7 +665,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -704,7 +704,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -714,7 +714,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -753,7 +753,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -763,7 +763,7 @@
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
