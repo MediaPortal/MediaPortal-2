@@ -25,12 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaInfoLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -69,18 +72,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     static MovieMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Video.ToString());
+      MovieMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+    }
 
-      // TODO: Validate those formats - can they correctly be processed by our MediaInfo library?
-      // TODO: Move extensions to settings like in MusicMetadataExtractor
-      MOVIE_EXTENSIONS.Add(".mkv"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".ogm"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".avi"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".wmv"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".mpg"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".flv"); // Not confirmed yet
-      // Don't add .ifo here because they are processed while processing the video DVD directory
+    /// <summary>
+    /// (Re)initializes the movie extensions for which this <see cref="MovieMetadataExtractorSettings"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(MovieMetadataExtractorSettings settings)
+    {
+      MOVIE_EXTENSIONS = new List<string>(settings.MovieExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public MovieMetadataExtractor()

@@ -54,6 +54,7 @@
     <Compile Include="ExifMetaInfo\PropertyTag.cs" />
     <Compile Include="PictureMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\PictureMetadataExtractorSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

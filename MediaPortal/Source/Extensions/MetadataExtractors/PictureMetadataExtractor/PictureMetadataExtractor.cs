@@ -26,11 +26,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Settings;
+using MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -69,16 +72,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
     static PictureMetadataExtractor()
     {
       SHARE_CATEGORIES.Add(DefaultMediaCategory.Image.ToString());
+      PictureMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PictureMetadataExtractorSettings>();
+      InitializeExtensions(settings);
+    }
 
-      // TODO: Move extensions to settings like in MusicMetadataExtractor
-      PICTURE_EXTENSIONS.Add(".jpg");
-      PICTURE_EXTENSIONS.Add(".jpeg");
-      PICTURE_EXTENSIONS.Add(".png");
-      PICTURE_EXTENSIONS.Add(".bmp");
-      PICTURE_EXTENSIONS.Add(".gif");
-      PICTURE_EXTENSIONS.Add(".tga");
-      PICTURE_EXTENSIONS.Add(".tiff");
-      PICTURE_EXTENSIONS.Add(".tif");
+    /// <summary>
+    /// (Re)initializes the movie extensions for which this <see cref="PictureMetadataExtractorSettings"/> used.
+    /// </summary>
+    /// <param name="settings">Settings object to read the data from.</param>
+    internal static void InitializeExtensions(PictureMetadataExtractorSettings settings)
+    {
+      PICTURE_EXTENSIONS = new List<string>(settings.PictureExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public PictureMetadataExtractor()
