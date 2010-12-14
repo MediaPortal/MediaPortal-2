@@ -36,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   /// <summary>
   /// Timeline context class for <see cref="PropertyAnimationTimeline"/>s.
   /// </summary>
-  internal class PropertyAnimationTimelineContext : TimelineContext
+  public class PropertyAnimationTimelineContext : TimelineContext
   {
     protected IDataDescriptor _dataDescriptor;
     protected object _startValue = null;

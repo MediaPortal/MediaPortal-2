@@ -12,9 +12,6 @@ float4    g_framedata;
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
   AddressU = BORDER;
   AddressV = BORDER;
 };

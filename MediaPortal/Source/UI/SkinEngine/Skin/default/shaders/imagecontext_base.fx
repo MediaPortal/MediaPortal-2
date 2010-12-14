@@ -17,9 +17,6 @@ float4    g_framedata; // xy = width, height in pixels. z = time since rendering
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
   AddressU = BORDER;
   AddressV = BORDER;
 };

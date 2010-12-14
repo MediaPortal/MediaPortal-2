@@ -17,17 +17,11 @@ texture  g_alphatex; // Alpha gradient texture
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
 };
 
 sampler AlphaSampler = sampler_state
 {
   Texture = <g_alphatex>;
-  MipFilter = NONE;
-  MinFilter = NONE;
-  MagFilter = NONE;
 };
 
 // application to vertex structure

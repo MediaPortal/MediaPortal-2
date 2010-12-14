@@ -4,9 +4,6 @@ texture g_texture; // Color texture
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
   AddressU = BORDER;
   AddressV = BORDER;
   BorderColor = {1.0, 1.0, 1.0, 0.0};

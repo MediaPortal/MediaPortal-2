@@ -267,19 +267,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _device.SetRenderState(RenderState.AlphaBlendEnable, true);
       _device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
       _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
-      _device.SetTextureStageState(0, TextureStage.ColorOperation, TextureOperation.Modulate);
-      _device.SetTextureStageState(0, TextureStage.ColorArg0, TextureArgument.Texture);
-      _device.SetTextureStageState(0, TextureStage.ColorArg1, TextureArgument.Diffuse);
-      _device.SetTextureStageState(0, TextureStage.AlphaOperation, TextureOperation.Modulate);
-      _device.SetTextureStageState(0, TextureStage.AlphaArg0, TextureArgument.Texture);
-      _device.SetTextureStageState(0, TextureStage.AlphaArg1, TextureArgument.Diffuse);
-
-      //_device.SetTextureStageState(1, TextureStage.ColorOperation, TextureOperation.Modulate);
-      //_device.SetTextureStageState(1, TextureStage.ColorArg0, TextureArgument.Texture);
-      //_device.SetTextureStageState(1, TextureStage.ColorArg1, TextureArgument.Current);
-      //_device.SetTextureStageState(1, TextureStage.AlphaOperation, TextureOperation.Modulate);
-      //_device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
-      //_device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
 
       if (_supportsAlphaBlend)
       {
@@ -287,35 +274,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _device.SetRenderState(RenderState.AlphaRef, 0x01);
         _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
-      if (_supportsFiltering)
-      {
-        /* DX9 supports the following filter combinations
-         * Filter       Minification Magnifcation Mipmap
-         * None                  No            No    Yes
-         * Point                Yes           Yes    Yes
-         * Linear               Yes           Yes    Yes
-         * Anisotropic          Yes           Yes     No
-         * Flat Cubic            No           Yes     No
-         * Gaussian Cubic        No           Yes     No
-         */
-        try
-        {
-          _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Anisotropic);
-          _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Anisotropic);
-          _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
-          _device.SetSamplerState(0, SamplerState.MaxAnisotropy, _anisotropy);
-        }
-        catch (Exception)
-        {
-          _supportsFiltering = false;
-        }
-      }
-      else
-      {
-        _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Point);
-        _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Point);
-        _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
-      }
+      _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Linear);
+      _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Linear);
+      _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
 
       // Projection onto screen space
       SetCameraProjection(Width, Height);

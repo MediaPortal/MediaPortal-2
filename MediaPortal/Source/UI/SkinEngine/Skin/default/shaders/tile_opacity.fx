@@ -21,9 +21,6 @@ texture    g_alphatex; // Alpha texture
 sampler AlphaSampler : register (s1) = sampler_state
 {
   Texture = <g_alphatex>;
-  MipFilter = NONE;
-  MinFilter = POINT;
-  MagFilter = POINT;
   AddressU = g_tileu;
   AddressV = g_tilev;
   BorderColor = {1.0, 1.0, 1.0, 0.0};
@@ -32,9 +29,6 @@ sampler AlphaSampler : register (s1) = sampler_state
 sampler TextureSampler : register (s0) = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = NONE;
-  MinFilter = NONE;
-  MagFilter = NONE;
 };
 
 // application to vertex structure

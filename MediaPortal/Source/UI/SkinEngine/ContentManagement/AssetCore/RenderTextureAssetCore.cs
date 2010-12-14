@@ -132,6 +132,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _surface0.Dispose();
           _texture.Dispose();
           _texture = null;
+          _surface0 = null;
         }
         _size = Size.Empty;
       }

@@ -234,6 +234,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       // Round down font size
       int baseSize = (int) Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
+      // If this function is called before the window is openned we get 0
+      if (baseSize == 0)
+        baseSize = (int) fontSize;
       // Generate the asset key we'll use to store this font
       string key = family.Name + "::" + baseSize;
 
@@ -426,7 +429,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       AssetInstance inst = new AssetInstance { core = newcore };
       // Albert, 2010-11-16: The following line produces too many messages in log
-      //ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
+      // ServiceRegistration.Get<ILogger>().Debug("ContentManager: Creating new {0} for '{1}'", type.ToString(), key);
       newcore.AllocationChanged += OnAssetAllocationChanged;
       _assets[(int) type].Add(key, inst);
       return inst;
@@ -455,8 +458,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       int count = 0;
       Dictionary<string, AssetInstance>.Enumerator enumer = assets.GetEnumerator();
       while (enumer.MoveNext())
-        if (enumer.Current.Value.core.IsAllocated && 
-          (!checkIfCanBeDeleted || enumer.Current.Value.core.CanBeDeleted))
+        if (enumer.Current.Value.core.IsAllocated && (!checkIfCanBeDeleted || enumer.Current.Value.core.CanBeDeleted))
         {
           enumer.Current.Value.core.Free();
           ++count;

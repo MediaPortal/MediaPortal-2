@@ -20,9 +20,6 @@ int		  g_tilev;
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
   AddressU = g_tileu;
   AddressV = g_tilev;
   BorderColor = {1.0, 1.0, 1.0, 0.0};

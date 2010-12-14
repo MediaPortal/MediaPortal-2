@@ -14,9 +14,6 @@ float2    g_endpoint = {1.0f, 1.0f};
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = NONE;
-  MinFilter = NONE;
-  MagFilter = NONE;
 };
 
 // application to vertex structure

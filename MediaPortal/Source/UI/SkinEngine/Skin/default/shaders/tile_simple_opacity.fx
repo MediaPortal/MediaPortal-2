@@ -16,9 +16,6 @@ float4    g_brushtransform;
 sampler AlphaSampler : register (s1) = sampler_state
 {
   Texture = <g_alphatex>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
   AddressU = BORDER;
   AddressV = BORDER;
   BorderColor = {1.0, 1.0, 1.0, 0.0};
@@ -27,9 +24,6 @@ sampler AlphaSampler : register (s1) = sampler_state
 sampler TextureSampler : register (s0) = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
 };
 
 // application to vertex structure

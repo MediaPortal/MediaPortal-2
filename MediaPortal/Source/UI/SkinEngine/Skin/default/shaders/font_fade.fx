@@ -15,9 +15,6 @@ float4 g_alignment;
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
 };
 
 // application to vertex structure

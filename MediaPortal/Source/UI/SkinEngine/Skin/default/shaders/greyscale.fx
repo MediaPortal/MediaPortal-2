@@ -9,9 +9,6 @@ texture  g_texture; // Color texture
 sampler TextureSampler = sampler_state
 {
   Texture = <g_texture>;
-  MipFilter = LINEAR;
-  MinFilter = LINEAR;
-  MagFilter = LINEAR;
 };
                           
 // application to vertex structure
