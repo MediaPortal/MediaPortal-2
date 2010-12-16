@@ -153,6 +153,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected RectangleF? _lastFocusRect = null;
 
     protected FrameworkElement _visual;
+    protected PointF? _mouseMovePending = null;
     protected Animator _animator;
     protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
@@ -354,6 +355,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
             ic.Element.UpdateLayout();
           }
+        if (_mouseMovePending.HasValue)
+        {
+          float x = _mouseMovePending.Value.X;
+          float y = _mouseMovePending.Value.Y;
+          _mouseMovePending = null;
+          HandleMouseMove(x, y);
+        }
         _visual.Render(_renderContext);
       }
     }
@@ -421,12 +429,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void PretendMouseMove()
     {
+      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+      if (inputManager.IsMouseUsed)
+        HandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+    }
+
+    protected void HandleMouseMove(float x, float y)
+    {
       lock (_visual)
-      {
-        IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-        if (inputManager.IsMouseUsed)
-          _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
-      }
+        if (_visual.CanHandleMouseMove())
+          _visual.OnMouseMove(x, y);
+        else
+          _mouseMovePending = new PointF(x, y);
     }
 
     private void OnWindowSizeChanged(AbstractProperty property, object oldVal)
@@ -468,7 +482,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _visual.OnMouseMove(x, y);
+      HandleMouseMove(x, y);
     }
 
     private void OnMouseClick(MouseButtons buttons)
