@@ -36,7 +36,6 @@ using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Utils;
 using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
@@ -567,17 +566,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
     /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
     /// should be called again after the element arranged its layout.</returns>
-    public bool FrameworkElementGotFocus(FrameworkElement focusedElement)
+    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
     {
       if (_focusedElement == focusedElement)
-        return true;
+        return;
       RemoveCurrentFocus();
-      if (!GeometricHelper.HasExtends(focusedElement.ActualBounds))
-        return false;
       _focusedElement = focusedElement;
       _lastFocusRect = focusedElement.ActualBounds;
       _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
-      return true;
+      return;
+    }
+
+    /// <summary>
+    /// Informs the screen about a change in the location of the focused element.
+    /// </summary>
+    /// <param name="focusRect">Actual bounds of the element which currently has focus.</param>
+    internal void UpdateFocusRect(RectangleF focusRect)
+    {
+      _lastFocusRect = focusRect;
     }
 
     /// <summary>

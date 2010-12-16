@@ -211,12 +211,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void UpdateFocus()
     {
-      if (!_setFocus)
-        return;
-      _setFocus = false;
       Screen screen = Screen;
       if (screen == null)
         return;
+      screen.UpdateFocusRect(ActualBounds);
+      if (!_setFocus)
+        return;
+      _setFocus = false;
       FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
       if (fe != null)
         fe.TrySetFocus(true);
@@ -534,8 +535,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (screen == null)
           return false;
         MakeVisible(this, ActualBounds);
-        if (!screen.FrameworkElementGotFocus(this))
-          return false;
+        screen.FrameworkElementGotFocus(this);
         HasFocus = true;
         return true;
       }
