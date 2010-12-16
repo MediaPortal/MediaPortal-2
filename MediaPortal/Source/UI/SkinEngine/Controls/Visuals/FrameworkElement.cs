@@ -1187,10 +1187,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return null;
       if (!currentFocusRect.HasValue)
         return focusableChildren.First();
+      return FindNextFocusElement(focusableChildren, currentFocusRect, dir);
+    }
+
+    /// <summary>
+    /// Searches a collection of elements to find the best matching next focus element.
+    /// </summary>
+    /// <param name="potentialNextFocusElements">Collection of elements to search.</param>
+    /// <param name="currentFocusRect">Bounds of the element which currently has focus.</param>
+    /// <param name="dir">Direction to move the focus.</param>
+    /// <returns>Next focusable element in the given <paramref name="dir"/> or <c>null</c>, if the given
+    /// <paramref name="potentialNextFocusElements"/> don't contain a focusable element in the given direction.</returns>
+    protected static FrameworkElement FindNextFocusElement(ICollection<FrameworkElement> potentialNextFocusElements,
+        RectangleF? currentFocusRect, MoveFocusDirection dir)
+    {
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
-      foreach (FrameworkElement child in focusableChildren)
+      foreach (FrameworkElement child in potentialNextFocusElements)
       {
         if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value)) ||
             (dir == MoveFocusDirection.Down && child.LocatedBelow(currentFocusRect.Value)) ||
