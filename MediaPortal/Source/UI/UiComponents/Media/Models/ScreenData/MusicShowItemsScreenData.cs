@@ -26,7 +26,7 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MusicShowItemsScreenData : AbstractShowMLItemsScreenData
+  public class MusicShowItemsScreenData : AbstractItemsScreenData
   {
     public MusicShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_MUSIC_SHOW_ITEMS, Consts.RES_SHOW_ALL_MUSIC_ITEMS_MENU_ITEM,

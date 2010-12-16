@@ -28,8 +28,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
 
 namespace MediaPortal.UI.Views
@@ -105,6 +107,23 @@ namespace MediaPortal.UI.Views
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
         return scm.IsHomeServerConnected;
       }
+    }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<MediaItem>();
+      MediaItemQuery query = new MediaItemQuery(
+          _necessaryMIATypeIds,
+          _optionalMIATypeIds,
+          new BooleanCombinationFilter(BooleanOperator.And,
+              new IFilter[]
+              {
+                new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, _systemId),
+                new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, SqlUtils.LikeEscape(_basePath.Serialize(), '\\') + "%", '\\', true)
+              }));
+      return cd.Search(query, false);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

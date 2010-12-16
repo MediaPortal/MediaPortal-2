@@ -92,6 +92,14 @@ namespace MediaPortal.UI.Views
       }
     }
 
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      IList<MediaItem> mis;
+      IList<ViewSpecification> vss;
+      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
+      return mis;
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = null;

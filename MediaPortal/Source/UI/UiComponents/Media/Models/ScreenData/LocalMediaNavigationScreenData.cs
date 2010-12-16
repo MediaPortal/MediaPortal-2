@@ -22,9 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.UI.Views;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -35,23 +32,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_LOCAL_MEDIA_NAVIGATION, null, Consts.RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
         playableItemCreator, true) { }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      return GetItemsRecursive(_navigationData.BaseViewSpecification.BuildView());
-    }
-
     public override AbstractItemsScreenData Derive()
     {
       return new LocalMediaNavigationScreenData(PlayableItemCreator);
-    }
-
-    protected IEnumerable<MediaItem> GetItemsRecursive(View view)
-    {
-      foreach (MediaItem item in view.MediaItems)
-        yield return item;
-      foreach (View subView in view.SubViews)
-        foreach (MediaItem item in GetItemsRecursive(subView))
-          yield return item;
     }
   }
 }

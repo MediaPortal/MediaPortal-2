@@ -107,6 +107,14 @@ namespace MediaPortal.UI.Views
         };
     }
 
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<MediaItem>();
+      return cd.Search(_query, _onlyOnline);
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = null;

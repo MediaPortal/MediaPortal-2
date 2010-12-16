@@ -108,6 +108,8 @@ namespace MediaPortal.UI.Views
       get { return null; }
     }
 
+    public abstract IEnumerable<MediaItem> GetAllMediaItems();
+
     /// <summary>
     /// Loads or reloads the items and sub view specifications for a view to this specification.
     /// This will re-request the media database or datastore.

@@ -325,7 +325,7 @@ namespace MediaPortal.UiComponents.Media.Models
             new AllSharesViewSpecification(viewName, necessaryMIATypeIDs, optionalMIATypeIDs);
         // Dynamic screens remain null - browse media states don't provide dynamic filters
         AbstractScreenData screenData = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
-            (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd, false);
+            (AbstractScreenData) new LocalMediaNavigationScreenData(picd) : new BrowseMediaNavigationScreenData(picd);
         navigationData = new NavigationData(viewName, currentStateId,
             currentStateId, rootViewSpecification, screenData, null);
       }

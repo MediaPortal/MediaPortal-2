@@ -607,7 +607,6 @@ namespace MediaPortal.UiComponents.Media.Models
           items.Add(item);
         }
         pc.Playlist.AddAll(items);
-
       }
       finally
       {

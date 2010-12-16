@@ -22,50 +22,19 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Views;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public class BrowseMediaNavigationScreenData : AbstractItemsScreenData
   {
-    protected bool _onlyOnline;
-
-    public BrowseMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator, bool onlyOnline) :
+    public BrowseMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_BROWSE_MEDIA_NAVIGATION, null, Consts.RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
-        playableItemCreator, true)
-    {
-      _onlyOnline = onlyOnline;
-    }
-
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (cd == null)
-        return new List<MediaItem>();
-      MediaLibraryBrowseViewSpecification vs = (MediaLibraryBrowseViewSpecification) _navigationData.BaseViewSpecification;
-      MediaItemQuery query = new MediaItemQuery(
-          _navigationData.BaseViewSpecification.NecessaryMIATypeIds,
-          _navigationData.BaseViewSpecification.OptionalMIATypeIds,
-          new BooleanCombinationFilter(BooleanOperator.And,
-              new IFilter[]
-              {
-                new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, vs.SystemId),
-                new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, SqlUtils.LikeEscape(vs.BasePath.Serialize(), '\\') + "%", '\\', true)
-              }));
-      return cd.Search(query, _onlyOnline);
-    }
+        playableItemCreator, true) { }
 
     public override AbstractItemsScreenData Derive()
     {
-      return new BrowseMediaNavigationScreenData(PlayableItemCreator, _onlyOnline);
+      return new BrowseMediaNavigationScreenData(PlayableItemCreator);
     }
   }
 }

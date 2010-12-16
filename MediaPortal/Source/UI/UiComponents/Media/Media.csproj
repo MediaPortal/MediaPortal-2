@@ -98,7 +98,6 @@
     <Compile Include="Models\ScreenData\AbstractMoviesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMusicFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractPicturesFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractShowMLItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\BrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\PicturesFilterBySystemScreenData.cs" />
     <Compile Include="Models\ScreenData\MusicFilterBySystemScreenData.cs" />

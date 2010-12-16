@@ -252,7 +252,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _items = null;
     }
 
-    public abstract IEnumerable<MediaItem> GetAllMediaItems();
+    /// <summary>
+    /// Returns all media items of the current screen and all sub-screens recursively.
+    /// </summary>
+    /// <returns>Enumeration of media items.</returns>
+    public IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return _navigationData.BaseViewSpecification.GetAllMediaItems();
+    }
 
     protected virtual void Display_ListBeingBuilt()
     {

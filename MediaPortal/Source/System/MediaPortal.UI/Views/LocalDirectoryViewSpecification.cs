@@ -113,6 +113,20 @@ namespace MediaPortal.UI.Views
       get { return _viewPath.IsValidLocalPath; }
     }
 
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return GetItemsRecursive(BuildView());
+    }
+
+    protected IEnumerable<MediaItem> GetItemsRecursive(View view)
+    {
+      foreach (MediaItem item in view.MediaItems)
+        yield return item;
+      foreach (View subView in view.SubViews)
+        foreach (MediaItem item in GetItemsRecursive(subView))
+          yield return item;
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = new List<MediaItem>();
