@@ -1191,7 +1191,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Searches a collection of elements to find the best matching next focus element.
+    /// Searches through a collection of elements to find the best matching next focus element.
     /// </summary>
     /// <param name="potentialNextFocusElements">Collection of elements to search.</param>
     /// <param name="currentFocusRect">Bounds of the element which currently has focus.</param>
@@ -1210,8 +1210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             (dir == MoveFocusDirection.Down && child.LocatedBelow(currentFocusRect.Value)) ||
             (dir == MoveFocusDirection.Left && child.LocatedLeftOf(currentFocusRect.Value)) ||
             (dir == MoveFocusDirection.Right && child.LocatedRightOf(currentFocusRect.Value)))
-        {
-          // Calculate and compare distances of all matches
+        { // Calculate and compare distances of all matches
           float centerDistance = CenterDistance(child.ActualBounds, currentFocusRect.Value);
           if (centerDistance == 0)
             // If the child's center is exactly the center of the currently focused element,
@@ -1261,7 +1260,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new PointF((rect.Left + rect.Right) / 2, (rect.Top + rect.Bottom) / 2);
     }
 
-    private float CalcDirection(PointF start, PointF end)
+    private static float CalcDirection(PointF start, PointF end)
     {
       if (IsNear(start.X, end.X) && IsNear(start.Y, end.Y))
         return float.NaN;
@@ -1273,6 +1272,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (alpha < 0)
         alpha += 2 * Math.PI;
       return (float) alpha;
+    }
+
+    protected static bool AInsideB(RectangleF a, RectangleF b)
+    {
+      return b.Left <= a.Left && b.Right >= a.Right &&
+          b.Top <= a.Top && b.Bottom >= a.Bottom;
+    }
+
+    protected bool LocatedInside(RectangleF otherRect)
+    {
+      return AInsideB(ActualBounds, otherRect);
+    }
+
+    protected bool EnclosesRect(RectangleF otherRect)
+    {
+      return AInsideB(otherRect, ActualBounds);
     }
 
     protected bool LocatedBelow(RectangleF otherRect)
@@ -1319,7 +1334,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
     }
 
-    protected void AddFocusableElements(ICollection<FrameworkElement> elements)
+    public virtual void AddFocusableElements(ICollection<FrameworkElement> elements)
     {
       if (!IsVisible)
         return;
@@ -1328,7 +1343,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ICollection<UIElement> children = GetChildren();
       foreach (UIElement child in children)
       {
-        if (!(child is FrameworkElement))
+        if (!(child is FrameworkElement) || !child.IsVisible)
           continue;
         FrameworkElement fe = (FrameworkElement) child;
         fe.AddFocusableElements(elements);

@@ -416,6 +416,46 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
+    public override void AddFocusableElements(ICollection<FrameworkElement> elements)
+    {
+      if (!IsVisible)
+        return;
+      if (Focusable)
+        elements.Add(this);
+      IList<FrameworkElement> children = GetVisibleChildren();
+      int first = _scrollIndex;
+      if (first < 0)
+        first = 0;
+      // Find the first element before our scroll index which has focusable elements.
+      // We don't need to add more elements before it.
+      int formerNumElements = elements.Count;
+      for (int i = first - 1; i >= 0; i--)
+      {
+        FrameworkElement fe = children[i];
+        fe.AddFocusableElements(elements);
+        if (formerNumElements != elements.Count)
+          // Found focusable elements
+          break;
+      }
+      int last = _actualLastVisibleChild + 1;
+      if (last >= children.Count)
+        last = children.Count - 1;
+      for (int i = first; i <= last; i++)
+      {
+        FrameworkElement fe = children[i];
+        fe.AddFocusableElements(elements);
+      }
+      formerNumElements = elements.Count;
+      for (int i = last + 1; i < children.Count; i++)
+      {
+        FrameworkElement fe = children[i];
+        fe.AddFocusableElements(elements);
+        if (formerNumElements != elements.Count)
+          // Found focusable elements
+          break;
+      }
+    }
+
     #region Rendering
 
     protected override void UpdateRenderOrder()
