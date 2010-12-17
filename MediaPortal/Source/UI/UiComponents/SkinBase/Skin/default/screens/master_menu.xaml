@@ -16,8 +16,7 @@ Usage:
         [Header text]
       </ResourceWrapper>
       <ResourceWrapper x:Key="Contents_Element">
-        [UI element to be displayed in the content area. This element will
-         be placed into a ScrollViewer.]
+        [UI element to be displayed in the content area]
       </ResourceWrapper>
     </Include.Resources>
   </Include>
