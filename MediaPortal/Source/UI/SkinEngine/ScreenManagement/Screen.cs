@@ -133,7 +133,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Protected fields
 
-    protected AbstractProperty _opened = new SProperty(typeof(bool), true);
     protected State _state = State.Running;
     protected Guid _screenInstanceId = Guid.NewGuid();
     protected string _name;
@@ -211,21 +210,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public int SkinHeight
     {
       get { return _skinHeight; }
-    }
-
-    /// <summary>
-    /// Returns if this screen is still open.
-    /// </summary>
-    public bool IsOpened
-    {
-      get { return (bool) _opened.GetValue(); }
-      set { _opened.SetValue(value); }
-    }
-
-    public AbstractProperty IsOpenedProperty
-    {
-      get { return _opened; }
-      set { _opened = value; }
     }
 
     public State ScreenState
