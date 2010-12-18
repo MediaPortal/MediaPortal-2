@@ -92,15 +92,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("1 = 2");
         else
         {
-          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
           if (mediaItemIds.Count == 1)
           {
+            resultParts.Add(outerMIIDJoinVariablePlaceHolder);
             BindVar bindVar = new BindVar("V" + _bindVarCounter++, mediaItemIds.First(), typeof(Guid));
             resultParts.Add(" = @" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
           else
           {
+            bool first = true;
             ICollection<string> clusterExpressions = new List<string>();
             foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIds, MAX_IN_VALUES_SIZE))
             {
@@ -111,7 +112,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 bindVarRefs.Add("@" + bindVar.Name);
                 resultBindVars.Add(bindVar);
               }
-              clusterExpressions.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
+              if (!first)
+                resultParts.Add(" OR ");
+              first = false;
+              resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+              resultParts.Add(" IN (" + StringUtils.Join(",", bindVarRefs) + ")");
             }
             resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
           }
