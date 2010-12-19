@@ -123,19 +123,21 @@ namespace MediaInfoLib
       if (!_isValid)
         return false;
 
-      const int buffer_size = 64 * 1024;
-      byte[] buffer = new byte[buffer_size];  // init the buffer to communicate with MediaInfo
+      // Increased buffer size for some .mp4 that contain first audio, then video stream. If buffer is smaller (i.e. 64 kb),
+      // MediaInfo only detects the audio stream. It works correctly in file mode.
+      const int bufferSize = 128 * 1024;
+      byte[] buffer = new byte[bufferSize]; // init the buffer to communicate with MediaInfo
       GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-      IntPtr buffer_ptr = gcHandle.AddrOfPinnedObject();
+      IntPtr bufferPtr = gcHandle.AddrOfPinnedObject();
       try
       {
         // Now we need to run the parsing loop, as long as MediaInfo requests information from the stream
-        int bytes_read;
+        int bytesRead;
         do
         {
-          bytes_read = stream.Read(buffer, 0, buffer_size);
+          bytesRead = stream.Read(buffer, 0, bufferSize);
 
-          if (_mediaInfo.Open_Buffer_Continue(buffer_ptr, (IntPtr) bytes_read) == 0)
+          if (_mediaInfo.Open_Buffer_Continue(bufferPtr, (IntPtr) bytesRead) == 0)
             // MediaInfo doesn't need more information from us
             break;
 
@@ -145,16 +147,15 @@ namespace MediaInfoLib
             break;
           Int64 pos = stream.Seek(newPos, SeekOrigin.Begin);  // Position the stream
           _mediaInfo.Open_Buffer_Init(stream.Length, pos);  // Inform MediaInfo that we are at the new position
-        } while (bytes_read > 0);
+        } while (bytesRead > 0);
       }
       finally
       {
         gcHandle.Free();
+
+        // Finalising MediaInfo procesing
+        _mediaInfo.Open_Buffer_Finalize();
       }
-
-      // Finalising MediaInfo procesing
-      _mediaInfo.Open_Buffer_Finalize();
-
       return _isValid;
     }
 
