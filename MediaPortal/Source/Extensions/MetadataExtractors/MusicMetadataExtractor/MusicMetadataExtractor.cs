@@ -276,6 +276,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
           return false;
         }
 
+        // Some file extensions like .mp4 can contain audio and video. Do not handle files with video content here.
+        if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
+          return false;
+
         string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
         IEnumerable<string> artists;
         if (tag.Tag.Performers.Length > 0)
