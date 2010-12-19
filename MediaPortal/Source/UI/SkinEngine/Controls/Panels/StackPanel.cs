@@ -416,7 +416,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
-    public override void AddFocusableElements(ICollection<FrameworkElement> elements)
+    public override void AddPotentialFocusNeighbors(RectangleF startingRect, ICollection<FrameworkElement> elements)
     {
       if (!IsVisible)
         return;
@@ -432,7 +432,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       for (int i = first - 1; i >= 0; i--)
       {
         FrameworkElement fe = children[i];
-        fe.AddFocusableElements(elements);
+        fe.AddPotentialFocusNeighbors(startingRect, elements);
         if (formerNumElements != elements.Count)
           // Found focusable elements
           break;
@@ -443,13 +443,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       for (int i = first; i <= last; i++)
       {
         FrameworkElement fe = children[i];
-        fe.AddFocusableElements(elements);
+        fe.AddPotentialFocusNeighbors(startingRect, elements);
       }
       formerNumElements = elements.Count;
       for (int i = last + 1; i < children.Count; i++)
       {
         FrameworkElement fe = children[i];
-        fe.AddFocusableElements(elements);
+        fe.AddPotentialFocusNeighbors(startingRect, elements);
         if (formerNumElements != elements.Count)
           // Found focusable elements
           break;

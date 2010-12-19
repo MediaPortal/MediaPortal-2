@@ -1177,7 +1177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// which is able to get the focus.
     /// This method will search the control tree down starting with this element as root element.
     /// This method is only able to find focusable elements which are located at least one element outside the visible
-    /// range (see <see cref="AddFocusableElements"/>).
+    /// range (see <see cref="AddPotentialFocusNeighbors"/>).
     /// </summary>
     /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="dir">Direction, the result control should be positioned relative to the
@@ -1189,8 +1189,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsVisible)
         return null;
-      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
-      AddFocusableElements(focusableChildren);
+      ICollection<FrameworkElement> focusableChildren;
+      if (currentFocusRect.HasValue)
+      {
+        focusableChildren = new List<FrameworkElement>();
+        AddPotentialFocusNeighbors(currentFocusRect.Value, focusableChildren);
+      }
+      else
+        focusableChildren = GetFEChildren();
       // Check child controls
       if (focusableChildren.Count == 0)
         return null;
@@ -1344,12 +1350,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Collects all child elements which are currently able to get the focus. This default implementation simply returns
-    /// all children, but sub classes might return less. The less elements are returned, the faster the focusing engine
-    /// can find an element to be focused.
+    /// Collects all focusable elements in the element tree starting with this element which are potentially located next
+    /// to the given <paramref name="startingRect"/>.
+    /// This default implementation simply returns all children, but sub classes might return less.
+    /// The less elements are returned, the faster the focusing engine can find an element to be focused.
     /// </summary>
-    /// <param name="elements">Elements which are able to get the focus.</param>
-    public virtual void AddFocusableElements(ICollection<FrameworkElement> elements)
+    /// <param name="startingRect">Rectangle where to start searching.</param>
+    /// <param name="elements">Collection to add elements which are able to get the focus.</param>
+    public virtual void AddPotentialFocusNeighbors(RectangleF startingRect, ICollection<FrameworkElement> elements)
     {
       if (!IsVisible)
         return;
@@ -1361,7 +1369,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!child.IsVisible)
           continue;
-        child.AddFocusableElements(elements);
+        child.AddPotentialFocusNeighbors(startingRect, elements);
       }
     }
 
