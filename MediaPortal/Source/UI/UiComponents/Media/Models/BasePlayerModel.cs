@@ -167,6 +167,7 @@ namespace MediaPortal.UiComponents.Media.Models
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (_screenName != null && (_lastScreenName != _screenName || force))
         screenManager.ShowScreen(_screenName);
+      screenManager.BackgroundDisabled = _backgroundDisabled;
       _lastScreenName = _screenName;
     }
 
