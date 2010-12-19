@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
@@ -239,11 +240,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageUp()
     {
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement currentElement = GetFocusedElementOrChild();
       // Try to find first element which extends our range
       while (currentElement != null &&
           (currentElement.ActualPosition.Y >= ActualPosition.Y))
-        currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up);
+        currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up);
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -255,11 +259,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageDown()
     {
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement currentElement = GetFocusedElementOrChild();
       // Try to find first element which extends our range
       while (currentElement != null &&
           (currentElement.ActualPosition.Y + currentElement.ActualHeight <= ActualPosition.Y + ActualHeight))
-        currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down);
+        currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down);
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -271,11 +278,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageLeft()
     {
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement currentElement = GetFocusedElementOrChild();
       // Try to find first element which extends our range
       while (currentElement != null &&
           (currentElement.ActualPosition.X >= ActualPosition.X))
-        currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left);
+        currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left);
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -287,11 +297,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageRight()
     {
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement currentElement = GetFocusedElementOrChild();
       // Try to find first element which extends our range
       while (currentElement != null &&
           (currentElement.ActualPosition.X + currentElement.ActualWidth <= ActualPosition.X + ActualWidth))
-        currentElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right);
+        currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right);
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset

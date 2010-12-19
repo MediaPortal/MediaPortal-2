@@ -1158,8 +1158,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement currentElement = GetFocusedElementOrChild();
       if (currentElement == null)
         return false;
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, direction)) != null)
+      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, direction)) != null)
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
     }
@@ -1173,6 +1176,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
     /// which is able to get the focus.
     /// This method will search the control tree down starting with this element as root element.
+    /// This method is only able to find focusable elements which are located at least one element outside the visible
+    /// range (see <see cref="AddFocusableElements"/>).
     /// </summary>
     /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="dir">Direction, the result control should be positioned relative to the
@@ -1351,14 +1356,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Focusable)
         elements.Add(this);
       // General implementation: Return all visible children
+      ICollection<FrameworkElement> children = GetFEChildren();
+      foreach (FrameworkElement child in children)
+      {
+        if (!child.IsVisible)
+          continue;
+        child.AddFocusableElements(elements);
+      }
+    }
+
+    protected ICollection<FrameworkElement> GetFEChildren()
+    {
       ICollection<UIElement> children = GetChildren();
+      ICollection<FrameworkElement> result = new List<FrameworkElement>(children.Count);
       foreach (UIElement child in children)
       {
-        if (!(child is FrameworkElement) || !child.IsVisible)
-          continue;
-        FrameworkElement fe = (FrameworkElement) child;
-        fe.AddFocusableElements(elements);
+        FrameworkElement fe = child as FrameworkElement;
+        if (fe != null)
+          result.Add(fe);
       }
+      return result;
     }
 
     #endregion

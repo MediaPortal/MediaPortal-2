@@ -420,41 +420,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (!IsVisible)
         return;
-      if (ActualBounds.IsEmpty)
-        // We can only focus elements if we have been layed out.
-        return;
       if (Focusable)
         elements.Add(this);
       IList<FrameworkElement> children = GetVisibleChildren();
-      if (children.Count == 0)
-        return;
       int first = _scrollIndex;
       if (first < 0)
         first = 0;
-      if (first >= children.Count)
-        first = children.Count - 1;
-      // Find element one page before our scroll index
-      PointF actualPos = ActualPosition;
-      RectangleF actualBounds = ActualBounds;
-      while (first > 0)
-      {
-        first--;
-        FrameworkElement fe = children[first];
-        if (Orientation == Orientation.Vertical)
-        {
-          if (fe.ActualBounds.Bottom < actualPos.Y - actualBounds.Height)
-            break;
-        }
-        else
-        {
-          if (fe.ActualBounds.Right < actualPos.X - actualBounds.Width)
-            break;
-        }
-      }
-      // Find the first element before the element one page above which has focusable elements.
+      // Find the first element before our scroll index which has focusable elements.
       // We don't need to add more elements before it.
       int formerNumElements = elements.Count;
-      for (int i = first; i >= 0; i--)
+      for (int i = first - 1; i >= 0; i--)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);
@@ -462,32 +437,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // Found focusable elements
           break;
       }
-      int last = _actualLastVisibleChild;
+      int last = _actualLastVisibleChild + 1;
       if (last >= children.Count)
         last = children.Count - 1;
-      // Find element one page after our last visible child end
-      while (last < children.Count - 1)
-      {
-        last++;
-        FrameworkElement fe = children[last];
-        if (Orientation == Orientation.Vertical)
-        {
-          if (fe.ActualBounds.Top > actualBounds.Bottom + actualBounds.Height)
-            break;
-        }
-        else
-        {
-          if (fe.ActualBounds.Left > actualBounds.Right + actualBounds.Width)
-            break;
-        }
-      }
       for (int i = first; i <= last; i++)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);
       }
       formerNumElements = elements.Count;
-      for (int i = last; i < children.Count; i++)
+      for (int i = last + 1; i < children.Count; i++)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);
@@ -579,8 +538,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
           // An element inside our visible range is focused - move to first element
           limitPosition = ActualPosition.Y;
+        ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+        if (focusableChildren.Count == 0)
+          return false;
         FrameworkElement nextElement;
-        while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
+        while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
             (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -609,8 +571,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
           // An element inside our visible range is focused - move to last element
           limitPosition = ActualPosition.Y + (float) ActualHeight;
+        ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+        if (focusableChildren.Count == 0)
+          return false;
         FrameworkElement nextElement;
-        while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
+        while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
             (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -639,8 +604,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
           // An element inside our visible range is focused - move to first element
           limitPosition = ActualPosition.X;
+        ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+        if (focusableChildren.Count == 0)
+          return false;
         FrameworkElement nextElement;
-        while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
+        while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
             (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -669,8 +637,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
           // An element inside our visible range is focused - move to last element
           limitPosition = ActualPosition.X + (float) ActualWidth;
+        ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+        if (focusableChildren.Count == 0)
+          return false;
         FrameworkElement nextElement;
-        while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
+        while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
             (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);

@@ -388,8 +388,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the topmost elements is focused - move one page up
           limitPosition = child.ActualBounds.Bottom - (float) ActualHeight;
       }
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
+      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
           (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -414,8 +417,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the elements at the bottom is focused - move one page down
           limitPosition = child.ActualPosition.Y + (float) ActualHeight;
       }
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
+      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
           (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -440,8 +446,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the lefmost elements is focused - move one page left
           limitPosition = child.ActualBounds.Right - (float) ActualWidth;
       }
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
+      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
           (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -466,8 +475,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the rightmost elements is focused - move one page right
           limitPosition = child.ActualPosition.X + (float) ActualWidth;
       }
+      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      if (focusableChildren.Count == 0)
+        return false;
       FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
+      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
           (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
