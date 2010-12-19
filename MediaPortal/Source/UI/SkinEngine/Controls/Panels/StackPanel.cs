@@ -420,16 +420,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (!IsVisible)
         return;
+      if (ActualBounds.IsEmpty)
+        // We can only focus elements if we have been layed out.
+        return;
       if (Focusable)
         elements.Add(this);
       IList<FrameworkElement> children = GetVisibleChildren();
+      if (children.Count == 0)
+        return;
       int first = _scrollIndex;
       if (first < 0)
         first = 0;
-      // Find the first element before our scroll index which has focusable elements.
+      if (first >= children.Count)
+        first = children.Count - 1;
+      // Find element one page before our scroll index
+      PointF actualPos = ActualPosition;
+      RectangleF actualBounds = ActualBounds;
+      while (first > 0)
+      {
+        first--;
+        FrameworkElement fe = children[first];
+        if (Orientation == Orientation.Vertical)
+        {
+          if (fe.ActualBounds.Bottom < actualPos.Y - actualBounds.Height)
+            break;
+        }
+        else
+        {
+          if (fe.ActualBounds.Right < actualPos.X - actualBounds.Width)
+            break;
+        }
+      }
+      // Find the first element before the element one page above which has focusable elements.
       // We don't need to add more elements before it.
       int formerNumElements = elements.Count;
-      for (int i = first - 1; i >= 0; i--)
+      for (int i = first; i >= 0; i--)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);
@@ -437,16 +462,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // Found focusable elements
           break;
       }
-      int last = _actualLastVisibleChild + 1;
+      int last = _actualLastVisibleChild;
       if (last >= children.Count)
         last = children.Count - 1;
+      // Find element one page after our last visible child end
+      while (last < children.Count - 1)
+      {
+        last++;
+        FrameworkElement fe = children[last];
+        if (Orientation == Orientation.Vertical)
+        {
+          if (fe.ActualBounds.Top > actualBounds.Bottom + actualBounds.Height)
+            break;
+        }
+        else
+        {
+          if (fe.ActualBounds.Left > actualBounds.Right + actualBounds.Width)
+            break;
+        }
+      }
       for (int i = first; i <= last; i++)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);
       }
       formerNumElements = elements.Count;
-      for (int i = last + 1; i < children.Count; i++)
+      for (int i = last; i < children.Count; i++)
       {
         FrameworkElement fe = children[i];
         fe.AddFocusableElements(elements);

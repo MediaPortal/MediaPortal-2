@@ -1338,12 +1338,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return alpha > Math.PI / 2 + DELTA_DOUBLE && alpha < 3 * Math.PI / 2 - DELTA_DOUBLE;
     }
 
+    /// <summary>
+    /// Collects all child elements which are currently able to get the focus. This default implementation simply returns
+    /// all children, but sub classes might return less. The less elements are returned, the faster the focusing engine
+    /// can find an element to be focused.
+    /// </summary>
+    /// <param name="elements">Elements which are able to get the focus.</param>
     public virtual void AddFocusableElements(ICollection<FrameworkElement> elements)
     {
       if (!IsVisible)
         return;
       if (Focusable)
         elements.Add(this);
+      // General implementation: Return all visible children
       ICollection<UIElement> children = GetChildren();
       foreach (UIElement child in children)
       {
