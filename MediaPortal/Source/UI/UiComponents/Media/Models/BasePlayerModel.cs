@@ -124,6 +124,11 @@ namespace MediaPortal.UiComponents.Media.Models
           _backgroundDisabled = playerUIContributor.BackgroundDisabled;
           _screenName = playerUIContributor.Screen;
         }
+        else
+        {
+          _backgroundDisabled = false;
+          _screenName = null;
+        }
         lock (_syncObj)
           _playerUIContributor = playerUIContributor;
         if (oldPlayerUIContributor != null)
