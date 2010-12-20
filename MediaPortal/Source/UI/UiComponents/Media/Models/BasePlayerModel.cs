@@ -218,6 +218,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       _inactive = true;
+      RestoreBackground();
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
