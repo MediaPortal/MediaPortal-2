@@ -176,6 +176,12 @@ namespace MediaPortal.UiComponents.Media.Models
       _lastScreenName = _screenName;
     }
 
+    protected void RestoreBackground()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.BackgroundDisabled = false;
+    }
+
     public abstract Guid ModelId { get; }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -200,6 +206,7 @@ namespace MediaPortal.UiComponents.Media.Models
       StopTimer();
       _messageQueue.Shutdown();
       UpdatePlayerContributor(false);
+      RestoreBackground();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
