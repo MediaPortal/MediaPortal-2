@@ -143,7 +143,7 @@
     <Content Include="Skin\default\screens\simple_dialog_menu.xaml" />
     <Content Include="Skin\default\screens\ShowHomeServer.xaml" />
     <Content Include="Skin\default\themes\default\theme.xml" />
-    <Content Include="Skin\default\themes\default\media\preview.png" />
+    <Content Include="Skin\default\themes\default\images\preview.png" />
     <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
     <Content Include="Skin\default\themes\default\styles\OtherControls.xaml" />
     <Content Include="Skin\default\themes\default\styles\Colors.xaml" />
@@ -152,7 +152,7 @@
     <Content Include="Skin\default\themes\default\styles\Buttons.xaml" />
     <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle.xaml" />
     <Content Include="Skin\default\themes\black\theme.xml" />
-    <Content Include="Skin\default\themes\black\media\preview.png" />
+    <Content Include="Skin\default\themes\black\images\preview.png" />
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />

@@ -58,7 +58,7 @@
     <Content Include="Skin\default\screens\test-virtualkeyboardcontrol.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\media\Cherries.jpg" />
+    <Content Include="Skin\default\images\Cherries.jpg" />
     <Content Include="Skin\default\workflow\gui-test-actions.xml" />
     <Content Include="Skin\default\workflow\gui-test-states.xml" />
   </ItemGroup>
