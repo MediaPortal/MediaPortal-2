@@ -529,6 +529,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public bool TrySetFocus(bool checkChildren)
     {
+      if (HasFocus)
+        return true;
       if (IsVisible && IsEnabled && Focusable)
       {
         Screen screen = Screen;
@@ -925,10 +927,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
       }
       _innerRect = rect;
-      ArrangeOverride();
 
       Initialize();
       InitializeTriggers();
+
+      ArrangeOverride();
     }
 
     protected virtual void ArrangeOverride()

@@ -232,7 +232,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _innerRect;
     protected ResourceDictionary _resources;
     protected IExecutableCommand _loaded;
-    protected bool _triggersInitialized;
+    protected bool _initializeTriggers = true;
     protected bool _fireLoaded = true;
     private string _tempName = null;
     protected readonly object _renderLock = new object(); // Can be used to synchronize several accesses between render thread and other threads
@@ -769,16 +769,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return SkinContext.SkinResources.FindStyleResource(resourceKey);
     }
 
-    public void InitializeTriggers()
-    {
-      if (!_triggersInitialized)
-      {
-        _triggersInitialized = true;
-        foreach (TriggerBase trigger in Triggers)
-          trigger.Setup(this);
-      }
-    }
-
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
       Screen screen = Screen;
@@ -1047,11 +1037,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public virtual void Initialize()
     {
-      if (_fireLoaded)
-      {
-        FireEvent(LOADED_EVENT);
-        _fireLoaded = false;
-      }
+      if (!_fireLoaded)
+        return;
+      FireEvent(LOADED_EVENT);
+      _fireLoaded = false;
+    }
+
+    public void InitializeTriggers()
+    {
+      if (!_initializeTriggers)
+        return;
+      _initializeTriggers = false;
+      foreach (TriggerBase trigger in Triggers)
+        trigger.Setup(this);
     }
 
     public virtual void Allocate()
