@@ -303,7 +303,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Reset()
     {
       _visual.InvalidateLayout();
-      _visual.Initialize();
     }
 
     public void Animate()

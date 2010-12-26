@@ -861,10 +861,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_loaded != null)
           _loaded.Execute();
       }
-      foreach (UIElement child in GetChildren())
-        child.FireEvent(eventName);
-      if (EventOccured != null)
-        EventOccured(eventName);
+      UIEventDelegate dlgt = EventOccured;
+      if (dlgt != null)
+        dlgt(eventName);
     }
 
     public virtual void OnMouseMove(float x, float y)
