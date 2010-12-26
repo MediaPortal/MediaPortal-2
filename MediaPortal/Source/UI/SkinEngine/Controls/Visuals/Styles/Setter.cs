@@ -153,8 +153,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       { // We have to initialize the original property value the first time for this target object
 
         // The next lines are necessary because the render thread is setting our values.
-        // If the render thread wasn't able to set the value yet, we would get an old, obsolete value dd.Value
-        // for _originalValue.
+        // If there's still a value pending to be set by the render thread, we would get an old, obsolete value if
+        // we just copied dd.Value to _originalValue.
         element.GetPendingOrCurrentValue(dd, out obj);
         SetOriginalValue(targetObject, obj);
       }
