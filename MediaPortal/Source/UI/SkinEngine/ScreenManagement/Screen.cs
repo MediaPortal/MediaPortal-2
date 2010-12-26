@@ -639,5 +639,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return element.PredictFocus(currentFocusRect, MoveFocusDirection.Right);
       return null;
     }
+
+    public override string ToString()
+    {
+      return string.IsNullOrEmpty(_name) ? "Unnamed screen" : _name;
+    }
   }
 }
