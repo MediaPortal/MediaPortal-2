@@ -98,11 +98,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       foreach (TriggerBase t in Triggers)
       {
         TriggerBase trigger = cm.GetCopy(t);
-        trigger.LogicalParent = result;
-        trigger.Setup(result);
         triggers.Add(trigger);
+        // Trigger will automatically be set-up (_initializeTriggers is initially set to true in result)
       }
       cm.FinishCopy();
+      // Setting the logical parent has to be done after the copy process has finished - else the logical parent will be overridden
+      foreach (TriggerBase t in triggers)
+        t.LogicalParent = result;
       IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
       finishBindings = () =>
         {

@@ -37,9 +37,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Private fields
 
     protected AbstractProperty _storyBoardProperty;
-    protected AbstractProperty _nameProperty;
     protected AbstractProperty _handoffBehaviorProperty;
-    private string _tempName = null;
+
+    protected string _name;
 
     #endregion
 
@@ -48,53 +48,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public BeginStoryboard()
     {
       Init();
-      Attach();
     }
 
     void Init()
     {
       _storyBoardProperty = new SProperty(typeof(Storyboard), null);
-      _nameProperty = new SProperty(typeof(string), string.Empty);
       _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), HandoffBehavior.SnapshotAndReplace);
-    }
-
-    void Attach()
-    {
-      _nameProperty.Attach(OnNameChanged);
-    }
-
-    void Detach()
-    {
-      _nameProperty.Detach(OnNameChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Detach();
       base.DeepCopy(source, copyManager);
       BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
-      _tempName = s.Name;
       HandoffBehavior = s.HandoffBehavior;
-      Attach();
-
-      copyManager.CopyCompleted += OnCopyCompleted;
+      Name = s.Name;
     }
 
     #endregion
 
-    void OnCopyCompleted(ICopyManager copymanager)
+    protected void RegisterName()
     {
-      Name = _tempName;
-      _tempName = null;
-    }
-
-    void OnNameChanged(AbstractProperty prop, object oldVal)
-    {
-      string oldName = (string) oldVal;
       INameScope ns = FindNameScope();
-      if (ns != null && !string.IsNullOrEmpty(oldName))
-        ns.UnregisterName(oldName);
       if (ns != null)
         try
         {
@@ -120,15 +95,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     }
 
 
-    public AbstractProperty NameProperty
-    {
-      get { return _nameProperty; }
-    }
-
     public string Name
     {
-      get { return _nameProperty.GetValue() as string; }
-      set { _nameProperty.SetValue(value); }
+      get { return _name; }
+      set { _name = value; }
     }
 
     public AbstractProperty HandoffBehaviorProperty
@@ -148,6 +118,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       if (Storyboard != null)
         element.StartStoryboard(Storyboard, HandoffBehavior);
+    }
+
+    public override void Setup(UIElement element)
+    {
+      RegisterName();
     }
   }
 }

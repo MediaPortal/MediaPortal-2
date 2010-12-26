@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -150,12 +151,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void SetTemplateControl(FrameworkElement templateControl, IList<TriggerBase> triggers)
     {
       SetTemplateControl(templateControl);
-      foreach (TriggerBase trigger in triggers)
-      {
-        trigger.LogicalParent = this;
-        trigger.Setup(this);
-        Triggers.Add(trigger);
-      }
+      CollectionUtils.AddAll(Triggers, triggers);
     }
 
     protected void SetTemplateControl(FrameworkElement templateControl)

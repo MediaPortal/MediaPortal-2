@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 using SlimDX;
 using SlimDX.Direct3D9;
 using SizeF = System.Drawing.SizeF;
@@ -133,13 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         FrameworkElement templateControl = Template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
         TemplateControl = templateControl;
         finishDlgt.Invoke();
-        IList<TriggerBase> triggers = Triggers;
-        foreach (TriggerBase newTrigger in newTriggers)
-        {
-          newTrigger.LogicalParent = templateControl;
-          newTrigger.Setup(this);
-          triggers.Add(newTrigger);
-        }
+        CollectionUtils.AddAll(Triggers, newTriggers);
       }
       else
         TemplateControl = null;
