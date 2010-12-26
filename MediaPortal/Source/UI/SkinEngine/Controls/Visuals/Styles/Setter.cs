@@ -153,8 +153,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       { // We have to initialize the original property value the first time for this target object
 
         // The next lines are necessary because the render thread is setting our values.
-        // If the render thread wasn't able to set the value yet, we would get the old, unchanged and
-        // thus wrong value dd.Value for _originalValue.
+        // If the render thread wasn't able to set the value yet, we would get an old, obsolete value dd.Value
+        // for _originalValue.
         element.GetPendingOrCurrentValue(dd, out obj);
         SetOriginalValue(targetObject, obj);
       }
@@ -172,10 +172,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     }
 
     /// <summary>
-    /// Restore the target element's original value which was set to the setter's value before.
+    /// Restore the target element's original value which was set to the <see cref="Value"/> before.
     /// </summary>
     /// <param name="element">The UI element which is used as starting point for this setter
-    /// to earch the target element.</param>
+    /// to reach the target element.</param>
     public void Restore(UIElement element)
     {
       IDataDescriptor dd;
