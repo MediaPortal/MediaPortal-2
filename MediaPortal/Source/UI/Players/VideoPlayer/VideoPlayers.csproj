@@ -61,6 +61,8 @@
     <Compile Include="Settings\Configuration\Subtitles.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
+    <Compile Include="Tools\StreamInfo.cs" />
+    <Compile Include="Tools\StreamInfoHandler.cs" />
     <Compile Include="Tools\CodecHandler.cs" />
     <Compile Include="Tools\CodecInfo.cs" />
     <Compile Include="DvdPlayer.cs" />

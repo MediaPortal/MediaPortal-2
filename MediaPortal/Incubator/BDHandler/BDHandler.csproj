@@ -136,23 +136,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MP2-Trunk\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\MP2-Trunk\Source\System\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\Source\System\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\MP2-Trunk\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\MP2-Trunk\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
+    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
       <Project>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</Project>
       <Name>VideoPlayers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\MP2-Trunk\Source\UI\SkinEngine\SkinEngine.csproj">
+    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>

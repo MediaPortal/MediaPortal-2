@@ -31,6 +31,7 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Permissions;
@@ -306,7 +307,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
 
     /// <summary>
-    /// Find a filter in a DirectShow Graph using its CLSID
+    /// Find a filter in a DirectShow Graph that implements a given interface.
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
     /// <returns>an instance of the filter if found, null if not</returns>
@@ -342,6 +343,39 @@ namespace MediaPortal.UI.Players.Video.Tools
         Marshal.FreeCoTaskMem(fetched);
       }
       return (TE)filter;
+    }
+
+    /// <summary>
+    /// Find all filter in a DirectShow Graph that implement a given interface.
+    /// </summary>
+    /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
+    /// <returns>an instance of the filter if found, null if not</returns>
+    /// <seealso cref="FindFilterByName"/>
+    /// <exception cref="System.ArgumentNullException">Thrown if graphBuilder is null</exception>
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static List<TE> FindFiltersByInterface<TE>(IGraphBuilder graphBuilder)
+    {
+      if (graphBuilder == null)
+        throw new ArgumentNullException("graphBuilder");
+
+      List<TE> matchingFilters = new List<TE>();
+      IEnumFilters enumFilters;
+      if (graphBuilder.EnumFilters(out enumFilters) == 0)
+      {
+        IBaseFilter[] filters = new IBaseFilter[1];
+        IntPtr fetched = Marshal.AllocCoTaskMem(4);
+
+        while (enumFilters.Next(filters.Length, filters, fetched) == 0)
+        {
+          if (filters[0] is TE)
+            matchingFilters.Add((TE)filters[0]);
+
+          //Marshal.ReleaseComObject(filters[0]);
+        }
+        Marshal.ReleaseComObject(enumFilters);
+        Marshal.FreeCoTaskMem(fetched);
+      }
+      return matchingFilters;
     }
 
     /// <summary>

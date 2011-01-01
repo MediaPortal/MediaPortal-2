@@ -23,21 +23,90 @@
 #endregion
 
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
+using MediaPortal.Core.General;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public class DefaultVideoPlayerUIContributor : IPlayerUIContributor
+  public class DefaultVideoPlayerUIContributor : BaseTimerControlledModel, IPlayerUIContributor
   {
+    protected static string[] EMPTY_STRING_ARRAY = new string[] { };
+
     protected MediaWorkflowStateType _mediaWorkflowStateType;
 
-    #region Construction and destruction
+    #region Constructor & maintainance
 
-    public void Dispose() { }
+    public DefaultVideoPlayerUIContributor() : base(300)
+    {
+      _subtitlesAvailableProperty = new WProperty(typeof(bool), false);
+      StartTimer();
+    }
+
+    public override void Dispose()
+    {
+      StopTimer();
+    }
 
     #endregion
+
+    #region Variables
+
+    protected ISubtitlePlayer _player;
+    protected AbstractProperty _subtitlesAvailableProperty;
+    protected string[] _subtitles = EMPTY_STRING_ARRAY;
+    protected ItemsList _subtitleMenuItems;
+
+    #endregion
+
+    public AbstractProperty SubtitlesAvailableProperty
+    {
+      get { return _subtitlesAvailableProperty; }
+    }
+
+    public bool SubtitlesAvailable
+    {
+      get { return (bool) _subtitlesAvailableProperty.GetValue(); }
+      set { _subtitlesAvailableProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Provides a list of items to be shown in the subtitle selection menu.
+    /// </summary>
+    public ItemsList SubtitleMenuItems
+    {
+      get
+      {
+        _subtitleMenuItems.Clear();
+        ISubtitlePlayer subtitlePlayer = _player;
+        if (subtitlePlayer != null && _subtitles.Length > 0)
+        {
+          string currentSubtitle = subtitlePlayer.CurrentSubtitle;
+           
+          foreach (string subtitle in _subtitles)
+          {
+            // Use local variable, otherwise delegate argument is not fixed
+            string localSubtitle = subtitle;
+
+            ListItem item = new ListItem(Consts.KEY_NAME, localSubtitle)
+            {
+              Command = new MethodDelegateCommand(() => subtitlePlayer.SetSubtitle(localSubtitle)),
+              // Check if it is the selected subtitle, then mark it
+              Selected = localSubtitle == currentSubtitle
+            };
+
+            _subtitleMenuItems.Add(item);
+          }
+        }
+        return _subtitleMenuItems;
+      }
+    }
+
 
     public bool BackgroundDisabled
     {
@@ -64,6 +133,41 @@ namespace MediaPortal.UiComponents.Media.Models
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
       _mediaWorkflowStateType = stateType;
+      _player = player as ISubtitlePlayer;
+      _subtitleMenuItems = new ItemsList();
+    }
+
+    // Update GUI properties
+    protected override void Update()
+    {
+      if (_player != null)
+      {
+        _subtitles = _player.Subtitles;
+        SubtitlesAvailable = _subtitles.Length > 0;
+      }
+      else
+        _subtitles = EMPTY_STRING_ARRAY;
+    }
+
+    /// <summary>
+    /// Opens the subtitle selection dialog.
+    /// </summary>
+    public void OpenChooseSubtitleDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSubtitle");
+    }
+
+    /// <summary>
+    /// Execute selected menu item for subtitle and chapter selection.
+    /// </summary>
+    /// <param name="item">One of the items of <see cref="SubtitleMenuItems"/>.</param>
+    public void Select(ListItem item)
+    {
+      if (item == null)
+        return;
+      ICommand command = item.Command;
+      if (command != null)
+        command.Execute();
     }
 
     public void ShowZoomModeDialog()

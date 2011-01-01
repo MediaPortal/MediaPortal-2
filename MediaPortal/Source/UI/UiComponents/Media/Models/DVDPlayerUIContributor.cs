@@ -184,7 +184,7 @@ namespace MediaPortal.UiComponents.Media.Models
       _chapterMenuItems = new ItemsList();
     }
 
-    // update GUI properties
+    // Update GUI properties
     protected override void Update()
     {
       DvdPlayerHandlesInput = _player.IsHandlingUserInput;

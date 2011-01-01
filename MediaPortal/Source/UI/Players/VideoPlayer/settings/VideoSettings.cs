@@ -46,13 +46,13 @@ namespace MediaPortal.UI.Players.Video.Settings
     #endregion
 
     /// <summary>
-    /// Gets or Sets CropSettings.
+    /// Gets or sets CropSettings.
     /// </summary>
     [Setting(SettingScope.User, null)]
     public CropSettings Crop { get; set; }
 
     /// <summary>
-    /// Gets or Sets default Geometry.
+    /// Gets or sets the default geometry to use.
     /// </summary>
     [Setting(SettingScope.User, "")]
     public string Geometry { get; set; }
@@ -65,80 +65,72 @@ namespace MediaPortal.UI.Players.Video.Settings
     public CodecInfo AudioCodec { get; set; }
 
     /// <summary>
-    /// Gets or Sets the preferred MPEG2 codec.
+    /// Gets or sets the preferred MPEG2 codec.
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo Mpeg2Codec { get; set; }
 
     /// <summary>
-    /// Gets or Sets the preferred H264 codec.
+    /// Gets or sets the preferred H264 codec.
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo H264Codec { get; set; }
 
     /// <summary>
-    /// Gets or Sets the preferred DivX codec.
+    /// Gets or sets the preferred DivX codec.
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo DivXCodec { get; set; }
 
     /// <summary>
-    /// Gets or Sets a flag if closed captions should be enabled by default.
+    /// Gets or sets a flag if closed captions should be enabled by default.
     /// </summary>
     [Setting(SettingScope.User, false)]
     public bool EnableClosedCaption { get; set; }
 
     /// <summary>
-    /// Gets or Sets a flag if subtitles should be enabled by default.
+    /// Gets or sets a flag if subtitles should be enabled by default.
     /// </summary>
     [Setting(SettingScope.User, false)]
     public bool EnableSubtitles { get; set; }
 
+
     /// <summary>
-    /// Gets or Sets the preferred subtitle language.
+    /// Gets or sets the preferred subtitle stream name for video playback.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public string PreferredSubtitleSteamName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the preferred subtitle language.
     /// If no choice was made before, the getter returns the global MP CurrentCulture.
     /// </summary>
     [Setting(SettingScope.User, 0)]
-    public int SubtitleLanguage
+    public int PreferredSubtitleLanguage
     {
-      get
-      {
-        return _subtitleLCID == 0
-            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
-            : _subtitleLCID;
-      }
+      get { return _subtitleLCID == 0 ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID : _subtitleLCID; }
       set { _subtitleLCID = value; }
     }
 
     /// <summary>
-    /// Gets or Sets the preferred audio language.
+    /// Gets or sets the preferred audio language.
     /// If no choice was made before, the getter returns the global MP CurrentCulture.
     /// </summary>
     [Setting(SettingScope.User, 0)]
-    public int AudioLanguage
+    public int PreferredAudioLanguage
     {
-      get
-      {
-        return _audioLCID == 0
-            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
-            : _audioLCID;
-      }
+      get { return _audioLCID == 0 ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID : _audioLCID; }
       set { _audioLCID = value; }
     }
 
     /// <summary>
-    /// Gets or Sets the preferred menu language.
+    /// Gets or sets the preferred menu language.
     /// If no choice was made before, the getter returns the global MP CurrentCulture.
     /// </summary>
     [Setting(SettingScope.User, 0)]
-    public int MenuLanguage
+    public int PreferredMenuLanguage
     {
-      get
-      {
-        return _menuLCID == 0
-            ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID
-            : _menuLCID;
-      }
+      get { return _menuLCID == 0 ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID : _menuLCID; }
       set { _menuLCID = value; }
     }
   }

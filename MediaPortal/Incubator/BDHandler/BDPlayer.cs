@@ -42,7 +42,7 @@ namespace MediaPortal.UI.Players.Video
   /// <summary>
   /// BDPlayer implements a BluRay player based on the raw files. Currently there is no menu support available.
   /// </summary>
-  public class BDPlayer : VideoPlayer, IDVDPlayer, ISubtitlePlayer
+  public class BDPlayer : VideoPlayer, IDVDPlayer
   {
     #region Consts and delegates
        
@@ -69,8 +69,6 @@ namespace MediaPortal.UI.Players.Video
 
     private double[] _chapterTimestamps;
     private string[] _chapterNames;
-
-    private string[] _subtitles;
 
     #endregion
 
@@ -195,39 +193,6 @@ namespace MediaPortal.UI.Players.Video
               _chapterNames[i - 1] = GetChapterName(i);
             }
           }
-        }
-
-        if (StreamSelector != null)
-        {
-          int cStreams;
-          StreamSelector.Count(out cStreams);
-
-          List<String> subtitles = new List<String>();
-
-          //GET STREAMS
-          for (int istream = 0; istream < cStreams; istream++)
-          {
-            AMMediaType sType;
-            AMStreamSelectInfoFlags sFlag;
-            int sPDWGroup, sPLCid;
-            string sName;
-            object pppunk, ppobject;
-
-            StreamSelector.Info(istream, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk,
-                                out ppobject);
-
-            if (sPDWGroup == 2 && sName.LastIndexOf("off") == -1 && sName.LastIndexOf("Hide ") == -1 &&
-                sName.LastIndexOf("No ") == -1 && sName.LastIndexOf("Miscellaneous ") == -1)
-            {
-              AddUnique(subtitles, sName);
-            }
-            //DirectVobSub SHOW SUBTITLE TAG
-            else if (sPDWGroup == 6590033 && sName.LastIndexOf("Show ") != -1)
-            {
-              AddUnique(subtitles, sName);
-            }
-          }
-          _subtitles = (subtitles.Count > 0) ? subtitles.ToArray() : null;
         }
       }
       catch { }
@@ -445,13 +410,12 @@ namespace MediaPortal.UI.Players.Video
       get { return null; }
     }
 
-
     /// <summary>
     /// Returns a localized chapter name.
     /// </summary>
     /// <param name="chapterNumber">0 based chapter number.</param>
     /// <returns>Localized chapter name.</returns>
-    private String GetChapterName(int chapterNumber)
+    private static String GetChapterName(int chapterNumber)
     {
       //Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
@@ -543,30 +507,6 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnKeyPress(Control.InputManager.Key key)
     { }
-
-    #endregion
-
-    #region ISubtitlePlayer Member
-
-    public string[] Subtitles
-    {
-      get { return _subtitles; }
-    }
-
-    public void SetSubtitle(string subtitle)
-    {
-      //TODO !
-      // currently no HDMV subtitle DirectShow decoder available???
-
-    }
-
-    public void DisableSubtitle()
-    { }
-
-    public string CurrentSubtitle
-    {
-      get { return null; }
-    }
 
     #endregion
   }
