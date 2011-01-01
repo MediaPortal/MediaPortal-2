@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     float[] g_center;
     float[] g_radius;
     Matrix g_relativetransform;
-    bool _refresh = false;
+    volatile bool _refresh = false;
 
     #endregion
 

@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected AbstractProperty _strokeProperty;
     protected AbstractProperty _strokeThicknessProperty;
 
-    protected bool _performLayout;
+    protected volatile bool _performLayout;
     protected PrimitiveBuffer _fillContext;
     protected PrimitiveBuffer _strokeContext;
     protected bool _hidden;
@@ -118,6 +118,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       StrokeThickness = s.StrokeThickness;
       Stretch = s.Stretch;
       Attach();
+      OnFillBrushPropertyChanged(_fillProperty, null);
+      OnStrokeBrushPropertyChanged(_strokeProperty, null);
     }
 
     #endregion
