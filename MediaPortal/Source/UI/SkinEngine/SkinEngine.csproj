@@ -95,6 +95,10 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImage.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
+    <Compile Include="Controls\Panels\IItemProvider.cs" />
+    <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
+    <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
+    <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Panels\UniformGrid.cs" />
     <Compile Include="Controls\Visuals\DefaultTextInputHandler.cs" />
@@ -103,7 +107,6 @@
     <Compile Include="Controls\Visuals\Templates\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\GroupBox.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
-    <Compile Include="Controls\Visuals\ISearchableItem.cs" />
     <Compile Include="Controls\Visuals\RadioButton.cs" />
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
@@ -292,7 +295,7 @@
     <Compile Include="Controls\Visuals\Triggers\Trigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\TriggerAction.cs" />
     <Compile Include="Controls\Visuals\UIElement.cs" />
-    <Compile Include="Controls\Visuals\UIElementCollection.cs" />
+    <Compile Include="Controls\Visuals\FrameworkElementCollection.cs" />
     <Compile Include="Controls\Visuals\Visual.cs" />
     <Compile Include="SkinEnginePlugin.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />

@@ -66,16 +66,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty.Attach(OnContentChanged);
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
-      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
+      _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
-      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
+      _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -92,11 +92,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-    }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
@@ -161,12 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _templateControl = null;
       if (oldTemplateControl != null)
-      {
-        oldTemplateControl.VisualParent = null;
-        oldTemplateControl.ResetScreen();
-        oldTemplateControl.Deallocate();
-        oldTemplateControl.Dispose();
-      }
+        oldTemplateControl.CleanupAndDispose();
       if (templateControl == null)
         return;
       object content = Content;
@@ -174,8 +164,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         templateControl.Context = Content;
       templateControl.VisualParent = this;
       templateControl.SetScreen(Screen);
+      templateControl.SetElementState(ElementState.Running);
       _templateControl = templateControl;
-      InvalidateLayout();
+      InvalidateLayout(true, true);
     }
 
     public FrameworkElement TemplateControl

@@ -58,6 +58,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SuperLayer,
     }
 
+  // TODO: Use _syncObj only for access on local variables; use the screen's own sync object to lock
+  // out threads during render and other screen access
   public class ScreenManager : IScreenManager
   {
     #region Consts
@@ -127,10 +129,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return false;
         background.Prepare();
         lock (_parent.SyncRoot)
-        {
           _backgroundScreen = background;
-          _backgroundScreen.ScreenState = Screen.State.Running;
-        }
         return true;
       }
 
@@ -141,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (_backgroundScreen == null)
             return;
-          _backgroundScreen.ScreenState = Screen.State.Closing;
+          _backgroundScreen.ScreenState = Screen.State.Closed;
           Screen oldBackground = _backgroundScreen;
           _backgroundScreen = null;
           _parent.ScheduleDisposeScreen(oldBackground);
@@ -521,8 +520,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         DialogData dd = dialogData;
         _dialogStack.Push(dd);
-
-        dialogData.DialogScreen.ScreenState = Screen.State.Running;
       }
       // Don't hold the lock while focusing the screen
       FocusScreen(dialogData.DialogScreen);
@@ -591,7 +588,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates)
     {
       Screen oldDialog = dd.DialogScreen;
-      oldDialog.ScreenState = Screen.State.Closing;
+      oldDialog.ScreenState = Screen.State.Closed;
       ScheduleDisposeScreen(oldDialog);
       if (fireCloseDelegates && dd.CloseCallback != null)
         dd.CloseCallback(dd.DialogScreen.Name, dd.DialogInstanceId);
@@ -611,7 +608,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         Screen screen = _currentScreen;
         _currentScreen = null;
 
-        screen.ScreenState = Screen.State.Closing;
+        screen.ScreenState = Screen.State.Closed;
         UnfocusCurrentScreen();
 
         ScheduleDisposeScreen(screen);
@@ -636,7 +633,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         DoCloseScreen();
         _currentScreen = screen;
       }
-      screen.ScreenState = Screen.State.Running;
       FocusScreen(screen);
     }
 
@@ -647,14 +643,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_currentSuperLayer != null)
-        {
-          _currentSuperLayer.ScreenState = Screen.State.Closing;
           ScheduleDisposeScreen(_currentSuperLayer);
-        }
         _currentSuperLayer = screen;
       }
-      if (screen != null)
-        screen.ScreenState = Screen.State.Running;
     }
 
     protected internal void DoReloadScreens()
@@ -793,6 +784,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
       IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
+      // The next lock operation could cause deadlocks, see comment of this class
       lock (_syncObj)
       {
         SkinContext.FrameRenderingStartTime = DateTime.Now;
@@ -1009,9 +1001,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public void Reset()
+    public void ResetSize()
     {
-      ForEachScreen(screen => screen.Reset());
+      ForEachScreen(screen => screen.ResetSize());
     }
 
     public DialogData ShowDialogEx(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
@@ -1180,7 +1172,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public Guid? ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       DialogData dd = ShowDialogEx(dialogName, dialogCloseCallback);
-      return dd.DialogScreen.ScreenInstanceId;
+      return dd == null ? new Guid?() : dd.DialogScreen.ScreenInstanceId;
     }
 
     public void CloseDialog(Guid dialogInstanceId)

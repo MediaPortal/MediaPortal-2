@@ -35,6 +35,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -68,6 +69,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Down,
     Left,
     Right
+  }
+
+  public class SetElementStateAction : IUIElementAction
+  {
+    protected ElementState _state;
+
+    public SetElementStateAction(ElementState state)
+    {
+      _state = state;
+    }
+
+    public void Execute(UIElement element)
+    {
+      ((FrameworkElement) element).ElementState = _state;
+    }
+  }
+
+  public enum ElementState
+  {
+    Available,
+    Running,
+    Disposing
   }
 
   public class FrameworkElement : UIElement
@@ -105,7 +128,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _updateOpacityMask = false;
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
-    protected bool _setFocus = false;
+    protected volatile bool _setFocus = false;
+    protected volatile bool _isMeasureInvalid = true;
+    protected volatile bool _isArrangeInvalid = true;
     protected Matrix? _inverseFinalTransform = null;
 
     #endregion
@@ -157,14 +182,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _widthProperty.Attach(OnLayoutPropertyChanged);
-      _heightProperty.Attach(OnLayoutPropertyChanged);
+      _widthProperty.Attach(OnMeasureGetsInvalid);
+      _heightProperty.Attach(OnMeasureGetsInvalid);
       _actualHeightProperty.Attach(OnActualBoundsChanged);
       _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);
 
+      _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
+      _marginProperty.Attach(OnMeasureGetsInvalid);
+      _visibilityProperty.Attach(OnMeasureGetsInvalid);
       _opacityProperty.Attach(OnOpacityChanged);
       _opacityMaskProperty.Attach(OnOpacityChanged);
       _actualPositionProperty.Attach(OnActualBoundsChanged);
@@ -172,14 +198,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
-      _widthProperty.Detach(OnLayoutPropertyChanged);
-      _heightProperty.Detach(OnLayoutPropertyChanged);
+      _widthProperty.Detach(OnMeasureGetsInvalid);
+      _heightProperty.Detach(OnMeasureGetsInvalid);
       _actualHeightProperty.Detach(OnActualBoundsChanged);
       _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
 
+      _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
+      _marginProperty.Detach(OnMeasureGetsInvalid);
+      _visibilityProperty.Detach(OnMeasureGetsInvalid);
       _opacityProperty.Detach(OnOpacityChanged);
       _opacityMaskProperty.Detach(OnOpacityChanged);
       _actualPositionProperty.Detach(OnActualBoundsChanged);
@@ -188,6 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
+      object oldLayoutTransform = LayoutTransform;
       base.DeepCopy(source, copyManager);
       FrameworkElement fe = (FrameworkElement) source;
       Width = fe.Width;
@@ -204,36 +232,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
+
+      // Need to manually call this because we are in a detached state
+      OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
+
       Attach();
     }
 
     #endregion
 
-    protected void UpdateFocus()
-    {
-      Screen screen = Screen;
-      if (screen == null)
-        return;
-      screen.UpdateFocusRect(ActualBounds);
-      if (!_setFocus)
-        return;
-      _setFocus = false;
-      FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
-      if (fe != null)
-        fe.TrySetFocus(true);
-    }
-
-    protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-      InvalidateParentLayout();
-    }
+    #region Event handlers
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
       Style.Set(this);
-      InvalidateLayout();
-      InvalidateParentLayout();
+      InvalidateLayout(true, true);
     }
 
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
@@ -241,22 +254,50 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _updateOpacityMask = true;
     }
 
-    /// <summary>
-    /// Called when a property value has been changed
-    /// Since all UIElement properties are layout properties
-    /// we're simply calling InvalidateLayout() here to invalidate the layout
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="oldValue">The old value of the property.</param>
-    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
+    void OnLayoutTransformChanged(IObservable observable)
     {
-      InvalidateLayout();
+      InvalidateLayout(true, true);
+    }
+
+    void OnLayoutTransformPropertyChanged(AbstractProperty property, object oldValue)
+    {
+      if (oldValue is Transform)
+        ((Transform) oldValue).ObjectChanged -= OnLayoutTransformChanged;
+      if (LayoutTransform != null)
+        LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }
 
     void OnOpacityChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
     }
+
+    /// <summary>
+    /// Called when a property has been changed which makes our arrangement invalid.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnArrangeGetsInvalid(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout(false, true);
+    }
+
+    /// <summary>
+    /// Called when a property has been changed which makes our measurement invalid.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnMeasureGetsInvalid(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout(true, false);
+    }
+
+    protected void OnCompleteLayoutGetsInvalid(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout(true, true);
+    }
+
+    #endregion
 
     #region Public properties
 
@@ -406,7 +447,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool SetFocus
     {
       get { return _setFocus; }
-      set { _setFocus = value; }
+      set
+      {
+        _setFocus = value;
+        InvalidateLayout(false, true);
+      }
     }
 
     public AbstractProperty HasFocusProperty
@@ -480,6 +525,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (int) _fontSizeProperty.GetValue(); }
       set { _fontSizeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// The element state reflects the state flow from prepared over running to disposing.
+    /// </summary>
+    /// <remarks>
+    /// The element state is used to determine the threading model for UI elements. In the <see cref="Visuals.ElementState.Available"/>
+    /// state, the UI element is not yet rendered and thus it is safe to change values of the rendering system directly.
+    /// In state <see cref="Visuals.ElementState.Running"/>, the UI element is being rendered and thus all values affecting the
+    /// rendering system must be set via the render thread (see <see cref="UIElement.SetValueInRenderThread"/>).
+    /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
+    /// other time-consuming tasks need to be executed.
+    /// </remarks>
+    public ElementState ElementState
+    {
+      get { return _elementState; }
+      set { _elementState = value; }
     }
 
     #endregion
@@ -564,6 +626,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       screen.FrameworkElementLostFocus(this);
     }
 
+    protected void UpdateFocus()
+    {
+      Screen screen = Screen;
+      if (screen == null)
+        return;
+      screen.UpdateFocusRect(ActualBounds);
+      if (!_setFocus)
+        return;
+      _setFocus = false;
+      FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
+      if (fe != null)
+        fe.TrySetFocus(true);
+    }
+
     /// <summary>
     /// Checks if the currently focused control is contained in this virtual keyboard control.
     /// </summary>
@@ -612,88 +688,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure & Arrange
 
-#if DEBUG_LAYOUT
-
-    public override void InvalidateLayout()
+    public void InvalidateLayout(bool invalidateMeasure, bool invalidateArrange)
     {
-      System.Diagnostics.Trace.WriteLine(string.Format("InvalidateLayout {0} Name='{1}'", GetType().Name, Name));
-      base.InvalidateLayout();
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("InvalidateLayout {0} Name='{1}', MeasureInvalid={2}, ArrangeInvalid={3}", GetType().Name, Name, invalidateMeasure, invalidateArrange));
+#endif
+      // Albert: Don't use this optimization because of threading issues
+      //if (_isMeasureInvalid == invalidateMeasure && _isArrangeInvalid == invalidateArrange)
+      //  return;
+      _isMeasureInvalid |= invalidateMeasure;
+      _isArrangeInvalid |= invalidateArrange;
+      InvalidateParentLayout(invalidateMeasure, invalidateArrange);
     }
 
-#endif
-
     /// <summary>
-    /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/>.
-    /// Must be done from the render thread.
+    /// Invalidates the layout of our visual parent.
+    /// The parent will re-layout itself and its children.
     /// </summary>
-    public void UpdateLayout()
+    public void InvalidateParentLayout(bool invalidateMeasure, bool invalidateArrange)
     {
-      // When measure or arrange is directly or indirectly called from the following code, we need the measure/arrange to be
-      // forced and not be optimized when the available size/outer rect are the same.
-      // We could introduce new variables _isMeasureInvalid and _isArrangementInvalid, set it to true here and
-      // check them in the Measure/Arrange methods, but it is easier to just clear our available size/outer rect cache which
-      // also causes the Measure/Arrange to take place:
-      _availableSize = null;
-      _outerRect = null;
-
-#if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}'", GetType().Name, Name));
-#endif
-
-      UIElement parent = VisualParent as UIElement;
-      if (parent == null)
-      {
-        Screen screen = Screen;
-        SizeF screenSize = screen == null ? SizeF.Empty : new SizeF(screen.SkinWidth, screen.SkinHeight);
-        SizeF size = new SizeF(screenSize);
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
-#endif
-        Measure(ref size);
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so we arrange with screen size {2}", GetType().Name, Name, size));
-#endif
-        // Ignore the measured size - arrange with screen size
-        Arrange(new RectangleF(new PointF(0, 0), screenSize));
-      }
-      else
-      { // We have a visual parent, i.e parent != null
-        if (!_availableSize.HasValue || !_outerRect.HasValue)
-        {
-#if DEBUG_LAYOUT
-          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no available size or no outer rect, updating layout at parent {2}", GetType().Name, Name, parent));
-#endif
-          // We weren't Measured nor Arranged before - need to update parent
-          parent.InvalidateLayout();
-          return;
-        }
-
-        SizeF availableSize = new SizeF(_availableSize.Value.Width, _availableSize.Value.Height);
-        SizeF formerDesiredSize = _desiredSize;
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with former available size {2}", GetType().Name, Name, availableSize));
-#endif
-        Measure(ref availableSize);
-
-        if (_desiredSize != formerDesiredSize)
-        {
-#if DEBUG_LAYOUT
-          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned different desired size, updating parent (former: {2}, now: {3})", GetType().Name, Name, formerDesiredSize, _desiredSize));
-#endif
-          // Our size has changed - we need to update our parent
-          parent.InvalidateLayout();
-          return;
-        }
-        // Our size is the same as before - just arrange
-        RectangleF outerRect = new RectangleF(_outerRect.Value.Location, _outerRect.Value.Size);
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned same desired size, arranging with old outer rect {2}", GetType().Name, Name, outerRect));
-#endif
-        Arrange(outerRect);
-      }
+      FrameworkElement parent = VisualParent as FrameworkElement;
+      if (parent != null)
+        parent.InvalidateLayout(invalidateMeasure, invalidateArrange);
     }
 
     /// <summary>
@@ -851,14 +867,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
 #endif
-      if (SameSize(_availableSize, totalSize))
+      if (!_isMeasureInvalid && SameSize(_availableSize, totalSize))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
         totalSize = _desiredSize;
 #if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
+        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before and measurement is not invalid, returns desired size={2}", GetType().Name, Name, totalSize));
 #endif
         return;
       }
+      _isMeasureInvalid = false;
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize, Margin);
 
@@ -886,6 +903,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         layoutTransform.Value.TransformIncludingRectangleSize(ref totalSize);
 
       AddMargin(ref totalSize, Margin);
+      if (totalSize != _desiredSize)
+        InvalidateLayout(false, true);
       _desiredSize = totalSize;
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', returns calculated desired size={2}", GetType().Name, Name, totalSize));
@@ -894,16 +913,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public sealed override void Arrange(RectangleF outerRect)
     {
+      if (_isMeasureInvalid)
+        return;
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
 #endif
-      if (SameRect(_outerRect, outerRect))
+      if (!_isArrangeInvalid && SameRect(_outerRect, outerRect))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
 #if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before and arrangement is not invalid", GetType().Name, Name, outerRect));
 #endif
         return;
       }
+      _isArrangeInvalid = false;
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
       RemoveMargin(ref rect, Margin);
@@ -932,6 +954,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeTriggers();
 
       ArrangeOverride();
+      UpdateFocus(); // Has to be done after all children have arranged
     }
 
     protected virtual void ArrangeOverride()
@@ -939,7 +962,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ActualPosition = _innerRect.Location;
       ActualWidth = _innerRect.Width;
       ActualHeight = _innerRect.Height;
-      UpdateFocus();
     }
 
     protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
@@ -1058,6 +1080,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    /// <summary>
+    /// Updates tle layout of this element in the render thread.
+    /// In this method, <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/> are called.
+    /// 
+    /// Must be called from the render thread before the call to <see cref="Render"/>.
+    /// </summary>
+    public void UpdateLayoutRoot()
+    {
+      Screen screen = Screen;
+      SizeF screenSize = screen == null ? SizeF.Empty : new SizeF(screen.SkinWidth, screen.SkinHeight);
+      SizeF size = new SizeF(screenSize);
+
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+#endif
+      Measure(ref size);
+
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, screenSize));
+#endif
+      // Ignore the measured size - arrange with screen size
+      Arrange(new RectangleF(new PointF(0, 0), screenSize));
+    }
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
@@ -1180,7 +1226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// which is able to get the focus.
     /// This method will search the control tree down starting with this element as root element.
     /// This method is only able to find focusable elements which are located at least one element outside the visible
-    /// range (see <see cref="AddPotentialFocusNeighbors"/>).
+    /// range (see <see cref="AddPotentialFocusableElements"/>).
     /// </summary>
     /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="dir">Direction, the result control should be positioned relative to the
@@ -1192,14 +1238,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!IsVisible)
         return null;
-      ICollection<FrameworkElement> focusableChildren;
-      if (currentFocusRect.HasValue)
-      {
-        focusableChildren = new List<FrameworkElement>();
-        AddPotentialFocusNeighbors(currentFocusRect.Value, focusableChildren);
-      }
-      else
-        focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      AddPotentialFocusableElements(currentFocusRect, focusableChildren);
       // Check child controls
       if (focusableChildren.Count == 0)
         return null;
@@ -1355,12 +1395,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Collects all focusable elements in the element tree starting with this element which are potentially located next
     /// to the given <paramref name="startingRect"/>.
-    /// This default implementation simply returns all children, but sub classes might return less.
-    /// The less elements are returned, the faster the focusing engine can find an element to be focused.
     /// </summary>
-    /// <param name="startingRect">Rectangle where to start searching.</param>
+    /// <remarks>
+    /// This default implementation simply returns this element and all children, but sub classes might restrict the
+    /// result collection.
+    /// The less elements are returned, the faster the focusing engine can find an element to be focused.
+    /// </remarks>
+    /// <param name="startingRect">Rectangle where to start searching. If this parameter is <c>null</c> (i.e. has no value),
+    /// all potential focusable elements should be returned.</param>
     /// <param name="elements">Collection to add elements which are able to get the focus.</param>
-    public virtual void AddPotentialFocusNeighbors(RectangleF startingRect, ICollection<FrameworkElement> elements)
+    public virtual void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
       if (!IsVisible)
         return;
@@ -1372,7 +1416,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!child.IsVisible)
           continue;
-        child.AddPotentialFocusNeighbors(startingRect, elements);
+        child.AddPotentialFocusableElements(startingRect, elements);
       }
     }
 

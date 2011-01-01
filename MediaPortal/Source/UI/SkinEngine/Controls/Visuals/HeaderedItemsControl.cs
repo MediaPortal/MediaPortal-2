@@ -152,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected override UIElement PrepareItemContainer(object dataItem)
+    protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
 // ReSharper disable UseObjectOrCollectionInitializer
       TreeViewItem container = new TreeViewItem

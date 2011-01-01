@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         scrollOffsetY = 0;
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
-      InvalidateLayout();
+      InvalidateLayout(false, true);
       InvokeScrolled();
     }
 
@@ -322,9 +322,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusEnd()
     {
-      if (TemplateControl == null)
+      FrameworkElement templateControl = TemplateControl;
+      if (templateControl == null)
         return false;
-      SetScrollOffset(-(float) TemplateControl.ActualWidth, -(float) TemplateControl.ActualHeight);
+      SetScrollOffset(-(float) templateControl.ActualWidth, -(float) templateControl.ActualHeight);
       return true;
     }
 
@@ -358,12 +359,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public float TotalWidth
     {
-      get { return TemplateControl == null ? 0 : (float) TemplateControl.ActualWidth; }
+      get
+      {
+        FrameworkElement templateControl = TemplateControl;
+        return templateControl == null ? 0 : (float) templateControl.ActualWidth;
+      }
     }
 
     public float TotalHeight
     {
-      get { return TemplateControl == null ? 0 : (float) TemplateControl.ActualHeight; }
+      get
+      {
+        FrameworkElement templateControl = TemplateControl;
+        return templateControl == null ? 0 : (float) templateControl.ActualHeight;
+      }
     }
 
     public float ViewPortWidth

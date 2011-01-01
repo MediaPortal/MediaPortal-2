@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
@@ -43,6 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected int _startsWithIndex = 0;
     protected Panel _itemsHostPanel = null;
     protected bool _canScroll = false;
+    protected IList<string> _dataStrings = null;
 
     #endregion
 
@@ -55,6 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ItemsPresenter ip = (ItemsPresenter) source;
       _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
       _canScroll = ip._canScroll;
+      _dataStrings = ip._dataStrings;
       AttachScrolling();
     }
 
@@ -172,6 +176,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return false;
     }
 
+    public void SetDataStrings(IList<string> dataStrings)
+    {
+      _dataStrings = dataStrings == null ? null : new List<string>(dataStrings.Select(s => s.ToLowerInvariant()));
+    }
+
     /// <summary>
     /// Moves the focus to the first child item whose content starts with the specified
     /// <paramref name="startsWith"/> character.
@@ -181,26 +190,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <paramref name="startsWith"/>.</param>
     public bool FocusItemWhichStartsWith(char startsWith, int index)
     {
-      startsWith = char.ToLower(startsWith);
-      foreach (UIElement element in _itemsHostPanel.Children)
+      if (_dataStrings == null || _itemsHostPanel == null)
+        return false;
+      string startsWithStr = char.ToLower(startsWith).ToString();
+      FrameworkElement element = null;
+      int elementIndex = -1;
+      for (int i = 0; i < _dataStrings.Count; i++)
       {
-        ISearchableItem searchItem = element as ISearchableItem;
-        if (searchItem == null)
-          continue;
-        string dataString = searchItem.DataString.ToLower();
-        if (!string.IsNullOrEmpty(dataString) && dataString.StartsWith(startsWith.ToString()))
+        string dataString = _dataStrings[i];
+        if (dataString.StartsWith(startsWithStr))
         {
           if (index == 0)
           {
-            FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(searchItem as FrameworkElement);
-            if (focusable != null)
-              focusable.TrySetFocus(true);
-            return true;
+            FrameworkElement ele = _itemsHostPanel.GetElement(i);
+            if (ele == null || !ele.IsVisible)
+              continue;
+            element = ele;
+            elementIndex = i;
+            break;
           }
           index--;
         }
       }
-      return false;
+      if (element == null)
+        return false;
+      _itemsHostPanel.MakeItemVisible(elementIndex);
+      element.SetFocus = true; // For VirtualizingStackPanel, the item might not be in the visual tree yet so defer the focus setting to the next layouting
+      return true;
     }
 
     #region IScrollViewerFocusSupport implementation

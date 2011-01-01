@@ -37,6 +37,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  // TODO: We don't notice font changes if font is declared on a parent element
   public class TextControl : Control
   {
     #region Protected fields
@@ -81,22 +82,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _textProperty.Attach(OnTextChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
-      _colorProperty.Attach(OnColorChanged);
-      _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
-      _textAlignProperty.Attach(OnTextAlignChanged);
+      _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
       _hasFocusProperty.Attach(OnHasFocusChanged);
+      _fontFamilyProperty.Attach(OnFontChanged);
+      _fontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
-      _colorProperty.Detach(OnColorChanged);
-      _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
-      _textAlignProperty.Detach(OnTextAlignChanged);
+      _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
       _hasFocusProperty.Attach(OnHasFocusChanged);
+      _fontFamilyProperty.Detach(OnFontChanged);
+      _fontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -111,14 +112,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    void OnColorChanged(AbstractProperty prop, object oldValue)
-    {
-    }
-
-    void OnTextAlignChanged(AbstractProperty prop, object oldValue)
-    {
-    }
 
     void OnHasFocusChanged(AbstractProperty prop, object oldValue)
     {
@@ -155,12 +148,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _asset.Text = text;
     }
 
-    void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
-    {
-      InvalidateLayout();
-      InvalidateParentLayout();
-    }
-
     protected AbstractTextInputHandler CreateTextInputHandler()
     {
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
@@ -176,8 +163,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new DefaultTextInputHandler(this, internalTextPropertyDataDescriptor, caretIndexDataDescriptor);
     }
 
-    protected override void OnFontChanged(AbstractProperty prop, object oldValue)
+    protected void OnFontChanged(AbstractProperty prop, object oldValue)
     {
+      InvalidateLayout(true, true);
       if (_asset == null)
         AllocFont();
       else

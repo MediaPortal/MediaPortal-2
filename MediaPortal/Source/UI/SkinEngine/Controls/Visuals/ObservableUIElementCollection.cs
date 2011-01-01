@@ -25,18 +25,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public delegate void CollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : UIElement;
+  public delegate void CollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : FrameworkElement;
 
-  public class ObservableUIElementCollection<T> : ICollection<T>, IDisposable, IAddChild<T> where T : UIElement
+  public class ObservableUIElementCollection<T> : ICollection<T>, IDisposable, IAddChild<T>, ISynchronizable where T : FrameworkElement
   {
-    protected UIElement _parent;
+    protected FrameworkElement _parent;
     protected IList<T> _elements;
+    protected object _syncObj = new object();
 
-    public ObservableUIElementCollection(UIElement parent)
+    public ObservableUIElementCollection(FrameworkElement parent)
     {
       _parent = parent;
       _elements = new List<T>();
@@ -49,16 +51,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Clear();
     }
 
+    public object SyncRoot
+    {
+      get { return _syncObj; }
+    }
+
     public T this[int index]
     {
       get { return _elements[index]; }
       set
       {
-        if (value != _elements[index])
-        {
-          _elements[index] = value;
-          FireCollectionChanged();
-        }
+        lock (_syncObj)
+          if (value != _elements[index])
+          {
+            _elements[index] = value;
+            FireCollectionChanged();
+          }
       }
     }
 
@@ -73,46 +81,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Add(T element)
     {
-      element.VisualParent = _parent;
-      if (_parent != null)
-        element.SetScreen(_parent.Screen);
-      _elements.Add(element);
-      FireCollectionChanged();
+      lock (_syncObj)
+      {
+        element.VisualParent = _parent;
+        if (_parent != null)
+        {
+          element.SetScreen(_parent.Screen);
+          element.SetElementState(_parent.ElementState);
+        }
+        else
+          element.SetElementState(ElementState.Available);
+        _elements.Add(element);
+        FireCollectionChanged();
+      }
     }
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-      _elements.CopyTo(array, arrayIndex);
+      lock (_syncObj)
+        _elements.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(T element)
     {
-      bool result = _elements.Remove(element);
-      element.Deallocate();
-      element.Dispose();
-      FireCollectionChanged();
-      return result;
+      lock (_syncObj)
+      {
+        bool result = _elements.Remove(element);
+        element.CleanupAndDispose();
+        FireCollectionChanged();
+        return result;
+      }
     }
 
     public void Clear()
     {
-      foreach (T element in _elements)
+      lock (_syncObj)
       {
-        element.Deallocate();
-        element.Dispose();
+        foreach (T element in _elements)
+          element.CleanupAndDispose();
+        _elements.Clear();
+        FireCollectionChanged();
       }
-      _elements.Clear();
-      FireCollectionChanged();
     }
 
     public bool Contains(T item)
     {
-      return _elements.Contains(item);
+      lock (_syncObj)
+        return _elements.Contains(item);
     }
 
     public int Count
     {
-      get { return _elements.Count; }
+      get
+      {
+        lock (_syncObj)
+          return _elements.Count;
+      }
     }
 
     public bool IsReadOnly
@@ -144,7 +168,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void AddChild(T child)
     {
-      _elements.Add(child);
+      lock (_syncObj)
+        _elements.Add(child);
     }
 
     #endregion

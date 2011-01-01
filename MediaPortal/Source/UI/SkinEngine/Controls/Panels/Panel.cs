@@ -38,11 +38,11 @@ using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
-  public class ZOrderComparer : IComparer<UIElement>
+  public class ZOrderComparer : IComparer<FrameworkElement>
   {
-    #region IComparer<UIElement> Members
+    #region IComparer<FrameworkElement> Members
 
-    public int Compare(UIElement x, UIElement y)
+    public int Compare(FrameworkElement x, FrameworkElement y)
     {
       return Panel.GetZIndex(x).CompareTo(Panel.GetZIndex(y));
     }
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
   public enum Orientation { Vertical, Horizontal };
 
-  public class Panel : FrameworkElement, IAddChild<UIElement>
+  public abstract class Panel : FrameworkElement, IAddChild<FrameworkElement>
   {
     #region Constants
 
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected AbstractProperty _backgroundProperty;
     protected bool _isItemsHost = false;
     protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
-    protected List<UIElement> _renderOrder; // Cache for the render order of our children. Take care of locking out writing threads with the _renderLock.
+    protected List<FrameworkElement> _renderOrder = new List<FrameworkElement>(); // Cache for the render order of our children. Take care of locking out writing threads using the Children.SyncRoot.
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected PrimitiveBuffer _backgroundContext;
 
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Ctor
 
-    public Panel()
+    protected Panel()
     {
       Init();
       Attach();
@@ -113,9 +113,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _childrenProperty = new SProperty(typeof(UIElementCollection), new UIElementCollection(this));
+      _childrenProperty = new SProperty(typeof(FrameworkElementCollection), new FrameworkElementCollection(this));
       _backgroundProperty = new SProperty(typeof(Brush), null);
-      _renderOrder = new List<UIElement>();
     }
 
     void Attach()
@@ -135,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Panel p = (Panel) source;
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = p.IsItemsHost;
-      foreach (UIElement el in p.Children)
+      foreach (FrameworkElement el in p.Children)
         Children.Add(copyManager.GetCopy(el));
       Attach();
     }
@@ -145,17 +144,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void OnBrushChanged(IObservable observable)
     {
       _performLayout = true;
-    }
-
-    /// <summary>
-    /// Called when a layout property has changed
-    /// we're simply calling InvalidateLayout() here to invalidate the layout
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="oldValue">The old value of the property.</param>
-    protected void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
     }
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)
@@ -184,21 +172,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _childrenProperty; }
     }
 
-    public UIElementCollection Children
+    public FrameworkElementCollection Children
     {
-      get { return (UIElementCollection) _childrenProperty.GetValue(); }
-      internal set
-      {
-        UIElementCollection oldChildren = Children;
-        value.SetParent(this);
-        _childrenProperty.SetValue(value);
-        _updateRenderOrder = true;
-        // FIXME: This is a potential threading problem: If we are still rendering the old children in the render thread,
-        // we would have to wait here until the render pass has finished.
-        oldChildren.SetParent(null);
-        oldChildren.Dispose();
-        InvalidateLayout();
-      }
+      get { return (FrameworkElementCollection) _childrenProperty.GetValue(); }
     }
 
     public bool IsItemsHost
@@ -206,6 +182,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _isItemsHost; }
       set { _isItemsHost = value; }
     }
+
+    /// <summary>
+    /// Returns the <paramref name="index"/>th child element. Actually, this could be the same as using
+    /// the indexer <see cref="FrameworkElementCollection.this"/> on our <see cref="Children"/>, but <see cref="Children"/>
+    /// are not filled by every panel instance. <see cref="VirtualizingStackPanel"/> for example doesn't materialize
+    /// all children.
+    /// </summary>
+    /// <param name="index">Index of the child to return.</param>
+    /// <returns>Child element or <c>null</c> if the index is out of range.</returns>
+    public virtual FrameworkElement GetElement(int index)
+    {
+      lock (Children.SyncRoot)
+      {
+        if (index < 0 || index >= Children.Count)
+          return null;
+        return Children[index];
+      }
+    }
+
+    /// <summary>
+    /// Scrolls the panel's child with the given <paramref name="index"/> to the visible area, if possible.
+    /// </summary>
+    /// <param name="index">Index of the child to make visible. </param>
+    public virtual void MakeItemVisible(int index)
+    {
+      FrameworkElement element = GetElement(index);
+      if (element != null)
+        MakeVisible(element, element.ActualBounds);
+    }
+
 
     protected override void ArrangeOverride()
     {
@@ -221,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected virtual void RenderChildren(RenderContext localRenderContext)
     {
-      foreach (UIElement element in _renderOrder)
+      foreach (FrameworkElement element in _renderOrder)
         element.Render(localRenderContext);
     }
 
@@ -273,20 +279,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected IList<FrameworkElement> GetVisibleChildren()
     {
-      IList<FrameworkElement> result = new List<FrameworkElement>(Children.Count);
-      foreach (FrameworkElement child in Children)
-        if (child.IsVisible)
-          result.Add(child);
-      return result;
+      lock (Children.SyncRoot)
+      {
+        IList<FrameworkElement> result = new List<FrameworkElement>(Children.Count);
+        foreach (FrameworkElement child in Children)
+          if (child.IsVisible)
+            result.Add(child);
+        return result;
+      }
     }
 
     protected virtual void UpdateRenderOrder()
     {
       if (!_updateRenderOrder) return;
       _updateRenderOrder = false;
-      Children.FixZIndex();
-      lock (_renderLock)
+      lock (Children.SyncRoot)
       {
+        Children.FixZIndex();
         _renderOrder.Clear();
         CollectionUtils.AddAll(_renderOrder, GetVisibleChildren());
         _renderOrder.Sort(new ZOrderComparer());
@@ -295,19 +304,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
-      base.AddChildren(childrenOut);
-      CollectionUtils.AddAll(childrenOut, Children);
+      lock (Children.SyncRoot)
+        CollectionUtils.AddAll(childrenOut, Children);
     }
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      List<UIElement> children;
-      lock (_renderLock)
-        children = new List<UIElement>(_renderOrder);
+      List<FrameworkElement> children;
+      lock (Children.SyncRoot)
+        children = new List<FrameworkElement>(_renderOrder);
       // Iterate from last to first to find elements which are located on top
       for (int i = children.Count - 1; i >= 0; i--)
       {
-        UIElement current = children[i];
+        FrameworkElement current = children[i];
         if (!current.IsVisible)
           continue;
         if (current == child)
@@ -339,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region IAddChild<UIElement> Members
 
-    public void AddChild(UIElement o)
+    public void AddChild(FrameworkElement o)
     {
       Children.Add(o);
     }

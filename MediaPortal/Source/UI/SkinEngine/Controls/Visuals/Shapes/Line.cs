@@ -71,18 +71,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Attach()
     {
-      _x1Property.Attach(OnCoordinateChanged);
-      _y1Property.Attach(OnCoordinateChanged);
-      _x2Property.Attach(OnCoordinateChanged);
-      _y2Property.Attach(OnCoordinateChanged);
+      _x1Property.Attach(OnCompleteLayoutGetsInvalid);
+      _y1Property.Attach(OnCompleteLayoutGetsInvalid);
+      _x2Property.Attach(OnCompleteLayoutGetsInvalid);
+      _y2Property.Attach(OnCompleteLayoutGetsInvalid);
     }
 
     void Detach()
     {
-      _x1Property.Detach(OnCoordinateChanged);
-      _y1Property.Detach(OnCoordinateChanged);
-      _x2Property.Detach(OnCoordinateChanged);
-      _y2Property.Detach(OnCoordinateChanged);
+      _x1Property.Detach(OnCompleteLayoutGetsInvalid);
+      _y1Property.Detach(OnCompleteLayoutGetsInvalid);
+      _x2Property.Detach(OnCompleteLayoutGetsInvalid);
+      _y2Property.Detach(OnCompleteLayoutGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -98,12 +98,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     }
 
     #endregion
-
-    void OnCoordinateChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-      InvalidateParentLayout();
-    }
 
     public AbstractProperty X1Property
     {

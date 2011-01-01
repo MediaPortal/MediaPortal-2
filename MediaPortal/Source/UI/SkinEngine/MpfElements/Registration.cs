@@ -67,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Panels
       _objectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));
       _objectClassRegistrations.Add("StackPanel", typeof(SkinEngine.Controls.Panels.StackPanel));
+      _objectClassRegistrations.Add("VirtualizingStackPanel", typeof(SkinEngine.Controls.Panels.VirtualizingStackPanel));
       _objectClassRegistrations.Add("Canvas", typeof(SkinEngine.Controls.Panels.Canvas));
       _objectClassRegistrations.Add("Grid", typeof(SkinEngine.Controls.Panels.Grid));
       _objectClassRegistrations.Add("RowDefinition", typeof(SkinEngine.Controls.Panels.RowDefinition));
@@ -161,6 +162,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ItemsPanelTemplate));
       _objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
       _objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
+      _objectClassRegistrations.Add("DataStringProvider", typeof(SkinEngine.Controls.Visuals.Templates.DataStringProvider));
 
       // Resources/wrapper classes
       _objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));

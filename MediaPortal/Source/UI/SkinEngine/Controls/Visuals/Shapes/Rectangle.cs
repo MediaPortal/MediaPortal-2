@@ -64,14 +64,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Attach()
     {
-      _radiusXProperty.Attach(OnRadiusChanged);
-      _radiusYProperty.Attach(OnRadiusChanged);
+      _radiusXProperty.Attach(OnArrangeGetsInvalid);
+      _radiusYProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
-      _radiusXProperty.Detach(OnRadiusChanged);
-      _radiusYProperty.Detach(OnRadiusChanged);
+      _radiusXProperty.Detach(OnArrangeGetsInvalid);
+      _radiusYProperty.Detach(OnArrangeGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -85,12 +85,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     }
 
     #endregion
-
-    void OnRadiusChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-      InvalidateParentLayout();
-    }
 
     public AbstractProperty RadiusXProperty
     {
@@ -125,11 +119,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.DoPerformLayout(context);
 
       // Setup brushes
-      PositionColoredTextured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (GraphicsPath path = CreateRectanglePath(_innerRect))
         {
+          PositionColoredTextured[] verts;
           if (path.PointCount == 0)
             return;
           float centerX = _innerRect.Width / 2 + _innerRect.Left;

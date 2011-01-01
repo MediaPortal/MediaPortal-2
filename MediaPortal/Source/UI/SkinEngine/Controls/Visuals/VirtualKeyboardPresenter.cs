@@ -42,14 +42,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement oldKeyboardControl = _keyboardLayoutControl;
       _keyboardLayoutControl = null;
       if (oldKeyboardControl != null)
-        oldKeyboardControl.VisualParent = null;
+        oldKeyboardControl.CleanupAndDispose();
       if (keyboardLayoutControl == null)
         return;
       keyboardLayoutControl.Context = parent;
       keyboardLayoutControl.SetScreen(Screen);
+      keyboardLayoutControl.SetElementState(ElementState.Running);
       keyboardLayoutControl.VisualParent = this;
       _keyboardLayoutControl = keyboardLayoutControl;
-      InvalidateLayout();
+      InvalidateLayout(true, true);
     }
 
     public override void DoRender(RenderContext localRenderContext)

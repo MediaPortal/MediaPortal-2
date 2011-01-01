@@ -30,11 +30,10 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class TreeViewItem : HeaderedItemsControl, ISearchableItem, IAddChild<FrameworkElement>
+  public class TreeViewItem : HeaderedItemsControl, IAddChild<FrameworkElement>
   {
     #region Protected fields
 
-    protected AbstractProperty _dataStringProperty;
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _contentTemplateProperty;
 
@@ -50,7 +49,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _dataStringProperty = new SProperty(typeof(string), string.Empty);
       _contentProperty = new SProperty(typeof(object), null);
       _contentTemplateProperty = new SProperty(typeof(DataTemplate), null);
     }
@@ -77,7 +75,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object oldContentTemplate = ContentTemplate;
       base.DeepCopy(source, copyManager);
       TreeViewItem twi = (TreeViewItem) source;
-      DataString = twi.DataString;
 
       Content = copyManager.GetCopy(twi.Content);
       ContentTemplate = copyManager.GetCopy(twi.ContentTemplate);
@@ -116,8 +113,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ContentTemplate;
       hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
       ItemsSource = hdt.ItemsSource;
-      hdt.DataStringProperty.Attach(OnTemplateDataStringChanged);
-      DataString = hdt.DataString;
 
       InitializeContentPresenter();
     }
@@ -125,11 +120,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTemplateItemsSourceChanged(AbstractProperty property, object oldValue)
     {
       ItemsSource = (IEnumerable) property.GetValue();
-    }
-
-    void OnTemplateDataStringChanged(AbstractProperty property, object oldValue)
-    {
-      DataString = (string) property.GetValue();
     }
 
     protected void InitializeContentPresenter()
@@ -163,26 +153,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (DataTemplate) _contentTemplateProperty.GetValue(); }
       set { _contentTemplateProperty.SetValue(value); }
-    }
-
-    public AbstractProperty DataStringProperty
-    {
-      get { return _dataStringProperty; }
-    }
-
-    /// <summary>
-    /// Returns a string representation for the current <see cref="TreeViewItem"/>. This is used
-    /// by the scrolling engine to find the appropriate element when the user starts to type the first
-    /// letters to move the focus to a child entry.
-    /// </summary>
-    /// <remarks>
-    /// This value will automatically be set to the value of the <see cref="HierarchicalDataTemplate.DataString"/>
-    /// property.
-    /// </remarks>
-    public string DataString
-    {
-      get { return (string) _dataStringProperty.GetValue(); }
-      set { _dataStringProperty.SetValue(value); }
     }
 
     #endregion

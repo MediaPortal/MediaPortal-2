@@ -246,17 +246,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         stoppedAnimations.Clear();
         CollectionUtils.AddAll(values, _valuesToSet);
+        _valuesToSet.Clear();
       }
       foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values) // Outside the lock - will change properties in the screen
         valueToSet.Key.Value = valueToSet.Value;
-      lock (_syncObject)
-      {
-        // Remove values which have already been set
-        object v;
-        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values)
-          if (_valuesToSet.TryGetValue(valueToSet.Key, out v) && v == valueToSet.Value)
-            _valuesToSet.Remove(valueToSet.Key);
-      }
     }
 
     protected void ResetAllValues(AnimationContext ac)

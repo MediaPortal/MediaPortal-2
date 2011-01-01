@@ -98,6 +98,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void PrepareVisual()
     {
+      if (_preparedVisual != null)
+      {
+        _preparedVisual.SetElementState(ElementState.Available);
+        _preparedVisual.Deallocate();
+      }
       if (_screen == null)
         return;
       FrameworkElement visual = Visual;
@@ -107,6 +112,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         // We must bypass normal layout or the visual will be layed out to screen/skin size
         visual.SetScreen(_screen);
+        if (visual.ElementState == ElementState.Available)
+          visual.SetElementState(ElementState.Running);
         SizeF size = _vertsBounds.Size;
         visual.Measure(ref size);
         visual.Arrange(new RectangleF(new PointF(0, 0), _vertsBounds.Size));

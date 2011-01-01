@@ -231,6 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected SizeF _desiredSize; // Desired size in parent coordinate system
     protected RectangleF _innerRect;
     protected ResourceDictionary _resources;
+    protected ElementState _elementState = ElementState.Available;
     protected IExecutableCommand _loaded;
     protected bool _initializeTriggers = true;
     protected bool _fireLoaded = true;
@@ -244,7 +245,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected UIElement()
     {
       Init();
-      Attach();
     }
 
     void Init()
@@ -266,25 +266,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _opacityMaskProperty = new SProperty(typeof(Brushes.Brush), null);
     }
 
-    void Attach()
-    {
-      _marginProperty.Attach(OnLayoutPropertyChanged);
-      _visibilityProperty.Attach(OnVisibilityPropertyChanged);
-      _opacityProperty.Attach(OnOpacityPropertyChanged);
-      _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
-    }
-
-    void Detach()
-    {
-      _marginProperty.Detach(OnLayoutPropertyChanged);
-      _visibilityProperty.Detach(OnVisibilityPropertyChanged);
-      _opacityProperty.Detach(OnOpacityPropertyChanged);
-      _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
-    }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = (UIElement) source;
       // We do not copy the focus flag, only one element can have focus
@@ -299,19 +282,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Opacity = el.Opacity;
       Loaded = copyManager.GetCopy(el.Loaded);
       OpacityMask = copyManager.GetCopy(el.OpacityMask);
-      object oldLayoutTransform = LayoutTransform;
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
       TemplateNameScope = copyManager.GetCopy(el.TemplateNameScope);
       _resources = copyManager.GetCopy(el._resources);
 
-      // Need to manually call this because we are in a detached state
-      OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
-
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
-      Attach();
 
       copyManager.CopyCompleted += OnCopyCompleted;
     }
@@ -332,39 +310,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // That's why we cannot simply copy the Name property in the DeepCopy method.
       Name = _tempName;
       _tempName = null;
-    }
-
-    void OnOpacityPropertyChanged(AbstractProperty property, object oldValue)
-    {
-    }
-
-    void OnVisibilityPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateParentLayout();
-    }
-
-    /// <summary>
-    /// Called when a property value has been changed which makes the current layout invalid.
-    /// This method will call InvalidateLayout() to invalidate the layout.
-    /// </summary>
-    /// <param name="property">The property which was changed.</param>
-    /// <param name="oldValue">The old value of the property.</param>
-    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-    }
-
-    void OnLayoutTransformChanged(IObservable observable)
-    {
-      InvalidateLayout();
-    }
-
-    void OnLayoutTransformPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      if (oldValue is Transform)
-        ((Transform) oldValue).ObjectChanged -= OnLayoutTransformChanged;
-      if (LayoutTransform != null)
-        LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }
 
     public void SetResources(ResourceDictionary resources)
@@ -662,8 +607,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns the information if the specified (absolute) coordinates lay in this element's range and this control is
-    /// visible at the given coords.
+    /// Returns the information if the specified (absolute) coordinates are located in this element's range and
+    /// this control is visible at the given coords.
     /// </summary>
     /// <param name="x">Absolute X-coordinate.</param>
     /// <param name="y">Absolute Y-coordinate.</param>
@@ -675,7 +620,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns the information if the specified (absolute) coordinates lay in this element's range.
+    /// Returns the information if the specified (absolute) coordinates are located in this element's range.
     /// </summary>
     /// <param name="x">Absolute X-coordinate.</param>
     /// <param name="y">Absolute Y-coordinate.</param>
@@ -730,30 +675,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
-    /// <summary>
-    /// Invalidates the layout of this UIElement.
-    /// If dimensions change, it will invalidate the parent visual so the parent
-    /// will re-layout itself and its children.
-    /// </summary>
-    public virtual void InvalidateLayout()
-    {
-      Screen screen = Screen;
-      if (screen != null)
-        screen.InvalidateLayout(this);
-    }
-
-    /// <summary>
-    /// Invalidates the layout of our visual parent.
-    /// The parent will re-layout itself and its children.
-    /// </summary>
-    public void InvalidateParentLayout()
-    {
-      UIElement parent = VisualParent as UIElement;
-      if (parent != null)
-        parent.InvalidateLayout();
-    }
-
     #endregion
+
+    protected internal void CleanupAndDispose()
+    {
+      VisualParent = null;
+      SetElementState(ElementState.Disposing);
+      ResetScreen();
+      Deallocate();
+      Dispose();
+    }
 
     /// <summary>
     /// Finds the resource with the given resource key.
@@ -788,7 +719,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
       Screen screen = Screen;
-      if (screen == null)
+      if (screen == null || _elementState == ElementState.Available)
         dataDescriptor.Value = value;
       else
         screen.Animator.SetValue(dataDescriptor, value);
@@ -1075,16 +1006,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
     }
 
+    /// <summary>
+    /// Sets the element state. The <see cref="Screen"/> must have been assigned before the element state is set to
+    /// <see cref="Visuals.ElementState.Running"/>.
+    /// </summary>
+    /// <param name="state"></param>
+    public void SetElementState(ElementState state)
+    {
+      ForEachElementInTree_BreadthFirst(new SetElementStateAction(state));
+    }
+
     public void ResetScreen()
     {
       ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
     }
 
-    public static bool InVisualPath(UIElement check, UIElement child)
+    public static bool InVisualPath(UIElement possibleParent, UIElement child)
     {
       Visual current = child;
       while (current != null)
-        if (ReferenceEquals(check, current))
+        if (ReferenceEquals(possibleParent, current))
           return true;
         else
           current = current.VisualParent;

@@ -36,6 +36,7 @@ using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.Utilities.Exceptions;
 using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
@@ -116,6 +117,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return false;
         return _element.Equals(((InvalidControl) o)._element);
       }
+
+      public override string ToString()
+      {
+        return string.Format("Element: {0}, Depth: {1}", _element, TreeDepth);
+      }
     }
 
     #endregion
@@ -124,16 +130,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public enum State
     {
-      Opening,
+      Preparing,
       Running,
-      Closing
+      Closed
     }
 
     #endregion
 
     #region Protected fields
 
-    protected State _state = State.Running;
+    protected State _state = State.Preparing;
     protected Guid _screenInstanceId = Guid.NewGuid();
     protected string _name;
     protected int _skinWidth;
@@ -153,7 +159,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected FrameworkElement _visual;
     protected PointF? _mouseMovePending = null;
     protected Animator _animator;
-    protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
     protected Guid? _virtualKeyboardDialogGuid = null;
     protected RenderContext _renderContext;
@@ -190,7 +195,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         _visual = value;
         if (_visual != null)
+        {
           _visual.SetScreen(this);
+          ScreenState = ScreenState; // Set the visual's element state via our ScreenState setter
+        }
       }
     }
 
@@ -215,7 +223,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public State ScreenState
     {
       get { return _state; }
-      set { _state = value; }
+      set
+      {
+        if (value == State.Preparing)
+          _visual.SetElementState(ElementState.Available);
+        else if (value == State.Running)
+          _visual.SetElementState(ElementState.Running);
+        else if (value == State.Closed)
+          _visual.SetElementState(ElementState.Disposing);
+        else
+          throw new IllegalCallException("Invalid screen state transition from {0} to {1}", _state, value);
+        _state = value;
+      }
     }
 
     public string Name
@@ -300,9 +319,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _keyBindings.Remove(key);
     }
 
-    public void Reset()
+    public void ResetSize()
     {
-      _visual.InvalidateLayout();
+      _visual.InvalidateLayout(true, false);
     }
 
     public void Animate()
@@ -318,25 +337,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       lock (_visual)
       {
-        // Updating invalid elements works as follows:
-        // We start updating the layout of elements which have the biggest distance from the visual root, moving
-        // towards the root. The distance is the number of references which must be followed from the element along its
-        // VisualParent property until the root visual is reached.
-        // If we wouldn't follow that order and we would call the UpdateLayout method of an invalid parent P before the
-        // UpdateLayout method of an invalid child C, we could produce a situation where C gets arranged but was not measured.
-        //
-        // To achieve that call sequence, the _invalidLayoutControls list is ordered by the distance of the referenced
-        // element from the root.
-        // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
-        // more entries because the updated element escalates the layout update to its parent. That's the reason why we
-        // cannot simply use an enumerator.
-        lock (_invalidLayoutControls)
-          while (_invalidLayoutControls.Count > 0)
-          {
-            InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
-            _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
-            ic.Element.UpdateLayout();
-          }
         if (_mouseMovePending.HasValue)
         {
           float x = _mouseMovePending.Value.X;
@@ -344,6 +344,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           HandleMouseMove(x, y);
         }
+        _visual.UpdateLayoutRoot();
         _visual.Render(_renderContext);
       }
     }
@@ -385,13 +386,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _visual.Allocate();
         _visual.Initialize();
 
-        _visual.InvalidateLayout();
-        _visual.UpdateLayout();
+        _visual.InvalidateLayout(true, true);
+        _visual.UpdateLayoutRoot();
+        _visual.SetElementState(ElementState.Running);
       }
     }
 
     public void Close()
     {
+      ScreenState = State.Closed;
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
       lock (_visual)
       {
@@ -492,23 +495,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (key == Key.None)
           return;
         OnKeyPress(ref key);
-      }
-    }
-
-    public void InvalidateLayout(UIElement element)
-    {
-      FrameworkElement fe = element as FrameworkElement;
-      if (fe == null)
-        return;
-      InvalidControl ic = new InvalidControl(fe);
-      lock (_invalidLayoutControls)
-      {
-        if (_invalidLayoutControls.Contains(ic))
-          return;
-        int index = _invalidLayoutControls.BinarySearch(ic);
-        if (index < 0)
-          index = ~index; // See IList<T>.BinarySearch(T)
-        _invalidLayoutControls.Insert(index, ic);
       }
     }
 

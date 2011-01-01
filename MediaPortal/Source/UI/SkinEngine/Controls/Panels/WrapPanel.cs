@@ -67,12 +67,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Attach()
     {
-      _orientationProperty.Attach(OnLayoutPropertyChanged);
+      _orientationProperty.Attach(OnCompleteLayoutGetsInvalid);
     }
 
     void Detach()
     {
-      _orientationProperty.Detach(OnLayoutPropertyChanged);
+      _orientationProperty.Detach(OnCompleteLayoutGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

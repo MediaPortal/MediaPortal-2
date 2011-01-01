@@ -217,8 +217,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       if (other is ValueDataDescriptor)
         return ValueEquals((ValueDataDescriptor) other);
-      else
-        return false;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return "Value: " + (_value == null ? "null" : _value.ToString());
     }
   }
 
@@ -381,9 +385,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public bool IndicesEquals(object[] otherIndices)
     {
+      bool otherNull = otherIndices == null;
       if (_indices == null)
-        return otherIndices == null;
-      else if (otherIndices == null)
+        return otherNull;
+      if (otherNull)
         return false;
       if (_indices.GetLength(0) != otherIndices.GetLength(0))
         return false;
@@ -405,15 +410,23 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public override int GetHashCode()
     {
-      return _target.GetHashCode()+_indices.GetHashCode();
+      int sum = 0;
+      if (_indices != null)
+        foreach (object o in _indices)
+          sum += o.GetHashCode();
+      return _target.GetHashCode() + sum;
     }
 
     public override bool Equals(object other)
     {
       if (other is IndexerDataDescriptor)
         return TargetEquals((IndexerDataDescriptor) other);
-      else
-        return false;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Target: {0}, indices: {1}", _target, StringUtils.Join(", ", _indices));
     }
   }
 
@@ -555,9 +568,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public bool IndicesEquals(object[] otherIndices)
     {
+      bool otherNull = otherIndices == null;
       if (_indices == null)
-        return otherIndices == null;
-      else if (otherIndices == null)
+        return otherNull;
+      if (otherNull)
         return false;
       if (_indices.GetLength(0) != otherIndices.GetLength(0))
         return false;
@@ -590,8 +604,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       if (other is SimplePropertyDataDescriptor)
         return TargetEquals((SimplePropertyDataDescriptor) other);
-      else
-        return false;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Obj: {0}, indices: {1}", _obj, StringUtils.Join(", ", _indices));
     }
   }
 
@@ -742,8 +760,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       if (other is FieldDataDescriptor)
         return TargetEquals((FieldDataDescriptor) other);
-      else
-        return false;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Obj: {0}, Field: {1}", _obj, _fld.Name);
     }
   }
 
@@ -916,22 +938,25 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <param name="other">Other descriptor whose target object and property should be compared.</param>
     public bool TargetEquals(DependencyPropertyDataDescriptor other)
     {
-      return _obj.Equals(other._obj) && _propertyName.Equals(other._propertyName) && _prop.Equals(other._prop);
+      return _obj.Equals(other._obj) && _propertyName.Equals(other._propertyName);
     }
 
     public override int GetHashCode()
     {
-      return _obj.GetHashCode() + _propertyName.GetHashCode() + _prop.GetHashCode();
+      return _obj.GetHashCode() + _propertyName.GetHashCode();
     }
 
     public override bool Equals(object other)
     {
       if (other is DependencyPropertyDataDescriptor)
         return TargetEquals((DependencyPropertyDataDescriptor) other);
-      else
-        return false;
+      return false;
     }
 
+    public override string ToString()
+    {
+      return string.Format("Obj: {0}, Property: {1}", _obj, _propertyName);
+    }
   }
 
   /// <summary>
@@ -1098,8 +1123,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       if (other is DataDescriptorRepeater)
         return TargetEquals((DataDescriptorRepeater) other);
-      else
-        return false;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Underlaying DataDescriptor: {0}", _value);
     }
   }
 }

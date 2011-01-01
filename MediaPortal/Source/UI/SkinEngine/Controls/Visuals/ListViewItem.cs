@@ -22,86 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.Utilities.DeepCopy;
-
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class ListViewItem : ContentControl, ISearchableItem
+  public class ListViewItem : ContentControl
   {
-    #region Protected fields
-
-    protected AbstractProperty _dataStringProperty;
-
-    #endregion
-
-    #region Ctor
-
-    public ListViewItem()
-    {
-      Init();
-      Attach();
-    }
-
-    void Init()
-    {
-      _dataStringProperty = new SProperty(typeof(string), string.Empty);
-    }
-
-    void Attach()
-    {
-      ContentTemplateProperty.Attach(OnContentTemplateChanged);
-    }
-
-    void Detach()
-    {
-      ContentTemplateProperty.Detach(OnContentTemplateChanged);
-    }
-
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      Detach();
-      base.DeepCopy(source, copyManager);
-      DataString = DataString;
-      Attach();
-    }
-
-    #endregion
-
-    void OnContentTemplateChanged(AbstractProperty property, object oldValue)
-    {
-      DataTemplate dt = ContentTemplate;
-      dt.DataStringProperty.Attach(OnTemplateDataStringChanged);
-      DataString = dt.DataString;
-    }
-
-    void OnTemplateDataStringChanged(AbstractProperty property, object oldValue)
-    {
-      DataString = (string) property.GetValue();
-    }
-
-    #region Public properties
-
-    public AbstractProperty DataStringProperty
-    {
-      get { return _dataStringProperty; }
-    }
-
-    /// <summary>
-    /// Returns a string representation for the current <see cref="ListViewItem"/>. This is used
-    /// by the scrolling engine to find the appropriate element when the user starts to type the first
-    /// letters to move the focus to a child entry.
-    /// </summary>
-    /// <remarks>
-    /// This value will automatically be set to the value of the <see cref="DataTemplate.DataString"/> property.
-    /// </remarks>
-    public string DataString
-    {
-      get { return (string) _dataStringProperty.GetValue(); }
-      set { _dataStringProperty.SetValue(value); }
-    }
-
-    #endregion
   }
 }

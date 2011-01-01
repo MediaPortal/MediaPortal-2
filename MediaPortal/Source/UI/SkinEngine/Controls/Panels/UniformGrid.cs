@@ -79,14 +79,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Attach()
     {
-      _columnsProperty.Attach(OnLayoutPropertyChanged);
-      _rowsProperty.Attach(OnLayoutPropertyChanged);
+      _columnsProperty.Attach(OnCompleteLayoutGetsInvalid);
+      _rowsProperty.Attach(OnCompleteLayoutGetsInvalid);
     }
 
     void Detach()
     {
-      _columnsProperty.Detach(OnLayoutPropertyChanged);
-      _rowsProperty.Detach(OnLayoutPropertyChanged);
+      _columnsProperty.Detach(OnCompleteLayoutGetsInvalid);
+      _rowsProperty.Detach(OnCompleteLayoutGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         scrollIndexY = 0;
       _scrollIndexX = scrollIndexX;
       _scrollIndexY = scrollIndexY;
-      InvalidateLayout();
+      InvalidateLayout(false, true);
       InvokeScrolled();
     }
 
@@ -209,8 +209,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
       else
       {
-        _actualColumnWidth = (float) (ActualWidth / _actualColumns);
-        _actualRowHeight = (float) (ActualHeight / _actualRows);
+        _actualColumnWidth = (float) (ActualWidth/_actualColumns);
+        _actualRowHeight = (float) (ActualHeight/_actualRows);
       }
 
       _actualNumVisibleCols = (int) (ActualWidth/_actualColumnWidth);
@@ -322,10 +322,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (!_updateRenderOrder) return;
       _updateRenderOrder = false;
-      lock (_renderLock) // We must aquire the render lock when accessing the _renderOrder
+      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
       {
-        if (_renderOrder == null || Children == null)
-          return;
+        Children.FixZIndex();
         _renderOrder.Clear();
         RectangleF bounds = ActualBounds;
         foreach (FrameworkElement element in Children)
@@ -388,11 +387,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the topmost elements is focused - move one page up
           limitPosition = child.ActualBounds.Bottom - (float) ActualHeight;
       }
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
-      if (focusableChildren.Count == 0)
-        return false;
       FrameworkElement nextElement;
-      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
+      while ((nextElement = FindNextFocusElement(visibleChildren, currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
           (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -417,11 +413,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the elements at the bottom is focused - move one page down
           limitPosition = child.ActualPosition.Y + (float) ActualHeight;
       }
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
-      if (focusableChildren.Count == 0)
-        return false;
       FrameworkElement nextElement;
-      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
+      while ((nextElement = FindNextFocusElement(visibleChildren, currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
           (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -446,11 +439,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the lefmost elements is focused - move one page left
           limitPosition = child.ActualBounds.Right - (float) ActualWidth;
       }
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
-      if (focusableChildren.Count == 0)
-        return false;
       FrameworkElement nextElement;
-      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
+      while ((nextElement = FindNextFocusElement(visibleChildren, currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
           (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);
@@ -475,11 +465,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // One of the rightmost elements is focused - move one page right
           limitPosition = child.ActualPosition.X + (float) ActualWidth;
       }
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
-      if (focusableChildren.Count == 0)
-        return false;
       FrameworkElement nextElement;
-      while ((nextElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
+      while ((nextElement = FindNextFocusElement(visibleChildren, currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
           (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
         currentElement = nextElement;
       return currentElement.TrySetFocus(true);

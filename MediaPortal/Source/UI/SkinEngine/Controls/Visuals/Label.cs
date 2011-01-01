@@ -32,6 +32,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  // TODO: We don't notice font changes if font is declared on a parent element
   public class Label : Control
   {
     public const double DEFAULT_SCROLL_SPEED = 20.0;
@@ -79,6 +80,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fontSizeProperty.Attach(OnFontChanged);      
       _wrapProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
+
+      _fontFamilyProperty.Attach(OnFontChanged);
+      _fontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
@@ -92,6 +96,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fontSizeProperty.Detach(OnFontChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
+
+      _fontFamilyProperty.Detach(OnFontChanged);
+      _fontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -119,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeResourceString();
       if (_asset != null)
         _asset.Text = _resourceString;
-      InvalidateLayout();
+      InvalidateLayout(true, false);
     }
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
@@ -127,11 +134,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       AllocFont();
       if (_asset != null)
         _asset.ResetScrollPosition();
-      InvalidateLayout();
+      InvalidateLayout(true, false);
     }
 
-    protected override void OnFontChanged(AbstractProperty prop, object oldValue)
+    protected void OnFontChanged(AbstractProperty prop, object oldValue)
     {
+      InvalidateLayout(true, false);
       if (_asset != null)
         _asset.SetFont(GetFontFamilyOrInherited(), GetFontSizeOrInherited());
     }

@@ -93,20 +93,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _sourceProperty.Attach(OnSourceChanged);
       _fallbackSourceProperty.Attach(OnSourceChanged);
-      _stretchProperty.Attach(OnLayoutChanged);
-      _stretchDirectionProperty.Attach(OnLayoutChanged);
-      _thumbnailProperty.Attach(OnLayoutChanged);
-      _skinNeutralProperty.Attach(OnLayoutChanged);
+      _stretchProperty.Attach(OnArrangeGetsInvalid);
+      _stretchDirectionProperty.Attach(OnArrangeGetsInvalid);
+      _thumbnailProperty.Attach(OnArrangeGetsInvalid);
+      _skinNeutralProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
       _sourceProperty.Detach(OnSourceChanged);
       _fallbackSourceProperty.Detach(OnSourceChanged);
-      _stretchProperty.Detach(OnLayoutChanged);
-      _stretchDirectionProperty.Detach(OnLayoutChanged);
-      _thumbnailProperty.Detach(OnLayoutChanged);
-      _skinNeutralProperty.Detach(OnLayoutChanged);
+      _stretchProperty.Detach(OnArrangeGetsInvalid);
+      _stretchDirectionProperty.Detach(OnArrangeGetsInvalid);
+      _thumbnailProperty.Detach(OnArrangeGetsInvalid);
+      _skinNeutralProperty.Detach(OnArrangeGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -126,15 +126,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnLayoutChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-    }
-
     void OnSourceChanged(AbstractProperty property, object oldValue)
     {
       _imageSourceInvalid = true;
-      InvalidateLayout();
+      InvalidateLayout(true, false);
     }
 
     /// <summary>
@@ -308,6 +303,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         base.DoRender(localRenderContext);
       else
       {
+        // TODO: Why is _performLayout checked here?
         if ((_performLayout || !_imageSourceSetup) && source.IsAllocated)
         {
           source.Setup(_innerRect, localRenderContext.ZOrder, SkinNeutralAR);

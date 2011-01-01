@@ -15,9 +15,12 @@
     </Grid>
   </DataTemplate>
 
+  <DataStringProvider x:Key="WeatherLocationItemDataStringProvider" Path="[Name]"/>
+
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="WeatherDisplayLocationsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource WeatherLocationItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
   </Style>

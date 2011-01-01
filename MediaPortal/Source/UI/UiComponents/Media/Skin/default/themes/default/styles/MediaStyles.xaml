@@ -587,7 +587,7 @@
     </Setter>
   </Style>
 
-  <DataTemplate x:Key="PlaylistItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <DataTemplate x:Key="PlaylistItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid Margin="0,3,0,3">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -625,17 +625,21 @@
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="PlaylistListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <DataStringProvider x:Key="PlaylistItemDataStringProvider" Path="[Name]"/>
+
+  <Style x:Key="PlaylistListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource PlaylistItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource PlaylistItemContainerStyle}"/>
   </Style>
 
-  <Style x:Key="EditPlaylistListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="EditPlaylistListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource PlaylistItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource EditPlaylistItemContainerStyle}"/>
   </Style>
 
-  <DataTemplate x:Key="MediaItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <DataTemplate x:Key="MediaItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -646,8 +650,11 @@
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="MediaItemsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="[Name]"/>
+
+  <Style x:Key="MediaItemsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource MediaItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
@@ -676,7 +683,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -699,7 +706,6 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
   </Style>
 

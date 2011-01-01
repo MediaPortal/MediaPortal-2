@@ -55,14 +55,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _contentProperty.Attach(OnLayoutPropertyChanged);
-      _aspectRatioProperty.Attach(OnLayoutPropertyChanged);
+      _contentProperty.Attach(OnCompleteLayoutGetsInvalid);
+      _aspectRatioProperty.Attach(OnCompleteLayoutGetsInvalid);
     }
 
     void Detach()
     {
-      _contentProperty.Detach(OnLayoutPropertyChanged);
-      _aspectRatioProperty.Detach(OnLayoutPropertyChanged);
+      _contentProperty.Detach(OnCompleteLayoutGetsInvalid);
+      _aspectRatioProperty.Detach(OnCompleteLayoutGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -73,15 +73,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(c.Content);
       AspectRatio = c.AspectRatio;
       Attach();
-      OnLayoutPropertyChanged(null, null);
     }
 
     #endregion
-
-    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-    }
 
     public AbstractProperty AspectRatioProperty
     {

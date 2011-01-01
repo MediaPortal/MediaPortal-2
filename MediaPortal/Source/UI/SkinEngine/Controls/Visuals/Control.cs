@@ -83,16 +83,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _templateProperty.Attach(OnTemplateChanged);
       _templateControlProperty.Attach(OnTemplateControlChanged);
-      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
+      _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
       _templateProperty.Detach(OnTemplateChanged);
       _templateControlProperty.Detach(OnTemplateControlChanged);
-      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
+      _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -119,11 +119,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Change handlers
 
-    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      InvalidateLayout();
-    }
-
     void OnTemplateChanged(AbstractProperty property, object oldValue)
     {
       if (Template != null)
@@ -144,12 +139,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
       if (oldTemplateControl != null)
-        oldTemplateControl.VisualParent = null;
+        oldTemplateControl.CleanupAndDispose();
 
       FrameworkElement element = TemplateControl;
       if (element != null)
       {
         element.SetScreen(Screen);
+        element.SetElementState(ElementState.Running);
         element.VisualParent = this;
         if (element.TemplateNameScope == null)
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
@@ -157,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           element.TemplateNameScope = new NameScope();
       }
       _initializedTemplateControl = element;
-      InvalidateLayout();
+      InvalidateLayout(true, true);
     }
 
     #endregion

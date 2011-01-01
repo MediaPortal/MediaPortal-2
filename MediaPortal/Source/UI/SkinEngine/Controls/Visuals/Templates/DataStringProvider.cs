@@ -22,59 +22,46 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.General;
-using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class DataTemplate : TemplateWithTriggers, IImplicitKey
+  /// <summary>
+  /// Class which holds a property path expression which can be evaluated on a source element to generate a
+  /// data string.
+  /// </summary>
+  public class DataStringProvider : IInitializable
   {
     #region Protected fields
 
-    protected AbstractProperty _dataTypeProperty;
+    protected string _path = string.Empty;
+    protected PathExpression _compiledPath = null;
 
     #endregion
 
-    #region Ctor
-
-    public DataTemplate()
+    /// <summary>
+    /// Gets or sets a property path expression to the data string corresponding to a given object.
+    /// </summary>
+    public string Path
     {
-      Init();
+      get { return _path; }
+      set { _path = value; }
     }
 
-    void Init()
+    public string GenerateDataString(object source)
     {
-      _dataTypeProperty = new SProperty(typeof(Type), null);
+      IDataDescriptor result;
+      _compiledPath.Evaluate(new ValueDataDescriptor(source), out result);
+      return (string) TypeConverter.Convert(result.Value, typeof(string));
     }
 
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    void IInitializable.Initialize(IParserContext context)
     {
-      base.DeepCopy(source, copyManager);
-      DataTemplate dt = (DataTemplate) source;
-      DataType = dt.DataType;
+      if (_path == null)
+        throw new XamlBindingException("DataStringProvider: Path mustn't be null");
+      _compiledPath = PathExpression.Compile(context, _path);
     }
-
-    #endregion
-
-    #region Public properties
-
-    public Type DataType
-    {
-      get { return (Type) _dataTypeProperty.GetValue(); }
-      set { _dataTypeProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region IImplicitKey implementation
-
-    public object GetImplicitKey()
-    {
-      return DataType;
-    }
-
-    #endregion
   }
 }

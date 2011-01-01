@@ -62,14 +62,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void Attach()
     {
-      _orientationProperty.Attach(OnLayoutPropertyChanged);
-      _ellipsisControlStyleProperty.Attach(OnLayoutPropertyChanged);
+      _orientationProperty.Attach(OnCompleteLayoutGetsInvalid);
+      _ellipsisControlStyleProperty.Attach(OnCompleteLayoutGetsInvalid);
     }
 
     void Detach()
     {
-      _orientationProperty.Detach(OnLayoutPropertyChanged);
-      _ellipsisControlStyleProperty.Detach(OnLayoutPropertyChanged);
+      _orientationProperty.Detach(OnCompleteLayoutGetsInvalid);
+      _ellipsisControlStyleProperty.Detach(OnCompleteLayoutGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -118,7 +118,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       FrameworkElement result = new SkinEngine.Controls.Visuals.Control
 // ReSharper restore UseObjectOrCollectionInitializer
         {
-            VisualParent = this
+            VisualParent = this,
+            Screen = Screen,
         };
       // Set the style after all other properties have been set to avoid doing work multiple times
       result.Style = EllipsisControlStyle;
@@ -143,6 +144,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         _ellipsisControl = CreateEllipsisControl();
       childSize = new SizeF(totalSize.Width, totalSize.Height);
       _ellipsisControl.Measure(ref childSize);
+      _ellipsisControl.SetElementState(ElementState.Running);
       if (float.IsNaN(maxChildSize.Width) || childSize.Width > maxChildSize.Width)
         maxChildSize.Width = childSize.Width;
       if (float.IsNaN(maxChildSize.Height) || childSize.Height > maxChildSize.Height)

@@ -26,7 +26,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Contents_Element (Any UI element): Contents area of the dialog.
 -->
 
-<Grid x:Name="DialogLayoutGrid"
+<Grid x:Name="RootDialogElement"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Grid.ColumnDefinitions>

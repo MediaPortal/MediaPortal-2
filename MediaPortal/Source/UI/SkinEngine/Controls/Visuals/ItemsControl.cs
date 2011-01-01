@@ -49,6 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemTemplateProperty;
     protected AbstractProperty _itemContainerStyleProperty;
     protected AbstractProperty _itemsPanelProperty;
+    protected AbstractProperty _dataStringProviderProperty;
     protected AbstractProperty _currentItemProperty;
     protected AbstractProperty _itemsProperty;
     protected AbstractProperty _isEmptyProperty;
@@ -69,13 +70,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
-      _itemsProperty = new SProperty(typeof(ObservableUIElementCollection<UIElement>), new ObservableUIElementCollection<UIElement>(this));
+      _itemsProperty = new SProperty(typeof(ObservableUIElementCollection<FrameworkElement>), new ObservableUIElementCollection<FrameworkElement>(this));
       _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
+      _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
       _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
-      _isEmptyProperty = new SProperty(typeof(bool), true);
+      _isEmptyProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -84,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsProperty.Attach(OnItemsChanged);
       _itemTemplateProperty.Attach(OnItemTemplateChanged);
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
+      _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
     }
 
@@ -93,6 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsProperty.Detach(OnItemsChanged);
       _itemTemplateProperty.Detach(OnItemTemplateChanged);
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
+      _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
     }
 
@@ -108,6 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate); // Data templates are NOT immutable! They contain "personalized" data.
       ItemsPanel = c.ItemsPanel; // Styles should be immutable
+      DataStringProvider = c.DataStringProvider; // Styles should be immutable
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);
@@ -132,14 +137,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         coll.ObjectChanged += OnItemsSourceCollectionChanged;
     }
 
-    protected void DetachFromItems(ObservableUIElementCollection<UIElement> items)
+    protected void DetachFromItems(ObservableUIElementCollection<FrameworkElement> items)
     {
       if (items == null)
         return;
       items.CollectionChanged -= OnItemsCollectionChanged;
     }
 
-    protected void AttachToItems(ObservableUIElementCollection<UIElement> items)
+    protected void AttachToItems(ObservableUIElementCollection<FrameworkElement> items)
     {
       if (items == null)
         return;
@@ -169,6 +174,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateItems();
     }
 
+    void OnDataStringProviderChanged(AbstractProperty property, object oldValue)
+    {
+      InvalidateItems();
+    }
+
     void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
     {
       InvalidateItems();
@@ -176,12 +186,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemsChanged(AbstractProperty prop, object oldVal)
     {
-      DetachFromItems(oldVal as ObservableUIElementCollection<UIElement>);
+      DetachFromItems(oldVal as ObservableUIElementCollection<FrameworkElement>);
       AttachToItems(Items);
       OnItemsChanged();
     }
 
-    void OnItemsCollectionChanged(ObservableUIElementCollection<UIElement> collection)
+    void OnItemsCollectionChanged(ObservableUIElementCollection<FrameworkElement> collection)
     {
       OnItemsChanged();
     }
@@ -201,11 +211,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_itemsHostPanel == null)
         return;
-      UIElementCollection children = new UIElementCollection(null);
-      foreach (UIElement child in Items)
-        children.Add(child);
-      IsEmpty = Items.Count == 0;
-      _itemsHostPanel.Children = children;
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      FrameworkElementCollection children = _itemsHostPanel.Children;
+      lock (children.SyncRoot)
+      {
+        children.Clear();
+        if (items != null)
+          children.AddAll(items);
+        IsEmpty = children.Count == 0;
+      }
     }
 
     #endregion
@@ -268,9 +282,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets or sets the items of the ItemsControl directly.
     /// </summary>
-    public ObservableUIElementCollection<UIElement> Items
+    public ObservableUIElementCollection<FrameworkElement> Items
     {
-      get { return (ObservableUIElementCollection<UIElement>) _itemsProperty.GetValue(); }
+      get { return (ObservableUIElementCollection<FrameworkElement>) _itemsProperty.GetValue(); }
       set { _itemsProperty.SetValue(value); }
     }
 
@@ -296,6 +310,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (DataTemplate) _itemTemplateProperty.GetValue(); }
       set { _itemTemplateProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the data string provider which is used to build strings for each item to be able to
+    /// focus items when the user types keys.
+    /// </summary>
+    public DataStringProvider DataStringProvider
+    {
+      get { return (DataStringProvider) _dataStringProviderProperty.GetValue(); }
+      set { _dataStringProviderProperty.SetValue(value); }
     }
 
     public AbstractProperty CurrentItemProperty
@@ -380,6 +404,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeMatcher(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
+    protected IList<string> BuildDataStrings(IList<object> objects)
+    {
+      DataStringProvider dataStringProvider = DataStringProvider;
+      if (dataStringProvider == null)
+        return null;
+      IList<string> result = new List<string>(objects.Count);
+      foreach (object o in objects)
+        result.Add(dataStringProvider.GenerateDataString(o));
+      return result;
+    }
+
     protected virtual void PrepareItems()
     {
       if (ItemsSource == null) return;
@@ -390,7 +425,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IList<object> l = new List<object>();
       ISynchronizable sync = ItemsSource as ISynchronizable;
       if (sync != null)
-        lock (sync)
+        lock (sync.SyncRoot)
           CollectionUtils.AddAll(l, ItemsSource);
       else
         CollectionUtils.AddAll(l, ItemsSource);
@@ -406,18 +441,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _itemsHostPanel = null;
       }
 
+      presenter.SetDataStrings(BuildDataStrings(l));
+
       if (_itemsHostPanel == null)
         _itemsHostPanel = presenter.ItemsHostPanel;
       if (_itemsHostPanel == null)
         return;
 
-      ObservableUIElementCollection<UIElement> items = new ObservableUIElementCollection<UIElement>(this);
-      while (enumer.MoveNext())
+      VirtualizingStackPanel vsp = _itemsHostPanel as VirtualizingStackPanel;
+      if (vsp != null)
       {
-        UIElement container = PrepareItemContainer(enumer.Current);
-        items.Add(container);
+        ListViewItemGenerator lvig = new ListViewItemGenerator();
+        lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
+        SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("IsEmpty")), l.Count == 0);
+        SetValueInRenderThread(new SimplePropertyDataDescriptor(vsp, typeof(VirtualizingStackPanel).GetProperty("ItemProvider")), lvig);
       }
-      SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("Items")), items);
+      else
+      {
+        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(this);
+        while (enumer.MoveNext())
+        {
+          FrameworkElement container = PrepareItemContainer(enumer.Current);
+          items.Add(container);
+        }
+        SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("Items")), items);
+      }
     }
 
     /// <summary>
@@ -432,19 +480,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </remarks>
     /// <param name="dataItem">Item to build a visible container for.</param>
     /// <returns>UI element which renders the specified <paramref name="dataItem"/>.</returns>
-    protected abstract UIElement PrepareItemContainer(object dataItem);
+    protected abstract FrameworkElement PrepareItemContainer(object dataItem);
 
     public void SetFocusOnItem(object dataItem)
     {
       if (_itemsHostPanel == null || Screen == null)
         return;
       FrameworkElement item = null;
-      foreach (UIElement child in _itemsHostPanel.Children)
-        if (child.DataContext == dataItem)
-          item = child as FrameworkElement;
+      lock (_itemsHostPanel.Children.SyncRoot)
+        foreach (FrameworkElement child in _itemsHostPanel.Children)
+          if (child.DataContext == dataItem)
+            item = child;
       if (item == null)
         return;
-      FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(item);
+      FrameworkElement focusable = Screen.FindFirstFocusableElement(item);
       if (focusable != null)
         focusable.TrySetFocus(true);
     }

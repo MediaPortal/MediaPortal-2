@@ -167,6 +167,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
           element.SetValueInRenderThread(dd, obj);
       }
       else
+        // TODO: Log output
         // Value is not compatible: We cannot execute
         return;
     }

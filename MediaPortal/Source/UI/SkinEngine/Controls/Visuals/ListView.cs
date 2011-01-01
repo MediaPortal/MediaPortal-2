@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ListView : ItemsControl, IAddChild<ListViewItem>
   {
-    protected override UIElement PrepareItemContainer(object dataItem)
+    protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
 // ReSharper disable UseObjectOrCollectionInitializer
       ListViewItem container = new ListViewItem
