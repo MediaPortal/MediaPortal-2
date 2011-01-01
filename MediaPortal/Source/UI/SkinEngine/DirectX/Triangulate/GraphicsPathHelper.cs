@@ -120,8 +120,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         if (withTitleRegion)
         {
           titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
-          // Right from the title to the upper right edge
-          result.AddLine(baseRect.Left + radiusX + 2 * titleInset + titleWidth, baseRect.Top,
+          // Right of the title to the upper right edge
+          result.AddLine(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top,
               baseRect.Right - radiusX, baseRect.Top);
         }
 
