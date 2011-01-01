@@ -877,19 +877,19 @@
 
   <Storyboard x:Key="DefaultCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="BorderBrush.Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="BorderBrush.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBorderColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="HeaderColor">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="HeaderColor">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlTitleColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[0].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[1].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor2}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[2].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[2].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor3}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
@@ -916,7 +916,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <GroupBox x:Name="Shine" Style="{ThemeResource PlayerControlGroupBoxStyle}"
+          <GroupBox x:Name="PCGroupBox" Style="{ThemeResource PlayerControlGroupBoxStyle}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               Header="{Binding Title}">
             <GroupBox.Background>
@@ -987,7 +987,7 @@
                 </Grid>
               </Grid>
               <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0,5,0,5"> <!-- Workaround to avoid layouting problems with LayoutTransform -->
-                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
+                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">
                   <StackPanel.LayoutTransform>
                     <TransformGroup>
                       <ScaleTransform ScaleX="1" ScaleY="0"/>
