@@ -190,7 +190,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
       _marginProperty.Attach(OnMeasureGetsInvalid);
-      _visibilityProperty.Attach(OnMeasureGetsInvalid);
+      _visibilityProperty.Attach(OnParentCompleteLayoutGetsInvalid);
       _opacityProperty.Attach(OnOpacityChanged);
       _opacityMaskProperty.Attach(OnOpacityChanged);
       _actualPositionProperty.Attach(OnActualBoundsChanged);
@@ -206,7 +206,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
       _marginProperty.Detach(OnMeasureGetsInvalid);
-      _visibilityProperty.Detach(OnMeasureGetsInvalid);
+      _visibilityProperty.Detach(OnParentCompleteLayoutGetsInvalid);
       _opacityProperty.Detach(OnOpacityChanged);
       _opacityMaskProperty.Detach(OnOpacityChanged);
       _actualPositionProperty.Detach(OnActualBoundsChanged);
@@ -292,9 +292,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateLayout(true, false);
     }
 
+    /// <summary>
+    /// Called when a property has been changed which makes our measurement and our arrangement invalid.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
     protected void OnCompleteLayoutGetsInvalid(AbstractProperty property, object oldValue)
     {
       InvalidateLayout(true, true);
+    }
+
+    /// <summary>
+    /// Called when a property has been changed which makes our parent's measurement and its arrangement invalid.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnParentCompleteLayoutGetsInvalid(AbstractProperty property, object oldValue)
+    {
+      InvalidateParentLayout(true, true);
     }
 
     #endregion
