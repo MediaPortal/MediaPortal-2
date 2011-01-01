@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2010 Team MediaPortal
+    Copyright (C) 2007-2011 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void SetScrollIndex(int childIndex, bool first)
     {
-      // Albert, 2010..12.28: We need to override this method because we need to lock on Children.SyncRoot
+      // Albert, 2010-12-28: We need to override this method because we need to lock on Children.SyncRoot
       lock (Children.SyncRoot)
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||

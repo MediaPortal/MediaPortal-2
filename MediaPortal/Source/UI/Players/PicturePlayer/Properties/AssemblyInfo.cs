@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2010 Team MediaPortal
+    Copyright (C) 2007-2011 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2010")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
