@@ -279,7 +279,7 @@
   <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor3" Resource="#60436EB4"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Black"/>
   <ResourceWrapper x:Key="OSDPipStrokeColor" Resource="Black"/>
-  <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="White"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient1Color" Resource="#48F2F2F2"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
 

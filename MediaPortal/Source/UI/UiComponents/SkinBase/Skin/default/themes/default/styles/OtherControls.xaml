@@ -1182,7 +1182,7 @@
           <mp_special_controls:PlayerControl x:Name="PiPControl" AutoVisibility="True" PlayerContext="SecondaryPlayer"
               FixedVideoWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
-              <Border
+              <Border x:Name="PiPControlBorder"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>

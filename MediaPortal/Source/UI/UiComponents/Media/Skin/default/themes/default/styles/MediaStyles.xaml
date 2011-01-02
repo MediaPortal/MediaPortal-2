@@ -434,7 +434,7 @@
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
-                    <Setter TargetName="PiPBorder" Property="BorderBrush" Value="{ThemeResource OSDPipBorderFocusColor}"/>
+                    <Setter TargetName="PiPControlBorder" Property="BorderBrush" Value="{ThemeResource OSDPipBorderFocusColor}"/>
                   </Trigger>
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
