@@ -48,8 +48,8 @@ namespace MediaPortal.UiComponents.Media.Actions
     protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
 
-    protected bool _isVisible;
-    protected string _displayTitleResource;
+    protected volatile bool _isVisible;
+    protected volatile string _displayTitleResource;
 
     #endregion
 
@@ -123,13 +123,10 @@ namespace MediaPortal.UiComponents.Media.Actions
       string displayTitleResource = showSavePL ? SAVE_PLAYLIST_RES : SAVE_CURRENT_PLAYLIST_RES;
       bool isVisible = (showSavePL || showSaveCurrentPL) &&
           ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerIndex > -1;
-      lock (_syncObj)
-      {
-        if (isVisible == _isVisible && displayTitleResource == _displayTitleResource)
-          return;
-        _isVisible = isVisible;
-        _displayTitleResource = displayTitleResource;
-      }
+      if (isVisible == _isVisible && displayTitleResource == _displayTitleResource)
+        return;
+      _isVisible = isVisible;
+      _displayTitleResource = displayTitleResource;
       FireStateChanged();
     }
 
