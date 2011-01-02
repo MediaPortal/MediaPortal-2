@@ -247,17 +247,14 @@ namespace MediaPortal.UI.Players.Video
 
     #region Message handling
 
-    protected void SubscribeToMessages()
+    protected virtual void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           WindowsMessaging.CHANNEL
-        });
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] {WindowsMessaging.CHANNEL});
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
 
-    protected void UnsubscribeFromMessages()
+    protected virtual void UnsubscribeFromMessages()
     {
       if (_messageQueue == null)
         return;

@@ -18,7 +18,8 @@
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
-
+  <DateFormatConverter x:Key="DateFormatConverter"/>
+  
   <!-- ***************************** Brushes ******************************** -->
 
   <!-- default brush used to paint the background of a page/window -->

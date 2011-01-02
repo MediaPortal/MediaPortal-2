@@ -180,6 +180,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ExpressionMultiValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionMultiValueConverter));
       _objectClassRegistrations.Add("ExpressionValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionValueConverter));
       _objectClassRegistrations.Add("CommaSeparatedValuesConverter", typeof(SkinEngine.MpfElements.Converters.CommaSeparatedValuesConverter));
+      _objectClassRegistrations.Add("DateFormatConverter", typeof(SkinEngine.MpfElements.Converters.DateFormatConverter));
 
       // Markup extensions
       _objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));

@@ -28,6 +28,8 @@ using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
+using MediaPortal.UI.General;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
@@ -43,9 +45,16 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region constants
+    #region constants and structs
 
     private const string TSREADER_FILTER_NAME = "TsReader";
+    private const string TSPLAYER_CHANNEL = "TsPlayerChannel";
+    private const string TSPLAYER_MESSAGE = "TsPlayerMessage";
+
+    private struct TsPlayerCommandStruct
+    {
+      public bool DoGraphRebuild;
+    }
 
     #endregion
 
@@ -131,7 +140,7 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>0</returns>
     public int OnMediaTypeChanged(int mediaType)
     {
-      DoGraphRebuild();
+      SendPlayerCommand(new TsPlayerCommandStruct {DoGraphRebuild = true});
       return 0;
     }
 
@@ -176,8 +185,38 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region Player message handling
+
+    protected override void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL, TSPLAYER_CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    protected override void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      base.OnMessageReceived(queue, message);
+      if (message.ChannelName == TSPLAYER_CHANNEL)
+      {
+        TsPlayerCommandStruct commandStruct = (TsPlayerCommandStruct)message.MessageData[TSPLAYER_MESSAGE];
+        if (commandStruct.DoGraphRebuild)
+          DoGraphRebuild();
+      }
+    }
+
+    private void SendPlayerCommand(TsPlayerCommandStruct commandStruct)
+    {
+      SystemMessage msg = new SystemMessage("message");
+      msg.MessageData[TSPLAYER_MESSAGE] = commandStruct;
+      ServiceRegistration.Get<IMessageBroker>().Send(TSPLAYER_CHANNEL, msg);
+    }
+
+    #endregion
+
     #region graph rebuilding
 
+    //FIXME: this methods crashes MP2 to desktop!!!
     //check if the pin connections can be kept, or if a graph rebuilding is necessary!
     private bool GraphNeedsRebuild()
     {
@@ -225,11 +264,12 @@ namespace MediaPortal.UI.Players.Video
       return false; // Eabin ; this one breaks channel change, when going from one channel with mpeg audio to another with ac3 and vice versa.     
     }
 
+    //TODO:Rework this part!
     void DoGraphRebuild()
     {
       IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
       ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged()");
-      bool needRebuild = GraphNeedsRebuild();
+      bool needRebuild = true;// GraphNeedsRebuild();
       if (mediaCtrl != null)
       {
         lock (mediaCtrl)

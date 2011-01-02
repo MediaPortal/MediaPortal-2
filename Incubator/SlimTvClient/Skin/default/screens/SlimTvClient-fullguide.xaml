@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/> 
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Client_Element">
+    <!--<ResourceWrapper x:Key="Contents_Element">-->
+        <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
+          
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="200"/>
+          </Grid.RowDefinitions>
+          
+          <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+            <Button x:Name="PrevGroupButton" Style="{StaticResource ButtonStyle}" Content=" &lt; "
+              Command="{Command PrevGroup}"/>
+            <Button x:Name="NextGroupButton" Style="{StaticResource ButtonStyle}" Content=" &gt; "
+              Command="{Command NextGroup}"/>
+            <Label x:Name="GroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+          </StackPanel>
+
+          <ListView  Grid.Column="0" Grid.Row="1"
+              Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource MultiProgramGuideContainerStyle}"
+              ItemsSource="{Binding Path=ChannelList}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+          </ListView.Resources>
+        </ListView>
+          
+        <GroupBox  Grid.Column="0" Grid.Row="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoSlim.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+        </Grid>
+    </ResourceWrapper>
+  </Include.Resources>
+</Include>
