@@ -230,27 +230,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (!_canScroll)
         {
           _actualFirstVisibleChild = 0;
-          invertLayouting = false;
+          _actualLastVisibleChild = numVisibleChildren - 1;
         }
         
         // 1) Calculate scroll indices
         float spaceLeft = actualExtendsInOrientationDirection;
 
-        if (invertLayouting)
-        {
-          Bound(ref _actualLastVisibleChild, 0, numVisibleChildren - 1);
-          _actualFirstVisibleChild = _actualLastVisibleChild + 1;
-          for (int i = _actualLastVisibleChild; i >= 0; i--)
+        if (_canScroll)
+        { // Calculate last visible child
+          if (invertLayouting)
           {
-            FrameworkElement child = visibleChildren[i];
-            spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
-            if (spaceLeft + DELTA_DOUBLE < 0)
-              break; // Found item which is not visible any more
-            _actualFirstVisibleChild = i;
+            Bound(ref _actualLastVisibleChild, 0, numVisibleChildren - 1);
+            _actualFirstVisibleChild = _actualLastVisibleChild + 1;
+            for (int i = _actualLastVisibleChild; i >= 0; i--)
+            {
+              FrameworkElement child = visibleChildren[i];
+              spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
+              if (spaceLeft + DELTA_DOUBLE < 0)
+                break; // Found item which is not visible any more
+              _actualFirstVisibleChild = i;
+            }
+            if (spaceLeft > 0)
+            { // We need to correct the last scroll index
+              for (int i = _actualLastVisibleChild + 1; i < numVisibleChildren; i++)
+              {
+                FrameworkElement child = visibleChildren[i];
+                spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
+                if (spaceLeft + DELTA_DOUBLE < 0)
+                  break; // Found item which is not visible any more
+                _actualLastVisibleChild = i;
+              }
+            }
           }
-          if (spaceLeft > 0)
-          { // We need to correct the last scroll index
-            for (int i = _actualLastVisibleChild + 1; i < numVisibleChildren; i++)
+          else
+          {
+            Bound(ref _actualFirstVisibleChild, 0, numVisibleChildren - 1);
+            _actualLastVisibleChild = _actualFirstVisibleChild - 1;
+            for (int i = _actualFirstVisibleChild; i < numVisibleChildren; i++)
             {
               FrameworkElement child = visibleChildren[i];
               spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
@@ -258,29 +274,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 break; // Found item which is not visible any more
               _actualLastVisibleChild = i;
             }
-          }
-        }
-        else
-        {
-          Bound(ref _actualFirstVisibleChild, 0, numVisibleChildren - 1);
-          _actualLastVisibleChild = _actualFirstVisibleChild - 1;
-          for (int i = _actualFirstVisibleChild; i < numVisibleChildren; i++)
-          {
-            FrameworkElement child = visibleChildren[i];
-            spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
-            if (spaceLeft + DELTA_DOUBLE < 0)
-              break; // Found item which is not visible any more
-            _actualLastVisibleChild = i;
-          }
-          if (spaceLeft > 0)
-          { // We need to correct the first scroll index
-            for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
-            {
-              FrameworkElement child = visibleChildren[i];
-              spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
-              if (spaceLeft + DELTA_DOUBLE < 0)
-                break; // Found item which is not visible any more
-              _actualFirstVisibleChild = i;
+            if (spaceLeft > 0)
+            { // We need to correct the first scroll index
+              for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
+              {
+                FrameworkElement child = visibleChildren[i];
+                spaceLeft -= GetExtendsInOrientationDirection(child.DesiredSize);
+                if (spaceLeft + DELTA_DOUBLE < 0)
+                  break; // Found item which is not visible any more
+                _actualFirstVisibleChild = i;
+              }
             }
           }
         }

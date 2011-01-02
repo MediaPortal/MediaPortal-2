@@ -133,6 +133,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (numItems == 0)
         return result;
       float availableSize = GetExtendsInNonOrientationDirection(totalSize);
+      if (!_canScroll)
+        _actualFirstVisibleChild = 0;
       int start = _actualFirstVisibleChild;
       Bound(ref start, 0, numItems - 1);
       int end = start - 1;
@@ -162,7 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           maxExtendsInNonOrientationDirection = childExtendsInNonOrientationDirection;
         result.Add(item);
         end++;
-      } while (availableSize > 0);
+      } while (availableSize > 0 || !_canScroll);
       // If there is still space left, try to get items above scroll index
       while (availableSize > 0)
       {
@@ -283,32 +285,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (!_canScroll)
           {
             _actualFirstVisibleChild = 0;
-            invertLayouting = false;
+            _actualLastVisibleChild = numItems - 1;
           }
 
           // 1) Calculate scroll indices
           float spaceLeft = actualExtendsInOrientationDirection;
 
-          if (invertLayouting)
+          if (_canScroll)
           {
-            Bound(ref _actualLastVisibleChild, 0, numItems - 1);
-            _actualFirstVisibleChild = _actualLastVisibleChild + 1;
-            int ct = MAX_NUM_VISIBLE_ITEMS;
-            for (int i = _actualLastVisibleChild; i >= 0; i--)
+            if (invertLayouting)
             {
-              FrameworkElement item = GetItem(i, itemProvider, true);
-              if (!item.IsVisible)
-                continue;
-              if (ct-- == 0)
-                break;
-              spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
-              if (spaceLeft +DELTA_DOUBLE < 0)
-                break; // Found item which is not visible any more
-              _actualFirstVisibleChild = i;
+              Bound(ref _actualLastVisibleChild, 0, numItems - 1);
+              _actualFirstVisibleChild = _actualLastVisibleChild + 1;
+              int ct = MAX_NUM_VISIBLE_ITEMS;
+              for (int i = _actualLastVisibleChild; i >= 0; i--)
+              {
+                FrameworkElement item = GetItem(i, itemProvider, true);
+                if (!item.IsVisible)
+                  continue;
+                if (ct-- == 0)
+                  break;
+                spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                if (spaceLeft + DELTA_DOUBLE < 0)
+                  break; // Found item which is not visible any more
+                _actualFirstVisibleChild = i;
+              }
+              if (spaceLeft > 0)
+              { // We need to correct the last scroll index
+                for (int i = _actualLastVisibleChild + 1; i < numItems; i++)
+                {
+                  FrameworkElement item = GetItem(i, itemProvider, true);
+                  if (!item.IsVisible)
+                    continue;
+                  if (ct-- == 0)
+                    break;
+                  spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                  if (spaceLeft + DELTA_DOUBLE < 0)
+                    break; // Found item which is not visible any more
+                  _actualLastVisibleChild = i;
+                }
+              }
             }
-            if (spaceLeft > 0)
-            { // We need to correct the last scroll index
-              for (int i = _actualLastVisibleChild + 1; i < numItems; i++)
+            else
+            {
+              Bound(ref _actualFirstVisibleChild, 0, numItems - 1);
+              _actualLastVisibleChild = _actualFirstVisibleChild - 1;
+              int ct = MAX_NUM_VISIBLE_ITEMS;
+              for (int i = _actualFirstVisibleChild; i < numItems; i++)
               {
                 FrameworkElement item = GetItem(i, itemProvider, true);
                 if (!item.IsVisible)
@@ -320,38 +343,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   break; // Found item which is not visible any more
                 _actualLastVisibleChild = i;
               }
-            }
-          }
-          else
-          {
-            Bound(ref _actualFirstVisibleChild, 0, numItems - 1);
-            _actualLastVisibleChild = _actualFirstVisibleChild - 1;
-            int ct = MAX_NUM_VISIBLE_ITEMS;
-            for (int i = _actualFirstVisibleChild; i < numItems; i++)
-            {
-              FrameworkElement item = GetItem(i, itemProvider, true);
-              if (!item.IsVisible)
-                continue;
-              if (ct-- == 0)
-                break;
-              spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
-              if (spaceLeft + DELTA_DOUBLE < 0)
-                break; // Found item which is not visible any more
-              _actualLastVisibleChild = i;
-            }
-            if (spaceLeft > 0)
-            { // We need to correct the first scroll index
-              for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
-              {
-                FrameworkElement item = GetItem(i, itemProvider, true);
-                if (!item.IsVisible)
-                  continue;
-                if (ct-- == 0)
-                  break;
-                spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
-                if (spaceLeft + DELTA_DOUBLE < 0)
-                  break; // Found item which is not visible any more
-                _actualFirstVisibleChild = i;
+              if (spaceLeft > 0)
+              { // We need to correct the first scroll index
+                for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
+                {
+                  FrameworkElement item = GetItem(i, itemProvider, true);
+                  if (!item.IsVisible)
+                    continue;
+                  if (ct-- == 0)
+                    break;
+                  spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                  if (spaceLeft + DELTA_DOUBLE < 0)
+                    break; // Found item which is not visible any more
+                  _actualFirstVisibleChild = i;
+                }
               }
             }
           }
