@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _lastChildFillProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       return CalculateDesiredSize(GetVisibleChildren().GetEnumerator(), totalSize);
     }

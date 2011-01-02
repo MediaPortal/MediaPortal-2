@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       keyboardControl.Render(localRenderContext);
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       FrameworkElement keyboardControl = _keyboardLayoutControl;
       if (keyboardControl == null)

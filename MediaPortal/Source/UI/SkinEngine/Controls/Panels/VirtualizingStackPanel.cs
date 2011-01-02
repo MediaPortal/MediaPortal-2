@@ -56,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected int _arrangedItemsStartIndex = 0;
     protected IList<FrameworkElement> _arrangedItems = new List<FrameworkElement>();
 
-    // Assigned in CalculateDesiredSize
+    // Assigned in CalculateInnerDesiredSize
     protected float _averageItemSize = 0;
 
     #endregion
@@ -190,14 +190,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return result;
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       lock (Children.SyncRoot)
       {
         _averageItemSize = 0;
         IItemProvider itemProvider = ItemProvider;
         if (itemProvider == null)
-          return base.CalculateDesiredSize(totalSize);
+          return base.CalculateInnerDesiredSize(totalSize);
         int numItems = itemProvider.NumItems;
         if (numItems == 0)
           return SizeF.Empty;

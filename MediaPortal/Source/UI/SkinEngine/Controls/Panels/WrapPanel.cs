@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _orientationProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       float initialHeight = totalSize.Height;
       float initialWidth = totalSize.Width;

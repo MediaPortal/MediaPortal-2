@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       // Calculate constraints
       SizeF result = new SizeF(totalSize.Width, totalSize.Height);
@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content != null)
       {
         PointF position = new PointF(_innerRect.X, _innerRect.Y);
-        SizeF availableSize = CalculateDesiredSize(_innerRect.Size);
+        SizeF availableSize = CalculateInnerDesiredSize(_innerRect.Size);
         ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
         content.Arrange(childRect);

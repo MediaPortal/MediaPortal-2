@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
     protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (FrameworkElement child in GetVisibleChildren())

@@ -217,7 +217,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _skinNeutralProperty; }
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       ImageSource source = GetLoadedSource();
       if (source == null || !source.IsAllocated)

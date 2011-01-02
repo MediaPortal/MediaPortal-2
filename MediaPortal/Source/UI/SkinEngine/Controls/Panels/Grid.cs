@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Measure & Arrange
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());

@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure & Arrange
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       MeasureBorder(totalSize);
 

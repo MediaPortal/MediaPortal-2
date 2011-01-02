@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF(desiredColumnWidth * _actualColumns, desiredRowHeight * _actualRows);
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       _actualColumns = Columns;

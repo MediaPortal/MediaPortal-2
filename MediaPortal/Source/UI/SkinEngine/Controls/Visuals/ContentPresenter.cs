@@ -218,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _verticalContentAlignmentProperty.SetValue(value); }
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       if (_templateControl == null)
         return SizeF.Empty;

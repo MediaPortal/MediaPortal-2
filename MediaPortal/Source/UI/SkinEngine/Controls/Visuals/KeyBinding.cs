@@ -93,7 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Private & protected members
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       return SizeF.Empty;
     }

@@ -165,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         DisposePrimitiveContext(ref _strokeContext);
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
       {

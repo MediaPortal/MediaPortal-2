@@ -939,7 +939,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height;
 
-      totalSize = CalculateDesiredSize(new SizeF(totalSize));
+      totalSize = CalculateInnerDesiredSize(new SizeF(totalSize));
 
       if (!double.IsNaN(Width))
         totalSize.Width = (float) Width;
@@ -1019,7 +1019,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ActualHeight = _innerRect.Height;
     }
 
-    protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
+    protected virtual SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       return SizeF.Empty;
     }

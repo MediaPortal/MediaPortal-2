@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       return result;
     }
 
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       // Return the biggest available child extents
       SizeF childSize;
