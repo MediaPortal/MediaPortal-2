@@ -31,10 +31,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class EventTrigger : TriggerBase, IAddChild<TriggerAction>
   {
-    #region Private fields
+    #region Protected fields
 
     protected AbstractProperty _routedEventProperty;
     protected IList<TriggerAction> _actions;
+
+    protected UIElement _registeredUIElement = null;
 
     #endregion
 
@@ -78,6 +80,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public IList<TriggerAction> Actions
     {
       get { return _actions; }
+    }
+
+    #endregion
+
+    #region Protected members
+
+    protected void AttachToUIElement(UIElement element)
+    {
+      if (_registeredUIElement != null)
+        _registeredUIElement.EventOccured -= OnUIEvent;
+      element.EventOccured += OnUIEvent;
+      _registeredUIElement = element;
+    }
+
+    void OnUIEvent(string eventName)
+    {
+      if (RoutedEvent == eventName)
+        foreach (TriggerAction ta in _actions)
+          ta.Execute(_element);
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override void Setup(UIElement element)
+    {
+      base.Setup(element);
+      AttachToUIElement(element);
     }
 
     #endregion

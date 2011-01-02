@@ -285,6 +285,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
+      _initializeTriggers = true;
 
       copyManager.CopyCompleted += OnCopyCompleted;
     }
@@ -724,14 +725,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public virtual void FireEvent(string eventName)
     {
-      foreach (TriggerBase trigger in Triggers)
-      {
-        EventTrigger eventTrig = trigger as EventTrigger;
-        if (eventTrig != null)
-          if (eventTrig.RoutedEvent == eventName)
-            foreach (TriggerAction ta in eventTrig.Actions)
-              ta.Execute(this);
-      }
       if (eventName == LOADED_EVENT)
       {
         if (_loaded != null)
