@@ -28,6 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
@@ -57,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _borderColorProperty;
 
     protected IGeometry _currentGeometry;
-    protected Matrix _relativeTransformCache;
+    protected Matrix _inverseRelativeTransformCache;
     protected ImageContext _imageContext;
     protected SizeF _scaledVideoSize;
 
@@ -201,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       // Do we need a refresh?
       if (_lastVideoSize == playerSize &&
-          _lastAspectRatio == player.VideoAspectRatio &&
+          _lastAspectRatio == aspectRatio &&
           _lastGeometry == geometry &&
           _lastEffect == effectName &&
           _lastCropSettings == cropSettings &&
@@ -226,7 +227,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _scaledVideoSize = geometry.Transform(_scaledVideoSize, targetSize);
 
       // Cache inverse RelativeTransform
-      _relativeTransformCache = (RelativeTransform == null) ? Matrix.Identity : Matrix.Invert(RelativeTransform.GetTransform());
+      Transform relativeTransform = RelativeTransform;
+      _inverseRelativeTransformCache = (relativeTransform == null) ? Matrix.Identity : Matrix.Invert(relativeTransform.GetTransform());
 
       // Prepare our ImageContext
       _imageContext.FrameSize = targetSize;
@@ -247,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void OnImagecontextRefresh()
     {
-      _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
+      _imageContext.ExtraParameters[PARAM_RELATIVE_TRANSFORM] = _inverseRelativeTransformCache;
       _imageContext.ExtraParameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
     }
 
