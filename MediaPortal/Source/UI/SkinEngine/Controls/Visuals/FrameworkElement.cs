@@ -128,9 +128,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _updateOpacityMask = false;
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
+    
     protected volatile bool _setFocus = false;
+
+    protected SizeF? _availableSize;
+    protected RectangleF? _outerRect;
+    protected SizeF _innerDesiredSize; // Desiredd size in local coords
+    protected SizeF _desiredSize; // Desired size in parent coordinate system
+    protected RectangleF _innerRect;
     protected volatile bool _isMeasureInvalid = true;
     protected volatile bool _isArrangeInvalid = true;
+    
     protected Matrix? _inverseFinalTransform = null;
 
     #endregion
@@ -315,6 +323,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Public properties
+
+    /// <summary>
+    /// Returns the desired size this element calculated based on the available size.
+    /// This value denotes the desired size of this element including its <see cref="UIElement.Margin"/> in the parent's coordinate
+    /// system, i.e. with the <see cref="UIElement.RenderTransform"/> and <see cref="UIElement.LayoutTransform"/> applied.
+    /// </summary>
+    public SizeF DesiredSize
+    {
+      get { return _desiredSize; }
+    }
 
     public AbstractProperty WidthProperty
     {
@@ -877,7 +895,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new SizeF(w, h);
     }
 
-    public sealed override void Measure(ref SizeF totalSize)
+    /// <summary>
+    /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method is the first part of the two-phase measuring process. In this first phase, parent
+    /// controls collect all the size requirements of their child controls.
+    /// </para>
+    /// <para>
+    /// An input size value of <see cref="float.NaN"/> in any coordinate denotes that this child control doesn't have a size
+    /// constraint in that direction. Coordinates different from <see cref="float.NaN"/> should be considered by this child
+    /// control as the maximum available size in that direction. If this element still produces a bigger
+    /// <see cref="DesiredSize"/>, the <see cref="Arrange(RectangleF)"/> method might give it a smaller final region.
+    /// </para>
+    /// </remarks>
+    /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
+    /// contains the size available for this child control (size constraint). As output, it must be set
+    /// to the <see cref="DesiredSize"/> plus <see cref="UIElement.Margin"/>.</param>
+    public void Measure(ref SizeF totalSize)
     {
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
@@ -926,7 +962,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #endif
     }
 
-    public sealed override void Arrange(RectangleF outerRect)
+    /// <summary>
+    /// Arranges the UI element and positions it in the finalrect.
+    /// </summary>
+    /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
+    public void Arrange(RectangleF outerRect)
     {
       if (_isMeasureInvalid)
         return;

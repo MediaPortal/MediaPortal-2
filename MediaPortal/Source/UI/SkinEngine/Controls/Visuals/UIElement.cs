@@ -225,11 +225,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _opacityProperty;
     protected AbstractProperty _freezableProperty;
     protected AbstractProperty _templateNameScopeProperty;
-    protected SizeF? _availableSize;
-    protected RectangleF? _outerRect;
-    protected SizeF _innerDesiredSize; // Desiredd size in local coords
-    protected SizeF _desiredSize; // Desired size in parent coordinate system
-    protected RectangleF _innerRect;
     protected ResourceDictionary _resources;
     protected ElementState _elementState = ElementState.Available;
     protected IExecutableCommand _loaded;
@@ -487,16 +482,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _renderTransformOriginProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// Returns the desired size this element calculated based on the available size.
-    /// This value denotes the desired size of this element including its <see cref="Margin"/> in the parent's coordinate
-    /// system, i.e. with the <see cref="RenderTransform"/> and <see cref="LayoutTransform"/> applied.
-    /// </summary>
-    public SizeF DesiredSize
-    {
-      get { return _desiredSize; }
-    }
-
     public bool IsTemplateControlRoot
     {
       get { return TemplateNameScope != null; }
@@ -643,36 +628,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       UIElement parent = VisualParent as UIElement;
       return parent == null ? true : parent.IsChildRenderedAt(this, x, y);
-    }
-
-    /// <summary>
-    /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method is the first part of the two-phase measuring process. In this first phase, parent
-    /// controls collect all the size requirements of their child controls.
-    /// </para>
-    /// <para>
-    /// An input size value of <see cref="float.NaN"/> in any coordinate denotes that this child control doesn't have a size
-    /// constraint in that direction. Coordinates different from <see cref="float.NaN"/> should be considered by this child
-    /// control as the maximum available size in that direction. If this element still produces a bigger
-    /// <see cref="DesiredSize"/>, the <see cref="Arrange(RectangleF)"/> method might give it a smaller final region.
-    /// </para>
-    /// </remarks>
-    /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
-    /// contains the size available for this child control (size constraint). As output, it must be set
-    /// to the <see cref="DesiredSize"/> plus <see cref="Margin"/>.</param>
-    public virtual void Measure(ref SizeF totalSize)
-    {
-    }
-
-    /// <summary>
-    /// Arranges the UI element and positions it in the finalrect.
-    /// </summary>
-    /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
-    public virtual void Arrange(RectangleF outerRect)
-    {
     }
 
     #endregion

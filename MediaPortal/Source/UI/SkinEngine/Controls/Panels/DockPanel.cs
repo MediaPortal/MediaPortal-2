@@ -210,7 +210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (!currentVisibleChildEnumerator.MoveNext())
         return new SizeF(0, 0);
 
-      UIElement child = currentVisibleChildEnumerator.Current;
+      FrameworkElement child = currentVisibleChildEnumerator.Current;
       SizeF childSize = new SizeF(currentAvailableSize.Width, currentAvailableSize.Height);
       SizeF nextChildrenDesiredSize;
 
