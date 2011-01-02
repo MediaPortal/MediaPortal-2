@@ -189,6 +189,8 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>StreamInfo or null.</returns>
     public StreamInfo FindSimilarStream(string selectedStream)
     {
+      if (String.IsNullOrEmpty(selectedStream))
+        return null;
       return _streamInfos.Find(s => s.Name.ToLowerInvariant().Contains(selectedStream.ToLowerInvariant()));
     }
 
