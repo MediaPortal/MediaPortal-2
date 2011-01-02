@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeResourceString();
       if (_asset != null)
         _asset.Text = _resourceString;
-      InvalidateLayout(true, false);
+      InvalidateLayout(true, true);
     }
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
