@@ -117,10 +117,10 @@
   <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="PressedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -129,10 +129,10 @@
   <Storyboard x:Key="PressedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="PressedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.02"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource WideButtonZoomCoefficientX}"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource WideButtonZoomCoefficientY}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
