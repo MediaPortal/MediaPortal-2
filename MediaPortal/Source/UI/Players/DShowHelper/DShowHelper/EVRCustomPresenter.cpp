@@ -875,6 +875,10 @@ HRESULT EVRCustomPresenter::CreateProposedOutputType(IMFMediaType* pMixerType, I
     i64Size.LowPart  = 1;
     //(*pType)->SetUINT64 (MF_MT_PIXEL_ASPECT_RATIO, i64Size.QuadPart);
 
+    // set the full color range from 0..255
+    (*pType)->SetUINT32(MF_MT_VIDEO_NOMINAL_RANGE, MFNominalRange_0_255);
+    // end
+
     CHECK_HR((*pType)->GetUINT64(MF_MT_FRAME_SIZE, (UINT64*)&i64Size.QuadPart), "Failed to get MF_MT_FRAME_SIZE");
     Log("Frame size: %dx%d",i64Size.HighPart, i64Size.LowPart); 
 
