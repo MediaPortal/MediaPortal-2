@@ -74,7 +74,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SlimTv", "SlimTv", "{9859F1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTvInterfaces", "..\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv4HomeProvider", "SlimTv4HomeProvider\SlimTv4HomeProvider.csproj", "{2B8AE979-A3AD-47BF-89C5-56170CA6C87C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv4HomeProvider", "..\Incubator\SlimTv4HomeProvider\SlimTv4HomeProvider.csproj", "{2B8AE979-A3AD-47BF-89C5-56170CA6C87C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
