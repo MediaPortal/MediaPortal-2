@@ -56,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
+    protected FrameworkElement _lastFocusedElement = null;
 
     #endregion
 
@@ -356,10 +357,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Checks if the currently focused element is contained in this items control.
     /// </summary>
-    bool CheckFocusInScope()
+    /// <param name="focusedElement">Currelty focused element.</param>
+    bool CheckFocusInScope(FrameworkElement focusedElement)
     {
-      Screen screen = Screen;
-      Visual focusPath = screen == null ? null : screen.FocusedElement;
+      Visual focusPath = focusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)
@@ -379,12 +380,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected void UpdateCurrentItem()
     {
-      if (_itemsHostPanel == null || !CheckFocusInScope())
+      Screen screen = Screen;
+      _lastFocusedElement = screen == null ? null : screen.FocusedElement;
+      if (_itemsHostPanel == null || !CheckFocusInScope(_lastFocusedElement))
         CurrentItem = null;
       else
       {
-        Screen screen = Screen;
-        Visual element = screen == null ? null : screen.FocusedElement;
+        Visual element = _lastFocusedElement;
         while (element != null && element.VisualParent != _itemsHostPanel)
           element = element.VisualParent;
         CurrentItem = element == null ? null : element.Context;
@@ -500,11 +502,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void FireEvent(string eventName)
+    public override void DoRender(MediaPortal.UI.SkinEngine.Rendering.RenderContext localRenderContext)
     {
-      if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
+      Screen screen = Screen;
+      if (screen != null && _lastFocusedElement != screen.FocusedElement)
         UpdateCurrentItem();
- 	    base.FireEvent(eventName);
+      base.DoRender(localRenderContext);
     }
 
     public override void Dispose()

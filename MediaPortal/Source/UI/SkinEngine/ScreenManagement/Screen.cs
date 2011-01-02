@@ -540,9 +540,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (_focusedElement == focusedElement)
         return;
       RemoveCurrentFocus();
+      if (focusedElement == null)
+        return;
       _focusedElement = focusedElement;
       _lastFocusRect = focusedElement.ActualBounds;
-      _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
+      focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
       return;
     }
 
@@ -590,10 +592,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="focusedElement">The element which had focus before.</param>
     public void FrameworkElementLostFocus(FrameworkElement focusedElement)
     {
-      if (_focusedElement == focusedElement)
+      if (focusedElement != null && _focusedElement == focusedElement)
       {
         _focusedElement = null;
-        _visual.FireEvent(FrameworkElement.LOSTFOCUS_EVENT);
+        focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT);
       }
     }
 
