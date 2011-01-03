@@ -37,7 +37,6 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Core.Services.Logging;
 #else
 using MediaPortal.UI.Services.Logging;
-using System.IO;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
