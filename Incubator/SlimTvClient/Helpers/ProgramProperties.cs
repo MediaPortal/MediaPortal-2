@@ -73,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     public DateTime StartTime
     {
       get { return (DateTime)StartTimeProperty.GetValue(); }
-      set { StartTimeProperty.SetValue(value); }
+      set { StartTimeProperty.SetValue(value); UpdateDuration(); }
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     public DateTime EndTime
     {
       get { return (DateTime)EndTimeProperty.GetValue(); }
-      set { EndTimeProperty.SetValue(value); }
+      set { EndTimeProperty.SetValue(value); UpdateDuration(); }
     }
 
     /// <summary>
@@ -114,12 +114,17 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
         StartTime = program.StartTime;
         EndTime = program.EndTime;
         Genre = program.Genre;
-        DateTime programStart = program.StartTime;
-        if (programStart < DateTime.Now)
-          programStart = DateTime.Now;
-
-        RemainingDuration = Math.Max((int) (program.EndTime - programStart).TotalMinutes, 0);
+        UpdateDuration();
       }
+    }
+
+    private void UpdateDuration()
+    {
+      DateTime programStart = StartTime;
+      if (programStart < DateTime.Now)
+        programStart = DateTime.Now;
+
+      RemainingDuration = Math.Max((int) (EndTime - programStart).TotalMinutes, 0);
     }
   }
 }

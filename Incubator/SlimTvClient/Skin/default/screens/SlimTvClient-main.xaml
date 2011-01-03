@@ -31,9 +31,9 @@
           
           <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-            <Button x:Name="PrevGroupButton" Style="{StaticResource ButtonStyle}" Content=" &lt; "
+            <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}"/>
-            <Button x:Name="NextGroupButton" Style="{StaticResource ButtonStyle}" Content=" &gt; "
+            <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
             <Label x:Name="CurrentGroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentGroupName}"/>
           </StackPanel>          

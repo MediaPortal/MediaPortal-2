@@ -67,7 +67,7 @@
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\SlimTv4HomeProvider\SlimTv4HomeProvider.csproj">
+    <ProjectReference Include="..\SlimTv4HomeProvider\SlimTv4HomeProvider.csproj">
       <Project>{2B8AE979-A3AD-47BF-89C5-56170CA6C87C}</Project>
       <Name>SlimTv4HomeProvider</Name>
     </ProjectReference>

@@ -156,6 +156,12 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
+
+  <!-- Button with small FontSize -->
+  <Style x:Key="SmallButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
+    <Setter Property="FontSize" Value="{ThemeResource SmallFontSize}"/>
+  </Style>
+  
   <!-- SingleChannel Program Guide, Item contains StartTime and Title. -->
   <DataTemplate x:Key="SingleChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">

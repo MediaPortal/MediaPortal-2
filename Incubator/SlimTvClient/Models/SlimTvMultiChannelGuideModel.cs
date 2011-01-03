@@ -23,8 +23,11 @@
 #endregion
 
 using System;
+using System.Threading;
+using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -99,6 +102,11 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdateChannels()
     {
+      ThreadPool.QueueUserWorkItem(BackgroundUpdateChannels);
+    }
+
+    private void BackgroundUpdateChannels(object threadArgument)
+    {
       base.UpdateChannels();
       _channelList.Clear();
       if (_channels != null)
@@ -116,24 +124,42 @@ namespace MediaPortal.Plugins.SlimTvClient
       ItemsList channelPrograms = new ItemsList();
       if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now, DateTime.Now.AddHours(6), out _programs))
       {
-        foreach (IProgram program in _programs)
-        {
-          // Use local variable, otherwise delegate argument is not fixed
-          ProgramProperties programProperties = new ProgramProperties();
-          IProgram currentProgram = program;
-          programProperties.SetProgram(currentProgram);
-
-          ProgramListItem item = new ProgramListItem(programProperties)
+        if (_programs.Count == 0)
+          channelPrograms.Add(NoProgramPlaceholder());
+        else
+          foreach (IProgram program in _programs)
           {
-            Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
-          };
-          item.AdditionalProperties["PROGRAM"] = currentProgram;
+            // Use local variable, otherwise delegate argument is not fixed
+            ProgramProperties programProperties = new ProgramProperties();
+            IProgram currentProgram = program;
+            programProperties.SetProgram(currentProgram);
 
-          channelPrograms.Add(item);
-        }
+            ProgramListItem item = new ProgramListItem(programProperties)
+                                     {
+                                       Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
+                                     };
+            item.AdditionalProperties["PROGRAM"] = currentProgram;
+
+            channelPrograms.Add(item);
+          }
       }
       return channelPrograms;
     }
+
+    private ProgramListItem NoProgramPlaceholder()
+    {
+      ILocalization loc = ServiceRegistration.Get<ILocalization>();
+      DateTime today = FormatHelper.GetDay(DateTime.Now);
+
+      ProgramProperties programProperties = new ProgramProperties
+                                              {
+                                                Title = loc.ToString("[SlimTvClient.NoProgram]"),
+                                                StartTime = today,
+                                                EndTime = today.AddDays(1)
+                                              };
+      return new ProgramListItem(programProperties);
+    }
+
     protected override void UpdateCurrentChannel()
     {
     }
