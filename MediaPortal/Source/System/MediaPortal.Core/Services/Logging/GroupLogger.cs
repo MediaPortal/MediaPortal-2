@@ -33,7 +33,7 @@ namespace MediaPortal.Core.Services.Logging
     protected List<ILogger> _loggerList = new List<ILogger>();
 
      /// <summary>
-    /// Creates a new <see cref="GroupLogger"/> instance and initializes it with the given
+    /// Creates a new <see cref="GroupLogger"/> instance and initializes it with the given parameters.
     /// <paramref name="loggers"/>.
     /// </summary>
     /// <param name="loggers">The loggers to add.</param>
@@ -48,27 +48,7 @@ namespace MediaPortal.Core.Services.Logging
       _loggerList.Add(logger);
     }
 
-    #region Implementation of ILogger
-
-    public bool LogMethodNames
-    {
-      get { return _loggerList[0].LogMethodNames; }
-      set
-      {
-        foreach (ILogger logger in _loggerList)
-          logger.LogMethodNames = value;
-      }
-    }
-
-    public LogLevel Level
-    {
-      get { return _loggerList[0].Level; }
-      set
-      {
-        foreach (ILogger logger in _loggerList)
-          logger.Level = value;
-      }
-    }
+    #region ILogger implementation
 
     public void Debug(string format, params object[] args)
     {

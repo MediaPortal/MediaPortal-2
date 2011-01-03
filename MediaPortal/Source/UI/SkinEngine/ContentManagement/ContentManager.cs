@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       _garbageCollectorThread = new Thread(DoGarbageCollection)
       {
-        Name = typeof(ContentManager).Name + " garbage collector thread",
+        Name = "ContMgrGC", //garbage collector thread
         Priority = ThreadPriority.Lowest,
         IsBackground = true
       };

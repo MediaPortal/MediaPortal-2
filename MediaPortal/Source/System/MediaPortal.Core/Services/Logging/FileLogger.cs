@@ -39,8 +39,7 @@ namespace MediaPortal.Core.Services.Logging
     public const int NUM_ATTEMPTS = 10;
 
     /// <summary>
-    /// Creates a new <see cref="FileLogger"/> instance and initializes it with the given filename and
-    /// <see cref="LogLevel"/>.
+    /// Creates a new <see cref="FileLogger"/> instance and initializes it with the given parameters.
     /// </summary>
     /// <param name="filePath">The file path to write the messages to.</param>
     /// <param name="level">The minimum level messages must have to be written to the file.</param>

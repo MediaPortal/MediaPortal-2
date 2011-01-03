@@ -70,7 +70,7 @@ namespace MediaPortal.Client
     /// </summary>
     private static void Main(params string[] args)
     {
-      Thread.CurrentThread.Name = "Main Thread";
+      Thread.CurrentThread.Name = "Main";
 
       SplashScreen splashScreen = CreateSplashScreen();
       splashScreen.ShowSplashScreen();
@@ -95,7 +95,7 @@ namespace MediaPortal.Client
         try
         {
 
-          ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+          ApplicationCore.RegisterCoreServices();
 
           logger = ServiceRegistration.Get<ILogger>();
 

@@ -33,18 +33,6 @@ namespace MediaPortal.Core.Logging
   {
     #region ILogger Members
 
-    public bool LogMethodNames
-    {
-      get { return false; }
-      set { }
-    }
-
-    public LogLevel Level
-    {
-      get { return LogLevel.None; }
-      set { }
-    }
-
     public void Debug(string format, params object[] args) { }
     public void Debug(string format, Exception ex, params object[] args) { }
 

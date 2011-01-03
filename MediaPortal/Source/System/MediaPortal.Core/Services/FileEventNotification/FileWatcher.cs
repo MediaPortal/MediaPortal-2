@@ -403,7 +403,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
         return; // This timer event was skipped, processing will happen during the next timer event
       // Set the current threads name for logging purpose.
       if (Thread.CurrentThread.Name == null)
-        Thread.CurrentThread.Name = "FileEventNotifier";
+        Thread.CurrentThread.Name = "FEN"; // FileEventNotifier
       // Only one thread at a time is processing the events.
       // We don't fire the events inside the lock. We will queue them here until the code exits the lock.
       var eventsToBeFired = new Queue<FileWatchEvent>();

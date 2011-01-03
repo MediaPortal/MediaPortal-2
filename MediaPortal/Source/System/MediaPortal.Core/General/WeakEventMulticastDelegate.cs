@@ -69,7 +69,7 @@ namespace MediaPortal.Core.General
     {
       _garbageCollectorThread = new Thread(DoBackgroundWork)
         {
-            Name = typeof(WeakEventMulticastDelegate).Name + " garbage collector thread",
+            Name = "WeakEveGC",
             Priority = ThreadPriority.Lowest,
             IsBackground = true
         };

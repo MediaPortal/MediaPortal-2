@@ -379,7 +379,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        Thread thread = new Thread(Run) {Name = "Resource mounting service"};
+        Thread thread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
         thread.Start();
         _started = true;
       }

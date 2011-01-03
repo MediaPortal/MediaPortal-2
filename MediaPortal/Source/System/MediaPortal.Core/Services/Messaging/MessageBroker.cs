@@ -42,7 +42,7 @@ namespace MediaPortal.Core.Services.Messaging
     {
       _garbageCollectorThread = new Thread(DoBackgroundWork)
         {
-            Name = typeof(MessageBroker).Name + " garbage collector thread",
+          Name = "MsgBrGC", //garbage collector thread
             Priority = ThreadPriority.Lowest,
             IsBackground = true
         };

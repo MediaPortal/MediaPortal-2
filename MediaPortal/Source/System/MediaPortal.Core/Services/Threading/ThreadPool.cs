@@ -377,7 +377,7 @@ namespace MediaPortal.Core.Services.Threading
             return;
 
           Thread t = new Thread(ProcessQueue) {IsBackground = true};
-          t.Name = "PoolThread" + t.GetHashCode();
+          t.Name = "Thread" + t.GetHashCode();
           t.Priority = _startInfo.DefaultThreadPriority;
           t.Start();
           ServiceRegistration.Get<ILogger>().Debug("ThreadPool.StartThreads(): Thread {0} started", t.Name);

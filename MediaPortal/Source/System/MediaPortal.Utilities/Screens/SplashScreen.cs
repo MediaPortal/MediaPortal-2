@@ -239,7 +239,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void ShowSplashScreen()
     {
-      _splashScreenThread = new Thread(ShowForm) {IsBackground = true, Name = "SplashScreenThread"};
+      _splashScreenThread = new Thread(ShowForm) {IsBackground = true, Name = "SplashScr"};
       _splashScreenThread.Start();
     }
 
