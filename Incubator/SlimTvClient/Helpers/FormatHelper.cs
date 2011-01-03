@@ -28,6 +28,26 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
 {
   public class FormatHelper
   {
+    public enum RoundingDirection { Up, Down, Nearest }
+
+    public static DateTime RoundDateTime(DateTime dt, int minutes, RoundingDirection direction)
+    {
+      TimeSpan t;
+
+      switch (direction)
+      {
+        case RoundingDirection.Up:
+          t = (dt.Subtract(DateTime.MinValue)).Add(new TimeSpan(0, minutes, 0)); break;
+        case RoundingDirection.Down:
+          t = (dt.Subtract(DateTime.MinValue)); break;
+        default:
+          t = (dt.Subtract(DateTime.MinValue)).Add(new TimeSpan(0, minutes / 2, 0)); break;
+      }
+
+      return DateTime.MinValue.Add(new TimeSpan(0,
+             (((int)t.TotalMinutes) / minutes) * minutes, 0));
+    }
+
     public static DateTime GetDay(DateTime dateTime)
     {
       return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0);

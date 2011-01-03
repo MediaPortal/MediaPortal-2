@@ -41,6 +41,8 @@ namespace MediaPortal.Plugins.SlimTvClient
   public class SlimTvMultiChannelGuideModel : SlimTvGuideModelBase, IWorkflowModel
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
+    
+    public const Double VISIBLE_HOURS = 2.5;
 
     #region Constructor
 
@@ -53,14 +55,18 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Protected fields
 
-    protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _guideStartTimeProperty = null;
+
+    protected DateTime GuideEndTime
+    {
+      get { return GuideStartTime.AddHours(VISIBLE_HOURS); }
+    }
 
     #endregion
 
     #region Variables
 
     private ItemsList _channelList = new ItemsList();
-    private ItemsList _programsList = new ItemsList();
 
     #endregion
 
@@ -74,12 +80,27 @@ namespace MediaPortal.Plugins.SlimTvClient
       get { return _channelList; }
     }
 
-    /// <summary>
-    /// Exposes the list of channels in current group.
-    /// </summary>
-    public ItemsList ProgramsList
+    public DateTime GuideStartTime
     {
-      get { return _programsList; }
+      get { return (DateTime)_guideStartTimeProperty.GetValue(); }
+      set { _guideStartTimeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty GuideStartTimeProperty
+    {
+      get { return _guideStartTimeProperty; }
+    }
+
+    public void ScrollForward()
+    {
+      GuideStartTime = GuideStartTime.AddMinutes(30);
+      UpdatePrograms();
+    }
+
+    public void ScrollBackward()
+    {
+      GuideStartTime = GuideStartTime.AddMinutes(-30);
+      UpdatePrograms();
     }
 
     #endregion
@@ -92,6 +113,9 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       if (!_isInitialized)
       {
+        DateTime startDate = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
+        _guideStartTimeProperty = new WProperty(typeof (DateTime), startDate);
+
         base.InitModel();
       }
     }
@@ -102,7 +126,8 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdateChannels()
     {
-      ThreadPool.QueueUserWorkItem(BackgroundUpdateChannels);
+      //ThreadPool.QueueUserWorkItem(BackgroundUpdateChannels);
+      BackgroundUpdateChannels(null);
     }
 
     private void BackgroundUpdateChannels(object threadArgument)
@@ -121,8 +146,13 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected ItemsList GetProgramsList(IChannel channel)
     {
+      return GetProgramsList(channel, GuideStartTime, GuideEndTime);
+
+    }
+    protected ItemsList GetProgramsList(IChannel channel, DateTime referenceStart, DateTime referenceEnd)
+    {
       ItemsList channelPrograms = new ItemsList();
-      if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now, DateTime.Now.AddHours(6), out _programs))
+      if (_tvHandler.ProgramInfo.GetPrograms(channel, referenceStart, referenceEnd, out _programs))
       {
         if (_programs.Count == 0)
           channelPrograms.Add(NoProgramPlaceholder());
@@ -151,7 +181,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime today = FormatHelper.GetDay(DateTime.Now);
 
-      ProgramProperties programProperties = new ProgramProperties
+      ProgramProperties programProperties = new ProgramProperties()
                                               {
                                                 Title = loc.ToString("[SlimTvClient.NoProgram]"),
                                                 StartTime = today,
@@ -166,35 +196,84 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdatePrograms()
     {
-      if (_channels != null && _channels.Count > 0)
-      {
-        IChannel channel = _channels[0];
-        _programsList.Clear();
-        if (_tvHandler.ProgramInfo.GetPrograms(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24), out _programs))
-        {
-          foreach (IProgram program in _programs)
-          {
-            // Use local variable, otherwise delegate argument is not fixed
-            ProgramProperties programProperties = new ProgramProperties();
-            IProgram currentProgram = program;
-            programProperties.SetProgram(currentProgram);
+      foreach (ChannelProgramListItem channel in _channelList)
+        UpdateChannelPrograms(channel);
+    }
 
-            ProgramListItem item = new ProgramListItem(programProperties)
-            {
-              Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
-            };
-            item.AdditionalProperties["PROGRAM"] = currentProgram;
-
-            _programsList.Add(item);
-          }
-        }
-        ProgramsList.FireChange();
-      }
-      else
+    private void UpdateChannelPrograms(ChannelProgramListItem channel)
+    {
+      int programCount = channel.Programs.Count;
+      if (programCount > 0)
       {
-        _programs = null;
-        _programsList.Clear();
+        ProgramListItem firstItem = (ProgramListItem) channel.Programs[0];
+        ProgramListItem lastItem = (ProgramListItem) channel.Programs[programCount-1];
+        DateTime timeFrom = firstItem.Program.StartTime;
+        DateTime timeTo = lastItem.Program.EndTime;
+        if (timeFrom > GuideStartTime)
+          ReloadStart(channel, timeFrom);
+        else
+          TrimStart(channel.Programs);
+
+        if (timeTo < GuideEndTime)
+          ReloadEnd(channel, timeTo);
+        else
+          TrimEnd(channel.Programs);
+
+        foreach (ProgramListItem program in channel.Programs)
+          program.Program.UpdateDuration(GuideStartTime, GuideEndTime);
+
+        RemoveZeroDurations(channel.Programs);
       }
+      channel.Programs.FireChange();
+    }
+
+    private void RemoveZeroDurations(ItemsList programs)
+    {
+      for (int i = programs.Count - 1; i >= 0; i--)
+      {
+        ProgramListItem currentItem = (ProgramListItem)programs[i];
+        if (currentItem.Program.RemainingDuration == 0)
+          programs.Remove(currentItem);
+      }
+    }
+
+    private void TrimStart(ItemsList programs)
+    {
+      for(int i=0; i<programs.Count; i++)
+      {
+        ProgramListItem firstItem = (ProgramListItem)programs[0];
+        if (firstItem.Program.EndTime <= GuideStartTime)
+          programs.RemoveAt(0);
+        else
+          break;
+      }
+    }
+
+    private void TrimEnd(ItemsList programs)
+    {
+      for (int i = programs.Count-1; i >=0 ; i--)
+      {
+        ProgramListItem firstItem = (ProgramListItem)programs[i];
+        if (firstItem.Program.StartTime > GuideEndTime)
+          programs.RemoveAt(i);
+        else
+          break;
+      }
+    }
+
+    private void ReloadStart(ChannelProgramListItem channel, DateTime firstFromTime)
+    {
+      ItemsList newItems = GetProgramsList(channel.Channel, GuideStartTime, firstFromTime.AddSeconds(-1));
+      int idx = 0;
+      foreach (ListItem listItem in newItems)
+        channel.Programs.Insert(idx++, listItem);
+    }
+
+    private void ReloadEnd(ChannelProgramListItem channel, DateTime lastEndTime)
+    {
+      ItemsList newItems = GetProgramsList(channel.Channel, lastEndTime.AddSeconds(1), GuideEndTime);
+      foreach (ListItem listItem in newItems)
+        channel.Programs.Add(listItem);
 
     }
 

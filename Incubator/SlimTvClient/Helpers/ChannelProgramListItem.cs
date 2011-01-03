@@ -11,10 +11,12 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
   public class ChannelProgramListItem : ListItem
   {
     public ItemsList Programs { get; set; }
+    public IChannel Channel { get; set; }
     public ChannelProgramListItem(IChannel channel, ItemsList programs)
     {
       SetLabel(Consts.KEY_NAME, channel.Name);
       Programs = programs;
+      Channel = channel;
     }
   }
 }

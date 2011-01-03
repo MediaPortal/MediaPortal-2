@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 {
   public class SlimTvHandler: ITvHandler
   {
-    private readonly ITvProvider _tvProvider;
+    private ITvProvider _tvProvider;
     private string _activeAccessorPath;
 
     public SlimTvHandler()
@@ -124,7 +124,10 @@ namespace MediaPortal.Plugins.SlimTvClient
     public void Dispose()
     {
       if (_tvProvider != null)
+      {
         _tvProvider.DeInit();
+        _tvProvider = null;
+      }
     }
 
     #endregion

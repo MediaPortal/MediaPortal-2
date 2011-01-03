@@ -33,6 +33,9 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
   /// </summary>
   public class ProgramProperties
   {
+    private DateTime _viewPortMinTime;
+    private DateTime _viewPortMaxTime;
+
     public AbstractProperty TitleProperty { get; set; }
     public AbstractProperty DescriptionProperty { get; set; }
     public AbstractProperty StartTimeProperty { get; set; }
@@ -95,8 +98,14 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       set { RemainingDurationProperty.SetValue(value); }
     }
 
-    public ProgramProperties()
+    public ProgramProperties() : this(DateTime.Now, DateTime.Now.AddHours(SlimTvMultiChannelGuideModel.VISIBLE_HOURS))
     {
+    }
+
+    public ProgramProperties(DateTime viewPortMinTime, DateTime viewPortMaxTime)
+    {
+      _viewPortMinTime = viewPortMinTime;
+      _viewPortMaxTime = viewPortMaxTime;
       TitleProperty = new WProperty(typeof(String), String.Empty);
       DescriptionProperty = new WProperty(typeof(String), String.Empty);
       GenreProperty = new WProperty(typeof(String), String.Empty);
@@ -118,13 +127,24 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       }
     }
 
+    public void UpdateDuration(DateTime viewPortMinTime, DateTime viewPortMaxTime)
+    {
+      _viewPortMinTime = viewPortMinTime;
+      _viewPortMaxTime = viewPortMaxTime;
+      UpdateDuration();
+    }
+
     private void UpdateDuration()
     {
       DateTime programStart = StartTime;
-      if (programStart < DateTime.Now)
-        programStart = DateTime.Now;
+      if (programStart < _viewPortMinTime)
+        programStart = _viewPortMinTime;
 
-      RemainingDuration = Math.Max((int) (EndTime - programStart).TotalMinutes, 0);
+      DateTime programEnd = EndTime;
+      if (programEnd > _viewPortMaxTime)
+        programEnd = _viewPortMaxTime;
+
+      RemainingDuration = Math.Max((int)(programEnd - programStart).TotalMinutes, 0);
     }
   }
 }
