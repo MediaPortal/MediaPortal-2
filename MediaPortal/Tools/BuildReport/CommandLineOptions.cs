@@ -23,70 +23,31 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using MediaPortal.Utilities.CommandLine;
+using CommandLine;
 
 namespace MediaPortal.Tools.BuildReport
 {
   [Serializable]
-  public class CommandLineOptions : ICommandLineOptions
+  public class CommandLineOptions
   {
-    #region Enums
-    public enum Option
-    {
-      Input,
-      Output,
-      Solution,
-      Title,
-      VS2005
-      // put options here
-    }
-    #endregion
+    [Option("i", "input", Required = true,
+        HelpText = "Input filename")]
+    public string Input = null;
 
-    #region Variables
-    private readonly Dictionary<Option, object> _options;
-    #endregion
+    [Option("o", "output", Required = true,
+        HelpText = "Output filename")]
+    public string Output = null;
 
-    #region Constructors/Destructors
-    public CommandLineOptions()
-    {
-      _options = new Dictionary<Option, object>();
-    }
-    #endregion
+    [Option("s", "solution", Required = false,
+        HelpText = "Solution name")]
+    public string Solution = null;
 
-    #region Public Methods
-    public bool IsOption(Option option)
-    {
-      return _options.ContainsKey(option);
-    }
+    [Option("t", "title", Required = true,
+        HelpText = "Report title")]
+    public string Title = null;
 
-    public int Count
-    {
-      get { return _options.Count; }
-    }
-
-    public object GetOption(Option option)
-    {
-      return _options[option];
-    }
-    #endregion
-
-    #region ICommandLineOptiosn Implementations
-    public void SetOption(string optionName, string argument)
-    {
-      Option option = (Option)Enum.Parse(typeof(Option), optionName, true);
-      object value = argument;
-      _options.Add(option, value);
-    }
-
-    public void DisplayOptions()
-    {
-      Console.WriteLine("Valid options:");
-      Console.WriteLine("/Input=<input filename>");
-      Console.WriteLine("/Output=<output html filename>");
-      Console.WriteLine("/Solution=<solution name>/tOptional");
-      Console.WriteLine("/Title=<Report title>/tOptional");
-    }
-    #endregion
+    [Option("vs2005", null, Required = false,
+        HelpText = "Use Visual Studio 2005 solution file")]
+    public bool VS2005 = false;
   }
 }
