@@ -304,6 +304,83 @@
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
+  <!--
+  ChannelWithLogoButtonStyle is used as style for a Button that contains the Channel Logo
+  and Channel Name.
+  -->
+  <Style x:Key="ChannelWithLogoButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>                <!-- Channel Logo -->
+                <ColumnDefinition Width="*"/>                <!-- Channel Name -->
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="24" Height="24" 
+                   Stretch="Uniform"
+                   Source="{Binding ChannelLogoPath}"/>
+            <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 
+  DataTemplate for ChannelWithLogoDataTemplate
+  -->
+  <DataTemplate x:Key="ChannelWithLogoDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
+    </Grid>
+  </DataTemplate>
+  
   <!-- 
   DataTemplate for MultiChannel Program Guide
   It defines a Row containing a Button with Channel name as "Row Header" and the
@@ -316,15 +393,9 @@
         <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
 
-      <Button Style="{ThemeResource ButtonWideStyle}"  Grid.Column="0" Grid.Row="0"
+      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
-              IsEnabled="{Binding Enabled}"  Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
+              IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
       
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 
               HorizontalAlignment="Stretch" VerticalAlignment="Top"
@@ -341,6 +412,13 @@
 
   <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
   <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+
+  <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
+  <Style x:Key="ChannelWithLogoContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>

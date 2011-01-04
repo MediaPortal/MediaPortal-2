@@ -32,10 +32,33 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
   /// </summary>
   public interface ITvHandler: IDisposable
   {
+    /// <summary>
+    /// Exposes the ITimeshiftControl interface of active TvProvider.
+    /// </summary>
     ITimeshiftControl TimeshiftControl { get; }
+
+    /// <summary>
+    /// Exposes the IChannelAndGroupInfo interface of active TvProvider.
+    /// </summary>
     IChannelAndGroupInfo ChannelAndGroupInfo { get; }
+
+    /// <summary>
+    /// Exposes the IProgramInfo interface of active TvProvider.
+    /// </summary>
     IProgramInfo ProgramInfo { get; }
+
+    /// <summary>
+    /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
+    /// the created MediaItem.
+    /// </summary>
+    /// <param name="channel">Channel.</param>
+    /// <returns>True if succeeded.</returns>
     bool StartTimeshift(IChannel channel);
+
+    /// <summary>
+    /// Stops the active Timeshift.
+    /// </summary>
+    /// <returns>True if succeeded.</returns>
     bool StopTimeshift();
   }
 }

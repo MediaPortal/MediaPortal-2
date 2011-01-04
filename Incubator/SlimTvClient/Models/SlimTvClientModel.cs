@@ -351,9 +351,8 @@ namespace MediaPortal.Plugins.SlimTvClient
         {
           // Use local variable, otherwise delegate argument is not fixed
           IChannel currentChannel = channel;
-          string channelName = channel.Name;
 
-          ListItem item = new ListItem("Name", channelName)
+          ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
           {
             Command = new MethodDelegateCommand(() => Tune(currentChannel))
           };

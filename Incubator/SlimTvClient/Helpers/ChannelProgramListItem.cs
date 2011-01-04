@@ -12,11 +12,13 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
   {
     public ItemsList Programs { get; set; }
     public IChannel Channel { get; set; }
+    public string ChannelLogoPath { get; set; }
     public ChannelProgramListItem(IChannel channel, ItemsList programs)
     {
       SetLabel(Consts.KEY_NAME, channel.Name);
       Programs = programs;
       Channel = channel;
+      ChannelLogoPath = string.Format("{0}.png", channel.Name);
     }
   }
 }

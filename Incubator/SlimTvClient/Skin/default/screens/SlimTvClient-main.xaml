@@ -40,7 +40,7 @@
           
           <ListView  Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource MediaItemsListViewStyle}"
+              Style="{ThemeResource ChannelWithLogoContainerStyle}"
               ItemsSource="{Binding Path=CurrentGroupChannels}"
               SelectionChanged="{CommandStencil UpdateProgram}">
               <ListView.Resources>
