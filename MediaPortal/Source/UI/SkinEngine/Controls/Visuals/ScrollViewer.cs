@@ -56,7 +56,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Init();
       Attach();
-      UpdateScrollBars();
     }
 
     void Init()
@@ -108,6 +107,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       UpdateScrollBars();
       ConfigureContentScrollFacility();
+    }
+
+    public override void FireEvent(string eventName)
+    {
+      base.FireEvent(eventName);
+      if (eventName == LOADED_EVENT)
+        UpdateScrollBars();
     }
 
     protected override ContentPresenter FindContentPresenter()
