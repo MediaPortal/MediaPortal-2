@@ -15,18 +15,18 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Client_Element">
-    <!--<ResourceWrapper x:Key="Contents_Element">-->
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
           
           <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="180"/>
           </Grid.RowDefinitions>
           
           <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
@@ -36,7 +36,9 @@
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
             <Label x:Name="GroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
-
+        </StackPanel>
+        <StackPanel x:Name="TimeControls" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
               Command="{Command ScrollBackward}"/>
           <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
@@ -44,7 +46,7 @@
           <Label x:Name="GuideStartTimeLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GuideStartTime}"/>
         </StackPanel>
 
-          <ListView  Grid.Column="0" Grid.Row="1"
+          <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource MultiProgramGuideContainerStyle}"
               ItemsSource="{Binding Path=ChannelList}"
@@ -54,8 +56,8 @@
           </ListView.Resources>
         </ListView>
           
-        <GroupBox  Grid.Column="0" Grid.Row="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
-                   Style="{ThemeResource ContentGroupBoxStyle}">
+        <GroupBox  Grid.Column="0" Grid.Row="2"  Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
               <Include Source="screens\ProgramInfoSlim.inc"/>

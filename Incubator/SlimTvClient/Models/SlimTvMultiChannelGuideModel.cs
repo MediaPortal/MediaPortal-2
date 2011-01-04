@@ -135,12 +135,9 @@ namespace MediaPortal.Plugins.SlimTvClient
       base.UpdateChannels();
       _channelList.Clear();
       if (_channels != null)
-      {
         foreach (IChannel channel in _channels)
-        {
           _channelList.Add(new ChannelProgramListItem(channel, GetProgramsList(channel)));
-        }
-      }
+
       _channelList.FireChange();
     }
 
@@ -160,7 +157,7 @@ namespace MediaPortal.Plugins.SlimTvClient
           foreach (IProgram program in _programs)
           {
             // Use local variable, otherwise delegate argument is not fixed
-            ProgramProperties programProperties = new ProgramProperties();
+            ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime);
             IProgram currentProgram = program;
             programProperties.SetProgram(currentProgram);
 
@@ -181,7 +178,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime today = FormatHelper.GetDay(DateTime.Now);
 
-      ProgramProperties programProperties = new ProgramProperties()
+      ProgramProperties programProperties = new ProgramProperties(GuideStartTime, GuideEndTime)
                                               {
                                                 Title = loc.ToString("[SlimTvClient.NoProgram]"),
                                                 StartTime = today,
