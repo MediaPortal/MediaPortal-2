@@ -175,7 +175,7 @@
     </Grid>
   </DataTemplate>
 
-  <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration. -->
+  <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration and visible ViewPort (time). -->
   <DataTemplate x:Key="MultiChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
     <StackPanel x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <StackPanel.Width>
@@ -189,7 +189,7 @@
   </DataTemplate>
 
   
-  <!-- ProgramGuideViewStyle properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
+  <!-- ProgramGuideViewStyle defines the horizontal layout for the MultiChannelGuide program rows. -->
   <Style x:Key="ProgramGuideViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
@@ -212,25 +212,108 @@
     </Setter>
   </Style>
 
+  <!-- SingleProgramGuideListViewStyle is used for Single Channel Guide-->
   <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
-  
+
+  <!--
+  ProgramGuideButtonStyle is used as style for a single Program in MultiChannelGuide
+  It's basically the DefaultButtonStyle without the Margin for ButtonControlStyle, 
+  which would lead to incorrect Layout for short Programs (minimum Width).
+  -->
+  <Style x:Key="ProgramGuideButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+    
+  <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="ProgramGuideItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              IsEnabled="{Binding Enabled}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- MultiProgramGuideListViewStyle is used for the inner horizontal list of Programs inside a Channel row -->
   <Style x:Key="MultiProgramGuideListViewStyle" BasedOn="{ThemeResource ProgramGuideViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource MultiChannelProgramGuideDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
   </Style>
 
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
-  <!-- MultiChannel Program Guide, Item Width gets calculated of program's Duration. -->
+  <!-- 
+  DataTemplate for MultiChannel Program Guide
+  It defines a Row containing a Button with Channel name as "Row Header" and the
+  horizontal Programs ListView based on MultiProgramGuideListViewStyle.
+  -->
   <DataTemplate x:Key="GuideChannelListDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="200"/>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="250"/> <!-- Row Header (Channel Name)-->
+        <ColumnDefinition Width="*"/>   <!-- Programs Listing -->
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ButtonWideStyle}"  Grid.Column="0" Grid.Row="0"
@@ -243,13 +326,12 @@
         </Button.Triggers>
       </Button>
       
-      <!--<Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />-->
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 
               HorizontalAlignment="Stretch" VerticalAlignment="Top"
               Style="{ThemeResource MultiProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=Programs}"
               SelectionChanged="{CommandStencil Source={StaticResource SlimTvMultiChannelGuide}, Path=UpdateProgram}">
-        <!--ItemsSource="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ProgramsList}"-->
+
         <ListView.Resources>
           <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
         </ListView.Resources>
@@ -257,6 +339,7 @@
     </Grid>
   </DataTemplate>
 
+  <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
   <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>

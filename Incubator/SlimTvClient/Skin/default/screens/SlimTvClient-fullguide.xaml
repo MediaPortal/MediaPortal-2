@@ -44,7 +44,7 @@
           <Label x:Name="GuideStartTimeLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GuideStartTime}"/>
         </StackPanel>
 
-          <ListView  Grid.Column="0" Grid.Row="1" Height="400"
+          <ListView  Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource MultiProgramGuideContainerStyle}"
               ItemsSource="{Binding Path=ChannelList}"
