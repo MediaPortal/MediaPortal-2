@@ -111,7 +111,8 @@
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
-    <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
+    <Compile Include="Controls\Visuals\Templates\ElementProvider.cs" />
+    <Compile Include="Controls\Visuals\Templates\SubItemsProvider.cs" />
     <Compile Include="Controls\Visuals\Templates\TemplateWithTriggers.cs" />
     <Compile Include="Controls\Visuals\TextControl.cs" />
     <Compile Include="Controls\Visuals\AbstractTextInputHandler.cs" />

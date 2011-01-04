@@ -774,16 +774,16 @@
   <!-- ************************ TreeItem data templates for TreeViews *************************** -->
 
   <!-- A data template for a default TreeItem -->
-  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
-      ItemsSource="{Binding SubItems}">
+  <DataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}">
     <!-- Extra grid necessary because we need a label (ItemLabel) to scroll and a panel (ItemControl) to
          set the background color when selected -->
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
-  </HierarchicalDataTemplate>
+  </DataTemplate>
 
   <DataStringProvider x:Key="DefaultTreeItemDataStringProvider" Path="[Name]"/>
+  <SubItemsProvider x:Key="DefaultTreeItemSubItemsProvider" Path="SubItems"/>
 
   <!-- ****************************** TreeView styles ********************************** -->
 
@@ -808,6 +808,7 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultTreeItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultTreeItemDataStringProvider}"/>
+    <Setter Property="SubItemsProvider" Value="{ThemeResource DefaultTreeItemSubItemsProvider}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 

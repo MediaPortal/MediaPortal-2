@@ -22,54 +22,42 @@
 
 #endregion
 
-using System.Collections;
-using MediaPortal.Core.General;
-using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class HierarchicalDataTemplate : DataTemplate
+  public class ElementProvider<T> : IInitializable
   {
     #region Protected fields
 
-    protected AbstractProperty _itemsSourceProperty;
+    protected string _path = string.Empty;
+    protected PathExpression _compiledPath = null;
 
     #endregion
 
-    #region Ctor
-
-    public HierarchicalDataTemplate()
+    /// <summary>
+    /// Gets or sets a property path expression to the data string corresponding to a given object.
+    /// </summary>
+    public string Path
     {
-      Init();
+      get { return _path; }
+      set { _path = value; }
     }
 
-    void Init()
+    public T GetElement(object source)
     {
-      _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
+      IDataDescriptor result;
+      _compiledPath.Evaluate(new ValueDataDescriptor(source), out result);
+      return (T) TypeConverter.Convert(result.Value, typeof(T));
     }
 
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    void IInitializable.Initialize(IParserContext context)
     {
-      base.DeepCopy(source, copyManager);
-      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) source;
-      ItemsSource = copyManager.GetCopy(hdt.ItemsSource);
+      if (_path == null)
+        throw new XamlBindingException("{0}: Path mustn't be null", GetType().Name);
+      _compiledPath = PathExpression.Compile(context, _path);
     }
-
-    #endregion
-
-    #region Public properties
-
-    public AbstractProperty ItemsSourceProperty
-    {
-      get { return _itemsSourceProperty; }
-    }
-
-    public IEnumerable ItemsSource
-    {
-      get { return (IEnumerable) _itemsSourceProperty.GetValue(); }
-      set { _itemsSourceProperty.SetValue(value); }
-    }
-
-    #endregion
   }
 }

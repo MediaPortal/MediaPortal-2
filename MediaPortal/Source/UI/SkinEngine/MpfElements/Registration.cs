@@ -161,8 +161,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ControlTemplate));
       _objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ItemsPanelTemplate));
       _objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
-      _objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
       _objectClassRegistrations.Add("DataStringProvider", typeof(SkinEngine.Controls.Visuals.Templates.DataStringProvider));
+      _objectClassRegistrations.Add("SubItemsProvider", typeof(SkinEngine.Controls.Visuals.Templates.SubItemsProvider));
 
       // Resources/wrapper classes
       _objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));

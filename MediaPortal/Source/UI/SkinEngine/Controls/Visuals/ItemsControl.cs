@@ -304,13 +304,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the DataTemplate used to display each item. For subclasses displaying
-    /// hierarchical data, this should be a <see cref="HierarchicalDataTemplate"/>.
+    /// Gets or sets the data template used to display each item.
     /// </summary>
     public DataTemplate ItemTemplate
     {
       get { return (DataTemplate) _itemTemplateProperty.GetValue(); }
       set { _itemTemplateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty DataStringProviderProperty
+    {
+      get { return _dataStringProviderProperty; }
     }
 
     /// <summary>
@@ -502,7 +506,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void DoRender(MediaPortal.UI.SkinEngine.Rendering.RenderContext localRenderContext)
+    public override void DoRender(Rendering.RenderContext localRenderContext)
     {
       Screen screen = Screen;
       if (screen != null && _lastFocusedElement != screen.FocusedElement)

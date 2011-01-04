@@ -22,15 +22,17 @@
 
 #endregion
 
+using System.Collections;
+
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   /// <summary>
   /// Class which holds a property path expression which can be evaluated on a source element to generate a
-  /// data string.
+  /// list of sub items.
   /// </summary>
-  public class DataStringProvider : ElementProvider<string>
+  public class SubItemsProvider : ElementProvider<IEnumerable>
   {
-    public string GenerateDataString(object source)
+    public IEnumerable GetSubItems(object source)
     {
       return GetElement(source);
     }
