@@ -259,7 +259,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private void Tune(IChannel channel)
     {
-      if (_tvHandler.StartTimeshift(channel))
+      if (_tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel))
       {
         ChannelName = channel.Name;
         SeekToEnd();
@@ -311,18 +311,19 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void Update()
     {
-      if (!_active || _tvHandler.TimeshiftControl.Channel == null)
+      IChannel activeChannel = _tvHandler.TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT);
+      if (!_active || activeChannel == null)
         return;
 
       IProgram current;
       IProgram next;
 
-      ChannelName = _tvHandler.TimeshiftControl.Channel.Name;
+      ChannelName = activeChannel.Name;
 
-      if (_tvHandler.ProgramInfo.GetCurrentProgram(_tvHandler.TimeshiftControl.Channel, out current))
+      if (_tvHandler.ProgramInfo.GetCurrentProgram(activeChannel, out current))
         CurrentProgram.SetProgram(current);
 
-      if (_tvHandler.ProgramInfo.GetNextProgram(_tvHandler.TimeshiftControl.Channel, out next))
+      if (_tvHandler.ProgramInfo.GetNextProgram(activeChannel, out next))
         NextProgram.SetProgram(next);
 
       if (current != null)

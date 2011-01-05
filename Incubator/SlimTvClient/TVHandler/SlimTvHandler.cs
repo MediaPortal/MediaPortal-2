@@ -60,12 +60,12 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public IProgram CurrentProgram
     {
-      get { return GetCurrentProgram(TimeshiftControl.Channel); }
+      get { return GetCurrentProgram(TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
     }
 
     public IProgram NextProgram
     {
-      get { return GetNextProgram(TimeshiftControl.Channel); }
+      get { return GetNextProgram(TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
     }
 
     public IProgram GetCurrentProgram(IChannel channel)
@@ -87,13 +87,13 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
 
-    public bool StartTimeshift(IChannel channel)
+    public bool StartTimeshift(int slotIndex, IChannel channel)
     {
       if (TimeshiftControl == null || channel == null)
         return false;
 
       MediaItem timeshiftMediaItem;
-      bool result = TimeshiftControl.StartTimeshift(channel, out timeshiftMediaItem);
+      bool result = TimeshiftControl.StartTimeshift(slotIndex, channel, out timeshiftMediaItem);
       if (result && timeshiftMediaItem != null)
       {
         string newAccessorPath =
@@ -101,8 +101,14 @@ namespace MediaPortal.Plugins.SlimTvClient
             ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
         if (_activeAccessorPath != newAccessorPath)
-          PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, PlayerContextConcurrencyMode.None);
-       
+        {
+          PlayerContextConcurrencyMode playMode = (slotIndex == PlayerManagerConsts.PRIMARY_SLOT)
+                                                    ? PlayerContextConcurrencyMode.None
+                                                    : PlayerContextConcurrencyMode.ConcurrentVideo;
+
+          PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
+        }
+
         _activeAccessorPath = newAccessorPath;
       }
 
@@ -116,7 +122,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (TimeshiftControl == null)
         return false;
 
-      return TimeshiftControl.StopTimeshift();
+      return TimeshiftControl.StopTimeshift(0);
     }
 
     #region IDisposable Member

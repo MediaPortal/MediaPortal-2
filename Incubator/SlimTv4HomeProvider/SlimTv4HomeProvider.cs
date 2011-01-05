@@ -39,11 +39,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
   public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo
   {
     private ITVEInteraction _tvServer;
-    private IChannel _channel;
+    private IChannel[] _channels = new IChannel[2];
 
     #region ITvProvider Member
 
-    public IChannel Channel { get { return _channel; } }
+    public IChannel GetChannel(int slotIndex)
+    {
+      return _channels[slotIndex];
+    }
 
     public string Name
     {
@@ -58,7 +61,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     {
       try
       {
-
         _tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(
           new NetNamedPipeBinding {MaxReceivedMessageSize = 10000000},
           new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService")
@@ -82,7 +84,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return true;
     }
 
-    public bool StartTimeshift(IChannel channel, out MediaItem timeshiftMediaItem)
+    public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
       timeshiftMediaItem = null;
 
@@ -90,14 +92,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (String.IsNullOrEmpty(streamUrl))
         return false;
 
-      _channel = channel;
+      _channels[slotIndex] = channel;
 
       // assign a MediaItem, can be null if streamUrl is the same.
       timeshiftMediaItem = CreateMediaItem(streamUrl);
       return true;
     }
 
-    public bool StopTimeshift()
+    public bool StopTimeshift(int slotIndex)
     {
       _tvServer.CancelCurrentTimeShifting();
       return true;

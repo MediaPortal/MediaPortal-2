@@ -33,6 +33,7 @@ using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
@@ -214,7 +215,7 @@ namespace MediaPortal.Plugins.SlimTvClient
                                     {
                                       IChannel channel;
                                       if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
-                                        _tvHandler.StartTimeshift(channel);
+                                        _tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel);
                                     })
                                 });
         }

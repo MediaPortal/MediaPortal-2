@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2010 Team MediaPortal
+    Copyright (C) 2007-2011 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,9 +51,10 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
     /// the created MediaItem.
     /// </summary>
+    /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
     /// <param name="channel">Channel.</param>
     /// <returns>True if succeeded.</returns>
-    bool StartTimeshift(IChannel channel);
+    bool StartTimeshift(int slotIndex, IChannel channel);
 
     /// <summary>
     /// Stops the active Timeshift.
