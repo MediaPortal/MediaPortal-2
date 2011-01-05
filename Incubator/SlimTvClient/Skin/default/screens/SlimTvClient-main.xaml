@@ -20,7 +20,7 @@
               DataContext="{Binding Source={StaticResource SlimTvClient}}">
           
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+            <!--<ColumnDefinition Width="600"/>-->
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           
@@ -39,22 +39,22 @@
           </StackPanel>          
           
           <ListView  Grid.Column="0" Grid.Row="1"
-              Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource ChannelWithLogoContainerStyle}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
               ItemsSource="{Binding Path=CurrentGroupChannels}"
-              SelectionChanged="{CommandStencil UpdateProgram}">
+              > <!-- SelectionChanged="{CommandStencil UpdateProgram}" -->
               <ListView.Resources>
                 <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
              </ListView.Resources>
           </ListView>
 
-          <StackPanel x:Name="Programs" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+          <!--<StackPanel x:Name="Programs" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top">
             
             <Label x:Name="SelectedCurrentProgramLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding SelectedCurrentProgram}"/>
             <Label x:Name="SelectedNextProgramLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding SelectedNextProgram}"/>
             
-          </StackPanel>
+          </StackPanel>-->
 
         </Grid>
     </ResourceWrapper>

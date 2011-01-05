@@ -352,7 +352,7 @@ namespace MediaPortal.Plugins.SlimTvClient
           // Use local variable, otherwise delegate argument is not fixed
           IChannel currentChannel = channel;
 
-          ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
+          ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, GetNowAndNextProgramsList(currentChannel))
           {
             Command = new MethodDelegateCommand(() => Tune(currentChannel))
           };
@@ -378,6 +378,48 @@ namespace MediaPortal.Plugins.SlimTvClient
 
       if (_tvHandler.ProgramInfo.GetNextProgram(channel, out program))
         _selectedNextProgramProperty.SetValue(FormatProgram(program));
+    }
+
+    protected ItemsList GetNowAndNextProgramsList(IChannel channel)
+    {
+      ItemsList channelPrograms = new ItemsList();
+      IProgram program;
+      _tvHandler.ProgramInfo.GetCurrentProgram(channel, out program);
+      CreateProgramListItem(program, channelPrograms);
+
+      _tvHandler.ProgramInfo.GetNextProgram(channel, out program);
+      CreateProgramListItem(program, channelPrograms);
+
+      return channelPrograms;
+    }
+
+    private void CreateProgramListItem(IProgram program, ItemsList channelPrograms)
+    {
+      ProgramListItem item;
+      if (program == null)
+        item = NoProgramPlaceholder();
+      else
+      {
+        ProgramProperties programProperties = new ProgramProperties();
+        programProperties.SetProgram(program);
+        item = new ProgramListItem(programProperties);
+      }
+      item.AdditionalProperties["PROGRAM"] = program;
+      channelPrograms.Add(item);
+    }
+
+    private ProgramListItem NoProgramPlaceholder()
+    {
+      ILocalization loc = ServiceRegistration.Get<ILocalization>();
+      DateTime today = FormatHelper.GetDay(DateTime.Now);
+
+      ProgramProperties programProperties = new ProgramProperties(today, today.AddDays(1))
+      {
+        Title = loc.ToString("[SlimTvClient.NoProgram]"),
+        StartTime = today,
+        EndTime = today.AddDays(1)
+      };
+      return new ProgramListItem(programProperties);
     }
 
     private string FormatProgram(IProgram program)

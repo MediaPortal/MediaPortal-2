@@ -366,6 +366,75 @@
     </Setter>
   </Style>
 
+
+  <!--
+  ChannelWithLogoButtonStyle is used as style for a Button that contains the Channel Logo
+  and Channel Name.
+  -->
+  <Style x:Key="ChannelWithLogoAndProgramButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="50"/>              <!-- Channel Logo -->
+              <ColumnDefinition Width="200"/>              <!-- Channel Name -->
+              <ColumnDefinition Width="*"/>              <!-- Channel Name -->
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="48" Height="48" 
+                   Stretch="Uniform" Margin="5,2,2,2"
+                   Source="{Binding ChannelLogoPath}"/>
+            <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}"/>
+            
+            <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5" Content="{Binding Programs[0].Program.Title}"/>
+            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5" Content="{Binding Programs[1].Program.Title}"/>
+            <!--<ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>-->
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <!-- 
   DataTemplate for ChannelWithLogoDataTemplate
   -->
@@ -375,12 +444,26 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
+      <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" 
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
-  
+
+  <!-- 
+  DataTemplate for ChannelWithLogoDataTemplate
+  -->
+  <DataTemplate x:Key="ChannelWithLogoAndProgramDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Button Style="{ThemeResource ChannelWithLogoAndProgramButtonStyle}" 
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
+    </Grid>
+  </DataTemplate>
   <!-- 
   DataTemplate for MultiChannel Program Guide
   It defines a Row containing a Button with Channel name as "Row Header" and the
@@ -409,7 +492,7 @@
       </ListView>
     </Grid>
   </DataTemplate>
-
+  
   <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
   <Style x:Key="MultiProgramGuideContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
@@ -419,7 +502,14 @@
 
   <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
   <Style x:Key="ChannelWithLogoContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource GuideChannelListDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
+
+  <!-- MultiProgramGuideContainerStyle is the "top level" style used in SlimTvClient-fullguide -->
+  <Style x:Key="ChannelWithLogoAndProgramContainerStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+  
 </ResourceDictionary>
