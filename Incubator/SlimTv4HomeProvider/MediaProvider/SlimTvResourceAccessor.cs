@@ -33,11 +33,27 @@ namespace MediaPortal.Plugins.SlimTv.Providers
   class SlimTvResourceAccessor : ILocalFsResourceAccessor
   {
     private readonly string _path;
+    private readonly int _slotIndex;
 
-    public SlimTvResourceAccessor(string path)
+    public SlimTvResourceAccessor(int slotIndex, string path)
     {
       _path = path;
+      _slotIndex = slotIndex;
     }
+
+    #region Static methods
+
+    public static IResourceAccessor GetResourceAccessor(string path)
+    {
+      // parse slotindex from path and cut the prefix off.
+      int slotIndex;
+      if (int.TryParse(path.Substring(0, 1), out slotIndex))
+        path = path.Substring(2, path.Length - 2);
+
+      return new SlimTvResourceAccessor(slotIndex, path);
+    }
+
+    #endregion
 
     #region IResourceAccessor Member
 
@@ -63,7 +79,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public ResourcePath LocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(SlimTvMediaProvider.SLIMTV_MEDIA_PROVIDER_ID, _path); }
+      get
+      {
+        // format the path with the slotindex as prefix.
+        return ResourcePath.BuildBaseProviderPath(SlimTvMediaProvider.SLIMTV_MEDIA_PROVIDER_ID, 
+          String.Format("{0}|{1}", _slotIndex, _path));
+      }
     }
 
     public DateTime LastChanged
@@ -109,7 +130,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     {
       ITvHandler tv = ServiceRegistration.Get<ITvHandler>();
       if (tv != null)
-        tv.StopTimeshift();
+        tv.StopTimeshift(_slotIndex);
     }
 
     #endregion
@@ -137,7 +158,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public IResourceAccessor GetResource(string path)
     {
-      return new SlimTvResourceAccessor(path);
+      return GetResourceAccessor(path);
     }
 
     public System.Collections.Generic.ICollection<IFileSystemResourceAccessor> GetFiles()

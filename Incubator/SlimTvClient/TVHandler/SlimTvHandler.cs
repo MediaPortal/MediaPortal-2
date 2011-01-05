@@ -116,13 +116,13 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
 
-    public bool StopTimeshift()
+    public bool StopTimeshift(int slotIndex)
     {
       _activeAccessorPath = null;
       if (TimeshiftControl == null)
         return false;
 
-      return TimeshiftControl.StopTimeshift(0);
+      return TimeshiftControl.StopTimeshift(slotIndex);
     }
 
     #region IDisposable Member

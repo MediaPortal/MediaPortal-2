@@ -59,7 +59,8 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     /// <summary>
     /// Stops the active Timeshift.
     /// </summary>
+    /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
-    bool StopTimeshift();
+    bool StopTimeshift(int slotIndex);
   }
 }

@@ -95,7 +95,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       _channels[slotIndex] = channel;
 
       // assign a MediaItem, can be null if streamUrl is the same.
-      timeshiftMediaItem = CreateMediaItem(streamUrl);
+      timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl);
       return true;
     }
 
@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #endregion
 
-    public MediaItem CreateMediaItem(string streamUrl)
+    public MediaItem CreateMediaItem(int slotIndex, string streamUrl)
     {
       if (!String.IsNullOrEmpty(streamUrl))
       {
@@ -152,18 +152,18 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
         MediaItemAspect providerResourceAspect;
         MediaItemAspect mediaAspect;
-        MediaItemAspect movieAspect;
 
-        SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(streamUrl);
+        SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, streamUrl);
         aspects[ProviderResourceAspect.ASPECT_ID] =
           providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
         aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
         // videoaspect needs to be included to associate player later!
-        aspects[VideoAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(VideoAspect.Metadata);
+        aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
 
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-                                            resourceAccessor.LocalResourcePath.Serialize());
+
+        String raPath = resourceAccessor.LocalResourcePath.Serialize();
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); //Custom mimetype for LiveTv

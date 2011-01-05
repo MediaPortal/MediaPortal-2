@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public IResourceAccessor CreateMediaItemAccessor(string path)
     {
-      return new SlimTvResourceAccessor(path);
+      return SlimTvResourceAccessor.GetResourceAccessor(path);
     }
 
     #endregion
