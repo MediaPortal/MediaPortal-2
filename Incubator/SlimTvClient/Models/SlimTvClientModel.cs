@@ -60,6 +60,10 @@ namespace MediaPortal.Plugins.SlimTvClient
     protected AbstractProperty _programProgressProperty = null;
     protected AbstractProperty _currentChannelNameProperty = null;
 
+    // PiP Control properties
+    protected AbstractProperty _piPAvailableProperty = null;
+    protected AbstractProperty _piPEnabledProperty = null;
+
     #endregion
 
     #region Variables
@@ -77,7 +81,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     #endregion
 
     public SlimTvClientModel()
-      : base(10000)
+      : base(1000)
     {
     }
 
@@ -210,7 +214,30 @@ namespace MediaPortal.Plugins.SlimTvClient
     public AbstractProperty NextProgramProperty
     {
       get { return _nextProgramProperty; }
-    }    
+    }
+
+    public bool PiPAvailable
+    {
+      get { return (bool) _piPAvailableProperty.GetValue(); }
+      set { _piPAvailableProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PiPAvailableProperty
+    {
+      get { return _piPAvailableProperty; }
+    }
+
+    public bool PiPEnabled
+    {
+      get { return (bool)_piPEnabledProperty.GetValue(); }
+      set { _piPEnabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty PiPEnabledProperty
+    {
+      get { return _piPEnabledProperty; }
+    }
+
 
     /// <summary>
     /// Skips group index to next one.
@@ -251,32 +278,53 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
     }
 
+    public void TogglePiP()
+    {
+      if (!PiPAvailable)
+      {
+        PiPEnabled = false;
+        return;
+      }
+      PiPEnabled = !PiPEnabled;
+    }
+
     #endregion
 
     #region Members
 
     #region TV control methods
 
+    protected LiveTvPlayer SlotPlayer
+    {
+      get
+      {
+        IPlayerManager pm = ServiceRegistration.Get<IPlayerManager>();
+        if (pm == null)
+          return null;
+        LiveTvPlayer player = pm[SlotIndex] as LiveTvPlayer;
+        return player;
+      }
+    }
+
     private void Tune(IChannel channel)
     {
-      if (_tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel))
+      if (SlotPlayer != null)
+        SlotPlayer.Pause();
+
+      if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
-        ChannelName = channel.Name;
-        SeekToEnd();
+        SeekToEndAndPlay();
         Update();
       }
     }
 
-    private void SeekToEnd()
+    private void SeekToEndAndPlay()
     {
-      IPlayerManager pm = ServiceRegistration.Get<IPlayerManager>();
-      if (pm == null)
-        return;
-      LiveTvPlayer player = pm[0] as LiveTvPlayer;
-      if (player == null)
-        return;
-
-      player.CurrentTime = player.Duration;
+      if (SlotPlayer != null)
+      {
+        SlotPlayer.CurrentTime = SlotPlayer.Duration;
+        SlotPlayer.Resume();
+      }
     }
 
     #endregion
@@ -296,6 +344,9 @@ namespace MediaPortal.Plugins.SlimTvClient
         _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _programProgressProperty = new WProperty(typeof(double), 0d);
 
+        _piPAvailableProperty = new WProperty(typeof(bool), false);
+        _piPEnabledProperty = new WProperty(typeof(bool), false);
+
         if (!ServiceRegistration.IsRegistered<ITvHandler>())
           ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
 
@@ -309,11 +360,25 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
     }
 
+    protected int SlotIndex
+    {
+      get { return PiPEnabled ? PlayerManagerConsts.SECONDARY_SLOT : PlayerManagerConsts.PRIMARY_SLOT; }
+    }
+
     protected override void Update()
     {
-      IChannel activeChannel = _tvHandler.TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT);
-      if (!_active || activeChannel == null)
+      if (!_active)
         return;
+
+      IChannel activeChannel = _tvHandler.TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT);
+      if (activeChannel == null)
+      {
+        PiPAvailable = false;
+        PiPEnabled = false;
+        return;
+      }
+
+      PiPAvailable = true;
 
       IProgram current;
       IProgram next;

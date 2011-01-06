@@ -102,6 +102,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool StopTimeshift(int slotIndex)
     {
       _tvServer.CancelCurrentTimeShifting();
+      _channels[slotIndex] = null;
       return true;
     }
 
