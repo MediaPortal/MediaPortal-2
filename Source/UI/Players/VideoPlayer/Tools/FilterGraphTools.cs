@@ -675,6 +675,44 @@ namespace MediaPortal.UI.Players.Video.Tools
       }
     }
 
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static void FreeAMMediaType(AMMediaType mediaType)
+    {
+      DsUtils.FreeAMMediaType(mediaType);
+    }
+
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static void FreePinInfo(PinInfo pinInfo)
+    {
+      DsUtils.FreePinInfo(pinInfo);
+    }
+
+    /// <summary>
+    /// Queries the FilterInfo and frees the reference to FilterGraph.
+    /// </summary>
+    /// <param name="filter">IBaseFilter.</param>
+    /// <returns>FilterInfo without references.</returns>
+    public static FilterInfo QueryFilterInfoAndFree(IBaseFilter filter)
+    {
+      FilterInfo info;
+      int hr = filter.QueryFilterInfo(out info);
+      DsError.ThrowExceptionForHR(hr);
+
+      if (info.pGraph != null)
+        Marshal.ReleaseComObject(info.pGraph);
+      return info;
+    }
+
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+    public static void FreeFilterInfo(FilterInfo info)
+    {
+      if (info.pGraph != null)
+        Marshal.ReleaseComObject(info.pGraph);
+    }
+
+
+
+
     /// <summary>
     /// Save a DirectShow Graph to a GRF file
     /// </summary>

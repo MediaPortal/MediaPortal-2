@@ -216,19 +216,19 @@ namespace MediaPortal.UI.Players.Video
 
     #region graph rebuilding
 
-    //FIXME: this methods crashes MP2 to desktop!!!
     //check if the pin connections can be kept, or if a graph rebuilding is necessary!
-    private bool GraphNeedsRebuild()
+    private bool GraphNeedsRebuild(IBaseFilter baseFilter)
     {
       IEnumPins pinEnum;
-      int hr = _fileSource.EnumPins(out pinEnum);
+      int hr = baseFilter.EnumPins(out pinEnum);
       if (hr != 0 || pinEnum == null) return true;
       IPin[] pins = new IPin[1];
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
       for (; ; )
       {
         hr = pinEnum.Next(1, pins, ptrFetched);
-        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) break;
+        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) 
+          break;
         IPin other;
         hr = pins[0].ConnectedTo(out other);
         try
@@ -237,16 +237,26 @@ namespace MediaPortal.UI.Players.Video
           {
             try
             {
-              if (!QueryConnect(pins[0], other))
+              PinInfo pinInfo;
+              pins[0].QueryPinInfo(out pinInfo);
+              FilterInfo filterInfo = FilterGraphTools.QueryFilterInfoAndFree(pinInfo.filter);
+              try
               {
-                ServiceRegistration.Get<ILogger>().Info("Graph needs a rebuild");
-                return true;
+                if (!QueryConnect(pins[0], other))
+                {
+                  ServiceRegistration.Get<ILogger>().Info("Graph needs a rebuild. Filter: {0}, Pin: {1}",
+                                                          filterInfo.achName, pinInfo.name);
+                  return true;
+                }
+              }
+              finally
+              {
+                FilterGraphTools.FreePinInfo(pinInfo);
               }
             }
             finally
             {
               Marshal.ReleaseComObject(other);
-              Marshal.FreeCoTaskMem(ptrFetched);
             }
           }
         }
@@ -255,21 +265,18 @@ namespace MediaPortal.UI.Players.Video
           Marshal.ReleaseComObject(pins[0]);
         }
       }
-      Marshal.FreeCoTaskMem(ptrFetched);
       Marshal.ReleaseComObject(pinEnum);
+      Marshal.FreeCoTaskMem(ptrFetched);
       //this is only debug output at the moment. always do a rebuild for now.
       ServiceRegistration.Get<ILogger>().Info("Graph would _not_ need a rebuild");
-      ServiceRegistration.Get<ILogger>().Info("BaseTSReaderPlayer: GraphNeedsRebuild() original return value is false.");
-      //return true;
+      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer: GraphNeedsRebuild() original return value is false.");
       return false; // Eabin ; this one breaks channel change, when going from one channel with mpeg audio to another with ac3 and vice versa.     
     }
 
-    //TODO:Rework this part!
     void DoGraphRebuild()
     {
       IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
-      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged()");
-      bool needRebuild = true;// GraphNeedsRebuild();
+      ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:DoGraphRebuild()");
       if (mediaCtrl != null)
       {
         lock (mediaCtrl)
@@ -297,6 +304,8 @@ namespace MediaPortal.UI.Players.Video
 
           }
           ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
+          bool needRebuild = GraphNeedsRebuild(_fileSource);
+          
           if (needRebuild)
           {
             ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
@@ -320,42 +329,54 @@ namespace MediaPortal.UI.Players.Video
     {
       IEnumMediaTypes enumTypes;
       int hr = pin.EnumMediaTypes(out enumTypes);
-      if (hr != 0 || enumTypes == null) return false;
+      if (hr != 0 || enumTypes == null)
+        return false;
+
       int count = 0;
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      for (; ; )
+      try
       {
-        AMMediaType[] types = new AMMediaType[1];
-        hr = enumTypes.Next(1, types, ptrFetched);
-        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) break;
-        count++;
-        if (other.QueryAccept(types[0]) == 0)
+        for (; ; )
         {
-          Marshal.FreeCoTaskMem(ptrFetched);
-          return true;
+          AMMediaType[] types = new AMMediaType[1];
+          hr = enumTypes.Next(1, types, ptrFetched);
+          if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0)
+            break;
+
+          count++;
+          if (other.QueryAccept(types[0]) == 0)
+            return true;
+
+          FilterGraphTools.FreeAMMediaType(types[0]);
         }
+
+        PinInfo info;
+        PinInfo infoOther;
+        pin.QueryPinInfo(out info);
+        other.QueryPinInfo(out infoOther);
+        ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types",
+                                                info.name, infoOther.name, count);
+        FilterGraphTools.FreePinInfo(info);
+        FilterGraphTools.FreePinInfo(infoOther);
+        return false;
       }
-      Marshal.FreeCoTaskMem(ptrFetched);
-      PinInfo info;
-      PinInfo infoOther;
-      pin.QueryPinInfo(out info);
-      other.QueryPinInfo(out infoOther);
-      ServiceRegistration.Get<ILogger>().Info("Pins {0} and {1} do not accept each other. Tested {2} media types", info.name, infoOther.name, count);
-      return false;
+      finally
+      {
+        Marshal.FreeCoTaskMem(ptrFetched);
+      }
     }
 
     bool ReConnectAll(IGraphBuilder graphBuilder, IBaseFilter filter)
     {
       bool bAllConnected = true;
       IEnumPins pinEnum;
-      FilterInfo info;
+      FilterInfo info = FilterGraphTools.QueryFilterInfoAndFree(filter);
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-      filter.QueryFilterInfo(out info);
+      //filter.QueryFilterInfo(out info);
       int hr = filter.EnumPins(out pinEnum);
       if ((hr == 0) && (pinEnum != null))
       {
         ServiceRegistration.Get<ILogger>().Info("got pins");
-        pinEnum.Reset();
         IPin[] pins = new IPin[1];
         int iFetched;
         int iPinNo = 0;
@@ -377,7 +398,7 @@ namespace MediaPortal.UI.Players.Video
             if (hr == 0)
             {
               ServiceRegistration.Get<ILogger>().Info("  got pin#{0}:{1}", iPinNo - 1, pinInfo.name);
-              Marshal.ReleaseComObject(pinInfo.filter);
+              FilterGraphTools.FreePinInfo(pinInfo);
             }
             else
             {
@@ -399,9 +420,14 @@ namespace MediaPortal.UI.Players.Video
                                                           pinInfo.name, hr);
                   bAllConnected = false;
                 }
+                PinInfo otherPinInfo;
+                other.QueryPinInfo(out otherPinInfo);
+                ReConnectAll(graphBuilder, otherPinInfo.filter);
+                FilterGraphTools.FreePinInfo(otherPinInfo);
+                FilterGraphTools.TryRelease(ref other);
               }
             }
-            Marshal.ReleaseComObject(pins[0]);
+            FilterGraphTools.TryRelease(ref pins[0]);
           }
           else
           {
@@ -410,8 +436,8 @@ namespace MediaPortal.UI.Players.Video
           }
         } 
         while (iFetched == 1);
-        Marshal.ReleaseComObject(pinEnum);
-        Marshal.ReleaseComObject(ptrFetched);
+        FilterGraphTools.TryRelease(ref pinEnum);
+        Marshal.FreeCoTaskMem(ptrFetched);
       }
       return bAllConnected;
     }
@@ -421,8 +447,7 @@ namespace MediaPortal.UI.Players.Video
       IEnumPins pinEnum;
       int hr = filter.EnumPins(out pinEnum);
       if (hr != 0 || pinEnum == null) return false;
-      FilterInfo info;
-      filter.QueryFilterInfo(out info);
+      FilterInfo info = FilterGraphTools.QueryFilterInfoAndFree(filter);
       ServiceRegistration.Get<ILogger>().Info("Disconnecting all pins from filter {0}", info.achName);
       bool allDisconnected = true;
       IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
@@ -439,6 +464,7 @@ namespace MediaPortal.UI.Players.Video
           if (!DisconnectPin(graphBuilder, pins[0]))
             allDisconnected = false;
         }
+        FilterGraphTools.FreePinInfo(pinInfo);
         Marshal.ReleaseComObject(pins[0]);
       }
       Marshal.ReleaseComObject(pinEnum);
@@ -451,14 +477,19 @@ namespace MediaPortal.UI.Players.Video
       IPin other;
       int hr = pin.ConnectedTo(out other);
       bool allDisconnected = true;
-      PinInfo info;
-      pin.QueryPinInfo(out info);
-      ServiceRegistration.Get<ILogger>().Info("Disconnecting pin {0}", info.name);
       if (hr == 0 && other != null)
       {
+        PinInfo info;
+        pin.QueryPinInfo(out info);
+        ServiceRegistration.Get<ILogger>().Info("Disconnecting pin {0}", info.name);
+        FilterGraphTools.FreePinInfo(info);
+
         other.QueryPinInfo(out info);
         if (!DisconnectAllPins(graphBuilder, info.filter))
           allDisconnected = false;
+
+        FilterGraphTools.FreePinInfo(info);
+
         hr = pin.Disconnect();
         if (hr != 0)
         {
