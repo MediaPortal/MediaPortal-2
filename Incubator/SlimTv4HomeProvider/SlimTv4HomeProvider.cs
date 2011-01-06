@@ -33,6 +33,7 @@ using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Providers.Items;
 using TV4Home.Server.TVEInteractionLibrary.Interfaces;
+using MediaPortal.Core.Logging;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {
@@ -78,30 +79,44 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (_tvServer == null)
         return false;
      
-      _tvServer.CancelCurrentTimeShifting();
-      _tvServer.Disconnect();
+      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
+      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
+      //_tvServer.Disconnect();
       _tvServer = null;
       return true;
+    }
+
+    public String GetTimeshiftUserName(int slotIndex)
+    {
+      return String.Format("SlimTvClient{0}", slotIndex);
     }
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
       timeshiftMediaItem = null;
+      try
+      {
+        String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex),
+                                                                               channel.ChannelId);
+        if (String.IsNullOrEmpty(streamUrl))
+          return false;
 
-      String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(channel.ChannelId);
-      if (String.IsNullOrEmpty(streamUrl))
+        _channels[slotIndex] = channel;
+
+        // assign a MediaItem, can be null if streamUrl is the same.
+        timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl);
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
         return false;
-
-      _channels[slotIndex] = channel;
-
-      // assign a MediaItem, can be null if streamUrl is the same.
-      timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl);
-      return true;
+      }
     }
 
     public bool StopTimeshift(int slotIndex)
     {
-      _tvServer.CancelCurrentTimeShifting();
+      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
       _channels[slotIndex] = null;
       return true;
     }
@@ -123,8 +138,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (group == null)
         return false;
 
-      List<WebChannel> tvChannels = _tvServer.GetChannels(group.ChannelGroupId);
-      foreach (WebChannel webChannel in tvChannels)
+      List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
+      foreach (WebChannelBasic webChannel in tvChannels)
       {
         channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.Name });
       }
@@ -134,7 +149,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetChannel(int channelId, out IChannel channel)
     {
       channel = null;
-      WebChannel tvChannel = _tvServer.GetChannelById(channelId);
+      WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
       if (tvChannel != null)
       {
         channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.Name};
@@ -166,7 +181,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         String raPath = resourceAccessor.LocalResourcePath.Serialize();
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");
+        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV" + (slotIndex == 1 ? " [PiP]" : ""));
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); //Custom mimetype for LiveTv
 
         MediaItem tvStream = new MediaItem(new Guid(), aspects);
