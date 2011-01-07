@@ -24,7 +24,9 @@
 
 // Define DEBUG_LAYOUT to make MP log screen layouting information. That will slow down the layouting process significantly
 // but can be used to find layouting bugs. Don't use that switch in release builds.
+// Use DEBUG_MORE_LAYOUT to get more information, also for skipped method calls.
 //#define DEBUG_LAYOUT
+//#define DEBUG_MORE_LAYOUT
 
 using System;
 using System.Collections.Generic;
@@ -916,16 +918,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Measure(ref SizeF totalSize)
     {
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
+#endif
 #endif
       if (!_isMeasureInvalid && SameSize(_availableSize, totalSize))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
         totalSize = _desiredSize;
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before and measurement is not invalid, returns desired size={2}", GetType().Name, Name, totalSize));
+#endif
 #endif
         return;
       }
+#if DEBUG_LAYOUT
+#if !DEBUG_MORE_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
+#endif
+#endif
       _isMeasureInvalid = false;
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize, Margin);
@@ -969,17 +980,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Arrange(RectangleF outerRect)
     {
       if (_isMeasureInvalid)
-        return;
+      {
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', exiting because measurement is invalid", GetType().Name, Name));
+#endif
+#endif
+        return;
+      }
+#if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
+#endif
 #endif
       if (!_isArrangeInvalid && SameRect(_outerRect, outerRect))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before and arrangement is not invalid", GetType().Name, Name, outerRect));
+#endif
 #endif
         return;
       }
+#if DEBUG_LAYOUT
+#if !DEBUG_MORE_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
+#endif
+#endif
       _isArrangeInvalid = false;
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
@@ -1149,12 +1176,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SizeF size = new SizeF(screenSize);
 
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+#endif
 #endif
       Measure(ref size);
 
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, screenSize));
+#endif
 #endif
       // Ignore the measured size - arrange with screen size
       Arrange(new RectangleF(new PointF(0, 0), screenSize));
