@@ -48,6 +48,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Dispose()
     {
+      _parent = null;
+      CollectionChanged = null;
       Clear();
     }
 
@@ -68,6 +70,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             FireCollectionChanged();
           }
       }
+    }
+
+    public void SetParent(FrameworkElement parent)
+    {
+      _parent = parent;
     }
 
     protected void FireCollectionChanged()

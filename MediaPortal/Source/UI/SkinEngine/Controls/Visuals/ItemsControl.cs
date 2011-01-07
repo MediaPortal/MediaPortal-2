@@ -187,8 +187,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemsChanged(AbstractProperty prop, object oldVal)
     {
-      DetachFromItems(oldVal as ObservableUIElementCollection<FrameworkElement>);
-      AttachToItems(Items);
+      ObservableUIElementCollection<FrameworkElement> oldItems = oldVal as ObservableUIElementCollection<FrameworkElement>;
+      if (oldItems != null)
+        oldItems.Dispose();
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      AttachToItems(items);
+      items.SetParent(this);
       OnItemsChanged();
     }
 
@@ -464,7 +468,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else
       {
-        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(this);
+        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(null);
         while (enumer.MoveNext())
         {
           FrameworkElement container = PrepareItemContainer(enumer.Current);
