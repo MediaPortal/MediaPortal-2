@@ -1520,10 +1520,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.Device.SetRenderTarget(0, texture.Surface0);
 
         // Fill the background of the texture with an alpha value of 0
-        GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
+        GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.White), 1.0f, 0);
+
+        // Enable special alpha blending
+        GraphicsDevice.Device.SetRenderState(RenderState.SeparateAlphaBlendEnable, true);
 
         // Render the control into the given texture
         DoRender(renderContext);
+
+        // Disable special alpha blending
+        GraphicsDevice.Device.SetRenderState(RenderState.SeparateAlphaBlendEnable, false);
 
         // Restore the backbuffer
         GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
@@ -1557,29 +1563,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Get global render texture or create it if it doesn't exist
         RenderTextureAsset renderTarget = ServiceRegistration.Get<ContentManager>().GetRenderTexture(
             GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+
         // Ensure it's allocated
         renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
         if (!renderTarget.IsAllocated)
           return;
+
         // Create a temporary render context and render the control to the render texture
-        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, bounds);
+        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, 
+          localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToTexture(renderTarget, tempRenderContext);
+
         // If the control bounds have changed we need to update our primitive context to make the 
         //    texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
             tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds
             || renderTarget.Size != _lastOpacityRenderSize)
         {
+          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
           _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
-          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height,
-              localRenderContext.ZOrder);
           _updateOpacityMask = false;
           _lastOpacityRenderSize = renderTarget.Size;
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        tempRenderContext = new RenderContext(Matrix.Identity, Matrix.Identity, bounds);
-        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, tempRenderContext);
+        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
         _opacityMaskContext.Render(0);
         OpacityMask.EndRender();
       }
@@ -1589,55 +1597,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Opacitymask
 
-    void UpdateOpacityMask(RectangleF bounds, int width, int height, float zPos)
+    void UpdateOpacityMask(RectangleF bounds, float width, float height, float zPos)
     {
-      PositionColoredTextured[] verts = new PositionColoredTextured[4];
-
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
 
-      float left = bounds.Left - 1.2f;
-      float top = bounds.Top - 1.2f;
-      float right = bounds.Right - 0.8f;
-      float bottom = bounds.Bottom - 0.8f;
-
-      float uLeft = bounds.Left / width;
-      float vTop = bounds.Top / height;
-      float uRight = bounds.Right / width;
-      float vBottom = bounds.Bottom / height;
-
-      // Upper left
-      verts[0].X = left;
-      verts[0].Y = top;
-      verts[0].Color = color;
-      verts[0].Tu1 = uLeft;
-      verts[0].Tv1 = vTop;
-      verts[0].Z = zPos;
-
-      // Bottom left
-      verts[1].X = left;
-      verts[1].Y = bottom;
-      verts[1].Color = color;
-      verts[1].Tu1 = uLeft;
-      verts[1].Tv1 = vBottom;
-      verts[1].Z = zPos;
-
-      // Bottom right
-      verts[2].X = right;
-      verts[2].Y = bottom;
-      verts[2].Color = color;
-      verts[2].Tu1 = uRight;
-      verts[2].Tv1 = vBottom;
-      verts[2].Z = zPos;
-
-      // Upper right
-      verts[3].X = right;
-      verts[3].Y = top;
-      verts[3].Color = color;
-      verts[3].Tu1 = uRight;
-      verts[3].Tv1 = vTop;
-      verts[3].Z = zPos;
+      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height, 
+          zPos, color);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
       SetPrimitiveContext(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
