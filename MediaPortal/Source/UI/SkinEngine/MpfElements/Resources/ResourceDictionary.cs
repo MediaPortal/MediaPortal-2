@@ -234,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       {
         string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
         if (includeFilePath == null)
-          throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
+          throw new XamlLoadException("Could not open include file '{0}' (evaluated path is '{1}')", _source, includeFilePath);
         ResourceDictionary mergeDict = XamlLoader.Load(includeFilePath,
             (IModelLoader) context.GetContextVariable(typeof(IModelLoader)),
             (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS)) as ResourceDictionary;
