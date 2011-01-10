@@ -62,8 +62,10 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
   // Clip to textBox
   clip(IN.ClipPosition.xy);
   clip(g_textbox.zw - IN.ClipPosition.xy);
-  OUT.Color = g_color;
-  OUT.Color.a = tex2D(TextureSampler, IN.Texcoord);
+
+  // Remember to pre-multiply alpha
+  float alpha = g_color.a * tex2D(TextureSampler, IN.Texcoord);
+  OUT.Color = float4(g_color.xyz * alpha, alpha);
 }
 
 technique simple

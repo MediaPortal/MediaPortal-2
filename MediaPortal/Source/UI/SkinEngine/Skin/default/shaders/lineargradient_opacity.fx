@@ -63,7 +63,6 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float4 texPos = float4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
   texPos = mul(texPos, g_transform);
-  OUT.Color = tex2D(TextureSampler, float2(texPos.x, texPos.y));
 
   float4 alphaPos = float4(
       (IN.Texcoord.x - g_lowervertsbounds.x)/(g_uppervertsbounds.x - g_lowervertsbounds.x),
@@ -72,8 +71,8 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
   float dist = GetColor(float2(alphaPos.x, alphaPos.y));
   dist = clamp(dist, 0, 0.9999);
 
-  float4 alphaColor = tex1D(AlphaSampler, dist);
-  OUT.Color[3] *= alphaColor[3] * g_opacity;
+  // The opacity mask will already be pre-multiplied
+  OUT.Color = tex2D(TextureSampler, float2(texPos.x, texPos.y)) * tex1D(AlphaSampler, dist).a * g_opacity;
 }
 
 technique simple {

@@ -1551,16 +1551,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.Device.SetRenderTarget(0, texture.Surface0);
 
         // Fill the background of the texture with an alpha value of 0
-        GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.White), 1.0f, 0);
-
-        // Enable special alpha blending
-        GraphicsDevice.Device.SetRenderState(RenderState.SeparateAlphaBlendEnable, true);
+        GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
 
         // Render the control into the given texture
         DoRender(renderContext);
-
-        // Disable special alpha blending
-        GraphicsDevice.Device.SetRenderState(RenderState.SeparateAlphaBlendEnable, false);
 
         // Restore the backbuffer
         GraphicsDevice.Device.SetRenderTarget(0, backBuffer);

@@ -66,8 +66,9 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(TextureSampler, IN.Texcoord1);
-  OUT.Color[3] *= g_opacity * tex2D(AlphaSampler, IN.Texcoord0)[3];
+  // The opacity mask will already be pre-multiplied
+  OUT.Color = tex2D(TextureSampler, IN.Texcoord1) * g_opacity 
+            * tex2D(AlphaSampler, IN.Texcoord0).a;
 }
 
 technique simple {

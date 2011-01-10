@@ -265,15 +265,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       _device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       _device.SetRenderState(RenderState.AlphaBlendEnable, true);
-      _device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+      _device.SetRenderState(RenderState.SourceBlend, Blend.One);
       _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
-
-      // When rendering to opacity masks we must use none-standard alpha blending to prevent multiple blends causing
-      // color bleeds in the final render.
-      _device.SetRenderState(RenderState.SeparateAlphaBlendEnable, false);
-      _device.SetRenderState(RenderState.BlendOperationAlpha, BlendOperation.Maximum);
-      _device.SetRenderState(RenderState.SourceBlendAlpha, Blend.SourceAlpha);
-      _device.SetRenderState(RenderState.DestinationBlendAlpha, Blend.DestinationAlpha);
 
       if (_supportsAlphaBlend)
       {
