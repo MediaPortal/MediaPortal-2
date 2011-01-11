@@ -204,7 +204,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         Uri uri;
         if (!Uri.TryCreate(_textureName, UriKind.Absolute, out uri))
         {
-          ServiceRegistration.Get<ILogger>().Error("Cannot open texture :{0}", _textureName);
+          ServiceRegistration.Get<ILogger>().Error("Cannot open texture: {0}", _textureName);
           _state = State.Failed;
           return;
         }
