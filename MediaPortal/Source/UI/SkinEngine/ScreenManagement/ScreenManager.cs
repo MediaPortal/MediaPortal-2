@@ -264,8 +264,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SubscribeToMessages();
 
       // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
-      PrepareSkinAndTheme_NeedLocks(skinName, themeName);
+      if (!PrepareSkinAndTheme(skinName, themeName))
+        PrepareSkinAndTheme(null, null);
 
       // Update the settings with our current skin/theme values
       if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
@@ -406,9 +406,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="skinName">The name of the skin to be prepared or <c>null</c> to use the current skin.</param>
     /// <param name="themeName">The name of the theme for the specified skin to be prepared,
     /// or <c>null</c> for the default theme of the given skin.</param>
-    protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
+    /// <returns><c>true</c>, if the given skin/theme could be prepared, else <c>false</c>.</returns>
+    protected bool PrepareSkinAndTheme(string skinName, string themeName)
     {
-      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Trying to load skin '{0}' with theme '{1}'", skinName, themeName);
       Skin defaultSkin = _skinManager.DefaultSkin;
       lock (_syncObj)
       {
@@ -423,18 +424,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           // Prepare new skin data
 
           if (skinName == null)
-            skin = defaultSkin;
+            skin = _skin ?? defaultSkin;
           else if (!_skinManager.Skins.TryGetValue(skinName, out skin))
           {
-            ServiceRegistration.Get<ILogger>().Warn("ScreenManager.PrepareSkinAndTheme_NeedsLocks: Skin '{0}' not found", skinName);
-            return;
+            ServiceRegistration.Get<ILogger>().Warn("ScreenManager: Skin '{0}' not found", skinName);
+            return false;
           }
           if (themeName == null)
             theme = skin.DefaultTheme;
           else if (!skin.Themes.TryGetValue(themeName, out theme))
           {
-            ServiceRegistration.Get<ILogger>().Warn("ScreenManager.PrepareSkinAndTheme_NeedsLocks: Theme '{0}' not found in skin '{1}'", themeName, skin.Name);
-            return;
+            ServiceRegistration.Get<ILogger>().Warn("ScreenManager: Theme '{0}' not found in skin '{1}'", themeName, skin.Name);
+            return false;
           }
 
           if (!skin.IsValid)
@@ -456,6 +457,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         try
         {
           SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
+          ServiceRegistration.Get<ILogger>().Info("ScreenManager: Applying skin '{0}', theme '{1}'",
+              skin == null ? string.Empty : skin.Name, theme == null ? string.Empty : theme.Name);
           Fonts.FontManager.Load(skinResources);
 
           _skinManager.InstallSkinResources(skinResources);
@@ -475,9 +478,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             ServiceRegistration.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
             throw;
           }
-          PrepareSkinAndTheme_NeedLocks(fallbackSkin.Name, fallbackTheme == null ? null : fallbackTheme.Name);
+          return PrepareSkinAndTheme(fallbackSkin.Name, fallbackTheme == null ? null : fallbackTheme.Name);
         }
       }
+      return true;
     }
 
     protected internal void DoShowScreen(Screen screen, bool closeDialogs)
@@ -830,7 +834,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         WaitForPendingOperations();
 
-        PrepareSkinAndTheme_NeedLocks(newSkinName, newThemeName);
+        PrepareSkinAndTheme(newSkinName, newThemeName);
         PlayersHelper.ReallocGUIResources();
 
         if (!InstallBackgroundManager())
