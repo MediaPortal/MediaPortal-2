@@ -136,8 +136,8 @@
     <Content Include="Skin\default\screens\GenericDialog.xaml" />
     <Content Include="Skin\default\screens\DialogVirtualKeyboard.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
-    <Content Include="Skin\default\screens\master.xaml" />
-    <Content Include="Skin\default\screens\master_dialog.xaml" />
+    <Content Include="Skin\default\screens\master_bare.xaml" />
+    <Content Include="Skin\default\screens\master_dialog_bare.xaml" />
     <Content Include="Skin\default\screens\master_dialog_menu.xaml" />
     <Content Include="Skin\default\screens\master_menu.xaml" />
     <Content Include="Skin\default\screens\simple_dialog_menu.xaml" />
