@@ -357,6 +357,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
+        // TODO: Abort asynchronous requests (file stream + web client)
         if (_fileStream != null)
           _fileStream.Dispose();
         _fileStream = null;
