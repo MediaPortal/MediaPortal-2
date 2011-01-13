@@ -233,7 +233,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Don't convert LateBoundValue (or superclass ValueWrapper) here... instances of
       // LateBoundValue must stay unchanged until some code part explicitly converts them!
       if (value is ResourceWrapper)
-        return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
+        // Resource must be copied because setters and other controls most probably need a copy of the resource.
+        // If we don't copy it, Setter is not able to check if we already return a copy because our input value differs
+        // from the output value, even if we didn't do a copy here.
+        return TypeConverter.Convert(MpfCopyManager.DeepCopyCutLP(((ResourceWrapper) value).Resource), targetType, out result);
       if (value is string && targetType == typeof(FrameworkElement))
       {
         // It doesn't suffice to have an implicit data template declaration which returns a label for a string.
