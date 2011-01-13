@@ -159,13 +159,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         SetOriginalValue(targetObject, obj);
       }
       if (TypeConverter.Convert(Value, dd.DataType, out obj))
-      {
-        if (ReferenceEquals(Value, obj))
-          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
-        else
-          // Avoid creating a copy twice
-          element.SetValueInRenderThread(dd, obj);
-      }
+        // I tried an optimization:
+        //
+        //if (ReferenceEquals(Value, obj))
+        //  element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+        //else
+        //  // Avoid creating a copy twice
+        //  element.SetValueInRenderThread(dd, obj);
+        //
+        // That optimization doesn't work as expected if the given Value is a ResourceWrapper, for example. In that case,
+        // Value and obj are different objects and yet no copy has been made.
+        // That breaks for example if we rely on the fact that a copy was made, for example if the ResourceWrapper.Resource
+        // was a theme object with bindings. The bindings are only activated when the object is copied.
+        element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
       else
         // TODO: Log output
         // Value is not compatible: We cannot execute
