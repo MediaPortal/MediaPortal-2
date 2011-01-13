@@ -67,8 +67,18 @@ namespace MediaPortal.Core.Services.Localization
     public LocalizationStrings(IEnumerable<string> languageDirectories, CultureInfo culture)
     {
       _culture = culture;
+      LoadStrings(languageDirectories, culture);
+    }
+  
+    protected void LoadStrings(IEnumerable<string> languageDirectories, CultureInfo culture2Load)
+    {
+      if (culture2Load.Parent != CultureInfo.InvariantCulture)
+        LoadStrings(languageDirectories, culture2Load.Parent);
+      else
+        if (culture2Load.Name != "en")
+          LoadStrings(languageDirectories, CultureInfo.GetCultureInfo("en"));
       foreach (string directory in languageDirectories)
-        TryAddLanguageFile(directory, _culture);
+        TryAddLanguageFile(directory, culture2Load);
     }
 
     #endregion
@@ -152,11 +162,6 @@ namespace MediaPortal.Core.Services.Localization
     /// <param name="culture2Load">Culture for that the language resource file will be searched.</param>
     protected void TryAddLanguageFile(string directory, CultureInfo culture2Load)
     {
-      if (culture2Load.Parent != CultureInfo.InvariantCulture)
-        TryAddLanguageFile(directory, culture2Load.Parent);
-      else
-        if (culture2Load.Name != "en")
-          TryAddLanguageFile(directory, CultureInfo.GetCultureInfo("en"));
       string fileName = string.Format("strings_{0}.xml", culture2Load.Name);
       string filePath = Path.Combine(directory, fileName);
 
