@@ -39,7 +39,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <RowDefinition Height="*"/>
     <RowDefinition Height="50"/>
   </Grid.RowDefinitions>
-  <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{ThemeResource DialogBorderColor}" CornerRadius="10"
+  <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{ThemeResource DialogBorderColor}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
       VerticalAlignment="Center" HorizontalAlignment="Center">
     <Grid x:Name="DialogBackgroundGrid" Background="{ThemeResource DialogBackgroundBrush}">
       <Grid.ColumnDefinitions>

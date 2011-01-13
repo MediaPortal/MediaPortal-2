@@ -42,7 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Grid.Resources>
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
-    <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
+    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -51,7 +51,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
+      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
           HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
         <StackPanel.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -106,7 +106,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
     </Grid> <!-- HeaderPanel -->
-    <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Background="{ThemeResource FooterPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>

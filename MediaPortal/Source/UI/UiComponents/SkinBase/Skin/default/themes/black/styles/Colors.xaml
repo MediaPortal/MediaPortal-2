@@ -246,4 +246,9 @@
   <ResourceWrapper x:Key="OSDPipBorderFocusColor" Resource="White"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient1Color" Resource="#48F2F2F2"/>
   <ResourceWrapper x:Key="OSDProgressBarBackgroundGradient2Color" Resource="#F8CCCCCC"/>
+
+  <!-- Master screen colors -->
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" Resource=""/>
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource=""/>
+
 </ResourceDictionary>

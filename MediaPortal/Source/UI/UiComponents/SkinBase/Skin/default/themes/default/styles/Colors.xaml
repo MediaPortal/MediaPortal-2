@@ -293,4 +293,9 @@
 
   <ResourceWrapper x:Key="BusyCursorColor2Nuance1" Resource="#F2D1D6E4"/>
   <ResourceWrapper x:Key="BusyCursorColor2Nuance1Transparent" Resource="#7FD2D7E6"/>
+  
+  <!-- Master screen colors -->
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush" Resource=""/>
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource=""/>
+  
 </ResourceDictionary>
