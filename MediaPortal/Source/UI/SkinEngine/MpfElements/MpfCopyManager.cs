@@ -127,7 +127,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <param name="o">Object to be copied. This object may implement the
     /// interface <see cref="IDeepCopyable"/>, or may not.</param>
     /// <param name="fixedObject">Object which should not be copied. This object
-    /// will remain the same in the copy.</param>
+    /// will remain the same in the copy. If this object is <c>null</c>, this method will fallback to method
+    /// <see cref="DeepCopy{T}(T,out IEnumerable{IBinding})"/></param>
     /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
     /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
     /// failing to bind, when activated too early.</param>
@@ -135,6 +136,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public static T DeepCopyWithFixedObject<T>(T o, object fixedObject,
         out IEnumerable<IBinding> deferredBindings)
     {
+      if (fixedObject == null)
+        return DeepCopy(o, out deferredBindings);
       Dictionary<object, object> identities = new Dictionary<object, object> {{fixedObject, fixedObject}};
       return DeepCopyWithIdentities(o, identities, out deferredBindings);
     }
