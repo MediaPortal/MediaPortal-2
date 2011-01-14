@@ -192,6 +192,8 @@ namespace MediaPortal.Core.General
 
     public bool Equals(SystemName obj)
     {
+      if (obj == null)
+        return false;
       if (IsLocalSystem() && obj.IsLocalSystem())
         return true;
       foreach (string alias in _aliases)
