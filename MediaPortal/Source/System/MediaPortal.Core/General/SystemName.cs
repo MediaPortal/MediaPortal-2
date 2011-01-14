@@ -221,7 +221,10 @@ namespace MediaPortal.Core.General
 
     #region Additional members for the XML serialization
 
-    internal SystemName() { }
+    internal SystemName()
+    {
+      _aliases = new string[0];
+    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
