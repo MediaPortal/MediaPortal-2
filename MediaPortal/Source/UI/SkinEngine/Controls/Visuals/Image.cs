@@ -253,10 +253,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_imageSource == null)
       {
         _imageSourceInvalid = false;
-        _imageSource = LoadImageSource(Source);
+        _imageSource = LoadImageSource(Source) ?? LoadImageSource(FallbackSource);
         if (_imageSource != null)
-          return _imageSource;
-        _imageSource = LoadImageSource(FallbackSource);
+          // FIXME: Why do we need to call InvalidateParentLayout and InvalidateLayout doesn't work? Do we have a multithreading issue?
+          InvalidateParentLayout(true, true);
       }
       return _imageSource;
     }
@@ -303,8 +303,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         base.DoRender(localRenderContext);
       else
       {
-        // TODO: Why is _performLayout checked here?
-        if ((_performLayout || !_imageSourceSetup) && source.IsAllocated)
+        // Update source geometry if necessary (source has changed, layout has changed).
+        if (!_imageSourceSetup && source.IsAllocated)
         {
           source.Setup(_innerRect, localRenderContext.ZOrder, SkinNeutralAR);
           _imageSourceSetup = true;
@@ -312,6 +312,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         base.DoRender(localRenderContext);
         source.Render(localRenderContext, Stretch, StretchDirection);
       }
+    }
+
+    protected override void ArrangeOverride()
+    {
+      base.ArrangeOverride();
+      _imageSourceSetup = false;
     }
 
     public override void Allocate()

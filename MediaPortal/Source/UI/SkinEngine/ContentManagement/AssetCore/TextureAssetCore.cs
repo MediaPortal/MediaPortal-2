@@ -41,18 +41,45 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
   public class TextureAssetCore : TemporaryAssetBase, IAssetCore
   {
-    public event AssetAllocationHandler AllocationChanged = delegate { };
-
     #region Consts / Enums
 
     protected enum State
     {
       None,
       LoadingThumb,
+      LoadingSync,
       LoadingAsync,
       Loaded,
       Failed
     };
+
+    private const int ASYNCRONOUS_TIMEOUT_MS = 1000 * 60 * 2;
+
+    #endregion
+
+    #region Internal classes
+
+    /// <summary>
+    /// Class for holding data about the current asyncronous download operation.
+    /// </summary>
+    protected class WebDownloadContext
+    {
+      public DateTime timeStarted;
+      public WebClient webClient;
+      public byte[] imageBuffer;
+    }
+
+    /// <summary>
+    /// Class for holding data about the current asyncronous file reading operation.
+    /// </summary>
+    protected class AsyncronousFileReadContext
+    {
+      public DateTime timeStarted;
+      public FileStream fileStream;
+      public byte[] imageBuffer;
+      public DataStream imageDataStream;
+      public bool isCancelled = false;
+    }
 
     #endregion
 
@@ -71,10 +98,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected State _state = State.None;
     protected object _syncObj = new object();
 
-    protected WebClient _webClient;
-    protected FileStream _fileStream;
-    protected byte[] _imageBuffer;
-    protected DataStream _imageDataStream;
+    protected WebDownloadContext _webDownloadContext;
+    protected AsyncronousFileReadContext _fileReadContext;
 
     #endregion
 
@@ -104,7 +129,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     #endregion
 
-    #region Public properties
+    #region Public properties & events
+
+    public event AssetAllocationHandler AllocationChanged;
 
     public Texture Texture
     {
@@ -160,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     public virtual void Allocate()
     {
-      Allocate(false);
+      Allocate_NoLock(false);
     }
 
     /// <summary>
@@ -168,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     public virtual void AllocateAsync()
     {
-      Allocate(true);
+      Allocate_NoLock(true);
     }
 
     /// <summary>
@@ -188,23 +215,29 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         /// <summary>
     /// Loads the specified texture from the file.
     /// </summary>
-    protected void Allocate(bool async)
+    protected void Allocate_NoLock(bool async)
     {
       KeepAlive();
       if (IsAllocated)
         return;
 
+      string sourceFilePath;
       lock (_syncObj)
       {
         // If data has been cached asyncronously then complete allocation now
         if (_state == State.Loaded)
+        {
           CompleteAsyncronousOperation();
-        else if (_state != State.None && _state != State.LoadingThumb)
           return;
+        }
+        if (_state != State.None && _state != State.LoadingThumb)
+        {
+          CheckAsyncTimeouts();
+          return;
+        }
 
         // Is the path a local skin file?
-        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(
-          SkinResources.IMAGES_DIRECTORY + "\\" + _textureName);
+        sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(SkinResources.IMAGES_DIRECTORY + "\\" + _textureName);
 
         if (sourceFilePath == null || !File.Exists(sourceFilePath))
         {
@@ -224,33 +257,46 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             return;
           }
         }
-
-        if (UseThumbnail)
-        {
-          IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-          ImageType imageType;
-          if (generator.GetThumbnail(sourceFilePath, out _imageBuffer, out imageType))
-            AllocateFromInternalBuffer();
+        if (!UseThumbnail)
+          if (async)
+            AllocateFromFileAsync(sourceFilePath);
           else
-            _state = State.LoadingThumb;
-        }
-        else if (async)
-          AllocateFromFileAsync(sourceFilePath);
-        else
-          AllocateFromFile(sourceFilePath);
+            AllocateFromFile(sourceFilePath);
       }
+      AllocateThumbAsync_NoLock(sourceFilePath);
+    }
+
+    protected void CheckAsyncTimeouts()
+    {
+      lock (_syncObj)
+      {
+        // Check for timeouts
+        if (_fileReadContext != null)
+        {
+          // Calling FileStream.Close should trigger read operation completion and throw a (caught) exception in the 
+          //  completion callback
+          if ((DateTime.Now - _fileReadContext.timeStarted).TotalMilliseconds > ASYNCRONOUS_TIMEOUT_MS)
+            _fileReadContext.isCancelled = true;
+        }
+        if (_webDownloadContext != null)
+        {
+          if ((DateTime.Now - _webDownloadContext.timeStarted).TotalMilliseconds > ASYNCRONOUS_TIMEOUT_MS)
+            _webDownloadContext.webClient.CancelAsync();
+        }
+      }
+
     }
 
     protected void CompleteAsyncronousOperation()
     {
       lock (_syncObj)
       {
-        if (_imageDataStream != null)
-          AllocateFromInternalDataStream();
-        else if (_imageBuffer != null)
-          AllocateFromInternalBuffer();
-        else
-          _state = State.Failed;
+        if (_fileReadContext != null && _fileReadContext.imageDataStream != null)
+          AllocateFromFileDataStream(_fileReadContext);
+        else if (_webDownloadContext != null && _webDownloadContext.imageBuffer != null)
+          AllocateFromWebBuffer(_webDownloadContext);
+        else // Set failed state and dispose context info
+          FinalizeAllocation(0, 0);
       }
     }
 
@@ -258,6 +304,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
+        _state = State.LoadingSync;
+
         ImageInformation info;
         _texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
             Pool.Default, Filter.None, Filter.None, 0, out info);
@@ -268,73 +316,118 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected void AllocateFromFileAsync(string path)
     {
       lock (_syncObj)
-        try {
-          // Create a FileStream for Asyncronous access.
-          _fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 2048, true); 
-          if (_fileStream.Length == 0)
-            throw new IOException("Image file is empty");
-
-          // Prepare for file loading
-          _imageBuffer = new byte[4096];
-          _imageDataStream = new DataStream(_fileStream.Length, true, true);
+        try
+        {
           _state = State.LoadingAsync;
 
+          // Create our asyncronous context
+          _fileReadContext = new AsyncronousFileReadContext
+            {
+              // Log start time to detect timeouts
+              timeStarted = DateTime.Now,
+              // Create a FileStream for Asyncronous access.
+              fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 2048, true),
+              // Prepare for file loading
+              imageBuffer = new byte[4096],
+            };
+
+          if (_fileReadContext.fileStream.Length == 0)
+            throw new IOException("Image file is empty");
+
+          // Prepare our SlimDX stream
+          _fileReadContext.imageDataStream = new DataStream(_fileReadContext.fileStream.Length, true, true);
+
           // Read first chunk
-          _fileStream.BeginRead(_imageBuffer, 0, _imageBuffer.Length, AllocateAsyncCallback, null);
+          _fileReadContext.fileStream.BeginRead(_fileReadContext.imageBuffer, 0, _fileReadContext.imageBuffer.Length,
+              AllocateAsyncCallback, _fileReadContext);
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Contentmanager: Image '{0}' could not be opened: {1}", e);
+          ServiceRegistration.Get<ILogger>().Error("TextureAsset: Image '{0}' could not be opened: {1}", _textureName, e);
           _state = State.Failed;
-          FreeTemporaryResources();
+          DisposeFileReadContext();
         }
     }
 
-    protected void AllocateFromInternalDataStream()
+    protected void AllocateThumbAsync_NoLock(string path)
     {
-      lock (_syncObj)
-      {
-        ImageInformation info;
-        _imageDataStream.Seek(0, SeekOrigin.Begin);
-        _texture = Texture.FromStream(GraphicsDevice.Device, _imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-        FinalizeAllocation(info.Width, info.Height);
-      }
-    }
+      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
+      ImageType imageType;
+      byte[] thumbData;
 
-    protected void AllocateFromInternalBuffer()
-    {
-      lock (_syncObj)
+      // Start asyncronous thumb generation (if not started already)
+      generator.CreateThumbnail(path);
+      // Has thumb generation been completed yet (or failed/timed out)?
+      if (generator.GetThumbnail(path, out thumbData, out imageType))
       {
-        ImageInformation info;
-        _texture = Texture.FromMemory(GraphicsDevice.Device, _imageBuffer, _decodeWidth, _decodeHeight, 1,
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-        FinalizeAllocation(info.Width, info.Height);
+        lock (_syncObj)
+          if (thumbData != null)
+            AllocateFromBuffer(thumbData);
+          else
+            _state = State.Failed;
       }
+      else
+        lock (_syncObj)
+          _state = State.LoadingThumb;
     }
 
     protected void AllocateFromWeb(Uri uri)
     {
       lock (_syncObj)
       {
-        if (_webClient != null)
-          _webClient.Dispose();
-
-        // Load it as a web resource
-        _webClient = new WebClient
-          {
-              CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
-          };
-        _webClient.DownloadDataCompleted += WebDownloadComplete;
-        _webClient.DownloadDataAsync(uri);
         _state = State.LoadingAsync;
+
+        _webDownloadContext = new WebDownloadContext
+        {
+          // Log start time to detect timeouts
+          timeStarted = DateTime.Now,
+          // Load texture as a web resource
+          webClient = new WebClient
+          {
+            CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable)
+          },
+        };
+        _webDownloadContext.webClient.DownloadDataCompleted += WebDownloadComplete;
+        _webDownloadContext.webClient.DownloadDataAsync(uri, _webDownloadContext);
       }
     }
 
-    void FinalizeAllocation(int fileWidth, int fileHeight)
+    protected void AllocateFromFileDataStream(AsyncronousFileReadContext stateObject)
     {
       lock (_syncObj)
       {
+        ImageInformation info;
+        stateObject.imageDataStream.Seek(0, SeekOrigin.Begin);
+        _texture = Texture.FromStream(GraphicsDevice.Device, stateObject.imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        FinalizeAllocation(info.Width, info.Height);
+      }
+    }
+
+    protected void AllocateFromWebBuffer(WebDownloadContext stateObject)
+    {
+      lock (_syncObj)
+        AllocateFromBuffer(stateObject.imageBuffer);
+    }
+
+    protected void AllocateFromBuffer(byte[] data)
+    {
+      lock (_syncObj)
+      {
+        ImageInformation info;
+        _texture = Texture.FromMemory(GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        FinalizeAllocation(info.Width, info.Height);
+      }
+    }
+
+    protected void FinalizeAllocation(int fileWidth, int fileHeight)
+    {
+      lock (_syncObj)
+      {
+        DisposeFileReadContext();
+        DisposeWebContext();
+
         if (_texture != null)
         {
           SurfaceDescription desc = _texture.GetLevelDescription(0);
@@ -348,29 +441,43 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         }
         else
           _state = State.Failed;
-
-        FreeTemporaryResources();
       }
     }
 
-    void FreeTemporaryResources()
+    void DisposeWebContext()
     {
       lock (_syncObj)
       {
-        // TODO: Abort asynchronous requests (file stream + web client)
-        if (_fileStream != null)
-          _fileStream.Dispose();
-        _fileStream = null;
+        if (_webDownloadContext != null)
+        {
+          if (_webDownloadContext.webClient != null)
+          {
+            _webDownloadContext.webClient.Dispose();
+            _webDownloadContext.webClient = null;
+          }
+          _webDownloadContext = null;
+        }
+      }
+    }
 
-        if (_imageDataStream != null)
-          _imageDataStream.Dispose();
-        _imageDataStream = null;
-
-        if (_webClient != null)
-          _webClient.Dispose();
-        _webClient = null;
-
-        _imageBuffer = null;
+    void DisposeFileReadContext()
+    {
+      lock (_syncObj)
+      {
+        if (_fileReadContext != null)
+        {
+          if (_fileReadContext.fileStream != null)
+          {
+            _fileReadContext.fileStream.Dispose();
+            _fileReadContext.fileStream = null;
+          }
+          if (_fileReadContext.imageDataStream != null)
+          {
+            _fileReadContext.imageDataStream.Dispose();
+            _fileReadContext.imageDataStream = null;
+          }
+          _fileReadContext = null;
+        }
       }
     }
 
@@ -388,19 +495,18 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
-        // Check that we haven't been freed while loading the file
-        if (_webClient == null)
-          return;
-
-        FreeTemporaryResources();
-        if (e.Error != null)
+        if (e.Cancelled || e.Error != null)
         {
-          ServiceRegistration.Get<ILogger>().Error("Contentmanager: Failed to download {0} - {1}", _textureName, e.Error.Message);
+          ServiceRegistration.Get<ILogger>().Error("TextureAsset: Failed to download {0} - {1}", _textureName, 
+            e.Cancelled ? "Request timed out." : e.Error.Message);
           _state = State.Failed;
+          DisposeWebContext();
           return;
         }
+
         // Store image data for allocation later
-        _imageBuffer = e.Result;
+        WebDownloadContext state = (WebDownloadContext) e.UserState;
+        state.imageBuffer = e.Result;
         _state = State.Loaded;
       }
     }
@@ -409,24 +515,38 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
-        // Check that we haven't been freed while loading the file
-        if (_imageDataStream == null || _fileStream == null)
+        AsyncronousFileReadContext state = (AsyncronousFileReadContext) result.AsyncState;
+        if (state.fileStream == null || state.imageDataStream == null)
           return;
-
-        int read = _fileStream.EndRead(result);
-        if (read == 0)
+        if (_fileReadContext.isCancelled)
         {
-          // File read complete
-          _state = State.Loaded;
-          _fileStream.Dispose();
-          _fileStream = null;
-          _imageBuffer = null;
+          ServiceRegistration.Get<ILogger>().Error("TextureAsset: Loading of image '{0}': File access timed out.", _textureName);
+          _state = State.Failed;
+          DisposeFileReadContext();
+          return;
         }
-        else        
+
+        try
         {
-          // Read next chunk
-          _imageDataStream.Write(_imageBuffer, 0, read);
-          _fileStream.BeginRead(_imageBuffer, 0, _imageBuffer.Length, AllocateAsyncCallback, null);
+          int read = state.fileStream.EndRead(result);
+          if (read == 0)
+          {
+            // File read complete
+            _state = State.Loaded;
+          }
+          else
+          {
+            // Write data our SlimDX stream
+            state.imageDataStream.Write(state.imageBuffer, 0, read);
+            // Read next chunk
+            state.fileStream.BeginRead(state.imageBuffer, 0, state.imageBuffer.Length, AllocateAsyncCallback, state);
+          }
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("TextureAsset: Image '{0}' could not be opened: {1}", _textureName, e);
+          _state = State.Failed;
+          DisposeFileReadContext();
         }
       }
     }
@@ -463,7 +583,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _texture.Dispose();
           _texture = null;
         }
-        FreeTemporaryResources();
+        DisposeWebContext();
+        DisposeFileReadContext();
         _state = State.None;
       }
     }
@@ -472,7 +593,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void FireAllocationChanged(int allocation)
     {
-      AllocationChanged(allocation);
+      AssetAllocationHandler dlgt = AllocationChanged;
+      if (dlgt != null)
+        dlgt(allocation);
     }
   }
 
