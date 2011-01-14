@@ -54,7 +54,6 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
     protected IDictionary<string, Thumb> _thumbs = new Dictionary<string, Thumb>(
         WindowsFilesystemPathEqualityComparer.Instance);
     protected bool _changed = false;
-    protected AsynchronousMessageQueue _messageQueue = null;
 
     public ThumbDatabase(string folderPath) : this(folderPath, Path.Combine(folderPath, THUMB_DB_FILENAME)) { }
 
@@ -62,48 +61,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
     {
       _folderPath = folderPath;
       _dbFilePath = dbFilePath;
-      SubscribeToMessages();
       Load();
-    }
-
-    void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-          // FIXME: Don't observe the contentmanager queue here
-          "contentmanager"
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == "contentmanager")
-      {
-        if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
-        {
-          string action = (string) message.MessageData["action"];
-          if (action == "changed")
-          {
-            string filePath = (string) message.MessageData["fullpath"];
-            if (FileUtils.PathEquals(Path.GetDirectoryName(filePath), _folderPath))
-              lock (this)
-              {
-                if (_thumbs.Remove(Path.GetFileName(filePath)))
-                  _changed = true;
-              }
-          }
-        }
-      }
     }
 
     /// <summary>
@@ -160,7 +118,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
               thumb.Size = reader.ReadInt64();
               string thumbPath = Path.Combine(_folderPath, thumb.Name);
               if (File.Exists(thumbPath) && File.GetLastWriteTime(thumbPath) < File.GetLastWriteTime(_dbFilePath))
-                _thumbs.Add(thumb.Name, thumb);
+                _thumbs[thumb.Name] = thumb;
               else
                 _changed = true;
             }
@@ -178,7 +136,6 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
     public void Close()
     {
       Flush();
-      UnsubscribeFromMessages();
     }
 
     /// <summary>
@@ -257,7 +214,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
         thumb.ImageType = imageType;
         thumb.Image = image;
         thumb.Size = image.Length;
-        _thumbs.Add(thumb.Name, thumb);
+        _thumbs[thumb.Name] = thumb;
         _changed = true;
       }
     }
