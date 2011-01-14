@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Theme Name="silver" Version="1.0">
+  <ShortDescription>Dark Silver</ShortDescription>
+  <Preview>images\preview.png</Preview>
+  <Author>Morpheus_xx</Author>
+  <ThemeVersion>1.0</ThemeVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <MinColorDepth>16</MinColorDepth>
+</Theme>

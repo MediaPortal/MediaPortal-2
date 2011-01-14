@@ -107,6 +107,8 @@
     <Content Include="Skin\default\skin.xml" />
     <Content Include="Skin\default\sounds\button6.wav" />
     <Content Include="Skin\default\sounds\button7.wav" />
+    <Content Include="Skin\default\themes\silver\images\preview.png" />
+    <Content Include="Skin\default\themes\silver\images\silverBackground.png" />
     <Content Include="Skin\default\workflow\home-states.xml" />
     <Content Include="Skin\default\fonts\default-font.xml" />
     <Content Include="Skin\default\images\defaultAudioBig.png" />
@@ -178,6 +180,10 @@
     <Content Include="Skin\default\workflow\notifications-states.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-actions.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
+    <Content Include="Skin\default\themes\silver\styles\Colors.xaml" />
+    <Content Include="Skin\default\themes\silver\styles\Consts.xaml" />
+    <Content Include="Skin\default\themes\silver\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\default\themes\silver\theme.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
