@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Thumbnails;
 using MediaPortal.Utilities.FileSystem;
 
@@ -111,11 +110,13 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
             int count = reader.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
-              Thumb thumb = new Thumb();
-              thumb.Name = reader.ReadString();
-              thumb.ImageType = (ImageType)reader.ReadInt32();
-              thumb.Offset = reader.ReadInt64();
-              thumb.Size = reader.ReadInt64();
+              Thumb thumb = new Thumb
+                {
+                    Name = reader.ReadString(),
+                    ImageType = (ImageType) reader.ReadInt32(),
+                    Offset = reader.ReadInt64(),
+                    Size = reader.ReadInt64()
+                };
               string thumbPath = Path.Combine(_folderPath, thumb.Name);
               if (File.Exists(thumbPath) && File.GetLastWriteTime(thumbPath) < File.GetLastWriteTime(_dbFilePath))
                 _thumbs[thumb.Name] = thumb;
@@ -209,11 +210,13 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
       lock (this)
       {
         NotifyUsage();
-        Thumb thumb = new Thumb();
-        thumb.Name = Path.GetFileName(fileName);
-        thumb.ImageType = imageType;
-        thumb.Image = image;
-        thumb.Size = image.Length;
+        Thumb thumb = new Thumb
+          {
+              Name = Path.GetFileName(fileName),
+              ImageType = imageType,
+              Image = image,
+              Size = image.Length
+          };
         _thumbs[thumb.Name] = thumb;
         _changed = true;
       }
