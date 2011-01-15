@@ -258,10 +258,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           }
         }
         if (!UseThumbnail)
+        {
           if (async)
             AllocateFromFileAsync(sourceFilePath);
           else
             AllocateFromFile(sourceFilePath);
+          return;
+        }
       }
       AllocateThumbAsync_NoLock(sourceFilePath);
     }
