@@ -120,8 +120,9 @@ namespace MediaPortal.Utilities.DB
     /// referenced as <c>@XXX</c> in the <see cref="IDbCommand.CommandText"/>.</param>
     /// <param name="value">Actual value of the bind variable.</param>
     /// <param name="type">Type of the variable in the database. In most cases, this is the trivial mapping from
-    /// <c>typeof(value)</c> to <see cref="DbType"/>, only if <c>value == null</c> or <c>value is string</c>,
-    /// the <see cref="DbType"/> gives us more information than we can get from <paramref name="value"/>.</param>
+    /// <c>typeof(value)</c> to <see cref="DbType"/> (which can be get by calling <see cref="GetDBType"/>),
+    /// only if <c>value == null</c> or <c>value is string</c>, the <see cref="DbType"/> gives us more information
+    /// than we can get from <paramref name="value"/>.</param>
     /// <returns>Created parameter.</returns>
     public static IDbDataParameter AddParameter(IDbCommand command, string name, object value, DbType type)
     {
