@@ -201,12 +201,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "UPDATE " + providerAspectTable + " SET " +
-            pathAttribute + " = @PATH || SUBSTRING(" + pathAttribute + " FROM @ORIGBASEPATHLEN + 1) " +
-            "WHERE " + systemIdAttribute + " = @SYSTEM_ID AND " +
-            "SUBSTRING(" + pathAttribute + " FROM 1 FOR @ORIGBASEPATHLEN) = @ORIGBASEPATH";
+            pathAttribute + " = " + database.CreateStringConcatenationExpression("@PATH",
+                database.CreateSubstringExpression(pathAttribute, (originalBasePathStr.Length + 1).ToString())) +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID AND " +
+            database.CreateSubstringExpression(pathAttribute, "1", originalBasePathStr.Length.ToString()) + " = @ORIGBASEPATH";
 
         database.AddParameter(command, "PATH", newBasePathStr, typeof(string));
-        database.AddParameter(command, "ORIGBASEPATHLEN", originalBasePathStr.Length, typeof(int)); // Used two times
         database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
         database.AddParameter(command, "ORIGBASEPATH", originalBasePathStr, typeof(string));
 

@@ -183,6 +183,21 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
       }
     }
 
+    public string CreateStringConcatenationExpression(string str1, string str2)
+    {
+      return str1 + "+" + str2;
+    }
+
+    public string CreateSubstringExpression(string str1, string posExpr)
+    {
+      return "SUBSTRING(" + str1 + "," + posExpr + "," + int.MaxValue + ")";
+    }
+
+    public string CreateSubstringExpression(string str1, string posExpr, string lenExpr)
+    {
+      return "SUBSTRING(" + str1 + "," + posExpr + "," + lenExpr + ")";
+    }
+
     #endregion
   }
 }

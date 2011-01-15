@@ -202,5 +202,17 @@ namespace MediaPortal.Backend.Database
     /// <param name="tableName">Name of the table to check.</param>
     /// <returns><c>true</c>, if a table with the given name exists, else <c>false</c>.</returns>
     bool TableExists(string tableName);
+
+    /// <summary>
+    /// Creates an expression to concatenate the two given string expressions. For Oracle, that will be
+    /// <c>str1 + "||" + str2</c>, for example. For MS SQL Server, that will be <c>str1 + "+" + str2</c>.
+    /// </summary>
+    /// <param name="str1">First string to concatenate.</param>
+    /// <param name="str2">Second string to concatenate.</param>
+    /// <returns>Expression which concatenates the two strings.</returns>
+    string CreateStringConcatenationExpression(string str1, string str2);
+
+    string CreateSubstringExpression(string str1, string posExpr);
+    string CreateSubstringExpression(string str1, string posExpr, string lenExpr);
   }
 }
