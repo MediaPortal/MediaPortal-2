@@ -50,6 +50,7 @@
   		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient3Color}" Offset="1"/>
   	</LinearGradientBrush>
   </ResourceWrapper>
+
   <!-- ***************************** Progress bar ******************************** -->
 
   <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
