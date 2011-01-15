@@ -95,6 +95,7 @@
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
     <Compile Include="Services\MediaLibrary\MIA_Management.cs" />
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
+    <Compile Include="Services\Database\DBUtils.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -54,11 +54,13 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
       public void Commit()
       {
         _transaction.Commit();
+        Dispose();
       }
 
       public void Rollback()
       {
         _transaction.Rollback();
+        Dispose();
       }
 
       public IDbCommand CreateCommand()

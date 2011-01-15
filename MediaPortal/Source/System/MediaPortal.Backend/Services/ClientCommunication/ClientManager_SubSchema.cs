@@ -27,7 +27,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Backend.Database;
-using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
@@ -72,9 +71,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (@SYSTEM_ID, @LAST_HOSTNAME, @LAST_CLIENT_NAME)";
-      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
-      DBUtils.AddParameter(result, "LAST_HOSTNAME", hostName, DBUtils.GetDBType(typeof(string)));
-      DBUtils.AddParameter(result, "LAST_CLIENT_NAME", clientName, DBUtils.GetDBType(typeof(string)));
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
+      database.AddParameter(result, "LAST_HOSTNAME", hostName, typeof(string));
+      database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof(string));
       return result;
     }
 
@@ -83,9 +83,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
-      DBUtils.AddParameter(result, "LAST_HOSTNAME", system == null ? null : system.HostName, DBUtils.GetDBType(typeof(string)));
-      DBUtils.AddParameter(result, "LAST_CLIENT_NAME", clientName, DBUtils.GetDBType(typeof(string)));
-      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "LAST_HOSTNAME", system == null ? null : system.HostName, typeof(string));
+      database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof(string));
+      database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
       return result;
     }
 
@@ -93,7 +94,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM ATTACHED_CLIENTS WHERE SYSTEM_ID = @SYSTEM_ID";
-      DBUtils.AddParameter(result, "SYSTEM_ID", systemId, DBUtils.GetDBType(typeof(string)));
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
       return result;
     }
   }

@@ -3,13 +3,15 @@
 
 -- Shares
 
+-- Contains all shares in the system.
 CREATE TABLE SHARES (
   SHARE_ID %GUID% NOT NULL PRIMARY KEY,
   SYSTEM_ID %STRING(100)% NOT NULL,
   BASE_RESOURCE_PATH %STRING(2000)% NOT NULL,
   NAME %STRING(2000)% NOT NULL
 );
-  
+
+-- Contains all categories of linked shares.
 CREATE TABLE SHARES_CATEGORIES (
   SHARE_ID %GUID% NOT NULL,
   CATEGORYNAME %STRING(100)% NOT NULL,

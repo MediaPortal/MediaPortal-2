@@ -28,13 +28,13 @@ using System.Data;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.ClientCommunication;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.Threading;
-using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -128,10 +128,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         {
           while (reader.Read())
           {
-            string clientSystemId = DBUtils.ReadDBValue<string>(reader, systemIdIndex);
-            string lastClientHostName = DBUtils.ReadDBValue<string>(reader, lastHostNameIndex);
+            string clientSystemId = database.ReadDBValue<string>(reader, systemIdIndex);
+            string lastClientHostName = database.ReadDBValue<string>(reader, lastHostNameIndex);
             SystemName lastHostName = lastClientHostName == null ? null : new SystemName(lastClientHostName);
-            string lastClientName = DBUtils.ReadDBValue<string>(reader, lastClientNameIndex);
+            string lastClientName = database.ReadDBValue<string>(reader, lastClientNameIndex);
             result.Add(clientSystemId, new MPClientMetadata(clientSystemId, lastHostName, lastClientName));
           }
         }

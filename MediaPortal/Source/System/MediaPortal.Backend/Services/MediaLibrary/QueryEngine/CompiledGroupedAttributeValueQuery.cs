@@ -25,12 +25,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
-using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -124,16 +124,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           }
           command.CommandText = statementStr;
           foreach (BindVar bindVar in bindVars)
-            DBUtils.AddParameter(command, bindVar.Name, bindVar.Value, DBUtils.GetDBType(bindVar.VariableType));
+            database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          HomogenousMap result = new HomogenousMap(_selectAttribute.AttributeType, typeof(int));
+          Type valueType = _selectAttribute.AttributeType;
+          HomogenousMap result = new HomogenousMap(valueType, typeof(int));
           using (IDataReader reader = command.ExecuteReader())
           {
             int valueCol = reader.GetOrdinal(valueAlias);
             int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
             while (reader.Read())
-              result.Add(DBUtils.ReadDBObject(reader, valueCol),
-                  (int) DBUtils.ReadDBObject(reader, groupSizeCol));
+              result.Add(database.ReadDBValue(valueType, reader, valueCol),
+                  database.ReadDBValue<int>(reader, groupSizeCol));
           }
           return result;
         }
