@@ -190,7 +190,7 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
 
     public string CreateSubstringExpression(string str1, string posExpr)
     {
-      return "SUBSTRING(" + str1 + "," + posExpr + "," + int.MaxValue + ")";
+      return "SUBSTRING(" + str1 + "," + posExpr + "," + int.MaxValue + ")"; // int.MaxValue seems to be the biggest supported value
     }
 
     public string CreateSubstringExpression(string str1, string posExpr, string lenExpr)
