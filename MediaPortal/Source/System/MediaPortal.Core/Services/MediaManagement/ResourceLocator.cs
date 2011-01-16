@@ -66,11 +66,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public IResourceAccessor CreateAccessor()
     {
-      if (_nativeSystem.IsLocalSystem())
-      {
-        _nativeResourcePath.CheckValidLocalPath();
+      if (_nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
         return _nativeResourcePath.CreateLocalResourceAccessor();
-      }
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystem, _nativeResourcePath, out fsra))
         return fsra;
