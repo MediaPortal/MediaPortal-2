@@ -50,7 +50,7 @@
     <String Name="HomeServerWorkflowStateLabel" Text="HomeServer"/>
     <String Name="AttachedText.Before" Text="This MediaPortal 2 client is currently attached to home server"/>
     <String Name="AttachedText.After" Text=""/>
-    <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal 2 client."/>
+    <String Name="NoHomeServerAttached" Text="Currently, this MediaPortal 2 client is not attached to a home server."/>
     <String Name="HomeServerIsConnected" Text="The home server is currently connected."/>
     <String Name="HomeServerIsNotConnected" Text="The home server is currently disconnected."/>
     <String Name="DetachMenu" Text="Detach"/>
