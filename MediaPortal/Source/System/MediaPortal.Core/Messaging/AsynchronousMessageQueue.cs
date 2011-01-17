@@ -135,9 +135,12 @@ namespace MediaPortal.Core.Messaging
         {
           MessageReceivedHandler handler = MessageReceived;
           if (handler == null)
-            ServiceRegistration.Get<ILogger>().Warn(
-              "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
-              _queueName, message.ChannelName, message.MessageType);
+          {
+            if (PreviewMessage == null)
+              ServiceRegistration.Get<ILogger>().Warn(
+                  "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
+                  _queueName, message.ChannelName, message.MessageType);
+          }
           else
             try
             {
