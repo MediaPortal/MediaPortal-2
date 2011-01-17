@@ -312,7 +312,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
         int result = DokanNet.DokanMain(opt, this);
         if (result == DokanNet.DOKAN_SUCCESS)
-          logger.Warn("ResourceMountingService: DokanMain returned successfully");
+          logger.Info("ResourceMountingService: DokanMain returned successfully");
         else
           logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
       }
