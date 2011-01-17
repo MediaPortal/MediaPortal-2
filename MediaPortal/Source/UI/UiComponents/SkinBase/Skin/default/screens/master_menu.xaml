@@ -54,7 +54,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
         <ContentPresenter x:Name="ContentViewer" DockPanel.Dock="Center" Margin="10,0,10,10"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            Content="{DynamicResource Contents_Element}" SetFocus="true"/>
+            Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}" SetFocus="true"/>
       </DockPanel>
     </ResourceWrapper>
 

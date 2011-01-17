@@ -42,7 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="10"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Content="{DynamicResource Config_Contents_Element}"
+        <ContentPresenter Content="{DynamicResource ResourceKey=Config_Contents_Element,TreeSearchMode=Hybrid}"
             Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Button x:Name="OkButton" Grid.Column="0" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
             Content="[System.Ok]" HorizontalAlignment="Center">

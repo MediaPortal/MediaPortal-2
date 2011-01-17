@@ -127,6 +127,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
     <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
-        Content="{DynamicResource Client_Element}"/>
+        Content="{DynamicResource ResourceKey=Client_Element,TreeSearchMode=Hybrid}"/>
   </DockPanel>
 </Grid>
