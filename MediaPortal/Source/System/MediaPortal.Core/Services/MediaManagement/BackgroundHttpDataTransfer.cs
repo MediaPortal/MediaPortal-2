@@ -32,6 +32,7 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
+  // TODO: Make this class able to cope with large files (size > int.MaxInt)
   public class BackgroundHttpDataTransfer : IDisposable
   {
     #region Consts
@@ -201,8 +202,10 @@ namespace MediaPortal.Core.Services.MediaManagement
           _repositioning = true;
           // According to the new position, we must cache another block, so abort current request.
           // Attention: OnResponseReceived is sometimes called in the current thread, so
-          // pay attention that _position and _repositioning are set before the next line.
-          _pendingRequest.Abort();
+          // pay attention that _position and _repositioning are set before the next lines.
+          HttpWebRequest request = _pendingRequest;
+          if (request != null)
+            request.Abort();
         }
       }
     }

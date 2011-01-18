@@ -61,9 +61,12 @@ namespace MediaPortal.Core.Services.MediaManagement
     private static void ForceEagerAllocation(Stream stream)
     {
       // This is a hack to force Windows to allocate the file at once
-      stream.Position = stream.Length - 1;
-      stream.WriteByte(0xFF);
-      stream.Flush();
+      if (stream.Length > 0)
+      {
+        stream.Position = stream.Length - 1;
+        stream.WriteByte(0xFF);
+        stream.Flush();
+      }
       stream.Position = 0;
     }
 

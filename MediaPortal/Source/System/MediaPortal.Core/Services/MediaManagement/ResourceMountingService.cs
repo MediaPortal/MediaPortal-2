@@ -35,6 +35,8 @@ using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
+  // TODO: Replace "return 0;" and "return -1;" by "return DokanNet.DOKAN_SUCCESS;" and "return DokanNet.DOKAN_ERROR;"?
+  // First, the Dokan docs need to be studied...
   public class ResourceMountingService : IResourceMountingService, DokanOperations
   {
     #region Consts
