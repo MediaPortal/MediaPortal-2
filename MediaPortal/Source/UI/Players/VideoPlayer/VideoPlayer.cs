@@ -306,14 +306,14 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _resourceAccessor);
       FilterGraphTools.TryDispose(ref _rot);
 
-      _resourceLocator = locator;
-      _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
       _state = PlayerState.Active;
       _isPaused = true;
-      ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
-
       try
       {
+        _resourceLocator = locator;
+        _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
+
         int hr;
         AllocateResources();
 
@@ -597,7 +597,9 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
 
-      FilterGraphTools.RemoveAllFilters(_graphBuilder);
+      if (_graphBuilder != null)
+        FilterGraphTools.RemoveAllFilters(_graphBuilder);
+
       FilterGraphTools.TryRelease(ref _evr);
 
       if (_allocatorKey >= 0)
