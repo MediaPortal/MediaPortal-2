@@ -104,6 +104,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void PrepareStreamAccess()
     {
+      if (!_isFile)
+        return;
       IRemoteResourceInformationService rris;
       string resourceURL = null;
       if (_underlayingStream == null)
