@@ -46,6 +46,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.Normal;
     protected const FileAttributes DIRECTORY_ATTRIBUTES = FileAttributes.ReadOnly | FileAttributes.NotContentIndexed | FileAttributes.Directory;
 
+    protected static readonly DateTime MIN_FILE_DATE = DateTime.FromFileTime(0); // If we use lower values, resources are not recognized by the Explorer/Windows API
+
     #endregion
 
     #region Inner classes
@@ -592,7 +594,11 @@ namespace MediaPortal.Core.Services.MediaManagement
         fileinfo.FileName = filename;
         fileinfo.CreationTime = resource.CreationTime;
         fileinfo.LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged;
-        fileinfo.LastWriteTime = resource.CreationTime; // When using DateTime.MinValue, the resource is not recognized
+        if (fileinfo.LastAccessTime < MIN_FILE_DATE)
+          fileinfo.LastAccessTime = MIN_FILE_DATE;
+        fileinfo.LastWriteTime = resource.CreationTime;
+        if (fileinfo.LastWriteTime < MIN_FILE_DATE)
+          fileinfo.LastWriteTime = MIN_FILE_DATE;
         if (file != null)
         {
           fileinfo.Attributes = FILE_ATTRIBUTES;
