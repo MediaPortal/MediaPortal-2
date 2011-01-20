@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -81,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     #endregion
 
     public SlimTvClientModel()
-      : base(1000)
+      : base(500)
     {
     }
 
@@ -308,8 +309,8 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private void Tune(IChannel channel)
     {
-      if (SlotPlayer != null)
-        SlotPlayer.Pause();
+      //if (SlotPlayer != null)
+      //  SlotPlayer.Pause();
 
       if (_tvHandler.StartTimeshift(SlotIndex, channel))
       {
@@ -323,7 +324,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (SlotPlayer != null)
       {
         SlotPlayer.CurrentTime = SlotPlayer.Duration;
-        SlotPlayer.Resume();
+        //SlotPlayer.Resume();
       }
     }
 
@@ -362,7 +363,10 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected int SlotIndex
     {
-      get { return PiPEnabled ? PlayerManagerConsts.SECONDARY_SLOT : PlayerManagerConsts.PRIMARY_SLOT; }
+      get
+      {
+        return PiPEnabled ? PlayerManagerConsts.SECONDARY_SLOT : PlayerManagerConsts.PRIMARY_SLOT;
+      }
     }
 
     protected override void Update()
@@ -370,8 +374,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       if (!_active)
         return;
 
-      IChannel activeChannel = _tvHandler.TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT);
-      if (activeChannel == null)
+      if (_tvHandler.NumberOfActiveSlots < 1)
       {
         PiPAvailable = false;
         PiPEnabled = false;
@@ -380,22 +383,34 @@ namespace MediaPortal.Plugins.SlimTvClient
 
       PiPAvailable = true;
 
-      IProgram current;
-      IProgram next;
-
-      ChannelName = activeChannel.Name;
-
-      if (_tvHandler.ProgramInfo.GetCurrentProgram(activeChannel, out current))
-        CurrentProgram.SetProgram(current);
-
-      if (_tvHandler.ProgramInfo.GetNextProgram(activeChannel, out next))
-        NextProgram.SetProgram(next);
-
-      if (current != null)
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
+      if (playerContext != null)
       {
-        double progress = (DateTime.Now - current.StartTime).TotalSeconds/
-                          (current.EndTime - current.StartTime).TotalSeconds*100;
-        _programProgressProperty.SetValue(progress);
+        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+        if (liveTvMediaItem != null)
+        {
+          object channel;
+          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.CHANNEL, out channel))
+            ChannelName = ((IChannel) channel).Name;
+
+
+          object current;
+          object next;
+          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.CURRENT_PROGRAM, out current))
+            CurrentProgram.SetProgram((IProgram) current);
+
+          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.NEXT_PROGRAM, out next))
+            NextProgram.SetProgram((IProgram) next);
+
+          if (current != null)
+          {
+            IProgram currentProgram = (IProgram) current;
+            double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds/
+                              (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds*100;
+            _programProgressProperty.SetValue(progress);
+          }
+        }
       }
     }
 

@@ -31,6 +31,7 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTvClient.Providers.Items;
 using TV4Home.Server.TVEInteractionLibrary.Interfaces;
 using MediaPortal.Core.Logging;
@@ -104,7 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         _channels[slotIndex] = channel;
 
         // assign a MediaItem, can be null if streamUrl is the same.
-        timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl);
+        timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl, channel);
         return true;
       }
       catch (Exception ex)
@@ -160,7 +161,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #endregion
 
-    public MediaItem CreateMediaItem(int slotIndex, string streamUrl)
+    public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
       if (!String.IsNullOrEmpty(streamUrl))
       {
@@ -175,7 +176,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
         // videoaspect needs to be included to associate player later!
         aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
-
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
         String raPath = resourceAccessor.LocalResourcePath.Serialize();
@@ -184,7 +184,18 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV" + (slotIndex == 1 ? " [PiP]" : ""));
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); //Custom mimetype for LiveTv
 
-        MediaItem tvStream = new MediaItem(new Guid(), aspects);
+        LiveTvMediaItem tvStream = new LiveTvMediaItem(new Guid(), aspects);
+
+        tvStream.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
+
+        IProgram currentProgram;
+        if (GetCurrentProgram(channel, out currentProgram))
+          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
+
+        IProgram nextProgram;
+        if (GetNextProgram(channel, out nextProgram))
+          tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
+
         return tvStream;
       }
       return null;

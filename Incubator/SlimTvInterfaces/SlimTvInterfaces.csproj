@@ -71,6 +71,7 @@
     <Compile Include="ITvProvider.cs" />
     <Compile Include="IChannelAndGroupInfo.cs" />
     <Compile Include="IProgramInfo.cs" />
+    <Compile Include="LiveTvMediaItem\LiveTvMediaItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

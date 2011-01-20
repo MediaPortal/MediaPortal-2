@@ -62,5 +62,17 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
     bool StopTimeshift(int slotIndex);
+
+    /// <summary>
+    /// Gets a value how many slots are currently used for timeshifting (0..2).
+    /// </summary>
+    int NumberOfActiveSlots { get; }
+
+    /// <summary>
+    /// Gets the active channel from the slot.
+    /// </summary>
+    /// <param name="slotIndex">Slot Index (0=Primary, 1=PiP).</param>
+    /// <returns>Channel</returns>
+    IChannel GetChannel(int slotIndex);
   }
 }

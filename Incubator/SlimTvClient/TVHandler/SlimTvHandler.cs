@@ -22,11 +22,14 @@
 
 #endregion
 
+using System;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Providers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.Models;
 
@@ -34,8 +37,14 @@ namespace MediaPortal.Plugins.SlimTvClient
 {
   public class SlimTvHandler: ITvHandler
   {
+    private struct TVSlotContext
+    {
+      public string AccessorPath;
+      public IChannel Channel;
+    }
     private ITvProvider _tvProvider;
-    private string _activeAccessorPath;
+    private readonly TVSlotContext[] _slotContexes = new TVSlotContext[2];
+
 
     public SlimTvHandler()
     {
@@ -60,12 +69,12 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public IProgram CurrentProgram
     {
-      get { return GetCurrentProgram(TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
+      get { return GetCurrentProgram(GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
     }
 
     public IProgram NextProgram
     {
-      get { return GetNextProgram(TimeshiftControl.GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
+      get { return GetNextProgram(GetChannel(PlayerManagerConsts.PRIMARY_SLOT)); }
     }
 
     public IProgram GetCurrentProgram(IChannel channel)
@@ -86,41 +95,115 @@ namespace MediaPortal.Plugins.SlimTvClient
       return null;
     }
 
+    /// <summary>
+    /// Gets a value how many slots are currently used for timeshifting (0..2).
+    /// </summary>
+    public int NumberOfActiveSlots
+    {
+      get { return (_slotContexes[0].Channel == null ? 0 : 1) + (_slotContexes[1].Channel == null ? 0 : 1); }
+    }
+
+    private int GetMatchingSlotIndex(int requestedSlotIndex)
+    {
+      if (requestedSlotIndex == 0)
+        return 0;
+
+      if (requestedSlotIndex == 1)
+      {
+        // if MasterStream in PiP mode was stopped, but PiP Stream still active, we fill the 0 slotindex.
+        if (_slotContexes[0].Channel == null && _slotContexes[1].Channel != null)
+          return 0;
+
+        if (_slotContexes[0].Channel != null)
+          return 1;
+
+      }
+      return 0;
+    }
+
+    private PlayerContextConcurrencyMode GetMatchingPlayMode()
+    {
+      // no tv slots active? the stop all and play.
+      if (NumberOfActiveSlots == 0)
+        return PlayerContextConcurrencyMode.None;
+
+      return PlayerContextConcurrencyMode.ConcurrentVideo;
+    }
+
+    public IChannel GetChannel(int slotIndex)
+    {
+      if (TimeshiftControl == null)
+        return null;
+
+      return TimeshiftControl.GetChannel(GetMatchingSlotIndex(slotIndex));
+    }
 
     public bool StartTimeshift(int slotIndex, IChannel channel)
     {
       if (TimeshiftControl == null || channel == null)
         return false;
 
+      int newSlotIndex = GetMatchingSlotIndex(slotIndex);
       MediaItem timeshiftMediaItem;
-      bool result = TimeshiftControl.StartTimeshift(slotIndex, channel, out timeshiftMediaItem);
+      bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
       if (result && timeshiftMediaItem != null)
       {
         string newAccessorPath =
           (string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
             ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-
-        if (_activeAccessorPath != newAccessorPath)
+        
+        if (_slotContexes[slotIndex].AccessorPath != newAccessorPath)
         {
-          PlayerContextConcurrencyMode playMode = (slotIndex == PlayerManagerConsts.PRIMARY_SLOT)
-                                                    ? PlayerContextConcurrencyMode.None
-                                                    : PlayerContextConcurrencyMode.ConcurrentVideo;
-
+          PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
           PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
         }
-
-        _activeAccessorPath = newAccessorPath;
+        else
+        {
+          UpdateExistingMediaItem(timeshiftMediaItem);
+        }
+        _slotContexes[slotIndex].AccessorPath = newAccessorPath;
+        _slotContexes[slotIndex].Channel = channel;
       }
 
       return result;
     }
 
+    private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem)
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+      {
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+        if (playerContext != null)
+        {
+          LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+          LiveTvMediaItem newLiveTvMediaItem = timeshiftMediaItem as LiveTvMediaItem;
+          if (liveTvMediaItem != null && newLiveTvMediaItem != null)
+          {
+            // check if this is "our" media item to update.
+            if (liveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
+              newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
+              continue;
+
+            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] =
+              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL];
+            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] =
+              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM];
+            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] =
+              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM];
+          }
+        }
+      }
+    }
+
 
     public bool StopTimeshift(int slotIndex)
     {
-      _activeAccessorPath = null;
       if (TimeshiftControl == null)
         return false;
+
+      _slotContexes[slotIndex].AccessorPath = null;
+      _slotContexes[slotIndex].Channel = null;
 
       return TimeshiftControl.StopTimeshift(slotIndex);
     }
