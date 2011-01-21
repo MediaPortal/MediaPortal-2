@@ -642,6 +642,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Dispose();
     }
 
+    protected static internal void TryCleanupAndDispose(ref object obj)
+    {
+      UIElement u = obj as UIElement;
+      if (u != null)
+      {
+        obj = null;
+        u.CleanupAndDispose();
+        return;
+      }
+      IDisposable d = obj as IDisposable;
+      if (d != null)
+      {
+        obj = null;
+        d.Dispose();
+      }
+    }
+
     /// <summary>
     /// Finds the resource with the given resource key.
     /// </summary>
