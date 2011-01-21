@@ -291,6 +291,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         if (pi.PropertyType == typeof(AbstractProperty))
         { // Property value -> request value and return DependencyPropertyDataDescriptor
           object val = pi.GetValue(obj, convertedIndices);
+          if (val == null)
+            return false;
           result = new DependencyPropertyDataDescriptor(obj, _memberName, (AbstractProperty) val);
         }
         else

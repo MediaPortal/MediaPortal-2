@@ -294,7 +294,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Dispose();
       foreach (UIElement child in GetChildren())
-        child.Dispose();
+        child.CleanupAndDispose();
     }
 
     #endregion
