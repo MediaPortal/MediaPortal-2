@@ -97,8 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Dispose();
       TryCleanupAndDispose(ref _content);
-      if (_templateControl != null)
-        _templateControl.CleanupAndDispose();
       object obj = Content;
       TryCleanupAndDispose(ref obj);
       obj = ContentTemplate;
