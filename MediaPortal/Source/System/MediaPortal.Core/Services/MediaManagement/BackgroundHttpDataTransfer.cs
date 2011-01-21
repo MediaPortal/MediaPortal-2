@@ -226,6 +226,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected void RequestNextBlock()
     {
+      HttpWebRequest request = null;
+      IAsyncResult result = null;
       lock (_syncObj)
         try
         {
@@ -235,62 +237,67 @@ namespace MediaPortal.Core.Services.MediaManagement
           if (index == -1)
             return;
           PendingBlock block = _pendingBlocks[index];
-          HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_resourceURL);
+          request = (HttpWebRequest) WebRequest.Create(_resourceURL);
           request.Method = "GET";
           request.KeepAlive = true;
           request.AllowAutoRedirect = true;
           request.UserAgent = _userAgent;
           request.AddRange((int) block.Start, (int) block.End);
 
-          IAsyncResult result = request.BeginGetResponse(OnResponseReceived, null);
-          // Set _pendingRequest after we can be sure that OnResponseReceived will be called.
           _pendingRequest = request;
-          AddTimeout(_pendingRequest, result, PENDING_REQUEST_TIMEOUT*1000);
+          result = request.BeginGetResponse(OnResponseReceived, null);
         }
         catch (Exception e)
         {
+          _pendingRequest = null;
           ServiceRegistration.Get<ILogger>().Warn("BackgroundHttpDataTransfer: Error requesting data from remote server", e);
           SetError(e.Message);
         }
+      if (request != null && result != null)
+        AddTimeout(request, result, PENDING_REQUEST_TIMEOUT*1000);
     }
 
     private void OnResponseReceived(IAsyncResult asyncResult)
     {
       try
       {
-        long bufferStreamLength;
-        HttpWebResponse response;
-        lock (_syncObj)
+        HttpWebRequest request = _pendingRequest;
+        if (request != null)
         {
-          if (_terminated)
-            return;
-          bufferStreamLength = _bufferStream.Length;
-          response = (HttpWebResponse) _pendingRequest.EndGetResponse(asyncResult);
-        }
-        try
-        {
-          long from;
-          long to;
-          long length;
-          String contentRange = response.GetResponseHeader("Content-Range");
-          if (string.IsNullOrEmpty(contentRange))
-          { // No content range given, use complete range
-            from = 0;
-            to = response.ContentLength - 1;
-            length = response.ContentLength;
+          long bufferStreamLength;
+          HttpWebResponse response;
+          lock (_syncObj)
+          {
+            if (_terminated)
+              return;
+            bufferStreamLength = _bufferStream.Length;
+            response = (HttpWebResponse) request.EndGetResponse(asyncResult);
           }
-          else if (!ParseContentRange(contentRange, out from, out to, out length) ||
-              (length != -1 && length != bufferStreamLength))
-          { // Fatal: Server commmunication failed
-            SetError("Protocol error");
-            return;
+          try
+          {
+            long from;
+            long to;
+            long length;
+            String contentRange = response.GetResponseHeader("Content-Range");
+            if (string.IsNullOrEmpty(contentRange))
+            { // No content range given, use complete range
+              from = 0;
+              to = response.ContentLength - 1;
+              length = response.ContentLength;
+            }
+            else if (!ParseContentRange(contentRange, out from, out to, out length) ||
+                (length != -1 && length != bufferStreamLength))
+            { // Fatal: Server commmunication failed
+              SetError("Protocol error");
+              return;
+            }
+            using (Stream body = response.GetResponseStream())
+              ProcessResult_NoLock(body, from, to, length);
           }
-          using (Stream body = response.GetResponseStream())
-            ProcessResult_NoLock(body, from, to, length);
-        }
-        finally
-        {
-          response.Close();
+          finally
+          {
+            response.Close();
+          }
         }
       }
       catch (WebException e)
