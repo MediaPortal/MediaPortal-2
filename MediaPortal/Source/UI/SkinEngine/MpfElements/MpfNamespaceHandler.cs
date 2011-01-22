@@ -45,8 +45,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         string propertyName)
     {
       Type type = GetElementType(propertyProvider);
-      return type.GetMethod("Get" + propertyName + "AttachedProperty",
-        BindingFlags.Public | BindingFlags.Static);
+      MethodInfo mi = null;
+      while (mi == null && type != null)
+      {
+        mi = type.GetMethod("Get" + propertyName + "AttachedProperty",
+            BindingFlags.Public | BindingFlags.Static);
+        type = type.BaseType;
+      }
+      return mi;
     }
 
     internal static Type GetElementType(string typeName)
@@ -79,11 +85,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         constructorInfo = (ConstructorInfo) methodBase;
         return true;
       }
-      else
-      {
-        constructorInfo = null;
-        return false;
-      }
+      constructorInfo = null;
+      return false;
     }
 
     #endregion
@@ -124,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     }
 
     public IDataDescriptor GetAttachedProperty(string propertyProvider,
-      string propertyName, object targetObject, string namespaceURI)
+        string propertyName, object targetObject, string namespaceURI)
     {
       MpfAttachedPropertyDataDescriptor result;
       if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
