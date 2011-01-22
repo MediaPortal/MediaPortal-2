@@ -312,7 +312,7 @@ namespace MediaPortal.UI.Players.Video
       {
         _resourceLocator = locator;
         _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
         int hr;
         AllocateResources();
