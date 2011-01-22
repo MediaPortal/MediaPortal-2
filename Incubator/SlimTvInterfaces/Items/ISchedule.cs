@@ -29,17 +29,15 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
   public interface ISchedule
   {
-    int ScheduleId { get; set; }
-    string Name { get; set; }
-    int Priority { get; set; }
-    int PreRecordInterval { get; set; }
-    int PostRecordInterval { get; set; }
-    int KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
+    int ScheduleId { get; }
+    int ScheduleControlID { get; }
+    int ChannelId { get; }
+    string Name { get; }
+    
+    PriorityType Priority { get; }
 
-    bool AddRule(IScheduleRule rule);
-    bool RemoveRule(IScheduleRule rule);
-    bool GetRules(out IList<IScheduleRule> rules);
+    DateTime StartDate { get; }
+    DateTime StopDate { get; }
     //TODO
   }
 

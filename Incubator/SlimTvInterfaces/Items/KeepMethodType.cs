@@ -24,11 +24,11 @@
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
-  public interface IScheduleRule
+  public enum KeepMethodType
   {
-    int RuleId { get; set; }
-    int ScheduleControlId { get; set; }
-    string Name { get; set; }
-    //TODO
+    UntilSpaceNeeded,
+    UntilWatched,
+    TillDate,
+    Always
   }
 }

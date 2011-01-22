@@ -24,11 +24,12 @@
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.Items
 {
-  public interface IScheduleRule
+  public enum PriorityType
   {
-    int RuleId { get; set; }
-    int ScheduleControlId { get; set; }
-    string Name { get; set; }
-    //TODO
+    Highest,
+    High,
+    Normal,
+    Low,
+    Lowest
   }
 }
