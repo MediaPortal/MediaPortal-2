@@ -26,7 +26,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.Controls.Panels;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -34,7 +33,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     protected FrameworkElement _parent;
     protected IList<FrameworkElement> _elements;
-    protected bool _zIndexFixed = false;
     protected object _syncObj = new object();
 
     public FrameworkElementCollection(FrameworkElement parent)
@@ -58,29 +56,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_parent != null)
         _parent.InvalidateLayout(invalidateMeasure, invalidateArrange);
-    }
-
-    public void FixZIndex()
-    {
-      lock (_syncObj)
-      {
-        if (_zIndexFixed) return;
-        _zIndexFixed = true;
-        double zindex1 = 0;
-        foreach (FrameworkElement element in _elements)
-        {
-          if (Panel.GetZIndex(element) < 0)
-          {
-            Panel.SetZIndex(element, zindex1);
-            zindex1 += 0.0001;
-          }
-          else
-          {
-            Panel.SetZIndex(element, Panel.GetZIndex(element) + zindex1);
-            zindex1 += 0.0001;
-          }
-        }
-      }
     }
 
     public void SetParent(FrameworkElement parent)

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -318,30 +319,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Rendering
 
-    protected override void UpdateRenderOrder()
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        RectangleF bounds = ActualBounds;
-        foreach (FrameworkElement element in Children)
-        {
-          if (!element.IsVisible)
-            continue;
-          if (_canScroll)
-          { // Don't render elements which are not visible, if we can scroll
-            RectangleF elementBounds = element.ActualBounds;
-            if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) continue;
-            if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) continue;
-            if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) continue;
-            if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) continue;
-          }
-          _renderOrder.Add(element);
-        }
-      }
+      RectangleF bounds = ActualBounds;
+      return Children.TakeWhile(element =>
+        { // Don't render elements which are not visible, if we can scroll
+          RectangleF elementBounds = element.ActualBounds;
+          if (!element.IsVisible) return false;
+          if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
+          if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
+          if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
+          if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) return false;
+          return true;
+        });
     }
 
     #endregion

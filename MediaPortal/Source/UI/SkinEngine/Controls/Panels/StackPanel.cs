@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -561,23 +562,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Rendering
 
-    protected override void UpdateRenderOrder()
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = _actualFirstVisibleChild; i <= _actualLastVisibleChild; i++)
-        {
-          FrameworkElement element = visibleChildren[i];
-          if (!element.IsVisible)
-            continue;
-          _renderOrder.Add(element);
-        }
-      }
+      return GetVisibleChildren().Skip(_actualFirstVisibleChild).Take(_actualLastVisibleChild - _actualFirstVisibleChild + 1);
     }
 
     #endregion

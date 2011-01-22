@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -549,6 +550,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
+    #region Rendering
+
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.GetRenderedChildren();
+
+      return _arrangedItems.Skip(_actualFirstVisibleChild - _arrangedItemsStartIndex).
+          Take(_actualLastVisibleChild - _arrangedItemsStartIndex + 1);
+    }
+
+    #endregion
+
+    #region Base overrides
+
     public override void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> elements,
         bool elementsBeforeAndAfter)
     {
@@ -575,37 +592,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       AddFocusedElementRange(arrangedItemsCopy, startingRect, first, last,
           numElementsBeforeAndAfter, numElementsBeforeAndAfter, elements);
     }
-
-    #region Rendering
-
-    protected override void UpdateRenderOrder()
-    {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      IItemProvider itemProvider = ItemProvider;
-      if (itemProvider == null)
-      {
-        base.UpdateRenderOrder();
-        return;
-      }
-
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        int first = _actualFirstVisibleChild - _arrangedItemsStartIndex;
-        int last = _actualLastVisibleChild - _arrangedItemsStartIndex;
-        for (int i = first; i <= last; i++)
-        {
-          FrameworkElement element = _arrangedItems[i];
-          _renderOrder.Add(element);
-        }
-      }
-    }
-
-    #endregion
-
-    #region Base overrides
 
     public override bool FocusPageUp()
     {
