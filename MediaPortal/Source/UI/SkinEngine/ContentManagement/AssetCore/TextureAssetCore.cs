@@ -310,8 +310,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         _state = State.LoadingSync;
 
         ImageInformation info;
-        _texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
-            Pool.Default, Filter.None, Filter.None, 0, out info);
+        try
+        {
+          _texture = Texture.FromFile(GraphicsDevice.Device, path, _decodeWidth, _decodeHeight, 1, Usage.None, Format.A8R8G8B8,
+              Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file '{0}'", e, path);
+          return;
+        }
         FinalizeAllocation(info.Width, info.Height);
       }
     }
@@ -401,8 +409,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       {
         ImageInformation info;
         stateObject.imageDataStream.Seek(0, SeekOrigin.Begin);
-        _texture = Texture.FromStream(GraphicsDevice.Device, stateObject.imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        try
+        {
+          _texture = Texture.FromStream(GraphicsDevice.Device, stateObject.imageDataStream, 0, _decodeWidth, _decodeHeight, 1, 
+              Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from file data stream", e);
+          return;
+        }
         FinalizeAllocation(info.Width, info.Height);
       }
     }
@@ -418,8 +434,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       lock (_syncObj)
       {
         ImageInformation info;
-        _texture = Texture.FromMemory(GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
-            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        try
+        {
+          _texture = Texture.FromMemory(
+              GraphicsDevice.Device, data, _decodeWidth, _decodeHeight, 1,
+              Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from memory buffer", e);
+          return;
+        }
         FinalizeAllocation(info.Width, info.Height);
       }
     }
