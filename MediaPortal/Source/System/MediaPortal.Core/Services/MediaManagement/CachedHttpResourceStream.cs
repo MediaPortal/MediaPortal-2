@@ -28,7 +28,7 @@ using System.IO;
 namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
-  /// Stream facade to a HTTP data transfer. This class is not multithreading-safe.
+  /// Stream facade to a locally cached HTTP data transfer. This class is not multithreading-safe.
   /// </summary>
   public class CachedHttpResourceStream : Stream
   {
