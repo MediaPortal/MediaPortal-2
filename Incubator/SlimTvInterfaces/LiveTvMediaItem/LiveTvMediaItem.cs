@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem
 {
@@ -9,6 +10,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem
     public const string CHANNEL = "Channel";
     public const string CURRENT_PROGRAM = "CurrentProgram";
     public const string NEXT_PROGRAM = "NextProgram";
+    public const string TUNING_TIME = "TuningTime";
 
     public LiveTvMediaItem(Guid mediaItemId)
       : base(mediaItemId)
@@ -25,6 +27,15 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem
       get { return _additionalProperties; } 
     }
 
+    /// <summary>
+    /// Gets a list of timeshift contexes.
+    /// </summary>
+    public IList<ITimeshiftContext> TimeshiftContexes
+    {
+      get { return _timeshiftContexes; }
+    }
+
+    private readonly IList<ITimeshiftContext> _timeshiftContexes = new List<ITimeshiftContext>();
     private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
 
   }

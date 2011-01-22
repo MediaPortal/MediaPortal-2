@@ -66,6 +66,7 @@
     <Compile Include="Items\IProgram.cs" />
     <Compile Include="Items\ISchedule.cs" />
     <Compile Include="Items\IScheduleRule.cs" />
+    <Compile Include="Items\ITimeshiftContext.cs" />
     <Compile Include="ITimeshiftControl.cs" />
     <Compile Include="ITvHandler.cs" />
     <Compile Include="ITvProvider.cs" />
