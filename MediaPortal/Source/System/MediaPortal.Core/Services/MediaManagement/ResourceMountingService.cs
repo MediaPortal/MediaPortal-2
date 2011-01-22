@@ -44,7 +44,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
 
-    protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.Normal | FileAttributes.ReadOnly;
+    protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.ReadOnly;
     protected const FileAttributes DIRECTORY_ATTRIBUTES = FileAttributes.ReadOnly | FileAttributes.NotContentIndexed | FileAttributes.Directory;
 
     protected static readonly DateTime MIN_FILE_DATE = DateTime.FromFileTime(0); // If we use lower values, resources are not recognized by the Explorer/Windows API
