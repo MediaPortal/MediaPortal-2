@@ -31,6 +31,10 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -66,6 +70,7 @@
     <Compile Include="TVHandler\SlimTvHandler.cs" />
     <Compile Include="Player\SlimTvUIContributor.cs" />
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
+    <Compile Include="TVHandler\TimeshiftContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SlimTv4HomeProvider\SlimTv4HomeProvider.csproj">

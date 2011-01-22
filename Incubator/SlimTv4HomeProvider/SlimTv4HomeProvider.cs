@@ -181,12 +181,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         String raPath = resourceAccessor.LocalResourcePath.Serialize();
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV" + (slotIndex == 1 ? " [PiP]" : ""));
+        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/livetv"); //Custom mimetype for LiveTv
 
         LiveTvMediaItem tvStream = new LiveTvMediaItem(new Guid(), aspects);
 
         tvStream.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
+        tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
 
         IProgram currentProgram;
         if (GetCurrentProgram(channel, out currentProgram))

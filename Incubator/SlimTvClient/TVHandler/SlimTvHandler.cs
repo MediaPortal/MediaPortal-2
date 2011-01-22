@@ -154,6 +154,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         
         if (_slotContexes[slotIndex].AccessorPath != newAccessorPath)
         {
+          AddTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
           PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
         }
@@ -166,6 +167,25 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
 
       return result;
+    }
+
+    private void AddTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
+    {
+      IProgram program = GetCurrentProgram(channel);
+      TimeshiftContext tsContext = new TimeshiftContext
+                                     {
+                                       Channel = channel,
+                                       Program = program,
+                                       TuneInTime = DateTime.Now
+                                     };
+
+      int tc = timeshiftMediaItem.TimeshiftContexes.Count;
+      if (tc > 0)
+      {
+        ITimeshiftContext lastContext = timeshiftMediaItem.TimeshiftContexes[tc - 1];
+        lastContext.TimeshiftDuration = DateTime.Now - lastContext.TuneInTime;
+      }
+      timeshiftMediaItem.TimeshiftContexes.Add(tsContext);
     }
 
     private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem)
@@ -185,12 +205,7 @@ namespace MediaPortal.Plugins.SlimTvClient
               newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
               continue;
 
-            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] =
-              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL];
-            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] =
-              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM];
-            liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] =
-              newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM];
+            AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
           }
         }
       }

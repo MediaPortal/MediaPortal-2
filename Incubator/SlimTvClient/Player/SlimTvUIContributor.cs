@@ -22,27 +22,52 @@
 
 #endregion
 
+using MediaPortal.Core;
+using MediaPortal.Core.Commands;
+using MediaPortal.Core.General;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
-  public class SlimTvUIContributor : IPlayerUIContributor
+  public class SlimTvUIContributor : BaseTimerControlledModel, IPlayerUIContributor
   {
     public const string SCREEN_FULLSCREEN_TV = "FullscreenContentTv";
     public const string SCREEN_CURRENTLY_PLAYING_TV = "CurrentlyPlayingTv";
 
     protected MediaWorkflowStateType _mediaWorkflowStateType;
+    protected IChapterPlayer _player;
+    protected ItemsList _chapterMenuItems;
+
+    private readonly AbstractProperty _chaptersAvailableProperty;
 
     #region Construction and destruction
 
-    public void Dispose() { }
+    public SlimTvUIContributor(): base (500)
+    {
+      _chaptersAvailableProperty = new WProperty(typeof(bool), false);
+    }
 
     #endregion
 
     public bool BackgroundDisabled
     {
       get { return false; }
+    }
+
+    public AbstractProperty ChaptersAvailableProperty
+    {
+      get { return _chaptersAvailableProperty; }
+    }
+
+    public bool ChaptersAvailable
+    {
+      get { return (bool)_chaptersAvailableProperty.GetValue(); }
+      set { _chaptersAvailableProperty.SetValue(value); }
     }
 
     public MediaWorkflowStateType MediaWorkflowStateType
@@ -62,9 +87,85 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
     }
 
+
+    /// <summary>
+    /// Provides a list of items to be shown in the chapter selection menu.
+    /// </summary>
+    public ItemsList ChapterMenuItems
+    {
+      get
+      {
+        string currentChapter = _player.CurrentChapter;
+        _chapterMenuItems.Clear();
+        if (ChaptersAvailable)
+        {
+          foreach (string chapter in _player.Chapters)
+          {
+            // use local variable, otherwise delegate argument is not fixed
+            string localChapter = chapter;
+
+            ListItem item = new ListItem(Consts.KEY_NAME, localChapter)
+            {
+              Command = new MethodDelegateCommand(() => _player.SetChapter(localChapter)),
+              // check if it is the selected chapter, then mark it
+              Selected = (localChapter == currentChapter)
+            };
+
+            _chapterMenuItems.Add(item);
+          }
+        }
+        return _chapterMenuItems;
+      }
+    }
+
+    /// <summary>
+    /// Opens the chapter selection dialog.
+    /// </summary>
+    public void OpenChooseChapterDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChapter");
+    }
+
+    /// <summary>
+    /// Skips to previous chapter.
+    /// </summary>
+    public void PrevChapter()
+    {
+      _player.PrevChapter();
+    }
+
+    /// <summary>
+    /// Skips to next chapter.
+    /// </summary>
+    public void NextChapter()
+    {
+      _player.NextChapter();
+    }
+
+    /// <summary>
+    /// Execute selected menu item for subtitle and chapter selection.
+    /// </summary>
+    /// <param name="item">One of the items of <see cref="ChapterMenuItems"/>.</param>
+    public void Select(ListItem item)
+    {
+      if (item == null)
+        return;
+      ICommand command = item.Command;
+      if (command != null)
+        command.Execute();
+    }
+
+
     public void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
       _mediaWorkflowStateType = stateType;
+      _player = player as IChapterPlayer;
+      _chapterMenuItems = new ItemsList();
+    }
+
+    protected override void Update()
+    {
+      ChaptersAvailable = _player.ChaptersAvailable;
     }
   }
 }

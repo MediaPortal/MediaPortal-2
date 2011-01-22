@@ -59,6 +59,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     protected AbstractProperty _currentProgramProperty = null;
     protected AbstractProperty _nextProgramProperty = null;
     protected AbstractProperty _programProgressProperty = null;
+    protected AbstractProperty _timeshiftProgressProperty = null;
     protected AbstractProperty _currentChannelNameProperty = null;
 
     // PiP Control properties
@@ -198,6 +199,23 @@ namespace MediaPortal.Plugins.SlimTvClient
     public AbstractProperty ProgramProgressProperty
     {
       get { return _programProgressProperty; }
+    }
+
+    /// <summary>
+    /// Gets a value (range 0 to 100) which denotes the current fraction of played content.
+    /// </summary>
+    public double TimeshiftProgress
+    {
+      get { return (double)_timeshiftProgressProperty.GetValue(); }
+      internal set { _timeshiftProgressProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets a value (range 0 to 100) which denotes the current fraction of played content.
+    /// </summary>
+    public AbstractProperty TimeshiftProgressProperty
+    {
+      get { return _timeshiftProgressProperty; }
     }
     
     /// <summary>
@@ -344,6 +362,7 @@ namespace MediaPortal.Plugins.SlimTvClient
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _programProgressProperty = new WProperty(typeof(double), 0d);
+        _timeshiftProgressProperty = new WProperty(typeof(double), 0d);
 
         _piPAvailableProperty = new WProperty(typeof(bool), false);
         _piPEnabledProperty = new WProperty(typeof(bool), false);
@@ -383,32 +402,27 @@ namespace MediaPortal.Plugins.SlimTvClient
 
       PiPAvailable = true;
 
+      // get the current channel and program out of the LiveTvMediaItems' TimeshiftContexes
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext != null)
       {
         LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-        if (liveTvMediaItem != null)
+        LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+        if (liveTvMediaItem != null && player != null)
         {
-          object channel;
-          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.CHANNEL, out channel))
-            ChannelName = ((IChannel) channel).Name;
-
-
-          object current;
-          object next;
-          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.CURRENT_PROGRAM, out current))
-            CurrentProgram.SetProgram((IProgram) current);
-
-          if (liveTvMediaItem.AdditionalProperties.TryGetValue(LiveTvMediaItem.NEXT_PROGRAM, out next))
-            NextProgram.SetProgram((IProgram) next);
-
-          if (current != null)
+          ITimeshiftContext context = player.CurrentTimeshiftContext;
+          if (context != null)
           {
-            IProgram currentProgram = (IProgram) current;
-            double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds/
-                              (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds*100;
-            _programProgressProperty.SetValue(progress);
+            ChannelName = context.Channel.Name;
+            CurrentProgram.SetProgram(context.Program);
+            if (context.Program != null)
+            {
+              IProgram currentProgram = context.Program;
+              double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds/
+                                (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds*100;
+              _programProgressProperty.SetValue(progress);
+            }
           }
         }
       }
