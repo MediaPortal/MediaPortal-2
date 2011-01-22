@@ -29,7 +29,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// <summary>
   /// Interface of a DVD player.
   /// </summary>
-  public interface IDVDPlayer : IPlayer
+  public interface IDVDPlayer : IPlayer, IChapterPlayer
   {
     /// <summary>
     /// Gets an ordered list of localized DVD titles.
@@ -47,39 +47,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// Gets the current DVD title.
     /// </summary>
     string CurrentDvdTitle { get; }
-
-    /// <summary>
-    /// Gets an ordered list of localized DVD chapters for the current title.
-    /// </summary>
-    string[] DvdChapters { get; }
-
-    /// <summary>
-    /// Plays the given DVD chapter.
-    /// </summary>
-    /// <param name="chapter">Name of the chapter to set. Must be one of the chapter names from the
-    /// <see cref="DvdChapters"/> list.</param>
-    void SetDvdChapter(string chapter);
-
-    /// <summary>
-    /// Indicate if chapters are available.
-    /// </summary>
-    bool ChaptersAvailable { get; }
-
-    /// <summary>
-    /// Skips to the next chapter.
-    /// </summary>
-    void NextChapter();
-
-    /// <summary>
-    /// Skips to the previous chapter.
-    /// </summary>
-    void PrevChapter();
-
-    /// <summary>
-    /// Gets the current DVD chapter.
-    /// </summary>
-    string CurrentDvdChapter { get; }
-
+   
     /// <summary>
     /// Gets the information whether the DVD player currently handles key and mouse events. This is the case if we
     /// are currently in DVD menu.

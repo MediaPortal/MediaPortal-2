@@ -955,7 +955,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets a list of available chapters.
     /// </summary>
-    public string[] DvdChapters
+    public string[] Chapters
     {
       get
       {
@@ -983,9 +983,9 @@ namespace MediaPortal.UI.Players.Video
     /// Sets the chapter to play.
     /// </summary>
     /// <param name="chapter">Chapter name</param>
-    public void SetDvdChapter(string chapter)
+    public void SetChapter(string chapter)
     {
-      string[] chapters = DvdChapters;
+      string[] chapters = Chapters;
       for (int i = 0; i < chapters.Length; i++)
       {
         if (chapter == chapters[i])
@@ -999,7 +999,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// Gets the current chapter.
     /// </summary>
-    public string CurrentDvdChapter
+    public string CurrentChapter
     {
       get
       {
@@ -1017,7 +1017,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         lock (_guiPropertiesLock)
-          return DvdChapters.Length != 0;
+          return Chapters.Length != 0;
       }
     }
 
