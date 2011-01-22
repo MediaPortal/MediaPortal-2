@@ -158,8 +158,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public AbstractProperty GetAttachedProperty(string name)
     {
-      if (_attachedProperties != null && _attachedProperties.ContainsKey(name))
-        return _attachedProperties[name];
+      AbstractProperty result;
+      if (_attachedProperties != null && _attachedProperties.TryGetValue(name, out result))
+        return result;
       return null;
     }
 
