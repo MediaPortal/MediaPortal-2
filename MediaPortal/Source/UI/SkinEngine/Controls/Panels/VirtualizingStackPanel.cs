@@ -559,7 +559,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return base.GetRenderedChildren();
 
       return _arrangedItems.Skip(_actualFirstVisibleChild - _arrangedItemsStartIndex).
-          Take(_actualLastVisibleChild - _arrangedItemsStartIndex + 1);
+          Take(_actualLastVisibleChild - _actualFirstVisibleChild + 1);
     }
 
     #endregion
