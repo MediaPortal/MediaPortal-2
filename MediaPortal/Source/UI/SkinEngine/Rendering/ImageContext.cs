@@ -285,8 +285,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public static SizeF AdjustForSkinAR(SizeF frameSize)
     {
       // Adjust target size to match final Skin scaling
-      frameSize.Width *= (GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth);
-      frameSize.Height *= (GraphicsDevice.Height / (float)SkinContext.SkinResources.SkinHeight);
+      frameSize.Width *= (GraphicsDevice.Width / (float) SkinContext.SkinResources.SkinWidth);
+      frameSize.Height *= (GraphicsDevice.Height / (float) SkinContext.SkinResources.SkinHeight);
       return frameSize;
     }
 
