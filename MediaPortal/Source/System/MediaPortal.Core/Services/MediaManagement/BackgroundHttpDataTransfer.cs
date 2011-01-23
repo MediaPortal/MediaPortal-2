@@ -105,9 +105,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       _resourceURL = resourceURL;
       _bufferStream = bufferStream;
-      // Mark the whole filestream as dirty
-      _pendingBlocks.Add(new PendingBlock(0, bufferStream.Length - 1));
-      RequestNextBlock();
+      if (bufferStream.Length > 0)
+      { // Mark the whole filestream as dirty
+        _pendingBlocks.Add(new PendingBlock(0, bufferStream.Length - 1));
+        RequestNextBlock();
+      }
     }
 
     public new void Dispose()
