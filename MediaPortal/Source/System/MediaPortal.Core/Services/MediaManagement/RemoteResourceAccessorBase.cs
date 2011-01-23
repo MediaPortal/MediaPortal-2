@@ -114,7 +114,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public Stream OpenRead()
     {
-      if (!IsFile)
+      if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
       PrepareStreamAccess();
       return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
@@ -122,7 +122,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public Stream OpenWrite()
     {
-      if (!IsFile)
+      if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
       return null;
     }
