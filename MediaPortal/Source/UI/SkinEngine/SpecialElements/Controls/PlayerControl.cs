@@ -463,6 +463,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
           IsPicturePlayerPresent = false;
           DisposeCurrentPictureResourceAccessor();
+          PictureSourcePath = null;
           PictureRotateDegrees = 0;
         }
         else
