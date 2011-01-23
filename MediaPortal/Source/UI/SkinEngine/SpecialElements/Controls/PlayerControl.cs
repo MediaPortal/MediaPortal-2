@@ -358,11 +358,11 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       return 0;
     }
 
-    protected string CheckPictureSourcePath(IResourceLocator locator)
+    protected void UpdatePictureSourcePath(IResourceLocator locator)
     {
       if (_currentPictureSourceLocator != locator)
       {
-        DisposePictureResourceAccessor();
+        ILocalFsResourceAccessor oldAccessor = _currentPictureResourceAccessor;
         _currentPictureSourceLocator = locator;
         if (_currentPictureSourceLocator != null)
           try
@@ -373,13 +373,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           {
             ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for picture '{0}'",
                 e, _currentPictureSourceLocator);
-            return null;
+            PictureSourcePath = null;
+            return;
           }
+        PictureSourcePath = _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
+        if (oldAccessor != null)
+          oldAccessor.Dispose();
       }
-      return _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
     }
 
-    protected void DisposePictureResourceAccessor()
+    protected void DisposeCurrentPictureResourceAccessor()
     {
       if (_currentPictureResourceAccessor != null)
         _currentPictureResourceAccessor.Dispose();
@@ -459,13 +462,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (pp == null)
         {
           IsPicturePlayerPresent = false;
-          DisposePictureResourceAccessor();
+          DisposeCurrentPictureResourceAccessor();
           PictureRotateDegrees = 0;
         }
         else
         {
           IsPicturePlayerPresent = true;
-          PictureSourcePath = CheckPictureSourcePath(pp.CurrentPictureResourceLocator);
+          UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
           PictureRotateDegrees = GetRotationMetadata(_currentMediaItem);
         }
 
