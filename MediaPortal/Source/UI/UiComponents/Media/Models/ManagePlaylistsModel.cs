@@ -413,6 +413,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void NavigateRemovePlaylistSaveWorkflow()
     {
+      ClearData();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION, true);
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED, true);
@@ -420,11 +421,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public void NavigateBackToOverview()
     {
-      lock (_syncObj)
-      {
-        _playlist = null;
-        _playlistLocation = PlaylistLocation.None;
-      }
+      ClearData();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW, false);
     }
