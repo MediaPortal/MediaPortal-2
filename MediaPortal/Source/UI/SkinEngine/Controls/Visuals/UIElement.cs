@@ -230,7 +230,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected IExecutableCommand _loaded;
     protected bool _initializeTriggers = true;
     protected bool _fireLoaded = true;
-    private string _tempName = null;
+    protected bool _allocated = false;
     protected readonly object _renderLock = new object(); // Can be used to synchronize several accesses between render thread and other threads
 
     #endregion
@@ -267,7 +267,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElement el = (UIElement) source;
       // We do not copy the focus flag, only one element can have focus
       //HasFocus = el.HasFocus;
-      _tempName = el.Name;
+      string copyName = el.Name;
       ActualPosition = el.ActualPosition;
       Margin = new Thickness(el.Margin);
       Visibility = el.Visibility;
@@ -287,7 +287,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Triggers.Add(copyManager.GetCopy(t));
       _initializeTriggers = true;
 
-      copyManager.CopyCompleted += OnCopyCompleted;
+      copyManager.CopyCompleted += (cm =>
+        {
+          // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
+          // when the TemplateNamescope property or a LogicalParent property wasn't copied yet, for example.
+          // That's why we cannot simply copy the Name property in the DeepCopy method.
+          Name = copyName;
+          copyName = null;
+        });
     }
 
     public override void Dispose()
@@ -298,15 +305,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    void OnCopyCompleted(ICopyManager copyManager)
-    {
-      // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
-      // when the TemplateNamescope property or a LogicalParent property wasn't copied yet, for example.
-      // That's why we cannot simply copy the Name property in the DeepCopy method.
-      Name = _tempName;
-      _tempName = null;
-    }
 
     public void SetResources(ResourceDictionary resources)
     {
@@ -950,12 +948,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public virtual void Allocate()
     {
+      _allocated = true;
       foreach (FrameworkElement child in GetChildren())
         child.Allocate();
     }
 
     public virtual void Deallocate()
     {
+      _allocated = false;
       foreach (FrameworkElement child in GetChildren())
         child.Deallocate();
     }
