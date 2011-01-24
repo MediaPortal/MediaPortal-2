@@ -67,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ImageSource _imageSource = null;
     protected bool _imageSourceInvalid = true;
     protected bool _imageSourceSetup = false;
+    protected SizeF _lastImageSourceSize = SizeF.Empty;
     protected string _warnURI = null;
 
     #endregion
@@ -221,7 +222,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ImageSource source = GetLoadedSource();
       if (source == null || !source.IsAllocated)
-        return SizeF.Empty;
+      {
+        _lastImageSourceSize = SizeF.Empty;
+        return new SizeF(10, 10);
+      }
 
       SizeF imageSize = source.SourceSize;
       float sourceFrameRatio = imageSize.Width / imageSize.Height;
@@ -233,6 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (double.IsNaN(totalSize.Width))
         totalSize.Width = totalSize.Height * sourceFrameRatio;
 
+      _lastImageSourceSize = imageSize;
       return source.StretchSource(totalSize, imageSize, Stretch, StretchDirection);
     }
 
@@ -254,10 +259,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _imageSourceInvalid = false;
         _imageSource = LoadImageSource(Source) ?? LoadImageSource(FallbackSource);
-        if (_imageSource != null)
-          // FIXME: Why do we need to call InvalidateParentLayout and InvalidateLayout doesn't work? Do we have a multithreading issue?
-          InvalidateParentLayout(true, true);
       }
+
+      if (_imageSource != null && _imageSource.SourceSize != _lastImageSourceSize)
+        InvalidateLayout(true, true);
       return _imageSource;
     }
 

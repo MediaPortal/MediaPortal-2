@@ -331,7 +331,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         || Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
         // Convert image dimensions to texture space
-        Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width, imageSize.Height);
+        Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width+1.0f, imageSize.Height+1.0f);
         textureRect.Z /= _frameSize.Width;
         textureRect.W /= _frameSize.Height;
 

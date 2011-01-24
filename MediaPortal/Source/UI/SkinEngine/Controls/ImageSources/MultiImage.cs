@@ -140,6 +140,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #region ImageSource implementation
 
+    public override SizeF SourceSize
+    {
+      get
+      {
+        return (_transitionActive && _lastTexture != null) ?
+            MaxSizeF(new SizeF(_lastTexture.Width, _lastTexture.Height), base.SourceSize) : base.SourceSize;
+      }
+    }
+
     public override void Allocate()
     {
       if (_uriChanged)
@@ -257,7 +266,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             FrameSize = _lastImageContext.FrameSize,
             ShaderEffect = _lastImageContext.ShaderEffect
         };
-      _frameData = new Vector4(_texture.Width, _texture.Height, 0.0f, 0.0f);
+      if (_texture != null)
+        _frameData = new Vector4(_texture.Width, _texture.Height, 0.0f, 0.0f);
       // Clear next
       _nextTexture = null;
 
@@ -320,6 +330,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastTexture = null;
       _nextTexture = null;
       _lastImageContext.Clear();
+    }
+
+    protected SizeF MaxSizeF(SizeF a, SizeF b)
+    {
+      return new SizeF(Math.Max(a.Width, b.Width), Math.Max(a.Height, b.Height));
     }
 
     #endregion
