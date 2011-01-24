@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core.General;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.MediaManagement.ResourceAccess
@@ -32,18 +31,18 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
   /// Encapsulates the data needed to locate a specific media item in a MediaPortal 2 network.
   /// </summary>
   /// <remarks>
-  /// To locate a media item, we basically need its <see cref="NativeSystem"/> and its <see cref="NativeResourcePath"/> for
+  /// To locate a media item, we basically need its <see cref="NativeSystemId"/> and its <see cref="NativeResourcePath"/> for
   /// its native system. This pair of data identifies a media item uniquely in an MP 2 system.
   /// </remarks>
   public interface IResourceLocator
   {
     /// <summary>
-    /// Gets the system where the media item is located originally.
+    /// Gets the system Id of the system where the media item is located originally.
     /// </summary>
-    SystemName NativeSystem { get; }
+    string NativeSystemId { get; }
 
     /// <summary>
-    /// Gets the resource path in the <see cref="NativeSystem"/> of the media item. This path must be evaluated
+    /// Gets the resource path in the <see cref="NativeSystemId"/> of the media item. This path must be evaluated
     /// at the media item's native system.
     /// </summary>
     ResourcePath NativeResourcePath { get; }

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -47,7 +46,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         string resourcePathName, string resourceName) :
         base(resourceLocator, isFile, resourcePathName, resourceName) { }
 
-    public static bool ConnectFileSystem(SystemName nativeSystem, ResourcePath nativeResourcePath,
+    public static bool ConnectFileSystem(string nativeSystemId, ResourcePath nativeResourcePath,
         out IFileSystemResourceAccessor result)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
@@ -58,20 +57,20 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceName;
       long size;
       DateTime lastChanged;
-      if (!rris.GetResourceInformation(nativeSystem, nativeResourcePath, out isFileSystemResource, out isFile,
+      if (!rris.GetResourceInformation(nativeSystemId, nativeResourcePath, out isFileSystemResource, out isFile,
           out resourcePathName, out resourceName, out lastChanged, out size) || !isFileSystemResource)
         return false;
-      result = new RemoteFileSystemResourceAccessor(new ResourceLocator(nativeSystem, nativeResourcePath), isFile,
+      result = new RemoteFileSystemResourceAccessor(new ResourceLocator(nativeSystemId, nativeResourcePath), isFile,
           resourcePathName, resourceName, size, lastChanged);
       return true;
     }
 
     protected ICollection<IFileSystemResourceAccessor> WrapResourcePathsData(ICollection<ResourcePathMetadata> resourcesData)
     {
-      SystemName nativeSystem = _resourceLocator.NativeSystem;
+      string nativeSystemId = _resourceLocator.NativeSystemId;
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
       foreach (ResourcePathMetadata fileData in resourcesData)
-        result.Add(new RemoteFileSystemResourceAccessor( new ResourceLocator(nativeSystem, fileData.ResourcePath),
+        result.Add(new RemoteFileSystemResourceAccessor( new ResourceLocator(nativeSystemId, fileData.ResourcePath),
             true, fileData.HumanReadablePath, fileData.ResourceName));
       return result;
     }
@@ -85,7 +84,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceName;
       DateTime lastChanged;
       long size;
-      if (!rris.GetResourceInformation(_resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath,
+      if (!rris.GetResourceInformation(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath,
           out isFileSystemResource, out isFile, out resourcePathName, out resourceName, out lastChanged, out size))
         throw new IOException(string.Format("Unable to get file information for '{0}'", _resourceLocator));
       _lastChangedCache = lastChanged;
@@ -113,18 +112,18 @@ namespace MediaPortal.Core.Services.MediaManagement
     public bool Exists(string path)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      SystemName nativeSystem = _resourceLocator.NativeSystem;
-      ResourcePath resourcePath = rris.ConcatenatePaths(nativeSystem, _resourceLocator.NativeResourcePath, path);
-      return rris.ResourceExists(nativeSystem, resourcePath);
+      string nativeSystemId = _resourceLocator.NativeSystemId;
+      ResourcePath resourcePath = rris.ConcatenatePaths(nativeSystemId, _resourceLocator.NativeResourcePath, path);
+      return rris.ResourceExists(nativeSystemId, resourcePath);
     }
 
     public IResourceAccessor GetResource(string path)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      SystemName nativeSystem = _resourceLocator.NativeSystem;
-      ResourcePath resourcePath = rris.ConcatenatePaths(nativeSystem, _resourceLocator.NativeResourcePath, path);
+      string nativeSystemId = _resourceLocator.NativeSystemId;
+      ResourcePath resourcePath = rris.ConcatenatePaths(nativeSystemId, _resourceLocator.NativeResourcePath, path);
       IFileSystemResourceAccessor result;
-      return ConnectFileSystem(nativeSystem, resourcePath, out result) ? result : null;
+      return ConnectFileSystem(nativeSystemId, resourcePath, out result) ? result : null;
     }
 
     public override DateTime LastChanged
@@ -142,7 +141,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ICollection<ResourcePathMetadata> filesData = rris.GetFiles(
-          _resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath);
+          _resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       return WrapResourcePathsData(filesData);
     }
 
@@ -150,7 +149,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ICollection<ResourcePathMetadata> directoriesData = rris.GetChildDirectories(
-          _resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath);
+          _resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       return WrapResourcePathsData(directoriesData);
     }
 

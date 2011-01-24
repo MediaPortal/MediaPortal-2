@@ -31,7 +31,9 @@ using Dokan;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement.Settings;
+using MediaPortal.Core.Services.SystemResolver;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -279,13 +281,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected char? _driveLetter;
+    protected char? _driveLetter = null;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
-
-    public ResourceMountingService()
-    {
-      _driveLetter = ReadDriveLetterFromSettings();
-    }
 
     // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
     // write a sensible destructor in this class which removes the Dokan drive
@@ -298,29 +295,31 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected void Run()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
-      char? driveLetter;
-      lock (_syncObj)
-        driveLetter = _driveLetter;
-      if (driveLetter.HasValue)
+
+      char? driveLetter = ReadDriveLetterFromSettings();
+      if (!driveLetter.HasValue)
       {
-        // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
-        DokanNet.DokanUnmount(driveLetter.Value);
-        if (DriveInUse(driveLetter.Value))
-        {
-          logger.Warn(
-              "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
-              driveLetter.Value);
-          lock (_syncObj)
-            _driveLetter = null;
-          return;
-        }
-        DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
-        int result = DokanNet.DokanMain(opt, this);
-        if (result == DokanNet.DOKAN_SUCCESS)
-          logger.Info("ResourceMountingService: DokanMain returned successfully");
-        else
-          logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+        driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
+            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
       }
+
+      // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
+      DokanNet.DokanUnmount(driveLetter.Value);
+      if (DriveInUse(driveLetter.Value))
+      {
+        logger.Warn(
+            "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
+            driveLetter.Value);
+        return;
+      }
+      _driveLetter = driveLetter;
+      DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
+      int result = DokanNet.DokanMain(opt, this);
+      if (result == DokanNet.DOKAN_SUCCESS)
+        logger.Info("ResourceMountingService: DokanMain returned successfully");
+      else
+        logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
     }
 
     protected VirtualFileSystemResource ParseFileName(string fileName)
@@ -345,7 +344,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       return resource;
     }
 
-    protected char ReadDriveLetterFromSettings()
+    protected char? ReadDriveLetterFromSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();

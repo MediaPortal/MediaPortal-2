@@ -30,6 +30,12 @@ using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.Services.SystemResolver
 {
+  public enum SystemType
+  {
+    Client,
+    Server
+  }
+
   public abstract class SystemResolverBase : ISystemResolver
   {
     protected string _localSystemId;
@@ -56,6 +62,8 @@ namespace MediaPortal.Core.Services.SystemResolver
     }
 
     public abstract SystemName GetSystemNameForSystemId(string systemId);
+
+    public abstract SystemType SystemType { get; }
 
     #endregion
   }

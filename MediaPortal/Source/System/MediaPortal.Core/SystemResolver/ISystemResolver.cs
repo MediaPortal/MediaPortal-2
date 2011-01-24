@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Core.General;
+using MediaPortal.Core.Services.SystemResolver;
 
 namespace MediaPortal.Core.SystemResolver
 {
@@ -37,5 +38,10 @@ namespace MediaPortal.Core.SystemResolver
     /// <returns>System name or <c>null</c>, if the system could not resolved (i.e. if the server is not connected or
     /// the system with the given <paramref name="systemId"/> is not known.</returns>
     SystemName GetSystemNameForSystemId(string systemId);
+
+    /// <summary>
+    /// Returns the type of this system.
+    /// </summary>
+    SystemType SystemType { get; }
   }
 }

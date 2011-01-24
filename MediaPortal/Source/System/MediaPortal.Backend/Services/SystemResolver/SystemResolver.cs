@@ -47,6 +47,11 @@ namespace MediaPortal.Backend.Services.SystemResolver
       return clientManager.GetSystemNameForSystemId(systemId);
     }
 
+    public override SystemType SystemType
+    {
+      get { return SystemType.Server; }
+    }
+
     #endregion
   }
 }

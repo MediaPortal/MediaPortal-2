@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Exceptions;
-using MediaPortal.Core.General;
 
 namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
@@ -39,13 +38,13 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     void Shutdown();
 
     /// <summary>
-    /// Gets resource information about the resource at the given <paramref name="nativeSystem"/> with the given
-    /// <paramref name="nativeResourcePath"/>.
+    /// Gets resource information about the resource at the system with the given <paramref name="nativeSystemId"/>
+    /// with the given <paramref name="nativeResourcePath"/>.
     /// </summary>
-    /// <param name="nativeSystem">System where the resource is located.</param>
+    /// <param name="nativeSystemId">Id of the system where the resource is located.</param>
     /// <param name="nativeResourcePath">Path of the resource.</param>
-    /// <param name="isFileSystemResource">Returns the information if that resource is part of a file system (e.g. the
-    /// resource can be accessed via file system methods, for example <see cref="GetFiles"/> or
+    /// <param name="isFileSystemResource">Returns the information if the referenced resource is located in a virtual
+    /// file system (e.g. the resource can be accessed via file system methods, for example <see cref="GetFiles"/> or
     /// <see cref="GetChildDirectories"/>).</param>
     /// <param name="isFile">Returns the information if the resource is a file.</param>
     /// <param name="resourcePathName">Returns a human readable name for the resource's path.</param>
@@ -53,58 +52,69 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <param name="lastChanged">Returns the last change date of the resource.</param>
     /// <param name="size">Returns the size of the resource in bytes.</param>
     /// <returns><c>true</c>, if the resource exists and its resource information could be retrieved, else <c>false</c>.</returns>
-    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystem"/> is not connected.</exception>
-    bool GetResourceInformation(SystemName nativeSystem, ResourcePath nativeResourcePath, out bool isFileSystemResource,
+    /// <exception cref="NotConnectedException">If the system with the given <paramref name="nativeSystemId"/> is not
+    /// connected.</exception>
+    bool GetResourceInformation(string nativeSystemId, ResourcePath nativeResourcePath, out bool isFileSystemResource,
         out bool isFile, out string resourcePathName, out string resourceName, out DateTime lastChanged, out long size);
 
     /// <summary>
     /// Returns the information if the given resource exists.
     /// </summary>
-    /// <param name="nativeSystem">System where the resource to be checked is located.</param>
-    /// <param name="nativeResourcePath">Native path of the resource in the given <paramref name="nativeSystem"/>.</param>
+    /// <param name="nativeSystemId">Id of the system where the resource to be checked is located.</param>
+    /// <param name="nativeResourcePath">Native path of the resource in the system of the given
+    /// <paramref name="nativeSystemId"/>.</param>
     /// <returns><c>true</c>, if the resource exists, else <c>false</c>.</returns>
-    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystem"/> is not connected.</exception>
-    bool ResourceExists(SystemName nativeSystem, ResourcePath nativeResourcePath);
+    /// <exception cref="NotConnectedException">If the system with the given <paramref name="nativeSystemId"/> is not
+    /// connected.</exception>
+    bool ResourceExists(string nativeSystemId, ResourcePath nativeResourcePath);
 
     /// <summary>
     /// Concatenates the given <paramref name="nativeResourcePath"/> and the given <paramref name="relativePath"/> at
-    /// the given <paramref name="nativeSystem"/> and returns the concatenated path, if it exists.
+    /// the system with the given <paramref name="nativeSystemId"/> and returns the concatenated path, if it exists.
     /// </summary>
-    /// <param name="nativeSystem">System where the <paramref name="nativeResourcePath"/> is valid.</param>
+    /// <param name="nativeSystemId">Id of the system where the <paramref name="nativeResourcePath"/> is valid.</param>
     /// <param name="nativeResourcePath">Base resource path to be concatenated.</param>
     /// <param name="relativePath">Relative path to be added to the given <paramref name="nativeResourcePath"/>.</param>
-    /// <returns>Concatenated path or <c>null</c>, if it doesn't exist at the given <paramref name="nativeSystem"/>
-    /// or if <paramref name="nativeResourcePath"/> isn't a file system path.</returns>
-    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystem"/> is not connected.</exception>
-    ResourcePath ConcatenatePaths(SystemName nativeSystem, ResourcePath nativeResourcePath, string relativePath);
+    /// <returns>Concatenated path or <c>null</c>, if it doesn't exist at the system with the given
+    /// <paramref name="nativeSystemId"/> or if <paramref name="nativeResourcePath"/> isn't a path in a virtual
+    /// filesystem, i.e. the underlaying media provider doesn't support concatenation of paths.</returns>
+    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystemId"/> is not connected.</exception>
+    ResourcePath ConcatenatePaths(string nativeSystemId, ResourcePath nativeResourcePath, string relativePath);
 
     /// <summary>
-    /// Gets all files in the given <paramref name="nativeResourcePath"/> at the given <paramref name="nativeSystem"/>.
+    /// Gets all files in the given <paramref name="nativeResourcePath"/> at the system with the given
+    /// <paramref name="nativeSystemId"/>.
     /// </summary>
-    /// <param name="nativeSystem">System where the <paramref name="nativeResourcePath"/> is valid.</param>
+    /// <param name="nativeSystemId">Id of the system where the <paramref name="nativeResourcePath"/> is valid.</param>
     /// <param name="nativeResourcePath">Resource path whose files should be retrieved.</param>
     /// <returns>Collection of files resource path metadata, if the given <paramref name="nativeResourcePath"/>
     /// is a filesystem directory, else <c>null</c>.</returns>
-    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystem"/> is not connected.</exception>
-    ICollection<ResourcePathMetadata> GetFiles(SystemName nativeSystem, ResourcePath nativeResourcePath);
+    /// <exception cref="NotConnectedException">If the system of the given <paramref name="nativeSystemId"/> is not
+    /// connected.</exception>
+    ICollection<ResourcePathMetadata> GetFiles(string nativeSystemId, ResourcePath nativeResourcePath);
 
     /// <summary>
-    /// Gets all child directories in the given <paramref name="nativeResourcePath"/> at the given <paramref name="nativeSystem"/>.
+    /// Gets all child directories in the given <paramref name="nativeResourcePath"/> at the system with the given
+    /// <paramref name="nativeSystemId"/>.
     /// </summary>
-    /// <param name="nativeSystem">System where the <paramref name="nativeResourcePath"/> is valid.</param>
+    /// <param name="nativeSystemId">Id of the system where the <paramref name="nativeResourcePath"/> is valid.</param>
     /// <param name="nativeResourcePath">Resource path whose child directories should be retrieved.</param>
     /// <returns>Collection of directories resource path metadata, if the given <paramref name="nativeResourcePath"/>
     /// is a filesystem directory, else <c>null</c>.</returns>
-    /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystem"/> is not connected.</exception>
-    ICollection<ResourcePathMetadata> GetChildDirectories(SystemName nativeSystem, ResourcePath nativeResourcePath);
+    /// <exception cref="NotConnectedException">If the system of the given <paramref name="nativeSystemId"/> is not
+    /// connected.</exception>
+    ICollection<ResourcePathMetadata> GetChildDirectories(string nativeSystemId, ResourcePath nativeResourcePath);
 
     /// <summary>
-    /// Gets an HTTP URL pointing to the file at the given <paramref name="nativeSystem"/> at the given
+    /// Gets an HTTP URL pointing to the file at the system with the given <paramref name="nativeSystemId"/> at the given
     /// <paramref name="nativeResourcePath"/>.
     /// </summary>
-    /// <param name="nativeSystem">System where the file can be accessed.</param>
-    /// <param name="nativeResourcePath">Path of the file resource at the given <paramref name="nativeSystem"/>.</param>
+    /// <param name="nativeSystemId">Id of the system where the file can be accessed.</param>
+    /// <param name="nativeResourcePath">Path of the file resource at the system with the given
+    /// <paramref name="nativeSystemId"/>.</param>
     /// <returns>HTTP URL where the file data can be retrieved or <c>null</c>, if the URL cannot be resolved.</returns>
-    string GetFileHttpUrl(SystemName nativeSystem, ResourcePath nativeResourcePath);
+    /// <exception cref="NotConnectedException">If the system of the given <paramref name="nativeSystemId"/> is not
+    /// connected.</exception>
+    string GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath);
   }
 }

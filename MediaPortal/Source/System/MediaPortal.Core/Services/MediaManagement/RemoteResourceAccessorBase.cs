@@ -24,7 +24,6 @@
 
 using System;
 using System.IO;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
@@ -61,9 +60,9 @@ namespace MediaPortal.Core.Services.MediaManagement
         }
     }
 
-    public SystemName NativeSystem
+    public string NativeSystemId
     {
-      get { return _resourceLocator.NativeSystem; }
+      get { return _resourceLocator.NativeSystemId; }
     }
 
     public IResourceLocator ResourceLocator
@@ -107,7 +106,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!_isFile || _underlayingStream != null)
         return;
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath);
+      string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
         _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
     }
