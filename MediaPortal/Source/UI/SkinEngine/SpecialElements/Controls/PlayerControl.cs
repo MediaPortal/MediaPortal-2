@@ -89,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected bool _initialized = false;
     protected bool _updating = false;
     protected AsynchronousMessageQueue _messageQueue = null;
+    protected object _syncObj = new object();
 
     // Derived properties/fields
     protected MediaItem _currentMediaItem;
@@ -206,9 +207,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _fullscreenContentWFStateIDProperty = new SProperty(typeof(Guid?), null);
       _currentlyPlayingWFStateIDProperty = new SProperty(typeof(Guid?), null);
 
-      _timer = new Timer(200) {Enabled = false};
-      _timer.Elapsed += OnTimerElapsed;
-
       _headerNormalResource = LocalizationHelper.CreateResourceString(RES_HEADER_NORMAL);
       _headerPiPResource = LocalizationHelper.CreateResourceString(RES_HEADER_PIP);
       _playbackRateHintResource = LocalizationHelper.CreateResourceString(RES_PLAYBACK_RATE_HINT);
@@ -251,7 +249,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       base.Dispose();
       UnsubscribeFromMessages();
       StopTimer();
-      _timer.Dispose();
     }
 
     #endregion
@@ -279,8 +276,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
-      lock (_timer)
-        if (!_timer.Enabled)
+      lock (_syncObj)
+        if (_timer == null)
           // Avoid calls after timer was stopped
           return;
       CheckShowMouseControls();
@@ -309,14 +306,25 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected void StartTimer()
     {
-      lock (_timer)
-        _timer.Enabled = true;
+      lock (_syncObj)
+      {
+        if (_timer != null)
+          return;
+        _timer = new Timer(200) {Enabled = true};
+        _timer.Elapsed += OnTimerElapsed;
+      }
     }
 
     protected void StopTimer()
     {
-      lock (_timer)
+      lock (_syncObj)
+      {
+        if (_timer == null)
+          return;
         _timer.Enabled = false;
+        _timer.Dispose();
+        _timer = null;
+      }
     }
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -342,17 +350,17 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected void CheckHeartBeat()
     {
-      if (_allocated && IsVisible)
-      {
+      if (_allocated)
         SubscribeToMessages();
+      else
+        UnsubscribeFromMessages();
+      if (IsVisible)
+      {
         UpdateProperties();
         StartTimer();
       }
       else
-      {
         StopTimer();
-        UnsubscribeFromMessages();
-      }
     }
 
     protected IPlayerContext GetPlayerContext()
