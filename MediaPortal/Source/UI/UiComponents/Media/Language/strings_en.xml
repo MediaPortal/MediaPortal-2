@@ -210,6 +210,7 @@
     <String Name="SavePlaylistLocalSuccessfulText" Text="The playlist was successfully saved in file '{0}'."/>
     <String Name="SavePlaylistServerSuccessfulText" Text="The playlist was successfully saved at the server."/>
     <String Name="SavePlaylistFailedText" Text="The playlist could not be saved. Error message: '{0}'"/>
+    <String Name="SavePlaylistFailedAlreadyExists" Text="The playlist could not be saved: Playlist '{0}' already exists"/>
     <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>
     <String Name="PlaylistNameInfoLabel" Text="Playlist name"/>
     <String Name="PlaylistTypeInfoLabel" Text="Playlist type"/>

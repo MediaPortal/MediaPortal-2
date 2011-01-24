@@ -190,6 +190,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string RES_SAVE_PLAYLIST_FAILED_TEXT = "[Media.SavePlaylistFailedText]";
     public const string RES_SAVE_PLAYLIST_FAILED_LOCAL_MEDIAITEMS_TEXT = "[Media.CannotSavePlaylistWithLocalMediaItems]";
+    public const string RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS = "[Media.SavePlaylistFailedAlreadyExists]";
     public const string RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT = "[Media.SavePlaylistLocalSuccessfulText]";
     public const string RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT = "[Media.SavePlaylistServerSuccessfulText]";
 

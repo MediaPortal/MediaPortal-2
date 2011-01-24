@@ -99,9 +99,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
     void OnPlaylistNameChanged(AbstractProperty prop, object oldVal)
     {
-      IsPlaylistNameValid = !string.IsNullOrEmpty(PlaylistName);
+      string trimmedName = PlaylistName.Trim();
+      IsPlaylistNameValid = !string.IsNullOrEmpty(trimmedName);
       if (_playlist != null)
-        _playlist.Name = PlaylistName;
+        _playlist.Name = trimmedName;
     }
 
     void SubscribeToMessages()
@@ -315,16 +316,26 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (_playlistLocation == PlaylistLocation.Local)
         {
-          string fileName;
-          _localPlaylistsHandler.SavePlaylist(playlistData, out fileName);
-          _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT, fileName);
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
+          if (_localPlaylistsHandler.Playlists.Any(p => p.Name == _playlist.Name))
+            SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
+          else
+          {
+            string fileName;
+            _localPlaylistsHandler.SavePlaylist(playlistData, out fileName);
+            _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT, fileName);
+            workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
+          }
         }
         else
         {
-          Models.ServerPlaylists.SavePlaylist(playlistData);
-          _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT);
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
+          if (Models.ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
+            SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
+          else
+          {
+            Models.ServerPlaylists.SavePlaylist(playlistData);
+            _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT);
+            workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
+          }
         }
       }
       catch (Exception e)
