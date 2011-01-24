@@ -152,8 +152,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       Init();
       Attach();
-      SubscribeToMessages();
-      UpdateProperties();
     }
 
     void Init()
@@ -221,12 +219,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _playerContextProperty.Attach(OnPropertyChanged);
       _autoVisibilityProperty.Attach(OnPropertyChanged);
       _isMutedProperty.Attach(OnMuteChanged);
+
+      VisibilityProperty.Attach(OnVisibilityChanged);
     }
 
     void Detach()
     {
       _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
+
+      VisibilityProperty.Detach(OnVisibilityChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -255,6 +257,11 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     #endregion
 
     #region Private & protected methods
+
+    void OnVisibilityChanged(AbstractProperty property, object oldvalue)
+    {
+      CheckHeartBeat();
+    }
 
     void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
@@ -330,6 +337,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             StopTimer();
           }
         }
+      }
+    }
+
+    protected void CheckHeartBeat()
+    {
+      if (_allocated && IsVisible)
+      {
+        SubscribeToMessages();
+        UpdateProperties();
+        StartTimer();
+      }
+      else
+      {
+        StopTimer();
+        UnsubscribeFromMessages();
       }
     }
 
@@ -1578,13 +1600,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public override void Allocate()
     {
       base.Allocate();
-      StartTimer();
+      CheckHeartBeat();
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
-      StopTimer();
+      CheckHeartBeat();
     }
 
     #endregion
