@@ -496,57 +496,41 @@ namespace MediaPortal.UI.Players.Video
 
     #region subtitles
 
-    public string[] Subtitles
+    protected override void EnumerateStreams()
     {
-      get
-      {
-        ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
-        int count = 0;
-        List<String> subs = new List<String>();
-        if (subtitleStream != null)
-        {
-          subtitleStream.GetSubtitleStreamCount(ref count);
-          for (int i = 0; i < count; ++i)
-          {
-            SubtitleLanguage language = new SubtitleLanguage();
-            int type = 0;
-            subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-            subtitleStream.GetSubtitleStreamType(i, ref type);
-            subs.Add(type == 0
-                       ? String.Format("{0} (DVB)", language.lang)
-                       : String.Format("{0} (Teletext)", language.lang));
-          }
-        }
-        return subs.ToArray();
-      }
-    }
+      //FIXME: TSReader only offers Audio in IAMStreamSelect, it would be cleaner to expose subs as well.
+      base.EnumerateStreams();
 
-    public void SetSubtitle(string subtitle)
-    {
-      for (int i = 0; i < Subtitles.Length; ++i)
+      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+      int count = 0;
+      if (subtitleStream != null)
       {
-        if (subtitle == Subtitles[i])
+        subtitleStream.GetSubtitleStreamCount(ref count);
+        for (int i = 0; i < count; ++i)
         {
-          ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
-          if (subtitleStream != null)
-            subtitleStream.SetSubtitleStream(i);
-          return;
+          //FIXME: language should be passed back also as LCID
+          SubtitleLanguage language = new SubtitleLanguage();
+          int type = 0;
+          subtitleStream.GetSubtitleStreamLanguage(i, ref language);
+          subtitleStream.GetSubtitleStreamType(i, ref type);
+          string name = type == 0
+                          ? String.Format("{0} (DVB)", language.lang)
+                          : String.Format("{0} (Teletext)", language.lang);
+          StreamInfo subStream = new StreamInfo(null, i, name, 0);
+          _streamInfoSubtitles.AddUnique(subStream);
         }
       }
     }
 
-    public string CurrentSubtitle
+    public override void SetSubtitle(string subtitle)
     {
-      get
-      {
-        ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
-        int i = 0;
-        if (subtitleStream != null)
-          subtitleStream.GetCurrentSubtitleStream(ref i);
-        if (i >= 0 && i < Subtitles.Length)
-          return Subtitles[i];
-        return "";
-      }
+      if (_streamInfoSubtitles==null)
+        EnumerateStreams();
+
+       // first try to find a stream by it's exact LCID.
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(subtitle);
+      if (streamInfo != null)
+        _streamInfoSubtitles.EnableStream(streamInfo.Name);
     }
 
     #endregion

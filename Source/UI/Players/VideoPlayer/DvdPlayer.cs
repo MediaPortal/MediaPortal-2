@@ -694,41 +694,64 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio stream handling
 
-    protected StreamInfoHandler GetDvdAudioStreams()
+    protected override void EnumerateStreams()
     {
-      StreamInfoHandler result = new StreamInfoHandler();
+      _streamInfoAudio = new StreamInfoHandler();
+      _streamInfoSubtitles = new StreamInfoHandler();
 
-      int streamsAvailable, currentStream;
-      _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
-      for (int i = 0; i < streamsAvailable; ++i)
+      if (_initialized && _dvdInfo != null)
       {
-        int audioLanguage;
-        DvdAudioAttributes attr;
-        _dvdInfo.GetAudioLanguage(i, out audioLanguage);
-        _dvdInfo.GetAudioAttributes(i, out attr);
-        
-        int currentLCID = (audioLanguage & 0x3ff);
-        string languageName=GetLanguageName(currentLCID);
-
-        StringBuilder currentAudio = new StringBuilder();
-        currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
-            languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency/1000));
-
-        switch (attr.LanguageExtension)
+        int streamsAvailable, currentStream;
+        _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
+        for (int i = 0; i < streamsAvailable; ++i)
         {
-          case DvdAudioLangExt.NotSpecified:
-          case DvdAudioLangExt.Captions:
-            break;
-          case DvdAudioLangExt.VisuallyImpaired:
-          case DvdAudioLangExt.DirectorComments1:
-          case DvdAudioLangExt.DirectorComments2:
-            currentAudio.AppendFormat(" ({0})",
-                ServiceRegistration.Get<ILocalization>().ToString("[Playback." + attr.LanguageExtension + "]"));
-            break;
+          int audioLanguage;
+          DvdAudioAttributes attr;
+          _dvdInfo.GetAudioLanguage(i, out audioLanguage);
+          _dvdInfo.GetAudioAttributes(i, out attr);
+
+          int currentLCID = (audioLanguage & 0x3ff);
+          string languageName = GetLanguageName(currentLCID);
+
+          StringBuilder currentAudio = new StringBuilder();
+          currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
+                                    languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency/1000));
+
+          switch (attr.LanguageExtension)
+          {
+            case DvdAudioLangExt.NotSpecified:
+            case DvdAudioLangExt.Captions:
+              break;
+            case DvdAudioLangExt.VisuallyImpaired:
+            case DvdAudioLangExt.DirectorComments1:
+            case DvdAudioLangExt.DirectorComments2:
+              currentAudio.AppendFormat(" ({0})",
+                                        ServiceRegistration.Get<ILocalization>().ToString("[Playback." +
+                                                                                          attr.LanguageExtension + "]"));
+              break;
+          }
+          _streamInfoAudio.AddUnique(new StreamInfo(null, i, currentAudio.ToString(), currentLCID));
         }
-        result.AddUnique(new StreamInfo(null, i, currentAudio.ToString(), currentLCID));
+
+        bool isDisabled;
+        _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
+        for (int i = 0; i < streamsAvailable; ++i)
+        {
+          DvdSubpictureAttributes attr;
+          int iLanguage;
+          _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
+          _dvdInfo.GetSubpictureAttributes(i, out attr);
+          int currentLCID = (iLanguage & 0x3ff);
+          string languageName = GetLanguageName(currentLCID);
+
+          String localizationTag = attr.LanguageExtension.ToString();
+          String currentSubtitle = String.Format("{0} {1}", languageName,
+                                                 ServiceRegistration.Get<ILocalization>().ToString("[Playback." +
+                                                                                                   localizationTag + "]") ??
+                                                 localizationTag);
+          _streamInfoSubtitles.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
+        }
       }
-      return result;
     }
 
     /// <summary>
@@ -739,7 +762,8 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         if (_streamInfoAudio == null)
-          _streamInfoAudio = GetDvdAudioStreams();
+          EnumerateStreams();
+
         return _streamInfoAudio.GetStreamNames();
       }
     }
@@ -783,33 +807,6 @@ namespace MediaPortal.UI.Players.Video
 
     #region Subtitle stream handling
 
-    protected StreamInfoHandler GetDvdSubtitles()
-    {
-      StreamInfoHandler result = new StreamInfoHandler();
-      if (_initialized && _dvdInfo != null)
-      {
-        int streamsAvailable;
-        int currentStream;
-        bool isDisabled;
-        _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
-        for (int i = 0; i < streamsAvailable; ++i)
-        {
-          DvdSubpictureAttributes attr;
-          int iLanguage;
-          _dvdInfo.GetSubpictureLanguage(i, out iLanguage);
-          _dvdInfo.GetSubpictureAttributes(i, out attr);
-          int currentLCID = (iLanguage & 0x3ff);
-          string languageName = GetLanguageName(currentLCID);
-
-          String localizationTag = attr.LanguageExtension.ToString();
-          String currentSubtitle = String.Format("{0} {1}", languageName,
-              ServiceRegistration.Get<ILocalization>().ToString("[Playback." + localizationTag + "]") ?? localizationTag);
-          result.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
-        }
-      }
-      return result;
-    }
-
     public override string[] Subtitles
     {
       get
@@ -818,7 +815,8 @@ namespace MediaPortal.UI.Players.Video
         lock (_guiPropertiesLock)
         {
           if (_streamInfoSubtitles == null)
-            _streamInfoSubtitles = GetDvdSubtitles();
+            EnumerateStreams();
+
           return _streamInfoSubtitles.GetStreamNames();
         }
       }
