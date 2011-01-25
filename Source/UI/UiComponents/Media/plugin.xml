@@ -60,5 +60,18 @@
         Text="[Settings.Players.ClosePlayersWhenFinished]"
         HelpText="[Settings.Players.ClosePlayersWhenFinished.Help]"
         ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ClosePlayersWhenFinished"/>
+
+    <ConfigSetting
+      Id="InstantSkipPercent"
+      Text="[Settings.Players.InstantSkipPercent]"
+      HelpText="[Settings.Players.InstantSkipPercent.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.InstantSkipPercent"/>
+
+    <ConfigSetting
+      Id="SkipStepTimeout"
+      Text="[Settings.Players.SkipStepTimeout]"
+      HelpText="[Settings.Players.SkipStepTimeout.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.SkipStepTimeout"/>
+  
   </Register>
 </Plugin>

@@ -237,11 +237,26 @@
     <String Name="PictureShutterSpeedLabel" Text="Shutter speed: "/>
     <String Name="PictureMeteringModeLabel" Text="Metering mode: "/>
     <String Name="PictureExposureTimeLabel" Text="Exposure time: "/>
+    
+    <!-- Video Player time units -->
+    <String Name="Seconds" Text="sec"/>
+    <String Name="Minutes" Text="min"/>
+    <String Name="Hours" Text="hrs"/>
+    
+    <String Name="Start" Text="Start"/>
+    <String Name="End" Text="End"/>
+    
   </Section>
   <Section Name="Settings">
     <String Name="Players" Text="Players"/>
 
     <String Name="Players.ClosePlayersWhenFinished" Text="Close players when finished"/>
     <String Name="Players.ClosePlayersWhenFinished.Help" Text="Enable this setting to make MediaPortal close finished players automatically"/>
+
+    <String Name="Players.InstantSkipPercent" Text="Instant skip percent"/>
+    <String Name="Players.InstantSkipPercent.Help" Text="Select how many percent of video duration you want to skip instantly"/>
+
+    <String Name="Players.SkipStepTimeout" Text="Timeout in seconds for skip steps"/>
+    <String Name="Players.SkipStepTimeout.Help" Text="Adjust the timeout for user inputs before the skip step is done"/>
   </Section>
 </Language>

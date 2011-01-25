@@ -139,6 +139,8 @@
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
+    <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
+    <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
   </ItemGroup>
   <ItemGroup>

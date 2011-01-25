@@ -29,6 +29,8 @@ namespace MediaPortal.UiComponents.Media.Settings
   public class MediaModelSettings
   {
     protected const bool DEFAULT_CLOSE_PLAYER_WHEN_FINISHED = true;
+    protected const double DEFAULT_INSTANT_SKIP_PERCENT = 20;
+    protected const double DEFAULT_SKIPSTEP_TIMEOUT = 1.5f;
 
     protected bool _closePlayerWhenFinished = DEFAULT_CLOSE_PLAYER_WHEN_FINISHED;
 
@@ -38,5 +40,11 @@ namespace MediaPortal.UiComponents.Media.Settings
       get { return _closePlayerWhenFinished; }
       set { _closePlayerWhenFinished = value; }
     }
+
+    [Setting(SettingScope.Global, DEFAULT_INSTANT_SKIP_PERCENT)]
+    public double InstantSkipPercent { get; set; }
+
+    [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_TIMEOUT)]
+    public double SkipStepTimeout { get; set; }
   }
 }
