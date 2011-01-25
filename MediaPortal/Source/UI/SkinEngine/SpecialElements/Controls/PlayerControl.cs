@@ -351,16 +351,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected void CheckHeartBeat()
     {
       if (_allocated)
-        SubscribeToMessages();
-      else
-        UnsubscribeFromMessages();
-      if (IsVisible)
       {
-        UpdateProperties();
-        StartTimer();
+        SubscribeToMessages();
+        if (IsVisible)
+        {
+          UpdateProperties();
+          StartTimer();
+        }
+        else
+          StopTimer();
       }
       else
+      {
+        UnsubscribeFromMessages();
         StopTimer();
+      }
     }
 
     protected IPlayerContext GetPlayerContext()
