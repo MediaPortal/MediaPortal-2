@@ -978,8 +978,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region audio streams
 
-
-    private void SetPreferredAudio()
+    protected void SetPreferredAudio()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       if (_streamInfoAudio == null)
@@ -1052,7 +1051,7 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    private void EnumerateStreams()
+    protected virtual void EnumerateStreams()
     {
       _streamInfoAudio = new StreamInfoHandler();
       _streamInfoSubtitles = new StreamInfoHandler();
@@ -1275,7 +1274,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region ISubtitlePlayer Member
 
-    private void SetPreferredSubtitle()
+    protected void SetPreferredSubtitle()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       if (_streamInfoSubtitles == null)

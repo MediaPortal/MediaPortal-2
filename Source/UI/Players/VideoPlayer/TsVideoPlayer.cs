@@ -28,11 +28,10 @@ using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
-using MediaPortal.UI.General;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
+using System.Timers;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -48,14 +47,7 @@ namespace MediaPortal.UI.Players.Video
     #region constants and structs
 
     private const string TSREADER_FILTER_NAME = "TsReader";
-    private const string TSPLAYER_CHANNEL = "TsPlayerChannel";
-    private const string TSPLAYER_MESSAGE = "TsPlayerMessage";
-
-    private struct TsPlayerCommandStruct
-    {
-      public bool DoGraphRebuild;
-    }
-
+  
     #endregion
 
     #region variables
@@ -101,8 +93,11 @@ namespace MediaPortal.UI.Players.Video
     {
       // Render the file
       _fileSource = (IBaseFilter)new TsReader();
-      ((ITsReader)_fileSource).SetTsReaderCallback(this);
-      ((ITsReader)_fileSource).SetRelaxedMode(1);
+
+      ITsReader tsReader = (ITsReader) _fileSource;
+      tsReader.SetRelaxedMode(1);
+      tsReader.SetTsReaderCallback(this);
+      tsReader.SetRequestAudioChangeCallback(this);
 
       _graphBuilder.AddFilter(_fileSource, TSREADER_FILTER_NAME);
 
@@ -140,8 +135,15 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>0</returns>
     public int OnMediaTypeChanged(int mediaType)
     {
-      SendPlayerCommand(new TsPlayerCommandStruct {DoGraphRebuild = true});
+      Timer timer = new Timer(1) { AutoReset = false };
+      timer.Elapsed += AsynchRebuild;
+      timer.Enabled = true;
       return 0;
+    }
+
+    void AsynchRebuild(object sender, ElapsedEventArgs e)
+    {
+      DoGraphRebuild();
     }
 
     /// <summary>
@@ -180,36 +182,15 @@ namespace MediaPortal.UI.Players.Video
     public int OnRequestAudioChange()
     {
       _bRequestAudioChange = true;
+      
+      //FIXME: TsReader request an explicit choice for Audio Stream! Otherwise there is a 5 seconds delay, because
+      // the demuxer is waiting...
+      if (_streamInfoAudio == null)
+        EnumerateStreams();
+
+      if (_streamInfoAudio.Count > 0)
+        _streamInfoAudio.EnableStream(_streamInfoAudio[0].Name);
       return 0;
-    }
-
-    #endregion
-
-    #region Player message handling
-
-    protected override void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL, TSPLAYER_CHANNEL });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    protected override void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      base.OnMessageReceived(queue, message);
-      if (message.ChannelName == TSPLAYER_CHANNEL)
-      {
-        TsPlayerCommandStruct commandStruct = (TsPlayerCommandStruct)message.MessageData[TSPLAYER_MESSAGE];
-        if (commandStruct.DoGraphRebuild)
-          DoGraphRebuild();
-      }
-    }
-
-    private void SendPlayerCommand(TsPlayerCommandStruct commandStruct)
-    {
-      SystemMessage msg = new SystemMessage("message");
-      msg.MessageData[TSPLAYER_MESSAGE] = commandStruct;
-      ServiceRegistration.Get<IMessageBroker>().Send(TSPLAYER_CHANNEL, msg);
     }
 
     #endregion
@@ -279,7 +260,7 @@ namespace MediaPortal.UI.Players.Video
       ServiceRegistration.Get<ILogger>().Info("TSReaderPlayer:DoGraphRebuild()");
       if (mediaCtrl != null)
       {
-        lock (mediaCtrl)
+        lock (SyncObj)
         {
           int hr = mediaCtrl.Stop();
           if (hr != 0)
