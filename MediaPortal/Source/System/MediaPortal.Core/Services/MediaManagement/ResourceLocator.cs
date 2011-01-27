@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.Exceptions;
@@ -57,7 +58,9 @@ namespace MediaPortal.Core.Services.MediaManagement
     public IResourceAccessor CreateAccessor()
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      if (_nativeSystemId == systemResolver.LocalSystemId && _nativeResourcePath.IsValidLocalPath)
+      SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
+      // Try to access resource locally. This might work if we have the correct media providers installed.
+      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
         return _nativeResourcePath.CreateLocalResourceAccessor();
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
