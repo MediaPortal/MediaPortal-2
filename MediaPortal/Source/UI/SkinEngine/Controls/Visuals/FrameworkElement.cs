@@ -242,6 +242,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
+      _setFocus = fe.SetFocus;
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);

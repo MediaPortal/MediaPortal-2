@@ -37,9 +37,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 {
   #region Enums
   /// <summary>
-  /// An enum used to specify text-alignment.
+  /// An enum used to specify horizontal text-alignment.
   /// </summary>
-  public enum TextAlignEnum
+  public enum HorizontalTextAlignEnum
   {
     /// <summary>
     /// Align text to the left.
@@ -54,6 +54,26 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// </summary>
     Center
   };
+
+  /// <summary>
+  /// An enum used to specify vertical text-alignment.
+  /// </summary>
+  public enum VerticalTextAlignEnum
+  {
+    /// <summary>
+    /// Align text to the top.
+    /// </summary>
+    Top,
+    /// <summary>
+    /// Align text to the bottom.
+    /// </summary>
+    Bottom,
+    /// <summary>
+    /// Center align text.
+    /// </summary>
+    Center
+  };
+
 
   /// <summary>
   /// An enum used to specify text scrolling behaviour.
@@ -388,14 +408,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// Draws this text.
     /// </summary>
     /// <param name="textBox">The text box.</param>
-    /// <param name="alignment">The alignment.</param>
+    /// <param name="horzAlignment">The horizontal alignment.</param>
+    /// <param name="vertAlignment">The vertical alignment.</param>
     /// <param name="color">The color.</param>
     /// <param name="wrap">If <c>true</c> then text will be word-wrapped to fit the <paramref name="textBox"/>.</param>
     /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
-    /// <param name="finalTransform">The final combined layout-/render-transform.</param>
-    public void Render(RectangleF textBox, TextAlignEnum alignment, Color4 color, bool wrap, float zOrder,
+    /// <param name="finalTransform">The final combined layout/render-transform.</param>
+    public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color, bool wrap, float zOrder,
         TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
     {
       if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
@@ -405,14 +426,19 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           return;
       }
 
-      // Prepare alignment info for shader. X is position offset, Y is multiplyer for line width.
+      // Update scrolling
+      TextScrollEnum actualScrollMode = scrollMode;
+      if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
+        actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
+
+      // Prepare horizontal alignment info for shader. X is position offset, Y is multiplyer for line width.
       Vector4 alignParam;
-      switch (alignment)
+      switch (horzAlignment)
       {
-        case TextAlignEnum.Center:
+        case HorizontalTextAlignEnum.Center:
           alignParam = new Vector4(textBox.Width / 2.0f, -0.5f, zOrder, 1.0f);
           break;
-        case TextAlignEnum.Right:
+        case HorizontalTextAlignEnum.Right:
           alignParam = new Vector4(textBox.Width, -1.0f, zOrder, 1.0f);
           break;
         //case TextAlignEnum.Left:
@@ -420,25 +446,37 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
           break;
       }
-      // Update scrolling
-      TextScrollEnum actualScrollMode = scrollMode;
-      if (scrollMode != TextScrollEnum.None && _lastTimeUsed != DateTime.MinValue)
-        actualScrollMode = UpdateScrollPosition(textBox, scrollMode, scrollSpeed);
+      // Do vertical alignment by adjusting ScrollPos.Y
+      float yPosition = 0.0f;
+      switch (vertAlignment)
+      {
+        case VerticalTextAlignEnum.Bottom:
+          yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
+          break;
+        case VerticalTextAlignEnum.Center:
+          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);;
+          break;
+        //case TextAlignEnum.Top:
+        // Do nothing
+      }
+
       // Do we need to add fading edges?
       Vector4 fadeBorder;
-      if (CalculateFadeBorder(actualScrollMode, textBox, alignment, out fadeBorder))
+      if (CalculateFadeBorder(actualScrollMode, textBox, horzAlignment, out fadeBorder))
       {
         _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT_FADE);
         _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;
       }
       else
         _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT);
+
       // Render
       _effect.Parameters[PARAM_COLOR] = color;
       _effect.Parameters[PARAM_ALIGNMENT] = alignParam;
-      _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y, 0.0f, 0.0f);
+      _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(_scrollPos.X, _scrollPos.Y + yPosition, 0.0f, 0.0f);
       _effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
       DoRender(finalTransform);
+
       // Because text wraps around before it is complete scrolled off the screen we may need to render a second copy 
       // to create the desired wrapping effect
       if (scrollMode != TextScrollEnum.None)
@@ -543,7 +581,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Protected methods
 
-    protected bool CalculateFadeBorder(TextScrollEnum scrollMode, RectangleF textBox, TextAlignEnum alignment, out Vector4 fadeBorder)
+    protected bool CalculateFadeBorder(TextScrollEnum scrollMode, RectangleF textBox, HorizontalTextAlignEnum horzAlign, out Vector4 fadeBorder)
     {
       fadeBorder = new Vector4(0.0001f, 0.0001f, 0.0001f, 0.0001f);
       bool dofade = false;
@@ -555,9 +593,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
       else if (_lastTextSize.Width > textBox.Width)
       {
-        if (alignment == TextAlignEnum.Right || alignment == TextAlignEnum.Center)
+        if (horzAlign == HorizontalTextAlignEnum.Right || horzAlign == HorizontalTextAlignEnum.Center)
           fadeBorder.X = FADE_SIZE; // Fade on left edge
-        if (alignment == TextAlignEnum.Left || alignment == TextAlignEnum.Center)
+        if (horzAlign == HorizontalTextAlignEnum.Left || horzAlign == HorizontalTextAlignEnum.Center)
           fadeBorder.Z = FADE_SIZE; // Fade on right edge
         dofade = true;
       }

@@ -295,16 +295,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       AllocFont();
 
-      TextAlignEnum align = TextAlignEnum.Left;
-      if (TextAlign == HorizontalAlignmentEnum.Right)
-        align = TextAlignEnum.Right;
-      else if (TextAlign == HorizontalAlignmentEnum.Center)
-        align = TextAlignEnum.Center;
+      HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
+      if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
+        horzAlign = HorizontalTextAlignEnum.Right;
+      else if (HorizontalContentAlignment == HorizontalAlignmentEnum.Center)
+        horzAlign = HorizontalTextAlignEnum.Center;
+
+      VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+      if (VerticalContentAlignment == VerticalAlignmentEnum.Bottom)
+        vertAlign = VerticalTextAlignEnum.Bottom;
+      else if (VerticalContentAlignment == VerticalAlignmentEnum.Center)
+        vertAlign = VerticalTextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, align, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
     }
 
     public override void Deallocate()
