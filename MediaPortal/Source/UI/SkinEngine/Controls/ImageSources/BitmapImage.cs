@@ -313,13 +313,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
     {
-      SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
-      _frameData.Z = (float)EffectTimer;
-
-      if (IsAllocated && _imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
+      if (IsAllocated)
       {
-        _primitiveBuffer.Render(0);
-        _imageContext.EndRender();
+        SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
+        _frameData.Z = (float) EffectTimer;
+        if (_imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
+        {
+          _primitiveBuffer.Render(0);
+          _imageContext.EndRender();
+        }
       }
     }
 

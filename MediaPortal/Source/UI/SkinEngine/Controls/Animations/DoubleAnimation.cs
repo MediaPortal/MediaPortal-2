@@ -109,8 +109,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
       double from = From ?? (double)patc.StartValue;
       double to = To ?? (By.HasValue ? from + By.Value : (double) patc.OriginalValue);
+      
+      double duration = Duration.TotalMilliseconds;
+      if (timepassed > duration)
+      {
+        patc.DataDescriptor.Value = to;
+        return;
+      }
 
-      double dist = (to - from) / Duration.TotalMilliseconds;
+      double dist = (to - from) / duration;
       dist *= timepassed;
       dist += from;
 

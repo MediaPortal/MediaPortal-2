@@ -25,12 +25,21 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  public enum ScrollAutoCenteringEnum
+  {
+    None,
+    Horizontal,
+    Vertical,
+    HorizontalAndVertical
+  }
+
   public class ScrollContentPresenter : ContentPresenter, IScrollInfo, IScrollViewerFocusSupport
   {
     #region Consts
@@ -47,10 +56,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected float _actualScrollOffsetX = 0;
     protected float _actualScrollOffsetY = 0;
     protected bool _forcedOpacityMask = false;
+    protected AbstractProperty _autoCenteringProperty;
 
     #endregion
 
     #region Ctor
+
+    public ScrollContentPresenter()
+    {
+      Init();
+    }
+
+    protected void Init()
+    {
+      _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -59,6 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _canScroll = scp._canScroll;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
+      AutoCentering = scp.AutoCentering;
     }
 
     #endregion
@@ -73,14 +94,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
         return;
-      if (scrollOffsetX < ActualWidth - TotalWidth)
-        scrollOffsetX = (float) ActualWidth - TotalWidth;
-      if (scrollOffsetY < ActualHeight - TotalHeight)
-        scrollOffsetY = (float) ActualHeight - TotalHeight;
-      if (scrollOffsetX > 0)
-        scrollOffsetX = 0;
-      if (scrollOffsetY > 0)
-        scrollOffsetY = 0;
+
+      if (!IsHorzCentering)
+      {
+        if (scrollOffsetX < ActualWidth - TotalWidth)
+          scrollOffsetX = (float) ActualWidth - TotalWidth;
+        if (scrollOffsetX > 0)
+          scrollOffsetX = 0;
+      }
+      if (!IsVertCentering)
+      {
+        if (scrollOffsetY < ActualHeight - TotalHeight)
+          scrollOffsetY = (float) ActualHeight - TotalHeight;
+        if (scrollOffsetY > 0)
+          scrollOffsetY = 0;
+      }
+
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
       InvalidateLayout(false, true);
@@ -89,18 +118,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_canScroll)
+      if (_canScroll || AutoCentering != ScrollAutoCenteringEnum.None)
       {
         float differenceX = 0;
         float differenceY = 0;
-        if (elementBounds.X + elementBounds.Width > ActualPosition.X + ActualWidth)
-          differenceX = - (float) (elementBounds.X + elementBounds.Width - ActualPosition.X - ActualWidth);
-        if (elementBounds.X + differenceX < ActualPosition.X)
-          differenceX = ActualPosition.X - elementBounds.X;
-        if (elementBounds.Y + elementBounds.Height > ActualPosition.Y + ActualHeight)
-          differenceY = - (float) (elementBounds.Y + elementBounds.Height - ActualPosition.Y - ActualHeight);
-        if (elementBounds.Y + differenceY < ActualPosition.Y)
-          differenceY = ActualPosition.Y - elementBounds.Y;
+
+        if (IsHorzCentering)
+          differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
+        else if (_canScroll)
+          differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth); 
+
+        if (IsVertCentering)
+          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
+        else if (_canScroll)
+          differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
         // Change rect as if children were already re-arranged
         elementBounds.X += differenceX;
@@ -108,6 +139,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SetScrollOffset(_actualScrollOffsetX + differenceX, _actualScrollOffsetY + differenceY);
       }
       base.MakeVisible(element, elementBounds);
+    }
+
+    protected float CalculateVisibleScrollDifference(double elementPos, double elementSize, double actualPos, double actualSize)
+    {
+      double difference = 0.0f;
+      if (elementPos + elementSize > actualPos + actualSize)
+        difference = - (elementPos + elementSize - actualPos - actualSize);
+      if (elementSize + difference < actualPos)
+        difference = actualPos - elementPos;
+      return (float) difference;
+    }
+
+    protected float CalculateCenteredScrollPos(double elementPos, double elementSize, double actualPos, double actualSize)
+    {
+      return (float) ((actualSize - elementSize) / 2.0 - (elementPos - actualPos));
+    }
+
+    protected bool IsHorzCentering
+    {
+      get { return AutoCentering != ScrollAutoCenteringEnum.None && AutoCentering != ScrollAutoCenteringEnum.Vertical; }
+    }
+
+    protected bool IsVertCentering
+    {
+      get { return AutoCentering != ScrollAutoCenteringEnum.None && AutoCentering != ScrollAutoCenteringEnum.Horizontal; }
     }
 
     protected override void ArrangeTemplateControl()
@@ -122,22 +178,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
-        if (_canScroll)
+        if (_canScroll || AutoCentering != ScrollAutoCenteringEnum.None)
         {
           availableSize = _innerRect.Size;
           if (desiredSize.Width > _innerRect.Width)
           {
-            _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
+            if (!IsHorzCentering)
+              _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
             availableSize.Width = desiredSize.Width;
           }
-          else
+          else if (!IsHorzCentering)
             _scrollOffsetX = 0;
+
           if (desiredSize.Height > _innerRect.Height)
           {
-            _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
+            if (!IsVertCentering)
+              _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
             availableSize.Height = desiredSize.Height;
           }
-          else
+          else if (!IsVertCentering)
             _scrollOffsetY = 0;
           position = new PointF(_innerRect.X + _scrollOffsetX, _innerRect.Y + _scrollOffsetY);
         }
@@ -191,6 +250,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
       localRenderContext.SetUntransformedBounds(ActualBounds);
     }
+
+    #region Public properties
+
+    /// <summary>
+    /// Gets or sets a value that determines whether focused elements are automatically scrolled to the center 
+    /// of the viewport, and in which dimensions.
+    /// </summary>
+    public ScrollAutoCenteringEnum AutoCentering
+    {
+      get { return (ScrollAutoCenteringEnum) _autoCenteringProperty.GetValue(); }
+      set { _autoCenteringProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AutoCenteringProperty
+    {
+      get { return _autoCenteringProperty; }
+    }
+
+    #endregion
 
     #region IScrollViewerFocusSupport implementation
 

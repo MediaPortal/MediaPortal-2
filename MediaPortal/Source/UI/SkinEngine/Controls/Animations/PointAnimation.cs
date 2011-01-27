@@ -111,11 +111,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       Vector2 from = From ?? (Vector2) patc.StartValue;
       Vector2 to = To ?? (By.HasValue ? new Vector2(from.X + By.Value.X, from.Y + By.Value.Y) : (Vector2) patc.OriginalValue);
 
-      double distx = (to.X - from.X) / Duration.TotalMilliseconds;
+      double duration = Duration.TotalMilliseconds;
+      if (timepassed > duration)
+      {
+        patc.DataDescriptor.Value = to;
+        return;
+      }
+
+      double distx = (to.X - from.X) / duration;
       distx *= timepassed;
       distx += from.X;
 
-      double disty = (to.X - from.Y) / Duration.TotalMilliseconds;
+      double disty = (to.X - from.Y) / duration;
       disty *= timepassed;
       disty += from.Y;
 

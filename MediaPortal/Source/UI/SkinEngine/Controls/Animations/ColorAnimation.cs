@@ -129,19 +129,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           from.G + By.Value.G,
           from.B + By.Value.B) : (Color) patc.OriginalValue);
 
-      double distA = (to.A - from.A) / Duration.TotalMilliseconds;
+      double duration = Duration.TotalMilliseconds;
+      if (timepassed > duration)
+      {
+        patc.DataDescriptor.Value = to;
+        return;
+      }
+
+      double distA = (to.A - from.A) / duration;
       distA *= timepassed;
       distA += from.A;
 
-      double distR = (to.R - from.R) / Duration.TotalMilliseconds;
+      double distR = (to.R - from.R) / duration;
       distR *= timepassed;
       distR += from.R;
 
-      double distG = (to.G - from.G) / Duration.TotalMilliseconds;
+      double distG = (to.G - from.G) / duration;
       distG *= timepassed;
       distG += from.G;
 
-      double distB = (to.B - from.B) / Duration.TotalMilliseconds;
+      double distB = (to.B - from.B) / duration;
       distB *= timepassed;
       distB += from.B;
 

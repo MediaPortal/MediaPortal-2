@@ -64,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _stretchProperty;
     protected AbstractProperty _thumbnailProperty;
     protected AbstractProperty _skinNeutralProperty;
+    protected AbstractProperty _hasImageProperty;
     protected ImageSource _imageSource = null;
     protected bool _imageSourceInvalid = true;
     protected bool _imageSourceSetup = false;
@@ -88,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
       _thumbnailProperty = new SProperty(typeof(bool), false);
       _skinNeutralProperty = new SProperty(typeof(bool), false);
+      _hasImageProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -122,6 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Thumbnail = i.Thumbnail;
       SkinNeutralAR = i.SkinNeutralAR;
       _imageSourceInvalid = true;
+      HasImage = false;
       Attach();
     }
 
@@ -218,6 +221,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _skinNeutralProperty; }
     }
 
+    /// <summary>
+    /// Gets a value indicating that the control has a renderable ImageSource
+    /// </summary>
+    public bool HasImage
+    {
+      get { return (bool) _hasImageProperty.GetValue(); }
+      set { _hasImageProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasImageProperty
+    {
+      get { return _hasImageProperty; }
+    }
+
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
       ImageSource source = GetLoadedSource();
@@ -263,6 +280,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (_imageSource != null && _imageSource.SourceSize != _lastImageSourceSize)
         InvalidateLayout(true, true);
+      if (HasImage != (_imageSource != null))
+        HasImage = _imageSource != null;
+
       return _imageSource;
     }
 
