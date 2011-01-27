@@ -281,6 +281,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup background brush
       if (Background != null)
       {
+        // TODO: Draw background only in the inner rectangle (outer rect minus BorderThickness)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
@@ -304,6 +305,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup border brush
       if (BorderBrush != null && BorderThickness > 0)
       {
+        // TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))
