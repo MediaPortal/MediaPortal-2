@@ -237,7 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      ImageSource source = GetLoadedSource();
+      ImageSource source = GetLoadedSource(false);
       if (source == null || !source.IsAllocated)
       {
         _lastImageSourceSize = SizeF.Empty;
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return source.StretchSource(totalSize, imageSize, Stretch, StretchDirection);
     }
 
-    protected ImageSource GetLoadedSource()
+    protected ImageSource GetLoadedSource(bool invalidateLayout)
     {
       // If our image source has changed we need to ensure we deallocate the old one completely
       if (_imageSource != null && (_imageSourceInvalid || !_imageSource.IsAllocated))
@@ -278,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _imageSource = LoadImageSource(Source) ?? LoadImageSource(FallbackSource);
       }
 
-      if (_imageSource != null && _imageSource.SourceSize != _lastImageSourceSize)
+      if (invalidateLayout && _imageSource != null && _imageSource.SourceSize != _lastImageSourceSize)
         InvalidateLayout(true, true);
       if (HasImage != (_imageSource != null))
         HasImage = _imageSource != null;
@@ -323,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
-      ImageSource source = GetLoadedSource();
+      ImageSource source = GetLoadedSource(true);
       if (source == null)
         base.DoRender(localRenderContext);
       else
@@ -348,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Allocate()
     {
       base.Allocate();
-      GetLoadedSource();
+      GetLoadedSource(true);
     }
 
     public override void Deallocate()
