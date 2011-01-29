@@ -332,6 +332,7 @@ namespace MediaPortal.UI.Players.Video
         }
 
         // Create the Allocator / Presenter object
+        FreeEvrCallback();
         _evrCallback = new EVRCallback {CropSettings = _cropSettings};
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
@@ -597,9 +598,12 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
 
+      //FIXME: there is exactly 1 remainaing reference to _evr, which I cannot find (does the custom evr present hold it?)
+      //  call TryRelease with true to free all refrences:
+      // - Releasing filter MediaPortal.UI.Players.Video.VideoPlayer+EnhancedVideoRenderer, remaining references: 1
+      // - Releasing filter DirectShowLib.FilterGraph, remaining references: 1
       if (_graphBuilder != null)
-        FilterGraphTools.RemoveAllFilters(_graphBuilder);
-
+        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
       FilterGraphTools.TryRelease(ref _evr);
 
       if (_allocatorKey >= 0)
@@ -607,7 +611,7 @@ namespace MediaPortal.UI.Players.Video
         EvrDeinit(_allocatorKey);
         _allocatorKey = -1;
       }
-      FilterGraphTools.TryDispose(ref _evrCallback);
+      FreeEvrCallback();
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
     }
@@ -1059,6 +1063,8 @@ namespace MediaPortal.UI.Players.Video
 
     private void EnumerateStreams()
     {
+      FilterGraphTools.TryDispose(ref _streamInfoAudio);
+      FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
       _streamInfoAudio = new StreamInfoHandler();
       _streamInfoSubtitles = new StreamInfoHandler();
       if (_graphBuilder == null)
@@ -1206,7 +1212,7 @@ namespace MediaPortal.UI.Players.Video
         if (_evr != null)
           _graphBuilder.RemoveFilter(_evr);
 
-        FilterGraphTools.TryDispose(ref _evrCallback);
+        FreeEvrCallback();
         FilterGraphTools.TryRelease(ref _evr);
 
         if (_allocatorKey >= 0)
@@ -1217,10 +1223,21 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
+    protected virtual void FreeEvrCallback()
+    {
+      if (_evrCallback !=null)
+      {
+        _evrCallback.VideoSizePresent -= OnVideoSizePresent;
+        _evrCallback.Dispose();
+      }
+      _evrCallback = null;
+    }
+
     public virtual void ReallocGUIResources()
     {
       if (_graphBuilder != null)
       {
+        FreeEvrCallback();
         _evrCallback = new EVRCallback {CropSettings = _cropSettings};
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();

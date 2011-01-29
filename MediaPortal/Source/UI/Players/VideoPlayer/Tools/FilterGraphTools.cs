@@ -636,18 +636,16 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// Remove and release all filters from a DirectShow Graph
     /// </summary>
     /// <param name="graphBuilder">the IGraphBuilder interface of the graph</param>
+    /// <param name="removeAllReferences">True to release all COM references.</param>
     /// <exception cref="System.ArgumentNullException">Thrown if graphBuilder is null</exception>
     /// <exception cref="System.Runtime.InteropServices.COMException">Thrown if the method can't enumerate its filters</exception>
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
-    public static void RemoveAllFilters(IGraphBuilder graphBuilder)
+    public static void RemoveAllFilters(IGraphBuilder graphBuilder, bool removeAllReferences)
     {
       IEnumFilters enumFilters;
-      ArrayList filtersArray = new ArrayList();
 
       if (graphBuilder == null)
-      {
         throw new ArgumentNullException("graphBuilder");
-      }
 
       int hr = graphBuilder.EnumFilters(out enumFilters);
       DsError.ThrowExceptionForHR(hr);
@@ -659,19 +657,15 @@ namespace MediaPortal.UI.Players.Video.Tools
 
         while (enumFilters.Next(filters.Length, filters, fetched) == 0)
         {
-          filtersArray.Add(filters[0]);
+          graphBuilder.RemoveFilter(filters[0]);
+          enumFilters.Reset();
+          TryRelease(ref filters[0], removeAllReferences);
         }
       }
       finally
       {
-        Marshal.ReleaseComObject(enumFilters);
+        TryRelease(ref enumFilters);
         Marshal.FreeCoTaskMem(fetched);
-      }
-
-      foreach (IBaseFilter filter in filtersArray)
-      {
-        graphBuilder.RemoveFilter(filter);
-        Marshal.ReleaseComObject(filter);
       }
     }
 
