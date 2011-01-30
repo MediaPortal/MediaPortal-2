@@ -60,6 +60,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            PlayerManagerMessaging.CHANNEL,
+           PlayerContextManagerMessaging.CHANNEL,
            WorkflowManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
@@ -78,13 +79,22 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType =
-            (PlayerManagerMessaging.MessageType) message.MessageType;
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerStarted:
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
+            Update();
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
             Update();
             break;
         }
@@ -110,7 +120,8 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       IPicturePlayer pp = primaryPlayer as IPicturePlayer;
       IVideoPlayer vp = primaryPlayer as IVideoPlayer;
       IAudioPlayer ap = primaryPlayer as IAudioPlayer;
-      bool visible = (pp != null || vp != null || ap != null) && !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
+      bool visible = (pp != null || vp != null || ap != null) &&
+          !workflowManager.IsStateContainedInNavigationStack(pcPrimary.FullscreenContentWorkflowStateId);
       IResourceString displayTitleRes;
       if (ap != null)
         displayTitleRes = LocalizationHelper.CreateResourceString(RES_AUDIO_VISUALIZATION);
