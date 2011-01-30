@@ -457,13 +457,14 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           result.ExpirationTime = expirationTime;
           wasAdded = false;
-          link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
-          return result;
         }
-        wasAdded = true;
-        result = new RootEntry(_cpData.SyncObj, rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
+        else
+        {
+          result = _cpData.DeviceEntries[rootDeviceUUID] = new RootEntry(_cpData.SyncObj, rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
+          wasAdded = true;
+        }
         link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
-        return _cpData.DeviceEntries[rootDeviceUUID] = result;
+        return result;
       }
     }
 
