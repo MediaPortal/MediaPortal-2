@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -228,17 +229,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
             _pendingScrollIndex = -1;
           }
-        if (!_canScroll)
-        {
-          _actualFirstVisibleChild = 0;
-          _actualLastVisibleChild = numVisibleChildren - 1;
-        }
-        
-        // 1) Calculate scroll indices
-        float spaceLeft = actualExtendsInOrientationDirection;
 
+        // 1) Calculate scroll indices
         if (_canScroll)
         { // Calculate last visible child
+          float spaceLeft = actualExtendsInOrientationDirection;
           if (invertLayouting)
           {
             Bound(ref _actualLastVisibleChild, 0, numVisibleChildren - 1);
@@ -287,6 +282,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               }
             }
           }
+        }
+        else
+        {
+          _actualFirstVisibleChild = 0;
+          _actualLastVisibleChild = numVisibleChildren - 1;
         }
 
         // 2) Calculate start position
@@ -753,7 +753,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtBottom)
           return false;
-        SetScrollIndex(_actualFirstVisibleChild + numLines, true);
+        SetScrollIndex(_actualFirstVisibleChild + Math.Min(numLines, _actualLastVisibleChild - _actualFirstVisibleChild + 1), true);
         return true;
       }
       return false;
@@ -765,7 +765,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtTop)
           return false;
-        SetScrollIndex(_actualFirstVisibleChild - numLines, true);
+        SetScrollIndex(_actualFirstVisibleChild - Math.Min(numLines, _actualLastVisibleChild - _actualFirstVisibleChild + 1), true);
         return true;
       }
       return false;

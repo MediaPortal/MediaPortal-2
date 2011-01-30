@@ -283,17 +283,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
             _pendingScrollIndex = -1;
           }
-          if (!_canScroll)
-          {
-            _actualFirstVisibleChild = 0;
-            _actualLastVisibleChild = numItems - 1;
-          }
 
           // 1) Calculate scroll indices
-          float spaceLeft = actualExtendsInOrientationDirection;
-
           if (_canScroll)
           {
+            float spaceLeft = actualExtendsInOrientationDirection;
             if (invertLayouting)
             {
               Bound(ref _actualLastVisibleChild, 0, numItems - 1);
@@ -360,6 +354,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 }
               }
             }
+          }
+          else
+          {
+            _actualFirstVisibleChild = 0;
+            _actualLastVisibleChild = numItems - 1;
           }
 
           // 2) Arrange children
