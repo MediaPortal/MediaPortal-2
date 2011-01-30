@@ -318,14 +318,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageUp()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = ActualPosition.Y;
+      else
+      {
+        if (currentElement.ActualPosition.Y - DELTA_DOUBLE < ActualPosition.Y)
+          // Already topmost element
+          limitPosition = (float) (ActualPosition.Y - ActualHeight);
+        else
+          limitPosition = ActualPosition.Y;
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.Y >= ActualPosition.Y))
+          (currentElement.ActualPosition.Y > limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -337,14 +356,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageDown()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = (float) (ActualPosition.Y + ActualHeight);
+      else
+      {
+        if (currentElement.ActualPosition.Y + currentElement.ActualHeight + DELTA_DOUBLE > ActualPosition.Y + ActualHeight)
+          // Already at bottom
+          limitPosition = (float) (ActualPosition.Y + 2*ActualHeight);
+        else
+          limitPosition = (float) (ActualPosition.Y + ActualHeight);
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.Y + currentElement.ActualHeight <= ActualPosition.Y + ActualHeight))
+          (currentElement.ActualPosition.Y + currentElement.ActualHeight < limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -356,14 +394,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageLeft()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = ActualPosition.X;
+      else
+      {
+        if (currentElement.ActualPosition.X - DELTA_DOUBLE < ActualPosition.X)
+          // Already at left
+          limitPosition = (float) (ActualPosition.X - ActualWidth);
+        else
+          limitPosition = ActualPosition.X;
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.X >= ActualPosition.X))
+          (currentElement.ActualPosition.X > limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -375,14 +432,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageRight()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = (float) (ActualPosition.X + ActualWidth);
+      else
+      {
+        if (currentElement.ActualPosition.X + ActualWidth + DELTA_DOUBLE > ActualPosition.X + ActualWidth)
+          // Already at right
+          limitPosition = (float) (ActualPosition.X + 2*ActualWidth);
+        else
+          limitPosition = (float) (ActualPosition.X + ActualWidth);
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.X + currentElement.ActualWidth <= ActualPosition.X + ActualWidth))
+          (currentElement.ActualPosition.X + currentElement.ActualWidth < limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
