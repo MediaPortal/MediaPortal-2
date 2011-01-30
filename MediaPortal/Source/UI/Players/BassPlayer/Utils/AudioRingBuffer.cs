@@ -96,7 +96,7 @@ namespace Ui.Players.BassPlayer.Utils
     }
 
     /// <summary>
-    /// Calculates the number of samples required to store audiodata 
+    /// Calculates the number of samples required to store audio data .
     /// </summary>
     /// <param name="sampleRate"></param>
     /// <param name="channels"></param>
@@ -147,12 +147,10 @@ namespace Ui.Players.BassPlayer.Utils
       {
         readPointer = _readPointer;
         writePointer = _writePointer;
-        int space = _space;
+        if (count > _space)
+          count = _space;
 
-        if (count > space)
-          count = space;
-
-        _space = _space - count;
+        _space -= count;
         _writePointer = writePointer + count;
 
         if (_writePointer > _bufferLength)
