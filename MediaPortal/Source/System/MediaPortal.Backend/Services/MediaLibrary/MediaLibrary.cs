@@ -776,11 +776,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Adding media item aspect storage for MIA type '{0}' (name '{1}')", miam.AspectId, miam.Name);
       _miaManagement.AddMediaItemAspectStorage(miam);
     }
 
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing media item aspect storage for MIA type '{0}'", aspectId);
       _miaManagement.RemoveMediaItemAspectStorage(aspectId);
     }
 
@@ -800,6 +802,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RegisterShare(Share share)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Registering share '{0}' at system {1}: Setting name '{2}', base resource path '{3}' and media categories '{4}'",
+          share.ShareId, share.SystemId, share.Name, share.BaseResourcePath, StringUtils.Join(", ", share.MediaCategories));
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -836,6 +840,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IEnumerable<string> mediaCategories)
     {
       Guid shareId = Guid.NewGuid();
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Creating new share '{0}'", shareId);
       Share share = new Share(shareId, systemId, baseResourcePath, shareName, mediaCategories);
       RegisterShare(share);
       return shareId;
@@ -843,6 +848,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveShare(Guid shareId)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing share '{0}'", shareId);
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
@@ -866,6 +872,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveSharesOfSystem(string systemId)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing all shares of system '{0}'", systemId);
       IDictionary<Guid, Share> shares = GetShares(systemId);
       foreach (Share share in shares.Values)
         TryCancelLocalImportJobs(share);
@@ -892,6 +899,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Updating share '{0}': Setting name '{1}', base resource path '{2}' and media categories '{3}'",
+          shareId, shareName, baseResourcePath, StringUtils.Join(", ", mediaCategories));
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
@@ -919,20 +928,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (!newCategories.Contains(mediaCategory))
             RemoveMediaCategoryFromShare(transaction, shareId, mediaCategory);
 
+        int numAffected = 0;
         // Relocate media items
-        int numAffected;
         switch (relocationMode)
         {
           case RelocationMode.Relocate:
             numAffected = RelocateMediaItems(transaction, originalShare.SystemId, originalShare.BaseResourcePath, baseResourcePath);
+            ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Relocated {0} media items during share update", numAffected);
             break;
           case RelocationMode.Remove:
             numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.SystemId, originalShare.BaseResourcePath, true);
+            ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Deleted {0} media items during share update (will be re-imported)", numAffected);
             Share updatedShare = GetShare(transaction, shareId);
             TryScheduleLocalShareImport(updatedShare);
             break;
-          default:
-            throw new NotImplementedException(string.Format("RelocationMode {0} is not implemented", relocationMode));
         }
         transaction.Commit();
         return numAffected;
@@ -1019,12 +1028,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifySystemOnline(string systemId, SystemName currentSystemName)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is online at system '{1}'", systemId, currentSystemName);
       lock (_syncObj)
         _systemsOnline[systemId] = currentSystemName;
     }
 
     public void NotifySystemOffline(string systemId)
     {
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline");
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
     }

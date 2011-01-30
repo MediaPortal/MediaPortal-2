@@ -33,6 +33,7 @@ namespace MediaPortal.Backend.MediaLibrary
 {
   public enum RelocationMode
   {
+    None,
     Relocate,
     Remove
   }
