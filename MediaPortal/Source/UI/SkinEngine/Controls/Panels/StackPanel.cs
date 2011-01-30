@@ -58,7 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected bool _canScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
     // Variables to pass a scroll job to the render thread
-    protected int _pendingScrollIndex = -1;
+    protected int? _pendingScrollIndex = null;
     protected bool _scrollToFirst = true;
 
     // Index of the first visible item which will be drawn at our ActualPosition - when modified by method
@@ -144,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       lock (_renderLock)
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (_pendingScrollIndex == -1 &&
+            (!_pendingScrollIndex.HasValue &&
              ((_scrollToFirst && _actualFirstVisibleChild == childIndex) ||
               (!_scrollToFirst && _actualLastVisibleChild == childIndex))))
           return;
@@ -218,16 +218,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // That is necessary if we want to scroll a specific child to the last visible position.
         bool invertLayouting = false;
         lock (_renderLock)
-          if (_pendingScrollIndex != -1)
+          if (_pendingScrollIndex.HasValue)
           {
+            int pendingSI = _pendingScrollIndex.Value;
             if (_scrollToFirst)
-              _actualFirstVisibleChild = _pendingScrollIndex;
+              _actualFirstVisibleChild = pendingSI;
             else
             {
-              _actualLastVisibleChild = _pendingScrollIndex;
+              _actualLastVisibleChild = pendingSI;
               invertLayouting = true;
             }
-            _pendingScrollIndex = -1;
+            _pendingScrollIndex = null;
           }
 
         // 1) Calculate scroll indices

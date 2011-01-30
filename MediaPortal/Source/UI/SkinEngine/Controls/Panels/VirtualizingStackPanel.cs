@@ -110,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       lock (Children.SyncRoot)
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (_pendingScrollIndex == -1 &&
+            (!_pendingScrollIndex.HasValue &&
              ((_scrollToFirst && _actualFirstVisibleChild == childIndex) ||
               (!_scrollToFirst && _actualLastVisibleChild == childIndex))))
           return;
@@ -271,17 +271,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
-          if (_pendingScrollIndex != -1)
+          if (_pendingScrollIndex.HasValue)
           {
-            Bound(ref _pendingScrollIndex, 0, numItems - 1);
+            int pendingSI = _pendingScrollIndex.Value;
+            Bound(ref pendingSI, 0, numItems - 1);
             if (_scrollToFirst)
-              _actualFirstVisibleChild = _pendingScrollIndex;
+              _actualFirstVisibleChild = pendingSI;
             else
             {
-              _actualLastVisibleChild = _pendingScrollIndex;
+              _actualLastVisibleChild = pendingSI;
               invertLayouting = true;
             }
-            _pendingScrollIndex = -1;
+            _pendingScrollIndex = null;
           }
 
           // 1) Calculate scroll indices
