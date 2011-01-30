@@ -1035,7 +1035,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifySystemOffline(string systemId)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline");
+      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline", systemId);
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
     }
