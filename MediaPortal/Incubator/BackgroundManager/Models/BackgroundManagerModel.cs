@@ -118,7 +118,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         }
       }
 
-      BackgroundImage = DEFAULT_BACKGROUND;
+      string defaultFilePath = SkinContext.SkinResources.GetResourceFilePath(string.Format("{0}\\{1}", SkinResources.IMAGES_DIRECTORY, DEFAULT_BACKGROUND));
+      BackgroundImage = String.IsNullOrEmpty(defaultFilePath) ? null : DEFAULT_BACKGROUND;
       return;
     }
   }

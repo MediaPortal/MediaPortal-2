@@ -35,6 +35,7 @@ namespace MediaPortal.Core.MediaManagement
 {
   public enum RelocationMode
   {
+    None,
     Relocate,
     ClearAndReImport
   }

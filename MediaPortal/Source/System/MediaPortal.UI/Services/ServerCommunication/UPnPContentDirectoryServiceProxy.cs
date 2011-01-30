@@ -81,6 +81,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
         case RelocationMode.ClearAndReImport:
           relocationModeStr = "ClearAndReImport";
           break;
+        case RelocationMode.None:
+          relocationModeStr = "None";
+          break;
         default:
           throw new NotImplementedException(string.Format("RelocationMode '{0}' is not implemented", relocationMode));
       }
