@@ -146,7 +146,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       double difference = 0.0f;
       if (elementPos + elementSize > actualPos + actualSize)
         difference = - (elementPos + elementSize - actualPos - actualSize);
-      if (elementSize + difference < actualPos)
+      if (elementPos + difference < actualPos)
         difference = actualPos - elementPos;
       return (float) difference;
     }
