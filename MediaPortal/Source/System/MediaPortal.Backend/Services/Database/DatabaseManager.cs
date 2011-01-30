@@ -113,7 +113,7 @@ namespace MediaPortal.Backend.Services.Database
         int versionMinorParameterIndex;
         using (IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName,
             out versionMajorParameterIndex, out versionMinorParameterIndex))
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (reader.Read())
           {

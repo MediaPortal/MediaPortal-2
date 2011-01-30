@@ -459,7 +459,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         Type valueType = spec.AttributeType;
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (reader.Read())
             return database.ReadDBValue(valueType, reader, 0);
@@ -1328,7 +1328,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           int i = 0;
           if (reader.Read())

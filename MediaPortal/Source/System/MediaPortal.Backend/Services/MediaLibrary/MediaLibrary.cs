@@ -104,13 +104,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
 
-    protected MediaItemQuery _queryLoadItem;
-    protected RelationalFilter _filterLoadItemSystemId;
-    protected RelationalFilter _filterLoadItemPath;
-
-    protected MediaItemQuery _queryBrowse;
-    protected RelationalFilter _filterBrowseParentDirectory;
-
     public MediaLibrary()
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
@@ -118,15 +111,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
-
-      _queryLoadItem = new MediaItemQuery(new List<Guid>(), new List<Guid>(),
-          new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-            {
-              _filterLoadItemSystemId = new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, null),
-              _filterLoadItemPath = new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, null)
-            }));
-      _queryBrowse = new MediaItemQuery(new List<Guid>(), new List<Guid>(),
-          _filterBrowseParentDirectory = new RelationalFilter(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, RelationalOperator.EQ, null));
     }
 
     public void Dispose()
@@ -138,6 +122,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       get { return _localSystemId; }
     }
 
+    protected MediaItemQuery BuildLoadItemQuery(string systemId, ResourcePath path)
+    {
+      return new MediaItemQuery(new List<Guid>(), new List<Guid>(),
+          new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+            {
+              new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemId),
+              new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, path.Serialize())
+            }));
+    }
+
+    protected MediaItemQuery BuildBrowseQuery(Guid directoryItemId)
+    {
+      return new MediaItemQuery(new List<Guid>(), new List<Guid>(),
+          new RelationalFilter(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, RelationalOperator.EQ, directoryItemId));
+    }
+
     protected Share GetShare(ITransaction transaction, Guid shareId)
     {
       int systemIdIndex;
@@ -146,7 +146,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = transaction.Database;
       using (IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex,
           out pathIndex, out shareNameIndex))
-      using (IDataReader reader = command.ExecuteReader())
+      using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
       {
         if (!reader.Read())
           return null;
@@ -376,13 +376,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IList<MediaItem> items = cmiq.Execute();
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       bool removeProviderAspect = !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID);
-      foreach (MediaItem item in items)
-        if (!filterOnlyOnline || (_systemsOnline.ContainsKey((string) item.Aspects[ProviderResourceAspect.ASPECT_ID][ProviderResourceAspect.ATTR_SYSTEM_ID])))
-        {
-          if (removeProviderAspect)
-            item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
-          result.Add(item);
-        }
+      if (removeProviderAspect || filterOnlyOnline)
+      {
+        foreach (MediaItem item in items)
+          if (!filterOnlyOnline || (_systemsOnline.ContainsKey((string) item.Aspects[ProviderResourceAspect.ASPECT_ID][ProviderResourceAspect.ATTR_SYSTEM_ID])))
+          {
+            if (removeProviderAspect)
+              item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
+            result.Add(item);
+          }
+      }
+      else
+        result = items;
       return result;
     }
 
@@ -425,11 +430,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       lock (_syncObj)
       {
-        _filterLoadItemSystemId.FilterValue = systemId;
-        _filterLoadItemPath.FilterValue = path.Serialize();
-        _queryLoadItem.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
-        _queryLoadItem.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
-        return Search(_queryLoadItem, false).FirstOrDefault();
+        MediaItemQuery loadItemQuery = BuildLoadItemQuery(systemId, path);
+        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        return Search(loadItemQuery, false).FirstOrDefault();
       }
     }
 
@@ -438,10 +442,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       lock (_syncObj)
       {
-        _filterBrowseParentDirectory.FilterValue = parentDirectoryId;
-        _queryBrowse.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
-        _queryBrowse.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
-        return Search(_queryBrowse, false);
+        MediaItemQuery browseQuery = BuildBrowseQuery(parentDirectoryId);
+        browseQuery.SetNecessaryRequestedMIATypeIDs(necessaryRequestedMIATypeIDs);
+        browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+        return Search(browseQuery, false);
       }
     }
 
@@ -563,7 +567,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int playlistTypeIndex;
         using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId,
             out playlistNameIndex, out playlistTypeIndex))
-          using (IDataReader reader = command.ExecuteReader())
+          using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
             if (reader.Read())
               plExists = true;
         if (!plExists)
@@ -596,7 +600,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         string name;
         string playlistType;
         using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId, out nameIndex, out playlistTypeIndex))
-          using (IDataReader reader = command.ExecuteReader())
+          using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
             if (reader.Read())
             {
               name = database.ReadDBValue<string>(reader, nameIndex);
@@ -631,7 +635,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         string playlistName;
         string playlistType;
         using (IDbCommand command = MediaLibrary_SubSchema.SelectPlaylistIdentificationDataCommand(transaction, playlistId, out nameIndex, out playlistTypeIndex))
-          using (IDataReader reader = command.ExecuteReader())
+          using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
             if (reader.Read())
             {
               playlistName = database.ReadDBValue<string>(reader, nameIndex);
@@ -803,7 +807,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int shareIdIndex;
         using (IDbCommand command = MediaLibrary_SubSchema.SelectShareIdCommand(
             transaction, share.SystemId, share.BaseResourcePath, out shareIdIndex))
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (reader.Read())
             throw new ShareExistsException("A share with the given system '{0}' and path '{1}' already exists",
