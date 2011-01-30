@@ -244,9 +244,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string escapedPath = SqlUtils.LikeEscape(path, '\\');
           if (inclusive)
             // The path itself
-            database.AddParameter(command, "PATH1", path + "/", typeof(string));
+            database.AddParameter(command, "PATH1", path, typeof(string));
           // Normal children
-          database.AddParameter(command, "PATH2", escapedPath + "/_%", typeof(string));
+          database.AddParameter(command, "PATH2", escapedPath + "/%", typeof(string));
           // Chained children
           database.AddParameter(command, "PATH3", escapedPath + ">_%", typeof(string));
         }
