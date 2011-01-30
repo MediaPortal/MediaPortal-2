@@ -240,11 +240,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               pathAttribute + " LIKE @PATH2 ESCAPE '\\' OR " +
               pathAttribute + " LIKE @PATH3 ESCAPE '\\'" +
               ")";
-          string path = StringUtils.RemovePrefixIfPresent(basePath.Serialize(), "/");
+          string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
           string escapedPath = SqlUtils.LikeEscape(path, '\\');
           if (inclusive)
             // The path itself
-            database.AddParameter(command, "PATH1", path, typeof(string));
+            database.AddParameter(command, "PATH1", path + "/", typeof(string));
           // Normal children
           database.AddParameter(command, "PATH2", escapedPath + "/_%", typeof(string));
           // Chained children
