@@ -160,6 +160,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
 
     public const string RES_MORE_THAN_MAX_ITEMS_HINT = "[Media.MoreThanMaxItemsHint]";
+    public const string RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT = "[Media.MoreThanMaxItemsBrowseHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT = "[Media.MoreThanMaxItemsSearchResultHint]";
     public const string RES_LIST_BEING_BUILT_HINT = "[Media.ListIsBeingBuiltHint]";
     public const string RES_SEARCH_RESULT_BEING_BUILT_HINT = "[Media.SearchResultIsBeingBuiltHint]";
@@ -304,6 +305,6 @@ namespace MediaPortal.UiComponents.Media.General
           PictureAspect.ASPECT_ID,
       };
 
-    public const int MAX_NUM_ITEMS_VISIBLE = 500;
+    public const int MAX_NUM_ITEMS_VISIBLE = 5000;
   }
 }

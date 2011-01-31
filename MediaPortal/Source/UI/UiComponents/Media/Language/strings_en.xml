@@ -119,6 +119,7 @@
     <String Name="NOfMItems" Text="{0}/{1} items"/> <!-- Shown in the header of an items list, e.g. "15/350 items" -->
     <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list, e.g. "45 items" -->
     <String Name="MoreThanMaxItemsHint" Text="This view contains more than {0} items. Please restrict the number of items by adding more filters."/>
+    <String Name="MoreThanMaxItemsBrowseHint" Text="This view contains more than {0} items."/>
     <String Name="MoreThanMaxItemsSearchResultHint" Text="The search result contains more than {0} items. Please narrow your search."/>
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>
     <String Name="SearchResultIsBeingBuiltHint" Text="Searching..."/>
