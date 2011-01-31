@@ -299,6 +299,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
+      _elementState = ElementState.Disposing; // Not necessary to call SetElementState; children will set their state to Disposing by theirselves
       base.Dispose();
       foreach (UIElement child in GetChildren())
         child.CleanupAndDispose();
@@ -633,11 +634,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected internal void CleanupAndDispose()
     {
+      Dispose(); // First dispose bindings before we can reset our VisualParent
       VisualParent = null;
-      SetElementState(ElementState.Disposing);
       ResetScreen();
       Deallocate();
-      Dispose();
     }
 
     protected static internal void TryCleanupAndDispose(ref object obj)
