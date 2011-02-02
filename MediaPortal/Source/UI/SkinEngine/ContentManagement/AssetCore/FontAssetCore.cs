@@ -67,11 +67,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
 
-      _charSet = new BitmapCharacterSet
+      _charSet = new BitmapCharacterSet(face.num_glyphs)
         {
-            RenderedSize = size,
-            Width = MAX_WIDTH,
-            Height = MAX_HEIGHT
+          RenderedSize = size,
+          Width = MAX_WIDTH,
+          Height = MAX_HEIGHT
         };
       _charSet.Base = _charSet.RenderedSize * face.ascender / face.height;
     }
@@ -221,20 +221,26 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       AddGlyph(0);
     }
 
-    /// <summary>Adds a glyph to the font set.</summary>
-    /// <param name="charIndex">The char to add.</param>
-    private bool AddGlyph(uint charIndex)
+    /// <summary>Adds a glyph to the font set by character code.</summary>
+    /// <param name="character">The char to add.</param>
+    private bool AddChar(char character)
+    {
+      return AddGlyph(GlyphIndex(character));
+    }
+
+
+    /// <summary>Adds a glyph to the font set by glyph index.</summary>
+    /// <param name="glyphIndex">The index of the glyph to add.</param>
+    private bool AddGlyph(uint glyphIndex)
     {
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
       float point_size = 64.0f * _charSet.RenderedSize * 72.0f / _resolution;
       FT.FT_Set_Char_Size(_family.Face, (int) point_size, 0, _resolution, 0);
-      uint glyphIndex = FT.FT_Get_Char_Index(_family.Face, charIndex);
 
-      // Font does not contain glyph
-      if (glyphIndex == 0 && charIndex != 0)
-        // Copy 'not defined' glyph
-        return _charSet.SetCharacter(charIndex, _charSet.GetCharacter(0));
+      // Font does not contain that glyph, the 'missing' glyph will be shown instead
+      if (glyphIndex == 0 && _charSet.GetCharacter(0) != null)
+        return false;
 
       // Load the glyph for the current character.
       if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
@@ -262,7 +268,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       int pwidth = cwidth + 3 * PAD;
       int pheight = cheight + 3 * PAD;
 
-      if (!_charSet.IsInRange(charIndex))
+      // Check glyph index is in the character set range.
+      if (!_charSet.IsInRange(glyphIndex))
         return false;
 
       // Check glyph fits in our texture
@@ -276,7 +283,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         return false;
 
       // Create and store a BitmapCharacter for this glyph
-      _charSet.SetCharacter(charIndex, CreateCharacter(Glyph));
+      _charSet.SetCharacter(glyphIndex, CreateCharacter(Glyph));
 
       // Copy the glyph bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
@@ -294,18 +301,23 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return true;
     }
 
+    private uint GlyphIndex(uint charIndex)
+    {
+      return FT.FT_Get_Char_Index(_family.Face, charIndex);
+    }
+
     private BitmapCharacter CreateCharacter(FT_BitmapGlyph Glyph)
     {
       BitmapCharacter result = new BitmapCharacter
         {
-            Width = Glyph.bitmap.width + PAD*2,
-            Height = Glyph.bitmap.rows + PAD*2,
-            X = _currentX,
-            Y = _currentY,
-            XOffset = Glyph.left,
-            YOffset = _charSet.Base - Glyph.top,
-            // Convert fixed point 16.16 to float by divison with 2^16
-            XAdvance = (int) (Glyph.root.advance.x/65536.0f)
+          Width = Glyph.bitmap.width + PAD * 2,
+          Height = Glyph.bitmap.rows + PAD * 2,
+          X = _currentX,
+          Y = _currentY,
+          XOffset = Glyph.left,
+          YOffset = _charSet.Base - Glyph.top,
+          // Convert fixed point 16.16 to float by divison with 2^16
+          XAdvance = (int) (Glyph.root.advance.x / 65536.0f)
         };
       return result;
     }
@@ -374,7 +386,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         liney += _charSet.RenderedSize;
       }
 
-      textSize = new SizeF(0.0f, verts[verts.Count-1].Y);
+      textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
 
       /// Stores the line widths as the Z coordinate of the verices. This means alignment
       ///     can be performed by a vertex shader durng rendering
@@ -409,7 +421,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         x += c.XAdvance;
       }
       // Make sure there is a t least one character
-      if (verts.Count == 0) {
+      if (verts.Count == 0)
+      {
         BitmapCharacter c = Character(' ');
         CreateQuad(c, sizeScale, c.XOffset, c.YOffset, ref verts);
       }
@@ -446,13 +459,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       verts.Add(br);
     }
 
-    protected BitmapCharacter Character(char c)
+    protected BitmapCharacter Character(char character)
     {
-      BitmapCharacter result = _charSet.GetCharacter(c);
+      uint glyphIndex = GlyphIndex(character);
+      BitmapCharacter result = _charSet.GetCharacter(glyphIndex);
+      if (glyphIndex == 0)
+        result = null;
       if (result == null)
-        if (!AddGlyph(c))
+      {
+        if (!AddGlyph(glyphIndex))
           return _charSet.GetCharacter(0);
-      return _charSet.GetCharacter(c);
+        return _charSet.GetCharacter(glyphIndex);
+      }
+      return result;
     }
 
     protected int GetKerningAmount(BitmapCharacter first, char second)
@@ -496,23 +515,25 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
   {
-    public const int MAX_CHARS = 4096;
     public int Base;
     public int RenderedSize;
     public int Width;
     public int Height;
-    private BitmapCharacter[] _characters = new BitmapCharacter[MAX_CHARS];
+    private BitmapCharacter[] _characters;
+
+    public BitmapCharacterSet(int number_of_glyphs)
+    {
+      _characters = new BitmapCharacter[number_of_glyphs];
+    }
 
     public BitmapCharacter GetCharacter(uint index)
     {
-      if (index >= MAX_CHARS)
-        return null;
-      return _characters[index];
+      return IsInRange(index) ? _characters[index] : null;
     }
 
     public bool SetCharacter(uint index, BitmapCharacter character)
     {
-      if (index >= MAX_CHARS)
+      if (!IsInRange(index))
         return false;
       _characters[index] = character;
       return true;
@@ -520,12 +541,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsInRange(uint index)
     {
-      return index < MAX_CHARS;
+      return index < _characters.Length;
     }
 
     public void Clear()
     {
-      _characters = new BitmapCharacter[MAX_CHARS];
+      _characters = new BitmapCharacter[_characters.Length];
     }
   }
 
@@ -552,13 +573,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       BitmapCharacter result = new BitmapCharacter
         {
-            X = X,
-            Y = Y,
-            Width = Width,
-            Height = Height,
-            XOffset = XOffset,
-            YOffset = YOffset,
-            XAdvance = XAdvance
+          X = X,
+          Y = Y,
+          Width = Width,
+          Height = Height,
+          XOffset = XOffset,
+          YOffset = YOffset,
+          XAdvance = XAdvance
         };
       result.KerningList.AddRange(KerningList);
       result.Page = Page;
