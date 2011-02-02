@@ -532,7 +532,7 @@ namespace MediaPortal.UI.Services.Workflow
             // removed here (see method UpdateScreen_NeedsLock)
             Guid? dialogInstanceId = oldContext.DialogInstanceId;
             if (dialogInstanceId.HasValue)
-              screenManager.CloseDialogs(oldContext.DialogInstanceId.Value, false);
+              screenManager.CloseDialogs(oldContext.DialogInstanceId.Value, true);
           }
           
           // Store model exceptions

@@ -77,6 +77,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// Internal message to reload the screen and all open dialogs.
       /// </summary>
       ReloadScreens,
+
+      /// <summary>
+      /// Internal message to indicate that the current screen is about to be closed. This is sent prior to ShowScreen 
+      /// to trigger hiding events / animations while the next screen is being prepared. The parameter 
+      /// <see cref="ScreenManagerMessaging.SCREEN"> is used to indicate which screen is being closed.
+      /// </summary>
+      ScreenClosing,
     }
 
     // Message data
@@ -119,6 +126,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     internal static void SendMessageReloadScreens()
     {
       SystemMessage msg = new SystemMessage(MessageType.ReloadScreens);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageScreenClosing(Screen screen)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.ScreenClosing);
+      msg.MessageData[SCREEN] = screen;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

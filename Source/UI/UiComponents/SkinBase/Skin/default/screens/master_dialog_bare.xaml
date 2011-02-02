@@ -68,4 +68,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}"/>
     </Grid>
   </Border>
+  <Grid.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource DialogGotFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Close">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource DialogLostFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Grid.Triggers>
 </Grid>

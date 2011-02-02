@@ -118,6 +118,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _handoffBehaviorProperty.SetValue(value); }
     }
 
+    public override double DurationInMilliseconds
+    {
+      get { return Storyboard.ActualDurationInMilliseconds; }
+    }
+
     #endregion
 
     public override void Execute(UIElement element)

@@ -80,6 +80,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty.GetValue() as IList<DoubleKeyFrame>; }
     }
 
+    public override double ActualDurationInMilliseconds
+    {
+      get
+      {
+        if (DurationSet)
+          return Duration.TotalMilliseconds;
+        return (KeyFrames.Count > 0) ? KeyFrames[KeyFrames.Count - 1].KeyTime.TotalMilliseconds : 0.0;
+      }
+    }
+
     #endregion
 
     #region Animation methods

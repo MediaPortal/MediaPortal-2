@@ -45,7 +45,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
+using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -348,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Freezable
     {
-      get { return (bool)_freezableProperty.GetValue(); }
+      get { return (bool) _freezableProperty.GetValue(); }
       set { _freezableProperty.SetValue(value); }
     }
 
@@ -433,7 +433,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
           catch (ArgumentException)
           {
-            ServiceRegistration.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
+            ServiceRegistration.Get<ILogger>().Warn("Name '" + Name + "' was registered twice in namescope '" + ns + "'");
           }
       }
     }
@@ -445,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Thickness Margin
     {
-      get { return (Thickness)_marginProperty.GetValue(); }
+      get { return (Thickness) _marginProperty.GetValue(); }
       set { _marginProperty.SetValue(value); }
     }
 
@@ -876,7 +876,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public UIElement FindElement_BreadthFirst(IMatcher matcher)
     {
-      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] {this});
+      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] { this });
       LinkedListNode<UIElement> current;
       while ((current = searchList.First) != null)
       {
@@ -898,7 +898,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void ForEachElementInTree_BreadthFirst(IUIElementAction action)
     {
-      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] {this});
+      LinkedList<UIElement> searchList = new LinkedList<UIElement>(new UIElement[] { this });
       LinkedListNode<UIElement> current;
       while ((current = searchList.First) != null)
       {
@@ -1004,7 +1004,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public static bool LessThanOrClose(double x, double y)
     {
-      return x< y || IsNear(x, y);
+      return x < y || IsNear(x, y);
     }
 
     #region IContentEnabled members

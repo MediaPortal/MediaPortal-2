@@ -28,6 +28,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerAction: DependencyObject
   {
+    public virtual double DurationInMilliseconds
+    {
+      get { return 0.0; }
+    }
+
     public virtual void Execute(UIElement element)
     { }
 
