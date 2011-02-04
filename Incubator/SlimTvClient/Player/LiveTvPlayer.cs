@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Settings;
@@ -78,9 +79,12 @@ namespace MediaPortal.Plugins.SlimTvClient
         int i = 0;
         foreach (ITimeshiftContext timeshiftContext in _timeshiftContexes)
         {
+          string program = timeshiftContext.Program != null ? timeshiftContext.Program.Title : 
+            ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
+
           _chapterInfo.AddUnique(new StreamInfo(null, i++,
                                                 string.Format("{0}: {1}", timeshiftContext.Channel.Name,
-                                                              timeshiftContext.Program.Title), 0));
+                                                              program), 0));
         }
       }
     }

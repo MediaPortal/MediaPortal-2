@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
     public Program()
     {}
 
-    public Program(WebProgram webProgram)
+    public Program(WebProgramDetailed webProgram)
     {
       Description = webProgram.Description;
       StartTime = webProgram.StartTime;

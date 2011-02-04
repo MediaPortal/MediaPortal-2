@@ -142,7 +142,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
       foreach (WebChannelBasic webChannel in tvChannels)
       {
-        channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.Name });
+        channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName });
       }
       return true;
     }
@@ -153,7 +153,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
       if (tvChannel != null)
       {
-        channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.Name};
+        channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName};
         return true;
       }
       return false;
@@ -210,7 +210,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (channel == null)
         return false;
 
-      WebProgram tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
+      WebProgramDetailed tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
       if (tvProgram != null)
       {
         program = new Program(tvProgram);
@@ -228,7 +228,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       IProgram currentProgram;
       if (GetCurrentProgram(channel, out currentProgram))
       {
-        List<WebProgram> nextPrograms = _tvServer.GetProgramsForChannel(channel.ChannelId,
+        List<WebProgramDetailed> nextPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId,
                                                                        currentProgram.EndTime.AddMinutes(1),
                                                                        currentProgram.EndTime.AddMinutes(1));
         if (nextPrograms != null && nextPrograms.Count > 0)
@@ -248,8 +248,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       programs = new List<IProgram>();
 
-      List<WebProgram> tvPrograms = _tvServer.GetProgramsForChannel(channel.ChannelId, from, to);
-      foreach (WebProgram webProgram in tvPrograms)
+      List<WebProgramDetailed> tvPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId, from, to);
+      foreach (WebProgramDetailed webProgram in tvPrograms)
         programs.Add(new Program(webProgram));
 
       return true;
