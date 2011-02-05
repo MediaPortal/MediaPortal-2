@@ -74,6 +74,12 @@
       Text="[Settings.Players.SkipStepTimeout]"
       HelpText="[Settings.Players.SkipStepTimeout.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.SkipStepTimeout"/>
-  
+
+    <ConfigSetting
+      Id="SkipStepList"
+      Text="[Settings.Players.SkipStepList]"
+      HelpText="[Settings.Players.SkipStepList.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.SkipStepList"/>
+
   </Register>
 </Plugin>

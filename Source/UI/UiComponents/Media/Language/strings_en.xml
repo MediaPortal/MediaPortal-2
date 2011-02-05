@@ -258,5 +258,8 @@
 
     <String Name="Players.SkipStepTimeout" Text="Timeout in seconds for skip steps"/>
     <String Name="Players.SkipStepTimeout.Help" Text="Adjust the timeout for user inputs before the skip step is done"/>
+
+    <String Name="Players.SkipStepList" Text="Player skip steps"/>
+    <String Name="Players.SkipStepList.Help" Text="Enter skip steps in seconds separated by ,"/>
   </Section>
 </Language>
