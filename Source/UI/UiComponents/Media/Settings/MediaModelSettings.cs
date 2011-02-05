@@ -31,6 +31,7 @@ namespace MediaPortal.UiComponents.Media.Settings
     protected const bool DEFAULT_CLOSE_PLAYER_WHEN_FINISHED = true;
     protected const double DEFAULT_INSTANT_SKIP_PERCENT = 20;
     protected const double DEFAULT_SKIPSTEP_TIMEOUT = 1.5f;
+    protected const string DEFAULT_SKIPSTEP_LIST = "15,30,60,180,300,600,900,1800,3600,7200"; // list of seconds
 
     protected bool _closePlayerWhenFinished = DEFAULT_CLOSE_PLAYER_WHEN_FINISHED;
 
@@ -41,10 +42,22 @@ namespace MediaPortal.UiComponents.Media.Settings
       set { _closePlayerWhenFinished = value; }
     }
 
+    /// <summary>
+    /// Percent to instant skip playback back-/forward.
+    /// </summary>
     [Setting(SettingScope.Global, DEFAULT_INSTANT_SKIP_PERCENT)]
     public double InstantSkipPercent { get; set; }
 
+    /// <summary>
+    /// Timeout in seconds before skip step is executed.
+    /// </summary>
     [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_TIMEOUT)]
     public double SkipStepTimeout { get; set; }
+
+    /// <summary>
+    /// List of seconds to be allowed for skip steps.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_LIST)]
+    public string SkipStepList { get; set; }
   }
 }

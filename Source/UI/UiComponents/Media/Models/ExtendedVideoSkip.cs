@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
@@ -42,6 +43,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected List<int> _skipSteps = new List<int>();
     protected Timer _skipStepTimer;
     protected AbstractProperty _skipStepProperty;
+    private const string SKIP_OSD_SUPERLAYER_SCREEN_NAME = "SkipStepOSD";
 
     public const string MODEL_ID_STR = "8573DBD8-A257-426a-9875-9DB155D32D47";
 
@@ -100,6 +102,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (pc == null)
         return;
 
+      ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       pc.InstantSkip((int)settings.InstantSkipPercent);
     }
@@ -113,7 +116,8 @@ namespace MediaPortal.UiComponents.Media.Models
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-
+         
+      ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       pc.InstantSkip(-(int)settings.InstantSkipPercent);
     }
@@ -130,8 +134,9 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void InitSkipSteps()
     {
-      // TODO: settings
-      String stepList = "15,30,60,180,300,600,900,1800,3600,7200";
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      String stepList = settings.SkipStepList;
+
       _skipSteps.Clear();
       foreach (string step in stepList.Split(new char[] { ',' }))
       {
@@ -189,10 +194,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void ReSetSkipTimer()
     {
-      // TODO: settings for timer interval
+      ShowSkipOSD();
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       if (_skipStepTimer == null)
       {
-        _skipStepTimer = new Timer(1500) { Enabled = true, AutoReset = false };
+        _skipStepTimer = new Timer(settings.SkipStepTimeout*1000) { Enabled = true, AutoReset = false };
         _skipStepTimer.Elapsed += SkipStepTimerElapsed;
       }
       else
@@ -201,6 +207,28 @@ namespace MediaPortal.UiComponents.Media.Models
         _skipStepTimer.Stop();
         _skipStepTimer.Start();
       }
+    }
+
+    private void ShowSkipOSD()
+    {
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+      superLayerManager.ShowSuperLayer(SKIP_OSD_SUPERLAYER_SCREEN_NAME, TimeSpan.FromSeconds(settings.SkipStepTimeout));
+    }
+
+    private void HideSkipOSD()
+    {
+      //ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+      //superLayerManager.ShowSuperLayer(null, TimeSpan.FromSeconds(-1));
+    }
+
+    private void ClearSkipTimer()
+    {
+      if (_skipStepTimer != null)
+        _skipStepTimer.Stop();
+      
+      SkipStep = null;
+      HideSkipOSD();
     }
 
     private void SkipStepTimerElapsed(object sender, ElapsedEventArgs e)
