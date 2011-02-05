@@ -85,6 +85,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Execute(UIElement element)
     {
+      string source = Source;
+      if (string.IsNullOrEmpty(source))
+        return;
       if (_disableOnAudioOutput)
       {
         IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
@@ -93,13 +96,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
         if (player1 is IAudioPlayer || player1 is IVideoPlayer || player2 is IAudioPlayer || player2 is IVideoPlayer)
           return;
       }
-      string source = Source;
-      if (!string.IsNullOrEmpty(source))
-      {
-        using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
-            SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
-          simpleSound.Play();
-      }
+      using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
+          SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
+        simpleSound.Play();
     }
   }
 }
