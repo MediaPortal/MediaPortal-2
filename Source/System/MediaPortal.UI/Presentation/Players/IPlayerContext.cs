@@ -189,7 +189,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// Sets a special <paramref name="effect"/> for the <see cref="CurrentPlayer"/>, if it is a compatible player.
     /// The effect will only be applied to the current player. It will be lost when the current player is disposed.
     /// </summary>
-    /// <param name="geometry">The geometry to be used with the <see cref="CurrentPlayer"/>.</param>
+    /// <param name="effect">The effect to be used with the <see cref="CurrentPlayer"/>.</param>
     void OverrideEffect(string effect);
 
     /// <summary>
@@ -274,14 +274,10 @@ namespace MediaPortal.UI.Presentation.Players
     bool NextItem();
 
     /// <summary>
-    /// InstantSkipForward immediately skips the playback position forward by a specific percentual value.
+    /// InstantSkipForward immediately skips the playback position forward/backward by a specific percentual value.
     /// </summary>
-    void InstantSkipForward();
-
-    /// <summary>
-    /// InstantSkipBackward immediately skips the playback position backward by a specific percentual value.
-    /// </summary>
-    void InstantSkipBackward();
+    /// <param name="percent">Skip percent (+/- supported).</param>
+    void InstantSkip(int percent);
 
     /// <summary>
     /// Checks the player if the requested skip can be done. If the total duration and current playback position do not 

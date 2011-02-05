@@ -190,7 +190,7 @@ namespace MediaPortal.UI.Services.Players
         player.SetPlaybackRate(4*newRate);
     }
 
-    protected void InstantSkip(bool forward, int skipPercent)
+    public void InstantSkip(int skipPercent)
     {
       IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
       if (player == null)
@@ -199,15 +199,16 @@ namespace MediaPortal.UI.Services.Players
       TimeSpan currentPosition = player.CurrentTime;
       TimeSpan duration = player.Duration;
       double skipSeconds = skipPercent * player.Duration.TotalSeconds / 100;
-      if (forward)
+      if (skipSeconds > 0)
       {
         if (currentPosition.TotalSeconds + skipSeconds < duration.TotalSeconds)
           player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
       }
       else
       {
-        if (currentPosition.TotalSeconds - skipSeconds > 0)
-          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(-skipSeconds));
+        // skipSeconds is negative
+        if (currentPosition.TotalSeconds + skipSeconds > 0)
+          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
         else
           player.CurrentTime = TimeSpan.FromSeconds(0); // seek to beginning
       }
@@ -484,19 +485,6 @@ namespace MediaPortal.UI.Services.Players
     public void SeekBackward()
     {
       Seek(-0.5);
-    }
-
-    public void InstantSkipForward()
-    {
-      // todo: introduce setting and use it here
-      int percent = 20;
-      InstantSkip(true, percent);
-    }
-
-    public void InstantSkipBackward()
-    {
-      int percent = 20;
-      InstantSkip(false, percent);
     }
 
     public bool CanSkipRelative(TimeSpan skipDuration)

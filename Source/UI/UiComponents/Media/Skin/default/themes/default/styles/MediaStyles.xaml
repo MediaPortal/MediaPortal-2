@@ -30,6 +30,7 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+            <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
           </ControlTemplate.Resources>
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
               CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
@@ -100,6 +101,7 @@
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -108,7 +110,11 @@
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
                     Content="{Binding PlayerStateText}" Scroll="Auto"/>
-                <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
+                
+                <Label x:Name="SkipStepLabel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center"
+                    Content="{Binding Source={StaticResource ExtendedVideoSkip}, Path=SkipStep}" />
+
+                <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
                     IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
                   <Label Content="/" Margin="4,0,4,0"/>
@@ -232,6 +238,7 @@
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -240,7 +247,11 @@
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
                     Content="{Binding PlayerStateText}" Scroll="Auto"/>
-                <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
+
+                <Label x:Name="SkipStepLabel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center"
+                    Content="{Binding SkipStep}" />
+
+                <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
                     IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
                   <Label Content="/" Margin="4,0,4,0"/>
