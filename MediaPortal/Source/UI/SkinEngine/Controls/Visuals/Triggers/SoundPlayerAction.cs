@@ -96,9 +96,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       string source = Source;
       if (!string.IsNullOrEmpty(source))
       {
-        SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
-            SkinResources.SOUNDS_DIRECTORY + "\\" + source));
-        simpleSound.Play();
+        using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(
+            SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
+          simpleSound.Play();
       }
     }
   }
