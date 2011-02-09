@@ -25,7 +25,7 @@
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
-  /// Will be used for the <see cref="IScrollInfo.Scrolled"/> event.
+  /// Used for the <see cref="IScrollInfo.Scrolled"/> event.
   /// </summary>
   /// <param name="sender">The <see cref="IScrollInfo"/> instance which scrolled.</param>
   public delegate void ScrolledDlgt(object sender);
@@ -47,18 +47,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public interface IScrollInfo
   {
     /// <summary>
-    /// Will be called when 
+    /// Called when this <see cref="IScrollInfo"/> element scrolled.
     /// </summary>
     event ScrolledDlgt Scrolled;
 
     /// <summary>
     /// Gets or switches the ability to scroll. If this property is set, this object
     /// is contained in a scroll container. This may affect the desired width and height
-    /// this object will declare: If <see cref="CanScroll"/> is set to <c>true</c>,
-    /// this object may declare a lesser size as desired size than if <see cref="CanScroll"/> is
+    /// this object will declare: If <see cref="ScrollLogical"/> is set to <c>true</c>,
+    /// this object may declare a lesser size as desired size than if <see cref="ScrollLogical"/> is
     /// set to false.
     /// </summary>
-    bool CanScroll { get; set; }
+    bool ScrollLogical { get; set; }
 
     /// <summary>
     /// Returns the total width of all items to be displayed. This is normally equal or bigger

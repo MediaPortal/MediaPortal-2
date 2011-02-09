@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected char _startsWith = ' ';
     protected int _startsWithIndex = 0;
     protected Panel _itemsHostPanel = null;
-    protected bool _canScroll = false;
+    protected bool _scrollLogical = false;
     protected IList<string> _dataStrings = null;
 
     #endregion
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsPresenter ip = (ItemsPresenter) source;
       _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
-      _canScroll = ip._canScroll;
+      _scrollLogical = ip._scrollLogical;
       _dataStrings = ip._dataStrings;
       AttachScrolling();
     }
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
       {
-        si.CanScroll = _canScroll;
+        si.ScrollLogical = _scrollLogical;
         si.Scrolled += OnItemsPanelScrolled; // Repeat the Scrolled event to our subscribers
       }
     }
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
-        si.CanScroll = _canScroll;
+        si.ScrollLogical = _scrollLogical;
     }
 
     void OnItemsPanelScrolled(object sender)
@@ -299,12 +299,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool CanScroll
+    public bool ScrollLogical
     {
-      get { return _canScroll; }
+      get { return _scrollLogical; }
       set
       {
-        _canScroll = value;
+        _scrollLogical = value;
         UpdateCanScroll();
       }
     }

@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected bool _canScroll = false;
+    protected bool _scrollLogical = false;
     protected float _scrollOffsetX = 0;
     protected float _scrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
-      _canScroll = scp._canScroll;
+      _scrollLogical = scp._scrollLogical;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
       AutoCentering = scp.AutoCentering;
@@ -118,19 +118,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_canScroll || AutoCentering != ScrollAutoCenteringEnum.None)
+      if (_scrollLogical || AutoCentering != ScrollAutoCenteringEnum.None)
       {
         float differenceX = 0;
         float differenceY = 0;
 
         if (IsHorzCentering)
           differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
-        else if (_canScroll)
+        else if (_scrollLogical)
           differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth); 
 
         if (IsVertCentering)
           differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
-        else if (_canScroll)
+        else if (_scrollLogical)
           differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
         // Change rect as if children were already re-arranged
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
-        if (_canScroll || AutoCentering != ScrollAutoCenteringEnum.None)
+        if (_scrollLogical || AutoCentering != ScrollAutoCenteringEnum.None)
         {
           availableSize = _innerRect.Size;
           if (desiredSize.Width > _innerRect.Width)
@@ -505,10 +505,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool CanScroll
+    public bool ScrollLogical
     {
-      get { return _canScroll; }
-      set { _canScroll = value; }
+      get { return _scrollLogical; }
+      set { _scrollLogical = value; }
     }
 
     public float TotalWidth
