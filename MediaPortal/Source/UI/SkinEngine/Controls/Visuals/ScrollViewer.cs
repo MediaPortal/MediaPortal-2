@@ -93,15 +93,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollBarYKnobHeight = sv.ScrollBarYKnobHeight;
       CanContentScroll = sv.CanContentScroll;
       Attach();
-      copyManager.CopyCompleted += OnCopyCompleted;
+      copyManager.CopyCompleted += manager => ConfigureContentScrollFacility();
     }
 
     #endregion
-
-    void OnCopyCompleted(ICopyManager copyManager)
-    {
-      ConfigureContentScrollFacility();
-    }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
