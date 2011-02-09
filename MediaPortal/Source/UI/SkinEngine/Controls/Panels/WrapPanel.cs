@@ -137,6 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               SizeF childSize = new SizeF(float.NaN, totalDesiredHeight);
               child.Measure(ref childSize);
+              // If height is not set, then just go on
               if (!double.IsNaN(totalSize.Height) && childSize.Height > totalSize.Height)
               {
                 totalDesiredWidth += currentWidth;
