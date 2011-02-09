@@ -640,16 +640,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return true;
       }
       if (checkChildren)
-      {
-        foreach (UIElement child in GetChildren())
-        {
-          FrameworkElement fe = child as FrameworkElement;
-          if (fe == null)
-            continue;
-          if (fe.TrySetFocus(true))
-            return true;
-        }
-      }
+        return GetChildren().OfType<FrameworkElement>().Any(fe => fe.TrySetFocus(true));
       return false;
     }
 
@@ -1349,6 +1340,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
+      if (!currentFocusRect.HasValue)
+        return null;
       foreach (FrameworkElement child in potentialNextFocusElements)
       {
         if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value)) ||
