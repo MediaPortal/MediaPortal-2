@@ -57,6 +57,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected float _actualScrollOffsetY = 0;
     protected bool _forcedOpacityMask = false;
     protected AbstractProperty _autoCenteringProperty;
+    protected AbstractProperty _horizontalScrollDisabledProperty;
+    protected AbstractProperty _verticalScrollDisabledProperty;
 
     #endregion
 
@@ -65,26 +67,50 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public ScrollContentPresenter()
     {
       Init();
+      Attach();
     }
 
     protected void Init()
     {
       _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
+      _horizontalScrollDisabledProperty = new SProperty(typeof(bool), false);
+      _verticalScrollDisabledProperty = new SProperty(typeof(bool), false);
+    }
+
+    protected void Attach()
+    {
+      _horizontalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
+      _verticalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
+    }
+
+    protected void Detach()
+    {
+      _horizontalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
+      _verticalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
       _doScroll = scp._doScroll;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
       AutoCentering = scp.AutoCentering;
+      HorizontalScrollDisabled = scp.HorizontalScrollDisabled;
+      VerticalScrollDisabled = scp.VerticalScrollDisabled;
+      Attach();
     }
 
     #endregion
 
-    private void InvokeScrolled()
+    void OnScrollDisabledChanged(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout(true, false);
+    }
+
+    void InvokeScrolled()
     {
       ScrolledDlgt dlgt = Scrolled;
       if (dlgt != null) dlgt(this);
@@ -208,6 +234,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           availableSize = _innerRect.Size;
         }
 
+        if (HorizontalScrollDisabled)
+          availableSize.Width = _innerRect.Size.Width;
+        if (VerticalScrollDisabled)
+          availableSize.Height = _innerRect.Size.Height;
+
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
             ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
@@ -265,6 +296,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public AbstractProperty AutoCenteringProperty
     {
       get { return _autoCenteringProperty; }
+    }
+
+    public AbstractProperty HorizontalScrollDisabledProperty
+    {
+      get { return _horizontalScrollDisabledProperty; }
+    }
+
+    /// <summary>
+    /// Disables the horizontal scroll direction.
+    /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
+    /// <see cref="ScrollViewer.HorizontalScrollBarVisibility"/> setting.
+    /// </summary>
+    public bool HorizontalScrollDisabled
+    {
+      get { return (bool) _horizontalScrollDisabledProperty.GetValue(); }
+      set { _horizontalScrollDisabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalScrollDisabledProperty
+    {
+      get { return _verticalScrollDisabledProperty; }
+    }
+
+    /// <summary>
+    /// Disables the vertical scroll direction.
+    /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
+    /// <see cref="ScrollViewer.VerticalScrollBarVisibility"/> setting.
+    /// </summary>
+    public bool VerticalScrollDisabled
+    {
+      get { return (bool) _verticalScrollDisabledProperty.GetValue(); }
+      set { _verticalScrollDisabledProperty.SetValue(value); }
     }
 
     #endregion

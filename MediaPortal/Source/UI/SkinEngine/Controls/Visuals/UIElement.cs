@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
@@ -84,10 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Match(UIElement current)
     {
-      foreach (IMatcher matcher in _matchers)
-        if (!matcher.Match(current))
-          return false;
-      return true;
+      return _matchers.All(matcher => matcher.Match(current));
     }
   }
 
@@ -105,12 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public static VisibleElementMatcher Instance
     {
-      get
-      {
-        if (_instance == null)
-          _instance = new VisibleElementMatcher();
-        return _instance;
-      }
+      get { return _instance ?? (_instance = new VisibleElementMatcher()); }
     }
   }
 

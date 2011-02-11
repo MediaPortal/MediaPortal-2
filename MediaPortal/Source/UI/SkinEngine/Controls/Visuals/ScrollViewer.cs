@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
@@ -31,6 +32,14 @@ using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  public enum ScrollBarVisibility
+  {
+    Disabled,
+    Auto,
+    Hidden,
+    Visible
+  }
+
   public class ScrollViewer : ContentControl
   {
     protected const float SCROLLBAR_MINLENGTH = 10f;
@@ -47,6 +56,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _scrollBarYVisibleProperty;
 
     protected AbstractProperty _canContentScrollProperty;
+    protected AbstractProperty _verticalScrollBarVisibilityProperty;
+    protected AbstractProperty _horizontalScrollBarVisibilityProperty;
 
     protected IScrollInfo _attachedScrollInfo = null;
 
@@ -72,11 +83,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollBarYVisibleProperty = new SProperty(typeof(bool), false);
 
       _canContentScrollProperty = new SProperty(typeof(bool), false);
+      _verticalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
+      _horizontalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
+
+      ConfigureContentScrollFacility();
     }
 
     void Attach()
     {
       ContentProperty.Attach(OnContentChanged);
+
+      _verticalScrollBarVisibilityProperty.Attach(OnScrollBarVisibilityChanged);
+      _horizontalScrollBarVisibilityProperty.Attach(OnScrollBarVisibilityChanged);
     }
 
     void Detach()
@@ -94,6 +112,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollBarYKnobPos = sv.ScrollBarYKnobPos;
       ScrollBarYKnobHeight = sv.ScrollBarYKnobHeight;
       CanContentScroll = sv.CanContentScroll;
+      VerticalScrollBarVisibility = sv.VerticalScrollBarVisibility;
+      HorizontalScrollBarVisibility = sv.HorizontalScrollBarVisibility;
       Attach();
       copyManager.CopyCompleted += manager => ConfigureContentScrollFacility();
     }
@@ -101,6 +121,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     void OnContentChanged(AbstractProperty property, object oldValue)
+    {
+      UpdateScrollBars();
+      ConfigureContentScrollFacility();
+    }
+
+    void OnScrollBarVisibilityChanged(AbstractProperty property, object oldValue)
     {
       UpdateScrollBars();
       ConfigureContentScrollFacility();
@@ -146,37 +172,66 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
+
       float totalWidth = scrollInfo.TotalWidth;
       float totalWidthNN = Math.Max(1, totalWidth); // Avoid divisions by zero
-      float totalHeight = scrollInfo.TotalHeight;
-      float totalHeightNN = Math.Max(1, totalHeight); // Avoid divisions by zero
 
       float scrollAreaWidth = ScrollBarXSize;
-      float scrollAreaHeight = ScrollBarYSize;
-      // Hint about the coordinate systems used:
-      // The values our calculations are based on are in the coordinate system which is scaled by the
-      // SkinContext.Zoom setting. The output values must be in the original coordinate system, so we have to
-      // subtract out the zoom value
       float w = Math.Min(scrollAreaWidth, Math.Max(
           scrollInfo.ViewPortWidth / totalWidthNN * scrollAreaWidth, SCROLLBAR_MINLENGTH));
       float x = Math.Min(scrollAreaWidth-w,
           scrollInfo.ViewPortStartX / totalWidthNN * scrollAreaWidth);
+
+      ScrollBarXKnobWidth = w;
+      ScrollBarXKnobPos = x;
+      switch (HorizontalScrollBarVisibility)
+      {
+        case ScrollBarVisibility.Disabled:
+        case ScrollBarVisibility.Hidden:
+          ScrollBarXVisible = false;
+          break;
+        case ScrollBarVisibility.Auto:
+          ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth + DELTA_DOUBLE;
+          break;
+        case ScrollBarVisibility.Visible:
+          ScrollBarXVisible = true;
+          break;
+      }
+
+      float totalHeight = scrollInfo.TotalHeight;
+      float totalHeightNN = Math.Max(1, totalHeight); // Avoid divisions by zero
+
+      float scrollAreaHeight = ScrollBarYSize;
       float h = Math.Min(scrollAreaHeight, Math.Max(
           scrollInfo.ViewPortHeight / totalHeightNN * scrollAreaHeight, SCROLLBAR_MINLENGTH));
       float y = Math.Min(scrollAreaHeight - h,
           scrollInfo.ViewPortStartY / totalHeightNN * scrollAreaHeight);
 
-      ScrollBarXKnobWidth = w;
-      ScrollBarXKnobPos = x;
-      ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth + DELTA_DOUBLE;
-
       ScrollBarYKnobHeight = h;
       ScrollBarYKnobPos = y;
-      ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight + DELTA_DOUBLE;
+      switch (VerticalScrollBarVisibility)
+      {
+        case ScrollBarVisibility.Disabled:
+        case ScrollBarVisibility.Hidden:
+          ScrollBarYVisible = false;
+          break;
+        case ScrollBarVisibility.Auto:
+          ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight + DELTA_DOUBLE;
+          break;
+        case ScrollBarVisibility.Visible:
+          ScrollBarYVisible = true;
+          break;
+      }
     }
 
     void ConfigureContentScrollFacility()
     {
+      ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
+      if (scp == null)
+        return;
+      scp.HorizontalScrollDisabled = HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled;
+      scp.VerticalScrollDisabled = VerticalScrollBarVisibility == ScrollBarVisibility.Disabled;
+
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
@@ -192,11 +247,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    protected override void ArrangeOverride()
+    protected override void ArrangeTemplateControl()
     {
-      base.ArrangeOverride();
+      FrameworkElement templateControl = _initializedTemplateControl;
+      if (templateControl == null)
+        return;
+      RectangleF childRect = new RectangleF(_innerRect.X, _innerRect.Y,
+          HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? templateControl.DesiredSize.Width : _innerRect.Width,
+          VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? templateControl.DesiredSize.Height : _innerRect.Height);
+      templateControl.Arrange(childRect);
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
+    }
+
+    public AbstractProperty VerticalScrollBarVisibilityProperty
+    {
+      get { return _verticalScrollBarVisibilityProperty; }
+    }
+    
+    public ScrollBarVisibility VerticalScrollBarVisibility
+    {
+      get { return (ScrollBarVisibility) _verticalScrollBarVisibilityProperty.GetValue(); }
+      set { _verticalScrollBarVisibilityProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HorizontalScrollBarVisibilityProperty
+    {
+      get { return _horizontalScrollBarVisibilityProperty; }
+    }
+    
+    public ScrollBarVisibility HorizontalScrollBarVisibility
+    {
+      get { return (ScrollBarVisibility) _horizontalScrollBarVisibilityProperty.GetValue(); }
+      set { _horizontalScrollBarVisibilityProperty.SetValue(value); }
     }
 
     public AbstractProperty ScrollBarXSizeProperty
