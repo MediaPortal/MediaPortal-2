@@ -48,6 +48,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected AbstractProperty _canContentScrollProperty;
 
+    protected IScrollInfo _attachedScrollInfo = null;
+
     #endregion
 
     #region Ctor
@@ -179,7 +181,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (scrollInfo == null)
         return;
       scrollInfo.DoScroll = true;
-      scrollInfo.Scrolled += OnScrollInfoScrolled;
+      if (_attachedScrollInfo != null)
+        _attachedScrollInfo.Scrolled -= OnScrollInfoScrolled;
+      _attachedScrollInfo = scrollInfo;
+      _attachedScrollInfo.Scrolled += OnScrollInfoScrolled;
     }
 
     void OnScrollInfoScrolled(object sender)
