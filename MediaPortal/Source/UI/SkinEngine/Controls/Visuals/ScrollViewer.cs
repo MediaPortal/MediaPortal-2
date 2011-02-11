@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
-      scrollInfo.ScrollLogical = true;
+      scrollInfo.DoScroll = true;
       scrollInfo.Scrolled += OnScrollInfoScrolled;
     }
 

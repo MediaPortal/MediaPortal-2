@@ -54,11 +54,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets or switches the ability to scroll. If this property is set, this object
     /// is contained in a scroll container. This may affect the desired width and height
-    /// this object will declare: If <see cref="ScrollLogical"/> is set to <c>true</c>,
-    /// this object may declare a lesser size as desired size than if <see cref="ScrollLogical"/> is
+    /// this object will declare: If <see cref="DoScroll"/> is set to <c>true</c>,
+    /// this object may declare a lesser size as desired size than if <see cref="DoScroll"/> is
     /// set to false.
     /// </summary>
-    bool ScrollLogical { get; set; }
+    bool DoScroll { get; set; }
 
     /// <summary>
     /// Returns the total width of all items to be displayed. This is normally equal or bigger

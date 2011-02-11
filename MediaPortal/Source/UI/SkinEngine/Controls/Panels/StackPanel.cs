@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected float _totalHeight;
     protected float _totalWidth;
 
-    protected bool _scrollLogical = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
+    protected bool _doScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
     // Variables to pass a scroll job to the render thread
     protected int? _pendingScrollIndex = null;
@@ -106,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       StackPanel p = (StackPanel) source;
       Orientation = p.Orientation;
-      ScrollLogical = p.ScrollLogical;
+      DoScroll = p.DoScroll;
       Attach();
     }
 
@@ -232,7 +232,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
 
         // 1) Calculate scroll indices
-        if (_scrollLogical)
+        if (_doScroll)
         { // Calculate last visible child
           float spaceLeft = actualExtendsInOrientationDirection;
           if (invertLayouting)
@@ -413,7 +413,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected virtual void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
     {
-      if (_scrollLogical)
+      if (_doScroll)
       {
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         int index = 0;
@@ -445,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_scrollLogical)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;
@@ -778,10 +778,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public event ScrolledDlgt Scrolled;
 
-    public virtual bool ScrollLogical
+    public virtual bool DoScroll
     {
-      get { return _scrollLogical; }
-      set { _scrollLogical = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public virtual float TotalWidth

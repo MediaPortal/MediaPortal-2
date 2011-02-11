@@ -134,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (numItems == 0)
         return result;
       float availableSize = GetExtendsInNonOrientationDirection(totalSize);
-      if (!_scrollLogical)
+      if (!_doScroll)
         _actualFirstVisibleChild = 0;
       int start = _actualFirstVisibleChild;
       Bound(ref start, 0, numItems - 1);
@@ -165,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           maxExtendsInNonOrientationDirection = childExtendsInNonOrientationDirection;
         result.Add(item);
         end++;
-      } while (availableSize > 0 || !_scrollLogical);
+      } while (availableSize > 0 || !_doScroll);
       // If there is still space left, try to get items above scroll index
       while (availableSize > 0)
       {
@@ -286,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
 
           // 1) Calculate scroll indices
-          if (_scrollLogical)
+          if (_doScroll)
           {
             float spaceLeft = actualExtendsInOrientationDirection;
             if (invertLayouting)
@@ -471,7 +471,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return;
       }
 
-      if (_scrollLogical)
+      if (_doScroll)
       {
         IList<FrameworkElement> arrangedItemsCopy;
         int arrangedStart;
@@ -536,7 +536,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_scrollLogical)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;

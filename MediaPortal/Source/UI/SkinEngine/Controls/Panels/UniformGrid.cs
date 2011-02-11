@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected AbstractProperty _columnsProperty;
     protected AbstractProperty _rowsProperty;
 
-    protected bool _scrollLogical = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
+    protected bool _doScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
     // Index of the first visible column/row (left/top) which will be drawn at our ActualPosition -
     // when modified by method SetScrollOffset, they will be applied the next time Arrange is called.
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       UniformGrid g = (UniformGrid) source;
       Columns = g.Columns;
       Rows = g.Rows;
-      ScrollLogical = g.ScrollLogical;
+      DoScroll = g.DoScroll;
       Attach();
     }
 
@@ -206,7 +206,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int visibleChildrenCount = visibleChildren.Count;
 
-      if (_scrollLogical)
+      if (_doScroll)
         CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
       else
       {
@@ -217,7 +217,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _actualNumVisibleCols = (int) (ActualWidth/_actualColumnWidth);
       _actualNumVisibleRows = (int) (ActualHeight/_actualRowHeight);
 
-      if (_scrollLogical)
+      if (_doScroll)
       {
         int maxScrollIndexX = Math.Max(_actualColumns - _actualNumVisibleCols, 0);
         int maxScrollIndexY = Math.Max(_actualRows - _actualNumVisibleRows, 0);
@@ -276,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_scrollLogical)
+      if (_doScroll)
       {
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         for (int i = 0; i < visibleChildren.Count; i++)
@@ -303,7 +303,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_scrollLogical)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;
@@ -494,10 +494,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public event ScrolledDlgt Scrolled;
 
-    public bool ScrollLogical
+    public bool DoScroll
     {
-      get { return _scrollLogical; }
-      set { _scrollLogical = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public float TotalWidth

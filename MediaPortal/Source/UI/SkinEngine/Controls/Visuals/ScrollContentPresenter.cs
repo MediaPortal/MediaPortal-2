@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected bool _scrollLogical = false;
+    protected bool _doScroll = false;
     protected float _scrollOffsetX = 0;
     protected float _scrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
-      _scrollLogical = scp._scrollLogical;
+      _doScroll = scp._doScroll;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
       AutoCentering = scp.AutoCentering;
@@ -118,19 +118,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_scrollLogical || AutoCentering != ScrollAutoCenteringEnum.None)
+      if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
       {
         float differenceX = 0;
         float differenceY = 0;
 
         if (IsHorzCentering)
           differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
-        else if (_scrollLogical)
+        else if (_doScroll)
           differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth); 
 
         if (IsVertCentering)
           differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
-        else if (_scrollLogical)
+        else if (_doScroll)
           differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
         // Change rect as if children were already re-arranged
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
-        if (_scrollLogical || AutoCentering != ScrollAutoCenteringEnum.None)
+        if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
         {
           availableSize = _innerRect.Size;
           if (desiredSize.Width > _innerRect.Width)
@@ -227,8 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (OpacityMask == null && (TotalHeight > ActualHeight || TotalWidth > ActualWidth))
       {
-        SolidColorBrush brush = new SolidColorBrush();
-        brush.Color = Color.Black;
+        SolidColorBrush brush = new SolidColorBrush {Color = Color.Black};
         OpacityMask = brush;
         _forcedOpacityMask = true;
       }
@@ -505,10 +504,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool ScrollLogical
+    public bool DoScroll
     {
-      get { return _scrollLogical; }
-      set { _scrollLogical = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public float TotalWidth
