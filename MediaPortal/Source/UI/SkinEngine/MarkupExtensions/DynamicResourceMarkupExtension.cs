@@ -171,6 +171,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
+      Detach();
       ResetEventHandlerAttachments();
       base.Dispose();
     }
