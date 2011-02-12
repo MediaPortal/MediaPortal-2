@@ -54,12 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public static ItemsHostMatcher Instance
     {
-      get
-      {
-        if (_instance == null)
-          _instance = new ItemsHostMatcher();
-        return _instance;
-      }
+      get { return _instance ?? (_instance = new ItemsHostMatcher()); }
     }
   }
 
