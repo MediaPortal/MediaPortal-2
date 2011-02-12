@@ -32,7 +32,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
-  public class BeginStoryboard : TriggerAction
+  public class BeginStoryboard : TriggerAction, IAddChild<Storyboard>
   {
     #region Private fields
 
@@ -94,7 +94,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _storyBoardProperty.SetValue(value); }
     }
 
-
     public string Name
     {
       get { return _name; }
@@ -124,5 +123,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       RegisterName();
     }
+
+    #region IAddChild<Storyboard> implementation
+
+    public void AddChild(Storyboard s)
+    {
+      Storyboard = s;
+    }
+
+    #endregion
   }
 }
