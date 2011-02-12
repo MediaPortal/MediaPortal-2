@@ -1185,9 +1185,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
-      if (_inverseFinalTransform.HasValue)
+      Matrix? ift = _inverseFinalTransform;
+      if (ift.HasValue)
       {
-        _inverseFinalTransform.Value.Transform(ref x, ref y);
+        ift.Value.Transform(ref x, ref y);
         return true;
       }
       return false;
@@ -1202,6 +1203,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsVisible)
       {
+        bool hasFocus = HasFocus;
         float xTrans = x;
         float yTrans = y;
         if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
@@ -1214,9 +1216,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             FireEvent(MOUSEENTER_EVENT);
           }
           bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
-          if (!HasFocus && inVisibleArea)
+          if (!hasFocus && inVisibleArea)
             TrySetFocus(false);
-          if (HasFocus && !inVisibleArea)
+          if (hasFocus && !inVisibleArea)
             ResetFocus();
         }
         else
@@ -1226,7 +1228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             IsMouseOver = false;
             FireEvent(MOUSELEAVE_EVENT);
           }
-          if (HasFocus)
+          if (hasFocus)
             ResetFocus();
         }
       }
