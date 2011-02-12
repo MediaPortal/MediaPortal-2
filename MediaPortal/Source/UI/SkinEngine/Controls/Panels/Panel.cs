@@ -98,7 +98,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _childrenProperty = new SProperty(typeof(FrameworkElementCollection), new FrameworkElementCollection(this));
+      FrameworkElementCollection coll = new FrameworkElementCollection(this);
+      coll.CollectionChanged += OnChildrenChanged;
+      _childrenProperty = new SProperty(typeof(FrameworkElementCollection), coll);
       _backgroundProperty = new SProperty(typeof(Brush), null);
     }
 
@@ -134,6 +136,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void OnBrushChanged(IObservable observable)
     {
       _performLayout = true;
+    }
+
+    void OnChildrenChanged(FrameworkElementCollection coll)
+    {
+      InvalidateLayout(true, true);
+      _updateRenderOrder = true;
     }
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)

@@ -29,6 +29,8 @@ using MediaPortal.Core.General;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  public delegate void FrameworkElementCollectionChangedDlgt(FrameworkElementCollection collection);
+
   public class FrameworkElementCollection : IEnumerable<FrameworkElement>, IDisposable, ISynchronizable
   {
     protected FrameworkElement _parent;
@@ -47,15 +49,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Clear();
     }
 
+    public event FrameworkElementCollectionChangedDlgt CollectionChanged;
+
     public object SyncRoot
     {
       get { return _syncObj; }
     }
 
-    protected void InvalidateParent(bool invalidateMeasure, bool invalidateArrange)
+    protected void FireCollectionChanged()
     {
-      if (_parent != null)
-        _parent.InvalidateLayout(invalidateMeasure, invalidateArrange);
+      FrameworkElementCollectionChangedDlgt dlgt = CollectionChanged;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
+    protected void AddInternal(FrameworkElement element, bool notifyParent)
+    {
+      lock (_syncObj)
+      {
+        // TODO: Allocate if we are already allocated
+        element.VisualParent = _parent;
+        if (_parent != null)
+        {
+          element.SetScreen(_parent.Screen);
+          element.SetElementState(_parent.ElementState);
+        }
+        else
+          element.SetElementState(ElementState.Available);
+        _elements.Add(element);
+        element.InvalidateLayout(true, true);
+      }
+      if (notifyParent)
+        FireCollectionChanged();
     }
 
     public void SetParent(FrameworkElement parent)
@@ -80,27 +105,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Add(FrameworkElement element)
     {
-      lock (_syncObj)
-      {
-        // TODO: Allocate if we are already allocated
-        element.VisualParent = _parent;
-        if (_parent != null)
-        {
-          element.SetScreen(_parent.Screen);
-          element.SetElementState(_parent.ElementState);
-        }
-        else
-          element.SetElementState(ElementState.Available);
-        _elements.Add(element);
-        element.InvalidateLayout(true, true);
-      }
+      AddInternal(element, true);
     }
 
     public void AddAll(IEnumerable<FrameworkElement> elements)
     {
       lock (_syncObj)
         foreach (FrameworkElement element in elements)
-          Add(element);
+          AddInternal(element, false);
+      FireCollectionChanged();
     }
 
     public void Remove(FrameworkElement element)
@@ -110,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_elements.Remove(element))
           element.CleanupAndDispose();
       }
-      InvalidateParent(true, true);
+      FireCollectionChanged();
     }
 
     public void Clear()
@@ -122,7 +135,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         foreach (FrameworkElement element in oldElements)
           element.CleanupAndDispose();
       }
-      InvalidateParent(true, true);
+      FireCollectionChanged();
     }
 
     public int Count

@@ -402,7 +402,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _visual.Deallocate();
       }
       FireClosed();
-      _visual.Dispose();
+      _visual.CleanupAndDispose();
     }
 
     protected void FireClosed()

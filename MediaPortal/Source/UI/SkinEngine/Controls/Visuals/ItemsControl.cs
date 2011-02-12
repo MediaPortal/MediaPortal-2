@@ -189,7 +189,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ObservableUIElementCollection<FrameworkElement> oldItems = oldVal as ObservableUIElementCollection<FrameworkElement>;
       if (oldItems != null)
+      {
+        DetachFromItems(oldItems);
         oldItems.Dispose();
+      }
       ObservableUIElementCollection<FrameworkElement> items = Items;
       AttachToItems(items);
       items.SetParent(this);
@@ -410,7 +413,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected ItemsPresenter FindItemsPresenter()
     {
-      return TemplateControl == null ? null : TemplateControl.FindElement(
+      FrameworkElement templateControl = TemplateControl;
+      return templateControl == null ? null : templateControl.FindElement(
           new TypeMatcher(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
@@ -523,6 +527,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.Dispose();
       DetachFromItemsSource(ItemsSource);
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      if (items != null)
+      {
+        DetachFromItems(items);
+        // Normally, the disposal of items will be done by our items host panel. But in the rare case that we didn't add
+        // the Items to our host panel's Children yet, we need to clean up them manually.
+        items.Dispose();
+      }
     }
   }
 }
