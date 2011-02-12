@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.XPath;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
@@ -90,85 +91,88 @@ namespace MediaPortal.Core.Services.PluginManager
       _pluginFilePath = path;
       try
       {
-        XPathDocument doc = new XPathDocument(_pluginFilePath);
-        XPathNavigator nav = doc.CreateNavigator();
-        nav.MoveToChild(XPathNodeType.Element);
-        if (nav.LocalName != "Plugin")
-          throw new ArgumentException(
-              "File is no plugin descriptor file (document element must be 'Plugin')");
+        using (Stream pluginFileStream = File.OpenRead(_pluginFilePath))
+        {
+          XPathDocument doc = new XPathDocument(pluginFileStream);
+          XPathNavigator nav = doc.CreateNavigator();
+          nav.MoveToChild(XPathNodeType.Element);
+          if (nav.LocalName != "Plugin")
+            throw new ArgumentException(
+                "File is no plugin descriptor file (document element must be 'Plugin')");
 
-        bool versionOk = false;
-        bool pluginIdSet = false;
-        XPathNavigator attrNav = nav.Clone();
-        if (attrNav.MoveToFirstAttribute())
-          do
-          {
-            switch (attrNav.Name)
+          bool versionOk = false;
+          bool pluginIdSet = false;
+          XPathNavigator attrNav = nav.Clone();
+          if (attrNav.MoveToFirstAttribute())
+            do
             {
-              case "DescriptorVersion":
-                Versions.CheckVersionCompatible(attrNav.Value, PLUGIN_DESCRIPTOR_VERSION_MAJOR, MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR);
-                //string specVersion = attr.Value; <- if needed
-                versionOk = true;
-                break;
-              case "Name":
-                _name = attrNav.Value;
-                break;
-              case "PluginId":
-                _pluginId = new Guid(attrNav.Value);
-                pluginIdSet = true;
-                break;
-              case "Author":
-                _author = attrNav.Value;
-                break;
-              case "Copyright":
-                _copyright = attrNav.Value;
-                break;
-              case "Description":
-                _description = attrNav.Value;
-                break;
-              case "PluginVersion":
-                _version = attrNav.Value;
-                break;
-              case "AutoActivate":
-                _autoActivate = Boolean.Parse(attrNav.Value);
-                break;
-              default:
-                throw new ArgumentException("'Plugin' element doesn't support an attribute '" + attrNav.Name + "'");
-            }
-          } while (attrNav.MoveToNextAttribute());
-        if (!versionOk)
-          throw new ArgumentException("'Version' attribute not found");
+              switch (attrNav.Name)
+              {
+                case "DescriptorVersion":
+                  Versions.CheckVersionCompatible(attrNav.Value, PLUGIN_DESCRIPTOR_VERSION_MAJOR, MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR);
+                  //string specVersion = attr.Value; <- if needed
+                  versionOk = true;
+                  break;
+                case "Name":
+                  _name = attrNav.Value;
+                  break;
+                case "PluginId":
+                  _pluginId = new Guid(attrNav.Value);
+                  pluginIdSet = true;
+                  break;
+                case "Author":
+                  _author = attrNav.Value;
+                  break;
+                case "Copyright":
+                  _copyright = attrNav.Value;
+                  break;
+                case "Description":
+                  _description = attrNav.Value;
+                  break;
+                case "PluginVersion":
+                  _version = attrNav.Value;
+                  break;
+                case "AutoActivate":
+                  _autoActivate = Boolean.Parse(attrNav.Value);
+                  break;
+                default:
+                  throw new ArgumentException("'Plugin' element doesn't support an attribute '" + attrNav.Name + "'");
+              }
+            } while (attrNav.MoveToNextAttribute());
+          if (!versionOk)
+            throw new ArgumentException("'Version' attribute not found");
 
-        if (!pluginIdSet)
-          throw new ArgumentException("'PluginId' attribute not found");
+          if (!pluginIdSet)
+            throw new ArgumentException("'PluginId' attribute not found");
 
-        XPathNavigator childNav = nav.Clone();
-        if (childNav.MoveToChild(XPathNodeType.Element))
-          do
-          {
-            switch (childNav.LocalName)
+          XPathNavigator childNav = nav.Clone();
+          if (childNav.MoveToChild(XPathNodeType.Element))
+            do
             {
-              case "Runtime":
-                ParseRuntimeElement(childNav.Clone(), pluginDirectoryPath);
-                break;
-              case "Builder":
-                if (_builders == null)
-                  _builders = new Dictionary<string, string>();
-                _builders.Add(ParseBuilderElement(childNav.Clone()));
-                break;
-              case "Register":
-                CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childNav.Clone()));
-                break;
-              case "DependsOn":
-                CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childNav.Clone()));
-                break;
-              case "ConflictsWith":
-                CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childNav.Clone()));
-                break;
-              default:
-                throw new ArgumentException("'Plugin' element doesn't support a child element '" + childNav.Name + "'");
-            }
-          } while (childNav.MoveToNext(XPathNodeType.Element));
+              switch (childNav.LocalName)
+              {
+                case "Runtime":
+                  ParseRuntimeElement(childNav.Clone(), pluginDirectoryPath);
+                  break;
+                case "Builder":
+                  if (_builders == null)
+                    _builders = new Dictionary<string, string>();
+                  _builders.Add(ParseBuilderElement(childNav.Clone()));
+                  break;
+                case "Register":
+                  CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childNav.Clone()));
+                  break;
+                case "DependsOn":
+                  CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childNav.Clone()));
+                  break;
+                case "ConflictsWith":
+                  CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childNav.Clone()));
+                  break;
+                default:
+                  throw new ArgumentException("'Plugin' element doesn't support a child element '" + childNav.Name + "'");
+              }
+            } while (childNav.MoveToNext(XPathNodeType.Element));
+        }
       }
       catch (Exception e)
       {
@@ -416,16 +420,12 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public ICollection<string> GetNecessaryBuilders()
     {
-      ICollection<string> result = new List<string>();
-      foreach (PluginItemMetadata itemMetadata in _itemsMetadata)
-        result.Add(itemMetadata.BuilderName);
-      return result;
+      return _itemsMetadata.Select(itemMetadata => itemMetadata.BuilderName).ToList();
     }
 
     public string GetAbsolutePath(string relativePath)
     {
-      return relativePath == null ? null :
-          Path.Combine(Path.GetDirectoryName(_pluginFilePath), relativePath);
+      return relativePath == null ? null : Path.Combine(Path.GetDirectoryName(_pluginFilePath), relativePath);
     }
 
     #endregion
