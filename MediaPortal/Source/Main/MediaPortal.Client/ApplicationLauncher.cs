@@ -54,7 +54,7 @@ namespace MediaPortal.Client
   {
     private static SplashScreen CreateSplashScreen()
     {
-      SplashScreen result = SplashScreen.Current;
+      SplashScreen result = new SplashScreen();
 
       result.FadeInDuration = TimeSpan.FromMilliseconds(300);
       result.FadeOutDuration = TimeSpan.FromMilliseconds(200);
