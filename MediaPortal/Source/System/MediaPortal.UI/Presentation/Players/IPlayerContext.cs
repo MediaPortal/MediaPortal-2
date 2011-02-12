@@ -189,7 +189,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// Sets a special <paramref name="effect"/> for the <see cref="CurrentPlayer"/>, if it is a compatible player.
     /// The effect will only be applied to the current player. It will be lost when the current player is disposed.
     /// </summary>
-    /// <param name="geometry">The geometry to be used with the <see cref="CurrentPlayer"/>.</param>
+    /// <param name="effect">The effect to be used with the <see cref="CurrentPlayer"/>.</param>
     void OverrideEffect(string effect);
 
     /// <summary>
