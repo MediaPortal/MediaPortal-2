@@ -90,16 +90,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     internal IDictionary<object, object> GetOrCreateUnderlayingDictionary()
     {
-      if (_resources == null)
-        _resources = new Dictionary<object, object>();
-      return _resources;
+      return _resources ?? (_resources = new Dictionary<object, object>());
     }
 
     protected IList<ResourceDictionary> GetOrCreateMergedDictionaries()
     {
-      if (_mergedDictionaries == null)
-        _mergedDictionaries = new List<ResourceDictionary>();
-      return _mergedDictionaries;
+      return _mergedDictionaries ?? (_mergedDictionaries = new List<ResourceDictionary>());
     }
 
     protected INameScope FindParentNamescope()
@@ -116,9 +112,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     protected IDictionary<string, object> GetOrCreateNames()
     {
-      if (_names == null)
-        _names = new Dictionary<string, object>();
-      return _names;
+      return _names ?? (_names = new Dictionary<string, object>());
     }
 
     #endregion
@@ -316,12 +310,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       get
       {
+        if (key == null)
+          throw new ArgumentNullException("key");
         if (_resources == null)
-        {
-          if (key == null)
-            throw new ArgumentNullException("key");
           throw new KeyNotFoundException(string.Format("Key '{0}' was not found in this ResourceDictionary", key));
-        }
         return _resources[key];
       }
       set
