@@ -317,10 +317,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           // We have to sort out namespace declarations.
           // For both declarations xmlns="..." and xmlns:xx="...", the parser returns the
           // namespace URI "http://www.w3.org/2000/xmlns/" (static constant
-          /// <see cref="XMLNS_NS_URI"/>) for the attribute, so we check for this
-          /// namespace URI. The value of the attribute (for example
-          /// "http://schemas.microsoft.com/winfx/2006/xaml") is the URI
-          /// of the namespace to be imported.
+          // <see cref="XMLNS_NS_URI"/>) for the attribute, so we check for this
+          // namespace URI. The value of the attribute (for example
+          // "http://schemas.microsoft.com/winfx/2006/xaml") is the URI
+          // of the namespace to be imported.
           if (attr.NamespaceURI == XMLNS_NS_URI)
           {
             string importNamespaceURI = attr.Value;
