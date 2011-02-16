@@ -633,7 +633,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Deallocate();
     }
 
-    protected static internal void TryCleanupAndDispose(ref object obj)
+    public static void TryCleanupAndDispose(ref object obj)
     {
       UIElement u = obj as UIElement;
       if (u != null)
@@ -642,12 +642,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         u.CleanupAndDispose();
         return;
       }
-      IDisposable d = obj as IDisposable;
-      if (d != null)
-      {
-        obj = null;
-        d.Dispose();
-      }
+      TryDispose(ref obj);
     }
 
     /// <summary>

@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -65,12 +66,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public IEnumerable<IBinding> GetDeferredBindings()
     {
-      foreach (object value in _identities.Values)
-      {
-        IBinding binding = value as IBinding;
-        if (binding != null)
-          yield return binding;
-      }
+      return _identities.Values.OfType<IBinding>();
     }
 
     public static void ActivateBindings(IEnumerable<IBinding> deferredBindings)

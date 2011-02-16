@@ -120,8 +120,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       {
         object entry = enumer.Current.Value;
         targetDictionary[enumer.Current.Key] = entry;
-        if (entry is DependencyObject)
-          ((DependencyObject) entry).LogicalParent = target;
+        DependencyObject depObj = entry as DependencyObject;
+        if (depObj != null)
+          depObj.LogicalParent = target;
       }
       target.FireChanged();
     }
