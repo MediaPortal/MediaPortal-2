@@ -855,31 +855,29 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Loads the root UI element for the specified screen from the current skin or any of its parent skins,
     /// in the defined resource search order.
     /// </summary>
+    /// <param name="screenName">Name of the screen to load.</param>
     /// <param name="relativeScreenPath">The path of the screen to load, relative to the skin's root path.</param>
     /// <param name="loader">Loader used for GUI models.</param>
-    /// <param name="resourceBundle">Skin resource bundle, the screen was loaded from.</param>
     /// <returns>Root UI element for the specified screen or <c>null</c>, if the screen
     /// is not defined in the current skin resource chain.</returns>
-    public static UIElement LoadScreen(string relativeScreenPath, IModelLoader loader, out SkinResources resourceBundle)
+    public static Screen LoadScreen(string screenName, string relativeScreenPath, IModelLoader loader)
     {
+      SkinResources resourceBundle;
       string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
       if (skinFilePath == null)
       {
         ServiceRegistration.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", relativeScreenPath);
-        resourceBundle = null;
         return null;
       }
       ServiceRegistration.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
       object obj = XamlLoader.Load(skinFilePath, loader, true);
-      UIElement result = obj as UIElement;
-      if (result == null)
+      FrameworkElement element = obj as FrameworkElement;
+      if (element == null)
       {
-        IDisposable d = obj as IDisposable;
-        if (d != null)
-          d.Dispose();
+        UIElement.TryCleanupAndDispose(ref obj);
         return null;
       }
-      return result;
+      return new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Root = element};
     }
 
     /// <summary>
@@ -887,7 +885,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     /// <remarks>
     /// If the desired screen could not be loaded (because it is not present or because an error occurs while
-    /// loading the screen), an error dialog is shown to the user.
+    /// loading the screen), an error notification is shown to the user.
     /// </remarks>
     /// <param name="screenName">Name of the screen to return.</param>
     /// <param name="screenType">Type of the screen to load. Depending on that type, the screen will be searched
@@ -919,13 +917,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
         }
         string relativeScreenPath = relativeDirectory + Path.DirectorySeparatorChar + screenName + ".xaml";
-        SkinResources resourceBundle;
-        UIElement root = LoadScreen(relativeScreenPath, loader, out resourceBundle);
-        FrameworkElement element = root as FrameworkElement;
-        if (element == null)
+        Screen result = LoadScreen(screenName, relativeScreenPath, loader);
+        if (result == null)
         {
-          if (root != null)
-            root.CleanupAndDispose();
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
           string errorText;
           switch (screenType)
@@ -947,7 +941,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
           return null;
         }
-        Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = element};
         return result;
       }
       catch (Exception ex)

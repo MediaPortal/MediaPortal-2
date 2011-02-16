@@ -115,6 +115,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Note that XMLNS namespaces (<see cref="XMLNS_NS_URI"/>) are implicitly
     /// handled by the parser.
     /// </remarks>
+    /// <param name="context">Current parser context.</param>
+    /// <param name="namespaceURI">URI of the namespace to be imported.</param>
     /// <exception cref="XamlNamespaceNotSupportedException">If the specified namespaceURI
     /// is not supported by the client.</exception>
     public delegate INamespaceHandler ImportNamespaceDlgt(IParserContext context, string namespaceURI);
@@ -122,7 +124,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Describes the signature of the method to be called when an event handler
     /// delegate is needed to be assigned to an event.
-    /// <summary>
+    /// </summary>
+    /// <param name="context">Current parser context.</param>
     /// <param name="signature">The signature of the requested event handler method.</param>
     /// <param name="eventName">Name of the event handler to be assigned.</param>
     /// <returns>Delegate to handle the specified event with the specified
@@ -600,7 +603,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <param name="node">The XML node, an <see cref="XmlAttribute"/> or
     /// an <see cref="XmlElement"/>, whose contents should be parsed.</param>
     /// <returns>Parsed value. This is either a string, a markup extension
-    /// instance or an IList<object>.</returns>
+    /// instance, an <c>IList&lt;object&gt;</c> or an <c>IDictionary&lt;object, object&gt;</c>.</returns>
     protected object ParseValue(XmlNode node)
     {
       if (node is XmlAttribute) // Member attribute
@@ -881,7 +884,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     #region IParserContext implementation
 
     public ElementContextStack ContextStack
-    { get { return _elementContextStack; } }
+    {
+      get { return _elementContextStack; }
+    }
 
     public void LookupNamespace(string elementName, out string localName, out string namespaceURI)
     {

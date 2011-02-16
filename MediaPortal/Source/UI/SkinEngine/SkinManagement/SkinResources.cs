@@ -310,15 +310,12 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public IDictionary<string, string> GetResourceFilePaths(string regExPattern, bool searchInheritedResources)
     {
       CheckResourcesInitialized();
-      Dictionary<string, string> result = new Dictionary<string, string>();
       Regex regex = new Regex(regExPattern);
-      foreach (KeyValuePair<string, string> kvp in _localResourceFilePaths)
-        if (regex.IsMatch(kvp.Key))
-          result.Add(kvp.Key, kvp.Value);
+      IDictionary<string, string> result = _localResourceFilePaths.Where(kvp => regex.IsMatch(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
       if (searchInheritedResources && _inheritedSkinResources != null)
-        foreach (KeyValuePair<string, string> kvp in _inheritedSkinResources.GetResourceFilePaths(regExPattern))
-          if (!result.ContainsKey(kvp.Key))
-            result.Add(kvp.Key, kvp.Value);
+        foreach (KeyValuePair<string, string> kvp in
+            _inheritedSkinResources.GetResourceFilePaths(regExPattern).Where(kvp => !result.ContainsKey(kvp.Key)))
+          result.Add(kvp.Key, kvp.Value);
       return result;
     }
 

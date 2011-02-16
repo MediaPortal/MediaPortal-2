@@ -120,16 +120,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public BindingMarkupExtension GetOrCreateDataContext()
     {
-      if (DataContext == null)
-        DataContext = new BindingMarkupExtension(this);
-      return DataContext;
+      return DataContext ?? (DataContext = new BindingMarkupExtension(this));
     }
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()
     {
-      if (_bindings == null)
-        _bindings = new List<BindingBase>();
-      return _bindings;
+      return _bindings ?? (_bindings = new List<BindingBase>());
     }
 
     public virtual INameScope FindNameScope()
