@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
@@ -37,8 +38,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   /// </summary>
   public class GradientBrushTexture : ITextureAsset, IDisposable
   {
+    class GradientStopData
+    {
+      private readonly Color _color;
+      private readonly double _offset;
+
+      private GradientStopData(Color color, double offset)
+      {
+        _color = color;
+        _offset = offset;
+      }
+
+      public static GradientStopData FromGradientStop(GradientStop origin)
+      {
+        return new GradientStopData(origin.Color, origin.Offset);
+      }
+
+      public Color Color
+      {
+        get { return _color; }
+      }
+
+      public double Offset
+      {
+        get { return _offset; }
+      }
+    }
+
     RenderTextureAsset _texture;
-    readonly GradientStopCollection _stops;
+    readonly IList<GradientStopData> _stops;
     readonly string _name;
     static int _assetId = 0;
 
@@ -48,7 +76,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public GradientBrushTexture(GradientStopCollection stops)
     {
       _assetId++;
-      _stops = stops;
+      _stops = new List<GradientStopData>(stops.Count);
+      foreach (GradientStop stop in stops)
+        _stops.Add(GradientStopData.FromGradientStop(stop));
       _name = String.Format("GradientBrushTexture#{0}", _assetId);
       Allocate();
     }
@@ -73,13 +103,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (stops.Count != _stops.Count)
         return false;
-      IList<GradientStop> thisStops = _stops.OrderedGradientStopList;
-      IList<GradientStop> thatStops = stops.OrderedGradientStopList;
-      for (int i = 0; i < thisStops.Count; i++)
+      IList<GradientStop> compareStops = stops.OrderedGradientStopList;
+      for (int i = 0; i < _stops.Count; i++)
       {
-        if (thisStops[i].Offset != thatStops[i].Offset)
+        if (_stops[i].Offset != compareStops[i].Offset)
           return false;
-        if (!thisStops[i].Color.Equals(thatStops[i].Color))
+        if (!_stops[i].Color.Equals(compareStops[i].Color))
           return false;
       }
       return true;
@@ -97,15 +126,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void CreateGradient()
     {
-      float width = (float) GRADIENT_TEXTURE_WIDTH;
+      const float width = GRADIENT_TEXTURE_WIDTH;
       byte[] data = new byte[4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT];
-      int offY = GRADIENT_TEXTURE_WIDTH * 4;
-      IList<GradientStop> orderedStops = _stops.OrderedGradientStopList;
+      const int offY = GRADIENT_TEXTURE_WIDTH * 4;
 
-      for (int i = 0; i < orderedStops.Count - 1; i++)
+      for (int i = 0; i < _stops.Count - 1; i++)
       {
-        GradientStop stopBegin = orderedStops[i];
-        GradientStop stopEnd = orderedStops[i + 1];
+        GradientStopData stopBegin = _stops[i];
+        GradientStopData stopEnd = _stops[i + 1];
         Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
         Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
         int offsetStart = (int) (stopBegin.Offset * width);

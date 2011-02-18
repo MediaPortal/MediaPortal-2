@@ -72,6 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
+      GradientStops.Dispose();
     }
 
     void Init()

@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  // TODO Albert: Cleanup brush textures, when not used any more
+  // TODO Albert: Cleanup brush textures when not used any more
   public class BrushCache
   {
     static BrushCache _instance;
@@ -54,9 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       foreach (GradientBrushTexture texture in _cache)
         if (texture.IsSame(stops))
           return texture;
-      // Here we must do a copy of the gradient stops. If we don't, the cache will change
-      // when the stops are changed outside.
-      GradientBrushTexture gradientBrush = new GradientBrushTexture(new GradientStopCollection(stops, null));
+      GradientBrushTexture gradientBrush = new GradientBrushTexture(stops);
       _cache.Add(gradientBrush);
       return gradientBrush;
     }

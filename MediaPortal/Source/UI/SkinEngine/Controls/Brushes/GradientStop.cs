@@ -31,10 +31,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class GradientStop : DependencyObject, IObservable
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _colorProperty;
-    AbstractProperty _offsetProperty;
+    protected AbstractProperty _colorProperty;
+    protected AbstractProperty _offsetProperty;
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
     #endregion
 
@@ -82,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.DeepCopy(source, copyManager);
       Detach();
-      GradientStop s = source as GradientStop;
+      GradientStop s = (GradientStop) source;
       Color = s.Color;
       Offset = s.Offset;
       Attach();
@@ -90,14 +91,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public event ObjectChangedHandler ObjectChanged;
+    public event ObjectChangedHandler ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     #region Protected methods
 
     protected void Fire()
     {
-      if (ObjectChanged != null)
-        ObjectChanged(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     protected void OnPropertyChanged(AbstractProperty prop, object oldValue)

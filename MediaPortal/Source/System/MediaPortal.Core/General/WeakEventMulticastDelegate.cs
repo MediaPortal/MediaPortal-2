@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -152,15 +153,11 @@ namespace MediaPortal.Core.General
         return;
       lock (_syncObj)
       {
+// ReSharper disable ConditionIsAlwaysTrueOrFalse,HeuristicUnreachableCode
         if (_eventHandlers == null) // Must be checked again while lock is held
           return;
-        bool needCleanup = false;
-        foreach (WeakEventDelegateData wehd in _eventHandlers)
-          if (wehd.TargetRef.Target == null)
-          {
-            needCleanup = true;
-            break;
-          }
+// ReSharper restore HeuristicUnreachableCode,ConditionIsAlwaysTrueOrFalse
+        bool needCleanup = _eventHandlers.Any(wehd => wehd.TargetRef.Target == null);
         if (needCleanup)
         {
           IList<WeakEventDelegateData> oldHandlers = _eventHandlers;

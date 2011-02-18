@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -31,7 +32,7 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IEnumerable<GradientStop>, IAddChild<GradientStop>
+  public class GradientStopCollection : IDisposable, IEnumerable<GradientStop>, IAddChild<GradientStop>
   {
     #region Protected fields
 
@@ -61,6 +62,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Init()
     {
       _elements = new List<GradientStop>();
+    }
+
+    public void Dispose()
+    {
+      foreach (GradientStop stop in _elements)
+        stop.Dispose();
+      _elements.Clear();
     }
 
     #endregion
