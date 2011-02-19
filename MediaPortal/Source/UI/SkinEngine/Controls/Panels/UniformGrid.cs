@@ -322,7 +322,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
       RectangleF bounds = ActualBounds;
-      return Children.TakeWhile(element =>
+      return Children.Where(element =>
         { // Don't render elements which are not visible, if we can scroll
           RectangleF elementBounds = element.ActualBounds;
           if (!element.IsVisible) return false;
