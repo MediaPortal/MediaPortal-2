@@ -31,6 +31,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -296,6 +297,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.Dispose();
       foreach (UIElement child in GetChildren())
         child.CleanupAndDispose();
+      foreach (TriggerBase triggerBase in Triggers)
+        triggerBase.Dispose();
+      Registration.TryCleanupAndDispose(RenderTransform);
+      Registration.TryCleanupAndDispose(LayoutTransform);
+      Registration.TryCleanupAndDispose(TemplateNameScope);
+      Registration.TryCleanupAndDispose(OpacityMask);
     }
 
     #endregion
@@ -633,16 +640,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Deallocate();
     }
 
-    public static void TryCleanupAndDispose(ref object obj)
+    public static void TryCleanupAndDispose(ref object maybeUIElementOrDisposable)
     {
-      UIElement u = obj as UIElement;
+      UIElement u = maybeUIElementOrDisposable as UIElement;
       if (u != null)
       {
-        obj = null;
+        maybeUIElementOrDisposable = null;
         u.CleanupAndDispose();
         return;
       }
-      TryDispose(ref obj);
+      TryDispose(ref maybeUIElementOrDisposable);
     }
 
     /// <summary>

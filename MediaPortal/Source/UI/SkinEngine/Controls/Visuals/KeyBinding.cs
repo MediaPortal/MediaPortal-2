@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -85,8 +86,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      base.Dispose();
       UnregisterKeyBinding();
+      Registration.TryCleanupAndDispose(Command);
+      base.Dispose();
     }
 
     #endregion

@@ -22,26 +22,16 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-
-namespace MediaPortal.UI.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   /// <summary>
-  /// Base class for MPF static resource lookup markup extensions
+  /// Marker interface for objects that typically are used as resources in <see cref="ResourceDictionary"/> instances.
+  /// Objects of this interface are unmodifiable and copying/disposing of them will be optimized in that way that if they
+  /// have an owner, they are not copied at all and they are only disposed by their owner, for example an enclosing
+  /// <see cref="ResourceDictionary"/>. If they don't have an owner, they will be copied and disposed normally as any other object.
   /// </summary>
-  public class StaticResourceBase
+  public interface IUnmodifiableResource
   {
-    protected object FindResourceInTheme(string resourceKey)
-    {
-      object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
-      if (result == null)
-        return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // See comment about the copying in method FindResourceInParserContext()
-      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-    }
+    object Owner { get; set; }
   }
 }

@@ -1142,34 +1142,32 @@
     </Setter>
   </Style>
 
+  <Style x:Key="WorkflowNavigationBarListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource WorkflowNavigationBarItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource WorkflowNavigationBarContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
+              Margin="10" Orientation="Horizontal" VerticalAlignment="Top"
+              EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="WorkflowNavigationBarStyle" TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ListView ItemsSource="{TemplateBinding NavigationItems}">
-            <ListView.Style>
-              <Style>
-                <Setter Property="Template">
-                  <Setter.Value>
-                    <ControlTemplate>
-                      <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                    </ControlTemplate>
-                  </Setter.Value>
-                </Setter>
-                <Setter Property="ItemTemplate" Value="{ThemeResource WorkflowNavigationBarItemDataTemplate}"/>
-                <Setter Property="ItemContainerStyle" Value="{ThemeResource WorkflowNavigationBarContainerStyle}"/>
-                <Setter Property="ItemsPanel">
-                  <Setter.Value>
-                    <ItemsPanelTemplate>
-                      <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
-                          Margin="10" Orientation="Horizontal" VerticalAlignment="Top"
-                          EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"/>
-                    </ItemsPanelTemplate>
-                  </Setter.Value>
-                </Setter>
-              </Style>
-            </ListView.Style>
-          </ListView>
+          <ListView ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

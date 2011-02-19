@@ -131,9 +131,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   /// </summary>
   public abstract class TimelineGroup : Timeline, IList<Timeline>
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _childrenProperty;
+    protected AbstractProperty _childrenProperty;
 
     #endregion
 
@@ -155,6 +155,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       TimelineGroup grp = (TimelineGroup) source;
       foreach (Timeline t in grp.Children)
         Children.Add(copyManager.GetCopy(t));
+    }
+
+    public override void Dispose()
+    {
+      foreach (Timeline child in Children)
+        child.Dispose();
+      base.Dispose();
     }
 
     #endregion

@@ -29,6 +29,7 @@ using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -109,15 +110,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object oldItemsSource = ItemsSource;
       object oldItems = Items;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
-      ItemContainerStyle = c.ItemContainerStyle; // Styles should be immutable
+      ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
-      ItemTemplate = copyManager.GetCopy(c.ItemTemplate); // Data templates are NOT immutable! They contain "personalized" data.
-      ItemsPanel = c.ItemsPanel; // Styles should be immutable
-      DataStringProvider = c.DataStringProvider; // Styles should be immutable
+      ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
+      ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
+      DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);
       InvalidateItems();
+    }
+
+    public override void Dispose()
+    {
+      Detach();
+      DetachFromItemsSource(ItemsSource);
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      if (items != null)
+      {
+        DetachFromItems(items);
+        // Normally, the disposal of items will be done by our items host panel. But in the rare case that we didn't add
+        // the Items to our host panel's Children yet, we need to clean up them manually.
+        items.Dispose();
+      }
+      Registration.TryCleanupAndDispose(ItemTemplate);
+      Registration.TryCleanupAndDispose(ItemContainerStyle);
+      Registration.TryCleanupAndDispose(ItemsPanel);
+      Registration.TryCleanupAndDispose(SelectionChanged);
+      base.Dispose();
     }
 
     #endregion
@@ -520,21 +540,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (screen != null && _lastFocusedElement != screen.FocusedElement)
         UpdateCurrentItem();
       base.DoRender(localRenderContext);
-    }
-
-    public override void Dispose()
-    {
-      Detach();
-      base.Dispose();
-      DetachFromItemsSource(ItemsSource);
-      ObservableUIElementCollection<FrameworkElement> items = Items;
-      if (items != null)
-      {
-        DetachFromItems(items);
-        // Normally, the disposal of items will be done by our items host panel. But in the rare case that we didn't add
-        // the Items to our host panel's Children yet, we need to clean up them manually.
-        items.Dispose();
-      }
     }
   }
 }

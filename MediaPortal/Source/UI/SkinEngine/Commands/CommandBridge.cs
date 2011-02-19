@@ -58,6 +58,12 @@ namespace MediaPortal.UI.SkinEngine.Commands
       _command = copyManager.GetCopy(cb._command);
     }
 
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_command);
+      base.Dispose();
+    }
+
     #endregion
 
     #region Properties

@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       HeaderedItemsControl c = (HeaderedItemsControl) source;
       IsExpanded = c.IsExpanded;
       ForceExpander = c.ForceExpander;
-      SubItemsProvider = c.SubItemsProvider;
+      SubItemsProvider = copyManager.GetCopy(c.SubItemsProvider);
       Attach();
       CheckExpandable();
     }

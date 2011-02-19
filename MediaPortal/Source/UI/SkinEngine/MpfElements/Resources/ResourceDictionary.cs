@@ -26,6 +26,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -80,13 +82,77 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       {
         _resources = new Dictionary<object, object>(rd._resources.Count);
         foreach (KeyValuePair<object, object> kvp in rd._resources)
-          _resources.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+        {
+          object valueCopy = copyManager.GetCopy(kvp.Value);
+          _resources.Add(copyManager.GetCopy(kvp.Key), valueCopy);
+          Registration.SetOwner(valueCopy, this);
+        }
       }
+    }
+
+    public override void Dispose()
+    {
+      if (_resources != null)
+        foreach (object res in _resources.Values)
+          // Really dispose objects if we are the owner
+          Registration.CleanupAndDisposeResourceIfOwner(res, this);
+      base.Dispose();
     }
 
     #endregion
 
     #region Protected members
+
+    public static object FindResourceInParserContext(string resourceKey, IParserContext context)
+    {
+      object result = null;
+      // Step up the parser's context stack to find the resource.
+      // The logical tree is not yet defined at the load time of the
+      // XAML file. This is the reason why we have to step up the parser's context
+      // stack. We will have to simulate the process of finding a resource
+      // which is normally done by UIElement.FindResource(string).
+      // The parser's context stack maintains a dictionary of current keyed
+      // elements for each stack level because the according resource
+      // dictionaries are not built yet.
+      foreach (ElementContextInfo current in context.ContextStack)
+      {
+        if (current.ContainsKey(resourceKey))
+          result = current.GetKeyedElement(resourceKey);
+        else if (current.Instance is UIElement &&
+            ((UIElement) current.Instance).Resources.ContainsKey(resourceKey))
+          // Don't call UIElement.FindResource here, because the logical tree
+          // may be not set up yet.
+          result = ((UIElement) current.Instance).Resources[resourceKey];
+        else if (current.Instance is ResourceDictionary)
+        {
+          ResourceDictionary rd = (ResourceDictionary) current.Instance;
+          if (rd.ContainsKey(resourceKey))
+            result = rd[resourceKey];
+        }
+      }
+      if (result == null)
+        return null;
+      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
+      // We do a copy of the result to avoid later problems when the property where the result is assigned to is copied.
+      // If we don't cut the result's logical parent, a deep copy of the here assigned property would still reference
+      // the static resource's logical parent, which would copy an unnecessary big tree.
+      // And we cannot simply clean the logical parent of the here found resource because we must not change it.
+      // So we must do a copy where we cut the logical parent.
+      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
+    }
+
+    public static void RegisterUnmodifiableResourceDuringParsingProcess(IUnmodifiableResource resource, IParserContext context)
+    {
+      object result = null;
+      IEnumerator<ElementContextInfo> enumer = ((IEnumerable<ElementContextInfo>) context.ContextStack).GetEnumerator();
+      if (!enumer.MoveNext())
+        return;
+      if (!enumer.MoveNext())
+        return;
+      ResourceDictionary rd = enumer.Current.Instance as ResourceDictionary;
+      if (rd != null)
+        Registration.SetOwner(resource, rd);
+    }
 
     internal IDictionary<object, object> GetOrCreateUnderlayingDictionary()
     {
@@ -189,6 +255,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         object key = enumer.Current.Key;
         object value = enumer.Current.Value;
         this[key] = value;
+        Registration.SetOwner(value, this);
         DependencyObject depObj = key as DependencyObject;
         if (depObj != null)
           depObj.LogicalParent = this;
@@ -226,17 +293,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       base.Initialize(context);
       if (!string.IsNullOrEmpty(_source))
       {
-        string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
-        if (includeFilePath == null)
-          throw new XamlLoadException("Could not open include file '{0}' (evaluated path is '{1}')", _source, includeFilePath);
-        object obj = XamlLoader.Load(includeFilePath,
+        string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
+        if (sourceFilePath == null)
+          throw new XamlLoadException("Could not open ResourceDictionary source file '{0}' (evaluated path is '{1}')", _source, sourceFilePath);
+        object obj = XamlLoader.Load(sourceFilePath,
             (IModelLoader) context.GetContextVariable(typeof(IModelLoader)),
             (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS));
         ResourceDictionary mergeDict = obj as ResourceDictionary;
         if (mergeDict == null)
         {
           if (obj != null)
-            DependencyObject.TryDispose(ref obj);
+            TryDispose(ref obj);
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         }
         TakeOver(mergeDict);
@@ -293,6 +360,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(key, value);
+      Registration.SetOwner(value, this);
       FireChanged();
     }
 
@@ -300,6 +368,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       if (_resources == null)
         return false;
+      object oldRes;
+      if (_resources.TryGetValue(key, out oldRes))
+        Registration.SetOwner(oldRes, null);
       bool result = _resources.Remove(key);
       FireChanged();
       return result;
@@ -324,7 +395,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       set
       {
         IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+        object oldRes;
+        if (resources.TryGetValue(key, out oldRes))
+          Registration.SetOwner(oldRes, null);
         resources[key] = value;
+        Registration.SetOwner(value, this);
         FireChanged();
       }
     }
@@ -347,6 +422,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(item);
+      Registration.SetOwner(item.Value, this);
       FireChanged();
     }
 
@@ -372,6 +448,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       if (_resources == null)
         return false;
+      object oldRes;
+      if (_resources.TryGetValue(item.Key, out oldRes))
+        Registration.SetOwner(oldRes, null);
       bool result = _resources.Remove(item);
       FireChanged();
       return result;

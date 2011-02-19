@@ -39,6 +39,7 @@ using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
@@ -230,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement fe = (FrameworkElement) source;
       Width = fe.Width;
       Height = fe.Height;
-      Style = fe.Style; // No copying necessary - Styles should be immutable
+      Style = copyManager.GetCopy(fe.Style);
       ActualWidth = fe.ActualWidth;
       ActualHeight = fe.ActualHeight;
       HorizontalAlignment = fe.HorizontalAlignment;
@@ -248,6 +249,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
 
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(ContextMenuCommand);
+      Registration.TryCleanupAndDispose(Style);
+      base.Dispose();
     }
 
     #endregion

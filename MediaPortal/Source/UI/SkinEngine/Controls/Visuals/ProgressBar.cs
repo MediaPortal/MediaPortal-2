@@ -29,10 +29,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ProgressBar : Control
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _valueProperty;
-    AbstractProperty _partIndicatorWidthProperty;
+    protected AbstractProperty _valueProperty;
+    protected AbstractProperty _partIndicatorWidthProperty;
 
     #endregion
 

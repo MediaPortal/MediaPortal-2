@@ -45,13 +45,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>
+  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>, IUnmodifiableResource
   {
     #region Protected fields
 
     protected ResourceDictionary _resourceDictionary;
     protected UIElement _templateElement;
     protected IDictionary<string, object> _names = null;
+    protected object _owner = null;
 
     #endregion
 
@@ -86,6 +87,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       }
     }
 
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_templateElement);
+      Registration.TryCleanupAndDispose(_resourceDictionary);
+      base.Dispose();
+    }
+
     #endregion
 
     #region Protected methodws
@@ -104,9 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     protected IDictionary<string, object> GetOrCreateNames()
     {
-      if (_names == null)
-        _names = new Dictionary<string, object>();
-      return _names;
+      return _names ?? (_names = new Dictionary<string, object>());
     }
 
     #endregion
@@ -159,6 +165,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       if (_names == null)
         return;
       _names.Remove(name);
+    }
+
+    #endregion
+
+    #region IUnmodifyableResource implementation
+
+    public object Owner
+    {
+      get { return _owner; }
+      set { _owner = value; }
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
+    public override void Initialize(IParserContext context)
+    {
+      base.Initialize(context);
+      ResourceDictionary.RegisterUnmodifiableResourceDuringParsingProcess(this, context);
     }
 
     #endregion

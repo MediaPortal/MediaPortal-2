@@ -61,6 +61,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
         triggers.Add(copyManager.GetCopy(t));
     }
 
+    public override void Dispose()
+    {
+      foreach (TriggerBase triggerBase in Triggers)
+        triggerBase.Dispose();
+      base.Dispose();
+    }
+
     #endregion
 
     #region Public properties

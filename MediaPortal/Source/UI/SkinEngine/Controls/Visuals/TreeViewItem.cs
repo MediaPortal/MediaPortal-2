@@ -24,6 +24,7 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -80,6 +81,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
       OnContentChanged(_contentProperty, null);
       OnContentTemplateChanged(_contentTemplateProperty, oldContentTemplate);
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Content);
+      Registration.TryCleanupAndDispose(ContentTemplate);
+      base.Dispose();
     }
 
     #endregion

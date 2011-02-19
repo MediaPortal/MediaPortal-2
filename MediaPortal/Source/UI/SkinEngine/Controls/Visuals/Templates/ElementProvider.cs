@@ -22,18 +22,21 @@
 
 #endregion
 
+using System;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class ElementProvider<T> : IInitializable
+  public class ElementProvider<T> : IUnmodifiableResource, IInitializable
   {
     #region Protected fields
 
     protected string _path = string.Empty;
     protected PathExpression _compiledPath = null;
+    protected object _owner = null;
 
     #endregion
 
@@ -53,11 +56,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       return (T) TypeConverter.Convert(result.Value, typeof(T));
     }
 
+    #region IUnmodifyableResource implementation
+
+    public object Owner
+    {
+      get { return _owner; }
+      set { _owner = value; }
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
     void IInitializable.Initialize(IParserContext context)
     {
       if (_path == null)
         throw new XamlBindingException("{0}: Path mustn't be null", GetType().Name);
       _compiledPath = PathExpression.Compile(context, _path);
+      ResourceDictionary.RegisterUnmodifiableResourceDuringParsingProcess(this, context);
     }
+
+    #endregion
   }
 }

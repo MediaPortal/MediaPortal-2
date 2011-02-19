@@ -31,11 +31,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class RotateTransform : Transform
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _centerXProperty;
-    AbstractProperty _centerYProperty;
-    AbstractProperty _angleProperty;
+    protected AbstractProperty _centerXProperty;
+    protected AbstractProperty _centerYProperty;
+    protected AbstractProperty _angleProperty;
 
     #endregion
 

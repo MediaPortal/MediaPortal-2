@@ -34,9 +34,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class ColorAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<ColorKeyFrame>
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _keyFramesProperty;
+    protected AbstractProperty _keyFramesProperty;
 
     #endregion
 
@@ -59,6 +59,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       IList<ColorKeyFrame> keyFrames = KeyFrames;
       foreach (ColorKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));
+    }
+
+    public override void Dispose()
+    {
+      foreach (ColorKeyFrame colorKeyFrame in KeyFrames)
+        colorKeyFrame.Dispose();
+      base.Dispose();
     }
 
     #endregion
@@ -93,9 +100,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null) return;
       double time = 0;
       Color start = ColorAnimation.ConvertToColor(patc.StartValue);
-      for (int i = 0; i < KeyFrames.Count; ++i)
+      foreach (ColorKeyFrame key in KeyFrames)
       {
-        ColorKeyFrame key = KeyFrames[i];
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
           double progress = (timepassed - time);

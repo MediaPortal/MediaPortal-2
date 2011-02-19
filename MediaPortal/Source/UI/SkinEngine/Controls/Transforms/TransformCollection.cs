@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     protected readonly IList<Transform> _elements = new List<Transform>();
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
-    public event ObjectChangedHandler ObjectChanged
+    public event ObjectChangedDlgt ObjectChanged
     {
       add { _objectChanged.Attach(value); }
       remove { _objectChanged.Detach(value); }
@@ -86,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     public override void Dispose()
     {
       base.Dispose();
+      _objectChanged.ClearAttachedHandlers();
       Clear();
     }
 
@@ -126,6 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
         element.Dispose();
       }
       _elements.Clear();
+      Fire();
     }
 
     public int Count

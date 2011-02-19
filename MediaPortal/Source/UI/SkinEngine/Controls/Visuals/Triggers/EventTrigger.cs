@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
@@ -60,6 +61,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       RoutedEvent = t.RoutedEvent;
       foreach (TriggerAction action in t._actions)
         _actions.Add(copyManager.GetCopy(action));
+    }
+
+    public override void Dispose()
+    {
+      foreach (TriggerAction triggerAction in _actions)
+        triggerAction.Dispose();
+      base.Dispose();
     }
 
     #endregion

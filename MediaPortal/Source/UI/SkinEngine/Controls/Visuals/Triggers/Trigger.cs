@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -64,9 +65,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Dispose()
     {
-      base.Dispose();
+      Registration.TryCleanupAndDispose(Value);
       if (_dataDescriptor != null)
         _dataDescriptor.Detach(OnPropertyChanged);
+      base.Dispose();
     }
 
     #endregion

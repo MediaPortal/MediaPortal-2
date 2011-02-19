@@ -27,6 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -34,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class BeginStoryboard : TriggerAction, IAddChild<Storyboard>
   {
-    #region Private fields
+    #region Protected fields
 
     protected AbstractProperty _storyBoardProperty;
     protected AbstractProperty _handoffBehaviorProperty;
@@ -63,6 +64,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       Storyboard = copyManager.GetCopy(s.Storyboard);
       HandoffBehavior = s.HandoffBehavior;
       Name = s.Name;
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Storyboard);
+      base.Dispose();
     }
 
     #endregion

@@ -39,6 +39,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -874,7 +875,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       FrameworkElement element = obj as FrameworkElement;
       if (element == null)
       {
-        UIElement.TryCleanupAndDispose(ref obj);
+        DependencyObject.TryDispose(ref obj);
         return null;
       }
       return new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Root = element};

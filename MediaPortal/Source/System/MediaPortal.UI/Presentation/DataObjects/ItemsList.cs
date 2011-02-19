@@ -40,7 +40,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>
-    public event ObjectChangedHandler ObjectChanged
+    public event ObjectChangedDlgt ObjectChanged
     {
       add { _objectChanged.Attach(value); }
       remove { _objectChanged.Detach(value); }

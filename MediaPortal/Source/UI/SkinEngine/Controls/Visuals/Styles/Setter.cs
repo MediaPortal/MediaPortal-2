@@ -22,6 +22,8 @@
 #endregion
 
 using System;
+using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -32,22 +34,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
   {
     #region Protected fields
 
-    protected object _value;
+    protected AbstractProperty _valueProperty;
 
     #endregion
 
     #region Ctor
 
+    public Setter()
+    {
+      Init();
+      Attach();
+    }
+
+    void Init()
+    {
+      _valueProperty = new SProperty(typeof(object), null);
+    }
+
+    void Attach()
+    {
+      _valueProperty.Attach(OnValueChanged);
+    }
+
+    void Detach()
+    {
+      _valueProperty.Detach(OnValueChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       Setter s = (Setter) source;
       Value = copyManager.GetCopy(s.Value);
+      Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.CleanupAndDisposeResourceIfOwner(Value, this);
+      base.Dispose();
     }
 
     #endregion
 
+    void OnValueChanged(AbstractProperty prop, object oldVal)
+    {
+      Registration.SetOwner(oldVal, null);
+      Registration.SetOwner(Value, this);
+    }
+
     #region Properties
+
+    public AbstractProperty ValueProperty
+    {
+      get { return _valueProperty; }
+    }
 
     /// <summary>
     /// Gets or sets the value to be set on our target. This value will be
@@ -56,8 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// </summary>
     public object Value
     {
-      get { return _value; }
-      set { _value = value; }
+      get { return _valueProperty.GetValue(); }
+      set { _valueProperty.SetValue(value); }
     }
 
     #endregion

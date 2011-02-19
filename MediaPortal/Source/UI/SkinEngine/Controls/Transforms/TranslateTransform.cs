@@ -30,10 +30,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class TranslateTransform : Transform
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _XProperty;
-    AbstractProperty _YProperty;
+    protected AbstractProperty _XProperty;
+    protected AbstractProperty _YProperty;
 
     #endregion
 

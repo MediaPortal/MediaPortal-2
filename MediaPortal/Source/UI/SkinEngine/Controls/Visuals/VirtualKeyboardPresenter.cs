@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -31,6 +32,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public class VirtualKeyboardPresenter : FrameworkElement
   {
     protected FrameworkElement _keyboardLayoutControl = null;
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_keyboardLayoutControl);
+      base.Dispose();
+    }
 
     public FrameworkElement KeyboardLayoutControl
     {

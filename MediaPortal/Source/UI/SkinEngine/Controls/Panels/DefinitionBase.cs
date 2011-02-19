@@ -29,8 +29,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class DefinitionBase : IDeepCopyable
   {
-    AbstractProperty _nameProperty;
-    AbstractProperty _lengthProperty;
+    #region Protected fields
+
+    protected AbstractProperty _nameProperty;
+    protected AbstractProperty _lengthProperty;
+
+    #endregion
 
     public DefinitionBase()
     {

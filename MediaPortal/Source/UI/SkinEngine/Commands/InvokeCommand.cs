@@ -44,9 +44,6 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     #region Ctor
 
-    public InvokeCommand()
-    { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
@@ -54,6 +51,14 @@ namespace MediaPortal.UI.SkinEngine.Commands
       CommandStencil = copyManager.GetCopy(ic.CommandStencil);
       foreach (object o in ic._commandParameters)
         _commandParameters.Add(copyManager.GetCopy(o));
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(CommandStencil);
+      foreach (object parameter in CommandParameters)
+        Registration.TryCleanupAndDispose(parameter);
+      base.Dispose();
     }
 
     #endregion

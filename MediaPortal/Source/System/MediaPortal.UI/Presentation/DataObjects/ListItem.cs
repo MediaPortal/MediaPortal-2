@@ -51,7 +51,6 @@ namespace MediaPortal.UI.Presentation.DataObjects
   /// Changes do <b>not</b> automatically trigger the <see cref="ObjectChanged"/> event; this event
   /// has to be explicitly triggered by modifying clients.
   /// </remarks>
-  /// TODO: Make multithreading-safe
   public class ListItem : IObservable
   {
     #region Protected fields
@@ -67,7 +66,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
     /// <summary>
     /// Event to track changes to this item.
     /// </summary>
-    public event ObjectChangedHandler ObjectChanged
+    public event ObjectChangedDlgt ObjectChanged
     {
       add { _objectChanged.Attach(value); }
       remove { _objectChanged.Detach(value); }

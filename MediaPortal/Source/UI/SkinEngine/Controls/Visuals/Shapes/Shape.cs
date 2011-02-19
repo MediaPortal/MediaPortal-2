@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using MediaPortal.Utilities.DeepCopy;
@@ -81,9 +82,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void Dispose()
     {
-      base.Dispose();
       Detach();
-      // Fill and Stroke are disposed by the BrushCache
+      Registration.TryCleanupAndDispose(Fill);
+      Registration.TryCleanupAndDispose(Stroke);
+      base.Dispose();
     }
 
     void Init()

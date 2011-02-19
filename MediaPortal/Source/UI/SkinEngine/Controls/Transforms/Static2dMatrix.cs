@@ -29,9 +29,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class Static2dMatrix: Transform
   {
-    #region Private fields
+    #region Protected fields
 
-    float[] _elements;
+    protected float[] _elements;
 
     #endregion
 

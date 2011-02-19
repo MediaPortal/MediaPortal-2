@@ -24,6 +24,7 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -31,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class DataTrigger : TriggerBase, IAddChild<Setter>
   {
-    #region Private fields
+    #region Protected fields
 
     protected AbstractProperty _bindingProperty;
     protected AbstractProperty _valueProperty;
@@ -70,6 +71,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       Binding = copyManager.GetCopy(t.Binding);
       Value = copyManager.GetCopy(t.Value);
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Value);
+      base.Dispose();
     }
 
     #endregion

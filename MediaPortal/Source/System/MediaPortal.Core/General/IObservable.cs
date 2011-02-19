@@ -24,10 +24,10 @@
 
 namespace MediaPortal.Core.General
 {
-  public delegate void ObjectChangedHandler(IObservable observable);
+  public delegate void ObjectChangedDlgt(IObservable observable);
 
   public interface IObservable
   {
-    event ObjectChangedHandler ObjectChanged;
+    event ObjectChangedDlgt ObjectChanged;
   }
 }

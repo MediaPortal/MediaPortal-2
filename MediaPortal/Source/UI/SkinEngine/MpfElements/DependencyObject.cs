@@ -118,14 +118,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #endregion
 
-    public static void TryDispose(ref object obj)
+    public static void TryDispose(ref object maybeDisposable)
     {
-      IDisposable d = obj as IDisposable;
-      if (d != null)
-      {
-        obj = null;
-        d.Dispose();
-      }
+      IDisposable d = maybeDisposable as IDisposable;
+      if (d == null)
+        return;
+      maybeDisposable = null;
+      d.Dispose();
     }
 
     public BindingMarkupExtension GetOrCreateDataContext()

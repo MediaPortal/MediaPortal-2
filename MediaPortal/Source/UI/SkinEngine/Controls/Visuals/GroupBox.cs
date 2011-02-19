@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -90,6 +91,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeHeaderLabel();
 
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_headerLabel);
+      base.Dispose();
     }
 
     #endregion

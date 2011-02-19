@@ -24,6 +24,7 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
@@ -65,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      _resource = FindResourceInTheme(_resourceKey) ?? FindResourceInParserContext(_resourceKey, context);
+      _resource = FindResourceInTheme(_resourceKey) ?? ResourceDictionary.FindResourceInParserContext(_resourceKey, context);
 
       if (_resource == null)
         ServiceRegistration.Get<ILogger>().Error("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);

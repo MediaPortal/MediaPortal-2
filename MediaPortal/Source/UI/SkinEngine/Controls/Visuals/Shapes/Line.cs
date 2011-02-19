@@ -38,12 +38,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Line : Shape
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _x1Property;
-    AbstractProperty _y1Property;
-    AbstractProperty _x2Property;
-    AbstractProperty _y2Property;
+    protected AbstractProperty _x1Property;
+    protected AbstractProperty _y1Property;
+    protected AbstractProperty _x2Property;
+    protected AbstractProperty _y2Property;
 
     #endregion
 

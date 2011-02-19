@@ -137,7 +137,7 @@ namespace MediaPortal.Core.General
       }
     }
 
-    public void ClearAttachedEvents()
+    public void ClearAttachedHandlers()
     {
       lock (_syncObj)
         _eventHandlers = null;

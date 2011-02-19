@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public event ObjectChangedHandler ObjectChanged
+    public event ObjectChangedDlgt ObjectChanged
     {
       add { _objectChanged.Attach(value); }
       remove { _objectChanged.Detach(value); }

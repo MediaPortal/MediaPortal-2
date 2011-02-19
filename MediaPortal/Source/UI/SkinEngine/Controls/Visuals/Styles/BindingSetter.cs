@@ -38,13 +38,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region Ctor
 
-    public BindingSetter() { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       BindingSetter bs = (BindingSetter) source;
       BindingWrapper = copyManager.GetCopy(bs.BindingWrapper);
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_bindingWrapper);
+      base.Dispose();
     }
 
     #endregion

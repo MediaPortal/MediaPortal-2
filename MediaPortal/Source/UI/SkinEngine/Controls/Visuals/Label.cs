@@ -32,12 +32,12 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  // TODO: We don't notice font changes if font is declared on a parent element
+  // TODO: We don't notice font changes if font is declared on a parent element, so add a virtual font change handler in parent
   public class Label : Control
   {
     public const double DEFAULT_SCROLL_SPEED = 20.0;
 
-    #region Private & protected fields
+    #region Protected fields
 
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _colorProperty;

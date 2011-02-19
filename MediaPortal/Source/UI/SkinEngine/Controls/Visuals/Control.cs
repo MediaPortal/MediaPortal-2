@@ -27,6 +27,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -46,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _templateProperty;
     protected AbstractProperty _templateControlProperty;
     protected AbstractProperty _backgroundProperty;
-    protected AbstractProperty _borderProperty;
+    protected AbstractProperty _borderBrushProperty;
     protected AbstractProperty _borderThicknessProperty;
     protected AbstractProperty _horizontalContentAlignmentProperty;
     protected AbstractProperty _verticalContentAlignmentProperty;
@@ -70,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _templateProperty = new SProperty(typeof(ControlTemplate), null);
       _templateControlProperty = new SProperty(typeof(FrameworkElement), null);
-      _borderProperty = new SProperty(typeof(Brush), null);
+      _borderBrushProperty = new SProperty(typeof(Brush), null);
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
       _horizontalContentAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
@@ -99,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Control c = (Control)source;
+      Control c = (Control) source;
       BorderBrush = copyManager.GetCopy(c.BorderBrush);
       Background = copyManager.GetCopy(c.Background);
       BorderThickness = c.BorderThickness;
@@ -112,6 +113,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalContentAlignment = c.VerticalContentAlignment;
       _initializedTemplateControl = copyManager.GetCopy(c._initializedTemplateControl);
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Template);
+      Registration.TryCleanupAndDispose(TemplateControl);
+      Registration.TryCleanupAndDispose(BorderBrush);
+      Registration.TryCleanupAndDispose(Background);
+      base.Dispose();
     }
 
     #endregion
@@ -188,13 +198,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public AbstractProperty BorderBrushProperty
     {
-      get { return _borderProperty; }
+      get { return _borderBrushProperty; }
     }
 
     public Brush BorderBrush
     {
-      get { return (Brush) _borderProperty.GetValue(); }
-      set { _borderProperty.SetValue(value); }
+      get { return (Brush) _borderBrushProperty.GetValue(); }
+      set { _borderBrushProperty.SetValue(value); }
     }
 
     public AbstractProperty BorderThicknessProperty

@@ -92,9 +92,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null) return;
       double time = 0;
       Vector2 start = (Vector2) patc.StartValue;
-      for (int i = 0; i < KeyFrames.Count; ++i)
+      foreach (PointKeyFrame key in KeyFrames)
       {
-        PointKeyFrame key = KeyFrames[i];
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
           double progress = (timepassed - time);

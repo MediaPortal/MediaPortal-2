@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
 
@@ -110,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     TemporaryReplace
   };
 
-  public abstract class Timeline: DependencyObject
+  public abstract class Timeline: DependencyObject, IUnmodifiableResource
   {
     #region Protected fields
 
@@ -121,6 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected AbstractProperty _durationProperty;
     protected AbstractProperty _repeatBehaviourProperty;
     protected AbstractProperty _fillBehaviourProperty;
+    protected object _owner = null;
 
     #endregion
 
@@ -475,6 +478,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     public virtual bool HasEnded(TimelineContext context)
     {
       return context.State == State.Ended;
+    }
+
+    #endregion
+
+    #region IUnmodifyableResource implementation
+
+    public object Owner
+    {
+      get { return _owner; }
+      set { _owner = value; }
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
+    public override void Initialize(IParserContext context)
+    {
+      base.Initialize(context);
+      ResourceDictionary.RegisterUnmodifiableResourceDuringParsingProcess(this, context);
     }
 
     #endregion

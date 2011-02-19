@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;
@@ -126,6 +127,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _imageSourceInvalid = true;
       HasImage = false;
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Source);
+      Registration.TryCleanupAndDispose(FallbackSource);
+      base.Dispose();
     }
 
     #endregion
