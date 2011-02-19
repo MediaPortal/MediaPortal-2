@@ -429,19 +429,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         target = source;
         return true;
       }
-      else if (source is ControlTemplate)
+      else if (source is FrameworkTemplate)
       {
-        // Control templates are unmodifyable
+        // Templates are unmodifyable
         target = source;
         return true;
       }
-      else if (source is ItemsPanelTemplate)
-      {
-        // Items panel templates are unmodifyable
-        target = source;
-        return true;
-      }
-      // DataTemplates are modifiable, don't exclude them here from copying
       else if (source is Timeline)
       {
         // Timeline objects are unmodifyable
