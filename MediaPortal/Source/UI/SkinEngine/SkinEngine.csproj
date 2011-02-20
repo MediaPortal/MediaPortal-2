@@ -114,6 +114,7 @@
     <Compile Include="Controls\ImageSources\MultiImage.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
+    <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
     <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />

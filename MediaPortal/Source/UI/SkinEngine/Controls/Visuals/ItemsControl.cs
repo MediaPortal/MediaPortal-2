@@ -24,6 +24,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
@@ -58,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
     protected FrameworkElement _lastFocusedElement = null;
+    protected ISelectableItemContainer _lastSelectedItem = null;
 
     #endregion
 
@@ -115,6 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
+      _lastSelectedItem = copyManager.GetCopy(c._lastSelectedItem);
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);
@@ -245,7 +248,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         children.Clear();
         if (items != null)
+        {
+          foreach (ISelectableItemContainer container in
+              items.OfType<ISelectableItemContainer>().Where(container => container.Selected))
+            _lastSelectedItem = container;
           children.AddAll(items);
+        }
         IsEmpty = children.Count == 0;
       }
     }
@@ -421,9 +429,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         while (element != null && element.VisualParent != _itemsHostPanel)
           element = element.VisualParent;
         CurrentItem = element == null ? null : element.Context;
+        ISelectableItemContainer container = element as ISelectableItemContainer;
+        if (container != null)
+          container.Selected = true; // Triggers an update of our _lastSelectedItem
       }
       if (SelectionChanged != null)
         SelectionChanged.Execute(new object[] { CurrentItem });
+    }
+
+    public void UpdateSelectedItem(ISelectableItemContainer container, bool isSelected)
+    {
+      if (ReferenceEquals(_lastSelectedItem, container))
+      { // Our selected container
+        if (!isSelected)
+          _lastSelectedItem = null;
+        return;
+      }
+      // Not our selected container
+      if (!isSelected)
+        return;
+      if (_lastSelectedItem != null)
+        _lastSelectedItem.Selected = false;
+      _lastSelectedItem = container;
     }
 
     protected virtual void InvalidateItems()

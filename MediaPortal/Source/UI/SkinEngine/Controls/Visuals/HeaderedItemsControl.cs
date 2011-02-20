@@ -29,7 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class HeaderedItemsControl : ItemsControl
+  public class HeaderedItemsControl : ItemsControl, ISelectableItemContainer
   {
     #region Protected fields
 
@@ -37,6 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _isExpandableProperty;
     protected AbstractProperty _forceExpanderProperty;
     protected AbstractProperty _subItemsProviderProperty;
+    protected AbstractProperty _selectedProperty;
 
     #endregion
 
@@ -61,12 +62,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _forceExpanderProperty.Attach(OnForceExpanderChanged);
       _subItemsProviderProperty.Attach(OnSubItemsProviderChanged);
+      _selectedProperty.Attach(OnSelectedChanged);
     }
 
     void Detach()
     {
       _forceExpanderProperty.Attach(OnForceExpanderChanged);
       _subItemsProviderProperty.Detach(OnSubItemsProviderChanged);
+      _selectedProperty.Detach(OnSelectedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -77,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IsExpanded = c.IsExpanded;
       ForceExpander = c.ForceExpander;
       SubItemsProvider = copyManager.GetCopy(c.SubItemsProvider);
+      Selected = c.Selected;
       Attach();
       CheckExpandable();
     }
@@ -91,6 +95,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnSubItemsProviderChanged(AbstractProperty prop, object oldVal)
     {
       InitializeItemsSource();
+    }
+
+    void OnSelectedChanged(AbstractProperty prop, object oldVal)
+    {
+      ItemsControl ic = FindParentOfType<ItemsControl>();
+      if (ic != null)
+        ic.UpdateSelectedItem(this, Selected);
     }
 
     protected override void OnItemsSourceChanged()
@@ -169,6 +180,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (SubItemsProvider) _subItemsProviderProperty.GetValue(); }
       set { _subItemsProviderProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SelectedProperty
+    {
+      get { return _selectedProperty; }
+    }
+
+    public bool Selected
+    {
+      get { return (bool) _selectedProperty.GetValue(); }
+      set {_selectedProperty.SetValue(value); }
     }
 
     #endregion

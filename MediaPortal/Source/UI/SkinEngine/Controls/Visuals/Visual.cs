@@ -125,6 +125,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     public virtual void Render(RenderContext parentRenderContext) { }
+
+    public T FindParentOfType<T>() where T : Visual
+    {
+      Visual current = this;
+      while (current != null && !(current is T))
+        current = current.VisualParent;
+      return (T) current;
+    }
   }
 }
 
