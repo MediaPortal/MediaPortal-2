@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
@@ -40,6 +41,16 @@ namespace MediaPortal.Test.GUITestPlugin
     protected static Guid TEST_MAIN_WORKFLOW_STATE_ID = new Guid(TEST_MAIN_WORKFLOW_STATE_ID_STR);
 
     #region Protected fields
+
+    #endregion
+
+    #region Public members
+
+    public void ShowScreenInTransientState(string screen)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow), null);
+    }
 
     #endregion
 

@@ -31,25 +31,25 @@
           </Grid.RowDefinitions>
           <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 1"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms1}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms1}"/>
           <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 2"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms2}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms2}"/>
           <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource ButtonStyle}" Content="Opacity mask test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-opacitymask}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-opacitymask}"/>
           <Button Grid.Column="0" Grid.Row="3" Style="{StaticResource ButtonStyle}" Content="Text elements/transforms test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-text-transforms}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-text-transforms}"/>
           <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonStyle}" Content="Transforms test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-transforms}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-transforms}"/>
           <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonStyle}" Content="TreeView test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9233F320-F0D3-4511-84F0-4575CC9F6A55}"/>
           <Button Grid.Column="0" Grid.Row="6" Style="{StaticResource ButtonStyle}" Content="VirtualKeyboard test"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-virtualkeyboardcontrol}"/>
+              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
         </Grid>
       </DockPanel>
     </ResourceWrapper>
