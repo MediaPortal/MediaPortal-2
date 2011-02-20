@@ -1603,14 +1603,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToTexture(renderTarget, tempRenderContext);
 
+        // Add bounds to our calculated, occupied area.
+        // If we don't do that, lines at the border of this element might be dimmed because of the filter (see OpacityMask test in GUITestPlugin).
+        // The value was just found by testing. Any better solution is welcome.
+        const float OPACITY_MASK_BOUNDS = 0.9f;
+        RectangleF occupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
+        occupiedTransformedBounds.X -= OPACITY_MASK_BOUNDS;
+        occupiedTransformedBounds.Y -= OPACITY_MASK_BOUNDS;
+        occupiedTransformedBounds.Width += OPACITY_MASK_BOUNDS*2;
+        occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS*2;
+
         // If the control bounds have changed we need to update our primitive context to make the 
         //    texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
-            tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds
-            || renderTarget.Size != _lastOpacityRenderSize)
+            occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
+            renderTarget.Size != _lastOpacityRenderSize)
         {
-          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
-          _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
+          UpdateOpacityMask(occupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
+          _lastOccupiedTransformedBounds = occupiedTransformedBounds;
           _updateOpacityMask = false;
           _lastOpacityRenderSize = renderTarget.Size;
         }
