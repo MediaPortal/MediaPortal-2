@@ -56,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _isExpandableProperty = new SProperty(typeof(bool), false);
       _forceExpanderProperty = new SProperty(typeof(bool), false);
       _subItemsProviderProperty = new SProperty(typeof(SubItemsProvider), null);
+      _selectedProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
