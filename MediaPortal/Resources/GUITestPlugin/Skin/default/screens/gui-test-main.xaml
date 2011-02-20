@@ -12,45 +12,34 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <DockPanel LastChildFill="True">
-        <Grid DockPanel.Dock="Center" Margin="30">
-          <Grid.Resources>
+        <UniformGrid Columns="2" DockPanel.Dock="Center" Margin="30">
+          <UniformGrid.Resources>
             <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/> <!-- GUI-Test-Model -->
-          </Grid.Resources>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50*"/>
-            <ColumnDefinition Width="50*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 1"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms1}"/>
-          <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 2"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms2}"/>
-          <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource ButtonStyle}" Content="Opacity mask test"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-opacitymask}"/>
-          <Button Grid.Column="0" Grid.Row="3" Style="{StaticResource ButtonStyle}" Content="Text elements/transforms test"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-text-transforms}"/>
-          <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonStyle}" Content="Transforms test"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-transforms}"/>
-          <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonStyle}" Content="TreeView test"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9233F320-F0D3-4511-84F0-4575CC9F6A55}"/>
-          <Button Grid.Column="0" Grid.Row="6" Style="{StaticResource ButtonStyle}" Content="VirtualKeyboard test"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
-        </Grid>
+          </UniformGrid.Resources>
+          <StackPanel Orientation="Vertical">
+            <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource ButtonWideStyle}" Content="Brushes/transforms test 1"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms1}"/>
+            <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonWideStyle}" Content="Brushes/transforms test 2"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms2}"/>
+            <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource ButtonWideStyle}" Content="Opacity mask test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-opacitymask}"/>
+            <Button Grid.Column="0" Grid.Row="3" Style="{StaticResource ButtonWideStyle}" Content="Text elements/transforms test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-text-transforms}"/>
+            <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonWideStyle}" Content="Transforms test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-transforms}"/>
+            <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonWideStyle}" Content="TreeView test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9233F320-F0D3-4511-84F0-4575CC9F6A55}"/>
+            <Button Grid.Column="0" Grid.Row="6" Style="{StaticResource ButtonWideStyle}" Content="VirtualKeyboard test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
+          </StackPanel>
+        </UniformGrid>
       </DockPanel>
     </ResourceWrapper>
 

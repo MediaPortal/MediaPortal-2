@@ -46,9 +46,9 @@
 
   </Grid.Resources>
 
-  <Label Grid.Row="0" Grid.Column="1" Content="No Transform"/>
-  <Label Grid.Row="0" Grid.Column="2" Content="RelativeTransform"/>
-  <Label Grid.Row="0" Grid.Column="3" Content="Transform"/>
+  <Label Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Content="No Transform"/>
+  <Label Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Content="RelativeTransform"/>
+  <Label Grid.Row="0" Grid.Column="3" FontSize="{ThemeResource SmallFontSize}" Content="Transform"/>
 
   <Label Grid.Row="1" Grid.Column="0" Content="LinearGradientBrush"/>
   <Rectangle Grid.Row="1" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
