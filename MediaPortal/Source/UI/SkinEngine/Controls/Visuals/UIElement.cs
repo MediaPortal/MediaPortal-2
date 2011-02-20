@@ -924,7 +924,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public virtual void Initialize()
+    public virtual void CheckFireLoaded()
     {
       if (!_fireLoaded)
         return;

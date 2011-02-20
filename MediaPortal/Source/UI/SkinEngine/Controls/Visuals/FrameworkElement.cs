@@ -1032,11 +1032,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _innerRect = rect;
 
-      Initialize();
       InitializeTriggers();
+      CheckFireLoaded(); // Has to be done after all triggers are initialized to make EventTriggers for UIElement.Loaded work properly
 
       ArrangeOverride();
-      UpdateFocus(); // Has to be done after all children have arranged
+      UpdateFocus(); // Has to be done after all children have arranged to make SetFocus work properly
     }
 
     protected virtual void ArrangeOverride()

@@ -384,7 +384,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_root)
       {
         _root.Allocate();
-        _root.Initialize();
 
         _root.InvalidateLayout(true, true);
         _root.UpdateLayoutRoot();
