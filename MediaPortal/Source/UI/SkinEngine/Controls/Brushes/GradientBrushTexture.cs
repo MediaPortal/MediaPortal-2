@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       private readonly Color _color;
       private readonly double _offset;
 
-      private GradientStopData(Color color, double offset)
+      public GradientStopData(Color color, double offset)
       {
         _color = color;
         _offset = offset;
@@ -126,55 +126,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void CreateGradient()
     {
-      const float width = GRADIENT_TEXTURE_WIDTH;
       byte[] data = new byte[4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT];
-      const int offY = GRADIENT_TEXTURE_WIDTH * 4;
 
       for (int i = 0; i < _stops.Count - 1; i++)
-      {
-        GradientStopData stopBegin = _stops[i];
-        GradientStopData stopEnd = _stops[i + 1];
-        Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
-        Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
-        int offsetStart = (int) (stopBegin.Offset * width);
-        int offsetEnd = (int) (stopEnd.Offset * width);
+        CreatePartialGradient(data, _stops[i], _stops[i + 1]);
+      // If sops don't go up to 1.0 we have to fake the final stop
+      if (_stops[_stops.Count - 1].Offset < 1.0)
+        CreatePartialGradient(data, _stops[_stops.Count - 1], new GradientStopData(_stops[_stops.Count - 1].Color, 1.0));
 
-        int clampedStart = Math.Max(0, offsetStart);
-        int clampedEnd = Math.Min(GRADIENT_TEXTURE_WIDTH, offsetEnd);
-
-        float distance = offsetEnd - offsetStart;
-        for (int x = clampedStart; x < clampedEnd; ++x)
-        {
-          float step = (x - offsetStart) / distance;
-          float r = step * (colorEnd.Red - colorStart.Red);
-          r += colorStart.Red;
-
-          float g = step * (colorEnd.Green - colorStart.Green);
-          g += colorStart.Green;
-
-          float b = step * (colorEnd.Blue - colorStart.Blue);
-          b += colorStart.Blue;
-
-          float a = step * (colorEnd.Alpha - colorStart.Alpha);
-          a += colorStart.Alpha;
-
-          a *= 255;
-          r *= 255;
-          g *= 255;
-          b *= 255;
-
-          int offx = x * 4;
-          data[offx] = (byte) b;
-          data[offx + 1] = (byte) g;
-          data[offx + 2] = (byte) r;
-          data[offx + 3] = (byte) a;
-
-          data[offY + offx] = (byte) b;
-          data[offY + offx + 1] = (byte) g;
-          data[offY + offx + 2] = (byte) r;
-          data[offY + offx + 3] = (byte) a;
-        }
-      }
       DataRectangle rect = _texture.Surface0.LockRectangle(LockFlags.None);
       rect.Data.Write(data, 0, 4 * GRADIENT_TEXTURE_WIDTH * GRADIENT_TEXTURE_HEIGHT);
       _texture.Surface0.UnlockRectangle();
@@ -189,6 +148,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public void Free(bool force)
     {
       _texture = null;
+    }
+
+    private void CreatePartialGradient(byte[] data, GradientStopData stopBegin, GradientStopData stopEnd)
+    {
+      const float width = GRADIENT_TEXTURE_WIDTH;
+      const int offY = GRADIENT_TEXTURE_WIDTH * 4;
+
+      Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
+      Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
+      int offsetStart = (int) (stopBegin.Offset * width);
+      int offsetEnd = (int) (stopEnd.Offset * width);
+
+      int clampedStart = Math.Max(0, offsetStart);
+      int clampedEnd = Math.Min(GRADIENT_TEXTURE_WIDTH, offsetEnd);
+
+      float distance = offsetEnd - offsetStart;
+      for (int x = clampedStart; x < clampedEnd; ++x)
+      {
+        float step = (x - offsetStart) / distance;
+        float r = step * (colorEnd.Red - colorStart.Red);
+        r += colorStart.Red;
+
+        float g = step * (colorEnd.Green - colorStart.Green);
+        g += colorStart.Green;
+
+        float b = step * (colorEnd.Blue - colorStart.Blue);
+        b += colorStart.Blue;
+
+        float a = step * (colorEnd.Alpha - colorStart.Alpha);
+        a += colorStart.Alpha;
+
+        a *= 255;
+        r *= 255;
+        g *= 255;
+        b *= 255;
+
+        int offx = x * 4;
+        data[offx] = (byte) b;
+        data[offx + 1] = (byte) g;
+        data[offx + 2] = (byte) r;
+        data[offx + 3] = (byte) a;
+
+        data[offY + offx] = (byte) b;
+        data[offY + offx + 1] = (byte) g;
+        data[offY + offx + 2] = (byte) r;
+        data[offY + offx + 3] = (byte) a;
+      }
     }
   }
 }

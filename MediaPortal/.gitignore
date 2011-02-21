@@ -1,1 +1,9 @@
 Bin
+bin
+obj
+*.suo
+*.sln.cache
+*.resharper
+*.resharper.user
+*.ReSharper.user
+_ReSharper.*
