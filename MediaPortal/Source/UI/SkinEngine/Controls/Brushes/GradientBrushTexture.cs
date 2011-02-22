@@ -150,7 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _texture = null;
     }
 
-    private void CreatePartialGradient(byte[] data, GradientStopData stopBegin, GradientStopData stopEnd)
+    private static void CreatePartialGradient(byte[] data, GradientStopData stopBegin, GradientStopData stopEnd)
     {
       const float width = GRADIENT_TEXTURE_WIDTH;
       const int offY = GRADIENT_TEXTURE_WIDTH * 4;
