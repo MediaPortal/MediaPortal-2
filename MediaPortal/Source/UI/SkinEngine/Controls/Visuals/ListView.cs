@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -39,8 +40,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Screen = Screen
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = ItemContainerStyle;
-      container.ContentTemplate = ItemTemplate;
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       return container;
     }
 

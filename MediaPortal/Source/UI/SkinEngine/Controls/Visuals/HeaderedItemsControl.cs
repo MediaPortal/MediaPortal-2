@@ -25,6 +25,7 @@
 using System.Collections;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -223,14 +224,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Screen = Screen
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = ItemContainerStyle;
-      container.ContentTemplate = ItemTemplate;
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = ItemContainerStyle;
-      container.ItemsPanel = ItemsPanel;
-      container.ItemTemplate = ItemTemplate;
-      container.SubItemsProvider = SubItemsProvider;
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
       return container;
     }
   }
