@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -30,7 +29,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class ElementProvider<T> : IUnmodifiableResource, IInitializable
+  public class ElementProvider<T> : IUnmodifiableResource, IInitializable where T : class
   {
     #region Protected fields
 
@@ -53,6 +52,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       IDataDescriptor result;
       _compiledPath.Evaluate(new ValueDataDescriptor(source), out result);
+      if (result == null)
+        return null;
       return (T) TypeConverter.Convert(result.Value, typeof(T));
     }
 
