@@ -524,10 +524,7 @@ namespace MediaPortal.UI.Services.Players
       if (player == null)
         return;
 
-      TimeSpan targetPosition = player.Duration.Add(TimeSpan.FromSeconds(-10));
-      // check for short videos less then 10 s
-      if (targetPosition.TotalSeconds > 0)
-        player.CurrentTime = targetPosition;
+      player.CurrentTime = player.Duration;
     }
 
     public bool PreviousItem()
