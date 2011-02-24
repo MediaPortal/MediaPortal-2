@@ -117,20 +117,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool StopTimeshift(int slotIndex)
     {
-      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
-      _channels[slotIndex] = null;
-      return true;
+      try
+      {
+        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
+        _channels[slotIndex] = null;
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
     }
 
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
       groups = new List<IChannelGroup>();
-      List<WebChannelGroup> tvGroups = _tvServer.GetGroups();
-      foreach (WebChannelGroup webChannelGroup in tvGroups)
+      try
       {
-        groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = webChannelGroup.GroupName });
+        List<WebChannelGroup> tvGroups = _tvServer.GetGroups();
+        foreach (WebChannelGroup webChannelGroup in tvGroups)
+        {
+          groups.Add(new ChannelGroup {ChannelGroupId = webChannelGroup.IdGroup, Name = webChannelGroup.GroupName});
+        }
+        return true;
       }
-      return true;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
     }
 
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
@@ -138,23 +154,37 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       channels = new List<IChannel>();
       if (group == null)
         return false;
-
-      List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
-      foreach (WebChannelBasic webChannel in tvChannels)
+      try
       {
-        channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName });
+        List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
+        foreach (WebChannelBasic webChannel in tvChannels)
+        {
+          channels.Add(new Channel {ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName});
+        }
+        return true;
       }
-      return true;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
     }
 
     public bool GetChannel(int channelId, out IChannel channel)
     {
       channel = null;
-      WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
-      if (tvChannel != null)
+      try
       {
-        channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName};
-        return true;
+        WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
+        if (tvChannel != null)
+        {
+          channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName};
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
       }
       return false;
     }
@@ -209,12 +239,19 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       program = null;
       if (channel == null)
         return false;
-
-      WebProgramDetailed tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
-      if (tvProgram != null)
+      try
       {
-        program = new Program(tvProgram);
-        return true;
+
+        WebProgramDetailed tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
+        if (tvProgram != null)
+        {
+          program = new Program(tvProgram);
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
       }
       return false;
     }
@@ -226,16 +263,25 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
 
       IProgram currentProgram;
-      if (GetCurrentProgram(channel, out currentProgram))
+      try
       {
-        List<WebProgramDetailed> nextPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId,
-                                                                       currentProgram.EndTime.AddMinutes(1),
-                                                                       currentProgram.EndTime.AddMinutes(1));
-        if (nextPrograms != null && nextPrograms.Count > 0)
+        if (GetCurrentProgram(channel, out currentProgram))
         {
-          program = new Program(nextPrograms[0]);
-          return true;
+          List<WebProgramDetailed> nextPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId,
+                                                                                          currentProgram.EndTime.
+                                                                                            AddMinutes(1),
+                                                                                          currentProgram.EndTime.
+                                                                                            AddMinutes(1));
+          if (nextPrograms != null && nextPrograms.Count > 0)
+          {
+            program = new Program(nextPrograms[0]);
+            return true;
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
       }
       return false;
     }
@@ -247,11 +293,17 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
 
       programs = new List<IProgram>();
-
-      List<WebProgramDetailed> tvPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId, from, to);
-      foreach (WebProgramDetailed webProgram in tvPrograms)
-        programs.Add(new Program(webProgram));
-
+      try
+      {
+        List<WebProgramDetailed> tvPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId, from, to);
+        foreach (WebProgramDetailed webProgram in tvPrograms)
+          programs.Add(new Program(webProgram));
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        return false;
+      }
       return true;
     }
 
