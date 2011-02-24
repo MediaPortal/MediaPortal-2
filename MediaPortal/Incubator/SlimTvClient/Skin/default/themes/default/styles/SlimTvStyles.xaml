@@ -38,76 +38,75 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
-                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
-                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                      <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                          <Binding Path="IsAudio"/>
-                          <Binding Path="IsMuted"/>
-                        </MultiBinding>
-                      </Control.IsVisible>
-                    </Control>
-                  </Grid>
-                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
-                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                  </Grid>
-                </Grid>
+ 
                 <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="80"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="ChannelName" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}" Scroll="Auto"
+                  <!--<Label x:Name="ChannelName" Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}" 
+                      Scroll="Auto" 
+                      HorizontalAlignment="Left" VerticalAlignment="Center"/>-->
+
+                  <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
+                   Stretch="Uniform">
+                    <Image.Source>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+                        <Binding Source="{StaticResource SlimTvClient}" Path="ChannelName"/>
+                        <Binding Source=".png"/>
+                      </MultiBinding>
+                    </Image.Source>
+                  </Image>
+
+                  <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                  
-                  <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="1" 
+
+                  <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+
+                  <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="2" 
                       Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource DateFormatConverter}}" 
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
-                  <Label x:Name="CurrentProgramTitleLabel" Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
-                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                  
-                  <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="1" 
-                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                  
-                  <!--<Label x:Name="NextProgramLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>-->
-                </Grid>
-              </DockPanel>               
-                
-                <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                  <Border x:Name="BgProgressbar" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     BorderBrush="Black" CornerRadius="3" BorderThickness="1">
-                  <Border.Background>
-                    <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-                      <GradientStop Offset="0" Color="{ThemeResource OSDProgressBarBackgroundGradient1Color}"/>
-                      <GradientStop Offset="1" Color="{ThemeResource OSDProgressBarBackgroundGradient2Color}"/>
-                    </RadialGradientBrush>
-                  </Border.Background>
-                  <!-- Shows the progress of current time in relation to the current playing program -->
-                  <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    <Border.Background>
+                      <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
+                        <GradientStop Offset="0" Color="{ThemeResource OSDProgressBarBackgroundGradient1Color}"/>
+                        <GradientStop Offset="1" Color="{ThemeResource OSDProgressBarBackgroundGradient2Color}"/>
+                      </RadialGradientBrush>
+                    </Border.Background>
+                    <!-- Shows the progress of current time in relation to the current playing program -->
+                    <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       Style="{ThemeResource ProgressBarStyle}"
                       Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
-                  <!-- Shows the buffer position of timeshift playback -->
-                  <!--<ProgressBar x:Name="PlayingProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    <!-- Shows the buffer position of timeshift playback -->
+                    <!--<ProgressBar x:Name="PlayingProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       Style="{ThemeResource ProgressBarStyle}"
                       Value="{Binding Path=PercentPlayed}"/>-->
-                </Border>
+                  </Border>
 
-              <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
+                  
+                  <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Grid.Row="2" 
+                      Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource DateFormatConverter}}" 
+                      HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                  <Label x:Name="PlayerStateLabel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"
+                    Content="{Binding PlayerStateText}" Scroll="Auto"/>
+
+                </Grid>
+              </DockPanel>
+
+
+              <!--<Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
@@ -123,7 +122,7 @@
                   <Label Content="/" Margin="4,0,4,0"/>
                   <Label x:Name="VideoDurationLabel" Content="{Binding Duration}"/>
                 </StackPanel>
-              </Grid> <!-- StatusLineGrid -->
+              </Grid>--> <!-- StatusLineGrid -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -150,6 +149,31 @@
                 <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                       Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+
+                <Grid x:Name="AudioPanel" HorizontalAlignment="Right" Margin="4,0,0,0">
+                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <!-- Must be located the same as Audio_Mouse -->
+                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
+                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                      <Control.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                          <Binding Path="IsAudio"/>
+                          <Binding Path="IsMuted"/>
+                        </MultiBinding>
+                      </Control.IsVisible>
+                    </Control>
+                  </Grid>
+                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <!-- Must be located the same as Audio_NoMouse -->
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+                </Grid>
+
               </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
           </Border> <!-- OSD_Background -->
