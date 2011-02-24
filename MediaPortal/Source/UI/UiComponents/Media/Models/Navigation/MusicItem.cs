@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public MusicItem(MediaItem mediaItem) : base(mediaItem)
     {
+      ItemType = "Music";
       // TODO: Add more properties for music media item to ListItem
     }
   }

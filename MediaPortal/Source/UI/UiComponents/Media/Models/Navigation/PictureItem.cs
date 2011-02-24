@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public PictureItem(MediaItem mediaItem) : base(mediaItem)
     {
+      ItemType = "Picture";
       // TODO: Add more properties for picture media item to ListItem
     }
   }

@@ -40,6 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public NavigationItem(View view, string overrideName, int? absNumItems)
     {
+      ItemType = "Navigation";
       UpdateData(view, overrideName, absNumItems);
     }
 
@@ -51,6 +52,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         SetLabel(Consts.KEY_NUM_ITEMS, "(" + absNumItems.Value + ")");
 
       // TODO: Other properties
+    }
+
+    public string ItemType
+    {
+      get { return this["ItemType"]; }
+      set { SetLabel("ItemType", value); }
     }
   }
 }

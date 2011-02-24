@@ -667,11 +667,20 @@
   <DataTemplate x:Key="MediaItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding [NumItems]}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+            <Binding Path="[ItemType]"/>
+            <Binding Source=".png"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumItems" Grid.Column="2" Content="{Binding [NumItems]}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 

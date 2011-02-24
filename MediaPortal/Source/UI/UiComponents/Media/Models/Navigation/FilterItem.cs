@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public FilterItem(string name, int? numItems)
     {
+      ItemType = "Filter";
       UpdateData(name, numItems);
     }
 
@@ -42,6 +43,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       SetLabel(Consts.KEY_NAME, name);
       if (numItems.HasValue)
         SetLabel(Consts.KEY_NUM_ITEMS, "(" + numItems.Value + ")");
+    }
+
+    public string ItemType
+    {
+      get { return this["ItemType"]; }
+      set { SetLabel("ItemType", value); }
     }
   }
 }

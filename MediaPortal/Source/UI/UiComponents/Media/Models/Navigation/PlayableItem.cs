@@ -79,6 +79,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       get { return _mediaItem; }
     }
 
+    public string ItemType
+    {
+      get { return this["ItemType"]; }
+      set { SetLabel("ItemType", value); }
+    }
+
     public string Name
     {
       get { return this[Consts.KEY_NAME]; }
