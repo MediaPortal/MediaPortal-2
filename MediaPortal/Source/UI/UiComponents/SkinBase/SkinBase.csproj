@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -11,10 +12,25 @@
     <AssemblyName>SkinBase</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +39,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -31,6 +48,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -129,55 +147,186 @@
     <Content Include="Skin\default\images\warning-icon.png" />
     <Content Include="Skin\default\images\info-icon.png" />
     <Content Include="Skin\default\images\user-interaction-required-icon.png" />
-    <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
-    <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
-    <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
-    <Content Include="Skin\default\screens\DialogPlayerChooseEffect.xaml" />
-    <Content Include="Skin\default\screens\GenericDialog.xaml" />
-    <Content Include="Skin\default\screens\DialogVirtualKeyboard.xaml" />
-    <Content Include="Skin\default\screens\home.xaml" />
-    <Content Include="Skin\default\screens\master.xaml" />
-    <Content Include="Skin\default\screens\master_dialog.xaml" />
-    <Content Include="Skin\default\screens\master_dialog_menu.xaml" />
-    <Content Include="Skin\default\screens\master_menu.xaml" />
-    <Content Include="Skin\default\screens\simple_dialog_menu.xaml" />
-    <Content Include="Skin\default\screens\ShowHomeServer.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\DialogPlayerChooseEffect.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\GenericDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\DialogVirtualKeyboard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\home.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_dialog_menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\simple_dialog_menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ShowHomeServer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\themes\default\theme.xml" />
     <Content Include="Skin\default\themes\default\images\preview.png" />
-    <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
-    <Content Include="Skin\default\themes\default\styles\OtherControls.xaml" />
-    <Content Include="Skin\default\themes\default\styles\Colors.xaml" />
-    <Content Include="Skin\default\themes\default\styles\Consts.xaml" />
-    <Content Include="Skin\default\themes\default\styles\Graphics.xaml" />
-    <Content Include="Skin\default\themes\default\styles\Buttons.xaml" />
-    <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle.xaml" />
+    <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\OtherControls.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\Consts.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\Graphics.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\Buttons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\themes\black\theme.xml" />
     <Content Include="Skin\default\themes\black\images\preview.png" />
-    <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
-    <Content Include="Skin\default\backgrounds\default-background.xaml" />
-    <Content Include="Skin\default\backgrounds\video-background.xaml" />
-    <Content Include="Skin\default\backgrounds\picture-background.xaml" />
-    <Content Include="Skin\default\superlayers\BusyCursor.xaml" />
-    <Content Include="Skin\default\superlayers\Volume.xaml" />
+    <Content Include="Skin\default\themes\black\styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\backgrounds\default-background.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\backgrounds\video-background.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\backgrounds\picture-background.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\superlayers\BusyCursor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\superlayers\Volume.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
     <Content Include="Skin\default\workflow\serverconnect-states.xml" />
-    <Content Include="Skin\default\screens\AttachToServerDialog.xaml" />
-    <Content Include="Skin\default\screens\WatchSystemNotifications.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
-    <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
-    <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
-    <Content Include="Skin\default\screens\shares_config_share_info.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_system.xaml" />
-    <Content Include="Skin\default\screens\shares_config_overview.xaml" />
-    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />
-    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
+    <Content Include="Skin\default\screens\AttachToServerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\WatchSystemNotifications.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_choose_path.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_edit_path.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_edit_name.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_share_info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_choose_system.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_overview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\notifications-states.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-actions.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
