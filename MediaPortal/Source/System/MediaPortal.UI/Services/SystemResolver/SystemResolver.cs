@@ -57,6 +57,11 @@ namespace MediaPortal.UI.Services.SystemResolver
       return sc.GetSystemNameForSystemId(systemId);
     }
 
+    public override SystemType SystemType
+    {
+      get { return SystemType.Client; }
+    }
+
     #endregion
   }
 }

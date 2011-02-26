@@ -114,6 +114,7 @@
     <Compile Include="Controls\ImageSources\MultiImage.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
+    <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Visuals\Templates\DataStringProvider.cs" />
     <Compile Include="Controls\Visuals\ListViewItemGenerator.cs" />
     <Compile Include="Controls\Panels\VirtualizingStackPanel.cs" />
@@ -129,7 +130,8 @@
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
-    <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
+    <Compile Include="Controls\Visuals\Templates\ElementProvider.cs" />
+    <Compile Include="Controls\Visuals\Templates\SubItemsProvider.cs" />
     <Compile Include="Controls\Visuals\Templates\TemplateWithTriggers.cs" />
     <Compile Include="Controls\Visuals\TextControl.cs" />
     <Compile Include="Controls\Visuals\AbstractTextInputHandler.cs" />
@@ -216,6 +218,7 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
+    <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Rendering\ImageContext.cs" />

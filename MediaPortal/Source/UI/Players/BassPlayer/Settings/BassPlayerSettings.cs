@@ -48,7 +48,7 @@ namespace Ui.Players.BassPlayer.Settings
       public const int SeekIncrementSeconds = 20;
       public const PlaybackMode SongTransitionMode = PlaybackMode.Normal;
       public const int FadeDurationMilliSecs = 500;
-      public const int CrossFadeDurationMilliSecs = 5;
+      public const double CrossFadeDurationSecs = 5d;
       public const bool CrossFadeEnabled = true;
       public const int VizStreamLatencyCorrectionMilliSecs = 0;
       public static readonly List<string> SupportedExtensions =
@@ -67,7 +67,7 @@ namespace Ui.Players.BassPlayer.Settings
     private TimeSpan _SeekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
     private PlaybackMode _songTransitionMode = Defaults.SongTransitionMode;
     private TimeSpan _FadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
-    private TimeSpan _CrossFadeDuration = TimeSpan.FromMilliseconds(Defaults.CrossFadeDurationMilliSecs);
+    private TimeSpan _CrossFadeDuration = TimeSpan.FromSeconds(Defaults.CrossFadeDurationSecs);
     private bool _CrossFadeEnabled = Defaults.CrossFadeEnabled;
     private TimeSpan _VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
     private List<string> _SupportedExtensions = new List<string>(Defaults.SupportedExtensions);
@@ -149,11 +149,11 @@ namespace Ui.Players.BassPlayer.Settings
       set { _FadeDuration = value; }
     }
 
-    [Setting(SettingScope.User, Defaults.CrossFadeDurationMilliSecs)]
-    public int CrossFadeDurationMilliSecs
+    [Setting(SettingScope.User, Defaults.CrossFadeDurationSecs)]
+    public double CrossFadeDurationSecs
     {
-      get { return (int)_CrossFadeDuration.TotalMilliseconds; }
-      set { _CrossFadeDuration = TimeSpan.FromMilliseconds(value); }
+      get { return _CrossFadeDuration.TotalSeconds; }
+      set { _CrossFadeDuration = TimeSpan.FromSeconds(value); }
     }
 
     public TimeSpan CrossFadeDuration

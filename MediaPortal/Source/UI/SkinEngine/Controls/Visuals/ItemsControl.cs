@@ -24,11 +24,13 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -57,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
     protected FrameworkElement _lastFocusedElement = null;
+    protected ISelectableItemContainer _lastSelectedItem = null;
 
     #endregion
 
@@ -109,15 +112,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object oldItemsSource = ItemsSource;
       object oldItems = Items;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
-      ItemContainerStyle = c.ItemContainerStyle; // Styles should be immutable
+      ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
-      ItemTemplate = copyManager.GetCopy(c.ItemTemplate); // Data templates are NOT immutable! They contain "personalized" data.
-      ItemsPanel = c.ItemsPanel; // Styles should be immutable
-      DataStringProvider = c.DataStringProvider; // Styles should be immutable
+      ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
+      ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
+      DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
+      _lastSelectedItem = copyManager.GetCopy(c._lastSelectedItem);
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);
       InvalidateItems();
+    }
+
+    public override void Dispose()
+    {
+      Detach();
+      DetachFromItemsSource(ItemsSource);
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      if (items != null)
+      {
+        DetachFromItems(items);
+        // Normally, the disposal of items will be done by our items host panel. But in the rare case that we didn't add
+        // the Items to our host panel's Children yet, we need to clean up them manually.
+        items.Dispose();
+      }
+      Registration.TryCleanupAndDispose(ItemTemplate);
+      Registration.TryCleanupAndDispose(ItemContainerStyle);
+      Registration.TryCleanupAndDispose(ItemsPanel);
+      Registration.TryCleanupAndDispose(SelectionChanged);
+      base.Dispose();
     }
 
     #endregion
@@ -187,8 +210,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemsChanged(AbstractProperty prop, object oldVal)
     {
-      DetachFromItems(oldVal as ObservableUIElementCollection<FrameworkElement>);
-      AttachToItems(Items);
+      ObservableUIElementCollection<FrameworkElement> oldItems = oldVal as ObservableUIElementCollection<FrameworkElement>;
+      if (oldItems != null)
+      {
+        DetachFromItems(oldItems);
+        oldItems.Dispose();
+      }
+      ObservableUIElementCollection<FrameworkElement> items = Items;
+      AttachToItems(items);
+      items.SetParent(this);
       OnItemsChanged();
     }
 
@@ -218,7 +248,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         children.Clear();
         if (items != null)
+        {
+          foreach (ISelectableItemContainer container in
+              items.OfType<ISelectableItemContainer>().Where(container => container.Selected))
+            _lastSelectedItem = container;
           children.AddAll(items);
+        }
         IsEmpty = children.Count == 0;
       }
     }
@@ -304,13 +339,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets the DataTemplate used to display each item. For subclasses displaying
-    /// hierarchical data, this should be a <see cref="HierarchicalDataTemplate"/>.
+    /// Gets or sets the data template used to display each item.
     /// </summary>
     public DataTemplate ItemTemplate
     {
       get { return (DataTemplate) _itemTemplateProperty.GetValue(); }
       set { _itemTemplateProperty.SetValue(value); }
+    }
+
+    public AbstractProperty DataStringProviderProperty
+    {
+      get { return _dataStringProviderProperty; }
     }
 
     /// <summary>
@@ -390,9 +429,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         while (element != null && element.VisualParent != _itemsHostPanel)
           element = element.VisualParent;
         CurrentItem = element == null ? null : element.Context;
+        ISelectableItemContainer container = element as ISelectableItemContainer;
+        if (container != null)
+          container.Selected = true; // Triggers an update of our _lastSelectedItem
       }
       if (SelectionChanged != null)
         SelectionChanged.Execute(new object[] { CurrentItem });
+    }
+
+    public void UpdateSelectedItem(ISelectableItemContainer container, bool isSelected)
+    {
+      if (ReferenceEquals(_lastSelectedItem, container))
+      { // Our selected container
+        if (!isSelected)
+          _lastSelectedItem = null;
+        return;
+      }
+      // Not our selected container
+      if (!isSelected)
+        return;
+      if (_lastSelectedItem != null)
+        _lastSelectedItem.Selected = false;
+      _lastSelectedItem = container;
     }
 
     protected virtual void InvalidateItems()
@@ -402,7 +460,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected ItemsPresenter FindItemsPresenter()
     {
-      return TemplateControl == null ? null : TemplateControl.FindElement(
+      FrameworkElement templateControl = TemplateControl;
+      return templateControl == null ? null : templateControl.FindElement(
           new TypeMatcher(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
@@ -460,7 +519,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else
       {
-        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(this);
+        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(null);
         while (enumer.MoveNext())
         {
           FrameworkElement container = PrepareItemContainer(enumer.Current);
@@ -502,19 +561,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void DoRender(MediaPortal.UI.SkinEngine.Rendering.RenderContext localRenderContext)
+    public override void DoRender(Rendering.RenderContext localRenderContext)
     {
       Screen screen = Screen;
       if (screen != null && _lastFocusedElement != screen.FocusedElement)
         UpdateCurrentItem();
       base.DoRender(localRenderContext);
-    }
-
-    public override void Dispose()
-    {
-      Detach();
-      base.Dispose();
-      DetachFromItemsSource(ItemsSource);
     }
   }
 }

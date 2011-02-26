@@ -24,7 +24,6 @@
 
 using System;
 using System.IO;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
@@ -61,9 +60,9 @@ namespace MediaPortal.Core.Services.MediaManagement
         }
     }
 
-    public SystemName NativeSystem
+    public string NativeSystemId
     {
-      get { return _resourceLocator.NativeSystem; }
+      get { return _resourceLocator.NativeSystemId; }
     }
 
     public IResourceLocator ResourceLocator
@@ -104,30 +103,26 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void PrepareStreamAccess()
     {
-      IRemoteResourceInformationService rris;
-      string resourceURL = null;
-      if (_underlayingStream == null)
-      {
-        rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-        resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystem, _resourceLocator.NativeResourcePath);
-      }
+      if (!_isFile || _underlayingStream != null)
+        return;
+      IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+      string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
-        if (_underlayingStream == null)
-          _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
+        _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
     }
 
     public Stream OpenRead()
     {
-      if (!IsFile)
-        throw new IllegalCallException("Only files provide stream access");
+      if (!_isFile)
+        throw new IllegalCallException("Only files can provide stream access");
       PrepareStreamAccess();
       return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
     }
 
     public Stream OpenWrite()
     {
-      if (!IsFile)
-        throw new IllegalCallException("Only files provide stream access");
+      if (!_isFile)
+        throw new IllegalCallException("Only files can provide stream access");
       return null;
     }
 

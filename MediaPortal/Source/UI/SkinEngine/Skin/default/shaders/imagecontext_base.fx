@@ -51,8 +51,11 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float2 texcoord = PixelTransform(IN.Texcoord);
 
-  OUT.Color = PixelEffect(texcoord, TextureSampler, g_framedata);
-  OUT.Color.a *= g_opacity;
+  float4 color = PixelEffect(texcoord, TextureSampler, g_framedata);
+  color.a *= g_opacity;
+
+  // Remember to pre-multiply alpha
+  OUT.Color = float4(color.xyz * color.a, color.a);
 }
 
 technique simple {

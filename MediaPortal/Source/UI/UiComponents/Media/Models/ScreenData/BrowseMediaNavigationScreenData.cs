@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.Localization;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -31,6 +32,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public BrowseMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_BROWSE_MEDIA_NAVIGATION, null, Consts.RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
         playableItemCreator, true) { }
+
+    public override string MoreThanMaxItemsHint
+    {
+      get { return LocalizationHelper.Translate(Consts.RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT, Consts.MAX_NUM_ITEMS_VISIBLE); }
+    }
 
     public override AbstractItemsScreenData Derive()
     {

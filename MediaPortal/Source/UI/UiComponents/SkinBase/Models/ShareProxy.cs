@@ -31,6 +31,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.SkinBase.Models
@@ -347,9 +348,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       _origShare = share;
       BaseMediaProvider = GetBaseMediaProviderMetadata(share.BaseResourcePath);
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      SystemName systemName = systemResolver.GetSystemNameForSystemId(share.SystemId);
-      NativeSystem = systemName == null ? share.SystemId : systemName.HostName;
+      NativeSystem = serverConnectionManager.LastHomeServerName;
+      if (NativeSystem == null)
+      {
+        SystemName systemName = systemResolver.GetSystemNameForSystemId(serverConnectionManager.HomeServerSystemId);
+        if (systemName != null)
+          NativeSystem = systemName.HostName;
+      }
+      if (NativeSystem == null)
+        NativeSystem = serverConnectionManager.HomeServerSystemId;
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
       MediaCategories.Clear();

@@ -590,6 +590,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       switch (relocateMediaItemsStr)
       {
+        case "None":
+          relocationMode = RelocationMode.None;
+          break;
         case "Relocate":
           relocationMode = RelocationMode.Relocate;
           break;

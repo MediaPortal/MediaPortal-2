@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
@@ -50,7 +51,6 @@ namespace MediaPortal.UI.Presentation.DataObjects
   /// Changes do <b>not</b> automatically trigger the <see cref="ObjectChanged"/> event; this event
   /// has to be explicitly triggered by modifying clients.
   /// </remarks>
-  /// TODO: Make multithreading-safe
   public class ListItem : IObservable
   {
     #region Protected fields
@@ -61,11 +61,16 @@ namespace MediaPortal.UI.Presentation.DataObjects
     protected AbstractProperty _selectedProperty = new WProperty(typeof(bool), false);
     protected AbstractProperty _enabledProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _isVisibleProperty = new WProperty(typeof(bool), true);
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
     /// <summary>
     /// Event to track changes to this item.
     /// </summary>
-    public event ObjectChangedHandler ObjectChanged;
+    public event ObjectChangedDlgt ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     #endregion
 
@@ -288,9 +293,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
     /// </summary>
     public void FireChange()
     {
-      ObjectChangedHandler dlgt = ObjectChanged;
-      if (dlgt != null)
-        dlgt(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     /// <summary>
@@ -310,9 +313,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
 
     public override string ToString()
     {
-      IList<string> l = new List<string>();
-      foreach (KeyValuePair<string, IResourceString> kvp in _labels)
-        l.Add(kvp.Key + "=" + kvp.Value);
+      IEnumerable<string> l = _labels.Select(kvp => kvp.Key + "=" + kvp.Value);
       return GetType().Name + ": " + StringUtils.Join(", ", l);
     }
   }

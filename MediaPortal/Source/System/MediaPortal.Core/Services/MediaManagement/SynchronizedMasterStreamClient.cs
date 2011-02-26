@@ -27,7 +27,7 @@ using System.IO;
 namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
-  /// Provides a client facade on an underlaying stream, forwarding all calls to the underlaying "master" stream
+  /// Provides a synchronized client facade on an underlaying stream, forwarding all calls to the underlaying "master" stream
   /// but not disposing it. Provides a private position which is independent from other stream clients.
   /// </summary>
   public class SynchronizedMasterStreamClient : Stream
@@ -46,66 +46,92 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override bool CanRead
     {
-      get { return _underlayingStream.CanRead; }
+      get
+      {
+        lock (_syncObj)
+          return _underlayingStream.CanRead;
+      }
     }
 
     public override bool CanSeek
     {
-      get { return _underlayingStream.CanSeek; }
+      get
+      {
+        lock (_syncObj)
+          return _underlayingStream.CanSeek;
+      }
     }
 
     public override bool CanWrite
     {
-      get { return _underlayingStream.CanWrite; }
+      get
+      {
+        lock (_syncObj)
+          return _underlayingStream.CanWrite;
+      }
     }
 
     public override long Length
     {
-      get { return _underlayingStream.Length; }
+      get
+      {
+        lock (_syncObj)
+          return _underlayingStream.Length;
+      }
     }
 
     public override long Position
     {
-      get { return _position; }
+      get
+      {
+        lock (_syncObj)
+          return _position;
+      }
       set
       {
-        _position = value;
-        _underlayingStream.Position = value;
+        lock (_syncObj)
+          _position = value;
       }
     }
 
     public override void Flush()
     {
-      _underlayingStream.Flush();
+      lock (_syncObj)
+        _underlayingStream.Flush();
     }
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      switch (origin)
+      lock (_syncObj)
       {
-        case SeekOrigin.Begin:
-          _position = offset;
-          break;
-        case SeekOrigin.Current:
-          _position += offset;
-          break;
-        case SeekOrigin.End:
-          _position = Length + offset;
-          break;
+        switch (origin)
+        {
+          case SeekOrigin.Begin:
+            _position = offset;
+            break;
+          case SeekOrigin.Current:
+            _position += offset;
+            break;
+          case SeekOrigin.End:
+            _position = Length + offset;
+            break;
+        }
+        return _underlayingStream.Seek(_position, SeekOrigin.Begin);
       }
-      return _underlayingStream.Seek(_position, SeekOrigin.Begin);
     }
 
     public override void SetLength(long value)
     {
-      _underlayingStream.SetLength(value);
+      lock (_syncObj)
+        _underlayingStream.SetLength(value);
     }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
       lock (_syncObj)
       {
-        Seek(_position, SeekOrigin.Begin);
+        if (_underlayingStream.Position != _position)
+          _underlayingStream.Seek(_position, SeekOrigin.Begin);
         int result = _underlayingStream.Read(buffer, offset, count);
         _position += result;
         return result;
@@ -116,8 +142,10 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        Seek(_position, SeekOrigin.Begin);
+        if (_underlayingStream.Position != _position)
+          _underlayingStream.Seek(_position, SeekOrigin.Begin);
         _underlayingStream.Write(buffer, offset, count);
+        _position += count;
       }
     }
 

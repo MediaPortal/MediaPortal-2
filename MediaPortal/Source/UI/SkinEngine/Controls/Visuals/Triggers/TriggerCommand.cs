@@ -22,21 +22,20 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Commands;
 
-namespace MediaPortal.UI.SkinEngine.Controls.Bindings
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   /// <summary>
   /// <see cref="TriggerAction"/> wrapper class for an <see cref="IExecutableCommand"/>.
   /// </summary>
   public class TriggerCommand : TriggerAction
   {
-    #region Private fields
+    #region Protected fields
 
-    IExecutableCommand _command;
+    protected IExecutableCommand _command;
 
     #endregion
 
@@ -57,6 +56,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Bindings
       base.DeepCopy(source, copyManager);
       TriggerCommand ic = (TriggerCommand) source;
       Command = copyManager.GetCopy(ic.Command);
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Command);
+      base.Dispose();
     }
 
     #endregion

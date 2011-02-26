@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.Services.Database
         {
           ICollection<string> result = new List<string>();
           while (reader.Read())
-            result.Add(DBUtils.ReadDBValue<string>(reader, nameIndex));
+            result.Add(database.ReadDBValue<string>(reader, nameIndex));
           return result;
         }
       }
@@ -113,7 +113,7 @@ namespace MediaPortal.Backend.Services.Database
         int versionMinorParameterIndex;
         using (IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName,
             out versionMajorParameterIndex, out versionMinorParameterIndex))
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (reader.Read())
           {

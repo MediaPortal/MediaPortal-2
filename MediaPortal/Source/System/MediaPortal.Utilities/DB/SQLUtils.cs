@@ -41,8 +41,7 @@ namespace MediaPortal.Utilities.DB
         char c = name[i];
         if (c >= 'a' && c <= 'z' ||
             c >= 'A' && c <= 'Z' ||
-                Char.IsDigit(c) ||
-                    c == '_')
+            Char.IsDigit(c) || c == '_')
           result.Append(c);
         else
           result.Append('_');
@@ -59,14 +58,6 @@ namespace MediaPortal.Utilities.DB
       };
 
     /// <summary>
-    /// Special characters in an SQL SIMILAR TO expression which need to be escaped.
-    /// </summary>
-    public static char[] SIMILAR_TO_SPECIAL_CHARACTERS = new char[]
-      {
-          '%', '_', '|', '*', '?', '+', '{', '}', '(', ')', '[', ']', '^', '$', '.', '#'
-      };
-
-    /// <summary>
     /// Escapes all characters in the given string <paramref name="str"/> which are special characters in SQL LIKE expressions.
     /// </summary>
     /// <param name="str">String to escape.</param>
@@ -76,18 +67,6 @@ namespace MediaPortal.Utilities.DB
     public static string LikeEscape(string str, char escapeChar)
     {
       return StringUtils.Escape(str, LIKE_SPECIAL_CHARACTERS, escapeChar);
-    }
-
-    /// <summary>
-    /// Escapes all characters in the given string <paramref name="str"/> which are special characters in SQL SIMILAR TO expressions.
-    /// </summary>
-    /// <param name="str">String to escape.</param>
-    /// <param name="escapeChar">Character to use as escape character. The character will be put in front of each special
-    /// character in the string.</param>
-    /// <returns>Escaped string.</returns>
-    public static string SimilarToEscape(string str, char escapeChar)
-    {
-      return StringUtils.Escape(str, SIMILAR_TO_SPECIAL_CHARACTERS, escapeChar);
     }
 
     /// <summary>

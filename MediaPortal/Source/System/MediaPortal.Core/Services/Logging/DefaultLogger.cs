@@ -45,8 +45,7 @@ namespace MediaPortal.Core.Services.Logging
     protected bool _alwaysFlush;
 
     /// <summary>
-    /// Creates a new <see cref="DefaultLogger"/> instance and initializes it with the given
-    /// <paramref name="writer"/> and <paramref name="level"/>.
+    /// Creates a new <see cref="DefaultLogger"/> instance and initializes it with the given parameters.
     /// </summary>
     /// <param name="writer">The writer to write the messages to.</param>
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
@@ -66,6 +65,18 @@ namespace MediaPortal.Core.Services.Logging
       _level = level;
       _logMethodNames = logMethodNames;
       _alwaysFlush = alwaysFlush;
+    }
+
+    public bool LogMethodNames
+    {
+      get { return _logMethodNames; }
+      set { _logMethodNames = value; }
+    }
+
+    public LogLevel Level
+    {
+      get { return _level; }
+      set { _level = value; }
     }
 
     /// <summary>
@@ -193,18 +204,6 @@ namespace MediaPortal.Core.Services.Logging
     }
 
     #region ILogger implementation
-
-    public bool LogMethodNames
-    {
-      get { return _logMethodNames; }
-      set { _logMethodNames = value; }
-    }
-
-    public LogLevel Level
-    {
-      get { return _level; }
-      set { _level = value; }
-    }
 
     public void Debug(string format, params object[] args)
     {

@@ -1,0 +1,21 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="BackgroundManager"
+    PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Plugin for background handling, including theme."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="BackgroundManager.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5" Name="BackgroundManagerModel" ClassName="MediaPortal.UiComponents.BackgroundManager.Models.BackgroundManagerModel"/>
+  </Register>
+</Plugin>

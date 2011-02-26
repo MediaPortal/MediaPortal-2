@@ -27,12 +27,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -173,14 +173,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 out statementStr, out bindVars);
             command.CommandText = statementStr;
             foreach (BindVar bindVar in bindVars)
-              DBUtils.AddParameter(command, bindVar.Name, bindVar.Value, DBUtils.GetDBType(bindVar.VariableType));
+              database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
+            Type valueType = attr.AttributeType;
             using (IDataReader reader = command.ExecuteReader())
             {
               while (reader.Read())
               {
-                Guid mediaItemId = DBUtils.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias));
-                object value = DBUtils.ReadDBObject(reader, reader.GetOrdinal(valueAlias));
+                Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias));
+                object value = database.ReadDBValue(valueType, reader, reader.GetOrdinal(valueAlias));
                 IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
                 if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                   attributeValues = complexAttributeValues[mediaItemId] =
@@ -209,7 +210,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               out statementStr, out bindVars);
           command.CommandText = statementStr;
           foreach (BindVar bindVar in bindVars)
-            DBUtils.AddParameter(command, bindVar.Name, bindVar.Value, DBUtils.GetDBType(bindVar.VariableType));
+            database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
           IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
 
@@ -218,7 +219,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             IList<MediaItem> result = new List<MediaItem>();
             while (reader.Read())
             {
-              Guid mediaItemId = DBUtils.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
+              Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
               IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                   attributeValues = null;
@@ -234,7 +235,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                   {
                     QueryAttribute qa = _mainSelectAttributes[attr];
                     string alias = qa2a[qa];
-                    mia.SetAttribute(attr, DBUtils.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
+                    mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
                   }
                   else
                   {

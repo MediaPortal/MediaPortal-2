@@ -37,7 +37,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   /// </summary>
   public abstract class ImageSource : DependencyObject, IObservable
   {
-    public event ObjectChangedHandler ObjectChanged;
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
+
+    public event ObjectChangedDlgt ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     /// <summary>
     /// Load any external resources.
@@ -84,8 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public void FireChanged()
     {
-      if (ObjectChanged != null)
-        ObjectChanged(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     /// <summary>

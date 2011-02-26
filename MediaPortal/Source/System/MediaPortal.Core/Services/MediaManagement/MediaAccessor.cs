@@ -24,12 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -346,11 +344,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
       string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      SystemName systemName = systemResolver.GetSystemNameForSystemId(systemId);
-      if (systemName == null)
-        throw new ArgumentException(string.Format("Media item cannot be located, system ID '{0}' cannot be resolved", systemId));
-      return new ResourceLocator(systemName, ResourcePath.Deserialize(resourceAccessorPath));
+      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
     #endregion

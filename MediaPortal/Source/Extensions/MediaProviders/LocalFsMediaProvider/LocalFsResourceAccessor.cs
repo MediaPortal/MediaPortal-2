@@ -81,7 +81,9 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       get
       {
         string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-        if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
+        if (string.IsNullOrEmpty(dosPath))
+          return DateTime.MinValue;
+        if (!File.Exists(dosPath) && !Directory.Exists(dosPath))
           return DateTime.MinValue;
         return File.GetLastWriteTime(dosPath);
       }

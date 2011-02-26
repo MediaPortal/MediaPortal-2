@@ -109,9 +109,11 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   float discard_mul;
   float2 pos = wrapTextureCoord(IN.Texcoord0, g_textureviewport.xy, g_textureviewport.zw, discard_mul);
+  
+  float alpha = g_opacity * ((1.0 - discard_mul) + discard_mul *  tex2D(AlphaSampler, pos)[3]);
 
-  OUT.Color = tex2D(TextureSampler, IN.Texcoord1);
-  OUT.Color[3] = g_opacity * ((1.0 - discard_mul) + discard_mul *  tex2D(AlphaSampler, pos)[3]);
+  // The opacity mask will already be pre-multiplied
+  OUT.Color = tex2D(TextureSampler, IN.Texcoord1) * alpha;
 }
 
 technique simple {

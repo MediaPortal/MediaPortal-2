@@ -4,6 +4,5 @@ obj
 *.suo
 *.sln.cache
 *.resharper
-*.resharper.user
-*.ReSharper.user
+*.user
 _ReSharper.*

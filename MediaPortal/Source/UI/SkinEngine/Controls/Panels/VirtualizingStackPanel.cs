@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -109,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       lock (Children.SyncRoot)
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (_pendingScrollIndex == -1 &&
+            (!_pendingScrollIndex.HasValue &&
              ((_scrollToFirst && _actualFirstVisibleChild == childIndex) ||
               (!_scrollToFirst && _actualLastVisibleChild == childIndex))))
           return;
@@ -133,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (numItems == 0)
         return result;
       float availableSize = GetExtendsInNonOrientationDirection(totalSize);
-      if (!_canScroll)
+      if (!_doScroll)
         _actualFirstVisibleChild = 0;
       int start = _actualFirstVisibleChild;
       Bound(ref start, 0, numItems - 1);
@@ -164,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           maxExtendsInNonOrientationDirection = childExtendsInNonOrientationDirection;
         result.Add(item);
         end++;
-      } while (availableSize > 0 || !_canScroll);
+      } while (availableSize > 0 || !_doScroll);
       // If there is still space left, try to get items above scroll index
       while (availableSize > 0)
       {
@@ -270,29 +271,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
-          if (_pendingScrollIndex != -1)
+          if (_pendingScrollIndex.HasValue)
           {
-            Bound(ref _pendingScrollIndex, 0, numItems - 1);
+            int pendingSI = _pendingScrollIndex.Value;
+            Bound(ref pendingSI, 0, numItems - 1);
             if (_scrollToFirst)
-              _actualFirstVisibleChild = _pendingScrollIndex;
+              _actualFirstVisibleChild = pendingSI;
             else
             {
-              _actualLastVisibleChild = _pendingScrollIndex;
+              _actualLastVisibleChild = pendingSI;
               invertLayouting = true;
             }
-            _pendingScrollIndex = -1;
-          }
-          if (!_canScroll)
-          {
-            _actualFirstVisibleChild = 0;
-            _actualLastVisibleChild = numItems - 1;
+            _pendingScrollIndex = null;
           }
 
           // 1) Calculate scroll indices
-          float spaceLeft = actualExtendsInOrientationDirection;
-
-          if (_canScroll)
+          if (_doScroll)
           {
+            float spaceLeft = actualExtendsInOrientationDirection;
             if (invertLayouting)
             {
               Bound(ref _actualLastVisibleChild, 0, numItems - 1);
@@ -359,6 +355,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 }
               }
             }
+          }
+          else
+          {
+            _actualFirstVisibleChild = 0;
+            _actualLastVisibleChild = numItems - 1;
           }
 
           // 2) Arrange children
@@ -470,7 +471,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return;
       }
 
-      if (_canScroll)
+      if (_doScroll)
       {
         IList<FrameworkElement> arrangedItemsCopy;
         int arrangedStart;
@@ -535,7 +536,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_canScroll)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;
@@ -548,6 +549,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
     #endregion
+
+    #region Rendering
+
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        return base.GetRenderedChildren();
+
+      return _arrangedItems.Skip(_actualFirstVisibleChild - _arrangedItemsStartIndex).
+          Take(_actualLastVisibleChild - _actualFirstVisibleChild + 1);
+    }
+
+    #endregion
+
+    #region Base overrides
 
     public override void AlignedPanelAddPotentialFocusNeighbors(RectangleF? startingRect, ICollection<FrameworkElement> elements,
         bool elementsBeforeAndAfter)
@@ -575,37 +592,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       AddFocusedElementRange(arrangedItemsCopy, startingRect, first, last,
           numElementsBeforeAndAfter, numElementsBeforeAndAfter, elements);
     }
-
-    #region Rendering
-
-    protected override void UpdateRenderOrder()
-    {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      IItemProvider itemProvider = ItemProvider;
-      if (itemProvider == null)
-      {
-        base.UpdateRenderOrder();
-        return;
-      }
-
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        int first = _actualFirstVisibleChild - _arrangedItemsStartIndex;
-        int last = _actualLastVisibleChild - _arrangedItemsStartIndex;
-        for (int i = first; i <= last; i++)
-        {
-          FrameworkElement element = _arrangedItems[i];
-          _renderOrder.Add(element);
-        }
-      }
-    }
-
-    #endregion
-
-    #region Base overrides
 
     public override bool FocusPageUp()
     {

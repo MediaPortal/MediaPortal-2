@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -53,10 +55,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected float _totalHeight;
     protected float _totalWidth;
 
-    protected bool _canScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
+    protected bool _doScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
     // Variables to pass a scroll job to the render thread
-    protected int _pendingScrollIndex = -1;
+    protected int? _pendingScrollIndex = null;
     protected bool _scrollToFirst = true;
 
     // Index of the first visible item which will be drawn at our ActualPosition - when modified by method
@@ -104,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       StackPanel p = (StackPanel) source;
       Orientation = p.Orientation;
-      CanScroll = p.CanScroll;
+      DoScroll = p.DoScroll;
       Attach();
     }
 
@@ -142,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       lock (_renderLock)
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (_pendingScrollIndex == -1 &&
+            (!_pendingScrollIndex.HasValue &&
              ((_scrollToFirst && _actualFirstVisibleChild == childIndex) ||
               (!_scrollToFirst && _actualLastVisibleChild == childIndex))))
           return;
@@ -216,28 +218,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // That is necessary if we want to scroll a specific child to the last visible position.
         bool invertLayouting = false;
         lock (_renderLock)
-          if (_pendingScrollIndex != -1)
+          if (_pendingScrollIndex.HasValue)
           {
+            int pendingSI = _pendingScrollIndex.Value;
             if (_scrollToFirst)
-              _actualFirstVisibleChild = _pendingScrollIndex;
+              _actualFirstVisibleChild = pendingSI;
             else
             {
-              _actualLastVisibleChild = _pendingScrollIndex;
+              _actualLastVisibleChild = pendingSI;
               invertLayouting = true;
             }
-            _pendingScrollIndex = -1;
+            _pendingScrollIndex = null;
           }
-        if (!_canScroll)
-        {
-          _actualFirstVisibleChild = 0;
-          _actualLastVisibleChild = numVisibleChildren - 1;
-        }
-        
-        // 1) Calculate scroll indices
-        float spaceLeft = actualExtendsInOrientationDirection;
 
-        if (_canScroll)
+        // 1) Calculate scroll indices
+        if (_doScroll)
         { // Calculate last visible child
+          float spaceLeft = actualExtendsInOrientationDirection;
           if (invertLayouting)
           {
             Bound(ref _actualLastVisibleChild, 0, numVisibleChildren - 1);
@@ -286,6 +283,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               }
             }
           }
+        }
+        else
+        {
+          _actualFirstVisibleChild = 0;
+          _actualLastVisibleChild = numVisibleChildren - 1;
         }
 
         // 2) Calculate start position
@@ -411,7 +413,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected virtual void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
     {
-      if (_canScroll)
+      if (_doScroll)
       {
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         int index = 0;
@@ -443,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_canScroll)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;
@@ -561,23 +563,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Rendering
 
-    protected override void UpdateRenderOrder()
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = _actualFirstVisibleChild; i <= _actualLastVisibleChild; i++)
-        {
-          FrameworkElement element = visibleChildren[i];
-          if (!element.IsVisible)
-            continue;
-          _renderOrder.Add(element);
-        }
-      }
+      return GetVisibleChildren().Skip(_actualFirstVisibleChild).Take(_actualLastVisibleChild - _actualFirstVisibleChild + 1);
     }
 
     #endregion
@@ -766,7 +754,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtBottom)
           return false;
-        SetScrollIndex(_actualFirstVisibleChild + numLines, true);
+        SetScrollIndex(_actualFirstVisibleChild + Math.Min(numLines, _actualLastVisibleChild - _actualFirstVisibleChild + 1), true);
         return true;
       }
       return false;
@@ -778,7 +766,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (IsViewPortAtTop)
           return false;
-        SetScrollIndex(_actualFirstVisibleChild - numLines, true);
+        SetScrollIndex(_actualFirstVisibleChild - Math.Min(numLines, _actualLastVisibleChild - _actualFirstVisibleChild + 1), true);
         return true;
       }
       return false;
@@ -790,10 +778,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public event ScrolledDlgt Scrolled;
 
-    public virtual bool CanScroll
+    public virtual bool DoScroll
     {
-      get { return _canScroll; }
-      set { _canScroll = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public virtual float TotalWidth

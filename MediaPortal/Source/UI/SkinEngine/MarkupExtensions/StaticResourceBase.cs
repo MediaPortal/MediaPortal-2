@@ -25,10 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
@@ -37,44 +34,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// </summary>
   public class StaticResourceBase
   {
-    protected object FindResourceInParserContext(string resourceKey, IParserContext context)
-    {
-      object result = null;
-      // Step up the parser's context stack to find the resource.
-      // The logical tree is not yet defined at the load time of the
-      // XAML file. This is the reason we have to step up the parser's context
-      // stack. We will have to simulate the process of finding a resource
-      // which is normally done by UIElement.FindResource(string).
-      // The parser's context stack maintains a dictionary of current keyed
-      // elements for each stack level because the according resource
-      // dictionaries are not built yet.
-      foreach (ElementContextInfo current in context.ContextStack)
-      {
-        if (current.ContainsKey(resourceKey))
-          result = current.GetKeyedElement(resourceKey);
-        else if (current.Instance is UIElement &&
-            ((UIElement) current.Instance).Resources.ContainsKey(resourceKey))
-          // Don't call UIElement.FindResource here, because the logical tree
-          // may be not set up yet.
-          result = ((UIElement) current.Instance).Resources[resourceKey];
-        else if (current.Instance is ResourceDictionary)
-        {
-          ResourceDictionary rd = (ResourceDictionary) current.Instance;
-          if (rd.ContainsKey(resourceKey))
-            result = rd[resourceKey];
-        }
-      }
-      if (result == null)
-        return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // We do a copy of the result to avoid later problems when the property where the result is assigned to is copied.
-      // If we don't cut the result's logical parent, a deep copy of the here assigned property would still reference
-      // the static resource's logical parent, which would copy an unnecessary big tree.
-      // And we cannot simply clean the logical parent of the here found resource because we must not change it.
-      // So we must do a copy where we cut the logical parent.
-      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-    }
-
     protected object FindResourceInTheme(string resourceKey)
     {
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);

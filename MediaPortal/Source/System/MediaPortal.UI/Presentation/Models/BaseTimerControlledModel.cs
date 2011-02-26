@@ -69,8 +69,8 @@ namespace MediaPortal.UI.Presentation.Models
 
     void SubscribeToMessages()
     {
-      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.PreviewMessage += OnMessageReceived;
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
     }
 
     protected void OnTimerElapsed(object sender)

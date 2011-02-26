@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
@@ -131,9 +132,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void Initialize(object triggerValue, object checkValue)
     {
-      object obj;
-      if (triggerValue == null || !TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) ||
-          !Equals(triggerValue, obj)) return;
+      object obj = null;
+      try
+      {
+        if (triggerValue == null || !TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) ||
+            !Equals(triggerValue, obj)) return;
+      }
+      finally
+      {
+        IDisposable d = obj as IDisposable;
+        if (d != null && !ReferenceEquals(d, checkValue))
+          d.Dispose();
+      }
       // Execute start actions
       foreach (TriggerAction action in EnterActions)
         action.Execute(_element);
@@ -143,23 +153,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void TriggerIfValuesEqual(object triggerValue, object checkValue)
     {
-      object obj;
-      if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
-          Equals(triggerValue, obj))
+      object obj = null;
+      try
       {
-        // Execute start actions
-        foreach (TriggerAction action in EnterActions)
-          action.Execute(_element);
-        foreach (Setter s in Setters)
-          s.Set(_element);
+        if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
+            Equals(triggerValue, obj))
+        {
+          // Execute start actions
+          foreach (TriggerAction action in EnterActions)
+            action.Execute(_element);
+          foreach (Setter s in Setters)
+            s.Set(_element);
+        }
+        else
+        {
+          // Execute stop actions
+          foreach (TriggerAction action in ExitActions)
+            action.Execute(_element);
+          foreach (Setter s in Setters)
+            s.Restore(_element);
+        }
       }
-      else
+      finally
       {
-        // Execute stop actions
-        foreach (TriggerAction action in ExitActions)
-          action.Execute(_element);
-        foreach (Setter s in Setters)
-          s.Restore(_element);
+        IDisposable d = obj as IDisposable;
+        if (d != null && !ReferenceEquals(d, checkValue))
+          d.Dispose();
       }
     }
   }

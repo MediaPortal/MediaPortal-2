@@ -71,8 +71,9 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 		  * saturate(-(IN.ClipPosition.x - g_textbox.z) / g_fadeborder.z)
 		  * saturate(-(IN.ClipPosition.y - g_textbox.w) / g_fadeborder.w);
 
-  OUT.Color = g_color;
-  OUT.Color.a = tex2D(TextureSampler, IN.Texcoord) * a;
+  // Remember to pre-multiply alpha
+  float alpha = g_color.a * tex2D(TextureSampler, IN.Texcoord) * a;
+  OUT.Color = float4(g_color.xyz * alpha, alpha);
 }
 
 technique simple

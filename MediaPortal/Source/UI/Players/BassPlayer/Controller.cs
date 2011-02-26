@@ -111,7 +111,7 @@ namespace Ui.Players.BassPlayer
 
       _workItemQueue = new WorkItemQueue();
 
-      _playerThread = new Thread(PlayerThreadMain) {Name = "Bass Player work item executor thread"};
+      _playerThread = new Thread(PlayerThreadMain) {Name = "BassPlay"};
       _playerThread.Start();
 
       SetVolume_Async(100);

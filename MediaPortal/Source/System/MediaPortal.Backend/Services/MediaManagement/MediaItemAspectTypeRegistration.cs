@@ -32,7 +32,7 @@ namespace MediaPortal.Backend.Services.MediaManagement
 {
   /// <summary>
   /// Media item aspect type registration class for the MediaPortal server. Stores all registered media item aspect types
-  /// and automatically registers them at the connected server.
+  /// and automatically registers them at the media library.
   /// </summary>
   public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {

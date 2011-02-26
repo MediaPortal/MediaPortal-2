@@ -25,12 +25,21 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  public enum ScrollAutoCenteringEnum
+  {
+    None,
+    Horizontal,
+    Vertical,
+    HorizontalAndVertical
+  }
+
   public class ScrollContentPresenter : ContentPresenter, IScrollInfo, IScrollViewerFocusSupport
   {
     #region Consts
@@ -41,29 +50,67 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected bool _canScroll = false;
+    protected bool _doScroll = false;
     protected float _scrollOffsetX = 0;
     protected float _scrollOffsetY = 0;
     protected float _actualScrollOffsetX = 0;
     protected float _actualScrollOffsetY = 0;
     protected bool _forcedOpacityMask = false;
+    protected AbstractProperty _autoCenteringProperty;
+    protected AbstractProperty _horizontalScrollDisabledProperty;
+    protected AbstractProperty _verticalScrollDisabledProperty;
 
     #endregion
 
     #region Ctor
 
+    public ScrollContentPresenter()
+    {
+      Init();
+      Attach();
+    }
+
+    protected void Init()
+    {
+      _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
+      _horizontalScrollDisabledProperty = new SProperty(typeof(bool), false);
+      _verticalScrollDisabledProperty = new SProperty(typeof(bool), false);
+    }
+
+    protected void Attach()
+    {
+      _horizontalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
+      _verticalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
+    }
+
+    protected void Detach()
+    {
+      _horizontalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
+      _verticalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
-      _canScroll = scp._canScroll;
+      _doScroll = scp._doScroll;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
+      AutoCentering = scp.AutoCentering;
+      HorizontalScrollDisabled = scp.HorizontalScrollDisabled;
+      VerticalScrollDisabled = scp.VerticalScrollDisabled;
+      Attach();
     }
 
     #endregion
 
-    private void InvokeScrolled()
+    void OnScrollDisabledChanged(AbstractProperty property, object oldValue)
+    {
+      InvalidateLayout(true, false);
+    }
+
+    void InvokeScrolled()
     {
       ScrolledDlgt dlgt = Scrolled;
       if (dlgt != null) dlgt(this);
@@ -73,14 +120,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
         return;
-      if (scrollOffsetX < ActualWidth - TotalWidth)
-        scrollOffsetX = (float) ActualWidth - TotalWidth;
-      if (scrollOffsetY < ActualHeight - TotalHeight)
-        scrollOffsetY = (float) ActualHeight - TotalHeight;
-      if (scrollOffsetX > 0)
-        scrollOffsetX = 0;
-      if (scrollOffsetY > 0)
-        scrollOffsetY = 0;
+
+      if (!IsHorzCentering)
+      {
+        if (scrollOffsetX < ActualWidth - TotalWidth)
+          scrollOffsetX = (float) ActualWidth - TotalWidth;
+        if (scrollOffsetX > 0)
+          scrollOffsetX = 0;
+      }
+      if (!IsVertCentering)
+      {
+        if (scrollOffsetY < ActualHeight - TotalHeight)
+          scrollOffsetY = (float) ActualHeight - TotalHeight;
+        if (scrollOffsetY > 0)
+          scrollOffsetY = 0;
+      }
+
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
       InvalidateLayout(false, true);
@@ -89,18 +144,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_canScroll)
+      if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
       {
         float differenceX = 0;
         float differenceY = 0;
-        if (elementBounds.X + elementBounds.Width > ActualPosition.X + ActualWidth)
-          differenceX = - (float) (elementBounds.X + elementBounds.Width - ActualPosition.X - ActualWidth);
-        if (elementBounds.X + differenceX < ActualPosition.X)
-          differenceX = ActualPosition.X - elementBounds.X;
-        if (elementBounds.Y + elementBounds.Height > ActualPosition.Y + ActualHeight)
-          differenceY = - (float) (elementBounds.Y + elementBounds.Height - ActualPosition.Y - ActualHeight);
-        if (elementBounds.Y + differenceY < ActualPosition.Y)
-          differenceY = ActualPosition.Y - elementBounds.Y;
+
+        if (IsHorzCentering)
+          differenceX = CalculateCenteredScrollPos(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
+        else if (_doScroll)
+          differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth); 
+
+        if (IsVertCentering)
+          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
+        else if (_doScroll)
+          differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
         // Change rect as if children were already re-arranged
         elementBounds.X += differenceX;
@@ -108,6 +165,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SetScrollOffset(_actualScrollOffsetX + differenceX, _actualScrollOffsetY + differenceY);
       }
       base.MakeVisible(element, elementBounds);
+    }
+
+    protected float CalculateVisibleScrollDifference(double elementPos, double elementSize, double actualPos, double actualSize)
+    {
+      double difference = 0.0f;
+      if (elementPos + elementSize > actualPos + actualSize)
+        difference = - (elementPos + elementSize - actualPos - actualSize);
+      if (elementPos + difference < actualPos)
+        difference = actualPos - elementPos;
+      return (float) difference;
+    }
+
+    protected float CalculateCenteredScrollPos(double elementPos, double elementSize, double actualPos, double actualSize)
+    {
+      return (float) ((actualSize - elementSize) / 2.0 - (elementPos - actualPos));
+    }
+
+    protected bool IsHorzCentering
+    {
+      get { return AutoCentering != ScrollAutoCenteringEnum.None && AutoCentering != ScrollAutoCenteringEnum.Vertical; }
+    }
+
+    protected bool IsVertCentering
+    {
+      get { return AutoCentering != ScrollAutoCenteringEnum.None && AutoCentering != ScrollAutoCenteringEnum.Horizontal; }
     }
 
     protected override void ArrangeTemplateControl()
@@ -122,22 +204,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
-        if (_canScroll)
+        if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
         {
           availableSize = _innerRect.Size;
           if (desiredSize.Width > _innerRect.Width)
           {
-            _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
+            if (!IsHorzCentering)
+              _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
             availableSize.Width = desiredSize.Width;
           }
-          else
+          else if (!IsHorzCentering)
             _scrollOffsetX = 0;
+
           if (desiredSize.Height > _innerRect.Height)
           {
-            _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
+            if (!IsVertCentering)
+              _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
             availableSize.Height = desiredSize.Height;
           }
-          else
+          else if (!IsVertCentering)
             _scrollOffsetY = 0;
           position = new PointF(_innerRect.X + _scrollOffsetX, _innerRect.Y + _scrollOffsetY);
         }
@@ -148,6 +233,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           position = new PointF(_innerRect.X, _innerRect.Y);
           availableSize = _innerRect.Size;
         }
+
+        if (HorizontalScrollDisabled)
+          availableSize.Width = _innerRect.Size.Width;
+        if (VerticalScrollDisabled)
+          availableSize.Height = _innerRect.Size.Height;
 
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
             ref position, ref availableSize);
@@ -168,8 +258,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (OpacityMask == null && (TotalHeight > ActualHeight || TotalWidth > ActualWidth))
       {
-        SolidColorBrush brush = new SolidColorBrush();
-        brush.Color = Color.Black;
+        SolidColorBrush brush = new SolidColorBrush {Color = Color.Black};
         OpacityMask = brush;
         _forcedOpacityMask = true;
       }
@@ -191,6 +280,57 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
       localRenderContext.SetUntransformedBounds(ActualBounds);
     }
+
+    #region Public properties
+
+    /// <summary>
+    /// Gets or sets a value that determines whether focused elements are automatically scrolled to the center 
+    /// of the viewport, and in which dimensions.
+    /// </summary>
+    public ScrollAutoCenteringEnum AutoCentering
+    {
+      get { return (ScrollAutoCenteringEnum) _autoCenteringProperty.GetValue(); }
+      set { _autoCenteringProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AutoCenteringProperty
+    {
+      get { return _autoCenteringProperty; }
+    }
+
+    public AbstractProperty HorizontalScrollDisabledProperty
+    {
+      get { return _horizontalScrollDisabledProperty; }
+    }
+
+    /// <summary>
+    /// Disables the horizontal scroll direction.
+    /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
+    /// <see cref="ScrollViewer.HorizontalScrollBarVisibility"/> setting.
+    /// </summary>
+    public bool HorizontalScrollDisabled
+    {
+      get { return (bool) _horizontalScrollDisabledProperty.GetValue(); }
+      set { _horizontalScrollDisabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VerticalScrollDisabledProperty
+    {
+      get { return _verticalScrollDisabledProperty; }
+    }
+
+    /// <summary>
+    /// Disables the vertical scroll direction.
+    /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
+    /// <see cref="ScrollViewer.VerticalScrollBarVisibility"/> setting.
+    /// </summary>
+    public bool VerticalScrollDisabled
+    {
+      get { return (bool) _verticalScrollDisabledProperty.GetValue(); }
+      set { _verticalScrollDisabledProperty.SetValue(value); }
+    }
+
+    #endregion
 
     #region IScrollViewerFocusSupport implementation
 
@@ -240,14 +380,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageUp()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = ActualPosition.Y;
+      else
+      {
+        if (currentElement.ActualPosition.Y - DELTA_DOUBLE < ActualPosition.Y)
+          // Already topmost element
+          limitPosition = (float) (ActualPosition.Y - ActualHeight);
+        else
+          limitPosition = ActualPosition.Y;
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.Y >= ActualPosition.Y))
+          (currentElement.ActualPosition.Y > limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Up);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -259,14 +418,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageDown()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = (float) (ActualPosition.Y + ActualHeight);
+      else
+      {
+        if (currentElement.ActualPosition.Y + currentElement.ActualHeight + DELTA_DOUBLE > ActualPosition.Y + ActualHeight)
+          // Already at bottom
+          limitPosition = (float) (ActualPosition.Y + 2*ActualHeight);
+        else
+          limitPosition = (float) (ActualPosition.Y + ActualHeight);
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.Y + currentElement.ActualHeight <= ActualPosition.Y + ActualHeight))
+          (currentElement.ActualPosition.Y + currentElement.ActualHeight < limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Down);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -278,14 +456,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageLeft()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = ActualPosition.X;
+      else
+      {
+        if (currentElement.ActualPosition.X - DELTA_DOUBLE < ActualPosition.X)
+          // Already at left
+          limitPosition = (float) (ActualPosition.X - ActualWidth);
+        else
+          limitPosition = ActualPosition.X;
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.X >= ActualPosition.X))
+          (currentElement.ActualPosition.X > limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Left);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -297,14 +494,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool FocusPageRight()
     {
-      ICollection<FrameworkElement> focusableChildren = GetFEChildren();
+      ICollection<FrameworkElement> focusableChildren = new List<FrameworkElement>();
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      AddPotentialFocusableElements(currentElement == null ? new RectangleF?() : currentElement.ActualBounds, focusableChildren);
       if (focusableChildren.Count == 0)
         return false;
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      // Try to find first element which extends our range
+      float limitPosition;
+      if (currentElement == null)
+        limitPosition = (float) (ActualPosition.X + ActualWidth);
+      else
+      {
+        if (currentElement.ActualPosition.X + ActualWidth + DELTA_DOUBLE > ActualPosition.X + ActualWidth)
+          // Already at right
+          limitPosition = (float) (ActualPosition.X + 2*ActualWidth);
+        else
+          limitPosition = (float) (ActualPosition.X + ActualWidth);
+      }
+      // Try to find last element inside the limit
       while (currentElement != null &&
-          (currentElement.ActualPosition.X + currentElement.ActualWidth <= ActualPosition.X + ActualWidth))
+          (currentElement.ActualPosition.X + currentElement.ActualWidth < limitPosition))
+      {
+        FrameworkElement lastElement = currentElement;
         currentElement = FindNextFocusElement(focusableChildren, currentElement.ActualBounds, MoveFocusDirection.Right);
+        if (currentElement != null)
+          continue;
+        currentElement = lastElement;
+        break;
+      }
       if (currentElement != null)
         return currentElement.TrySetFocus(true);
       // No element to focus - fallback: move physical scrolling offset
@@ -351,10 +567,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool CanScroll
+    public bool DoScroll
     {
-      get { return _canScroll; }
-      set { _canScroll = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public float TotalWidth

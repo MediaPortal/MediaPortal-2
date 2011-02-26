@@ -409,7 +409,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             screenManager.ShowDialog(SHARES_CONFIG_RELOCATE_DIALOG_SCREEN);
           }
           else
-            UpdateShareAndFinish(RelocationMode.ClearAndReImport);
+            UpdateShareAndFinish(RelocationMode.None);
         }
         else
           throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _shareProxy.EditMode));

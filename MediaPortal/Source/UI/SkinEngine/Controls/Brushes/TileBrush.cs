@@ -285,6 +285,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
+      if (Texture == null)
+        return;
       if (_effect != null)
         _effect.EndRender();
     }

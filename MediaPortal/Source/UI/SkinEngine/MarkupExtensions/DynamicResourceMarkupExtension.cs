@@ -169,6 +169,13 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Attach();
     }
 
+    public override void Dispose()
+    {
+      Detach();
+      ResetEventHandlerAttachments();
+      base.Dispose();
+    }
+
     #endregion
 
     #region Public properties

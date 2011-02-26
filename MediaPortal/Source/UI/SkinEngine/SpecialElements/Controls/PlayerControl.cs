@@ -89,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected bool _initialized = false;
     protected bool _updating = false;
     protected AsynchronousMessageQueue _messageQueue = null;
+    protected object _syncObj = new object();
 
     // Derived properties/fields
     protected MediaItem _currentMediaItem;
@@ -152,8 +153,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       Init();
       Attach();
-      SubscribeToMessages();
-      UpdateProperties();
     }
 
     void Init()
@@ -208,9 +207,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _fullscreenContentWFStateIDProperty = new SProperty(typeof(Guid?), null);
       _currentlyPlayingWFStateIDProperty = new SProperty(typeof(Guid?), null);
 
-      _timer = new Timer(200) {Enabled = false};
-      _timer.Elapsed += OnTimerElapsed;
-
       _headerNormalResource = LocalizationHelper.CreateResourceString(RES_HEADER_NORMAL);
       _headerPiPResource = LocalizationHelper.CreateResourceString(RES_HEADER_PIP);
       _playbackRateHintResource = LocalizationHelper.CreateResourceString(RES_PLAYBACK_RATE_HINT);
@@ -221,12 +217,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _playerContextProperty.Attach(OnPropertyChanged);
       _autoVisibilityProperty.Attach(OnPropertyChanged);
       _isMutedProperty.Attach(OnMuteChanged);
+
+      VisibilityProperty.Attach(OnVisibilityChanged);
     }
 
     void Detach()
     {
       _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
+
+      VisibilityProperty.Detach(OnVisibilityChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -249,12 +249,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       base.Dispose();
       UnsubscribeFromMessages();
       StopTimer();
-      _timer.Dispose();
     }
 
     #endregion
 
     #region Private & protected methods
+
+    void OnVisibilityChanged(AbstractProperty property, object oldvalue)
+    {
+      CheckHeartBeat();
+    }
 
     void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
@@ -272,8 +276,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
-      lock (_timer)
-        if (!_timer.Enabled)
+      lock (_syncObj)
+        if (_timer == null)
           // Avoid calls after timer was stopped
           return;
       CheckShowMouseControls();
@@ -302,14 +306,25 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     protected void StartTimer()
     {
-      lock (_timer)
-        _timer.Enabled = true;
+      lock (_syncObj)
+      {
+        if (_timer != null)
+          return;
+        _timer = new Timer(200) {Enabled = true};
+        _timer.Elapsed += OnTimerElapsed;
+      }
     }
 
     protected void StopTimer()
     {
-      lock (_timer)
+      lock (_syncObj)
+      {
+        if (_timer == null)
+          return;
         _timer.Enabled = false;
+        _timer.Dispose();
+        _timer = null;
+      }
     }
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -330,6 +345,26 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             StopTimer();
           }
         }
+      }
+    }
+
+    protected void CheckHeartBeat()
+    {
+      if (_allocated)
+      {
+        SubscribeToMessages();
+        if (IsVisible)
+        {
+          UpdateProperties();
+          StartTimer();
+        }
+        else
+          StopTimer();
+      }
+      else
+      {
+        UnsubscribeFromMessages();
+        StopTimer();
       }
     }
 
@@ -358,11 +393,11 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       return 0;
     }
 
-    protected string CheckPictureSourcePath(IResourceLocator locator)
+    protected void UpdatePictureSourcePath(IResourceLocator locator)
     {
       if (_currentPictureSourceLocator != locator)
       {
-        DisposePictureResourceAccessor();
+        ILocalFsResourceAccessor oldAccessor = _currentPictureResourceAccessor;
         _currentPictureSourceLocator = locator;
         if (_currentPictureSourceLocator != null)
           try
@@ -373,13 +408,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           {
             ServiceRegistration.Get<ILogger>().Warn("PlayerControl: Problem creating local filesystem accessor for picture '{0}'",
                 e, _currentPictureSourceLocator);
-            return null;
+            PictureSourcePath = null;
+            return;
           }
+        PictureSourcePath = _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
+        if (oldAccessor != null)
+          oldAccessor.Dispose();
       }
-      return _currentPictureResourceAccessor == null ? null : _currentPictureResourceAccessor.LocalFileSystemPath;
     }
 
-    protected void DisposePictureResourceAccessor()
+    protected void DisposeCurrentPictureResourceAccessor()
     {
       if (_currentPictureResourceAccessor != null)
         _currentPictureResourceAccessor.Dispose();
@@ -459,13 +497,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         if (pp == null)
         {
           IsPicturePlayerPresent = false;
-          DisposePictureResourceAccessor();
+          DisposeCurrentPictureResourceAccessor();
+          PictureSourcePath = null;
           PictureRotateDegrees = 0;
         }
         else
         {
           IsPicturePlayerPresent = true;
-          PictureSourcePath = CheckPictureSourcePath(pp.CurrentPictureResourceLocator);
+          UpdatePictureSourcePath(pp.CurrentPictureResourceLocator);
           PictureRotateDegrees = GetRotationMetadata(_currentMediaItem);
         }
 
@@ -1588,13 +1627,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public override void Allocate()
     {
       base.Allocate();
-      StartTimer();
+      CheckHeartBeat();
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
-      StopTimer();
+      CheckHeartBeat();
     }
 
     #endregion

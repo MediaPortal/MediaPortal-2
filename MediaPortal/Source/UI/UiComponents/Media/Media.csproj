@@ -100,7 +100,6 @@
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
-    <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
     <Compile Include="Models\LocalPlaylists.cs" />
@@ -158,250 +157,63 @@
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
-    <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
-    <Compile Include="Settings\Configuration\SkipStepList.cs" />
-    <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\DialogChooseAVType.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\DialogPlayMenu.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\FullscreenContentAudio.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\LocalMediaNavigation.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
+    <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
+    <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc" />
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
-    <Content Include="Skin\default\screens\MusicShowItems.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesShowItems.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesShowItems.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesFilterBySystem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SimpleFilterItems.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SimpleShowItems.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesFilterByActor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesFilterByGenre.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesFilterByYear.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesFilterBySystem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicFilterByAlbum.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicFilterByArtist.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicFilterByDecade.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicFilterByGenre.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicFilterBySystem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesFilterBySize.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesFilterByYear.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MusicSimpleSearch.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SimpleSearch.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\ShowPlaylist.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\EditPlaylist.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PlaylistsOverview.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PlaylistInfo.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\RemovePlaylists.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\SavePlaylistEditName.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\themes\default\styles\MediaColors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\MusicShowItems.xaml" />
+    <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
+    <Content Include="Skin\default\screens\PicturesShowItems.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterBySystem.xaml" />
+    <Content Include="Skin\default\screens\SimpleFilterItems.xaml" />
+    <Content Include="Skin\default\screens\SimpleShowItems.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByActor.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByGenre.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByYear.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterBySystem.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByAlbum.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByArtist.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByDecade.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByGenre.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterBySystem.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterBySize.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterByYear.xaml" />
+    <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\MusicSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\SimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
+    <Content Include="Skin\default\screens\EditPlaylist.xaml" />
+    <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
+    <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
+    <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
+    <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
-    <Content Include="Skin\default\screens\CurrentlyPlayingPicture.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\FullscreenContentPicture.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\FullscreenContentDVD.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogChooseSubtitle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogChooseChapter.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\MediaButtons.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\themes\default\styles\MediaGraphics.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\superlayers\SkipStepOSD.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
+    <Content Include="Skin\default\screens\CurrentlyPlayingPicture.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentPicture.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingDVD.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentDVD.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseSubtitle.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseChapter.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaButtons.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaGraphics.xaml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

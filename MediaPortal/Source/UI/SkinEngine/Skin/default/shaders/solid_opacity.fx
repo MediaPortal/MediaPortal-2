@@ -42,10 +42,8 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  float4 texPos = float4(IN.Texcoord.x, IN.Texcoord.y, 0, 1);
-  OUT.Color = tex2D(TextureSampler, float2(texPos.x, texPos.y));
-
-  OUT.Color[3] *= g_solidcolor[3];
+  // The opacity mask will already be pre-multiplied
+  OUT.Color = tex2D(TextureSampler, IN.Texcoord) * g_solidcolor.a;
 }
 
 technique simple

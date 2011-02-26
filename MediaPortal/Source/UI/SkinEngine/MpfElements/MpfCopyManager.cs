@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -65,12 +66,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public IEnumerable<IBinding> GetDeferredBindings()
     {
-      foreach (object value in _identities.Values)
-      {
-        IBinding binding = value as IBinding;
-        if (binding != null)
-          yield return binding;
-      }
+      return _identities.Values.OfType<IBinding>();
     }
 
     public static void ActivateBindings(IEnumerable<IBinding> deferredBindings)
@@ -127,7 +123,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <param name="o">Object to be copied. This object may implement the
     /// interface <see cref="IDeepCopyable"/>, or may not.</param>
     /// <param name="fixedObject">Object which should not be copied. This object
-    /// will remain the same in the copy.</param>
+    /// will remain the same in the copy. If this object is <c>null</c>, this method will fallback to method
+    /// <see cref="DeepCopy{T}(T,out IEnumerable{IBinding})"/></param>
     /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
     /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
     /// failing to bind, when activated too early.</param>
@@ -135,6 +132,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public static T DeepCopyWithFixedObject<T>(T o, object fixedObject,
         out IEnumerable<IBinding> deferredBindings)
     {
+      if (fixedObject == null)
+        return DeepCopy(o, out deferredBindings);
       Dictionary<object, object> identities = new Dictionary<object, object> {{fixedObject, fixedObject}};
       return DeepCopyWithIdentities(o, identities, out deferredBindings);
     }

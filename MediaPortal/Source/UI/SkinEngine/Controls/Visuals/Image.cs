@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.Utilities.DeepCopy;
@@ -64,9 +65,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _stretchProperty;
     protected AbstractProperty _thumbnailProperty;
     protected AbstractProperty _skinNeutralProperty;
+    protected AbstractProperty _hasImageProperty;
     protected ImageSource _imageSource = null;
     protected bool _imageSourceInvalid = true;
     protected bool _imageSourceSetup = false;
+    protected SizeF _lastImageSourceSize = SizeF.Empty;
     protected string _warnURI = null;
 
     #endregion
@@ -87,6 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
       _thumbnailProperty = new SProperty(typeof(bool), false);
       _skinNeutralProperty = new SProperty(typeof(bool), false);
+      _hasImageProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -121,7 +125,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Thumbnail = i.Thumbnail;
       SkinNeutralAR = i.SkinNeutralAR;
       _imageSourceInvalid = true;
+      HasImage = false;
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Source);
+      Registration.TryCleanupAndDispose(FallbackSource);
+      base.Dispose();
     }
 
     #endregion
@@ -217,11 +229,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _skinNeutralProperty; }
     }
 
+    /// <summary>
+    /// Gets a value indicating that the control has a renderable ImageSource
+    /// </summary>
+    public bool HasImage
+    {
+      get { return (bool) _hasImageProperty.GetValue(); }
+      set { _hasImageProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasImageProperty
+    {
+      get { return _hasImageProperty; }
+    }
+
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      ImageSource source = GetLoadedSource();
+      ImageSource source = GetLoadedSource(false);
       if (source == null || !source.IsAllocated)
-        return SizeF.Empty;
+      {
+        _lastImageSourceSize = SizeF.Empty;
+        return new SizeF(10, 10);
+      }
 
       SizeF imageSize = source.SourceSize;
       float sourceFrameRatio = imageSize.Width / imageSize.Height;
@@ -233,10 +262,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (double.IsNaN(totalSize.Width))
         totalSize.Width = totalSize.Height * sourceFrameRatio;
 
+      _lastImageSourceSize = imageSize;
       return source.StretchSource(totalSize, imageSize, Stretch, StretchDirection);
     }
 
-    protected ImageSource GetLoadedSource()
+    protected ImageSource GetLoadedSource(bool invalidateLayout)
     {
       // If our image source has changed we need to ensure we deallocate the old one completely
       if (_imageSource != null && (_imageSourceInvalid || !_imageSource.IsAllocated))
@@ -253,11 +283,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_imageSource == null)
       {
         _imageSourceInvalid = false;
-        _imageSource = LoadImageSource(Source);
-        if (_imageSource != null)
-          return _imageSource;
-        _imageSource = LoadImageSource(FallbackSource);
+        _imageSource = LoadImageSource(Source) ?? LoadImageSource(FallbackSource);
       }
+
+      if (invalidateLayout && _imageSource != null && _imageSource.SourceSize != _lastImageSourceSize)
+        InvalidateLayout(true, true);
+      if (HasImage != (_imageSource != null))
+        HasImage = _imageSource != null;
+
       return _imageSource;
     }
 
@@ -298,13 +331,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
-      ImageSource source = GetLoadedSource();
+      ImageSource source = GetLoadedSource(true);
       if (source == null)
         base.DoRender(localRenderContext);
       else
       {
-        // TODO: Why is _performLayout checked here?
-        if ((_performLayout || !_imageSourceSetup) && source.IsAllocated)
+        // Update source geometry if necessary (source has changed, layout has changed).
+        if (!_imageSourceSetup && source.IsAllocated)
         {
           source.Setup(_innerRect, localRenderContext.ZOrder, SkinNeutralAR);
           _imageSourceSetup = true;
@@ -314,10 +347,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    protected override void ArrangeOverride()
+    {
+      base.ArrangeOverride();
+      _imageSourceSetup = false;
+    }
+
     public override void Allocate()
     {
       base.Allocate();
-      GetLoadedSource();
+      GetLoadedSource(true);
     }
 
     public override void Deallocate()

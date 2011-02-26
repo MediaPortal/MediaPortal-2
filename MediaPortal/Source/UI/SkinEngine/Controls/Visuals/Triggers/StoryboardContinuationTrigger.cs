@@ -30,9 +30,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class StoryboardContinuationTrigger : TriggerAction
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _beginStoryBoardProperty;
+    protected AbstractProperty _beginStoryBoardProperty;
 
     #endregion
 

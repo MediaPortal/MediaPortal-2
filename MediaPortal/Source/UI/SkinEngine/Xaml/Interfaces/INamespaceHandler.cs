@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
-  /// Defines the callback interface the <see cref="XamlParser"/> uses to
+  /// Defines the callback interface the <see cref="Parser"/> uses to
   /// handle XAML elements of an XML namespace. The term "namespace"
   /// describes here an XML namespace, not necessarily a code namespace.
   /// Often, an XML namespace will be mapped to a code namespace even so.

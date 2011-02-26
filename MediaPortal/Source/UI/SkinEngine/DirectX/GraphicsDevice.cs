@@ -265,18 +265,26 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       _device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       _device.SetRenderState(RenderState.AlphaBlendEnable, true);
-      _device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
+      _device.SetRenderState(RenderState.SourceBlend, Blend.One);
       _device.SetRenderState(RenderState.DestinationBlend, Blend.InverseSourceAlpha);
 
       if (_supportsAlphaBlend)
       {
         _device.SetRenderState(RenderState.AlphaTestEnable, true);
-        _device.SetRenderState(RenderState.AlphaRef, 0x01);
+        _device.SetRenderState(RenderState.AlphaRef, 0x05);
         _device.SetRenderState(RenderState.AlphaFunc, Compare.GreaterEqual);
       }
       _device.SetSamplerState(0, SamplerState.MinFilter, TextureFilter.Linear);
       _device.SetSamplerState(0, SamplerState.MagFilter, TextureFilter.Linear);
-      _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Linear);
+      _device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.None);
+
+      _device.SetSamplerState(1, SamplerState.MinFilter, TextureFilter.Linear);
+      _device.SetSamplerState(1, SamplerState.MagFilter, TextureFilter.Linear);
+      _device.SetSamplerState(1, SamplerState.MipFilter, TextureFilter.None);
+
+      _device.SetSamplerState(2, SamplerState.MinFilter, TextureFilter.Linear);
+      _device.SetSamplerState(2, SamplerState.MagFilter, TextureFilter.Linear);
+      _device.SetSamplerState(2, SamplerState.MipFilter, TextureFilter.None);
 
       // Projection onto screen space
       SetCameraProjection(Width, Height);
@@ -293,15 +301,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       float w = width * 0.5f;
       float h = height * 0.5f;
 
-      // Camera view. Multiply the Y coord by -1) { translate so that everything is relative to the camera position.
+      // Setup a 2D camera view
       Matrix flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
-      Matrix translate = Matrix.Translation(-w, -h, 2 * h);
+      Matrix translate = Matrix.Translation(-w, -h, 0.0f);
       TransformView = Matrix.Multiply(translate, flipY);
 
-      w *= 0.5f;
-      h *= 0.5f;
-
-      TransformProjection = Matrix.PerspectiveOffCenterLH(-w, w, -h, h, h * 2.0f, h * 200.0f); 
+      TransformProjection = Matrix.OrthoOffCenterLH(-w, w, -h, h, 0.0f, 2.0f); 
       FinalTransform = TransformView * TransformProjection;
     }
 

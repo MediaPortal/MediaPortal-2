@@ -39,7 +39,8 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = g_solidcolor;
+  // Remember to pre-multiply alpha
+  OUT.Color = float4(g_solidcolor.xyz * g_solidcolor.a, g_solidcolor.a);
 }
 
 technique simple

@@ -22,9 +22,11 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Views;
 using MediaPortal.UiComponents.Media.General;
@@ -86,6 +88,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void Reload()
     {
       DoSearch();
+    }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      return BuildAllItemsView().MediaItems;
     }
 
     void OnSimpleSearchTextChanged(AbstractProperty prop, object oldValue)

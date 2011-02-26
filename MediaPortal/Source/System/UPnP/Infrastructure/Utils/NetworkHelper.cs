@@ -216,7 +216,7 @@ namespace UPnP.Infrastructure.Utils
       return GetLinkDistance(address1) - GetLinkDistance(address2);
     }
 
-    public static IList<IPAddress> OrderAddressesByScope(ICollection<IPAddress> addresses)
+    public static IList<IPAddress> OrderAddressesByScope(IEnumerable<IPAddress> addresses)
     {
       List<IPAddress> result = new List<IPAddress>(addresses);
       result.Sort(CompareLinkDistance);

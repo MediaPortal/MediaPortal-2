@@ -32,13 +32,10 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.SkinEngine.Commands;
-using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities;
 using SlimDX;
@@ -144,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("DataTrigger", typeof(SkinEngine.Controls.Visuals.Triggers.DataTrigger));
       _objectClassRegistrations.Add("BeginStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.BeginStoryboard));
       _objectClassRegistrations.Add("StopStoryboard", typeof(SkinEngine.Controls.Visuals.Triggers.StopStoryboard));
-      _objectClassRegistrations.Add("TriggerCommand", typeof(SkinEngine.Controls.Bindings.TriggerCommand));
+      _objectClassRegistrations.Add("TriggerCommand", typeof(SkinEngine.Controls.Visuals.Triggers.TriggerCommand));
       _objectClassRegistrations.Add("SoundPlayerAction", typeof(SkinEngine.Controls.Visuals.Triggers.SoundPlayerAction));
 
       // Transforms
@@ -161,8 +158,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ControlTemplate));
       _objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ItemsPanelTemplate));
       _objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
-      _objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
       _objectClassRegistrations.Add("DataStringProvider", typeof(SkinEngine.Controls.Visuals.Templates.DataStringProvider));
+      _objectClassRegistrations.Add("SubItemsProvider", typeof(SkinEngine.Controls.Visuals.Templates.SubItemsProvider));
 
       // Resources/wrapper classes
       _objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));
@@ -234,7 +231,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Don't convert LateBoundValue (or superclass ValueWrapper) here... instances of
       // LateBoundValue must stay unchanged until some code part explicitly converts them!
       if (value is ResourceWrapper)
-        return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
+      {
+        // Resource must be copied because setters and other controls most probably need a copy of the resource.
+        // If we don't copy it, Setter is not able to check if we already return a copy because our input value differs
+        // from the output value, even if we didn't do a copy here.
+        return TypeConverter.Convert(MpfCopyManager.DeepCopyCutLP(((ResourceWrapper) value).Resource), targetType, out result);
+      }
       if (value is string && targetType == typeof(FrameworkElement))
       {
         // It doesn't suffice to have an implicit data template declaration which returns a label for a string.
@@ -405,51 +407,62 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         target = result;
         return true;
       }
-      else if (t == typeof(Vector3))
+      if (t == typeof(Vector3))
       {
         Vector3 vec = (Vector3) source;
         Vector3 result = new Vector3 {X = vec.X, Y = vec.Y, Z = vec.Z};
         target = result;
         return true;
       }
-      else if (t == typeof(Vector4))
+      if (t == typeof(Vector4))
       {
         Vector4 vec = (Vector4) source;
         Vector4 result = new Vector4 {X = vec.X, Y = vec.Y, W = vec.W, Z = vec.Z};
         target = result;
         return true;
       }
-      else if (source is Style)
+      if (source is IUnmodifiableResource)
       {
-        // Style objects are unmodifyable
-        target = source;
-        return true;
-      }
-      else if (source is ControlTemplate)
-      {
-        // Control templates are unmodifyable
-        target = source;
-        return true;
-      }
-      else if (source is ItemsPanelTemplate)
-      {
-        // Items panel templates are unmodifyable
-        target = source;
-        return true;
-      }
-      // DataTemplates are modifiable, don't exclude them here from copying
-      else if (source is Timeline)
-      {
-        // Timeline objects are unmodifyable
-        target = source;
-        return true;
-      }
-      else if (source is ResourceWrapper && ((ResourceWrapper) source).Freezable)
-      {
-        target = source;
-        return true;
+        IUnmodifiableResource resource = (IUnmodifiableResource) source;
+        if (resource.Owner != null)
+        {
+          target = source;
+          return true;
+        }
       }
       return false;
+    }
+
+    public static void TryCleanupAndDispose(object maybeUIElementOrDisposable)
+    {
+      IUnmodifiableResource resource = maybeUIElementOrDisposable as IUnmodifiableResource;
+      if (resource != null && resource.Owner != null)
+        // Optimize disposal for unmodifiable resources: They are only disposed by their parent ResourceDictionary
+        return;
+      UIElement u = maybeUIElementOrDisposable as UIElement;
+      if (u != null)
+      {
+        u.CleanupAndDispose();
+        return;
+      }
+      IDisposable d = maybeUIElementOrDisposable as IDisposable;
+      if (d == null)
+        return;
+      d.Dispose();
+    }
+
+    public static void SetOwner(object res, object owner)
+    {
+      IUnmodifiableResource resource = res as IUnmodifiableResource;
+      if (resource != null)
+        resource.Owner = owner;
+    }
+
+    public static void CleanupAndDisposeResourceIfOwner(object res, object checkOwner)
+    {
+      IUnmodifiableResource resource = res as IUnmodifiableResource;
+      if (resource != null && ReferenceEquals(resource.Owner, checkOwner))
+        TryCleanupAndDispose(res);
     }
 
     #endregion

@@ -31,9 +31,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class TransformGroup : Transform, IAddChild<Transform>
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _childrenProperty;
+    protected AbstractProperty _childrenProperty;
 
     #endregion
 

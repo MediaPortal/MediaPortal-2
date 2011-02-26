@@ -27,21 +27,23 @@ using MediaPortal.Core.Configuration.ConfigurationClasses;
 
 namespace Ui.Players.BassPlayer.Settings.Configuration
 {
-  public class CrossFadeDuration : NumberSelect
+  public class CrossFadeDuration : LimitedNumberSelect
   {
     #region Public Methods
 
     public override void Load()
     {
       _type = NumberType.FloatingPoint;
-      _step = 0.1;
-      _value = SettingsManager.Load<BassPlayerSettings>().CrossFadeDurationMilliSecs;
+      _step = 0.5;
+      _lowerLimit = 0.5;
+      _upperLimit = 10;
+      _value = SettingsManager.Load<BassPlayerSettings>().CrossFadeDurationSecs;
     }
 
     public override void Save()
     {
       BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
-      settings.CrossFadeDurationMilliSecs = (int) _value;
+      settings.CrossFadeDurationSecs = _value;
       SettingsManager.Save(settings);
     }
 

@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -38,18 +39,6 @@ using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
-  public class ZOrderComparer : IComparer<FrameworkElement>
-  {
-    #region IComparer<FrameworkElement> Members
-
-    public int Compare(FrameworkElement x, FrameworkElement y)
-    {
-      return Panel.GetZIndex(x).CompareTo(Panel.GetZIndex(y));
-    }
-
-    #endregion
-  }
-
   /// <summary>
   /// Matcher implementation which looks for a panel which has its
   /// <see cref="Panel.IsItemsHost"/> property set.
@@ -65,12 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public static ItemsHostMatcher Instance
     {
-      get
-      {
-        if (_instance == null)
-          _instance = new ItemsHostMatcher();
-        return _instance;
-      }
+      get { return _instance ?? (_instance = new ItemsHostMatcher()); }
     }
   }
 
@@ -91,6 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected bool _isItemsHost = false;
     protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<FrameworkElement> _renderOrder = new List<FrameworkElement>(); // Cache for the render order of our children. Take care of locking out writing threads using the Children.SyncRoot.
+    protected List<AbstractProperty> _zIndexRegisteredProperties = new List<AbstractProperty>();
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected PrimitiveBuffer _backgroundContext;
 
@@ -106,6 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void Dispose()
     {
+      Registration.TryCleanupAndDispose(Background);
       base.Dispose();
       Detach();
       Children.Dispose();
@@ -113,7 +99,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _childrenProperty = new SProperty(typeof(FrameworkElementCollection), new FrameworkElementCollection(this));
+      FrameworkElementCollection coll = new FrameworkElementCollection(this);
+      coll.CollectionChanged += OnChildrenChanged;
+      _childrenProperty = new SProperty(typeof(FrameworkElementCollection), coll);
       _backgroundProperty = new SProperty(typeof(Brush), null);
     }
 
@@ -141,9 +129,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
+    void OnZIndexChanged(AbstractProperty property, object oldValue)
+    {
+      _updateRenderOrder = true;
+    }
+
     void OnBrushChanged(IObservable observable)
     {
       _performLayout = true;
+    }
+
+    void OnChildrenChanged(FrameworkElementCollection coll)
+    {
+      InvalidateLayout(true, true);
+      _updateRenderOrder = true;
     }
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)
@@ -289,17 +288,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
-    protected virtual void UpdateRenderOrder()
+    protected void UpdateRenderOrder()
     {
-      if (!_updateRenderOrder) return;
+      if (!_updateRenderOrder)
+        return;
       _updateRenderOrder = false;
       lock (Children.SyncRoot)
       {
-        Children.FixZIndex();
+        foreach (AbstractProperty property in _zIndexRegisteredProperties)
+          // Just detach from change handler and attach again later
+          property.Detach(OnZIndexChanged);
+        _zIndexRegisteredProperties.Clear();
+        // The sort function which is used here must execute a stable sort, so don't use List.Sort, as that method is
+        // specified to be unstable!
+        IEnumerable<FrameworkElement> orderedElements = GetRenderedChildren().OrderBy(element =>
+          {
+            AbstractProperty prop = GetZIndexAttachedProperty_NoCreate(element);
+            if (prop == null)
+              return 0.0;
+            prop.Attach(OnZIndexChanged);
+            _zIndexRegisteredProperties.Add(prop);
+            return (double) prop.GetValue();
+          });
         _renderOrder.Clear();
-        CollectionUtils.AddAll(_renderOrder, GetVisibleChildren());
-        _renderOrder.Sort(new ZOrderComparer());
+        _renderOrder.AddRange(orderedElements);
       }
+    }
+
+    /// <summary>
+    /// Returns all children which should be rendered.
+    /// </summary>
+    /// <remarks>
+    /// The lock <see cref="FrameworkElementCollection.SyncRoot"/> is held on the <see cref="Children"/> collection while
+    /// this method is called.
+    /// </remarks>
+    /// <returns>Enumeration of to-be-rendered children.</returns>
+    protected virtual IEnumerable<FrameworkElement> GetRenderedChildren()
+    {
+      return GetVisibleChildren();
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
@@ -357,6 +383,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Attached properties
 
+    protected static void TryScheduleUpdateParentsRenderOrder(DependencyObject targetObject)
+    {
+      Visual v = targetObject as Visual;
+      if (v != null)
+      {
+        Panel parent = v.VisualParent as Panel;
+        if (parent != null)
+          parent._updateRenderOrder = true;
+      }
+    }
+
     /// <summary>
     /// Getter method for the attached property <c>ZIndex</c>.
     /// </summary>
@@ -379,6 +416,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public static void SetZIndex(DependencyObject targetObject, double value)
     {
       targetObject.SetAttachedPropertyValue<double>(ZINDEX_ATTACHED_PROPERTY, value);
+      // The parent will automatically attach to the ZIndex-Property when it updates its render order
+      TryScheduleUpdateParentsRenderOrder(targetObject);
     }
 
     /// <summary>
@@ -392,7 +431,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <returns>Attached <c>ZIndex</c> property.</returns>
     public static AbstractProperty GetZIndexAttachedProperty(DependencyObject targetObject)
     {
-      return targetObject.GetOrCreateAttachedProperty(ZINDEX_ATTACHED_PROPERTY, -1.0);
+      AbstractProperty result = targetObject.GetAttachedProperty(ZINDEX_ATTACHED_PROPERTY);
+      if (result != null)
+        return result;
+      // The parent will automatically attach to the ZIndex-Property when it updates its render order
+      TryScheduleUpdateParentsRenderOrder(targetObject);
+      return targetObject.GetOrCreateAttachedProperty(ZINDEX_ATTACHED_PROPERTY, 0.0);
+    }
+
+    public static AbstractProperty GetZIndexAttachedProperty_NoCreate(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedProperty(ZINDEX_ATTACHED_PROPERTY);
     }
 
     #endregion

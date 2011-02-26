@@ -55,6 +55,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     EffectHandle _handleWorldProjection;
     EffectHandle _handleTexture;
     EffectHandle _handleTechnique;
+    bool _fileMissing = false;
 
     /// <summary>
     /// EffectAssetCore constructor.
@@ -80,13 +81,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       for (int i = files.Length-1; i >= 0; --i)
       {
         string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY, files[i]));
-        if (effectFilePath == null)
-          return false;
-        if (!File.Exists(effectFilePath))
+        if (effectFilePath == null || !File.Exists(effectFilePath))
         {
-          ServiceRegistration.Get<ILogger>().Error("Effect file {0} does not exist", effectFilePath);
+          if (!_fileMissing)
+            ServiceRegistration.Get<ILogger>().Error("Effect file {0} does not exist", effectFilePath);
+          _fileMissing = true;
           return false;
         }
+        _fileMissing = false;
 
         string partialShader;
         using (StreamReader reader = new StreamReader(effectFilePath))

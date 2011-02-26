@@ -24,12 +24,14 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles      
 {
-  public class Style: INameScope, IAddChild<SetterBase>, IImplicitKey
+  public class Style: DependencyObject, INameScope, IAddChild<SetterBase>, IImplicitKey, IUnmodifiableResource
   {
     #region Protected fields
 
@@ -37,6 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     protected IList<SetterBase> _setters = new List<SetterBase>();
     protected AbstractProperty _targetTypeProperty;
     protected ResourceDictionary _resources;
+    protected object _owner = null;
 
     #endregion
 
@@ -51,6 +54,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     {
       _targetTypeProperty = new SProperty(typeof(Type), null);
       _resources = new ResourceDictionary();
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      Style s = (Style) source;
+      BasedOn = copyManager.GetCopy(s.BasedOn);
+      foreach (SetterBase setter in s._setters)
+        _setters.Add(copyManager.GetCopy(setter));
+      TargetType = s.TargetType;
+      _resources = copyManager.GetCopy(s.Resources);
+    }
+
+    public override void Dispose()
+    {
+      foreach (SetterBase setterBase in _setters)
+        setterBase.Dispose();
+      Registration.TryCleanupAndDispose(_resources);
+      base.Dispose();
     }
 
     #endregion
@@ -146,6 +168,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     public object GetImplicitKey()
     {
       return TargetType;
+    }
+
+    #endregion
+
+    #region IUnmodifyableResource implementation
+
+    public object Owner
+    {
+      get { return _owner; }
+      set { _owner = value; }
+    }
+
+    #endregion
+
+    #region IInitializable implementation
+
+    public override void Initialize(IParserContext context)
+    {
+      base.Initialize(context);
+      ResourceDictionary.RegisterUnmodifiableResourceDuringParsingProcess(this, context);
     }
 
     #endregion

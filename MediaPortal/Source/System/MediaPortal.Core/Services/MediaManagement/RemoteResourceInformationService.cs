@@ -26,14 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.Xml.XPath;
 using MediaPortal.Core.Exceptions;
-using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
-using UPnP.Infrastructure.CP.SSDP;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -101,38 +99,18 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    protected bool IsDescriptorOfSystem(RootDescriptor rootDescriptor, SystemName system)
-    {
-      RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
-      lock (rootEntry.SyncObj)
-        foreach (LinkData link in rootEntry.AllLinks)
-        {
-          string location = link.DescriptionLocation;
-          try
-          {
-            string hostName = new Uri(location).Host;
-            if (system == new SystemName(hostName))
-              return true;
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("RemoteResourceInformationService: Error checking host of URI '{0}'", e, location);
-          }
-        }
-      return false;
-    }
-
     /// <summary>
-    /// Checks if there is a resource information UPnP service available on the given <paramref name="system"/>.
+    /// Checks if there is a resource information UPnP service available on the system with the
+    /// given <paramref name="systemId"/>.
     /// </summary>
-    /// <param name="system">System to check.</param>
-    /// <returns>Proxy object to access the resource information service at the given <paramref name="system"/> or
-    /// <c>null</c>, if the given <paramref name="system"/> neither provides an MP2 client nor an MP2 server.</returns>
-    protected IResourceInformationService FindResourceInformationService(SystemName system)
+    /// <param name="systemId">Id of the system to check.</param>
+    /// <returns>Proxy object to access the resource information service at the system with the given
+    /// <paramref name="systemId"/> or <c>null</c>, if the system neither provides an MP2 client nor an MP2 server.</returns>
+    protected IResourceInformationService FindResourceInformationService(string systemId)
     {
       lock (_networkTracker.SharedControlPointData.SyncObj)
         foreach (RootDescriptor rootDeviceDescriptor in _networkTracker.KnownRootDevices.Values)
-          if (IsDescriptorOfSystem(rootDeviceDescriptor, system))
+          if (rootDeviceDescriptor.SSDPRootEntry.RootDeviceID == systemId)
           {
             IResourceInformationService ris = TryGetResourceInformationService(rootDeviceDescriptor);
             if (ris != null)
@@ -141,11 +119,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       return null;
     }
 
-    protected IResourceInformationService GetResourceInformationService(SystemName system)
+    protected IResourceInformationService GetResourceInformationService(string systemId)
     {
-      IResourceInformationService result = FindResourceInformationService(system);
+      IResourceInformationService result = FindResourceInformationService(systemId);
       if (result == null)
-        throw new NotConnectedException("The system '{0}' is not connected", system);
+        throw new NotConnectedException("The system '{0}' is not connected", systemId);
       return result;
     }
 
@@ -161,37 +139,35 @@ namespace MediaPortal.Core.Services.MediaManagement
       _controlPoint.Close(); // Close the control point after the network tracker was closed. See docs of Close() method.
     }
 
-    public bool GetResourceInformation(SystemName nativeSystem, ResourcePath nativeResourcePath,
-        out bool isFileSystemResource, out bool isFile, out string resourcePathName, out string resourceName,
-        out DateTime lastChanged, out long size)
+    public bool GetResourceInformation(string nativeSystemId, ResourcePath nativeResourcePath, out bool isFileSystemResource, out bool isFile, out string resourcePathName, out string resourceName, out DateTime lastChanged, out long size)
     {
-      return GetResourceInformationService(nativeSystem).GetResourceInformation(nativeResourcePath, out isFileSystemResource,
+      return GetResourceInformationService(nativeSystemId).GetResourceInformation(nativeResourcePath, out isFileSystemResource,
           out isFile, out resourcePathName, out resourceName, out lastChanged, out size);
     }
 
-    public bool ResourceExists(SystemName nativeSystem, ResourcePath nativeResourcePath)
+    public bool ResourceExists(string nativeSystemId, ResourcePath nativeResourcePath)
     {
-      return GetResourceInformationService(nativeSystem).DoesResourceExist(nativeResourcePath);
+      return GetResourceInformationService(nativeSystemId).DoesResourceExist(nativeResourcePath);
     }
 
-    public ResourcePath ConcatenatePaths(SystemName nativeSystem, ResourcePath nativeResourcePath, string relativePath)
+    public ResourcePath ConcatenatePaths(string nativeSystemId, ResourcePath nativeResourcePath, string relativePath)
     {
-      return GetResourceInformationService(nativeSystem).ConcatenatePaths(nativeResourcePath, relativePath);
+      return GetResourceInformationService(nativeSystemId).ConcatenatePaths(nativeResourcePath, relativePath);
     }
 
-    public ICollection<ResourcePathMetadata> GetFiles(SystemName nativeSystem, ResourcePath nativeResourcePath)
+    public ICollection<ResourcePathMetadata> GetFiles(string nativeSystemId, ResourcePath nativeResourcePath)
     {
-      return GetResourceInformationService(nativeSystem).GetFilesData(nativeResourcePath);
+      return GetResourceInformationService(nativeSystemId).GetFilesData(nativeResourcePath);
     }
 
-    public ICollection<ResourcePathMetadata> GetChildDirectories(SystemName nativeSystem, ResourcePath nativeResourcePath)
+    public ICollection<ResourcePathMetadata> GetChildDirectories(string nativeSystemId, ResourcePath nativeResourcePath)
     {
-      return GetResourceInformationService(nativeSystem).GetChildDirectoriesData(nativeResourcePath);
+      return GetResourceInformationService(nativeSystemId).GetChildDirectoriesData(nativeResourcePath);
     }
 
-    public string GetFileHttpUrl(SystemName nativeSystem, ResourcePath nativeResourcePath)
+    public string GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath)
     {
-      return ResourceHttpAccessUrlUtils.GetResourceURL(GetResourceInformationService(nativeSystem).GetResourceServerBaseURL(), nativeResourcePath);
+      return ResourceHttpAccessUrlUtils.GetResourceURL(GetResourceInformationService(nativeSystemId).GetResourceServerBaseURL(), nativeResourcePath);
     }
   }
 }

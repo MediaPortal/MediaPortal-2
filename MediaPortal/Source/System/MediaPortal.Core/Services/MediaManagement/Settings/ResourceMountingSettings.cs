@@ -28,13 +28,16 @@ namespace MediaPortal.Core.Services.MediaManagement.Settings
 {
   public class ResourceMountingSettings
   {
-    protected char _driveLetter = 'R';
+    protected char? _driveLetter = null;
+
+    public const char DEFAULT_DRIVE_LETTER_CLIENT = 'R';
+    public const char DEFAULT_DRIVE_LETTER_SERVER = 'S';
 
     /// <summary>
     /// Drive where non-filesystem resources are mounted in the local filesystem.
     /// </summary>
     [Setting(SettingScope.User)]
-    public char DriveLetter
+    public char? DriveLetter
     {
       get { return _driveLetter; }
       set { _driveLetter = value; }

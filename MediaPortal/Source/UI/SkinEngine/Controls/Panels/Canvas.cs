@@ -71,7 +71,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // Arrange the child
         child.Arrange(new RectangleF(location, childSize));
       }
-      UpdateRenderOrder();
     }
 
     #region Attached properties

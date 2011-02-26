@@ -41,6 +41,8 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
   OUT.Color = tex2D(TextureSampler, IN.Texcoord) * IN.Color;
+  // Remember to pre-multiply alpha
+  OUT.Color = float4(OUT.Color.xyz * OUT.Color.a, OUT.Color.a);
 }
 
 technique simple

@@ -122,6 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       UnsubscribeFromMessages();
+      base.Dispose();
     }
 
     void Attach()
@@ -401,6 +402,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FinishBindingsDlgt finishDlgt;
       IList<TriggerBase> triggers;
       FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
+      CollectionUtils.AddAll(Triggers, triggers);
       presenter.SetKeyboardLayoutControl(this, keyboardControl);
       finishDlgt();
     }

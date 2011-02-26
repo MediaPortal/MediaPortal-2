@@ -31,12 +31,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class SkewTransform : Transform
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _centerXProperty;
-    AbstractProperty _centerYProperty;
-    AbstractProperty _angleXProperty;
-    AbstractProperty _angleYProperty;
+    protected AbstractProperty _centerXProperty;
+    protected AbstractProperty _centerYProperty;
+    protected AbstractProperty _angleXProperty;
+    protected AbstractProperty _angleYProperty;
 
     #endregion
 

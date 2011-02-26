@@ -36,13 +36,15 @@ using SlimDX;
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
-  /// Like <see cref="BitmapImage"/>, <see cref="MultiImage"/> acts as a source for the <see cref="Image"/> control to access to convential image formats.
-  /// The primary difference between these two classes is that <see cref="MultImage"/> is optimised for asyncronous image loading and frequent image changes,
+  /// Like <see cref="BitmapImage"/>, <see cref="MultiImage"/> acts as a source for the <see cref="Visuals.Image"/> control
+  /// to access to convential image formats. The primary difference between these two classes is that
+  /// <see cref="MultiImage"/> is optimised for asyncronous image loading and frequent image changes,
   /// such as in a slide-show, and allows animated transitions between images.
   /// </summary>
   class MultiImage : BitmapImage
   {
     protected AbstractProperty _transitionProperty;
+    protected AbstractProperty _transitionInOutProperty;
     protected AbstractProperty _transitionDurationProperty;
 
     protected TextureAsset _lastTexture = null;
@@ -65,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       _transitionProperty = new SProperty(typeof(string), null);
       _transitionDurationProperty = new SProperty(typeof(double), 2.0);
+      _transitionInOutProperty = new SProperty(typeof(bool), true);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -73,6 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       MultiImage b = (MultiImage) source;
       Transition = b.Transition;
       TransitionDuration = b.TransitionDuration;
+      TransitionInOut = b.TransitionInOut;
       FreeTextures();
     }
 
@@ -93,6 +97,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public AbstractProperty TransitionProperty
     {
       get { return _transitionProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the a value indicating whether transitions should be used when either the source or target is Null.
+    /// </summary>
+    public bool TransitionInOut
+    {
+      get { return (bool) _transitionInOutProperty.GetValue(); }
+      set { _transitionInOutProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TransitionInOutProperty
+    {
+      get { return _transitionInOutProperty; }
     }
 
     /// <summary>
@@ -121,6 +139,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     #endregion
 
     #region ImageSource implementation
+
+    public override SizeF SourceSize
+    {
+      get
+      {
+        return (_transitionActive && _lastTexture != null) ?
+            MaxSizeF(new SizeF(_lastTexture.Width, _lastTexture.Height), base.SourceSize) : base.SourceSize;
+      }
+    }
 
     public override void Allocate()
     {
@@ -173,8 +200,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
           _transitionActive = false;
         else 
         {
-          TextureAsset start = (_lastTexture == null) ? NullTexture : _lastTexture;
-          TextureAsset end = (_texture == null) ? NullTexture : _texture;
+          TextureAsset start = _lastTexture ?? NullTexture;
+          TextureAsset end = _texture ?? NullTexture;
 
           if (start != end)
           {
@@ -234,10 +261,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastFrameData = _frameData;
       // Next -> Current
       _texture = _nextTexture;
-      _imageContext = new ImageContext();
-      _imageContext.FrameSize = _lastImageContext.FrameSize;
-      _imageContext.ShaderEffect = _lastImageContext.ShaderEffect;
-      _frameData = new Vector4(_texture.Width, _texture.Height, 0.0f, 0.0f);
+      _imageContext = new ImageContext
+        {
+            FrameSize = _lastImageContext.FrameSize,
+            ShaderEffect = _lastImageContext.ShaderEffect
+        };
+      if (_texture != null)
+        _frameData = new Vector4(_texture.Width, _texture.Height, 0.0f, 0.0f);
       // Clear next
       _nextTexture = null;
 
@@ -252,9 +282,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       if (String.IsNullOrEmpty(Transition))
         return;
+      if ((_lastTexture == null || _texture == null) && !TransitionInOut)
+        return;
+
       // Get a list of transitions to use
       string[] transitions = Transition.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-      if (transitions == null)
+      if (transitions.Length == 0)
         return;
       // Choose a random transition
       int selected = _rand.Next(transitions.Length);
@@ -262,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       // If for some reason this transition doesn't exist continue trying
       int transitionSearchLimit = Math.Min(10, transitions.Length);
-      while (!TransitionExists(transitions[selected]) && count < transitionSearchLimit)
+      while (!TransitionExists(transitions[selected]) && count++ < transitionSearchLimit)
         selected = _rand.Next(transitions.Length);
 
       // Too many failures, abort transition 
@@ -297,6 +330,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastTexture = null;
       _nextTexture = null;
       _lastImageContext.Clear();
+    }
+
+    protected SizeF MaxSizeF(SizeF a, SizeF b)
+    {
+      return new SizeF(Math.Max(a.Width, b.Width), Math.Max(a.Height, b.Height));
     }
 
     #endregion

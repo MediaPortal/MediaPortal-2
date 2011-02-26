@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -77,16 +78,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      KeyBindingControl vs = (KeyBindingControl) source;
-      Key = vs.Key;
-      Command = copyManager.GetCopy(vs.Command);
+      KeyBinding kb = (KeyBinding) source;
+      Key = kb.Key;
+      Command = copyManager.GetCopy(kb.Command);
       Attach();
     }
 
     public override void Dispose()
     {
-      base.Dispose();
       UnregisterKeyBinding();
+      Registration.TryCleanupAndDispose(Command);
+      base.Dispose();
     }
 
     #endregion

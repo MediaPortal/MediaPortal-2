@@ -28,7 +28,7 @@ using System.IO;
 namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
-  /// Stream facade to a HTTP data transfer. This class is not multithreading-safe.
+  /// Stream facade to a locally cached HTTP data transfer. This class is not multithreading-safe.
   /// </summary>
   public class CachedHttpResourceStream : Stream
   {
@@ -38,7 +38,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected readonly string _resourceURL;
     protected string _tempFilePath;
     protected FileStream _fileBufferStream;
-    protected BackgroundHttpDataTransfer _transferWorker;
+    protected Stream _underlayingStream;
 
     public CachedHttpResourceStream(string resourceURL, long length)
     {
@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           FILE_BUF_SIZE, FileOptions.Asynchronous | FileOptions.RandomAccess | FileOptions.DeleteOnClose);
       _fileBufferStream.SetLength(length);
       ForceEagerAllocation(_fileBufferStream);
-      _transferWorker = new BackgroundHttpDataTransfer(resourceURL, _fileBufferStream);
+      _underlayingStream = new BackgroundHttpDataTransfer(_resourceURL, _fileBufferStream);
     }
 
     /// <summary>
@@ -61,9 +61,12 @@ namespace MediaPortal.Core.Services.MediaManagement
     private static void ForceEagerAllocation(Stream stream)
     {
       // This is a hack to force Windows to allocate the file at once
-      stream.Position = stream.Length - 1;
-      stream.WriteByte(0xFF);
-      stream.Flush();
+      if (stream.Length > 0)
+      {
+        stream.Position = stream.Length - 1;
+        stream.WriteByte(0xFF);
+        stream.Flush();
+      }
       stream.Position = 0;
     }
 
@@ -71,27 +74,22 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       if (disposing)
       {
-        if (_transferWorker != null)
-          _transferWorker.Dispose();
         if (_fileBufferStream != null)
           _fileBufferStream.Close();
+        if (_underlayingStream != null)
+          _underlayingStream.Dispose();
         if (!string.IsNullOrEmpty(_tempFilePath))
           File.Delete(_tempFilePath);
       }
-      _transferWorker = null;
+      _underlayingStream = null;
       _fileBufferStream = null;
       _tempFilePath = null;
       base.Dispose(disposing);
     }
 
-    public object SyncObj
-    {
-      get { return _transferWorker.SyncObj; }
-    }
-
     public string ResourceURL
     {
-      get { return _transferWorker.ResourceURL; }
+      get { return _resourceURL; }
     }
 
     public override bool CanRead
@@ -111,8 +109,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override long Position
     {
-      get { return _transferWorker.Position; }
-      set { Seek(value, SeekOrigin.Begin); }
+      get { return _underlayingStream.Position; }
+      set { _underlayingStream.Position = value; }
     }
 
     public override long Length
@@ -122,8 +120,14 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-      // TODO: Remove transfer worker when it is finished and replace it by its underlaying buffer stream
-      return _transferWorker.ReadData(buffer, offset, count);
+      BackgroundHttpDataTransfer bhdt = _underlayingStream as BackgroundHttpDataTransfer;
+      if (bhdt != null && bhdt.TransferComplete)
+      { // Transfer is complete - exchange our HTTP background worker with actual file stream
+        _fileBufferStream.Seek(bhdt.Position, SeekOrigin.Begin);
+        _underlayingStream = _fileBufferStream;
+        bhdt.Dispose();
+      }
+      return _underlayingStream.Read(buffer, offset, count);
     }
 
     public override void Write(byte[] buffer, int offset, int count)
@@ -133,24 +137,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      long position;
-      switch (origin)
-      {
-        case SeekOrigin.Begin:
-          position = offset;
-          break;
-        case SeekOrigin.Current:
-          position = _transferWorker.Position + offset;
-          break;
-        case SeekOrigin.End:
-          position = _length + offset;
-          break;
-        default:
-          position = 0;
-          break;
-      }
-      _transferWorker.Seek(position);
-      return offset;
+      return _underlayingStream.Seek(offset, origin);
     }
 
     public override void SetLength(long value)

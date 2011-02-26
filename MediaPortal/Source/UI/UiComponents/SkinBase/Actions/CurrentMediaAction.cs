@@ -86,11 +86,13 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerStarted:
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
             Update();
             break;
         }

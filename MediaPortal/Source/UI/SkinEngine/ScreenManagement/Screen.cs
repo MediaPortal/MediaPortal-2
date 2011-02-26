@@ -156,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected FrameworkElement _focusedElement = null;
     protected RectangleF? _lastFocusRect = null;
 
-    protected FrameworkElement _visual;
+    protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
     protected Animator _animator;
     protected IDictionary<Key, KeyAction> _keyBindings = null;
@@ -188,15 +188,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get { return _animator; }
     }
 
-    public FrameworkElement Visual
+    public FrameworkElement Root
     {
-      get { return _visual; }
+      get { return _root; }
       set
       {
-        _visual = value;
-        if (_visual != null)
+        _root = value;
+        if (_root != null)
         {
-          _visual.SetScreen(this);
+          _root.SetScreen(this);
           ScreenState = ScreenState; // Set the visual's element state via our ScreenState setter
         }
       }
@@ -226,11 +226,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set
       {
         if (value == State.Preparing)
-          _visual.SetElementState(ElementState.Available);
+          _root.SetElementState(ElementState.Available);
         else if (value == State.Running)
-          _visual.SetElementState(ElementState.Running);
+          _root.SetElementState(ElementState.Running);
         else if (value == State.Closed)
-          _visual.SetElementState(ElementState.Disposing);
+          _root.SetElementState(ElementState.Disposing);
         else
           throw new IllegalCallException("Invalid screen state transition from {0} to {1}", _state, value);
         _state = value;
@@ -270,7 +270,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       _virtualKeyboardDialogGuid = dd.DialogInstanceId;
       VirtualKeyboardControl vkc = (VirtualKeyboardControl)
-          dd.DialogScreen.Visual.FindElement(new TypeMatcher(typeof(VirtualKeyboardControl)));
+          dd.DialogScreen.Root.FindElement(new TypeMatcher(typeof(VirtualKeyboardControl)));
       if (vkc == null)
         // No virtual keyboard control in our virtual keyboard dialog!?
         return;
@@ -321,12 +321,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void ResetSize()
     {
-      _visual.InvalidateLayout(true, false);
+      _root.InvalidateLayout(true, false);
     }
 
     public void Animate()
     {
-      lock (_visual)
+      lock (_root)
         _animator.Animate();
     }
 
@@ -335,7 +335,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       uint time = (uint) Environment.TickCount;
       SkinContext.SystemTickCount = time;
 
-      lock (_visual)
+      lock (_root)
       {
         if (_mouseMovePending.HasValue)
         {
@@ -344,8 +344,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           HandleMouseMove(x, y);
         }
-        _visual.UpdateLayoutRoot();
-        _visual.Render(_renderContext);
+        _root.UpdateLayoutRoot();
+        _root.Render(_renderContext);
       }
     }
 
@@ -381,14 +381,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Prepare()
     {
-      lock (_visual)
+      lock (_root)
       {
-        _visual.Allocate();
-        _visual.Initialize();
+        _root.Allocate();
 
-        _visual.InvalidateLayout(true, true);
-        _visual.UpdateLayoutRoot();
-        _visual.SetElementState(ElementState.Running);
+        _root.InvalidateLayout(true, true);
+        _root.UpdateLayoutRoot();
+        _root.SetElementState(ElementState.Running);
       }
     }
 
@@ -396,13 +395,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       ScreenState = State.Closed;
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
-      lock (_visual)
+      lock (_root)
       {
         Animator.StopAll();
-        _visual.Deallocate();
+        _root.Deallocate();
       }
       FireClosed();
-      _visual.Dispose();
+      _root.CleanupAndDispose();
     }
 
     protected void FireClosed()
@@ -421,9 +420,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void HandleMouseMove(float x, float y)
     {
-      lock (_visual)
-        if (_visual.CanHandleMouseMove())
-          _visual.OnMouseMove(x, y);
+      lock (_root)
+        if (_root.CanHandleMouseMove())
+          _root.OnMouseMove(x, y);
         else
           _mouseMovePending = new PointF(x, y);
     }
@@ -437,7 +436,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _visual.OnKeyPreview(ref key);
+      _root.OnKeyPreview(ref key);
       // Try key bindings...
       KeyAction keyAction;
       if (_keyBindings != null && _keyBindings.TryGetValue(key, out keyAction))
@@ -451,7 +450,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _visual.OnKeyPressed(ref key);
+      _root.OnKeyPressed(ref key);
       if (key != Key.None)
         UpdateFocus(ref key);
     }
@@ -460,7 +459,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _visual.OnMouseWheel(numberOfDeltas);
+      _root.OnMouseWheel(numberOfDeltas);
     }
 
     private void OnMouseMove(float x, float y)
@@ -475,7 +474,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!HasInputFocus)
         return;
       bool handled = false;
-      _visual.OnMouseClick(buttons, ref handled);
+      _root.OnMouseClick(buttons, ref handled);
       if (handled)
         return;
       // If mouse click was not handled explicitly, map it to an appropriate key event
@@ -614,7 +613,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// pressed, or <c>null</c>, if no focus change should take place.</returns>
     public FrameworkElement PredictFocus(RectangleF? currentFocusRect, Key key)
     {
-      FrameworkElement element = _visual;
+      FrameworkElement element = _root;
       if (element == null)
         return null;
       if (key == Key.Up)

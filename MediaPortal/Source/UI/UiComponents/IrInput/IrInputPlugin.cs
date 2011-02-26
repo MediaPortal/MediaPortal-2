@@ -266,7 +266,7 @@ namespace MediaPortal.UiComponents.IrInput
         {
             IsBackground = true,
             Priority = ThreadPriority.BelowNormal,
-            Name = "IrInputPlugin Startup"
+            Name = "IrInput"
         };
       startupThread.Start();
     }

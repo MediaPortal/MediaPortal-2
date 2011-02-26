@@ -70,8 +70,6 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y));
-
   float4 alphaPos = float4(
       (IN.Texcoord.x - g_lowervertsbounds.x)/(g_uppervertsbounds.x - g_lowervertsbounds.x),
       (IN.Texcoord.y - g_lowervertsbounds.y)/(g_uppervertsbounds.y - g_lowervertsbounds.y), 0, 1);
@@ -79,8 +77,8 @@ void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
   float dist = GetColor(float2(alphaPos.x, alphaPos.y));
   dist = clamp(dist, 0, 0.9999);
 
-  float4 alphaColor = tex1D(AlphaSampler, dist);
-  OUT.Color[3] *= alphaColor[3] * g_opacity;
+  // The opacity mask will already be pre-multiplied
+  OUT.Color = tex2D(TextureSampler, float2(IN.Texcoord.x, IN.Texcoord.y)) * tex1D(AlphaSampler, dist).a * g_opacity
 }
 
 technique simple {

@@ -59,6 +59,7 @@ namespace MediaPortal.Core.General
     protected string[] _aliases;
 
     protected static string LOCAL_HOST_DNS_NAME;
+    protected readonly string[] EMPTY_ALIAS_LIST = new string[0];
 
     static SystemName()
     {
@@ -77,21 +78,26 @@ namespace MediaPortal.Core.General
     public SystemName(string hostName)
     {
       _hostName = GetCanonicalForm(hostName);
+      _aliases = InitializeAliases(hostName);
+    }
+
+    protected string[] InitializeAliases(string hostName)
+    {
+      ICollection<string> aliases = new List<string>();
       try
       {
         IPHostEntry hostEntry = Dns.GetHostEntry(_hostName);
-        ICollection<string> aliases = new List<string>();
         foreach (string alias in hostEntry.Aliases)
           aliases.Add(GetCanonicalForm(alias));
         foreach (IPAddress address in hostEntry.AddressList)
           aliases.Add(NetworkUtils.IPAddrToString(address));
-        _aliases = aliases.ToArray();
       }
       catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
       {
         ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS", e);
-        _aliases = new string[0];
+        return EMPTY_ALIAS_LIST;
       }
+      return aliases.ToArray();
     }
 
     #endregion
@@ -192,6 +198,8 @@ namespace MediaPortal.Core.General
 
     public bool Equals(SystemName obj)
     {
+      if (obj == null)
+        return false;
       if (IsLocalSystem() && obj.IsLocalSystem())
         return true;
       foreach (string alias in _aliases)
@@ -228,7 +236,11 @@ namespace MediaPortal.Core.General
     public string XML_HostName
     {
       get { return _hostName; }
-      set { _hostName = value; }
+      set
+      {
+        _hostName = value;
+        _aliases = InitializeAliases(value);
+      }
     }
 
     #endregion

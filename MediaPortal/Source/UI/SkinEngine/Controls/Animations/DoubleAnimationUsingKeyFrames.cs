@@ -32,9 +32,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class DoubleAnimationUsingKeyFrames: PropertyAnimationTimeline, IAddChild<DoubleKeyFrame>
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _keyFramesProperty;
+    protected AbstractProperty _keyFramesProperty;
 
     #endregion
 
@@ -57,6 +57,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       IList<DoubleKeyFrame> keyFrames = KeyFrames;
       foreach (DoubleKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));
+    }
+
+    public override void Dispose()
+    {
+      foreach (DoubleKeyFrame doubleKeyFrame in KeyFrames)
+        doubleKeyFrame.Dispose();
+      base.Dispose();
     }
 
     #endregion
@@ -91,9 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null) return;
       double time = 0;
       double start = (double) patc.StartValue;
-      for (int i = 0; i < KeyFrames.Count; ++i)
+      foreach (DoubleKeyFrame key in KeyFrames)
       {
-        DoubleKeyFrame key = KeyFrames[i];
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
           double progress = (timepassed - time);

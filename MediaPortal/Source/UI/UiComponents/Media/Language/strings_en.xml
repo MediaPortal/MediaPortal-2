@@ -119,6 +119,7 @@
     <String Name="NOfMItems" Text="{0}/{1} items"/> <!-- Shown in the header of an items list, e.g. "15/350 items" -->
     <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list, e.g. "45 items" -->
     <String Name="MoreThanMaxItemsHint" Text="This view contains more than {0} items. Please restrict the number of items by adding more filters."/>
+    <String Name="MoreThanMaxItemsBrowseHint" Text="This view contains more than {0} items."/>
     <String Name="MoreThanMaxItemsSearchResultHint" Text="The search result contains more than {0} items. Please narrow your search."/>
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>
     <String Name="SearchResultIsBeingBuiltHint" Text="Searching..."/>
@@ -210,6 +211,7 @@
     <String Name="SavePlaylistLocalSuccessfulText" Text="The playlist was successfully saved in file '{0}'."/>
     <String Name="SavePlaylistServerSuccessfulText" Text="The playlist was successfully saved at the server."/>
     <String Name="SavePlaylistFailedText" Text="The playlist could not be saved. Error message: '{0}'"/>
+    <String Name="SavePlaylistFailedAlreadyExists" Text="The playlist could not be saved: Playlist '{0}' already exists"/>
     <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>
     <String Name="PlaylistNameInfoLabel" Text="Playlist name"/>
     <String Name="PlaylistTypeInfoLabel" Text="Playlist type"/>

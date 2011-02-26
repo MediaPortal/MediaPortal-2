@@ -131,7 +131,8 @@ namespace UPnP.Infrastructure.CP
     #region Public members
 
     /// <summary>
-    /// Gets called when a new device appeared at the network.
+    /// Gets called when a new device appeared at the network. When this event is called, all description documents from the
+    /// sub devices have already been loaded.
     /// </summary>
     public event DeviceAddedDlgt RootDeviceAdded;
 

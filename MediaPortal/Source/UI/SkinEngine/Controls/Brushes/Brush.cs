@@ -46,14 +46,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   /// </summary>
   public abstract class Brush : DependencyObject, IObservable
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _opacityProperty;
-    AbstractProperty _relativeTransformProperty;
-    Transform _transform;
-    AbstractProperty _freezableProperty;
+    protected AbstractProperty _opacityProperty;
+    protected AbstractProperty _relativeTransformProperty;
+    protected Transform _transform;
+    protected AbstractProperty _freezableProperty;
     protected RectangleF _vertsBounds;
     protected Matrix? _finalBrushTransform = null;
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
     #endregion
 
@@ -107,14 +108,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public event ObjectChangedHandler ObjectChanged;
+    public event ObjectChangedDlgt ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     #region Protected methods
 
     protected void FireChanged()
     {
-      if (ObjectChanged != null)
-        ObjectChanged(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     /// <summary>

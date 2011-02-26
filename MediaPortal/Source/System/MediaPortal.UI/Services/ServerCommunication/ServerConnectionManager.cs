@@ -158,10 +158,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
             else
             {
               cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories, relocationMode);
-              if (relocationMode == RelocationMode.ClearAndReImport)
-                importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
-              else
-                importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+              switch (relocationMode)
+              {
+                case RelocationMode.ClearAndReImport:
+                  importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+                  break;
+                case RelocationMode.Relocate:
+                  importerWorker.ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+                  break;
+              }
             }
             break;
           case SharesMessaging.MessageType.ReImportShare:
@@ -280,10 +285,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
             {
               cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.MediaCategories,
                   relocationMode);
-              if (relocationMode == RelocationMode.ClearAndReImport)
-                importerWorker.ScheduleImport(localShare.BaseResourcePath, localShare.MediaCategories, true);
-              else
-                importerWorker.ScheduleRefresh(localShare.BaseResourcePath, localShare.MediaCategories, true);
+              switch (relocationMode)
+              {
+                case RelocationMode.ClearAndReImport:
+                  importerWorker.ScheduleImport(localShare.BaseResourcePath, localShare.MediaCategories, true);
+                  break;
+                case RelocationMode.Relocate:
+                  importerWorker.ScheduleRefresh(localShare.BaseResourcePath, localShare.MediaCategories, true);
+                  break;
+              }
             }
           }
           settings.CachedSharesUpdates.Clear();

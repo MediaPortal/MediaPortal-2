@@ -118,18 +118,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #endregion
 
+    public static void TryDispose(ref object maybeDisposable)
+    {
+      IDisposable d = maybeDisposable as IDisposable;
+      if (d == null)
+        return;
+      maybeDisposable = null;
+      d.Dispose();
+    }
+
     public BindingMarkupExtension GetOrCreateDataContext()
     {
-      if (DataContext == null)
-        DataContext = new BindingMarkupExtension(this);
-      return DataContext;
+      return DataContext ?? (DataContext = new BindingMarkupExtension(this));
     }
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()
     {
-      if (_bindings == null)
-        _bindings = new List<BindingBase>();
-      return _bindings;
+      return _bindings ?? (_bindings = new List<BindingBase>());
     }
 
     public virtual INameScope FindNameScope()
@@ -158,8 +163,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public AbstractProperty GetAttachedProperty(string name)
     {
-      if (_attachedProperties != null && _attachedProperties.ContainsKey(name))
-        return _attachedProperties[name];
+      AbstractProperty result;
+      if (_attachedProperties != null && _attachedProperties.TryGetValue(name, out result))
+        return result;
       return null;
     }
 

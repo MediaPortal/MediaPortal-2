@@ -22,46 +22,17 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   /// <summary>
   /// Class which holds a property path expression which can be evaluated on a source element to generate a
   /// data string.
   /// </summary>
-  public class DataStringProvider : IInitializable
+  public class DataStringProvider : ElementProvider<string>
   {
-    #region Protected fields
-
-    protected string _path = string.Empty;
-    protected PathExpression _compiledPath = null;
-
-    #endregion
-
-    /// <summary>
-    /// Gets or sets a property path expression to the data string corresponding to a given object.
-    /// </summary>
-    public string Path
-    {
-      get { return _path; }
-      set { _path = value; }
-    }
-
     public string GenerateDataString(object source)
     {
-      IDataDescriptor result;
-      _compiledPath.Evaluate(new ValueDataDescriptor(source), out result);
-      return (string) TypeConverter.Convert(result.Value, typeof(string));
-    }
-
-    void IInitializable.Initialize(IParserContext context)
-    {
-      if (_path == null)
-        throw new XamlBindingException("DataStringProvider: Path mustn't be null");
-      _compiledPath = PathExpression.Compile(context, _path);
+      return GetElement(source);
     }
   }
 }

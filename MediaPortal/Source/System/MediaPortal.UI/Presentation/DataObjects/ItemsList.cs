@@ -35,19 +35,20 @@ namespace MediaPortal.UI.Presentation.DataObjects
   public class ItemsList : IList<ListItem>, IObservable, ISynchronizable
   {
     protected SynchronizedCollection<ListItem> _backingList = new SynchronizedCollection<ListItem>();
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>
-    public event ObjectChangedHandler ObjectChanged;
+    public event ObjectChangedDlgt ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     public void FireChange()
     {
-      ObjectChangedHandler d;
-      lock (_backingList.SyncRoot)
-        d = ObjectChanged;
-      if (d != null)
-        d(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     public object SyncRoot

@@ -28,6 +28,7 @@ using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -44,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected AbstractProperty _backgroundProperty;
-    protected AbstractProperty _borderProperty;
+    protected AbstractProperty _borderBrushProperty;
     protected AbstractProperty _borderThicknessProperty;
     protected AbstractProperty _cornerRadiusProperty;
     protected FrameworkElement _content;
@@ -66,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _borderProperty = new SProperty(typeof(Brush), null);
+      _borderBrushProperty = new SProperty(typeof(Brush), null);
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
@@ -74,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _borderProperty.Attach(OnBorderBrushPropertyChanged);
+      _borderBrushProperty.Attach(OnBorderBrushPropertyChanged);
       _backgroundProperty.Attach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Attach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Attach(OnLayoutPropertyChanged);
@@ -82,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
-      _borderProperty.Detach(OnBorderBrushPropertyChanged);
+      _borderBrushProperty.Detach(OnBorderBrushPropertyChanged);
       _backgroundProperty.Detach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Detach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Detach(OnLayoutPropertyChanged);
@@ -100,6 +101,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _content = copyManager.GetCopy(b._content);
 
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Background);
+      Registration.TryCleanupAndDispose(BorderBrush);
+      base.Dispose();
     }
 
     #endregion
@@ -160,14 +168,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public AbstractProperty BorderBrushProperty
     {
-      get { return _borderProperty; }
-      set { _borderProperty = value; }
+      get { return _borderBrushProperty; }
+      set { _borderBrushProperty = value; }
     }
 
     public Brush BorderBrush
     {
-      get { return _borderProperty.GetValue() as Brush; }
-      set { _borderProperty.SetValue(value); }
+      get { return _borderBrushProperty.GetValue() as Brush; }
+      set { _borderBrushProperty.SetValue(value); }
     }
 
     public AbstractProperty BorderThicknessProperty
@@ -281,6 +289,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup background brush
       if (Background != null)
       {
+        // TODO: Draw background only in the inner rectangle (outer rect minus BorderThickness)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
@@ -304,6 +313,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Setup border brush
       if (BorderBrush != null && BorderThickness > 0)
       {
+        // TODO: Draw border with thickness BorderThickness - doesn't work yet, the drawn line is only one pixel thick
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
           using (GraphicsPathIterator gpi = new GraphicsPathIterator(path))

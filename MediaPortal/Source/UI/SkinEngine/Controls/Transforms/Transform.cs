@@ -31,10 +31,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class Transform : DependencyObject, IObservable
   {
-    #region Private/protected fields
+    #region Protected fields
 
     protected bool _needUpdate = true;
     protected Matrix _matrix = Matrix.Identity;
+    protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
 
     #endregion
 
@@ -48,7 +49,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #endregion
 
-    public event ObjectChangedHandler ObjectChanged;
+    public event ObjectChangedDlgt ObjectChanged
+    {
+      add { _objectChanged.Attach(value); }
+      remove { _objectChanged.Detach(value); }
+    }
 
     #region Protected methods
 
@@ -62,8 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     protected void Fire()
     {
-      if (ObjectChanged != null)
-        ObjectChanged(this);
+      _objectChanged.Fire(new object[] {this});
     }
 
     public virtual Matrix GetTransform()

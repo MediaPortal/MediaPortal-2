@@ -113,7 +113,7 @@ namespace MediaPortal.Core.Messaging
     /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
     public AsynchronousMessageQueue(string ownerType, IEnumerable<string> messageChannels) : base(messageChannels)
     {
-      _queueName = string.Format("Async message queue '{0}'", ownerType);
+      _queueName = ownerType;
     }
 
     public override void Dispose()
@@ -135,9 +135,12 @@ namespace MediaPortal.Core.Messaging
         {
           MessageReceivedHandler handler = MessageReceived;
           if (handler == null)
-            ServiceRegistration.Get<ILogger>().Warn(
-              "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
-              _queueName, message.ChannelName, message.MessageType);
+          {
+            if (PreviewMessage == null)
+              ServiceRegistration.Get<ILogger>().Warn(
+                  "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
+                  _queueName, message.ChannelName, message.MessageType);
+          }
           else
             try
             {
@@ -146,7 +149,7 @@ namespace MediaPortal.Core.Messaging
             catch (Exception e)
             {
               ServiceRegistration.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
-                  e, Name, message.MessageType);
+                  e, _queueName, message.MessageType);
             }
         }
         lock (_syncObj)
@@ -188,11 +191,6 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     public event MessageReceivedHandler MessageReceived;
 
-    public string Name
-    {
-      get { return _queueName; }
-    }
-
     /// <summary>
     /// Returns the information if this async message queue is terminated. A terminated message queue won't
     /// enqueue any more messages, and its asynchronous message delivery thread will terminate when possible.
@@ -232,7 +230,7 @@ namespace MediaPortal.Core.Messaging
       {
         _messageDeliveryThread = new Thread(DoWork)
           {
-              Name = string.Format("'{0}' - message delivery thread", _queueName)
+              Name = string.Format("AMQ '{0}'", _queueName)
           };
         _messageDeliveryThread.Start();
       }
@@ -293,11 +291,6 @@ namespace MediaPortal.Core.Messaging
         _terminated = true;
         Monitor.PulseAll(_syncObj);
       }
-    }
-
-    public override string ToString()
-    {
-      return Name;
     }
 
     #endregion

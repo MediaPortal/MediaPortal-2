@@ -49,8 +49,6 @@ namespace MediaPortal.UI.Views
 
     #region Ctor
 
-    // Albert 2010-07-17: Warning! Be very careful with CLOB queries, the server database crashes on CLOB queries
-    // with a search text longer than 5 characters... strange
     public SimpleTextSearchViewSpecification(string viewDisplayName, string searchText, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, bool excludeCLOBs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)

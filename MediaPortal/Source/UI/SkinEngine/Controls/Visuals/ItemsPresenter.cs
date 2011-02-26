@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected char _startsWith = ' ';
     protected int _startsWithIndex = 0;
     protected Panel _itemsHostPanel = null;
-    protected bool _canScroll = false;
+    protected bool _doScroll = false;
     protected IList<string> _dataStrings = null;
 
     #endregion
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsPresenter ip = (ItemsPresenter) source;
       _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
-      _canScroll = ip._canScroll;
+      _doScroll = ip._doScroll;
       _dataStrings = ip._dataStrings;
       AttachScrolling();
     }
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
       {
-        si.CanScroll = _canScroll;
+        si.DoScroll = _doScroll;
         si.Scrolled += OnItemsPanelScrolled; // Repeat the Scrolled event to our subscribers
       }
     }
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
-        si.CanScroll = _canScroll;
+        si.DoScroll = _doScroll;
     }
 
     void OnItemsPanelScrolled(object sender)
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetDataStrings(IList<string> dataStrings)
     {
-      _dataStrings = dataStrings == null ? null : new List<string>(dataStrings.Select(s => s.ToLowerInvariant()));
+      _dataStrings = dataStrings == null ? null : new List<string>(dataStrings.Select(s => s == null ? null : s.ToLowerInvariant()));
     }
 
     /// <summary>
@@ -299,12 +299,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool CanScroll
+    public bool DoScroll
     {
-      get { return _canScroll; }
+      get { return _doScroll; }
       set
       {
-        _canScroll = value;
+        _doScroll = value;
         UpdateCanScroll();
       }
     }

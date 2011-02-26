@@ -220,7 +220,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
           return;
         _workerThread = new Thread(WorkerThreadMethod);
         _workerThread.IsBackground = true;
-        _workerThread.Name = "Thumbnail Generator Thread";
+        _workerThread.Name = "ThumbGen";
         _workerThread.Start();
       }
     }

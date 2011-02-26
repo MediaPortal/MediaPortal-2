@@ -24,7 +24,9 @@
 
 // Define DEBUG_LAYOUT to make MP log screen layouting information. That will slow down the layouting process significantly
 // but can be used to find layouting bugs. Don't use that switch in release builds.
+// Use DEBUG_MORE_LAYOUT to get more information, also for skipped method calls.
 //#define DEBUG_LAYOUT
+//#define DEBUG_MORE_LAYOUT
 
 using System;
 using System.Collections.Generic;
@@ -37,6 +39,7 @@ using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
@@ -98,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public const string GOTFOCUS_EVENT = "FrameworkElement.GotFocus";
     public const string LOSTFOCUS_EVENT = "FrameworkElement.LostFocus";
     public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
-    public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseEnter";
+    public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseLeave";
 
     protected const string GLOBAL_RENDER_TEXTURE_ASSET_KEY = "SkinEngine::GlobalRenderTarget";
 
@@ -228,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement fe = (FrameworkElement) source;
       Width = fe.Width;
       Height = fe.Height;
-      Style = fe.Style; // No copying necessary - Styles should be immutable
+      Style = copyManager.GetCopy(fe.Style);
       ActualWidth = fe.ActualWidth;
       ActualHeight = fe.ActualHeight;
       HorizontalAlignment = fe.HorizontalAlignment;
@@ -240,11 +243,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
+      _setFocus = fe.SetFocus;
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
 
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(ContextMenuCommand);
+      Registration.TryCleanupAndDispose(Style);
+      base.Dispose();
     }
 
     #endregion
@@ -637,16 +648,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return true;
       }
       if (checkChildren)
-      {
-        foreach (UIElement child in GetChildren())
-        {
-          FrameworkElement fe = child as FrameworkElement;
-          if (fe == null)
-            continue;
-          if (fe.TrySetFocus(true))
-            return true;
-        }
-      }
+        return GetChildren().OfType<FrameworkElement>().Any(fe => fe.TrySetFocus(true));
       return false;
     }
 
@@ -916,16 +918,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Measure(ref SizeF totalSize)
     {
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
+#endif
 #endif
       if (!_isMeasureInvalid && SameSize(_availableSize, totalSize))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
         totalSize = _desiredSize;
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before and measurement is not invalid, returns desired size={2}", GetType().Name, Name, totalSize));
+#endif
 #endif
         return;
       }
+#if DEBUG_LAYOUT
+#if !DEBUG_MORE_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
+#endif
+#endif
       _isMeasureInvalid = false;
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize, Margin);
@@ -969,17 +980,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Arrange(RectangleF outerRect)
     {
       if (_isMeasureInvalid)
-        return;
+      {
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', exiting because measurement is invalid", GetType().Name, Name));
+#endif
+#endif
+        return;
+      }
+#if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
+#endif
 #endif
       if (!_isArrangeInvalid && SameRect(_outerRect, outerRect))
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before and arrangement is not invalid", GetType().Name, Name, outerRect));
+#endif
 #endif
         return;
       }
+#if DEBUG_LAYOUT
+#if !DEBUG_MORE_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
+#endif
+#endif
       _isArrangeInvalid = false;
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
@@ -1005,11 +1032,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _innerRect = rect;
 
-      Initialize();
       InitializeTriggers();
+      CheckFireLoaded(); // Has to be done after all triggers are initialized to make EventTriggers for UIElement.Loaded work properly
 
       ArrangeOverride();
-      UpdateFocus(); // Has to be done after all children have arranged
+      UpdateFocus(); // Has to be done after all children have arranged to make SetFocus work properly
     }
 
     protected virtual void ArrangeOverride()
@@ -1149,12 +1176,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SizeF size = new SizeF(screenSize);
 
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+#endif
 #endif
       Measure(ref size);
 
 #if DEBUG_LAYOUT
+#if DEBUG_MORE_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, screenSize));
+#endif
 #endif
       // Ignore the measured size - arrange with screen size
       Arrange(new RectangleF(new PointF(0, 0), screenSize));
@@ -1162,9 +1193,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
     {
-      if (_inverseFinalTransform.HasValue)
+      Matrix? ift = _inverseFinalTransform;
+      if (ift.HasValue)
       {
-        _inverseFinalTransform.Value.Transform(ref x, ref y);
+        ift.Value.Transform(ref x, ref y);
         return true;
       }
       return false;
@@ -1179,6 +1211,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (IsVisible)
       {
+        bool hasFocus = HasFocus;
         float xTrans = x;
         float yTrans = y;
         if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
@@ -1191,9 +1224,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             FireEvent(MOUSEENTER_EVENT);
           }
           bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
-          if (!HasFocus && inVisibleArea)
+          if (!hasFocus && inVisibleArea)
             TrySetFocus(false);
-          if (HasFocus && !inVisibleArea)
+          if (hasFocus && !inVisibleArea)
             ResetFocus();
         }
         else
@@ -1203,7 +1236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             IsMouseOver = false;
             FireEvent(MOUSELEAVE_EVENT);
           }
-          if (HasFocus)
+          if (hasFocus)
             ResetFocus();
         }
       }
@@ -1317,6 +1350,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement bestMatch = null;
       float bestDistance = float.MaxValue;
       float bestCenterDistance = float.MaxValue;
+      if (!currentFocusRect.HasValue)
+        return null;
       foreach (FrameworkElement child in potentialNextFocusElements)
       {
         if ((dir == MoveFocusDirection.Up && child.LocatedAbove(currentFocusRect.Value)) ||
@@ -1557,29 +1592,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Get global render texture or create it if it doesn't exist
         RenderTextureAsset renderTarget = ServiceRegistration.Get<ContentManager>().GetRenderTexture(
             GLOBAL_RENDER_TEXTURE_ASSET_KEY);
+
         // Ensure it's allocated
         renderTarget.AllocateRenderTarget(GraphicsDevice.Width, GraphicsDevice.Height);
         if (!renderTarget.IsAllocated)
           return;
+
         // Create a temporary render context and render the control to the render texture
-        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, bounds);
+        RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, 
+          localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToTexture(renderTarget, tempRenderContext);
+
+        // Add bounds to our calculated, occupied area.
+        // If we don't do that, lines at the border of this element might be dimmed because of the filter (see OpacityMask test in GUITestPlugin).
+        // The value was just found by testing. Any better solution is welcome.
+        const float OPACITY_MASK_BOUNDS = 0.9f;
+        RectangleF occupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
+        occupiedTransformedBounds.X -= OPACITY_MASK_BOUNDS;
+        occupiedTransformedBounds.Y -= OPACITY_MASK_BOUNDS;
+        occupiedTransformedBounds.Width += OPACITY_MASK_BOUNDS*2;
+        occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS*2;
+
         // If the control bounds have changed we need to update our primitive context to make the 
         //    texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
-            tempRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds
-            || renderTarget.Size != _lastOpacityRenderSize)
+            occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
+            renderTarget.Size != _lastOpacityRenderSize)
         {
-          _lastOccupiedTransformedBounds = tempRenderContext.OccupiedTransformedBounds;
-          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, renderTarget.Width, renderTarget.Height,
-              localRenderContext.ZOrder);
+          UpdateOpacityMask(occupiedTransformedBounds, renderTarget.Width, renderTarget.Height, localRenderContext.ZOrder);
+          _lastOccupiedTransformedBounds = occupiedTransformedBounds;
           _updateOpacityMask = false;
           _lastOpacityRenderSize = renderTarget.Size;
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        tempRenderContext = new RenderContext(Matrix.Identity, Matrix.Identity, bounds);
-        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, tempRenderContext);
+        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
         _opacityMaskContext.Render(0);
         OpacityMask.EndRender();
       }
@@ -1589,55 +1636,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Opacitymask
 
-    void UpdateOpacityMask(RectangleF bounds, int width, int height, float zPos)
+    void UpdateOpacityMask(RectangleF bounds, float width, float height, float zPos)
     {
-      PositionColoredTextured[] verts = new PositionColoredTextured[4];
-
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
 
-      float left = bounds.Left - 1.2f;
-      float top = bounds.Top - 1.2f;
-      float right = bounds.Right - 0.8f;
-      float bottom = bounds.Bottom - 0.8f;
-
-      float uLeft = bounds.Left / width;
-      float vTop = bounds.Top / height;
-      float uRight = bounds.Right / width;
-      float vBottom = bounds.Bottom / height;
-
-      // Upper left
-      verts[0].X = left;
-      verts[0].Y = top;
-      verts[0].Color = color;
-      verts[0].Tu1 = uLeft;
-      verts[0].Tv1 = vTop;
-      verts[0].Z = zPos;
-
-      // Bottom left
-      verts[1].X = left;
-      verts[1].Y = bottom;
-      verts[1].Color = color;
-      verts[1].Tu1 = uLeft;
-      verts[1].Tv1 = vBottom;
-      verts[1].Z = zPos;
-
-      // Bottom right
-      verts[2].X = right;
-      verts[2].Y = bottom;
-      verts[2].Color = color;
-      verts[2].Tu1 = uRight;
-      verts[2].Tv1 = vBottom;
-      verts[2].Z = zPos;
-
-      // Upper right
-      verts[3].X = right;
-      verts[3].Y = top;
-      verts[3].Color = color;
-      verts[3].Tu1 = uRight;
-      verts[3].Tv1 = vTop;
-      verts[3].Z = zPos;
+      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height, 
+          zPos, color);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
       SetPrimitiveContext(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);

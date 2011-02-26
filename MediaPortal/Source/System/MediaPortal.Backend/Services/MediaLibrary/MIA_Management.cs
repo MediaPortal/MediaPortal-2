@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Threading;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -184,8 +185,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             using (IDataReader reader = command.ExecuteReader())
               while (reader.Read())
               {
-                string identifier = DBUtils.ReadDBValue<string>(reader, identifierIndex);
-                string dbObjectName = DBUtils.ReadDBValue<string>(reader, dbObjectNameIndex);
+                string identifier = database.ReadDBValue<string>(reader, identifierIndex);
+                string dbObjectName = database.ReadDBValue<string>(reader, dbObjectNameIndex);
                 _nameAliases.Add(identifier, dbObjectName);
               }
           }
@@ -400,8 +401,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           IDictionary<Guid, string> result = new Dictionary<Guid, string>();
           while (reader.Read())
-            result.Add(DBUtils.ReadDBValue<Guid>(reader, miamIdIndex),
-                DBUtils.ReadDBValue<string>(reader, serializationsIndex));
+            result.Add(database.ReadDBValue<Guid>(reader, miamIdIndex),
+                database.ReadDBValue<string>(reader, serializationsIndex));
           return result;
         }
       }
@@ -424,18 +425,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
             MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
+        Type valueType = spec.AttributeType;
         using (IDataReader reader = command.ExecuteReader())
         {
           IList result = new ArrayList();
           while (reader.Read())
-            result.Add(DBUtils.ReadDBObject(reader, 0));
+            result.Add(database.ReadDBValue(valueType, reader, 0));
           return result;
         }
       }
@@ -446,18 +449,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       string mainTableAttrName = GetMIAAttributeColumnName(spec);
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + miaTableName + " MAIN ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
             " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
-        using (IDataReader reader = command.ExecuteReader())
+        Type valueType = spec.AttributeType;
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           if (reader.Read())
-            return DBUtils.ReadDBObject(reader, 0);
+            return database.ReadDBValue(valueType, reader, 0);
           return null;
         }
       }
@@ -468,19 +473,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       string nmTableName = GenerateMIACollectionAttributeNMTableName(transaction, spec);
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
+        Type valueType = spec.AttributeType;
         using (IDataReader reader = command.ExecuteReader())
         {
           IList result = new ArrayList();
           while (reader.Read())
-            result.Add(DBUtils.ReadDBObject(reader, 0));
+            result.Add(database.ReadDBValue(valueType, reader, 0));
           return result;
         }
       }
@@ -524,10 +531,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
 
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         string commandText = "DELETE FROM " + collectionAttributeTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         if (values != null)
         {
@@ -536,7 +544,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (object value in values)
           {
             string bindVar = "V" + ct++;
-            DBUtils.AddParameter(command, bindVar, value, DBUtils.GetDBType(spec.AttributeType));
+            database.AddParameter(command, bindVar, value, spec.AttributeType);
             bindVars.Add("@" + bindVar);
           }
           commandText += " AND " + COLL_ATTR_VALUE_COL_NAME + " NOT IN(" +
@@ -555,6 +563,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         // Delete old entries
         DeleteOneToManyAttributeValuesNotInEnumeration(transaction, spec, mediaItemId, values);
 
+      ISQLDatabase database = transaction.Database;
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       // Add new entries - commands for insert and update are the same here
       foreach (object value in values)
@@ -567,8 +576,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               " WHERE NOT EXISTS(SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
               MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
-          DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid))); // Used twice in query
-          DBUtils.AddParameter(command, "COLL_ATTR_VALUE", value, DBUtils.GetDBType(spec.AttributeType)); // Used twice in query
+          database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid)); // Used twice in query
+          database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
           command.ExecuteNonQuery();
         }
@@ -616,6 +625,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
+      ISQLDatabase database = transaction.Database;
 
       LockAttribute(spec);
       try
@@ -630,8 +640,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " +
               collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
-          DBUtils.AddParameter(command, "FOREIGN_COLL_ATTR_ID", valuePk, DBUtils.GetDBType(typeof(Guid)));
-          DBUtils.AddParameter(command, "COLL_ATTR_VALUE", value, DBUtils.GetDBType(spec.AttributeType)); // Used twice in query
+          database.AddParameter(command, "FOREIGN_COLL_ATTR_ID", valuePk, typeof(Guid));
+          database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
           command.ExecuteNonQuery();
         }
@@ -648,9 +658,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       string nmTableName = GetMIACollectionAttributeNMTableName(spec);
 
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         IList<string> bindVars = new List<string>();
         int ct = 0;
@@ -659,7 +670,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             string bindVar = "V" + ct++;
             bindVars.Add("@" + bindVar);
-            DBUtils.AddParameter(command, bindVar, value, DBUtils.GetDBType(spec.AttributeType));
+            database.AddParameter(command, bindVar, value, spec.AttributeType);
           }
         string commandText = "DELETE FROM " + nmTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
@@ -694,6 +705,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
+      ISQLDatabase database = transaction.Database;
       // Insert value into collection attribute table if not exists: We do it in a single statement to avoid rountrips to the DB
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -702,8 +714,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
-        DBUtils.AddParameter(command, "FOREIGN_COLL_ATTR", Guid.NewGuid(), DBUtils.GetDBType(typeof(Guid)));
-        DBUtils.AddParameter(command, "COLL_ATTR_VALUE", value, DBUtils.GetDBType(spec.AttributeType)); // Used twice in query
+        database.AddParameter(command, "FOREIGN_COLL_ATTR", Guid.NewGuid(), typeof(Guid));
+        database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
         command.ExecuteNonQuery();
       }
@@ -720,8 +732,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               " WHERE V." + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE AND NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
             ")";
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid))); // Used twice in query
-        DBUtils.AddParameter(command, "COLL_ATTR_VALUE", value, DBUtils.GetDBType(spec.AttributeType)); // Used twice in query
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid)); // Used twice in query
+        database.AddParameter(command, "COLL_ATTR_VALUE", value, spec.AttributeType); // Used twice in query
 
         command.ExecuteNonQuery();
       }
@@ -747,14 +759,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected object ReadObject(IDataReader reader, int colIndex, MediaItemAspectMetadata.AttributeSpecification spec)
+    protected object ReadObject(ISQLDatabase database, IDataReader reader, int colIndex, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       // Because the IDataReader interface doesn't provide a getter method which takes the desired return type,
       // we have to write this method
       Type type = spec.AttributeType;
       try
       {
-        return DBUtils.ReadDBValue(type, reader, colIndex);
+        return database.ReadDBValue(type, reader, colIndex);
       }
       catch (ArgumentException)
       {
@@ -1240,7 +1252,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public bool IsCLOBAttribute(MediaItemAspectMetadata.AttributeSpecification specification)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      return specification.AttributeType == typeof(string) && database.IsCLOBNecessary(specification.MaxNumChars);
+      return specification.AttributeType == typeof(string) && database.IsCLOB(specification.MaxNumChars);
     }
 
     #endregion
@@ -1254,12 +1266,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
       string miaTableName = GetMIATableName(miam);
 
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + miaTableName +
             " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         return command.ExecuteScalar() != null;
       }
@@ -1307,13 +1320,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mainQueryBuilder.Append(" WHERE ");
       mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME);
       mainQueryBuilder.Append(" = @MEDIA_ITEM_ID");
+
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = mainQueryBuilder.ToString();
 
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
-        using (IDataReader reader = command.ExecuteReader())
+        using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
         {
           int i = 0;
           if (reader.Read())
@@ -1321,7 +1336,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               if (spec.Cardinality == Cardinality.Inline)
               {
-                object value = ReadObject(reader, i, spec);
+                object value = ReadObject(database, reader, i, spec);
                 if (!AttributeIsEmpty(value))
                   result.SetAttribute(spec, value);
               }
@@ -1437,11 +1452,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME); // Use the ID column in WHERE condition
           mainQueryBuilder.Append(" = @MEDIA_ITEM_ID");
         }
+        ISQLDatabase database = transaction.Database;
         using (IDbCommand command = transaction.CreateCommand())
         {
           command.CommandText = mainQueryBuilder.ToString();
           foreach (BindVar bindVar in bindVars)
-            DBUtils.AddParameter(command, bindVar.Name, bindVar.Value, DBUtils.GetDBType(bindVar.VariableType));
+            database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
           command.ExecuteNonQuery();
         }
       }
@@ -1507,10 +1523,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       // Delete main MIA entry
       bool result;
+      ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "DELETE FROM " + miaTableName + " WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
-        DBUtils.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, DBUtils.GetDBType(typeof(Guid)));
+        database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
         result = command.ExecuteNonQuery() > 0;
       }
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);

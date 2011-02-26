@@ -30,7 +30,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public delegate void CollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : FrameworkElement;
+  public delegate void ObservableUIElementCollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : FrameworkElement;
 
   public class ObservableUIElementCollection<T> : ICollection<T>, IDisposable, IAddChild<T>, ISynchronizable where T : FrameworkElement
   {
@@ -44,10 +44,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _elements = new List<T>();
     }
 
-    public CollectionChangedDlgt<T> CollectionChanged;
+    public ObservableUIElementCollectionChangedDlgt<T> CollectionChanged;
 
     public void Dispose()
     {
+      _parent = null;
+      CollectionChanged = null;
       Clear();
     }
 
@@ -70,9 +72,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    public void SetParent(FrameworkElement parent)
+    {
+      _parent = parent;
+    }
+
     protected void FireCollectionChanged()
     {
-      CollectionChangedDlgt<T> dlgt = CollectionChanged;
+      ObservableUIElementCollectionChangedDlgt<T> dlgt = CollectionChanged;
       if (dlgt != null)
         dlgt(this);
     }

@@ -29,7 +29,6 @@ using System.IO;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.DB;
 using Scimore.Data.ScimoreClient;
 
 namespace MediaPortal.BackendComponents.Database.ScimoreDb
@@ -126,7 +125,7 @@ namespace MediaPortal.BackendComponents.Database.ScimoreDb
       return "NVARCHAR(" + maxNumChars + ")";
     }
 
-    public bool IsCLOBNecessary(uint maxNumChars)
+    public bool IsCLOB(uint maxNumChars)
     {
       return false;
     }

@@ -50,7 +50,8 @@ namespace MediaPortal.Backend.Services.Database
   /// <item><term>%BIGINT%</term><description>UInt32, Int64</description></item>
   /// <item><term>%GUID%</term><description>Guid</description></item>
   /// <item><term>%STRING([N])%</term><description>string with maximum length of N unicode characters</description></item>
-  /// <item><term>%STRING_FIXED([N])%</term><description>string with a fixed length of N characters</description></item>
+  /// <item><term>%STRING_FIXED([N])%</term><description>String with a fixed length of N characters</description></item>
+  /// <item><term>%BINARY%</term><description>Binary array (<c>byte[]</c>)</description></item>
   /// </list>
   /// There are also general placeholders:
   /// <list type="table">
@@ -97,7 +98,8 @@ namespace MediaPortal.Backend.Services.Database
           Replace("%SMALLINT%", GetType(typeof(Int16), database)).
           Replace("%INTEGER%", GetType(typeof(Int32), database)).
           Replace("%BIGINT%", GetType(typeof(Int64), database)).
-          Replace("%GUID%", GetType(typeof(Guid), database));
+          Replace("%GUID%", GetType(typeof(Guid), database)).
+          Replace("%BINARY%", GetType(typeof(byte[]), database));
 
       // For extended replacements: First collect all patterns to be replaced...
       IDictionary<string, string> replacements = new Dictionary<string, string>();

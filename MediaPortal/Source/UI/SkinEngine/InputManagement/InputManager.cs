@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     private InputManager()
     {
-      _workThread = new Thread(DoWork) {IsBackground = true,Name = "InputManager dispatch thread"};
+      _workThread = new Thread(DoWork) { IsBackground = true, Name = "InputMgr" };  //InputManager dispatch thread
       _workThread.Start();
     }
 

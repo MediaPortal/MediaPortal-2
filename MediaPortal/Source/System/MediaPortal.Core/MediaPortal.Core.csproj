@@ -51,6 +51,10 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Base\Client\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -176,6 +180,7 @@
     <Compile Include="Services\Dokan\Proxy.cs" />
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
+    <Compile Include="Services\Logging\log4netLogger.cs" />
     <Compile Include="Services\MediaManagement\BackgroundHttpDataTransfer.cs" />
     <Compile Include="Services\MediaManagement\CachedHttpResourceStream.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />

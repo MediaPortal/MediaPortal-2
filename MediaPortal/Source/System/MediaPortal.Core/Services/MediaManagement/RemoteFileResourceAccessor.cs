@@ -50,7 +50,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceName;
       DateTime lastChanged;
       long size;
-      if (!rris.GetResourceInformation(resourceLocator.NativeSystem, resourceLocator.NativeResourcePath,
+      if (!rris.GetResourceInformation(resourceLocator.NativeSystemId, resourceLocator.NativeResourcePath,
           out isFileSystemResource, out isFile, out resourcePathName, out resourceName, out lastChanged, out size) ||
           !isFile)
         return false;

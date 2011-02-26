@@ -25,17 +25,18 @@
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class CheckBox : Button
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _isCheckedProperty;
-    IExecutableCommand _checkedCommand;
-    IExecutableCommand _unCheckedCommand;
+    protected AbstractProperty _isCheckedProperty;
+    protected AbstractProperty _checkedProperty;
+    protected AbstractProperty _uncheckedProperty;
 
     #endregion
 
@@ -49,6 +50,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _isCheckedProperty = new SProperty(typeof(bool), false);
+      _checkedProperty = new SProperty(typeof(IExecutableCommand), null);
+      _uncheckedProperty = new SProperty(typeof(IExecutableCommand), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -58,6 +61,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IsChecked = cb.IsChecked;
       Checked = copyManager.GetCopy(cb.Checked);
       Unchecked = copyManager.GetCopy(cb.Unchecked);
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Checked);
+      Registration.TryCleanupAndDispose(Unchecked);
+      base.Dispose();
     }
 
     #endregion
@@ -73,16 +83,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _isCheckedProperty.SetValue(value); }
     }
 
+    public AbstractProperty CheckedProperty
+    {
+      get { return _checkedProperty; }
+    }
+
     public IExecutableCommand Checked
     {
-      get { return _checkedCommand; }
-      set { _checkedCommand = value; }
+      get { return (IExecutableCommand) _checkedProperty.GetValue(); }
+      set { _checkedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty UncheckedProperty
+    {
+      get { return _uncheckedProperty; }
     }
 
     public IExecutableCommand Unchecked
     {
-      get { return _unCheckedCommand; }
-      set { _unCheckedCommand = value; }
+      get { return (IExecutableCommand) _uncheckedProperty.GetValue(); }
+      set { _uncheckedProperty.SetValue(value); }
     }
 
     public override void OnKeyPreview(ref Key key)

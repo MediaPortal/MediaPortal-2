@@ -70,6 +70,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected int _lastDeviceWidth;
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
+    protected RectangleF _lastVertsBounds;
+
     #endregion
 
     #region Ctor
@@ -199,6 +201,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       IGeometry geometry = ChooseVideoGeometry(player);
       CropSettings cropSettings = player.CropSettings;
       string effectName = player.EffectOverride;
+      int deviceWidth = GraphicsDevice.Width; // To avoid threading issues if the device size changes
+      int deviceHeight = GraphicsDevice.Height;
+      RectangleF vertsBounds = _vertsBounds;
 
       // Do we need a refresh?
       if (_lastVideoSize == playerSize &&
@@ -206,11 +211,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _lastGeometry == geometry &&
           _lastEffect == effectName &&
           _lastCropSettings == cropSettings &&
-          _lastDeviceWidth == GraphicsDevice.Width &&
-          _lastDeviceHeight == GraphicsDevice.Height)
+          _lastDeviceWidth == deviceWidth &&
+          _lastDeviceHeight == deviceHeight &&
+          _lastVertsBounds == vertsBounds)
         return;
 
-      SizeF targetSize = _vertsBounds.Size;
+      SizeF targetSize = vertsBounds.Size;
 
       _scaledVideoSize = cropSettings == null ? playerSize : cropSettings.CropRect(playerSize).Size;
       
@@ -243,8 +249,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _lastGeometry = geometry;
       _lastCropSettings = cropSettings;
       _lastEffect = effectName;
-      _lastDeviceWidth = GraphicsDevice.Width;
-      _lastDeviceHeight = GraphicsDevice.Height;
+      _lastDeviceWidth = deviceWidth;
+      _lastDeviceHeight = deviceHeight;
     }
 
     protected void OnImagecontextRefresh()

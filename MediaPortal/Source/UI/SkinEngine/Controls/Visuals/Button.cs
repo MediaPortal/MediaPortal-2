@@ -25,6 +25,7 @@
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -61,6 +62,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       IsDefault = b.IsDefault;
       Command = copyManager.GetCopy(b.Command);
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Command);
+      base.Dispose();
     }
 
     #endregion

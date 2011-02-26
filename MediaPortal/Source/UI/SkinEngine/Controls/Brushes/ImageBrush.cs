@@ -89,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       ImageSource = b.ImageSource;
       DownloadProgress = b.DownloadProgress;
       Thumbnail = b.Thumbnail;
+      _tex = null;
       Attach();
     }
 
@@ -120,10 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override Texture Texture
     {
-      get
-      {
-        return (_tex == null) ? null : _tex.Texture;
-      }
+      get { return (_tex == null) ? null : _tex.Texture; }
     }
 
     public AbstractProperty ThumbnailProperty
@@ -143,10 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override Vector2 TextureMaxUV
     {
-      get
-      {
-        return (_tex == null || !_tex.IsAllocated) ? new Vector2(1.0f, 1.0f) : new Vector2(_tex.MaxU, _tex.MaxV);
-      }
+      get { return (_tex == null || !_tex.IsAllocated) ? new Vector2(1.0f, 1.0f) : new Vector2(_tex.MaxU, _tex.MaxV); }
     }
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
@@ -157,10 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override Vector2 BrushDimensions
     {
-      get
-      {
-        return _tex == null ? base.BrushDimensions : new Vector2(_tex.Width, _tex.Height);
-      }
+      get { return _tex == null ? base.BrushDimensions : new Vector2(_tex.Width, _tex.Height); }
     }
 
     #endregion
@@ -174,9 +166,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void Allocate()
     {
-      if (_tex == null)
+      if (_tex == null && !string.IsNullOrEmpty(ImageSource))
         _tex = ServiceRegistration.Get<ContentManager>().GetTexture(ImageSource, Thumbnail);
-      if (!_tex.IsAllocated)
+      if (_tex != null && !_tex.IsAllocated)
         _tex.Allocate();
     }
 
@@ -189,14 +181,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
       Allocate();
-      _tex.Bind(0);
+      if (_tex != null)
+        _tex.Bind(0);
       return base.BeginRenderBrush(primitiveContext, renderContext);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
       Allocate();
-      _tex.Bind(0);
+      if (_tex != null)
+        _tex.Bind(0);
       base.BeginRenderOpacityBrush(tex, renderContext);
     }
 

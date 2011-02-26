@@ -285,8 +285,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public static SizeF AdjustForSkinAR(SizeF frameSize)
     {
       // Adjust target size to match final Skin scaling
-      frameSize.Width *= (GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth);
-      frameSize.Height *= (GraphicsDevice.Height / (float)SkinContext.SkinResources.SkinHeight);
+      frameSize.Width *= GraphicsDevice.Width / (float) SkinContext.SkinResources.SkinWidth;
+      frameSize.Height *= GraphicsDevice.Height / (float) SkinContext.SkinResources.SkinHeight;
       return frameSize;
     }
 
@@ -331,7 +331,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         || Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
         // Convert image dimensions to texture space
-        Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width, imageSize.Height);
+        Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width+1.0f, imageSize.Height+1.0f);
         textureRect.Z /= _frameSize.Width;
         textureRect.W /= _frameSize.Height;
 
@@ -380,7 +380,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (_shaderBaseName == null && _shaderEffectName == null && _shaderTransformName == null)
         return EFFECT_DEFAULT_NAME;
       // Using at least one custom component, build a composite effect
-      string name = (_shaderBaseName ?? EFFECT_BASE_DEFAULT_NAME);
+      string name = _shaderBaseName ?? EFFECT_BASE_DEFAULT_NAME;
       name += ';' + (_shaderTransformName ?? EFFECT_TRANSFORM_DEFAULT_NAME);
       name += ';' + (_shaderEffectName ?? EFFECT_EFFECT_DEFAULT_NAME);
       return name;
@@ -388,7 +388,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     protected string GetTransitionEffectName()
     {
-      string name = (_shaderTransitionBaseName ?? EFFECT_BASE_TRANSITION_DEFAULT_NAME);
+      string name = _shaderTransitionBaseName ?? EFFECT_BASE_TRANSITION_DEFAULT_NAME;
       name += ';' + (_shaderTransitionName ?? EFFECT_TRANSITION_DEFAULT_NAME);
       name += ';' + (_shaderTransformName ?? EFFECT_TRANSFORM_DEFAULT_NAME);
       name += ';' + (_shaderEffectName ?? EFFECT_EFFECT_DEFAULT_NAME);

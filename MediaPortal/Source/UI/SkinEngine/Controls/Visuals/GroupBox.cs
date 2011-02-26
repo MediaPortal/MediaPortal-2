@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -87,17 +88,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       GroupBox gb = (GroupBox) source;
       Header = gb.Header;
       HeaderColor = gb.HeaderColor;
+      InitializeHeaderLabel();
 
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_headerLabel);
+      base.Dispose();
     }
 
     #endregion
 
     void OnHeaderChanged(AbstractProperty prop, object oldValue)
     {
+      InitializeHeaderLabel();
+      InvalidateLayout(true, true);
+    }
+
+    protected void InitializeHeaderLabel()
+    {
       _headerLabel.Content = Header;
       _headerLabel.Color = HeaderColor;
-      InvalidateLayout(true, true);
     }
 
     #region Properties

@@ -149,7 +149,9 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <summary>
     /// Returns the information if this resource path can be used to set up a local resource provider chain.
     /// </summary>
+    /// <remarks>
     /// <seealso cref="CheckValidLocalPath"/>
+    /// </remarks>
     public bool IsValidLocalPath
     {
       get

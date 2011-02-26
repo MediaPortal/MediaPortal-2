@@ -256,8 +256,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Returns all media items of the current screen and all sub-screens recursively.
     /// </summary>
     /// <returns>Enumeration of media items.</returns>
-    public IEnumerable<MediaItem> GetAllMediaItems()
+    public virtual IEnumerable<MediaItem> GetAllMediaItems()
     {
+      // Normally, this method doesn't need to be virtual because the code here is very generic -
+      // depending on the base view specification of the current screen, we collect all items.
+      // But screens like the search screen modify their list of items dynamically. Such screens must
+      // return their dynamically generated items list.
       return _navigationData.BaseViewSpecification.GetAllMediaItems();
     }
 

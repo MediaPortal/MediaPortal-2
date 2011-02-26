@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -39,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected AbstractProperty _columnsProperty;
     protected AbstractProperty _rowsProperty;
 
-    protected bool _canScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
+    protected bool _doScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
     // Index of the first visible column/row (left/top) which will be drawn at our ActualPosition -
     // when modified by method SetScrollOffset, they will be applied the next time Arrange is called.
@@ -96,13 +97,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       UniformGrid g = (UniformGrid) source;
       Columns = g.Columns;
       Rows = g.Rows;
-      CanScroll = g.CanScroll;
+      DoScroll = g.DoScroll;
       Attach();
     }
 
     #endregion
 
-    #region Public properties & events
+    #region Public properties
 
     public AbstractProperty ColumnsProperty
     {
@@ -205,7 +206,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int visibleChildrenCount = visibleChildren.Count;
 
-      if (_canScroll)
+      if (_doScroll)
         CalculateDesiredSize(new SizeF((float) ActualWidth, (float) ActualHeight), false, out _actualColumnWidth, out _actualRowHeight);
       else
       {
@@ -216,7 +217,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _actualNumVisibleCols = (int) (ActualWidth/_actualColumnWidth);
       _actualNumVisibleRows = (int) (ActualHeight/_actualRowHeight);
 
-      if (_canScroll)
+      if (_doScroll)
       {
         int maxScrollIndexX = Math.Max(_actualColumns - _actualNumVisibleCols, 0);
         int maxScrollIndexY = Math.Max(_actualRows - _actualNumVisibleRows, 0);
@@ -275,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
     {
-      if (_canScroll)
+      if (_doScroll)
       {
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         for (int i = 0; i < visibleChildren.Count; i++)
@@ -302,7 +303,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)
     {
-      if (_canScroll)
+      if (_doScroll)
       { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
         RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
         RectangleF bounds = ActualBounds;
@@ -318,30 +319,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Rendering
 
-    protected override void UpdateRenderOrder()
+    protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (!_updateRenderOrder) return;
-      _updateRenderOrder = false;
-      lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
-      {
-        Children.FixZIndex();
-        _renderOrder.Clear();
-        RectangleF bounds = ActualBounds;
-        foreach (FrameworkElement element in Children)
-        {
-          if (!element.IsVisible)
-            continue;
-          if (_canScroll)
-          { // Don't render elements which are not visible, if we can scroll
-            RectangleF elementBounds = element.ActualBounds;
-            if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) continue;
-            if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) continue;
-            if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) continue;
-            if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) continue;
-          }
-          _renderOrder.Add(element);
-        }
-      }
+      RectangleF bounds = ActualBounds;
+      return Children.Where(element =>
+        { // Don't render elements which are not visible, if we can scroll
+          RectangleF elementBounds = element.ActualBounds;
+          if (!element.IsVisible) return false;
+          if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
+          if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
+          if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
+          if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) return false;
+          return true;
+        });
     }
 
     #endregion
@@ -504,10 +494,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public event ScrolledDlgt Scrolled;
 
-    public bool CanScroll
+    public bool DoScroll
     {
-      get { return _canScroll; }
-      set { _canScroll = value; }
+      get { return _doScroll; }
+      set { _doScroll = value; }
     }
 
     public float TotalWidth

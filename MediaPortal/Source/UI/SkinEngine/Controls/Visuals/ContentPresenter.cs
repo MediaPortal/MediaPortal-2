@@ -27,6 +27,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -43,6 +44,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _horizontalContentAlignmentProperty;
     protected AbstractProperty _verticalContentAlignmentProperty;
     protected FrameworkElement _templateControl = null;
+    protected object _content = null;
 
     #endregion
 
@@ -88,19 +90,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       HorizontalContentAlignment = p.HorizontalContentAlignment;
       VerticalContentAlignment = p.VerticalContentAlignment;
       _templateControl = copyManager.GetCopy(p._templateControl);
+      _content = copyManager.GetCopy(p._content);
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_content);
+      Registration.TryCleanupAndDispose(Content);
+      Registration.TryCleanupAndDispose(ContentTemplate);
+      base.Dispose();
     }
 
     #endregion
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
+      UIElement oldUIElement = oldValue as UIElement;
+      if (oldUIElement != null)
+        oldUIElement.CleanupAndDispose();
+      UIElement oldContent = _content as UIElement;
+      object content = Content;
+      // Try to convert our content to a FrameworkElement and unwrap ResourceWrapper before other methods access _content.
+      // That avoids the necessecity to convert our content to FrameworkElement multiple times later
+      if (TypeConverter.Convert(content, typeof(FrameworkElement), out _content))
+      { // We got a new _content, so dispose the old one
+        if (oldContent != null && !ReferenceEquals(oldContent, oldValue))
+          oldContent.CleanupAndDispose();
+      }
+      else
+        _content = content;
+
       if (ContentTemplate == null)
         // No ContentTemplate set
         InstallAutomaticContentDataTemplate();
-      if (_templateControl != null)
+      FrameworkElement templateControl = _templateControl;
+      if (!(_content is UIElement) && templateControl != null) // If our content is an UIElement itself, it should only be used as template control but not as context
         // The controls in the DataTemplate access their "data" via their data context, so we must assign it
-        _templateControl.Context = Content;
+        templateControl.Context = _content;
     }
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
@@ -122,7 +149,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     void InstallAutomaticContentDataTemplate()
     {
-      object content = Content;
+      object content = _content;
       if (content == null)
       {
         SetTemplateControl(null);
@@ -137,9 +164,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         finishDlgt.Invoke();
         return;
       }
-      object templateControl;
-      if (TypeConverter.Convert(content, typeof(FrameworkElement), out templateControl))
-        SetTemplateControl((FrameworkElement) templateControl);
+      FrameworkElement templateControl = content as FrameworkElement;
+      if (templateControl != null)
+        SetTemplateControl(templateControl);
       // else: no content template to present the content
     }
 
@@ -159,9 +186,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         oldTemplateControl.CleanupAndDispose();
       if (templateControl == null)
         return;
-      object content = Content;
-      if (!ReferenceEquals(templateControl, content)) // If our content is a FrameworkElement itself and no ContentTemplate is present, the content is the templateControl -> we don't need to set the context
-        templateControl.Context = Content;
+      object content = _content;
+      if (!(content is UIElement)) // If our content is an UIElement itself, it should only be used as template control but not as context
+        templateControl.Context = content;
       templateControl.VisualParent = this;
       templateControl.SetScreen(Screen);
       templateControl.SetElementState(ElementState.Running);

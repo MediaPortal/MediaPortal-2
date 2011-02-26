@@ -44,8 +44,11 @@ void RenderVertexShader(in VS_Input IN, out VS_Output OUT)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex2D(TextureSampler, IN.Texcoord);
-  OUT.Color.a *= g_opacity;
+  float4 color = tex2D(TextureSampler, IN.Texcoord);
+  color.a *= g_opacity;
+
+  // Remember to pre-multiply alpha
+  OUT.Color = float4(color.xyz * color.a, color.a);
 }
 
 technique simple {

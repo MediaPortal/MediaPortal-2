@@ -46,14 +46,27 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #endregion
 
+    #region Protected fields
+
+    protected NavigationContext _boundContext = null;
+
+    #endregion
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      if (_boundContext != null)
+        ClearNavigationItems(_boundContext);
+    }
+
     #region Protected methods
 
-    protected ItemsList GetNavigationItems(NavigationContext context)
+    protected static ItemsList GetNavigationItems(NavigationContext context)
     {
       return (ItemsList) context.GetContextVariable(NAVIGATION_ITEMS_KEY, false);
     }
 
-    protected ItemsList GetOrCreateNavigationItems(NavigationContext context)
+    protected static ItemsList GetOrCreateNavigationItems(NavigationContext context)
     {
       lock (context.SyncRoot)
       {
@@ -64,21 +77,26 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
     }
 
-    protected ItemsList UpdateNavigationItems(NavigationContext currentContext)
+    protected static void ClearNavigationItems(NavigationContext context)
+    {
+      context.ResetContextVariable(NAVIGATION_ITEMS_KEY);
+    }
+
+    protected static ItemsList UpdateNavigationItems(NavigationContext context)
     {
       try
       {
-        ItemsList navigationItems = GetOrCreateNavigationItems(currentContext);
+        ItemsList navigationItems = GetOrCreateNavigationItems(context);
         Stack<NavigationContext> contextStack = ServiceRegistration.Get<IWorkflowManager>().NavigationContextStack;
         List<NavigationContext> contexts = new List<NavigationContext>(contextStack);
         contexts.Reverse();
         navigationItems.Clear();
         bool first = true;
-        foreach (NavigationContext context in contexts)
+        foreach (NavigationContext ctx in contexts)
         {
-          ListItem item = new ListItem(KEY_NAME, context.DisplayLabel);
+          ListItem item = new ListItem(KEY_NAME, ctx.DisplayLabel);
           item.AdditionalProperties[KEY_ISFIRST] = first;
-          NavigationContext contextCopy = context;
+          NavigationContext contextCopy = ctx;
           item.Command = new MethodDelegateCommand(() => WorkflowPopToState(contextCopy.WorkflowState.StateId));
           first = false;
           navigationItems.Add(item);
@@ -93,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
     }
 
-    protected void WorkflowPopToState(Guid workflowStateId)
+    protected static void WorkflowPopToState(Guid workflowStateId)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToState(workflowStateId, false);
@@ -107,11 +125,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get
       {
-        NavigationContext currentContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
-        lock (currentContext.SyncRoot)
+        if (_boundContext == null)
+          _boundContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
+        lock (_boundContext.SyncRoot)
         {
-          ItemsList navigationItems = GetNavigationItems(currentContext);
-          return navigationItems ?? UpdateNavigationItems(currentContext);
+          ItemsList navigationItems = GetNavigationItems(_boundContext);
+          return navigationItems ?? UpdateNavigationItems(_boundContext);
         }
       }
     }

@@ -52,7 +52,7 @@ namespace MediaPortal.Server
     /// </summary>
     private static void Main(params string[] args)
     {
-      Thread.CurrentThread.Name = "Main Thread";
+      Thread.CurrentThread.Name = "Main";
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
@@ -73,7 +73,7 @@ namespace MediaPortal.Server
         ILogger logger = null;
         try
         {
-          ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+          ApplicationCore.RegisterCoreServices();
           logger = ServiceRegistration.Get<ILogger>();
 
           IPathManager pathManager = ServiceRegistration.Get<IPathManager>();

@@ -37,7 +37,6 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Core.Services.Logging;
 #else
 using MediaPortal.UI.Services.Logging;
-using System.IO;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
@@ -55,7 +54,7 @@ namespace MediaPortal.Client
   {
     private static SplashScreen CreateSplashScreen()
     {
-      SplashScreen result = SplashScreen.Current;
+      SplashScreen result = new SplashScreen();
 
       result.FadeInDuration = TimeSpan.FromMilliseconds(300);
       result.FadeOutDuration = TimeSpan.FromMilliseconds(200);
@@ -70,7 +69,7 @@ namespace MediaPortal.Client
     /// </summary>
     private static void Main(params string[] args)
     {
-      Thread.CurrentThread.Name = "Main Thread";
+      Thread.CurrentThread.Name = "Main";
 
       SplashScreen splashScreen = CreateSplashScreen();
       splashScreen.ShowSplashScreen();
@@ -95,7 +94,7 @@ namespace MediaPortal.Client
         try
         {
 
-          ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+          ApplicationCore.RegisterCoreServices();
 
           logger = ServiceRegistration.Get<ILogger>();
 

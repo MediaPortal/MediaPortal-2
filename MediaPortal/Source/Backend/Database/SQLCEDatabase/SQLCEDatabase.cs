@@ -24,9 +24,11 @@
 
 using System;
 using System.Data;
+using System.Data.SqlTypes;
 using MediaPortal.Backend.Database;
 using System.Data.SqlServerCe;
 using System.IO;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -88,45 +90,73 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
     public string GetSQLType(Type dotNetType)
     {
       if (dotNetType == typeof(DateTime))
-        return "datetime";
+        return "DATETIME";
       if (dotNetType == typeof(Char))
-        return "nchar(1)";
+        return "NCHAR(1)";
       if (dotNetType == typeof(Boolean))
-        return "bit";
+        return "BIT";
       if (dotNetType == typeof(Single))
-        return "real";
+        return "REAL";
       if (dotNetType == typeof(Double))
-        return "float";
+        return "FLOAT";
       if (dotNetType == typeof(Byte) || dotNetType == typeof(SByte))
-        return "tinyint";
+        return "TINYINT";
       if (dotNetType == typeof(UInt16) || dotNetType == typeof(Int16))
-        return "smallint";
+        return "SMALLINT";
       if (dotNetType == typeof(UInt32) || dotNetType == typeof(Int32))
-        return "integer";
+        return "INTEGER";
       if (dotNetType == typeof(UInt64) || dotNetType == typeof(Int64))
-        return "bigint";
+        return "BIGINT";
       if (dotNetType == typeof(Guid))
-        return "uniqueidentifier";
+        return "UNIQUEIDENTIFIER";
+      if (dotNetType == typeof(byte[]))
+        return "IMAGE";
       return null;
     }
 
     public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      if (IsCLOBNecessary(maxNumChars))
-        return "ntext";
-      return "nvarchar(" + maxNumChars + ")";
-    }
-
-    public bool IsCLOBNecessary(uint maxNumChars)
-    {
-      return maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR;
+      if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
+        return "NTEXT";
+      return "NVARCHAR(" + maxNumChars + ")";
     }
 
     public string GetSQLFixedLengthStringType(uint maxNumChars)
     {
       if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
-        return "ntext";
-      return "nchar(" + maxNumChars + ")";
+        return "NTEXT";
+      return "NCHAR(" + maxNumChars + ")";
+    }
+
+    public bool IsCLOB(uint maxNumChars)
+    {
+      return maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR;
+    }
+
+    public IDbDataParameter AddParameter(IDbCommand command, string name, object value, Type type)
+    {
+      if (type == typeof(byte[]))
+      {
+        SqlCeParameter result = (SqlCeParameter) command.CreateParameter();
+        result.ParameterName = name;
+        result.Value = value ?? DBNull.Value;
+        result.SqlDbType = SqlDbType.Image;
+        command.Parameters.Add(result);
+        return result;
+      }
+      return DBUtils.AddSimpleParameter(command, name, value, type);
+    }
+
+    public object ReadDBValue(Type type, IDataReader reader, int colIndex)
+    {
+      if (reader.IsDBNull(colIndex))
+        return null;
+      if (type == typeof(byte[]))
+      {
+        SqlBinary result = ((SqlCeDataReader) reader).GetSqlBinary(colIndex);
+        return result.Value;
+      }
+      return DBUtils.ReadSimpleDBValue(type, reader, colIndex);
     }
 
     public ITransaction BeginTransaction(IsolationLevel level)
@@ -151,6 +181,21 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
           return (cnt == 1);
         }
       }
+    }
+
+    public string CreateStringConcatenationExpression(string str1, string str2)
+    {
+      return str1 + "+" + str2;
+    }
+
+    public string CreateSubstringExpression(string str1, string posExpr)
+    {
+      return "SUBSTRING(" + str1 + "," + posExpr + "," + Int32.MaxValue + ")"; // Int32.MaxValue seems to be the biggest supported value
+    }
+
+    public string CreateSubstringExpression(string str1, string posExpr, string lenExpr)
+    {
+      return "SUBSTRING(" + str1 + "," + posExpr + "," + lenExpr + ")";
     }
 
     #endregion

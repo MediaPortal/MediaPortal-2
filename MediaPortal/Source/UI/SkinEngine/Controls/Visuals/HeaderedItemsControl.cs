@@ -23,22 +23,22 @@
 #endregion
 
 using System.Collections;
-using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class HeaderedItemsControl : ItemsControl
+  public class HeaderedItemsControl : ItemsControl, ISelectableItemContainer
   {
     #region Protected fields
 
     protected AbstractProperty _isExpandedProperty;
     protected AbstractProperty _isExpandableProperty;
     protected AbstractProperty _forceExpanderProperty;
+    protected AbstractProperty _subItemsProviderProperty;
+    protected AbstractProperty _selectedProperty;
 
     #endregion
 
@@ -56,16 +56,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _isExpandedProperty = new SProperty(typeof(bool), false);
       _isExpandableProperty = new SProperty(typeof(bool), false);
       _forceExpanderProperty = new SProperty(typeof(bool), false);
+      _subItemsProviderProperty = new SProperty(typeof(SubItemsProvider), null);
+      _selectedProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
     {
       _forceExpanderProperty.Attach(OnForceExpanderChanged);
+      _subItemsProviderProperty.Attach(OnSubItemsProviderChanged);
+      _selectedProperty.Attach(OnSelectedChanged);
     }
 
     void Detach()
     {
       _forceExpanderProperty.Attach(OnForceExpanderChanged);
+      _subItemsProviderProperty.Detach(OnSubItemsProviderChanged);
+      _selectedProperty.Detach(OnSelectedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -75,6 +81,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       HeaderedItemsControl c = (HeaderedItemsControl) source;
       IsExpanded = c.IsExpanded;
       ForceExpander = c.ForceExpander;
+      SubItemsProvider = copyManager.GetCopy(c.SubItemsProvider);
+      Selected = c.Selected;
       Attach();
       CheckExpandable();
     }
@@ -84,6 +92,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnForceExpanderChanged(AbstractProperty prop, object oldVal)
     {
       CheckExpandable();
+    }
+
+    void OnSubItemsProviderChanged(AbstractProperty prop, object oldVal)
+    {
+      InitializeItemsSource();
+    }
+
+    void OnSelectedChanged(AbstractProperty prop, object oldVal)
+    {
+      ItemsControl ic = FindParentOfType<ItemsControl>();
+      if (ic != null)
+        ic.UpdateSelectedItem(this, Selected);
     }
 
     protected override void OnItemsSourceChanged()
@@ -150,7 +170,47 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _forceExpanderProperty; }
     }
 
+    public AbstractProperty SubItemsProviderProperty
+    {
+      get { return _subItemsProviderProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the sub items provider which is used to build the sub items datasource for each tree view item.
+    /// </summary>
+    public SubItemsProvider SubItemsProvider
+    {
+      get { return (SubItemsProvider) _subItemsProviderProperty.GetValue(); }
+      set { _subItemsProviderProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SelectedProperty
+    {
+      get { return _selectedProperty; }
+    }
+
+    public bool Selected
+    {
+      get { return (bool) _selectedProperty.GetValue(); }
+      set {_selectedProperty.SetValue(value); }
+    }
+
     #endregion
+
+    protected void InitializeItemsSource()
+    {
+      SubItemsProvider sip = SubItemsProvider;
+      ItemsSource = sip == null ? null : sip.GetSubItems(Context);
+      CheckExpandable();
+    }
+
+    protected override void PrepareItems()
+    {
+      SubItemsProvider sip = SubItemsProvider;
+      if (ItemsSource == null && sip != null)
+        InitializeItemsSource();
+      base.PrepareItems();
+    }
 
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
@@ -164,22 +224,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Screen = Screen
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = ItemContainerStyle;
-
-      // We need to copy the item data template for the child containers, because the
-      // data template contains specific data for each container. We need to "personalize" the
-      // data template copy by assigning its LogicalParent.
-      IEnumerable<IBinding> deferredBindings;
-      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
-      childItemTemplate.LogicalParent = container;
-      container.ContentTemplate = childItemTemplate;
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = ItemContainerStyle;
-      container.ItemsPanel = ItemsPanel;
-      container.ItemTemplate = ItemTemplate;
-      // Bindings need to be activated because our ContentTemplate will provide the children's items source
-      MpfCopyManager.ActivateBindings(deferredBindings);
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
       return container;
     }
   }

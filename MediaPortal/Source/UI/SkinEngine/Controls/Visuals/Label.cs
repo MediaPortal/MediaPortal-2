@@ -32,12 +32,12 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  // TODO: We don't notice font changes if font is declared on a parent element
+  // TODO: We don't notice font changes if font is declared on a parent element, so add a virtual font change handler in parent
   public class Label : Control
   {
     public const double DEFAULT_SCROLL_SPEED = 20.0;
 
-    #region Private & protected fields
+    #region Protected fields
 
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _colorProperty;
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           size.Width = Math.Min(size.Width, totalWidth);
         size.Height = _asset.TextHeight(1);
       }
-      // Add one pixel to compensate rounding errors. Avoids that the label scrolls although there is enough space.
+      // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;
       size.Height += 1;
       return size;
@@ -266,21 +266,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
-      // TODO: VerticalContentAlignment
       base.DoRender(localRenderContext);
 
       AllocFont();
 
-      TextAlignEnum align = TextAlignEnum.Left;
+      HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
       if (HorizontalContentAlignment == HorizontalAlignmentEnum.Right)
-        align = TextAlignEnum.Right;
+        horzAlign = HorizontalTextAlignEnum.Right;
       else if (HorizontalContentAlignment == HorizontalAlignmentEnum.Center)
-        align = TextAlignEnum.Center;
+        horzAlign = HorizontalTextAlignEnum.Center;
+
+      VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+      if (VerticalContentAlignment == VerticalAlignmentEnum.Bottom)
+        vertAlign = VerticalTextAlignEnum.Bottom;
+      else if (VerticalContentAlignment == VerticalAlignmentEnum.Center)
+        vertAlign = VerticalTextAlignEnum.Center;
 
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, align, color, Wrap, localRenderContext.ZOrder, 
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, localRenderContext.ZOrder, 
         Scroll, (float) ScrollSpeed, localRenderContext.Transform);
     }
 

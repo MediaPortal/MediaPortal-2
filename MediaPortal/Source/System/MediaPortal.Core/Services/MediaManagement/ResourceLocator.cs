@@ -34,29 +34,20 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
     #region Protected fields
 
-    protected SystemName _nativeSystem;
+    protected string _nativeSystemId;
     protected ResourcePath _nativeResourcePath;
 
     #endregion
 
-    public ResourceLocator(SystemName system, ResourcePath nativeResourcePath)
+    public ResourceLocator(string systemId, ResourcePath nativeResourcePath)
     {
-      _nativeSystem = system;
+      _nativeSystemId = systemId;
       _nativeResourcePath = nativeResourcePath;
     }
 
-    public ResourceLocator CreateResourceLocator(string systemId, ResourcePath nativeResourcePath)
+    public string NativeSystemId
     {
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      SystemName system = systemResolver.GetSystemNameForSystemId(systemId);
-      if (system == null)
-        return null;
-      return new ResourceLocator(system, nativeResourcePath);
-    }
-
-    public SystemName NativeSystem
-    {
-      get { return _nativeSystem; }
+      get { return _nativeSystemId; }
     }
 
     public ResourcePath NativeResourcePath
@@ -66,18 +57,18 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public IResourceAccessor CreateAccessor()
     {
-      if (_nativeSystem.IsLocalSystem())
-      {
-        _nativeResourcePath.CheckValidLocalPath();
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
+      // Try to access resource locally. This might work if we have the correct media providers installed.
+      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
         return _nativeResourcePath.CreateLocalResourceAccessor();
-      }
       IFileSystemResourceAccessor fsra;
-      if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystem, _nativeResourcePath, out fsra))
+      if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
         return fsra;
       IResourceAccessor ra;
       if (RemoteFileResourceAccessor.ConnectFile(this, out ra))
         return ra;
-      throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at host '{1}'", _nativeResourcePath, _nativeSystem);
+      throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}'", _nativeResourcePath, _nativeSystemId);
     }
 
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
@@ -105,7 +96,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override string ToString()
     {
-      return string.Format("Resource '{0}' at system '{1}", _nativeResourcePath, _nativeSystem);
+      return string.Format("Resource '{0}' at system '{1}", _nativeResourcePath, _nativeSystemId);
     }
 
     #endregion

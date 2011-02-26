@@ -63,8 +63,11 @@ float GetColor(float2 pos)
 
 void RenderPixelShader(in VS_Output IN, out PS_Output OUT)
 {
-  OUT.Color = tex1D(TextureSampler, GetColor(IN.Texcoord));
-  OUT.Color[3] *= g_opacity;
+  float4 color = tex1D(TextureSampler, GetColor(IN.Texcoord));
+  color.a *= g_opacity;
+
+  // Remember to pre-multiply alpha
+  OUT.Color = float4(color.xyz * color.a, color.a);
 }
 
 technique simple {

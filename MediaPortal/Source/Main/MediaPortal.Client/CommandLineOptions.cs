@@ -22,25 +22,12 @@
 
 #endregion
 
-using MediaPortal.Core.Logging;
 using CommandLine;
 
 namespace MediaPortal.Client
 {
   public class CommandLineOptions
   {
-    [Option("l", "loglevel", Required = false,
-        HelpText = "Sets the lowest level for log output. Log output of a lower level will be discarded.")]
-    public LogLevel LogLevel = LogLevel.All;
-
-    [Option("m", "logmethods", Required = false,
-        HelpText = "Instructs the logger to also log the name of its calling method.")]
-    public bool LogMethods = false;
-
-    [Option("f", "flushlog", Required = false,
-        HelpText = "Makes the logger flush its output buffer to the log file after each log output.")]
-    public bool FlushLog = false;
-
     [Option("d", "data", Required = false,
         HelpText = "Overrides the default application data directory.")]
     public string DataDirectory = null;

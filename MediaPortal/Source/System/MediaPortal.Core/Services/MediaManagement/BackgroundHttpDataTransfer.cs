@@ -32,7 +32,8 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
-  public class BackgroundHttpDataTransfer : IDisposable
+  // TODO: Make this class able to cope with large files (size > int.MaxInt)
+  public class BackgroundHttpDataTransfer : Stream, IDisposable
   {
     #region Consts
 
@@ -83,15 +84,27 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #endregion
 
+    #region Enums
+
+    protected enum TransferState
+    {
+      Receiving,
+      Finished,
+      Erroneous,
+      Terminated
+    }
+
+    #endregion
+
     protected object _syncObj = new object();
     protected List<PendingBlock> _pendingBlocks = new List<PendingBlock>(10);
     protected HttpWebRequest _pendingRequest = null;
     protected string _resourceURL;
     protected Stream _bufferStream;
     protected long _position = 0;
-    protected bool _terminated = false;
-    protected string _errorMessage = null;
+    protected TransferState _state;
     protected bool _repositioning = false; // Flag to suppress error handling - the transfer should be continued after a break of the current stream - for seeking to another position
+    protected string _errorMessage = null;
 
     protected static string _userAgent;
 
@@ -104,13 +117,19 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       _resourceURL = resourceURL;
       _bufferStream = bufferStream;
-      // Mark the whole filestream as dirty
-      _pendingBlocks.Add(new PendingBlock(0, bufferStream.Length - 1));
-      RequestNextBlock();
+      if (bufferStream.Length > 0)
+      { // Mark the whole filestream as dirty
+        _state = TransferState.Receiving;
+        _pendingBlocks.Add(new PendingBlock(0, bufferStream.Length - 1));
+        RequestNextBlock_NoLock();
+      }
+      else
+        _state = TransferState.Finished;
     }
 
-    public void Dispose()
+    public new void Dispose()
     {
+      base.Dispose();
       Terminate();
     }
 
@@ -119,9 +138,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _syncObj; }
     }
 
-    public long Position
+    public bool TransferComplete
     {
-      get { return _position; }
+      get
+      {
+        lock (_syncObj)
+          return _state == TransferState.Finished;
+      }
     }
 
     public string ResourceURL
@@ -134,172 +157,112 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _errorMessage; }
     }
 
-    public int ReadData(byte[] buffer, int offset, int count)
-    {
-      lock (_syncObj)
-      {
-        int numRead;
-        while (true)
-        {
-          numRead = Math.Min(count, (int) (_bufferStream.Length - _position));
-          if (numRead <= 0)
-            // No more data to read
-            return 0;
-          // First check where the next pending block begins
-          int index = GetNextBlockIndex(_position, false);
-          PendingBlock block = null;
-          if (index != -1)
-          { // There is a remaining block behind our position - check if we have enough data left
-            block = _pendingBlocks[index];
-            numRead = Math.Min(numRead, (int) (block.Start - _position));
-          }
-          if (numRead < 0)
-            // Protocol error
-            return 0;
-          if (numRead == 0 && block != null && _pendingRequest != null)
-            // No data available at the moment, wait for more data
-            Monitor.Wait(_syncObj);
-          else
-            // numRead > 0 => data available
-            // block == null => no pending data at current read position
-            // _pendingRequest == null => transfer completed or error during transfer
-            break;
-        }
-        if (_errorMessage != null)
-          throw new IOException(_errorMessage);
-        _bufferStream.Position = _position;
-        int result = _bufferStream.Read(buffer, offset, numRead);
-        _position += result;
-        return result;
-      }
-    }
-
-    public void Seek(long position)
-    {
-      lock (_syncObj)
-      {
-        if (_position == position)
-          return;
-        int index = GetNextBlockIndex(position, false);
-        int formerIndex = GetNextBlockIndex(_position, false);
-        bool abortCurrentRequest = false;
-
-        if (index != -1)
-        { // Check if block must be splitted
-          abortCurrentRequest = index != formerIndex;
-          PendingBlock block = _pendingBlocks[index];
-          if (block.Start < position)
-          {
-            _pendingBlocks.Insert(index, new PendingBlock(block.Start, position - 1));
-            block.Start = position;
-            abortCurrentRequest = true;
-          }
-        }
-        _position = position;
-        if (abortCurrentRequest)
-        {
-          _repositioning = true;
-          // According to the new position, we must cache another block, so abort current request.
-          // Attention: OnResponseReceived is sometimes called in the current thread, so
-          // pay attention that _position and _repositioning are set before the next line.
-          _pendingRequest.Abort();
-        }
-      }
-    }
-
     public void Terminate()
     {
       HttpWebRequest request;
       lock (_syncObj)
       {
-        _terminated = true;
+        if (_state != TransferState.Receiving)
+          return;
+        _state = TransferState.Terminated;
         request = _pendingRequest;
         _pendingRequest = null;
-        Monitor.PulseAll(_syncObj);
+        Monitor.PulseAll(_syncObj); // Break readers waiting for data
       }
       if (request != null)
         request.Abort();
     }
 
-    protected void RequestNextBlock()
+    protected void RequestNextBlock_NoLock()
     {
+      HttpWebRequest request;
       lock (_syncObj)
-        try
-        {
-          if (_terminated || _errorMessage != null)
-            return;
-          int index = GetNextBlockIndex(_position, true);
-          if (index == -1)
-            return;
-          PendingBlock block = _pendingBlocks[index];
-          HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_resourceURL);
-          request.Method = "GET";
-          request.KeepAlive = true;
-          request.AllowAutoRedirect = true;
-          request.UserAgent = _userAgent;
-          request.AddRange((int) block.Start, (int) block.End);
+      {
+        if (_state != TransferState.Receiving)
+          return;
+        int index = GetNextBlockIndex(_position, true);
+        if (index == -1)
+          return;
+        PendingBlock block = _pendingBlocks[index];
+        request = (HttpWebRequest) WebRequest.Create(_resourceURL);
+        request.Method = "GET";
+        request.KeepAlive = true;
+        request.AllowAutoRedirect = true;
+        request.UserAgent = _userAgent;
+        // TODO: Since .net 4, the AddRange method supports long parameters
+        request.AddRange((int) block.Start, (int) block.End);
 
-          IAsyncResult result = request.BeginGetResponse(OnResponseReceived, null);
-          // Set _pendingRequest after we can be sure that OnResponseReceived will be called.
-          _pendingRequest = request;
-          AddTimeout(_pendingRequest, result, PENDING_REQUEST_TIMEOUT*1000);
-        }
-        catch (Exception e)
+        _pendingRequest = request;
+      }
+      try
+      {
+        IAsyncResult response = request.BeginGetResponse(OnResponseReceived, null);
+        AddTimeout(request, response, PENDING_REQUEST_TIMEOUT*1000);
+      }
+      catch (Exception e)
+      {
+        lock (_syncObj)
         {
+          _pendingRequest = null;
           ServiceRegistration.Get<ILogger>().Warn("BackgroundHttpDataTransfer: Error requesting data from remote server", e);
           SetError(e.Message);
         }
+      }
     }
 
     private void OnResponseReceived(IAsyncResult asyncResult)
     {
       try
       {
-        long bufferStreamLength;
-        HttpWebResponse response;
-        lock (_syncObj)
+        HttpWebRequest request = _pendingRequest;
+        if (request != null)
         {
-          if (_terminated)
-            return;
-          bufferStreamLength = _bufferStream.Length;
-          response = (HttpWebResponse) _pendingRequest.EndGetResponse(asyncResult);
-        }
-        try
-        {
-          long from;
-          long to;
-          long length;
-          String contentRange = response.GetResponseHeader("Content-Range");
-          if (string.IsNullOrEmpty(contentRange))
-          { // No content range given, use complete range
-            from = 0;
-            to = response.ContentLength - 1;
-            length = response.ContentLength;
+          lock (_syncObj)
+          {
+            if (_state == TransferState.Terminated || _state == TransferState.Erroneous)
+              // Simply ignore the response
+              return;
           }
-          else if (!ParseContentRange(contentRange, out from, out to, out length) ||
-              (length != -1 && length != bufferStreamLength))
-          { // Fatal: Server commmunication failed
-            SetError("Protocol error");
-            return;
+          HttpWebResponse response = (HttpWebResponse) request.EndGetResponse(asyncResult);
+          try
+          {
+            long from;
+            long to;
+            long length;
+            String contentRange = response.GetResponseHeader("Content-Range");
+            if (string.IsNullOrEmpty(contentRange))
+            { // No content range given, use complete range
+              from = 0;
+              to = response.ContentLength - 1;
+              length = response.ContentLength;
+            }
+            else if (!ParseContentRange(contentRange, out from, out to, out length) ||
+                (length != -1 && length != _bufferStream.Length))
+            { // Fatal: Server commmunication failed
+              SetError("Protocol error");
+              return;
+            }
+            using (Stream body = response.GetResponseStream())
+              ProcessResult_NoLock(body, from, to, length);
           }
-          using (Stream body = response.GetResponseStream())
-            ProcessResult_NoLock(body, from, to, length);
-        }
-        finally
-        {
-          response.Close();
+          finally
+          {
+            response.Close();
+          }
         }
       }
       catch (WebException e)
       {
         lock (_syncObj)
-          if (!_terminated && !_repositioning)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("BackgroundHttpDataTransfer: Problem receiving file part", e);
-            SetError(e.Message);
-          }
-          else
-            _repositioning = false;
+          if (_state == TransferState.Receiving)
+            if (_repositioning)
+              // Suppress error message; when we're repositioning, we're in normal operation
+              _repositioning = false;
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Warn("BackgroundHttpDataTransfer: Problem receiving file part", e);
+              SetError(e.Message);
+            }
       }
       catch (Exception e)
       {
@@ -309,10 +272,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         lock (_syncObj)
         {
-          Monitor.PulseAll(_syncObj);
           _pendingRequest = null;
-          RequestNextBlock();
+          Monitor.PulseAll(_syncObj); // We've new data available; let readers read
         }
+        RequestNextBlock_NoLock();
       }
     }
 
@@ -321,7 +284,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       lock (_syncObj)
       {
         _errorMessage = message;
-        Monitor.PulseAll(_syncObj);
+        _state = TransferState.Erroneous;
+        Monitor.PulseAll(_syncObj); // Break readers waiting for data
       }
     }
 
@@ -437,6 +401,143 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout,
           request, timeoutMsecs, true);
+    }
+
+    public override void Flush()
+    {
+      return;
+    }
+
+    public override void SetLength(long value)
+    {
+      throw new NotSupportedException("SetLength");
+    }
+
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+      lock (_syncObj)
+      {
+        int numRead;
+        while (true)
+        {
+          numRead = Math.Min(count, (int) (_bufferStream.Length - _position));
+          if (numRead <= 0)
+            // No more data to read
+            return 0;
+          // First check where the next pending block begins
+          int index = GetNextBlockIndex(_position, false);
+          PendingBlock block = null;
+          if (index != -1)
+          { // There is a remaining block behind our position - check if we have enough data left
+            block = _pendingBlocks[index];
+            numRead = Math.Min(numRead, (int) Math.Min(int.MaxValue, block.Start - _position));
+          }
+          if (numRead < 0)
+            // Protocol error
+            return 0;
+          if (numRead == 0 && block != null &&
+              (_state == TransferState.Receiving))
+            // No data available at the moment, wait for more data
+            Monitor.Wait(_syncObj);
+          else
+            // numRead > 0 => data available
+            // block == null => no pending data at current read position
+            // _pendingRequest == null => transfer completed or error during transfer
+            break;
+        }
+        if (_state == TransferState.Erroneous)
+          throw new IOException(_errorMessage);
+        if (_state == TransferState.Terminated)
+          throw new IOException("The background HTTP transfer was terminated");
+        _bufferStream.Position = _position;
+        int result = _bufferStream.Read(buffer, offset, numRead);
+        _position += result;
+        return result;
+      }
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+      throw new NotSupportedException("Write");
+    }
+
+    public override bool CanRead
+    {
+      get { return true; }
+    }
+
+    public override bool CanSeek
+    {
+      get { return true; }
+    }
+
+    public override bool CanWrite
+    {
+      get { return false; }
+    }
+
+    public override long Length
+    {
+      get { return _bufferStream.Length; }
+    }
+
+    public override long Position
+    {
+      get { return _position; }
+      set { _position = value; }
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+      lock (_syncObj)
+      {
+        if (_state == TransferState.Terminated)
+          throw new IOException("The background HTTP transfer was terminated");
+        if (_state == TransferState.Erroneous)
+          throw new IOException("Cannot seek; the background HTTP transfer is in an erroneous state");
+        long position = 0;
+        switch (origin)
+        {
+          case SeekOrigin.Current:
+            position = _position + offset;
+            break;
+          case SeekOrigin.Begin:
+            position = offset;
+            break;
+          case SeekOrigin.End:
+            position = Length + offset;
+            break;
+        }
+        if (_position == position)
+          return _position;
+        int index = GetNextBlockIndex(position, false);
+        int formerIndex = GetNextBlockIndex(_position, false);
+        bool abortCurrentRequest = false;
+
+        if (index != -1)
+        { // Check if block must be splitted
+          abortCurrentRequest = index != formerIndex;
+          PendingBlock block = _pendingBlocks[index];
+          if (block.Start < position)
+          {
+            _pendingBlocks.Insert(index, new PendingBlock(block.Start, position - 1));
+            block.Start = position;
+            abortCurrentRequest = true;
+          }
+        }
+        _position = position;
+        if (abortCurrentRequest)
+        {
+          _repositioning = true;
+          // According to the new position, we must cache another block, so abort current request.
+          // Attention: OnResponseReceived is sometimes called in the current thread, so
+          // pay attention that _position and _repositioning are set before the next lines.
+          HttpWebRequest request = _pendingRequest;
+          if (request != null)
+            request.Abort();
+        }
+        return _position;
+      }
     }
 
     public override string ToString()

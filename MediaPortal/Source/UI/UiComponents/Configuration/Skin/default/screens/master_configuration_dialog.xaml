@@ -26,7 +26,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog.xaml"
+    Source="screens\master_dialog_bare.xaml"
     >
   <Include.Resources>
     <!-- Configuration model -->
@@ -48,7 +48,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.RowDefinitions>
         <Label Grid.Column="0" Grid.Row="0" Wrap="True"
             Content="{Binding Source={StaticResource Model},Path=CurrentConfigController.Help,Mode=OneTime}"/>
-        <ContentPresenter Content="{DynamicResource Config_Client_Element}"
+        <ContentPresenter Content="{DynamicResource ResourceKey=Config_Client_Element,TreeSearchMode=Hybrid}"
             Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       </Grid>
     </ResourceWrapper>

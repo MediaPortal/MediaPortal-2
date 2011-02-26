@@ -52,13 +52,11 @@ namespace MediaPortal.Utilities.Screens
 
     private double _opacityDecrement;
     private double _opacityIncrement;
-    private static Boolean _fadeMode;
-    private static Image _splashBGImage;
-    private static String _infoText;
-    private static String _statusText;
-    private static SplashScreen _splashScreenForm;
-    private static Thread _splashScreenThread;
-    private static Color _transparentColor;
+    private Boolean _fadeMode;
+    private String _infoText;
+    private String _statusText;
+    private Thread _splashScreenThread;
+    private Color _transparentColor;
     private Label _programInfoLabel;
     private Label _statusLabel;
     private Timer _splashTimer;
@@ -109,14 +107,13 @@ namespace MediaPortal.Utilities.Screens
     /// </summary>
     public Image SplashBackgroundImage
     {
-      get { return _splashBGImage; }
+      get { return BackgroundImage; }
       set
       {
-        _splashBGImage = value;
         if (value != null)
         {
-          BackgroundImage = _splashBGImage;
-          ClientSize = _splashBGImage.Size;
+          BackgroundImage = value;
+          ClientSize = value.Size;
         }
       }
     }
@@ -176,19 +173,6 @@ namespace MediaPortal.Utilities.Screens
     }
 
     /// <summary>
-    /// Gets the singleton instance of the splash screen.
-    /// </summary>
-    public static SplashScreen Current
-    {
-      get
-      {
-        if (_splashScreenForm == null)
-          _splashScreenForm = new SplashScreen();
-        return _splashScreenForm;
-      }
-    }
-
-    /// <summary>
     /// Sets default values for the <see cref="FadeInDuration"/> and <see cref="FadeOutDuration"/>.
     /// </summary>
     /// <param name="value">If set to <c>true</c>, the form will fade in in <see cref="DEFAULT_FADE_IN_MS"/> and fade out
@@ -239,22 +223,19 @@ namespace MediaPortal.Utilities.Screens
 
     public void ShowSplashScreen()
     {
-      _splashScreenThread = new Thread(ShowForm) {IsBackground = true, Name = "SplashScreenThread"};
+      _splashScreenThread = new Thread(ShowForm) {IsBackground = true, Name = "SplashScr"};
       _splashScreenThread.Start();
     }
 
     public void CloseSplashScreen()
     {
-      if (_splashScreenForm != null)
+      if (InvokeRequired)
       {
-        if (InvokeRequired)
-        {
-          CloseSplash dlgt = HideSplash;
-          Invoke(dlgt);
-        }
-        else
-          HideSplash();
+        CloseSplash dlgt = HideSplash;
+        Invoke(dlgt);
       }
+      else
+        HideSplash();
     }
 
     #endregion
@@ -264,9 +245,9 @@ namespace MediaPortal.Utilities.Screens
       InitializeComponent();
     }
 
-    private static void ShowForm()
+    private void ShowForm()
     {
-      Application.Run(_splashScreenForm);
+      Application.Run(this);
     }
 
     private void UpdateStatus()

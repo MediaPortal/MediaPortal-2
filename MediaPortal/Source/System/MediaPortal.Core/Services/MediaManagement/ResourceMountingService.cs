@@ -31,18 +31,25 @@ using Dokan;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement.Settings;
+using MediaPortal.Core.Services.SystemResolver;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
+  // TODO: Make the driver create a real readonly filesystem. Currently, the explorer still provides a
+  // "New" entry. And DokanNet.ERROR_ACCESS_DENIED isn't really what we should return, but what else? DokanNet doesn't provide
+  // us so many options...
   public class ResourceMountingService : IResourceMountingService, DokanOperations
   {
     #region Consts
 
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
 
-    protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.Normal;
+    protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.ReadOnly;
     protected const FileAttributes DIRECTORY_ATTRIBUTES = FileAttributes.ReadOnly | FileAttributes.NotContentIndexed | FileAttributes.Directory;
+
+    protected static readonly DateTime MIN_FILE_DATE = DateTime.FromFileTime(0); // If we use lower values, resources are not recognized by the Explorer/Windows API
 
     #endregion
 
@@ -274,13 +281,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected char? _driveLetter;
+    protected char? _driveLetter = null;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
-
-    public ResourceMountingService()
-    {
-      _driveLetter = ReadDriveLetterFromSettings();
-    }
 
     // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
     // write a sensible destructor in this class which removes the Dokan drive
@@ -293,29 +295,31 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected void Run()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
-      char? driveLetter;
-      lock (_syncObj)
-        driveLetter = _driveLetter;
-      if (driveLetter.HasValue)
+
+      char? driveLetter = ReadDriveLetterFromSettings();
+      if (!driveLetter.HasValue)
       {
-        // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
-        DokanNet.DokanUnmount(driveLetter.Value);
-        if (DriveInUse(driveLetter.Value))
-        {
-          logger.Warn(
-              "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
-              driveLetter.Value);
-          lock (_syncObj)
-            _driveLetter = null;
-          return;
-        }
-        DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
-        int result = DokanNet.DokanMain(opt, this);
-        if (result == DokanNet.DOKAN_SUCCESS)
-          logger.Warn("ResourceMountingService: DokanMain returned successfully");
-        else
-          logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+        driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
+            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
       }
+
+      // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
+      DokanNet.DokanUnmount(driveLetter.Value);
+      if (DriveInUse(driveLetter.Value))
+      {
+        logger.Warn(
+            "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
+            driveLetter.Value);
+        return;
+      }
+      _driveLetter = driveLetter;
+      DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
+      int result = DokanNet.DokanMain(opt, this);
+      if (result == DokanNet.DOKAN_SUCCESS)
+        logger.Info("ResourceMountingService: DokanMain returned successfully");
+      else
+        logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
     }
 
     protected VirtualFileSystemResource ParseFileName(string fileName)
@@ -340,7 +344,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       return resource;
     }
 
-    protected char ReadDriveLetterFromSettings()
+    protected char? ReadDriveLetterFromSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();
@@ -379,7 +383,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        Thread thread = new Thread(Run) {Name = "Resource mounting service"};
+        Thread thread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
         thread.Start();
         _started = true;
       }
@@ -486,7 +490,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         resource.AddFileHandle(handle);
         if (resource is VirtualBaseDirectory)
           info.IsDirectory = true; // Necessary for the Dokan driver to set this, see docs
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
     }
 
@@ -500,13 +504,13 @@ namespace MediaPortal.Core.Services.MediaManagement
         FileHandle handle = new FileHandle(resource);
         info.Context = handle;
         resource.AddFileHandle(handle);
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
     }
 
     public int CreateDirectory(string filename, DokanFileInfo info)
     {
-      return -1;
+      return DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int Cleanup(string filename, DokanFileInfo info)
@@ -516,7 +520,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         FileHandle handle = (FileHandle) info.Context;
         if (handle != null)
           handle.Cleanup();
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
     }
 
@@ -528,7 +532,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (handle != null)
           handle.Resource.RemoveFileHandle(handle);
         info.Context = null;
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
     }
 
@@ -539,17 +543,17 @@ namespace MediaPortal.Core.Services.MediaManagement
       lock (_syncObj)
       {
         if (handle == null)
-          return -1;
+          return -DokanNet.ERROR_FILE_NOT_FOUND;
         try
         {
           stream = handle.GetOrOpenStream();
           if (stream == null)
-            return -1;
+            return -DokanNet.ERROR_FILE_NOT_FOUND;
         }
         catch (Exception e)
         {
           ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error creating file stream of resource '{0}'", e, handle.Resource);
-          return -1;
+          return DokanNet.DOKAN_ERROR;
         }
       }
       // Do the reading outside the lock - might block when not enough bytes are available
@@ -557,23 +561,23 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         stream.Seek(offset, SeekOrigin.Begin);
         readBytes = (uint) stream.Read(buffer, 0, buffer.Length);
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error reading from stream of resource '{0}'", e, handle.Resource);
-        return -1;
+        return DokanNet.DOKAN_ERROR;
       }
     }
 
     public int WriteFile(string filename, byte[] buffer, ref uint writtenBytes, long offset, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int FlushFileBuffers(string filename, DokanFileInfo info)
     {
-      return -1;
+      return DokanNet.DOKAN_SUCCESS;
     }
 
     public int GetFileInformation(string filename, FileInformation fileinfo, DokanFileInfo info)
@@ -582,7 +586,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         FileHandle handle = (FileHandle) info.Context;
         if (handle == null)
-          return -1;
+          return -DokanNet.ERROR_FILE_NOT_FOUND;
         VirtualFileSystemResource resource = handle.Resource;
         VirtualFile file = resource as VirtualFile;
         IResourceAccessor resourceAccessor = resource.ResourceAccessor;
@@ -590,20 +594,24 @@ namespace MediaPortal.Core.Services.MediaManagement
         fileinfo.FileName = filename;
         fileinfo.CreationTime = resource.CreationTime;
         fileinfo.LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged;
-        fileinfo.LastWriteTime = resource.CreationTime; // When using DateTime.MinValue, the resource is not recognized
+        if (fileinfo.LastAccessTime < MIN_FILE_DATE)
+          fileinfo.LastAccessTime = MIN_FILE_DATE;
+        fileinfo.LastWriteTime = resource.CreationTime;
+        if (fileinfo.LastWriteTime < MIN_FILE_DATE)
+          fileinfo.LastWriteTime = MIN_FILE_DATE;
         if (file != null)
         {
           fileinfo.Attributes = FILE_ATTRIBUTES;
           fileinfo.Length = resourceAccessor == null ? 0 : resourceAccessor.Size;
-          return 0;
+          return DokanNet.DOKAN_SUCCESS;
         }
         if (directory != null)
         {
           fileinfo.Attributes = DIRECTORY_ATTRIBUTES;
           fileinfo.Length = 0;
-          return 0;
+          return DokanNet.DOKAN_SUCCESS;
         }
-        return -1;
+        return -DokanNet.ERROR_FILE_NOT_FOUND;
       }
     }
 
@@ -614,7 +622,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         FileHandle handle = (FileHandle) info.Context;
         VirtualBaseDirectory directory = handle == null ? null : handle.Resource as VirtualBaseDirectory;
         if (directory == null)
-          return -1;
+          return -DokanNet.ERROR_PATH_NOT_FOUND;
         foreach (KeyValuePair<string, VirtualFileSystemResource> entry in directory.ChildResources)
         {
           VirtualFileSystemResource resource = entry.Value;
@@ -630,65 +638,65 @@ namespace MediaPortal.Core.Services.MediaManagement
             };
           files.Add(fi);
         }
-        return 0;
+        return DokanNet.DOKAN_SUCCESS;
       }
     }
 
     public int SetFileAttributes(string filename, FileAttributes attr, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int SetFileTime(string filename, DateTime ctime, DateTime atime, DateTime mtime, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int DeleteFile(string filename, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int DeleteDirectory(string filename, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int MoveFile(string filename, string newname, bool replace, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int SetEndOfFile(string filename, long length, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int SetAllocationSize(string filename, long length, DokanFileInfo info)
     {
-      return -1;
+      return -DokanNet.ERROR_ACCESS_DENIED;
     }
 
     public int LockFile(string filename, long offset, long length, DokanFileInfo info)
     {
-      return 0;
+      return DokanNet.DOKAN_SUCCESS;
     }
 
     public int UnlockFile(string filename, long offset, long length, DokanFileInfo info)
     {
-      return 0;
+      return DokanNet.DOKAN_SUCCESS;
     }
 
     public int GetDiskFreeSpace(ref ulong freeBytesAvailable, ref ulong totalBytes, ref ulong totalFreeBytes, DokanFileInfo info)
     {
-      return 0;
+      return DokanNet.DOKAN_SUCCESS;
     }
 
     // Function is called on system shutdown
     public int Unmount(DokanFileInfo info)
     {
       CloseFile(string.Empty, info);
-      return 0;
+      return DokanNet.DOKAN_SUCCESS;
     }
 
     #endregion

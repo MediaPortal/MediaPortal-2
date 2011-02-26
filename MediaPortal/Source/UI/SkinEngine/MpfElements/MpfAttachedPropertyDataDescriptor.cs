@@ -34,8 +34,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     protected string _propertyProvider;
 
     public MpfAttachedPropertyDataDescriptor(
-        object targetObject,
-        string propertyProvider, string propertyName):
+        object targetObject, string propertyProvider, string propertyName):
         base(targetObject, propertyName, GetAttachedProperty(propertyProvider, propertyName, targetObject))
     {
       _propertyProvider = propertyProvider;
@@ -47,10 +46,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       MethodInfo mi = MpfNamespaceHandler.GetAttachedPropertyGetter(propertyProvider, propertyName);
       if (mi != null)
         return (AbstractProperty) mi.Invoke(targetObject, new object[] {targetObject});
-      else
-        throw new InvalidOperationException(string.Format(
-            "Attached property '{0}.{1}' is not available on new target object '{2}'",
-            propertyProvider, propertyName, targetObject));
+      throw new InvalidOperationException(string.Format(
+          "Attached property '{0}.{1}' is not available on new target object '{2}'",
+          propertyProvider, propertyName, targetObject));
     }
 
     public override IDataDescriptor Retarget(object newTarget)

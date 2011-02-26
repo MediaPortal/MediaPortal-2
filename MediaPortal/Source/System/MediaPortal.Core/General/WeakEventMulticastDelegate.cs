@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -69,7 +70,7 @@ namespace MediaPortal.Core.General
     {
       _garbageCollectorThread = new Thread(DoBackgroundWork)
         {
-            Name = typeof(WeakEventMulticastDelegate).Name + " garbage collector thread",
+            Name = "WeakEveGC",
             Priority = ThreadPriority.Lowest,
             IsBackground = true
         };
@@ -136,7 +137,7 @@ namespace MediaPortal.Core.General
       }
     }
 
-    public void ClearAttachedEvents()
+    public void ClearAttachedHandlers()
     {
       lock (_syncObj)
         _eventHandlers = null;
@@ -152,15 +153,11 @@ namespace MediaPortal.Core.General
         return;
       lock (_syncObj)
       {
+// ReSharper disable ConditionIsAlwaysTrueOrFalse,HeuristicUnreachableCode
         if (_eventHandlers == null) // Must be checked again while lock is held
           return;
-        bool needCleanup = false;
-        foreach (WeakEventDelegateData wehd in _eventHandlers)
-          if (wehd.TargetRef.Target == null)
-          {
-            needCleanup = true;
-            break;
-          }
+// ReSharper restore HeuristicUnreachableCode,ConditionIsAlwaysTrueOrFalse
+        bool needCleanup = _eventHandlers.Any(wehd => wehd.TargetRef.Target == null);
         if (needCleanup)
         {
           IList<WeakEventDelegateData> oldHandlers = _eventHandlers;

@@ -26,7 +26,6 @@ using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -38,9 +37,10 @@ using SlimDX.Direct3D9;
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
-  /// <see cref="BitmapImage"/> acts as a source provider / renderer for the <see cref="Image"/> control and most conventional image formats are supportted. 
-  /// All images are loaded syncronously, except when thumbnails are used, so it is best used for skin images. For images that require asyncronous loading
-  /// (such as poster art) use MultiImage.
+  /// <see cref="BitmapImage"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
+  /// Most conventional image formats are supportted. 
+  /// All images are loaded syncronously, except when thumbnails are used, so it is best used for skin images.
+  /// For images that require asyncronous loading (such as poster art) use MultiImage.
   /// </summary>
   public class BitmapImage : ImageSource
   {
@@ -256,8 +256,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         _texture.Allocate();
         if (_texture.IsAllocated)
         {
-          _frameData.X = (float)_texture.Width;
-          _frameData.Y = (float)_texture.Height;
+          _frameData.X = _texture.Width;
+          _frameData.Y = _texture.Height;
           _imageContext.Refresh();
           FireChanged();
         }
@@ -313,13 +313,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Render(RenderContext renderContext, Stretch stretchMode, StretchDirection stretchDirection)
     {
-      SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
-      _frameData.Z = (float)EffectTimer;
-
-      if (IsAllocated && _imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
+      if (IsAllocated)
       {
-        _primitiveBuffer.Render(0);
-        _imageContext.EndRender();
+        SizeF sourceSize = StretchSource(_imageContext.FrameSize, new SizeF(_texture.Width, _texture.Height), stretchMode, stretchDirection);
+        _frameData.Z = (float) EffectTimer;
+        if (_imageContext.StartRender(renderContext, sourceSize, _texture, BorderColor.ToArgb(), _frameData))
+        {
+          _primitiveBuffer.Render(0);
+          _imageContext.EndRender();
+        }
       }
     }
 

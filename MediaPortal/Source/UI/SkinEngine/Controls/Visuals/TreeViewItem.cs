@@ -22,9 +22,9 @@
 
 #endregion
 
-using System.Collections;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -83,6 +83,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OnContentTemplateChanged(_contentTemplateProperty, oldContentTemplate);
     }
 
+    public override void Dispose()
+    {
+      Registration.TryCleanupAndDispose(Content);
+      Registration.TryCleanupAndDispose(ContentTemplate);
+      base.Dispose();
+    }
+
     #endregion
 
     #region Eventhandlers
@@ -107,19 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
-      if (oldValue is HierarchicalDataTemplate)
-        ((HierarchicalDataTemplate) oldValue).ItemsSourceProperty.Detach(OnTemplateItemsSourceChanged);
-      if (!(ContentTemplate is HierarchicalDataTemplate)) return;
-      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ContentTemplate;
-      hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
-      ItemsSource = hdt.ItemsSource;
-
       InitializeContentPresenter();
-    }
-
-    void OnTemplateItemsSourceChanged(AbstractProperty property, object oldValue)
-    {
-      ItemsSource = (IEnumerable) property.GetValue();
     }
 
     protected void InitializeContentPresenter()

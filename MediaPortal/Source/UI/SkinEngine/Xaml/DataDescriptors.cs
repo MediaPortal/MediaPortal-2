@@ -793,6 +793,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         throw new ArgumentNullException("obj", "Target object for dependency property access cannot be null");
       if (propertyName == null)
         throw new ArgumentNullException("propertyName", "Property name cannot be null");
+      if (prop == null)
+        throw new ArgumentNullException("prop", "Property cannot be null");
       _obj = obj;
       _propertyName = propertyName;
       _prop = prop;
@@ -824,8 +826,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       {
         prop = pi.GetValue(obj, null) as AbstractProperty;
         if (prop == null)
-          throw new XamlBindingException("Member {0}.{1} doesn't return a Property instance on object '{2}'",
-            obj.GetType().Name, name, obj.ToString());
+          return false;
         propertyName = name;
         return true;
       }

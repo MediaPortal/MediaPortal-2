@@ -124,7 +124,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected override void CreateGraphBuilder()
     {
-      _dvdGraph = (IDvdGraphBuilder)new DvdGraphBuilder();
+      _dvdGraph = (IDvdGraphBuilder) new DvdGraphBuilder();
       DsError.ThrowExceptionForHR(_dvdGraph.GetFiltergraph(out _graphBuilder));
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
@@ -151,7 +151,7 @@ namespace MediaPortal.UI.Players.Video
       if (_dvdCtrl == null)
         throw new Exception("Failed to access DVD Control!");
 
-      string path = Path.GetDirectoryName(_resourceAccessor.LocalFileSystemPath);
+      string path = _resourceAccessor.LocalFileSystemPath;
 
       // check if path is a drive root (like D:), otherwise append VIDEO_TS 
       // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.

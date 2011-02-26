@@ -153,7 +153,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
 
     public bool IsDirectory
     {
-      get { return false; }
+      get
+      {
+        IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+        return fsra == null ? false : fsra.IsDirectory;
+      }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()

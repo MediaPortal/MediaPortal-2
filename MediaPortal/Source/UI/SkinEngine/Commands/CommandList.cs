@@ -46,14 +46,19 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     #region Ctor
 
-    public CommandList() { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       CommandList cl = (CommandList) source;
       foreach (IExecutableCommand cmd in cl._commands)
         _commands.Add(copyManager.GetCopy(cmd));
+    }
+
+    public override void Dispose()
+    {
+      foreach (IExecutableCommand command in _commands)
+        Registration.TryCleanupAndDispose(command);
+      base.Dispose();
     }
 
     #endregion
