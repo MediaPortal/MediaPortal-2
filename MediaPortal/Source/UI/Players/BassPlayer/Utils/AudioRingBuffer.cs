@@ -212,7 +212,7 @@ namespace Ui.Players.BassPlayer.Utils
         int count1 = Math.Min(requested, writePointer - readPointer);
 
         Marshal.Copy(_buffer, readPointer, buffer, count1);
-        readPointer += count1;
+        //readPointer += count1;
 
         read = count1;
       }
@@ -221,10 +221,10 @@ namespace Ui.Players.BassPlayer.Utils
         int count1 = Math.Min(requested, _bufferLength - readPointer);
 
         Marshal.Copy(_buffer, readPointer, buffer, count1);
-        readPointer += count1;
+        //readPointer += count1;
 
-        if (readPointer == _buffer.Length)
-          readPointer = 0;
+        //if (readPointer == _buffer.Length)
+        //  readPointer = 0;
 
         int count2 = Math.Min(requested - count1, writePointer);
         if (count2 > 0)
@@ -232,7 +232,7 @@ namespace Ui.Players.BassPlayer.Utils
           IntPtr ptr = new IntPtr((_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1 * BassConstants.FloatBytes));
 
           Marshal.Copy(_buffer, 0, ptr, count2);
-          readPointer = count2;
+          //readPointer = count2;
         }
         else
           count2 = 0;
