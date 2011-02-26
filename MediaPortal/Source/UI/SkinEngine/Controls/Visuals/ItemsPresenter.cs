@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetDataStrings(IList<string> dataStrings)
     {
-      _dataStrings = dataStrings == null ? null : new List<string>(dataStrings.Select(s => s.ToLowerInvariant()));
+      _dataStrings = dataStrings == null ? null : new List<string>(dataStrings.Select(s => s == null ? null : s.ToLowerInvariant()));
     }
 
     /// <summary>

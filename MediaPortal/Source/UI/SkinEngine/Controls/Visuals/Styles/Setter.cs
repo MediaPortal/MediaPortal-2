@@ -23,7 +23,6 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
