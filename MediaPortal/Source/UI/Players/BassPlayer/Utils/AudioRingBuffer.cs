@@ -39,7 +39,7 @@ namespace Ui.Players.BassPlayer.Utils
     private readonly float[] _buffer;
     private readonly int _bufferLength;
     private readonly int _bytesPerMilliSec;
-    private readonly bool _Is32bit = false;
+    private readonly bool _is32Bit = false;
     private int _writePointer;
     private int _readPointer;
     private int _space;
@@ -86,7 +86,7 @@ namespace Ui.Players.BassPlayer.Utils
 
     public AudioRingBuffer(int sampleRate, int channels, TimeSpan delay)
     {
-      _Is32bit = (IntPtr.Size == 4);
+      _is32Bit = (IntPtr.Size == 4);
       _delay = (int)delay.TotalMilliseconds;
       _bufferLength = CalculateLength(sampleRate, channels, delay);
       _bytesPerMilliSec = CalculateLength(sampleRate, channels, TimeSpan.FromMilliseconds(1));
@@ -229,7 +229,7 @@ namespace Ui.Players.BassPlayer.Utils
         int count2 = Math.Min(requested - count1, writePointer);
         if (count2 > 0)
         {
-          IntPtr ptr = new IntPtr((_Is32bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1 * BassConstants.FloatBytes));
+          IntPtr ptr = new IntPtr((_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1 * BassConstants.FloatBytes));
 
           Marshal.Copy(_buffer, 0, ptr, count2);
           readPointer = count2;
@@ -297,7 +297,7 @@ namespace Ui.Players.BassPlayer.Utils
           if (buffer != IntPtr.Zero)
           {
             IntPtr ptr = new IntPtr(
-                (_Is32bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
+                (_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
             Marshal.Copy(_buffer, 0, ptr, count2);
           }
           readPointer = count2;
