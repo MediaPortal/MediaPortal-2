@@ -8,13 +8,20 @@
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
     >
 
+  <!-- BackgroundManager model -->
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+
   <!-- default brush used to paint the background of a page/window -->
-  <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
-    <VisualBrush x:Name="BackgroundVisual">
-      <VisualBrush.Visual>
-        <Image x:Name="BackdropImageBackground" Stretch="Uniform" Source="Silver\defaultBackground.png"/>
-      </VisualBrush.Visual>
-    </VisualBrush>
+  <ResourceWrapper x:Key="BackgroundBrush" Freezable="false">
+    <ImageBrush x:Name="BackdropImageBackground" ImageSource="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
   </ResourceWrapper>
 
+  <!-- ListView style to be used for main menu -->
+  <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+ 
 </ResourceDictionary>

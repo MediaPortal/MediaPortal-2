@@ -270,13 +270,13 @@
 
   <!-- Master screen colors -->
   <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
-    <ResourceWrapper.Resource>
+    <!--<ResourceWrapper.Resource>
       <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
         <GradientStop Offset="0" Color="#FF000000"/>
         <GradientStop Offset="0.7" Color="#A0000000"/>
         <GradientStop Offset="1" Color="#50000000"/>
       </LinearGradientBrush >
-    </ResourceWrapper.Resource>
+    </ResourceWrapper.Resource>-->
   </ResourceWrapper>
   <ResourceWrapper x:Key="FooterPanelBackgroundBrush" Resource="{ThemeResource HeaderPanelBackgroundBrush}"/>
 </ResourceDictionary>

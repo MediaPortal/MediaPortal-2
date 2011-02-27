@@ -69,6 +69,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\NewSkin\fonts\default-font.xml" />
+    <Content Include="Skin\NewSkin\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\NewSkin\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\NewSkin\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\NewSkin\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\NewSkin\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\NewSkin\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\NewSkin\images\channellogos\1-2-3.tv.png" />
     <Content Include="Skin\NewSkin\images\channellogos\13 th Street %28KD%29.png" />
     <Content Include="Skin\NewSkin\images\channellogos\13 th Street.png" />
@@ -432,6 +438,10 @@
     <Content Include="Skin\NewSkin\images\channellogos\zdfneo_KiKa.png" />
     <Content Include="Skin\NewSkin\images\channellogos\ZDFtheaterkanal.png" />
     <Content Include="Skin\NewSkin\images\channellogos\ZDF_neo.png" />
+    <Content Include="Skin\NewSkin\images\defaultBackground.jpg" />
+    <Content Include="Skin\NewSkin\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\NewSkin\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\NewSkin\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
     <Content Include="Skin\NewSkin\skin.xml" />
     <Content Include="Skin\NewSkin\themes\Silver\images\Music.png" />
     <Content Include="Skin\NewSkin\themes\Silver\images\Picture.png" />
@@ -452,7 +462,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\NewSkin\images\Silver\defaultBackground.png" />
+    <Content Include="Skin\NewSkin\images\defaultBackground.png" />
     <Content Include="Skin\NewSkin\themes\Silver\images\preview.png" />
     <Content Include="Skin\NewSkin\themes\Silver\styles\OtherControlsOverrides.xaml">
       <SubType>Designer</SubType>
@@ -517,6 +527,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
