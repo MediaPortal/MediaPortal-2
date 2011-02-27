@@ -58,7 +58,8 @@
                   <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Grid.RowSpan="2"
                    Stretch="Uniform">
                     <Image.Source>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
+                        <Binding Source="channellogos\"/>
                         <Binding Source="{StaticResource SlimTvClient}" Path="ChannelName"/>
                         <Binding Source=".png"/>
                       </MultiBinding>

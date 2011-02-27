@@ -18,7 +18,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
       SetLabel(Consts.KEY_NAME, channel.Name);
       Programs = programs;
       Channel = channel;
-      ChannelLogoPath = string.Format("{0}.png", channel.Name);
+      ChannelLogoPath = string.Format("channellogos\\{0}.png", channel.Name);
     }
   }
 }
