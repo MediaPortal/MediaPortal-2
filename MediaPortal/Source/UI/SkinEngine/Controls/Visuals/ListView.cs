@@ -27,7 +27,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class ListView : ItemsControl, IAddChild<ListViewItem>
+  public class ListView : ItemsControl, IAddChild<object>
   {
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
@@ -45,9 +45,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return container;
     }
 
-    #region IAddChild<ListViewItem> Members
+    #region IAddChild<object> implementation
 
-    public void AddChild(ListViewItem o)
+    public void AddChild(object o)
     {
       Items.Add(o);
     }
