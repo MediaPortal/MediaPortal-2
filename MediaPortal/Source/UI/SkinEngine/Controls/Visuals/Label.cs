@@ -228,9 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void AllocFont()
     {
       if (_asset == null)
-      {
         _asset = new TextBuffer(GetFontFamilyOrInherited(), GetFontSizeOrInherited()) {Text = _resourceString};
-      }
     }
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
@@ -243,21 +241,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalWidth = (float) Width;
 
       SizeF size = new SizeF();
-      if (Wrap)
-      { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
-        string[] lines = _asset.WrapText(totalWidth);
-        size.Width = 0;
-        foreach (string line in lines)
-          size.Width = Math.Max(size.Width, _asset.TextWidth(line));
-        size.Height = _asset.TextHeight(Math.Max(lines.Length, 1));
-      }
-      else
-      {
-        size.Width = _asset.TextWidth(_resourceString);
-        if (!float.IsNaN(totalWidth))
-          size.Width = Math.Min(size.Width, totalWidth);
-        size.Height = _asset.TextHeight(1);
-      }
+      string[] lines = _asset.GetLines(totalWidth, Wrap);
+      size.Width = 0;
+      foreach (string line in lines)
+        size.Width = Math.Max(size.Width, _asset.TextWidth(line));
+      size.Height = _asset.TextHeight(Math.Max(lines.Length, 1));
+
       // Add one pixel to compensate rounding errors. Stops the label scrolling even though there is enough space.
       size.Width += 1;
       size.Height += 1;

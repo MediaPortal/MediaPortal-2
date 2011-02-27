@@ -291,6 +291,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       SetFont(ServiceRegistration.Get<ContentManager>().GetFont(fontName, size), size);
     }
 
+    public string[] GetLines(float maxWidth, bool wrap)
+    {
+      return wrap ? WrapText(maxWidth) : _text.Split(Environment.NewLine.ToCharArray());
+    }
+
     /// <summary>
     /// Allocates or re-alocates this resource.
     /// </summary>
@@ -307,7 +312,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return;
 
       // Get text quads
-      string[] lines = wrap ? WrapText(boxWidth) : _text.Split(Environment.NewLine.ToCharArray());
+      string[] lines = GetLines(boxWidth, wrap);
       PositionColoredTextured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
 
       // Re-use existing buffer if necessary
