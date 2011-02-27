@@ -69,7 +69,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region IInitializable implementation
 
-    void IInitializable.Initialize(IParserContext context)
+    void IInitializable.StartInitialization(IParserContext context)
+    {}
+
+    void IInitializable.FinishInitialization(IParserContext context)
     {
       if (_path == null)
         throw new XamlBindingException("{0}: Path mustn't be null", GetType().Name);

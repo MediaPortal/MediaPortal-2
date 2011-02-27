@@ -1040,9 +1040,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Base overrides
 
-    public override void Initialize(IParserContext context)
+    public override void FinishInitialization(IParserContext context)
     {
-      base.Initialize(context);
+      base.FinishInitialization(context);
       string path = Path ?? "";
       _compiledPath = string.IsNullOrEmpty(path) ? null : PathExpression.Compile(context, path);
     }

@@ -184,9 +184,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region IInitializable implementation
 
-    public override void Initialize(IParserContext context)
+    public override void FinishInitialization(IParserContext context)
     {
-      base.Initialize(context);
+      base.FinishInitialization(context);
       ResourceDictionary.RegisterUnmodifiableResourceDuringParsingProcess(this, context);
     }
 

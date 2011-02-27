@@ -122,7 +122,7 @@
     <Compile Include="Controls\Panels\UniformGrid.cs" />
     <Compile Include="Controls\Visuals\DefaultTextInputHandler.cs" />
     <Compile Include="Controls\Visuals\CellPhoneTextInputHandler.cs" />
-    <Compile Include="Controls\Visuals\ObservableUIElementCollection.cs" />
+    <Compile Include="Controls\Visuals\ItemCollection.cs" />
     <Compile Include="Controls\Visuals\Templates\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\GroupBox.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />

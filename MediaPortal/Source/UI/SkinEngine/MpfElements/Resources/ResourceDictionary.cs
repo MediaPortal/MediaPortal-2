@@ -143,7 +143,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public static void RegisterUnmodifiableResourceDuringParsingProcess(IUnmodifiableResource resource, IParserContext context)
     {
-      object result = null;
       IEnumerator<ElementContextInfo> enumer = ((IEnumerable<ElementContextInfo>) context.ContextStack).GetEnumerator();
       if (!enumer.MoveNext())
         return;
@@ -288,9 +287,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region IInitializable implementation
 
-    public override void Initialize(IParserContext context)
+    public override void FinishInitialization(IParserContext context)
     {
-      base.Initialize(context);
+      base.FinishInitialization(context);
       if (!string.IsNullOrEmpty(_source))
       {
         string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);

@@ -1167,7 +1167,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ListView ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
+          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

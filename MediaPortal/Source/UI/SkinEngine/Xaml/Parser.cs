@@ -348,6 +348,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         // Step 2: Instantiate the element
         elementContext.Instance = GetNamespaceHandler(currentElement.NamespaceURI).
             InstantiateElement(this, currentElement.LocalName, currentElement.NamespaceURI, new List<object>());
+        IInitializable initializable = elementContext.Instance as IInitializable;
+        if (initializable != null)
+          initializable.StartInitialization(this);
 
         // Step 3: Name registration and check for x:Key (to be done before child objects are built)
         foreach (XmlAttribute attr in remainingAttributes)
@@ -410,9 +413,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         }
 
         // Step 7: Initialize
-        IInitializable initializable = elementContext.Instance as IInitializable;
         if (initializable != null)
-          initializable.Initialize(this);
+          initializable.FinishInitialization(this);
 
         return elementContext.Instance;
       }
@@ -704,14 +706,16 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             expr, out extensionName, out parameters, out namedParams);
         string namespaceURI;
         LookupNamespace(extensionName, out extensionName, out namespaceURI);
+        IInitializable initializable = null;
         if (namedParams)
         {
           // Parameters given in a Name=Value syntax
           // Step 2: Instantiate the element
-          elementContext.Instance = GetNamespaceHandler(namespaceURI).
-              InstantiateElement(
-              this, extensionName, namespaceURI,
-              new List<object>()); // Invoke default constructor
+          elementContext.Instance = GetNamespaceHandler(namespaceURI).InstantiateElement(
+              this, extensionName, namespaceURI, new List<object>()); // Invoke default constructor
+          initializable = elementContext.Instance as IInitializable;
+          if (initializable != null)
+            initializable.StartInitialization(this);
 
           // Step 4: Members and events in attribute syntax
 
@@ -759,15 +763,17 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           }
           elementContext.Instance = GetNamespaceHandler(namespaceURI).
               InstantiateElement(this, extensionName, namespaceURI, flatParams);
+          initializable = elementContext.Instance as IInitializable;
+          if (initializable != null)
+            initializable.StartInitialization(this);
 
           // Step 4: Members and events in attribute syntax (doesn't apply here)
         }
         // Step 5: Member values in member element syntax (doesn't apply here)
         // Step 6: Handle child elements (doesn't apply here)
         // Step 7: Initialize
-        IInitializable initializable = elementContext.Instance as IInitializable;
         if (initializable != null)
-          initializable.Initialize(this);
+          initializable.FinishInitialization(this);
 
         return elementContext.Instance;
       }

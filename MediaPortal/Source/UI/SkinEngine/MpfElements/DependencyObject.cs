@@ -196,7 +196,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #region IInitializable implementation
 
-    public virtual void Initialize(IParserContext context)
+    public virtual void StartInitialization(IParserContext context)
+    {}
+
+    public virtual void FinishInitialization(IParserContext context)
     {
       IEnumerator<ElementContextInfo> eeci = (context.ContextStack as IEnumerable<ElementContextInfo>).GetEnumerator();
       if (eeci.MoveNext() && eeci.MoveNext())
