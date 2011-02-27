@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.DeepCopy;
@@ -91,13 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public double TotalDesiredLength
     {
-      get
-      {
-        double cumulated = 0;
-        foreach (DefinitionBase cell in this)
-          cumulated += cell.Length.DesiredLength;
-        return cumulated;
-      }
+      get { return this.Sum(cell => cell.Length.DesiredLength); }
     }
 
     public void SetAvailableSize(double totalLength)
@@ -144,6 +140,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public double GetLength(int cellIndex, int cellSpan)
     {
       double cumulated = 0;
+      cellIndex = Math.Min(cellIndex, Count - 1);
+      cellSpan = Math.Min(cellSpan, Count - cellIndex);
       for (int i = 0; i < cellSpan; i++)
         cumulated += this[cellIndex + i].Length.Length;
       return cumulated;
@@ -152,6 +150,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public double GetOffset(int cellIndex)
     {
       double cumulated = 0;
+      cellIndex = Math.Min(cellIndex, Count);
       for (int i = 0; i < cellIndex; i++)
         cumulated += this[i].Length.Length;
       return cumulated;
