@@ -32,10 +32,13 @@
             <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonWideStyle}" Content="Transforms test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-transforms}"/>
-            <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonWideStyle}" Content="TreeView test"
+            <Button Grid.Column="0" Grid.Row="5" Style="{StaticResource ButtonWideStyle}" Content="ListView test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listview}"/>
+            <Button Grid.Column="0" Grid.Row="6" Style="{StaticResource ButtonWideStyle}" Content="TreeView test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9233F320-F0D3-4511-84F0-4575CC9F6A55}"/>
-            <Button Grid.Column="0" Grid.Row="6" Style="{StaticResource ButtonWideStyle}" Content="VirtualKeyboard test"
+            <Button Grid.Column="0" Grid.Row="7" Style="{StaticResource ButtonWideStyle}" Content="VirtualKeyboard test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-virtualkeyboardcontrol}"/>
           </StackPanel>

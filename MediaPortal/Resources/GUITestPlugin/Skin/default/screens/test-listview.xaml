@@ -1,0 +1,38 @@
+<Grid
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <Grid.Resources>
+    <DataTemplate x:Key="ItemDataTemplate">
+      <Label x:Name="ItemDataLabel" Content="{Binding}" FontSize="{ThemeResource SmallFontSize}" Color="Blue"/>
+    </DataTemplate>
+    <Style x:Key="ListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+      <Setter Property="ItemTemplate" Value="{ThemeResource ItemDataTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    </Style>
+  </Grid.Resources>
+  <Label Grid.Row="0" Grid.Column="0" Content="ListView Items test"/>
+  <ListView x:Name="Test" Grid.Row="1" Grid.Column="0" Style="{ThemeResource ListViewStyle}"
+    VerticalAlignment="Center" HorizontalAlignment="Center" Width="400" Height="500">
+    Item1
+    <Label Content="Item2"/>
+    <ListViewItem>
+      Item3
+    </ListViewItem>
+    <ListViewItem>
+      <Label Content="Item4"/>
+    </ListViewItem>
+    <ListViewItem>
+      <Border Background="Yellow" BorderBrush="Red"
+          BorderThickness="2" CornerRadius="3">
+        <Label Color="Black" Content="Item5"/>
+      </Border>
+    </ListViewItem>
+  </ListView>
+</Grid>

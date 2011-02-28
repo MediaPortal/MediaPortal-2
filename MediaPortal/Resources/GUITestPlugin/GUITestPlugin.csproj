@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -73,6 +73,7 @@
     <Content Include="Skin\default\screens\test-text-transforms.xaml" />
     <Content Include="Skin\default\screens\test-transforms.xaml" />
     <Content Include="Skin\default\screens\test-treeview.xaml" />
+    <Content Include="Skin\default\screens\test-listview.xaml" />
     <Content Include="Skin\default\screens\test-virtualkeyboardcontrol.xaml" />
   </ItemGroup>
   <ItemGroup>
