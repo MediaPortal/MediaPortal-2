@@ -12,27 +12,6 @@
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.02"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.1"/>
 
-  <ResourceWrapper x:Key="ShineGradientStartColor" Resource="#FFFFFFFF" />
-  <ResourceWrapper x:Key="ShineGradientEndColor" Resource="#00FFFFFF" />
-
-   <ResourceWrapper x:Key="UpperShineGradient">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,-0.3" EndPoint="0.5,0.4">
-        <GradientStop Color="{StaticResource ShineGradientEndColor}" Offset="0"/>
-        <GradientStop Color="{StaticResource ShineGradientEndColor}" Offset="1"/>
-      </LinearGradientBrush>
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="LowerShineGradient">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5, 1.2" EndPoint="0.5,0.85">
-        <GradientStop Color="{StaticResource ShineGradientEndColor}" Offset="0"/>
-        <GradientStop Color="{StaticResource ShineGradientEndColor}" Offset="1"/>
-      </LinearGradientBrush>
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-  
   <!-- Base storyboard which shows an animation when a button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="Stop">
     <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientOrigin">
@@ -189,8 +168,8 @@
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonBase" Fill="#E0203040" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="5" RadiusY="5" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
