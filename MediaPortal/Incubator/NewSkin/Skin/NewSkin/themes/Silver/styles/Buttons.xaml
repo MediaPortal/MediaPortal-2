@@ -176,6 +176,20 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle">
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0203040" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <Style x:Key="RadioButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
