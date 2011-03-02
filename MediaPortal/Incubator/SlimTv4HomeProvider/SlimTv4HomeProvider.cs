@@ -59,6 +59,20 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region ITimeshiftControl Member
 
+    private bool CheckConnection()
+    {
+      try
+      {
+        if (_tvServer != null)
+          _tvServer.TestConnectionToTVService();
+        return true;
+      }
+      catch (Exception)
+      {
+        return Init();
+      }
+    }
+
     public bool Init()
     {
       try
@@ -95,6 +109,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
     {
       timeshiftMediaItem = null;
+      if (!CheckConnection())
+        return false;
+
       try
       {
         String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex),
@@ -117,6 +134,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool StopTimeshift(int slotIndex)
     {
+      if (!CheckConnection())
+        return false;
       try
       {
         _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
@@ -133,6 +152,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
       groups = new List<IChannelGroup>();
+      if (!CheckConnection())
+        return false;
       try
       {
         List<WebChannelGroup> tvGroups = _tvServer.GetGroups();
@@ -152,6 +173,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     {
       channels = new List<IChannel>();
+      if (!CheckConnection())
+        return false;
       if (group == null)
         return false;
       try
@@ -173,6 +196,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetChannel(int channelId, out IChannel channel)
     {
       channel = null;
+      if (!CheckConnection())
+        return false;
       try
       {
         WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
@@ -237,11 +262,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetCurrentProgram(IChannel channel, out IProgram program)
     {
       program = null;
+      if (!CheckConnection())
+        return false;
       if (channel == null)
         return false;
       try
       {
-
         WebProgramDetailed tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
         if (tvProgram != null)
         {
@@ -259,6 +285,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetNextProgram(IChannel channel, out IProgram program)
     {
       program = null;
+      if (!CheckConnection())
+        return false;
       if (channel == null)
         return false;
 
@@ -289,6 +317,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
     {
       programs = null;
+      if (!CheckConnection())
+        return false;
       if (channel == null)
         return false;
 
