@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new SubTypeMatcher(typeof(ContentPresenter))) as ContentPresenter;
     }
 
-    #region IAddChild Members
+    #region IAddChild<FrameworkElement> implementation
 
     public void AddChild(FrameworkElement o)
     {

@@ -35,7 +35,6 @@ using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
@@ -488,7 +487,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoShowScreen(Screen screen, bool closeDialogs)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.Name);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
       lock (_syncObj)
       {
         if (closeDialogs)
@@ -594,7 +593,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       oldDialog.ScreenState = Screen.State.Closed;
       ScheduleDisposeScreen(oldDialog);
       if (fireCloseDelegates && dd.CloseCallback != null)
-        dd.CloseCallback(dd.DialogScreen.Name, dd.DialogInstanceId);
+        dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
     }
 
     protected internal void DoCloseDialogs(bool fireCloseDelegates)
@@ -661,12 +660,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       List<DialogSaveDescriptor> dialogsReverse;
       lock (_syncObj)
       {
-        backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.Name;
-        screenName = _currentScreen.Name;
-        superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
+        backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.ResourceName;
+        screenName = _currentScreen.ResourceName;
+        superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
         dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         // Remember all dialogs and their close callbacks
-        dialogsReverse.AddRange(_dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.Name, dd.DialogInstanceId, dd.CloseCallback)));
+        dialogsReverse.AddRange(_dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.ResourceName, dd.DialogInstanceId, dd.CloseCallback)));
       }
 
       // Close all
@@ -815,10 +814,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'",
             newSkinName, newThemeName);
 
-        string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
-        string currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.Name;
+        string currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
+        string currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
+        string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
 
         UninstallBackgroundManager();
         _backgroundData.Unload();
@@ -872,13 +871,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       ServiceRegistration.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
       object obj = XamlLoader.Load(skinFilePath, loader, true);
-      FrameworkElement element = obj as FrameworkElement;
-      if (element == null)
+      Screen screen = obj as Screen;
+      if (screen == null)
       {
         DependencyObject.TryDispose(ref obj);
         return null;
       }
-      return new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Root = element};
+      screen.Initialize(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight);
+      return screen;
     }
 
     /// <summary>
@@ -991,7 +991,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get
       {
         DialogData dd = CurrentDialogData;
-        return dd == null ? null : dd.DialogScreen.Name;
+        return dd == null ? null : dd.DialogScreen.ResourceName;
       }
     }
 
@@ -1046,7 +1046,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get
       {
         lock (_syncObj)
-          return CurrentDialogName ?? (_currentScreen == null ? null : _currentScreen.Name);
+          return CurrentDialogName ?? (_currentScreen == null ? null : _currentScreen.ResourceName);
       }
     }
 
@@ -1056,7 +1056,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         // No locking necessary
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        return backgroundScreen == null ? null : backgroundScreen.Name;
+        return backgroundScreen == null ? null : backgroundScreen.ResourceName;
       }
     }
 

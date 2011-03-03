@@ -34,8 +34,8 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 using SlimDX;
 
@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
-  public class Screen : NameScope
+  public class Screen : UIElement, INameScope, IAddChild<FrameworkElement>
   {
     #region Consts
 
@@ -141,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected State _state = State.Preparing;
     protected Guid _screenInstanceId = Guid.NewGuid();
-    protected string _name;
+    protected string _resourceName;
     protected int _skinWidth;
     protected int _skinHeight;
 
@@ -158,25 +158,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
-    protected Animator _animator;
+    protected Animator _animator = new Animator();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
     protected Guid? _virtualKeyboardDialogGuid = null;
     protected RenderContext _renderContext;
+    protected IDictionary<string, object> _names = new Dictionary<string, object>();
 
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Screen"/> class.
+    /// Initializes this instance.
     /// </summary>
-    /// <param name="name">The logical screen name.</param>
+    /// <param name="resourceName">The logical screen name.</param>
     /// <param name="skinWidth">Native width of the skin providing this screen.</param>
     /// <param name="skinHeight">Native height of the skin providing this screen.</param>
-    public Screen(string name, int skinWidth, int skinHeight)
+    public void Initialize(string resourceName, int skinWidth, int skinHeight)
     {
-      _name = name;
+      _resourceName = resourceName;
       _skinWidth = skinWidth;
       _skinHeight = skinHeight;
-      _animator = new Animator();
       SkinContext.WindowSizeProperty.Attach(OnWindowSizeChanged);
       InitializeRenderContext();
     }
@@ -191,15 +191,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public FrameworkElement Root
     {
       get { return _root; }
-      set
-      {
-        _root = value;
-        if (_root != null)
-        {
-          _root.SetScreen(this);
-          ScreenState = ScreenState; // Set the visual's element state via our ScreenState setter
-        }
-      }
     }
 
     /// <summary>
@@ -237,9 +228,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public string Name
+    public string ResourceName
     {
-      get { return _name; }
+      get { return _resourceName; }
     }
 
     public AbstractProperty HasInputFocusProperty
@@ -342,7 +333,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           float x = _mouseMovePending.Value.X;
           float y = _mouseMovePending.Value.Y;
           _mouseMovePending = null;
-          HandleMouseMove(x, y);
+          DoHandleMouseMove(x, y);
         }
         _root.UpdateLayoutRoot();
         _root.Render(_renderContext);
@@ -354,11 +345,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!HasInputFocus)
       {
         InputManager inputManager = InputManager.Instance;
-        inputManager.KeyPreview += OnKeyPreview;
-        inputManager.KeyPressed += OnKeyPress;
-        inputManager.MouseMoved += OnMouseMove;
-        inputManager.MouseClicked += OnMouseClick;
-        inputManager.MouseWheeled += OnMouseWheel;
+        inputManager.KeyPreview += HandleKeyPreview;
+        inputManager.KeyPressed += HandleKeyPress;
+        inputManager.MouseMoved += HandleMouseMove;
+        inputManager.MouseClicked += HandleMouseClick;
+        inputManager.MouseWheeled += HandleMouseWheel;
         HasInputFocus = true;
       }
       PretendMouseMove();
@@ -369,11 +360,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (HasInputFocus)
       {
         InputManager inputManager = InputManager.Instance;
-        inputManager.KeyPreview -= OnKeyPreview;
-        inputManager.KeyPressed -= OnKeyPress;
-        inputManager.MouseMoved -= OnMouseMove;
-        inputManager.MouseClicked -= OnMouseClick;
-        inputManager.MouseWheeled -= OnMouseWheel;
+        inputManager.KeyPreview -= HandleKeyPreview;
+        inputManager.KeyPressed -= HandleKeyPress;
+        inputManager.MouseMoved -= HandleMouseMove;
+        inputManager.MouseClicked -= HandleMouseClick;
+        inputManager.MouseWheeled -= HandleMouseWheel;
         HasInputFocus = false;
         RemoveCurrentFocus();
       }
@@ -415,10 +406,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       if (inputManager.IsMouseUsed)
-        HandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+        DoHandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
     }
 
-    protected void HandleMouseMove(float x, float y)
+    protected void DoHandleMouseMove(float x, float y)
     {
       lock (_root)
         if (_root.CanHandleMouseMove())
@@ -432,7 +423,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       InitializeRenderContext();
     }
 
-    private void OnKeyPreview(ref Key key)
+    private void HandleKeyPreview(ref Key key)
     {
       if (!HasInputFocus)
         return;
@@ -446,7 +437,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    private void OnKeyPress(ref Key key)
+    private void HandleKeyPress(ref Key key)
     {
       if (!HasInputFocus)
         return;
@@ -455,21 +446,21 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         UpdateFocus(ref key);
     }
 
-    private void OnMouseWheel(int numberOfDeltas)
+    private void HandleMouseWheel(int numberOfDeltas)
     {
       if (!HasInputFocus)
         return;
       _root.OnMouseWheel(numberOfDeltas);
     }
 
-    private void OnMouseMove(float x, float y)
+    private void HandleMouseMove(float x, float y)
     {
       if (!HasInputFocus)
         return;
-      HandleMouseMove(x, y);
+      DoHandleMouseMove(x, y);
     }
 
-    private void OnMouseClick(MouseButtons buttons)
+    private void HandleMouseClick(MouseButtons buttons)
     {
       if (!HasInputFocus)
         return;
@@ -490,11 +481,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       if (key != Key.None)
       {
-        OnKeyPreview(ref key);
+        HandleKeyPreview(ref key);
         if (key == Key.None)
           return;
-        OnKeyPress(ref key);
+        HandleKeyPress(ref key);
       }
+    }
+
+    public override bool IsInArea(float x, float y)
+    {
+      return true; // Screens always cover the whole physical screen
     }
 
     protected void InitializeRenderContext()
@@ -629,7 +625,44 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public override string ToString()
     {
-      return string.IsNullOrEmpty(_name) ? "Unnamed screen" : _name;
+      return string.IsNullOrEmpty(_resourceName) ? "Unnamed screen" : _resourceName;
     }
+
+    #region INamescope implementation
+
+    public object FindName(string name)
+    {
+      object obj;
+      if (_names.TryGetValue(name, out obj))
+        return obj;
+      return null;
+    }
+
+    public void RegisterName(string name, object instance)
+    {
+      object old;
+      if (_names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
+        return;
+      _names.Add(name, instance);
+    }
+
+    public void UnregisterName(string name)
+    {
+      _names.Remove(name);
+    }
+
+    #endregion
+
+    #region IAddChild<FrameworkElement> implementation
+
+    public void AddChild(FrameworkElement child)
+    {
+      _root = child;
+      _root.SetScreen(this);
+      ScreenState = _state; // Set the visual's element state via our ScreenState setter
+      _root.VisualParent = this;
+    }
+
+    #endregion
   }
 }

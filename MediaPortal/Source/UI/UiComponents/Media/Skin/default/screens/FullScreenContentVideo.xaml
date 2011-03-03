@@ -1,56 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Grid
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    x:Name="FullscreenLayoutGrid"
-    Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
-    > <!-- DataContext model = VideoPlayerModel -->
-  <Grid.Background>
-    <VideoBrush Stream="0"/>
-  </Grid.Background>
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-  </Grid.ColumnDefinitions>
-  <Grid.RowDefinitions>
-    <RowDefinition Height="*"/>
-  </Grid.RowDefinitions>
-  <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    x:Name="FullscreenContentVideoScreen"
+    >
+  <Grid
+      x:Name="FullscreenLayoutGrid"
+      Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
+      > <!-- DataContext model = VideoPlayerModel -->
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="Auto"/>
-      <ColumnDefinition Width="50"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
-
-    <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-        IsVisible="{Binding !IsOSDVisible}"/>
-  </Grid> <!-- BackgroundPipLayoutGrid -->
-  <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
-      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-      IsVisible="{Binding IsOSDVisible}">
-    <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-      <Control.TemplateControl>
-        <Include Source="screens\FSCWindowButtons.inc"/>
-      </Control.TemplateControl>
-    </Control>
-    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
-        LastChildFill="false">
-      <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-          Style="{ThemeResource PrimaryVideoOSDStyle}"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-    </DockPanel> <!-- OSD_LeftPanel -->
-    <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" LastChildFill="false">
-      <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
-          Style="{ThemeResource SecondaryMediaOSDStyle}"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          AutoVisibility="true"/>
-    </DockPanel> <!-- OSD_RightPanel -->
-  </DockPanel> <!-- OSD_LayoutPanel -->
-  <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-  <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
-</Grid>
+    <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="50"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="50"/>
+      </Grid.RowDefinitions>
+  
+      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+          IsVisible="{Binding !IsOSDVisible}"/>
+    </Grid> <!-- BackgroundPipLayoutGrid -->
+    <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+        IsVisible="{Binding IsOSDVisible}">
+      <Control x:Name="WindowButtons" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+        <Control.TemplateControl>
+          <Include Source="screens\FSCWindowButtons.inc"/>
+        </Control.TemplateControl>
+      </Control>
+      <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+          LastChildFill="false">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+            Style="{ThemeResource PrimaryVideoOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+      </DockPanel> <!-- OSD_LeftPanel -->
+      <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" LastChildFill="false">
+        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
+            Style="{ThemeResource SecondaryMediaOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            AutoVisibility="true"/>
+      </DockPanel> <!-- OSD_RightPanel -->
+    </DockPanel> <!-- OSD_LayoutPanel -->
+    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
+  </Grid>
+</Screen>

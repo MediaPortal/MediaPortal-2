@@ -26,19 +26,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Client_Element (Any UI element): Element to be shown in the client area
 -->
 
-<Grid x:Name="RootElement"
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls">
-  <Grid.RowDefinitions>
-    <RowDefinition Height="*"/>
-  </Grid.RowDefinitions>
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-  </Grid.ColumnDefinitions>
-  <Grid.Resources>
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    x:Name="Screen"
+    >
+  <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
-  </Grid.Resources>
+  </Screen.Resources>
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
@@ -128,4 +124,4 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
         Content="{DynamicResource ResourceKey=Client_Element,TreeSearchMode=Hybrid}"/>
   </DockPanel>
-</Grid>
+</Screen>

@@ -4,9 +4,10 @@
 Default background image - no media present
 -->
 
-<StackPanel
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Name="DefaultBackgroundPanel"
-    Background="{ThemeResource BackgroundBrush}"
-    />
+    x:Name="DefaultBackgroundScreen"
+    >
+  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+</Screen>
