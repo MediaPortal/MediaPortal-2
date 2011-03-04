@@ -65,18 +65,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       Set(ref vertices, primitiveType);
     }
 
-    /// <summary>
-    /// Constructor to fully initialise the buffer with a subset of the passed vertices.
-    /// </summary>
-    /// <param name="vertices">The vertex data to copy.</param>
-    /// <param name="firstVertex">The index of the first vertex to copy.</param>
-    /// <param name="numVertices">The number of vertices to copy.</param>
-    /// <param name="primitiveType">The primitive type to be used when rendering.</param>
-    public PrimitiveBuffer(ref PositionColoredTextured[] vertices, int firstVertex, int numVertices, PrimitiveType primitiveType)
-    {
-      Set(ref vertices, primitiveType);
-    }
-
     #endregion
 
     #region Buffer creation
