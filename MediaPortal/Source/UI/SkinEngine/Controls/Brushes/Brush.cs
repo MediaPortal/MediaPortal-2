@@ -233,9 +233,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       float miny = float.MaxValue;
       float maxx = 0;
       float maxy = 0;
-      for (int i = 0; i < verts.Length; i++)
+      foreach (PositionColoredTextured vert in verts)
       {
-        PositionColoredTextured vert = verts[i];
         if (vert.X < minx) minx = vert.X;
         if (vert.Y < miny) miny = vert.Y;
 

@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Returns the total number of allocated <see cref="PrimitiveBuffers"/>.
+    /// Returns the total number of allocated <see cref="PrimitiveBuffer"/>s.
     /// </summary>
     static public int GlobalAllocationCount
     {
