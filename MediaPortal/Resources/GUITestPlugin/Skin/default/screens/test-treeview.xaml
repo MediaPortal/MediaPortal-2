@@ -1,35 +1,37 @@
-<Grid
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Context="{Model Id=A6C3F942-105C-48cd-AEFF-059DA79773A9}">
-  <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="*"/>
-    <RowDefinition Height="200"/>
-    <RowDefinition Height="*"/>
-  </Grid.RowDefinitions>
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="200"/>
-    <ColumnDefinition Width="*"/>
-  </Grid.ColumnDefinitions>
-  <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="TreeView test" Wrap="True"/>
-  <TreeView Grid.Row="2" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
-      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-      ForceExpander="True"
-      ItemsSource="{Binding Path=Tree,Mode=OneTime}">
-    <TreeView.Resources>
-      <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data model; it is static. We use a dummy. -->
-      <BindingWrapper x:Key="Expander_Binding"/>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="200"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="200"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="TreeView test" Wrap="True"/>
+    <TreeView Grid.Row="2" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+        ForceExpander="True"
+        ItemsSource="{Binding Path=Tree,Mode=OneTime}">
+      <TreeView.Resources>
+        <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data model; it is static. We use a dummy. -->
+        <BindingWrapper x:Key="Expander_Binding"/>
 
-      <!-- Command not necessary here. We use a dummy. -->
-      <ResourceWrapper x:Key="Expander_Command"/>
+        <!-- Command not necessary here. We use a dummy. -->
+        <ResourceWrapper x:Key="Expander_Command"/>
 
-      <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
+        <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
 
-      <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
-           We use a dummy. -->
-      <ResourceWrapper x:Key="Checker_Command"/>
-    </TreeView.Resources>
-  </TreeView>
-</Grid>
+        <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+             We use a dummy. -->
+        <ResourceWrapper x:Key="Checker_Command"/>
+      </TreeView.Resources>
+    </TreeView>
+  </Grid>
+</Screen>
