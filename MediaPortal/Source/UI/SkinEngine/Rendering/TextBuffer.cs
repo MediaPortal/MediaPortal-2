@@ -276,6 +276,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void SetFont(FontAsset font, float size)
     {
       DisposeFont();
+      if (_font != null)
+        _font.Deallocated -= DisposeBuffer;
       _font = font;
       _font.Deallocated += DisposeBuffer;
       _fontSize = size;
@@ -459,7 +461,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
           break;
         case VerticalTextAlignEnum.Center:
-          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);;
+          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);
           break;
         //case TextAlignEnum.Top:
         // Do nothing
