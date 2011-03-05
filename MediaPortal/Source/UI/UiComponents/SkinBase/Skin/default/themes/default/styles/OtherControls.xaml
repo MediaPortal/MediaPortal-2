@@ -1181,6 +1181,7 @@
               FixedVideoWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
               <Border x:Name="PiPControlBorder"
+                  IsVisible="{Binding IsPip}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>
