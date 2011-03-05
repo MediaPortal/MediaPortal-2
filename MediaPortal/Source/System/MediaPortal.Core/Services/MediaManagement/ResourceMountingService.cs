@@ -292,6 +292,18 @@ namespace MediaPortal.Core.Services.MediaManagement
       return Directory.Exists(driveLetter + ":\\");
     }
 
+    /// <summary>
+    /// Checks if a mounted drive exists and the filesystem type is DOKAN.
+    /// </summary>
+    /// <param name="driveLetter">Drive letter.</param>
+    /// <returns>True if mounted Dokan drive.</returns>
+    protected bool IsDokanDrive(char driveLetter)
+    {
+      DriveInfo driveInfo = new DriveInfo(driveLetter+":");
+      // check the IsReady property to avoid DriveNotFoundException on other Properties
+      return (driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN");
+    }
+
     protected void Run()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
@@ -304,8 +316,11 @@ namespace MediaPortal.Core.Services.MediaManagement
             ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
       }
 
-      // First do an unmount to remove a possibly lost Dokan mount from a formerly crashed MediaPortal
-      DokanNet.DokanUnmount(driveLetter.Value);
+      // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
+      // lost Dokan mount from a formerly crashed MediaPortal
+      if (IsDokanDrive(driveLetter.Value))
+        DokanNet.DokanUnmount(driveLetter.Value);
+
       if (DriveInUse(driveLetter.Value))
       {
         logger.Warn(
