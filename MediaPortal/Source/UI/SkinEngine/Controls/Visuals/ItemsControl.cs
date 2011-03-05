@@ -33,6 +33,7 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
@@ -233,8 +234,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Called when the <see cref="Items"/> property has changed.
     /// </summary>
     /// <remarks>
-    /// This method is called in two cases. 1) if the ItemsSource changed and new items were built automatically.
-    /// In this case, the <see cref="Items"/> property is set in <see cref="PrepareItems"/>.
+    /// This method is called in two cases.
+    /// 1) if the ItemsSource changed and new items were built automatically.
     /// 2) if the <see cref="Items"/> property is changed manually.
     /// </remarks>
     /// <param name="prop">The <see cref="ItemsProperty"/> property.</param>
@@ -243,10 +244,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ItemCollection oldItems = oldVal as ItemCollection;
       if (oldItems != null)
-      {
         DetachFromItems(oldItems);
-        oldItems.Dispose();
-      }
+      // Disposal of items not necessary because they are disposed by the items host panel
       ItemCollection items = Items;
       AttachToItems(items);
       OnItemsChanged();
@@ -272,11 +271,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Will be called if the <see cref="Items"/> object or the <see cref="Items"/> collection were changed.
     /// </summary>
-    protected virtual void OnItemsChanged()
-    {
-      if (!_preparingItems)
-        PrepareItems();
-    }
+    protected virtual void OnItemsChanged() { }
 
     #endregion
 
@@ -517,18 +512,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_itemsHostPanel == null)
           return;
 
+        SimplePropertyDataDescriptor itemsDataDescriptor;
+        SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "Items", out itemsDataDescriptor);
+
         IEnumerable itemsSource = ItemsSource;
         if (itemsSource == null)
         { // In this case, we must set up the items control using the Items property
           ItemCollection origItems = Items;
           if (origItems == null || origItems.IsReadOnly)
-            // Reset read/write items after an ItemsSource was used and reset
-            // Detach/Attach happens automatically by change handlers
-            origItems = Items = new ItemCollection();
+            // Reset read/write items after an ItemsSource had been used and then was reset to null.
+            // Detach/Attach happens automatically by change handlers.
+            SetValueInRenderThread(itemsDataDescriptor, origItems = new ItemCollection());
           IList<object> preparedItems = new List<object>(origItems.Count);
           foreach (object item in origItems)
           {
-            // Hint: Since we use the original items from the Items collection, we don't support changing the Items collection.
+            // Hint: Since we use the original items from the Items collection, we must not change the collection.
             // The next time we call SetPreparedItems(), the old items are disposed and cannot be reused.
             FrameworkElement element = item as FrameworkElement ?? PrepareItemContainer(item);
             if (element.Style == null)
@@ -560,14 +558,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
             IsEmpty = l.Count == 0;
             vsp.ItemProvider = lvig;
-            Items = null;
+            SetValueInRenderThread(itemsDataDescriptor, null);
           }
           else
           {
             ItemCollection items = new ItemCollection();
             items.AddAll(l.Select(PrepareItemContainer));
             items.IsReadOnly = true;
-            Items = items;
+            SetValueInRenderThread(itemsDataDescriptor, items);
             SetPreparedItems(items);
           }
         }
@@ -584,9 +582,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="preparedItems">The prepared items.</param>
     protected void SetPreparedItems(ICollection<object> preparedItems)
     {
-      ICollection<object> oldPreparedItems = _preparedItems;
-      _preparedItems = preparedItems;
-      _prepareItems = true;
+      ICollection<object> oldPreparedItems;
+      lock (_renderLock)
+      {
+        oldPreparedItems = _preparedItems;
+        _preparedItems = preparedItems;
+        _prepareItems = true;
+      }
       if (oldPreparedItems != null)
         // It seems that this method was called multiple times before _preparedItems could be
         // used by UpdatePreparedItems, so dispose old items
@@ -601,11 +603,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void UpdatePreparedItems()
     {
-      if (!_prepareItems)
-        return;
-      _prepareItems = false;
-      ICollection<object > items = _preparedItems;
-      _preparedItems = null;
+      ICollection<object> items;
+      lock (_renderLock)
+      {
+        if (!_prepareItems)
+          return;
+        _prepareItems = false;
+        items = _preparedItems;
+        _preparedItems = null;
+      }
       FrameworkElementCollection children = _itemsHostPanel.Children;
       lock (children.SyncRoot)
       {
