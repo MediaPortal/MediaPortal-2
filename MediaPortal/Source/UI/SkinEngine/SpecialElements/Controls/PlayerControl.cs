@@ -894,7 +894,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// <summary>
     /// <c>true</c>, if a next media item is available in the playlist. In that case,
     /// <see cref="NextMediaItemTitle"/> contains the title of the next media item.
-    /// <summary>
+    /// </summary>
     public bool HasNextMediaItem
     {
       get { return (bool) _hasNextMediaItemProperty.GetValue(); }
