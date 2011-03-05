@@ -3,12 +3,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Grid Margin="30">
     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
-    <DockPanel LastChildFill="false">
+    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Content="Virtual keyboard test screen"/>
+    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center"
+        Content="This screen shows text boxes at several screen positions. Click them or hit ok when one of them has keyboard focus to open a virtual keyboard."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,50"/>
+    <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="false">
       <TextBox DockPanel.Dock="Top" Style="{ThemeResource TextBoxStyle}"/>
       <TextBox DockPanel.Dock="Bottom" Style="{ThemeResource TextBoxStyle}"/>
       <StackPanel DockPanel.Dock="Left" Width="300" VerticalAlignment="Center">

@@ -2,120 +2,130 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="Auto"/>
-      <ColumnDefinition Width="Auto"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="Simple transforms test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows geometric figures overlayed by the same figure transformed by a simple transformation."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+    <Grid DockPanel.Dock="Center" HorizontalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+  
+      <Grid.Resources>
+        <ResourceWrapper x:Key="TestRectStrokeColor" Resource="Blue"/>
+        <ResourceWrapper x:Key="TestRectStrokeThickness" Resource="2"/>
+        <ResourceWrapper x:Key="TestRectCornerRadius" Resource="10"/>
+  
+        <Style x:Key="TestRectStyle" TargetType="{x:Type Rectangle}">
+          <Setter Property="Width" Value="100"/>
+          <Setter Property="Height" Value="70"/>
+          <Setter Property="Margin" Value="10"/>
+          <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+          <Setter Property="Stroke" Value="{StaticResource TestRectStrokeColor}"/>
+          <Setter Property="StrokeThickness" Value="{StaticResource TestRectStrokeThickness}"/>
+          <Setter Property="RadiusX" Value="{StaticResource TestRectCornerRadius}"/>
+          <Setter Property="RadiusY" Value="{StaticResource TestRectCornerRadius}"/>
+        </Style>
+  
+        <Style x:Key="ReferenceRectStyle" TargetType="{x:Type Rectangle}">
+          <Setter Property="Width" Value="100"/>
+          <Setter Property="Height" Value="70"/>
+          <Setter Property="Margin" Value="10"/>
+          <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+          <Setter Property="Stroke" Value="White"/>
+          <Setter Property="StrokeThickness" Value="1"/>
+          <Setter Property="RadiusX" Value="{StaticResource TestRectCornerRadius}"/>
+          <Setter Property="RadiusY" Value="{StaticResource TestRectCornerRadius}"/>
+        </Style>
+  
+        <ResourceWrapper x:Key="Transform1Text" Resource="Rotate 30 degrees"/>
+        <ResourceWrapper x:Key="Transform1">
+          <ResourceWrapper.Resource>
+            <TransformGroup>
+              <RotateTransform Angle="30"/>
+            </TransformGroup>
+          </ResourceWrapper.Resource>
+        </ResourceWrapper>
+  
+        <ResourceWrapper x:Key="Transform2Text" Resource="Scale by 1/-1"/>
+        <ResourceWrapper x:Key="Transform2">
+          <ResourceWrapper.Resource>
+            <TransformGroup>
+              <ScaleTransform ScaleX="1" ScaleY="-1"/>
+            </TransformGroup>
+          </ResourceWrapper.Resource>
+        </ResourceWrapper>
+  
+        <ResourceWrapper x:Key="Transform3Text" Resource="Skew 30/0 degrees"/>
+        <ResourceWrapper x:Key="Transform3">
+          <ResourceWrapper.Resource>
+            <TransformGroup>
+              <SkewTransform AngleX="30" AngleY="0"/>
+            </TransformGroup>
+          </ResourceWrapper.Resource>
+        </ResourceWrapper>
+  
+        <ResourceWrapper x:Key="Transform4Text" Resource="Translate by 20/0"/>
+        <ResourceWrapper x:Key="Transform4">
+          <ResourceWrapper.Resource>
+            <TransformGroup>
+              <TranslateTransform X="20" Y="0"/>
+            </TransformGroup>
+          </ResourceWrapper.Resource>
+        </ResourceWrapper>
+      </Grid.Resources>
+  
+      <!-- First transform -->
+  
+      <Label Grid.Row="0" Grid.Column="0" Content="RenderTransform"/>
+      <Label Grid.Row="0" Grid.Column="1" Content="LayoutTransform" Margin="20,30,0,30"/>
 
-    <Grid.Resources>
-      <ResourceWrapper x:Key="TestRectStrokeColor" Resource="Blue"/>
-      <ResourceWrapper x:Key="TestRectStrokeThickness" Resource="2"/>
-      <ResourceWrapper x:Key="TestRectCornerRadius" Resource="10"/>
-
-      <Style x:Key="TestRectStyle" TargetType="{x:Type Rectangle}">
-        <Setter Property="Width" Value="100"/>
-        <Setter Property="Height" Value="70"/>
-        <Setter Property="Margin" Value="10"/>
-        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-        <Setter Property="Stroke" Value="{StaticResource TestRectStrokeColor}"/>
-        <Setter Property="StrokeThickness" Value="{StaticResource TestRectStrokeThickness}"/>
-        <Setter Property="RadiusX" Value="{StaticResource TestRectCornerRadius}"/>
-        <Setter Property="RadiusY" Value="{StaticResource TestRectCornerRadius}"/>
-      </Style>
-
-      <Style x:Key="ReferenceRectStyle" TargetType="{x:Type Rectangle}">
-        <Setter Property="Width" Value="100"/>
-        <Setter Property="Height" Value="70"/>
-        <Setter Property="Margin" Value="10"/>
-        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-        <Setter Property="Stroke" Value="White"/>
-        <Setter Property="StrokeThickness" Value="1"/>
-        <Setter Property="RadiusX" Value="{StaticResource TestRectCornerRadius}"/>
-        <Setter Property="RadiusY" Value="{StaticResource TestRectCornerRadius}"/>
-      </Style>
-
-      <ResourceWrapper x:Key="Transform1Text" Resource="Rotate 30 degrees"/>
-      <ResourceWrapper x:Key="Transform1">
-        <ResourceWrapper.Resource>
-          <TransformGroup>
-            <RotateTransform Angle="30"/>
-          </TransformGroup>
-        </ResourceWrapper.Resource>
-      </ResourceWrapper>
-
-      <ResourceWrapper x:Key="Transform2Text" Resource="Scale by 1/-1"/>
-      <ResourceWrapper x:Key="Transform2">
-        <ResourceWrapper.Resource>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="-1"/>
-          </TransformGroup>
-        </ResourceWrapper.Resource>
-      </ResourceWrapper>
-
-      <ResourceWrapper x:Key="Transform3Text" Resource="Skew 30/0 degrees"/>
-      <ResourceWrapper x:Key="Transform3">
-        <ResourceWrapper.Resource>
-          <TransformGroup>
-            <SkewTransform AngleX="30" AngleY="0"/>
-          </TransformGroup>
-        </ResourceWrapper.Resource>
-      </ResourceWrapper>
-
-      <ResourceWrapper x:Key="Transform4Text" Resource="Translate by 20/0"/>
-      <ResourceWrapper x:Key="Transform4">
-        <ResourceWrapper.Resource>
-          <TransformGroup>
-            <TranslateTransform X="20" Y="0"/>
-          </TransformGroup>
-        </ResourceWrapper.Resource>
-      </ResourceWrapper>
-    </Grid.Resources>
-
-    <!-- First transform -->
-
-    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform1Text}"/>
-    <Rectangle Grid.Row="1" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="1" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform1}"/>
-
-    <Rectangle Grid.Row="1" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="1" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform1}"/>
-
-    <!-- Second transform -->
-
-    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform2Text}"/>
-    <Rectangle Grid.Row="3" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="3" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform2}"/>
-
-    <Rectangle Grid.Row="3" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="3" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform2}"/>
-
-    <!-- Third transform -->
-
-    <Label Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform3Text}"/>
-    <Rectangle Grid.Row="5" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="5" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform3}"/>
-
-    <Rectangle Grid.Row="5" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="5" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform3}"/>
-
-    <!-- Fourth transform -->
-
-    <Label Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform4Text}"/>
-    <Rectangle Grid.Row="7" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="7" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform4}"/>
-
-    <Rectangle Grid.Row="7" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-    <Rectangle Grid.Row="7" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform4}"/>
-  </Grid>
+      <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform1Text}"/>
+      <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform1}"/>
+  
+      <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform1}"/>
+  
+      <!-- Second transform -->
+  
+      <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform2Text}"/>
+      <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform2}"/>
+  
+      <Rectangle Grid.Row="4" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="4" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform2}"/>
+  
+      <!-- Third transform -->
+  
+      <Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform3Text}"/>
+      <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform3}"/>
+  
+      <Rectangle Grid.Row="6" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="6" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform3}"/>
+  
+      <!-- Fourth transform -->
+  
+      <Label Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform4Text}"/>
+      <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform4}"/>
+  
+      <Rectangle Grid.Row="8" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="8" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform4}"/>
+    </Grid>
+  </DockPanel>
 </Screen>

@@ -2,36 +2,49 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Context="{Model Id=A6C3F942-105C-48cd-AEFF-059DA79773A9}">
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="200"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="200"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="TreeView test" Wrap="True"/>
-    <TreeView Grid.Row="2" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-        ForceExpander="True"
-        ItemsSource="{Binding Path=Tree,Mode=OneTime}">
-      <TreeView.Resources>
-        <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data model; it is static. We use a dummy. -->
-        <BindingWrapper x:Key="Expander_Binding"/>
-
-        <!-- Command not necessary here. We use a dummy. -->
-        <ResourceWrapper x:Key="Expander_Command"/>
-
-        <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
-
-        <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
-             We use a dummy. -->
-        <ResourceWrapper x:Key="Checker_Command"/>
-      </TreeView.Resources>
-    </TreeView>
-  </Grid>
+  <DockPanel LastChildFill="True">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="TreeView test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows two tree views contained in scroll viewers of different sizes to show the scrolling behaviour in X- and Y-direction."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+    <UniformGrid Columns="2" DockPanel.Dock="Center">
+      <TreeView Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+          Margin="50"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          ForceExpander="True"
+          ItemsSource="{Binding Path=Tree,Mode=OneTime}">
+        <TreeView.Resources>
+          <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data model; it is static. We use a dummy. -->
+          <BindingWrapper x:Key="Expander_Binding"/>
+  
+          <!-- Command not necessary here. We use a dummy. -->
+          <ResourceWrapper x:Key="Expander_Command"/>
+  
+          <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
+  
+          <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+               We use a dummy. -->
+          <ResourceWrapper x:Key="Checker_Command"/>
+        </TreeView.Resources>
+      </TreeView>
+      <TreeView Grid.Row="3" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+          VerticalAlignment="Center" HorizontalAlignment="Center"
+          ForceExpander="True" Width="200" Height="200"
+          ItemsSource="{Binding Path=Tree,Mode=OneTime}">
+        <TreeView.Resources>
+          <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data model; it is static. We use a dummy. -->
+          <BindingWrapper x:Key="Expander_Binding"/>
+  
+          <!-- Command not necessary here. We use a dummy. -->
+          <ResourceWrapper x:Key="Expander_Command"/>
+  
+          <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
+  
+          <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+               We use a dummy. -->
+          <ResourceWrapper x:Key="Checker_Command"/>
+        </TreeView.Resources>
+      </TreeView>
+    </UniformGrid>
+  </DockPanel>
 </Screen>
