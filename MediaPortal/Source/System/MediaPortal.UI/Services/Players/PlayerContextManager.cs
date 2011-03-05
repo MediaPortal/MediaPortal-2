@@ -556,7 +556,8 @@ namespace MediaPortal.UI.Services.Players
           // Solve conflicts - close conflicting slots
           if (numActive > 1)
             playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-          if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
+          IPlayerContext pc;
+          if (numActive > 0 && (pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT)) != null && pc.AVType == AVType.Audio)
             playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
         }
         else // !concurrentVideo
@@ -578,20 +579,29 @@ namespace MediaPortal.UI.Services.Players
       IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
-        int numActive = playerManager.NumActiveSlots;
+        IList<IPlayerContext> playerContexts = new List<IPlayerContext>(2);
+        IPlayerContext pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+        if (pc != null)
+        {
+          playerContexts.Add(pc);
+          pc = GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+          if (pc != null)
+            playerContexts.Add(pc);
+        }
+        int numActive = playerContexts.Count;
         IPlayerSlotController slotController;
         int slotIndex;
         switch (concurrencyMode)
         {
           case PlayerContextConcurrencyMode.ConcurrentAudio:
-            if (numActive > 1 && GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).AVType == AVType.Audio)
+            if (numActive > 1 && playerContexts[1].AVType == AVType.Audio)
             { // The secondary slot is an audio player slot
               playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
               playerManager.OpenSlot(out slotIndex, out slotController);
               playerManager.SwitchSlots();
               playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
-            else if (numActive == 1 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Audio)
+            else if (numActive == 1 && playerContexts[0].AVType == AVType.Audio)
             { // The primary slot is an audio player slot
               playerManager.OpenSlot(out slotIndex, out slotController);
               // Make new video slot the primary slot
@@ -606,7 +616,7 @@ namespace MediaPortal.UI.Services.Players
             }
             break;
           case PlayerContextConcurrencyMode.ConcurrentVideo:
-            if (numActive >= 1 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).AVType == AVType.Video)
+            if (numActive >= 1 && playerContexts[0].AVType == AVType.Video)
             { // The primary slot is a video player slot
               if (numActive > 1)
                 playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
