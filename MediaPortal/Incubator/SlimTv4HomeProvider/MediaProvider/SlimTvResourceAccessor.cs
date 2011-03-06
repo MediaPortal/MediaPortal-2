@@ -130,7 +130,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     {
       ITvHandler tv = ServiceRegistration.Get<ITvHandler>();
       if (tv != null)
-        tv.StopTimeshift(_slotIndex);
+        tv.DisposeSlot(_slotIndex);
     }
 
     #endregion

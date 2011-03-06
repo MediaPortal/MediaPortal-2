@@ -241,6 +241,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
         LiveTvMediaItem tvStream = new LiveTvMediaItem(new Guid(), aspects);
 
+        tvStream.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] = slotIndex;
         tvStream.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
         tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
 

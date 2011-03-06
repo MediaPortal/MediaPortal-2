@@ -7,6 +7,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem
 {
   public class LiveTvMediaItem: MediaItem
   {
+    public const string SLOT_INDEX = "SlotIndex";
     public const string CHANNEL = "Channel";
     public const string CURRENT_PROGRAM = "CurrentProgram";
     public const string NEXT_PROGRAM = "NextProgram";

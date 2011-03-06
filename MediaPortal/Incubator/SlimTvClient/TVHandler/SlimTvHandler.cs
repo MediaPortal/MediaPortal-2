@@ -39,6 +39,7 @@ namespace MediaPortal.Plugins.SlimTvClient
   {
     private struct TVSlotContext
     {
+      public bool CardChanging;
       public string AccessorPath;
       public IChannel Channel;
     }
@@ -123,7 +124,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private PlayerContextConcurrencyMode GetMatchingPlayMode()
     {
-      // no tv slots active? the stop all and play.
+      // no tv slots active? then stop all and play.
       if (NumberOfActiveSlots == 0)
         return PlayerContextConcurrencyMode.None;
 
@@ -152,7 +153,8 @@ namespace MediaPortal.Plugins.SlimTvClient
           (string) timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(
             ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         
-        if (_slotContexes[slotIndex].AccessorPath != newAccessorPath)
+        // if slot was empty, start a new player
+        if (_slotContexes[slotIndex].AccessorPath == null)
         {
           AddTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
@@ -160,7 +162,15 @@ namespace MediaPortal.Plugins.SlimTvClient
         }
         else
         {
-          UpdateExistingMediaItem(timeshiftMediaItem);
+          try
+          {
+            _slotContexes[slotIndex].CardChanging = true;
+            UpdateExistingMediaItem(timeshiftMediaItem);
+          }
+          finally 
+          {
+            _slotContexes[slotIndex].CardChanging = false;
+          }
         }
         _slotContexes[slotIndex].AccessorPath = newAccessorPath;
         _slotContexes[slotIndex].Channel = channel;
@@ -201,11 +211,19 @@ namespace MediaPortal.Plugins.SlimTvClient
           if (liveTvMediaItem != null && newLiveTvMediaItem != null)
           {
             // check if this is "our" media item to update.
-            if (liveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
-              newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
-              continue;
-
-            AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
+            if ((int)liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int)newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX])
+            {
+              if (liveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString() !=
+                newLiveTvMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString())
+              {
+                //switch MediaItem in current slot
+                playerContext.DoPlay(newLiveTvMediaItem);
+                //clear former timeshift contexes (card change cause loss of buffer in rtsp mode).
+                liveTvMediaItem.TimeshiftContexes.Clear();
+              }
+              // add new timeshift context
+              AddTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);  
+            }
           }
         }
       }
@@ -221,6 +239,14 @@ namespace MediaPortal.Plugins.SlimTvClient
       _slotContexes[slotIndex].Channel = null;
 
       return TimeshiftControl.StopTimeshift(slotIndex);
+    }
+
+    public bool DisposeSlot(int slotIndex)
+    {
+      // when we change the channel and the card was changed, don't need to stop the 
+      if (_slotContexes[slotIndex].CardChanging)
+        return true;
+      return StopTimeshift(slotIndex);
     }
 
     #region IDisposable Member

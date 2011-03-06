@@ -64,6 +64,14 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     bool StopTimeshift(int slotIndex);
 
     /// <summary>
+    /// Disposes an open Slot. Usually a StopTimeshift is called, except a ResourceAccessor was
+    /// changed due to a card change. Then timeshift continues.
+    /// </summary>
+    /// <param name="slotIndex">Slot Index to Dispose.</param>
+    /// <returns>True if succeeded.</returns>
+    bool DisposeSlot(int slotIndex);
+
+    /// <summary>
     /// Gets a value how many slots are currently used for timeshifting (0..2).
     /// </summary>
     int NumberOfActiveSlots { get; }

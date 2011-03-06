@@ -28,14 +28,13 @@ using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
-  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer
+  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer, IReusablePlayer
   {
     /// <summary>
     /// Constructs a LiveTvPlayer player object.
@@ -215,6 +214,21 @@ namespace MediaPortal.Plugins.SlimTvClient
           return string.Empty;
         }
       }
+    }
+
+    #endregion
+
+    #region IReusablePlayer Member
+
+    public event RequestNextItemDlgt NextItemRequest;
+
+    public bool NextItem(Core.MediaManagement.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
+    {
+      if (mimeType != "video/livetv")
+        return false;
+      Shutdown();
+      SetMediaItemLocator(locator);
+      return true;
     }
 
     #endregion
