@@ -10,7 +10,7 @@ Usage:
   <Include
       xmlns="www.team-mediaportal.com/2008/mpf/directx"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Source="screens\master.xaml">
+      Source="screens\master_bare.xaml">
     <Include.Resources>
       <ResourceWrapper x:Key="Header_Text">
         [Header text]
@@ -29,8 +29,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Grid x:Name="RootElement"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    Context="{DynamicResource DataContext}">
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls">
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
@@ -42,7 +41,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Grid.Resources>
   <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
-    <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
+    <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="100"/>
       </Grid.RowDefinitions>
@@ -51,7 +50,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
+      <StackPanel Margin="5" x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
           HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
         <StackPanel.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -80,7 +79,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Label x:Name="HeaderLabel"
             FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" />
-        
+
         <Label x:Name="MirrorHeaderLabel" 
             FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}"
@@ -92,7 +91,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </LinearGradientBrush>
           </Label.OpacityMask>
         </Label>
-      </Grid> <!-- HeaderTextPanel -->
+      </Grid>
+      <!-- HeaderTextPanel -->
       <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
           HorizontalAlignment="Right" VerticalAlignment="Top">
         <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource DefaultPlayerControlStyle}" Width="350"
@@ -103,7 +103,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
       </StackPanel>
     </Grid> <!-- HeaderPanel -->
-    <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+    <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Background="{ThemeResource FooterPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -111,9 +111,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <!--<mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"
-          VerticalAlignment="Center"/>-->
-      <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+      <mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource WorkflowNavigationBarStyle}"
+          VerticalAlignment="Center"/>
+      <Control Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid> <!-- FooterPanel -->
 
@@ -123,7 +123,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 -->
 
     <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
-    <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Right"
-        Content="{DynamicResource Client_Element}"/>
+    <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
+        Content="{DynamicResource ResourceKey=Client_Element,TreeSearchMode=Hybrid}"/>
   </DockPanel>
 </Grid>
