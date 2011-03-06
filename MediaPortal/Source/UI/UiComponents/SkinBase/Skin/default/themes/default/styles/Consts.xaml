@@ -30,5 +30,9 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="10"/>
+
+  <!-- width and margin for small OSD buttons -->
+  <ResourceWrapper x:Key="OSDControlWidth" Resource="18" />
+  <ResourceWrapper x:Key="OSDControlMargin" Resource="8,4,8,4" />
   
 </ResourceDictionary>

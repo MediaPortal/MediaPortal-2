@@ -3,13 +3,10 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors"
+    DependsOnStyleResources="Colors,Consts"
     >
 
   <!-- *************************** Play control graphics ****************************** -->
-  <ResourceWrapper x:Key="OSDControlWidth" Resource="18" />
-  <ResourceWrapper x:Key="OSDControlMargin" Resource="10,5,10,5" />
-  
   <ControlTemplate x:Key="AudioActiveControlTemplate">
     <Path x:Name="Audio" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
         Width="18" Height="18" Margin="8,5,12,5"
