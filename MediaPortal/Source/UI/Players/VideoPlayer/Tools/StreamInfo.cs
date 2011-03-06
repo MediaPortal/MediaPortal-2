@@ -79,7 +79,8 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     public void Dispose()
     {
-      Marshal.ReleaseComObject(StreamSelector);
+      if (StreamSelector != null)
+        Marshal.ReleaseComObject(StreamSelector);
     }
 
     #endregion
