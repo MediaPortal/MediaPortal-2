@@ -33,13 +33,9 @@ using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterBySystemCriterion : SimpleMLFilterCriterion
+  public class FilterBySystemCriterion : MLFilterCriterion
   {
     #region Base overrides
-
-    public FilterBySystemCriterion() : base(ProviderResourceAspect.ATTR_SYSTEM_ID)
-    {
-    }
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
@@ -52,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
+      HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
@@ -67,12 +63,17 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           if (systemNames.TryGetValue(name, out systemName) && !string.IsNullOrEmpty(systemName))
             name = systemName;
           result.Add(new FilterValue(name,
-              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), (int) group.Value, this));
+              new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, group.Key), (int) group.Value, this));
         }
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(ProviderResourceAspect.ATTR_SYSTEM_ID), numEmptyEntries, this));
       return result;
+    }
+
+    public override IFilter CreateFilter(FilterValue filterValue)
+    {
+      return (IFilter) filterValue.Value;
     }
 
     public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter filter)

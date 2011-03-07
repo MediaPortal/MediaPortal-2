@@ -24,8 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -40,23 +43,30 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
-      // There is currently no way to get all available years from the content directory, so we build a static list...
-      ICollection<FilterValue> result = new List<FilterValue>
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<FilterValue>();
+      HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear,
+          necessaryMIATypeIds, filter, true);
+      IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      int numEmptyEntries = 0;
+      foreach (KeyValuePair<object, object> group in valueGroups)
+      {
+        int? year = (int?) group.Key;
+        if (year.HasValue)
         {
-            new FilterValue(VALUE_EMPTY_TITLE,
-                new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), this),
-            new FilterValue(string.Format("< {0}", MIN_YEAR),
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(MIN_YEAR, 1, 1)), this),
-        };
-      int maxYear = DateTime.Now.Year;
-      for (int year = MIN_YEAR; year <= maxYear; year++)
-        result.Add(new FilterValue(string.Format("{0}", year),
-            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year, 1, 1)),
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year + 1, 1, 1))), this));
+          result.Add(new FilterValue(year.Value.ToString(),
+              new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+                {
+                    new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year.Value, 1, 1)),
+                    new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year.Value + 1, 1, 1)),
+                }), (int) group.Value, this));
+        }
+        else
+          numEmptyEntries += (int) group.Value;
+      }
+      if (numEmptyEntries > 0)
+        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), numEmptyEntries, this));
       return result;
     }
 
