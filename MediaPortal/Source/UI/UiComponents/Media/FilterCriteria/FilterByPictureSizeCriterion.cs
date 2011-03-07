@@ -50,14 +50,19 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.EQ, 0),
           new EmptyFilter(PictureAspect.ATTR_HEIGHT),
           new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.EQ, 0));
-      IFilter smallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+      IFilter simpleSmallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.LT, SMALL_SIZE_THRESHOLD),
           new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, SMALL_SIZE_THRESHOLD));
+      IFilter smallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          simpleSmallFilter,
+          new NotFilter(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+            new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.EQ, 0),
+            new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.EQ, 0))));
       IFilter bigFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
           new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.GT, BIG_SIZE_THRESHOLD),
           new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.GT, BIG_SIZE_THRESHOLD));
       IFilter mediumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new NotFilter(smallFilter),
+          new NotFilter(simpleSmallFilter),
           new NotFilter(bigFilter));
       int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true);
       int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true);
