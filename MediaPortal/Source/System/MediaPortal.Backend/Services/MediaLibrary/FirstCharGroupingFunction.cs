@@ -74,22 +74,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return (c >= '0' && c <= '9') || _letters.Contains(c.ToString());
     }
 
-    public void GetGroup(string elementName,
-        out string groupName, out IFilter additionalFilter)
+    public void GetGroup(object elementValue,
+        out object groupKey, out IFilter additionalFilter)
     {
-      elementName = elementName == null ? string.Empty : elementName.Trim();
+      string elementName = elementValue == null ? string.Empty : elementValue.ToString().Trim();
       char firstChar;
       if (elementName != string.Empty && IsLetterOrDigit(firstChar = elementName[0]))
       {
         string fcs = firstChar.ToString().ToUpperInvariant();
-        groupName = fcs + "*";
+        groupKey = fcs + "*";
         additionalFilter = new LikeFilter(_attributeType, fcs + "%", null, false);
       }
       else
       {
-        groupName = _emptyOrMiscCharacterGroupName;
+        groupKey = _emptyOrMiscCharacterGroupName;
         additionalFilter = GetEmptyOrMiscGroupFilter();
       }
+    }
+
+    public int Compare(object x, object y)
+    {
+      string s1 = x as string;
+      string s2 = y as string;
+      return string.Compare(s1, s2);
     }
   }
 }

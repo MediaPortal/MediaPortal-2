@@ -41,24 +41,24 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// </remarks>
   public class MLQueryResultGroup
   {
-    protected string _groupName;
+    protected object _groupKey;
     protected int _numItemsInGroup;
     protected IFilter _additionalFilter;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public MLQueryResultGroup(string groupName, int numItemsInGroup, IFilter additionalFilter)
+    public MLQueryResultGroup(object groupKey, int numItemsInGroup, IFilter additionalFilter)
     {
-      _groupName = groupName;
+      _groupKey = groupKey;
       _numItemsInGroup = numItemsInGroup;
       _additionalFilter = additionalFilter;
     }
 
     [XmlIgnore]
-    public string GroupName
+    public object GroupKey
     {
-      get { return _groupName; }
+      get { return _groupKey; }
     }
 
     [XmlIgnore]
@@ -134,11 +134,11 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("Name")]
-    public string XML_GroupName
+    [XmlElement("Key")]
+    public object XML_GroupKey
     {
-      get { return _groupName; }
-      set { _groupName = value; }
+      get { return _groupKey; }
+      set { _groupKey = value; }
     }
 
     /// <summary>

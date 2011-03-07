@@ -44,17 +44,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly MIA_Management _miaManagement;
     protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
+    protected readonly SelectProjectionFunction _selectProjectionFunction;
+    protected readonly Type _projectionValueType;
     protected readonly CompiledFilter _filter;
 
     public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
         CompiledFilter filter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
       _selectAttribute = selectedAttribute;
+      _selectProjectionFunction = selectProjectionFunction;
+      _projectionValueType = projectionValueType;
       _filter = filter;
     }
 
@@ -70,7 +75,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        MediaItemAspectMetadata.AttributeSpecification selectAttribute, IFilter filter)
+        MediaItemAspectMetadata.AttributeSpecification selectAttribute,
+        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       // Raise exception if MIA types are not present, which are contained in filter condition
@@ -90,7 +96,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
         necessaryMIATypes.Add(miam);
       }
-      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
+      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute,
+          selectProjectionFunction, projectionValueType, compiledFilter);
     }
 
     public HomogenousMap Execute()
@@ -109,8 +116,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           {
             QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
             MainQueryBuilder builder = new MainQueryBuilder(_miaManagement,
-                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {},
-                new QueryAttribute[] {selectAttributeQA}, _filter, null);
+                new QueryAttribute[] {selectAttributeQA}, _selectProjectionFunction,
+                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
             IDictionary<QueryAttribute, string> qa2a;
             builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out bindVars);
             valueAlias = qa2a[selectAttributeQA];
@@ -118,7 +125,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           else
           {
             ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
-                _necessaryRequestedMIATypes, _filter);
+                _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
             builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
                 out statementStr, out bindVars);
           }
@@ -126,7 +133,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          Type valueType = _selectAttribute.AttributeType;
+          Type valueType = _projectionValueType ?? _selectAttribute.AttributeType;
           HomogenousMap result = new HomogenousMap(valueType, typeof(int));
           using (IDataReader reader = command.ExecuteReader())
           {

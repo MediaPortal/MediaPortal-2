@@ -53,7 +53,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);
+      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, ProjectionFunction.None, necessaryMIATypeIds, filter, true);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
@@ -81,18 +81,18 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, necessaryMIATypeIds, filter,
-          GroupingFunction.FirstCharacter);
+      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, ProjectionFunction.None,
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)
       {
-        string name = group.GroupName ?? string.Empty;
+        string name = string.Format("{0}", group.GroupKey);
         name = name.Trim();
         if (name == string.Empty)
           numEmptyEntries += group.NumItemsInGroup;
         else
-          result.Add(new FilterValue(group.GroupName, group.AdditionalFilter, group.NumItemsInGroup, this));
+          result.Add(new FilterValue(name, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
         result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));

@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
@@ -80,6 +81,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// attributes used in a filter).
     /// </summary>
     protected readonly IList<QueryAttribute> _selectAttributes;
+    protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly CompiledFilter _filter;
     protected readonly IList<SortInformation> _sortInformation;
 
@@ -87,24 +89,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
     /// </summary>
     /// <param name="miaManagement">MIAM management instance from media library.</param>
+    /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
+    ///   <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
+    ///   cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
+    ///   Both necessary and optional attributes are allowed in this enumeration.</param>
+    /// <param name="selectProjectionFunction">This delegate function will be called for each selected attribute.
+    ///   It must return an SQL projection expression whose return value is the requested value for that attribute.
+    ///   If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="optionalRequestedMIAs">MIAs which will be returned if they are attached to items which are
-    /// already returned.</param>
-    /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
-    /// <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
-    /// cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
-    /// Both necessary and optional attributes are contained in this enumeration.</param>
+    ///   already returned.</param>
     /// <param name="filter">Filter to restrict the result set.</param>
     /// <param name="sortInformation">List of sorting criteria.</param>
-    public MainQueryBuilder(MIA_Management miaManagement,
-        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs,
-        IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter,
-        IList<SortInformation> sortInformation) : base(miaManagement)
+    public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+        SelectProjectionFunction selectProjectionFunction,
+        IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
+        CompiledFilter filter, IList<SortInformation> sortInformation) : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _optionalRequestedMIAs = optionalRequestedMIAs;
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
+      _selectProjectionFunction = selectProjectionFunction;
       _filter = filter;
       _sortInformation = sortInformation;
     }
@@ -121,7 +126,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       attributeAliases = new Dictionary<QueryAttribute, string>();
 
       // Contains a list of qualified attribute names for all select attributes - needed for GROUP BY-expressions
-      ICollection<string> qualifiedAttributeNames = new List<string>();
+      ICollection<string> qualifiedGroupByAttributeNames = new List<string>();
 
       // Contains a list of compiled select attribute declarations. We need this in a separate list (in contrast to using
       // the selectAttributes list together with the compiledAttributes map) because it might be the case that
@@ -183,9 +188,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
             miaIdAttribute, out ra);
         string alias;
-        selectAttributeDeclarations.Add(ra.GetDeclarationWithAlias(ns, out alias));
+        selectAttributeDeclarations.Add(_selectProjectionFunction == null ?
+            ra.GetDeclarationWithAlias(ns, out alias) :
+            ra.GetDeclarationWithAlias(ns, _selectProjectionFunction, out alias));
         attributeAliases.Add(attr, alias);
-        qualifiedAttributeNames.Add(ra.GetQualifiedName(ns));
+        qualifiedGroupByAttributeNames.Add(_selectProjectionFunction == null ?
+            ra.GetQualifiedName(ns) :
+            _selectProjectionFunction(ra.GetQualifiedName(ns)));
       }
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
@@ -224,7 +233,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(" ");
         mediaItemIdOrGroupSizeAlias = ns.GetOrCreate(countAttribute, "C");
         result.Append(mediaItemIdOrGroupSizeAlias);
-        result.Append(", ");
       }
       else
       {
@@ -243,12 +251,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           if (miamAlias != null)
             miamAliases.Add(kvp.Key, miamAlias);
         }
-
-        result.Append(", ");
       }
 
       // Selected attributes
-      result.Append(StringUtils.Join(", ", selectAttributeDeclarations));
+      foreach (string selectAttr in selectAttributeDeclarations)
+      {
+        result.Append(",");
+        result.Append(selectAttr);
+      }
 
       result.Append(" FROM ");
       // Always request the MEDIA_ITEMS table because if no necessary aspects are given and the optional aspects aren't
@@ -273,17 +283,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (groupByValues)
       {
         result.Append(" GROUP BY ");
-        result.Append(StringUtils.Join(", ", qualifiedAttributeNames));
+        result.Append(StringUtils.Join(",", qualifiedGroupByAttributeNames));
       }
       else
       {
         if (compiledSortInformation != null && compiledSortInformation.Count > 0)
         {
-          IList<string> sortCriteria = new List<string>();
-          foreach (CompiledSortInformation csi in compiledSortInformation)
-            sortCriteria.Add(csi.GetSortDeclaration(ns));
+          IEnumerable<string> sortCriteria = compiledSortInformation.Select(csi => csi.GetSortDeclaration(ns));
           result.Append("ORDER BY ");
-          result.Append(StringUtils.Join(", ", sortCriteria));
+          result.Append(StringUtils.Join(",", sortCriteria));
         }
       }
 
