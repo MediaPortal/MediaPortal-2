@@ -276,7 +276,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
               systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>());
-      return innerFilter == null ? onlineFilter : new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] {innerFilter, onlineFilter});
+      return innerFilter == null ? onlineFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, onlineFilter);
     }
 
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
