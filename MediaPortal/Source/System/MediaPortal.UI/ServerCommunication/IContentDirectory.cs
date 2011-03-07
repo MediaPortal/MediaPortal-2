@@ -90,6 +90,7 @@ namespace MediaPortal.UI.ServerCommunication
         IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
 
     #endregion
 
