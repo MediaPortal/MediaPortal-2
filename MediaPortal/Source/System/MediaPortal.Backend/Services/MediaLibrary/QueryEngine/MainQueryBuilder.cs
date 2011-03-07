@@ -233,7 +233,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(" ");
         mediaItemIdOrGroupSizeAlias = ns.GetOrCreate(countAttribute, "C");
         result.Append(mediaItemIdOrGroupSizeAlias);
-        result.Append(", ");
       }
       else
       {
@@ -252,12 +251,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           if (miamAlias != null)
             miamAliases.Add(kvp.Key, miamAlias);
         }
-
-        result.Append(", ");
       }
 
       // Selected attributes
-      result.Append(StringUtils.Join(", ", selectAttributeDeclarations));
+      foreach (string selectAttr in selectAttributeDeclarations)
+      {
+        result.Append(",");
+        result.Append(selectAttr);
+      }
 
       result.Append(" FROM ");
       // Always request the MEDIA_ITEMS table because if no necessary aspects are given and the optional aspects aren't
@@ -282,7 +283,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (groupByValues)
       {
         result.Append(" GROUP BY ");
-        result.Append(StringUtils.Join(", ", qualifiedGroupByAttributeNames));
+        result.Append(StringUtils.Join(",", qualifiedGroupByAttributeNames));
       }
       else
       {
@@ -290,7 +291,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
           IEnumerable<string> sortCriteria = compiledSortInformation.Select(csi => csi.GetSortDeclaration(ns));
           result.Append("ORDER BY ");
-          result.Append(StringUtils.Join(", ", sortCriteria));
+          result.Append(StringUtils.Join(",", sortCriteria));
         }
       }
 

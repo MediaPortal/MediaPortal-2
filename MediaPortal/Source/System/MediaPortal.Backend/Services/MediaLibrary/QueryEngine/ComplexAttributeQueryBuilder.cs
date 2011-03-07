@@ -160,7 +160,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       result.Append(_selectProjectionFunction == null ?
           valueAttribute.GetDeclarationWithAlias(ns, out valueAlias) :
           valueAttribute.GetDeclarationWithAlias(ns, _selectProjectionFunction, out valueAlias));
-      result.Append(", ");
+      result.Append(",");
       string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ") ";
       result.Append(countAttribute);
       groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
