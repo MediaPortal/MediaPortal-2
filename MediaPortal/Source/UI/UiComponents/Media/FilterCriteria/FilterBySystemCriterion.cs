@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -67,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         }
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(ProviderResourceAspect.ATTR_SYSTEM_ID), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(ProviderResourceAspect.ATTR_SYSTEM_ID), numEmptyEntries, this));
       return result;
     }
 

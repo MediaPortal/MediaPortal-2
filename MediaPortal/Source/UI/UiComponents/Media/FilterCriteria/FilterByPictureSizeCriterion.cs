@@ -24,65 +24,52 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByPictureSizeCriterion : MLFilterCriterion
   {
-    public struct Size
-    {
-      public Size(int x, int y)
-      {
-        X = x;
-        Y = y;
-      }
-
-      public int X;
-      public int Y;
-    }
-
-    public static readonly Size MIN_SIZE = new Size(640, 480);
-
-    public Size[] SIZES = new Size[]
-      {
-        new Size(1024, 768),
-        new Size(1600, 1200),
-      };
+    public const int SMALL_SIZE_THRESHOLD = 640;
+    public const int BIG_SIZE_THRESHOLD = 1200;
 
     #region Base overrides
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
-      ICollection<FilterValue> result = new List<FilterValue>(10)
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<FilterValue>();
+      IFilter emptyFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+          new EmptyFilter(PictureAspect.ATTR_WIDTH),
+          new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.EQ, 0),
+          new EmptyFilter(PictureAspect.ATTR_HEIGHT),
+          new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.EQ, 0));
+      IFilter smallFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.LT, SMALL_SIZE_THRESHOLD),
+          new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, SMALL_SIZE_THRESHOLD));
+      IFilter bigFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+          new RelationalFilter(PictureAspect.ATTR_WIDTH, RelationalOperator.GT, BIG_SIZE_THRESHOLD),
+          new RelationalFilter(PictureAspect.ATTR_HEIGHT, RelationalOperator.GT, BIG_SIZE_THRESHOLD));
+      IFilter mediumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new NotFilter(smallFilter),
+          new NotFilter(bigFilter));
+      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true);
+      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true);
+      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true);
+      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true);
+      return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(VALUE_EMPTY_TITLE, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-                new EmptyFilter(PictureAspect.ATTR_WIDTH),
-                new EmptyFilter(PictureAspect.ATTR_HEIGHT)), this),
-            new FilterValue(string.Format("< {0}x{1}", MIN_SIZE.X, MIN_SIZE.Y), BooleanCombinationFilter.CombineFilters(
-                BooleanOperator.And,
-                new RelationalFilter(
-                    PictureAspect.ATTR_WIDTH, RelationalOperator.LT, 800),
-                new RelationalFilter(
-                    PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, 600)), this)
-        };
-      Size lastSize = MIN_SIZE;
-      foreach (Size size in SIZES)
-      {
-        result.Add(new FilterValue(string.Format("{0}x{1} - {2}x{3}", lastSize.X, lastSize.Y, size.X, size.Y),
-            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-                new RelationalFilter(
-                    PictureAspect.ATTR_WIDTH, RelationalOperator.GE, lastSize.X),
-                new RelationalFilter(
-                    PictureAspect.ATTR_HEIGHT, RelationalOperator.GE, lastSize.Y),
-                new RelationalFilter(
-                    PictureAspect.ATTR_WIDTH, RelationalOperator.LT, size.X),
-                new RelationalFilter(
-                    PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, size.Y)), this));
-        lastSize = size;
-      }
-      return result;
+            new FilterValue(Consts.VALUE_EMPTY_TITLE, emptyFilter, numEmptyItems, this),
+            new FilterValue(Consts.RES_PICTURE_FILTER_SMALL, smallFilter, numSmallItems, this),
+            new FilterValue(Consts.RES_PICTURE_FILTER_MEDIUM, mediumFilter, numMediumItems, this),
+            new FilterValue(Consts.RES_PICTURE_FILTER_BIG, bigFilter, numBigItems, this),
+        }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
     }
 
     public override IFilter CreateFilter(FilterValue filterValue)
