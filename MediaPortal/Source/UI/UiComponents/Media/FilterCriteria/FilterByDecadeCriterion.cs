@@ -24,8 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -41,28 +44,46 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter filter)
     {
-      ICollection<FilterValue> result = new List<FilterValue>(10)
-        {
-            new FilterValue(VALUE_EMPTY_TITLE,
-                new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), this),
-            new FilterValue("< 1950",
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(1950, 1, 1)), this),
-        };
-      int startYear = 1950;
-      DateTime now = DateTime.Now;
-      while (true)
+      // We'll do the grouping here at the client. We could also implement a grouping function for decades at the server,
+      // but that seems to be not better since it increases the server code size, the server workload, it complicates the
+      // call structure and it doesn't bring us an advantage
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        return new List<FilterValue>();
+      HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear,
+          necessaryMIATypeIds, filter, true);
+      IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      int numEmptyEntries = 0;
+      IDictionary<int, int> decadesToNumItems = new Dictionary<int, int>();
+      foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        DateTime startDate = new DateTime(startYear, 1, 1);
-        if (startDate >= now)
-          break;
-        result.Add(new FilterValue(string.Format("{0} - {1}", startYear, startYear + 10),
-            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(startYear, 1, 1)),
-                new RelationalFilter(
-                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(startYear + 10, 1, 1))), this));
-        startYear += 10;
+        int? year = (int?) group.Key;
+        if (year.HasValue)
+        {
+          int yearVal = year.Value;
+          int decade = yearVal / 10;
+          int numItems;
+          if (!decadesToNumItems.TryGetValue(decade, out numItems))
+            numItems = 0;
+          decadesToNumItems[decade] = numItems + (int) group.Value;
+        }
+        else
+          numEmptyEntries += (int) group.Value;
+      }
+      if (numEmptyEntries > 0)
+        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), numEmptyEntries, this));
+      for (int decade = 0; decade < 300; decade++)
+      {
+        int year = decade * 10;
+        int numItems;
+        if (!decadesToNumItems.TryGetValue(decade, out numItems))
+          continue;
+        result.Add(new FilterValue(year.ToString(),
+            new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+              {
+                  new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year, 1, 1)),
+                  new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year + 10, 1, 1)),
+              }), numItems, this));
       }
       return result;
     }
