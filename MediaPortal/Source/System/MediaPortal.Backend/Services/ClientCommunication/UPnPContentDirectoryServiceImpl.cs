@@ -435,6 +435,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(groupValueGroupsAction);
 
+      DvAction countMediaItemsAction = new DvAction("CountMediaItems", OnCountMediaItems,
+          new DvArgument[] {
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("NumMediaItems", A_ARG_TYPE_Count, ArgumentDirection.Out, true),
+          });
+      AddAction(countMediaItemsAction);
+
       // Playlist management
 
       DvAction getPlaylistsAction = new DvAction("GetPlaylists", OnGetPlaylists,
@@ -875,6 +886,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
           projectionFunction, necessaryMIATypes, filter, !all, groupingFunction);
       outParams = new List<object> {values};
+      return null;
+    }
+
+    static UPnPError OnCountMediaItems(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
+      IFilter filter = (IFilter) inParams[1];
+      string onlineStateStr = (string) inParams[2];
+      outParams = null;
+      bool all;
+      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
+      if (error != null)
+        return error;
+      int numMediaItems = ServiceRegistration.Get<IMediaLibrary>().CountMediaItems(necessaryMIATypes, filter, !all);
+      outParams = new List<object> {numMediaItems};
       return null;
     }
 
