@@ -264,9 +264,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
     {
-      return new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] {innerFilter,
-          new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
-              systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>())});
+      IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
+              systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>());
+      return innerFilter == null ? onlineFilter : new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] {innerFilter, onlineFilter});
     }
 
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
