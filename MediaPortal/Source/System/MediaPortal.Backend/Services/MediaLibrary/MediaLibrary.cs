@@ -429,6 +429,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
+      Type projectionValueType;
       switch (projectionFunction)
       {
         case ProjectionFunction.DateToYear:
@@ -437,14 +438,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
               return database.CreateDateToYearProjectionExpression(expr);
             };
+          projectionValueType = typeof(int);
           break;
         default:
           selectProjectionFunctionImpl = null;
+          projectionValueType = null;
           break;
       }
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) :
-          necessaryMIATypeIDs, attributeType, selectProjectionFunctionImpl, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          necessaryMIATypeIDs, attributeType, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
