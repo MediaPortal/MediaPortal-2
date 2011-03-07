@@ -455,7 +455,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline,
         GroupingFunction groupingFunction)
     {
-      IDictionary<string, MLQueryResultGroup> groups = new Dictionary<string, MLQueryResultGroup>();
+      IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
       switch (groupingFunction)
       {
@@ -468,19 +468,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
       {
-        string valueGroupItemName = (string) resultItem.Key;
+        object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int) resultItem.Value;
-        string groupName;
+        object groupKey;
         IFilter additionalFilter;
-        groupingFunctionImpl.GetGroup(valueGroupItemName, out groupName, out additionalFilter);
+        groupingFunctionImpl.GetGroup(valueGroupKey, out groupKey, out additionalFilter);
         MLQueryResultGroup rg;
-        if (groups.TryGetValue(groupName, out rg))
+        if (groups.TryGetValue(groupKey, out rg))
           rg.NumItemsInGroup += resultGroupItemCount;
         else
-          groups[groupName] = new MLQueryResultGroup(groupName, resultGroupItemCount, additionalFilter);
+          groups[groupKey] = new MLQueryResultGroup(groupKey, resultGroupItemCount, additionalFilter);
       }
       List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
-      result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
+      result.Sort((a, b) => groupingFunctionImpl.Compare(a.GroupKey, b.GroupKey));
       return result;
     }
 

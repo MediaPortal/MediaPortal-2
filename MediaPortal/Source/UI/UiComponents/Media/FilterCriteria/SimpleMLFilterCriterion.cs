@@ -87,12 +87,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)
       {
-        string name = group.GroupName ?? string.Empty;
+        string name = string.Format("{0}", group.GroupKey);
         name = name.Trim();
         if (name == string.Empty)
           numEmptyEntries += group.NumItemsInGroup;
         else
-          result.Add(new FilterValue(group.GroupName, group.AdditionalFilter, group.NumItemsInGroup, this));
+          result.Add(new FilterValue(name, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
         result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));

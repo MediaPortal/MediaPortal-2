@@ -140,7 +140,7 @@ namespace MediaPortal.UI.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(group.GroupName, group.AdditionalFilter);
+              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
