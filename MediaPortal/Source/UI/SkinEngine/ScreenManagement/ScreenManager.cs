@@ -610,9 +610,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         // Restore input attachment
         // Find top non-closed dialog
-        node = _dialogStack.First;
-        while (node != null && node.Value.DialogScreen.ScreenState != Screen.State.Closing)
-          node = node.Next;
+        node = _dialogStack.Last;
+        while (node != null && node.Value.DialogScreen.ScreenState == Screen.State.Closing)
+            node = node.Previous;
 
         if (node == null)
         { // Last dialog was removed, attach input to screen
