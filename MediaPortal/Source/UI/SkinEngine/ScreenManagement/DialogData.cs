@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public string DialogName
     {
-       get { return _dialogScreen.Name; }
+       get { return _dialogScreen.ResourceName; }
     }
 
     public Guid DialogInstanceId

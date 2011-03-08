@@ -39,6 +39,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIAs;
 
     protected readonly MediaItemAspectMetadata.AttributeSpecification _queryAttribute;
+    protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly CompiledFilter _filter;
 
     /// <summary>
@@ -46,15 +47,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// </summary>
     /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="complexQueryAttribute">Complex attribute, which is requested by this query. Only attributes
-    /// with a cardinality different from <see cref="Cardinality.Inline"/> are allowed here.</param>
+    ///   with a cardinality different from <see cref="Cardinality.Inline"/> are allowed here.</param>
+    /// <param name="selectProjectionFunction">This delegate function will be called for the selected attribute.
+    ///   It must return an SQL projection expression whose return value is the requested value for that attribute.
+    ///   If this delegate function is <c>null</c>, the actual attribute is selected without a projection function.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="filter">Filter which must be applied to the media items to match the query.</param>
     public ComplexAttributeQueryBuilder(
         MIA_Management miaManagement,
-        MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
+        MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute, SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter) : base(miaManagement)
     {
       _queryAttribute = complexQueryAttribute;
+      _selectProjectionFunction = selectProjectionFunction;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _filter = filter;
     }
@@ -152,8 +157,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       StringBuilder result = new StringBuilder("SELECT ");
 
       // Selected attributes
-      result.Append(valueAttribute.GetDeclarationWithAlias(ns, out valueAlias));
-      result.Append(", ");
+      result.Append(_selectProjectionFunction == null ?
+          valueAttribute.GetDeclarationWithAlias(ns, out valueAlias) :
+          valueAttribute.GetDeclarationWithAlias(ns, _selectProjectionFunction, out valueAlias));
+      result.Append(",");
       string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ") ";
       result.Append(countAttribute);
       groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
@@ -181,7 +188,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       result.Append(" GROUP BY ");
-      result.Append(valueAttribute.GetQualifiedName(ns));
+      result.Append(_selectProjectionFunction == null ?
+          valueAttribute.GetQualifiedName(ns) :
+          _selectProjectionFunction(valueAttribute.GetQualifiedName(ns)));
 
       statementStr = result.ToString();
     }
@@ -262,7 +271,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       StringBuilder result = new StringBuilder("SELECT ");
 
       // Append MIA ID attribute only if no DISTINCT query is made
-      result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdAlias));
+      result.Append(_selectProjectionFunction == null ?
+          miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdAlias) :
+          miaIdAttribute.GetDeclarationWithAlias(ns, _selectProjectionFunction, out mediaItemIdAlias));
       result.Append(", ");
 
       // Selected attributes

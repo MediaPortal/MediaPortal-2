@@ -37,6 +37,14 @@ namespace MediaPortal.UI.ServerCommunication
     ConnectedShares
   }
 
+  // Corresponds to MediaPortal.Backend.MediaLibrary.ProjectionFunction
+  public enum ProjectionFunction
+  {
+    None,
+    DateToYear,
+  }
+
+  // Corresponds to MediaPortal.Backend.MediaLibrary.GroupingFunction
   public enum  GroupingFunction
   {
     FirstCharacter
@@ -71,19 +79,18 @@ namespace MediaPortal.UI.ServerCommunication
 
     #region Media query
 
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
-    IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
-        bool onlyOnline, GroupingFunction groupingFunction);
-    IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-        IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
     MediaItem LoadItem(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
     ICollection<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
-    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter);
-    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction);
+    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+        IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive);
+    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
+        IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
+        IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
 
     #endregion
 

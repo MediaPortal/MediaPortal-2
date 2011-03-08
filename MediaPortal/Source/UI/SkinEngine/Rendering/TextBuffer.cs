@@ -276,6 +276,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void SetFont(FontAsset font, float size)
     {
       DisposeFont();
+      if (_font != null)
+        _font.Deallocated -= DisposeBuffer;
       _font = font;
       _font.Deallocated += DisposeBuffer;
       _fontSize = size;
@@ -289,6 +291,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void SetFont(String fontName, float size)
     {
       SetFont(ServiceRegistration.Get<ContentManager>().GetFont(fontName, size), size);
+    }
+
+    public string[] GetLines(float maxWidth, bool wrap)
+    {
+      return wrap ? WrapText(maxWidth) : _text.Split(Environment.NewLine.ToCharArray());
     }
 
     /// <summary>
@@ -307,7 +314,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return;
 
       // Get text quads
-      string[] lines = wrap ? WrapText(boxWidth) : _text.Split(Environment.NewLine.ToCharArray());
+      string[] lines = GetLines(boxWidth, wrap);
       PositionColoredTextured[] verts = _font.CreateText(lines, _fontSize, true, out _lastTextSize, out _textLines);
 
       // Re-use existing buffer if necessary
@@ -454,7 +461,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
           break;
         case VerticalTextAlignEnum.Center:
-          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);;
+          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);
           break;
         //case TextAlignEnum.Top:
         // Do nothing

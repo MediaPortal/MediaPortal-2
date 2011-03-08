@@ -60,7 +60,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     protected static IDictionary<string, Type> _objectClassRegistrations = new Dictionary<string, Type>();
     static Registration()
-    {                            
+    {                    
+      // Screen
+      _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));
+  
       // Panels
       _objectClassRegistrations.Add("DockPanel", typeof(SkinEngine.Controls.Panels.DockPanel));
       _objectClassRegistrations.Add("StackPanel", typeof(SkinEngine.Controls.Panels.StackPanel));

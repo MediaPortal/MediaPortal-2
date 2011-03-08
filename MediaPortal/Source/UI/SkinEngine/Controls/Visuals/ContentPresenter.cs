@@ -109,17 +109,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElement oldUIElement = oldValue as UIElement;
       if (oldUIElement != null)
         oldUIElement.CleanupAndDispose();
-      UIElement oldContent = _content as UIElement;
+      UIElement oldContentElement = _content as UIElement;
       object content = Content;
-      // Try to convert our content to a FrameworkElement and unwrap ResourceWrapper before other methods access _content.
-      // That avoids the necessecity to convert our content to FrameworkElement multiple times later
-      if (TypeConverter.Convert(content, typeof(FrameworkElement), out _content))
-      { // We got a new _content, so dispose the old one
-        if (oldContent != null && !ReferenceEquals(oldContent, oldValue))
-          oldContent.CleanupAndDispose();
-      }
-      else
+      // Try to unwrap ResourceWrapper before _content is accessed elsewhere
+      if (!Registration.ConvertType(content, typeof(object), out _content))
         _content = content;
+
+      if (oldContentElement != null && !ReferenceEquals(oldContentElement, oldUIElement))
+        oldContentElement.CleanupAndDispose();
 
       if (ContentTemplate == null)
         // No ContentTemplate set
@@ -164,9 +161,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         finishDlgt.Invoke();
         return;
       }
-      FrameworkElement templateControl = content as FrameworkElement;
-      if (templateControl != null)
+      // Try to convert our content to a FrameworkElement.
+      if (TypeConverter.Convert(content, typeof(FrameworkElement), out content))
+      {
+        FrameworkElement templateControl = content as FrameworkElement;
         SetTemplateControl(templateControl);
+      }
       // else: no content template to present the content
     }
 

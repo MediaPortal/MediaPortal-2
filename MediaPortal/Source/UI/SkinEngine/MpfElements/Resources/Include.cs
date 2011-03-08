@@ -89,7 +89,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region IInitializable implementation
 
-    public virtual void Initialize(IParserContext context)
+    public void StartInitialization(IParserContext context)
+    {}
+
+    public void FinishInitialization(IParserContext context)
     {
       string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
       if (includeFilePath == null)

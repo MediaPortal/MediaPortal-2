@@ -26,58 +26,62 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Contents_Element (Any UI element): Contents area of the dialog.
 -->
 
-<Grid x:Name="RootDialogElement"
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="50"/>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="50"/>
-  </Grid.ColumnDefinitions>
-  <Grid.RowDefinitions>
-    <RowDefinition Height="50"/>
-    <RowDefinition Height="*"/>
-    <RowDefinition Height="50"/>
-  </Grid.RowDefinitions>
-  <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{ThemeResource DialogBorderColor}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
-      VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Grid x:Name="DialogBackgroundGrid" Background="{ThemeResource DialogBackgroundBrush}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-      <Grid x:Name="DialogHeaderGrid" Grid.Column="0" Grid.Row="0" Margin="5"
-          VerticalAlignment="Top" HorizontalAlignment="Stretch">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="DialogScreen"
+    >
+  <Grid x:Name="ScreenAnimationElement">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="50"/>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="50"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="50"/>
+    </Grid.RowDefinitions>
+    <Grid.Triggers>
+      <EventTrigger RoutedEvent="Screen.Show">
+        <EventTrigger.Actions>
+          <BeginStoryboard Storyboard="{ThemeResource DialogGotFocusStoryboard}"/>
+        </EventTrigger.Actions>
+      </EventTrigger>
+      <EventTrigger RoutedEvent="Screen.Close">
+        <EventTrigger.Actions>
+          <BeginStoryboard Storyboard="{ThemeResource DialogLostFocusStoryboard}"/>
+        </EventTrigger.Actions>
+      </EventTrigger>
+    </Grid.Triggers>
+    <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{ThemeResource DialogBorderColor}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
+        VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Grid x:Name="DialogBackgroundGrid" Background="{ThemeResource DialogBackgroundBrush}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
-            Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
-            VerticalAlignment="Center" HorizontalAlignment="Left"/>
-        <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
-            Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        <Grid x:Name="DialogHeaderGrid" Grid.Column="0" Grid.Row="0" Margin="5"
+            VerticalAlignment="Top" HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
+              Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
+              VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
+              Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        </Grid>
+        <ContentPresenter x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}"/>
       </Grid>
-      <ContentPresenter x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}"/>
-    </Grid>
-  </Border>
-  <Grid.Triggers>
-    <EventTrigger RoutedEvent="Screen.Show">
-      <EventTrigger.Actions>
-        <BeginStoryboard Storyboard="{ThemeResource DialogGotFocusStoryboard}"/>
-      </EventTrigger.Actions>
-    </EventTrigger>
-    <EventTrigger RoutedEvent="Screen.Close">
-      <EventTrigger.Actions>
-        <BeginStoryboard Storyboard="{ThemeResource DialogLostFocusStoryboard}"/>
-      </EventTrigger.Actions>
-    </EventTrigger>
-  </Grid.Triggers>
-</Grid>
+    </Border>
+  </Grid>
+</Screen>

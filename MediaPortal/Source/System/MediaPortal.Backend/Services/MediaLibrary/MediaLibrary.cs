@@ -50,6 +50,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
   // on the fly and holds up to N prepared commands.
   public class MediaLibrary : IMediaLibrary, IDisposable
   {
+    #region Inner classes
+
     protected class MediaBrowsingCallback : IMediaBrowsing
     {
       protected MediaLibrary _parent;
@@ -97,12 +99,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    #endregion
+
+    #region Protected fields
+
     protected MIA_Management _miaManagement = null;
-    protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>();
+    protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>(); // System ids mapped to system names
     protected object _syncObj = new object();
     protected string _localSystemId;
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
+
+    #endregion
+
+    #region Ctor & dtor
 
     public MediaLibrary()
     {
@@ -117,10 +127,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
     }
 
+    #endregion
+
     public string LocalSystemId
     {
       get { return _localSystemId; }
     }
+
+    #region Protected methods
 
     protected MediaItemQuery BuildLoadItemQuery(string systemId, ResourcePath path)
     {
@@ -214,7 +228,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
+    protected int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
       string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
@@ -258,6 +272,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
+    {
+      IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
+              systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>());
+      return innerFilter == null ? onlineFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, onlineFilter);
+    }
+
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
     {
       int mediaCategoryIndex;
@@ -299,6 +320,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (share.SystemId == _localSystemId)
         importerWorker.CancelJobsForPath(share.BaseResourcePath);
     }
+
+    #endregion
 
     #region IMediaLibrary implementation
 
@@ -368,63 +391,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, resultFilter);
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
-    {
-      MediaItemQuery innerQuery = new MediaItemQuery(query);
-      innerQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
-      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, innerQuery);
-      IList<MediaItem> items = cmiq.Execute();
-      IList<MediaItem> result = new List<MediaItem>(items.Count);
-      bool removeProviderAspect = !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID);
-      if (removeProviderAspect || filterOnlyOnline)
-      {
-        foreach (MediaItem item in items)
-          if (!filterOnlyOnline || (_systemsOnline.ContainsKey((string) item.Aspects[ProviderResourceAspect.ASPECT_ID][ProviderResourceAspect.ATTR_SYSTEM_ID])))
-          {
-            if (removeProviderAspect)
-              item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
-            result.Add(item);
-          }
-      }
-      else
-        result = items;
-      return result;
-    }
-
-    public IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
-        bool filterOnlyOnline, GroupingFunction groupingFunction)
-    {
-      IDictionary<string, MLQueryResultGroup> groups = new Dictionary<string, MLQueryResultGroup>();
-      IGroupingFunctionImpl groupingFunctionImpl;
-      switch (groupingFunction)
-      {
-        case GroupingFunction.FirstCharacter:
-          groupingFunctionImpl = new FirstCharGroupingFunction(groupingAttributeType);
-          break;
-        default:
-          groupingFunctionImpl = new FirstCharGroupingFunction(groupingAttributeType);
-          break;
-      }
-      Guid groupingAspectId = groupingAttributeType.ParentMIAM.AspectId;
-      MediaItemQuery innerQuery = new MediaItemQuery(query);
-      innerQuery.NecessaryRequestedMIATypeIDs.Add(MediaAspect.ASPECT_ID);
-      foreach (MediaItem item in Search(innerQuery, filterOnlyOnline))
-      {
-        string groupName;
-        IFilter additionalFilter;
-        groupingFunctionImpl.GetGroup(string.Format("{0}", item[groupingAspectId][groupingAttributeType]),
-            out groupName, out additionalFilter);
-        MLQueryResultGroup rg;
-        if (groups.TryGetValue(groupName, out rg))
-          rg.NumItemsInGroup++;
-        else
-          groups[groupName] = new MLQueryResultGroup(groupName, 1, additionalFilter);
-      }
-      List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
-      result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
-      return result;
-    }
-
     public MediaItem LoadItem(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
     {
@@ -449,18 +415,59 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
     {
-      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(
-          _miaManagement, necessaryMIATypeIDs, attributeType, filter);
+      // We add the provider resource aspect to the necessary aspect types be able to filter online systems
+      MediaItemQuery executeQuery = filterOnlyOnline ? new MediaItemQuery(
+              query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
+              query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
+      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
+      IList<MediaItem> items = cmiq.Execute();
+      IList<MediaItem> result = new List<MediaItem>(items.Count);
+      if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
+      { // The provider resource aspect was not requested and thus has to be removed from the result items
+        foreach (MediaItem item in items)
+        {
+          item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
+          result.Add(item);
+        }
+      }
+      else
+        result = items;
+      return result;
+    }
+
+    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+    {
+      SelectProjectionFunction selectProjectionFunctionImpl;
+      Type projectionValueType;
+      switch (projectionFunction)
+      {
+        case ProjectionFunction.DateToYear:
+          selectProjectionFunctionImpl = (string expr) =>
+            {
+              ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+              return database.CreateDateToYearProjectionExpression(expr);
+            };
+          projectionValueType = typeof(int);
+          break;
+        default:
+          selectProjectionFunctionImpl = null;
+          projectionValueType = null;
+          break;
+      }
+      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) :
+          necessaryMIATypeIDs, attributeType, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline,
+        GroupingFunction groupingFunction)
     {
-      IDictionary<string, MLQueryResultGroup> groups = new Dictionary<string, MLQueryResultGroup>();
+      IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
       switch (groupingFunction)
       {
@@ -471,22 +478,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           groupingFunctionImpl = new FirstCharGroupingFunction(attributeType);
           break;
       }
-      foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, necessaryMIATypeIDs, filter))
+      foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
       {
-        string valueGroupItemName = (string) resultItem.Key;
+        object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int) resultItem.Value;
-        string groupName;
+        object groupKey;
         IFilter additionalFilter;
-        groupingFunctionImpl.GetGroup(valueGroupItemName, out groupName, out additionalFilter);
+        groupingFunctionImpl.GetGroup(valueGroupKey, out groupKey, out additionalFilter);
         MLQueryResultGroup rg;
-        if (groups.TryGetValue(groupName, out rg))
+        if (groups.TryGetValue(groupKey, out rg))
           rg.NumItemsInGroup += resultGroupItemCount;
         else
-          groups[groupName] = new MLQueryResultGroup(groupName, resultGroupItemCount, additionalFilter);
+          groups[groupKey] = new MLQueryResultGroup(groupKey, resultGroupItemCount, additionalFilter);
       }
       List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
-      result.Sort((a, b) => string.Compare(a.GroupName, b.GroupName));
+      result.Sort((a, b) => groupingFunctionImpl.Compare(a.GroupKey, b.GroupKey));
       return result;
+    }
+
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+    {
+      CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
+          necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+      return cciq.Execute();
     }
 
     #endregion

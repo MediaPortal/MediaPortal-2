@@ -27,7 +27,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class ListView : ItemsControl, IAddChild<ListViewItem>
+  public class ListView : ItemsControl, IAddChild<object>
   {
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
@@ -45,14 +45,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return container;
     }
 
-    #region IAddChild<ListViewItem> Members
+    #region IAddChild<object> implementation
 
-    public void AddChild(ListViewItem o)
+    public void AddChild(object o)
     {
-      // This is not solved in an optimal way because every time the Items collection is changed, the whole
-      // Children collection of our items host panel is built newly in the change handler of the Items property.
-      // Maybe we should solve that rebuild during the XAML loading time by avoiding the event handler until we
-      // receive a call to Initialize (+ make class implement IInitializable)?
       Items.Add(o);
     }
 

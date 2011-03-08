@@ -1,0 +1,36 @@
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="ListView Items test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows a ListView with different kinds of children using the ListView.Items property."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+    <DockPanel.Resources>
+      <DataTemplate x:Key="ItemDataTemplate">
+        <Label x:Name="ItemDataLabel" Content="{Binding}" FontSize="{ThemeResource SmallFontSize}" Color="Blue"/>
+      </DataTemplate>
+      <Style x:Key="ListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+        <Setter Property="ItemTemplate" Value="{ThemeResource ItemDataTemplate}"/>
+        <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+      </Style>
+    </DockPanel.Resources>
+    <ListView x:Name="Test" DockPanel.Dock="Center" Style="{ThemeResource ListViewStyle}"
+      VerticalAlignment="Center" HorizontalAlignment="Center" Width="1100" Height="500">
+      Simple string - Should be wrapped into a blue Label and an item container
+      <Label Content="Simple label - Should be left unchanged"/>
+      <ListViewItem>
+        Simple string inside a ListViewItem - Should be styled with the container style
+      </ListViewItem>
+      <ListViewItem>
+        <Label Content="Label inside a ListViewItem - Should be styled with the container style"/>
+      </ListViewItem>
+      <ListViewItem>
+        <Border Background="Yellow" BorderBrush="Red"
+            BorderThickness="2" CornerRadius="3">
+          <Label Color="Black" Content="Label in a Border in a ListViewItem - Should be styled with the container style"/>
+        </Border>
+      </ListViewItem>
+    </ListView>
+  </DockPanel>
+</Screen>

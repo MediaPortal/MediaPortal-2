@@ -164,7 +164,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
         {
           ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-              _miaManagement, attr, _necessaryRequestedMIAs, _filter);
+              _miaManagement, attr, null, _necessaryRequestedMIAs, _filter);
           using (IDbCommand command = transaction.CreateCommand())
           {
             string mediaItemIdAlias;
@@ -197,7 +197,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         // 2. Main query
         MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-            _necessaryRequestedMIAs, _optionalRequestedMIAs, _mainSelectAttributes.Values, _filter, _sortInformation);
+            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
 
         using (IDbCommand command = transaction.CreateCommand())
         {
@@ -264,7 +264,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
       {
         ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-            _miaManagement, attr, _necessaryRequestedMIAs, _filter);
+            _miaManagement, attr, null, _necessaryRequestedMIAs, _filter);
         result.Append("External attribute query for ");
         result.Append(attr.ParentMIAM.Name);
         result.Append(".");
@@ -275,7 +275,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       result.Append("Main query:\r\n");
       MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-          _necessaryRequestedMIAs, _optionalRequestedMIAs, _mainSelectAttributes.Values, _filter, _sortInformation);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
       result.Append(mainQueryBuilder.ToString());
       return result.ToString();
     }

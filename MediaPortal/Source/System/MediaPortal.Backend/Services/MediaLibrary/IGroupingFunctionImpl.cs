@@ -22,12 +22,13 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
-  public interface IGroupingFunctionImpl
+  public interface IGroupingFunctionImpl : IComparer<object>
   {
-    void GetGroup(string elementName, out string groupName, out IFilter additionalFilter);
+    void GetGroup(object elementValue, out object groupKey, out IFilter additionalFilter);
   }
 }

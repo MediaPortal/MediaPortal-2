@@ -27,28 +27,22 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public delegate void ObservableUIElementCollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : FrameworkElement;
+  public delegate void ItemCollectionChangedDlgt(ItemCollection collection);
 
-  public class ObservableUIElementCollection<T> : ICollection<T>, IDisposable, IAddChild<T>, ISynchronizable where T : FrameworkElement
+  public class ItemCollection : ICollection<object>, IDisposable, IAddChild<object>, ISynchronizable
   {
-    protected FrameworkElement _parent;
-    protected IList<T> _elements;
+    protected IList<object> _elements = new List<object>();
     protected object _syncObj = new object();
+    protected bool _isReadOnly = false;
 
-    public ObservableUIElementCollection(FrameworkElement parent)
-    {
-      _parent = parent;
-      _elements = new List<T>();
-    }
-
-    public ObservableUIElementCollectionChangedDlgt<T> CollectionChanged;
+    public ItemCollectionChangedDlgt CollectionChanged;
 
     public void Dispose()
     {
-      _parent = null;
       CollectionChanged = null;
       Clear();
     }
@@ -58,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _syncObj; }
     }
 
-    public T this[int index]
+    public object this[int index]
     {
       get { return _elements[index]; }
       set
@@ -72,49 +66,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public void SetParent(FrameworkElement parent)
-    {
-      _parent = parent;
-    }
-
     protected void FireCollectionChanged()
     {
-      ObservableUIElementCollectionChangedDlgt<T> dlgt = CollectionChanged;
+      ItemCollectionChangedDlgt dlgt = CollectionChanged;
       if (dlgt != null)
         dlgt(this);
     }
 
-    #region ICollection implementation
-
-    public void Add(T element)
+    public void AddAll<T>(IEnumerable<T> elements)
     {
       lock (_syncObj)
       {
-        element.VisualParent = _parent;
-        if (_parent != null)
-        {
-          element.SetScreen(_parent.Screen);
-          element.SetElementState(_parent.ElementState);
-        }
-        else
-          element.SetElementState(ElementState.Available);
+        CollectionUtils.AddAll(_elements, elements);
+        FireCollectionChanged();
+      }
+    }
+
+    #region ICollection implementation
+
+    public void Add(object element)
+    {
+      lock (_syncObj)
+      {
         _elements.Add(element);
         FireCollectionChanged();
       }
     }
 
-    public void CopyTo(T[] array, int arrayIndex)
+    public void CopyTo(object[] array, int arrayIndex)
     {
       lock (_syncObj)
         _elements.CopyTo(array, arrayIndex);
     }
 
-    public bool Remove(T element)
+    public bool Remove(object element)
     {
       lock (_syncObj)
       {
         bool result = _elements.Remove(element);
-        element.CleanupAndDispose();
+        UIElement.TryCleanupAndDispose(ref element);
         FireCollectionChanged();
         return result;
       }
@@ -124,14 +114,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       lock (_syncObj)
       {
-        foreach (T element in _elements)
-          element.CleanupAndDispose();
+        foreach (object element in _elements)
+        {
+          object o = element;
+          UIElement.TryCleanupAndDispose(ref o);
+        }
         _elements.Clear();
         FireCollectionChanged();
       }
     }
 
-    public bool Contains(T item)
+    public bool Contains(object item)
     {
       lock (_syncObj)
         return _elements.Contains(item);
@@ -148,14 +141,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool IsReadOnly
     {
-      get { return false; }
+      get { return _isReadOnly; }
+      set { _isReadOnly = value; }
     }
 
     #endregion
 
     #region IEnumerable<UIElement> implementation
 
-    public IEnumerator<T> GetEnumerator()
+    public IEnumerator<object> GetEnumerator()
     {
       return _elements.GetEnumerator();
     }
@@ -173,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region IAddChild<T> implementation
 
-    public void AddChild(T child)
+    public void AddChild(object child)
     {
       lock (_syncObj)
         _elements.Add(child);
@@ -185,7 +179,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override string ToString()
     {
-      return string.Format("{0}: Count={1}", typeof(ObservableUIElementCollection<T>).Name, Count);
+      return string.Format("{0}: Count={1}", typeof(ItemCollection).Name, Count);
     }
 
     #endregion

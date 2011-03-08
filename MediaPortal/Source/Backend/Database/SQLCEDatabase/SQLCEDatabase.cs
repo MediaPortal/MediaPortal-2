@@ -198,6 +198,11 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
       return "SUBSTRING(" + str1 + "," + posExpr + "," + lenExpr + ")";
     }
 
+    public string CreateDateToYearProjectionExpression(string selectExpression)
+    {
+      return "DATEPART(YEAR, " + selectExpression + ")";
+    }
+
     #endregion
   }
 }

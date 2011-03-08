@@ -38,6 +38,19 @@ namespace MediaPortal.Backend.MediaLibrary
     Remove
   }
 
+  public enum ProjectionFunction
+  {
+    /// <summary>
+    /// No projection; the attribute is returned without modification/projection.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Takes the year from a date.
+    /// </summary>
+    DateToYear,
+  }
+
   public enum GroupingFunction
   {
     /// <summary>
@@ -83,28 +96,6 @@ namespace MediaPortal.Backend.MediaLibrary
         IEnumerable<Guid> optionalMIATypes, IFilter filter, bool includeCLOBs, bool caseSensitive);
 
     /// <summary>
-    /// Starts a search for media items.
-    /// </summary>
-    /// <param name="query">Query object which specifies the search parameters.</param>
-    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
-    /// are currently online are returned.</param>
-    /// <returns>List of matching media items with the media item aspects of the given
-    /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
-    /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline);
-
-    /// <summary>
-    /// Executes a <see cref="Search"/> and groups the resulting media items by the given <paramref name="groupingFunction"/>.
-    /// </summary>
-    /// <param name="query">Query to execute. See method <see cref="Search"/>.</param>
-    /// <param name="groupingAttributeType">Attribute type whose value is used to build the result groups.</param>
-    /// <param name="filterOnlyOnline">Filters only online media. See method <see cref="Search"/>.</param>
-    /// <param name="groupingFunction">Determines, how result values are grouped.</param>
-    /// <returns>List of value groups for the given query.</returns>
-    IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
-        bool filterOnlyOnline, GroupingFunction groupingFunction);
-
-    /// <summary>
     /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="path"/>.
     /// </summary>
     /// <param name="systemId">System id of the item to load.</param>
@@ -128,28 +119,59 @@ namespace MediaPortal.Backend.MediaLibrary
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
+    /// Starts a search for media items.
+    /// </summary>
+    /// <param name="query">Query object which specifies the search parameters.</param>
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// are currently online are returned.</param>
+    /// <returns>List of matching media items with the media item aspects of the given
+    /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
+    /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
+    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline);
+
+    /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
     /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
     /// </summary>
     /// <param name="attributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    ///   <paramref name="attributeType"/>.</param>
     /// <param name="necessaryMIATypeIDs">IDs of media item aspect types, which need to be present in each media item
-    /// whose attribute values are part of the result collection.</param>
+    ///   whose attribute values are part of the result collection.</param>
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    ///   systems which are currently online.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/> (long).</returns>
-    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter);
+    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, ProjectionFunction projectionFunction,
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline);
 
     /// <summary>
-    /// Executes a <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
     /// </summary>
     /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    ///   <paramref name="attributeType"/>.</param>
     /// <param name="necessaryMIATypeIDs">Necessary media item types. See method <see cref="GetValueGroups"/>.</param>
     /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    ///   systems which are currently online.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
     /// <returns>List of value groups for the given query.</returns>
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, GroupingFunction groupingFunction);
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline,
+        GroupingFunction groupingFunction);
+
+    /// <summary>
+    /// Counts the count of media items matching the given criteria.
+    /// </summary>
+    /// <param name="necessaryMIATypeIDs">IDs of media item aspect types, which need to be present in each counted media item. Only
+    ///   media items with those media item aspect types are counted.</param>
+    /// <param name="filter">Filter specifying the media items which will be counted.</param>
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
+    ///   are counted.</param>
+    /// <returns>Number of matching media items.</returns>
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline);
 
     #endregion
 

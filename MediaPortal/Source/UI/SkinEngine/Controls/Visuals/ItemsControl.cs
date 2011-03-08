@@ -24,6 +24,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -33,6 +34,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -56,10 +58,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsProperty;
     protected AbstractProperty _isEmptyProperty;
 
-    protected bool _templateApplied = false;
-    protected Panel _itemsHostPanel = null;
-    protected FrameworkElement _lastFocusedElement = null;
-    protected ISelectableItemContainer _lastSelectedItem = null;
+    protected bool _preventItemsPreparation = false; // Prevent preparation before we are fully initialized - optimization
+    protected bool _preparingItems = false; // Flag to prevent recursive call of PrepareItems method
+    protected bool _prepareItems = false; // Flag to synchronize different threads; Tells render thread to update the items host panel
+    protected ICollection<object> _preparedItems = null; // Items to be updated in items host panel
+    protected bool _templateApplied = false; // Set to true as soon as the ItemsPanel style is applied on the items presenter
+    protected Panel _itemsHostPanel = null; // Our instanciated items host panel
+    protected FrameworkElement _lastFocusedElement = null; // Needed for focus tracking/update of current item
+    protected ISelectableItemContainer _lastSelectedItem = null; // Needed for updating of the selected item
 
     #endregion
 
@@ -74,7 +80,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
-      _itemsProperty = new SProperty(typeof(ObservableUIElementCollection<FrameworkElement>), new ObservableUIElementCollection<FrameworkElement>(this));
+      ItemCollection ic = new ItemCollection();
+      _itemsProperty = new SProperty(typeof(ItemCollection), ic);
       _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
@@ -82,6 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _currentItemProperty = new SProperty(typeof(object), null);
       _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
       _isEmptyProperty = new SProperty(typeof(bool), false);
+      AttachToItems(Items);
     }
 
     void Attach()
@@ -102,10 +110,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
+      DetachFromItems(Items);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      _preventItemsPreparation = true;
       Detach();
       base.DeepCopy(source, copyManager);
       ItemsControl c = (ItemsControl) source;
@@ -121,20 +131,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);
-      InvalidateItems();
+      _preventItemsPreparation = false;
+      copyManager.CopyCompleted += manager => PrepareItems(); // During the deep copy process, our referenced objects are not initialized yet so defer preparation of items to the end of the copy process
     }
 
     public override void Dispose()
     {
       Detach();
       DetachFromItemsSource(ItemsSource);
-      ObservableUIElementCollection<FrameworkElement> items = Items;
+      ItemCollection items = Items;
       if (items != null)
       {
         DetachFromItems(items);
         // Normally, the disposal of items will be done by our items host panel. But in the rare case that we didn't add
         // the Items to our host panel's Children yet, we need to clean up them manually.
         items.Dispose();
+      }
+      IEnumerable<object> preparedItems = _preparedItems;
+      if (preparedItems != null)
+      {
+        // Normally, preparedItems is null here. But in the rare case that we couldn't use them yet,
+        // so we need to clean up them manually.
+        foreach (object preparedItem in preparedItems)
+        {
+          object o = preparedItem;
+          TryDispose(ref o);
+        }
       }
       Registration.TryCleanupAndDispose(ItemTemplate);
       Registration.TryCleanupAndDispose(ItemContainerStyle);
@@ -149,9 +171,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void DetachFromItemsSource(IEnumerable itemsSource)
     {
-      IObservable oldItemsSource = itemsSource as IObservable;
-      if (oldItemsSource != null)
-        oldItemsSource.ObjectChanged -= OnItemsSourceCollectionChanged;
+      IObservable coll = itemsSource as IObservable;
+      if (coll != null)
+        coll.ObjectChanged -= OnItemsSourceCollectionChanged;
     }
 
     protected void AttachToItemsSource(IEnumerable itemsSource)
@@ -161,14 +183,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         coll.ObjectChanged += OnItemsSourceCollectionChanged;
     }
 
-    protected void DetachFromItems(ObservableUIElementCollection<FrameworkElement> items)
+    protected void DetachFromItems(ItemCollection items)
     {
       if (items == null)
         return;
       items.CollectionChanged -= OnItemsCollectionChanged;
     }
 
-    protected void AttachToItems(ObservableUIElementCollection<FrameworkElement> items)
+    protected void AttachToItems(ItemCollection items)
     {
       if (items == null)
         return;
@@ -189,40 +211,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemTemplateChanged(AbstractProperty property, object oldValue)
     {
-      InvalidateItems();
+      PrepareItems();
     }
 
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
     {
       _templateApplied = false;
-      InvalidateItems();
+      PrepareItems();
     }
 
     void OnDataStringProviderChanged(AbstractProperty property, object oldValue)
     {
-      InvalidateItems();
+      PrepareItems();
     }
 
     void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
     {
-      InvalidateItems();
+      PrepareItems();
     }
 
+    /// <summary>
+    /// Called when the <see cref="Items"/> property has changed.
+    /// </summary>
+    /// <remarks>
+    /// This method is called in two cases.
+    /// 1) if the ItemsSource changed and new items were built automatically.
+    /// 2) if the <see cref="Items"/> property is changed manually.
+    /// </remarks>
+    /// <param name="prop">The <see cref="ItemsProperty"/> property.</param>
+    /// <param name="oldVal">The old value of the property.</param>
     void OnItemsChanged(AbstractProperty prop, object oldVal)
     {
-      ObservableUIElementCollection<FrameworkElement> oldItems = oldVal as ObservableUIElementCollection<FrameworkElement>;
+      ItemCollection oldItems = oldVal as ItemCollection;
       if (oldItems != null)
-      {
         DetachFromItems(oldItems);
-        oldItems.Dispose();
-      }
-      ObservableUIElementCollection<FrameworkElement> items = Items;
+      // Disposal of items not necessary because they are disposed by the items host panel
+      ItemCollection items = Items;
       AttachToItems(items);
-      items.SetParent(this);
       OnItemsChanged();
     }
 
-    void OnItemsCollectionChanged(ObservableUIElementCollection<FrameworkElement> collection)
+    /// <summary>
+    /// Called when the <see cref="Items"/> collection changed.
+    /// </summary>
+    /// <param name="collection">The <see cref="Items"/> collection.</param>
+    void OnItemsCollectionChanged(ItemCollection collection)
     {
       OnItemsChanged();
     }
@@ -232,31 +265,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual void OnItemsSourceChanged()
     {
-      InvalidateItems();
+      PrepareItems();
     }
 
     /// <summary>
-    /// Will be called when the <see cref="Items"/> object or the <see cref="Items"/> collection were changed.
+    /// Will be called if the <see cref="Items"/> object or the <see cref="Items"/> collection were changed.
     /// </summary>
-    protected virtual void OnItemsChanged()
-    {
-      if (_itemsHostPanel == null)
-        return;
-      ObservableUIElementCollection<FrameworkElement> items = Items;
-      FrameworkElementCollection children = _itemsHostPanel.Children;
-      lock (children.SyncRoot)
-      {
-        children.Clear();
-        if (items != null)
-        {
-          foreach (ISelectableItemContainer container in
-              items.OfType<ISelectableItemContainer>().Where(container => container.Selected))
-            _lastSelectedItem = container;
-          children.AddAll(items);
-        }
-        IsEmpty = children.Count == 0;
-      }
-    }
+    protected virtual void OnItemsChanged() { }
 
     #endregion
 
@@ -318,9 +333,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets or sets the items of the ItemsControl directly.
     /// </summary>
-    public ObservableUIElementCollection<FrameworkElement> Items
+    public ItemCollection Items
     {
-      get { return (ObservableUIElementCollection<FrameworkElement>) _itemsProperty.GetValue(); }
+      get { return (ItemCollection) _itemsProperty.GetValue(); }
       set { _itemsProperty.SetValue(value); }
     }
 
@@ -453,11 +468,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _lastSelectedItem = container;
     }
 
-    protected virtual void InvalidateItems()
-    {
-      PrepareItems();
-    }
-
     protected ItemsPresenter FindItemsPresenter()
     {
       FrameworkElement templateControl = TemplateControl;
@@ -465,7 +475,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeMatcher(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
-    protected IList<string> BuildDataStrings(IList<object> objects)
+    protected IList<string> BuildDataStrings(ICollection<object> objects)
     {
       DataStringProvider dataStringProvider = DataStringProvider;
       if (dataStringProvider == null)
@@ -478,54 +488,148 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void PrepareItems()
     {
-      if (ItemsSource == null) return;
-      if (ItemsPanel == null) return;
-      if (TemplateControl == null) return;
-      if (ItemContainerStyle == null) return;
-      if (ItemTemplate == null) return;
-      IList<object> l = new List<object>();
-      ISynchronizable sync = ItemsSource as ISynchronizable;
-      if (sync != null)
-        lock (sync.SyncRoot)
-          CollectionUtils.AddAll(l, ItemsSource);
-      else
-        CollectionUtils.AddAll(l, ItemsSource);
-      IEnumerator enumer = l.GetEnumerator();
-      ItemsPresenter presenter = FindItemsPresenter();
-      if (presenter == null)
+      if (_preventItemsPreparation)
         return;
-
-      if (!_templateApplied)
+      _preparingItems = true; // Needed to suspend the change handler for the Items property
+      try
       {
-        _templateApplied = true;
-        presenter.ApplyTemplate(ItemsPanel);
-        _itemsHostPanel = null;
-      }
+        // Check properties which are necessary in each case
+        if (ItemsPanel == null) return;
+        if (TemplateControl == null) return;
+        ItemsPresenter presenter = FindItemsPresenter();
+        if (presenter == null)
+          return;
 
-      presenter.SetDataStrings(BuildDataStrings(l));
-
-      if (_itemsHostPanel == null)
-        _itemsHostPanel = presenter.ItemsHostPanel;
-      if (_itemsHostPanel == null)
-        return;
-
-      VirtualizingStackPanel vsp = _itemsHostPanel as VirtualizingStackPanel;
-      if (vsp != null)
-      {
-        ListViewItemGenerator lvig = new ListViewItemGenerator();
-        lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
-        SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("IsEmpty")), l.Count == 0);
-        SetValueInRenderThread(new SimplePropertyDataDescriptor(vsp, typeof(VirtualizingStackPanel).GetProperty("ItemProvider")), lvig);
-      }
-      else
-      {
-        ObservableUIElementCollection<FrameworkElement> items = new ObservableUIElementCollection<FrameworkElement>(null);
-        while (enumer.MoveNext())
+        if (!_templateApplied)
         {
-          FrameworkElement container = PrepareItemContainer(enumer.Current);
-          items.Add(container);
+          _templateApplied = true;
+          presenter.ApplyTemplate(ItemsPanel);
+          _itemsHostPanel = null;
         }
-        SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("Items")), items);
+
+        if (_itemsHostPanel == null)
+          _itemsHostPanel = presenter.ItemsHostPanel;
+        if (_itemsHostPanel == null)
+          return;
+
+        SimplePropertyDataDescriptor itemsDataDescriptor;
+        SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "Items", out itemsDataDescriptor);
+
+        IEnumerable itemsSource = ItemsSource;
+        if (itemsSource == null)
+        { // In this case, we must set up the items control using the Items property
+          ItemCollection origItems = Items;
+          if (origItems == null || origItems.IsReadOnly)
+            // Reset read/write items after an ItemsSource had been used and then was reset to null.
+            // Detach/Attach happens automatically by change handlers.
+            SetValueInRenderThread(itemsDataDescriptor, origItems = new ItemCollection());
+          IList<object> preparedItems = new List<object>(origItems.Count);
+          foreach (object item in origItems)
+          {
+            // Hint: Since we use the original items from the Items collection, we must not change the collection.
+            // The next time we call SetPreparedItems(), the old items are disposed and cannot be reused.
+            FrameworkElement element = item as FrameworkElement ?? PrepareItemContainer(item);
+            if (element.Style == null)
+              element.Style = ItemContainerStyle;
+            preparedItems.Add(element);
+          }
+          presenter.SetDataStrings(BuildDataStrings(origItems));
+          SetPreparedItems(preparedItems);
+        }
+        else
+        {
+          // Check properties which are necessary to build items automatically
+          if (ItemContainerStyle == null) return;
+          if (ItemTemplate == null) return;
+          IList<object> l = new List<object>();
+          ISynchronizable sync = itemsSource as ISynchronizable;
+          if (sync != null)
+            lock (sync.SyncRoot)
+              CollectionUtils.AddAll(l, itemsSource);
+          else
+            CollectionUtils.AddAll(l, itemsSource);
+
+          presenter.SetDataStrings(BuildDataStrings(l));
+
+          VirtualizingStackPanel vsp = _itemsHostPanel as VirtualizingStackPanel;
+          if (vsp != null)
+          {
+            ListViewItemGenerator lvig = new ListViewItemGenerator();
+            lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
+            IsEmpty = l.Count == 0;
+            vsp.ItemProvider = lvig;
+            SetValueInRenderThread(itemsDataDescriptor, null);
+          }
+          else
+          {
+            ItemCollection items = new ItemCollection();
+            items.AddAll(l.Select(PrepareItemContainer));
+            items.IsReadOnly = true;
+            SetValueInRenderThread(itemsDataDescriptor, items);
+            SetPreparedItems(items);
+          }
+        }
+      }
+      finally
+      {
+        _preparingItems = false;
+      }
+    }
+
+    /// <summary>
+    /// Called after the collection of items to be displayed has been set up.
+    /// </summary>
+    /// <param name="preparedItems">The prepared items.</param>
+    protected void SetPreparedItems(ICollection<object> preparedItems)
+    {
+      ICollection<object> oldPreparedItems;
+      lock (_renderLock)
+      {
+        oldPreparedItems = _preparedItems;
+        _preparedItems = preparedItems;
+        _prepareItems = true;
+      }
+      if (oldPreparedItems != null)
+        // It seems that this method was called multiple times before _preparedItems could be
+        // used by UpdatePreparedItems, so dispose old items
+        foreach (object item in oldPreparedItems)
+        {
+          object o = item;
+          TryDispose(ref o);
+        }
+      IsEmpty = preparedItems == null ? true : preparedItems.Count == 0;
+      InvalidateLayout(true, true);
+    }
+
+    protected void UpdatePreparedItems()
+    {
+      ICollection<object> items;
+      lock (_renderLock)
+      {
+        if (!_prepareItems)
+          return;
+        _prepareItems = false;
+        items = _preparedItems;
+        _preparedItems = null;
+      }
+      FrameworkElementCollection children = _itemsHostPanel.Children;
+      lock (children.SyncRoot)
+      {
+        children.Clear();
+        if (items == null)
+          return;
+        IList<FrameworkElement> tempItems = new List<FrameworkElement>(items.Count);
+        foreach (object item in items)
+        {
+          ISelectableItemContainer sic = item as ISelectableItemContainer;
+          if (sic != null && sic.Selected)
+            _lastSelectedItem = sic;
+          FrameworkElement fe = item as FrameworkElement;
+          if (fe == null)
+            continue;
+          tempItems.Add(fe);
+        }
+        children.AddAll(tempItems);
       }
     }
 
@@ -561,12 +665,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
+    {
+      UpdatePreparedItems();
+      return base.CalculateInnerDesiredSize(totalSize);
+    }
+
     public override void DoRender(Rendering.RenderContext localRenderContext)
     {
       Screen screen = Screen;
       if (screen != null && _lastFocusedElement != screen.FocusedElement)
         UpdateCurrentItem();
       base.DoRender(localRenderContext);
+    }
+
+    public override void StartInitialization(IParserContext context)
+    {
+      _preventItemsPreparation = true;
+      base.StartInitialization(context);
+    }
+
+    public override void FinishInitialization(IParserContext context)
+    {
+      base.FinishInitialization(context);
+      _preventItemsPreparation = false;
+      PrepareItems();
     }
   }
 }

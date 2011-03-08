@@ -214,5 +214,6 @@ namespace MediaPortal.Backend.Database
 
     string CreateSubstringExpression(string str1, string posExpr);
     string CreateSubstringExpression(string str1, string posExpr, string lenExpr);
+    string CreateDateToYearProjectionExpression(string selectExpression);
   }
 }

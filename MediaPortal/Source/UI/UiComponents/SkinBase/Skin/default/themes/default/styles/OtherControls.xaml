@@ -24,30 +24,30 @@
   
   <!-- Storyboards which shows an animation when a screen is opened / closed the focus -->
   <Storyboard x:Key="ScreenGotFocusStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="5"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="5"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="Opacity">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
     </DoubleAnimationUsingKeyFrames>    
   </Storyboard>
 
   <Storyboard x:Key="ScreenLostFocusStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="0.01"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="0.01"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootElement" Storyboard.TargetProperty="Opacity">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="0"/>
     </DoubleAnimationUsingKeyFrames>
@@ -55,14 +55,14 @@
 
   <!-- Storyboards which shows an animation when a dialog is opened / closed the focus -->
   <Storyboard x:Key="DialogGotFocusStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootDialogElement" Storyboard.TargetProperty="Opacity">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
   <Storyboard x:Key="DialogLostFocusStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RootDialogElement" Storyboard.TargetProperty="Opacity">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="0"/>
     </DoubleAnimationUsingKeyFrames>
@@ -749,8 +749,7 @@
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
-                Content="{Binding}">
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
               <RadioButton.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -796,8 +795,7 @@
             <CheckBox x:Name="Checker" Style="{ThemeResource CheckBoxStyle}"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
-                Content="{Binding}">
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
               <CheckBox.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -1216,7 +1214,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ListView ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
+          <ListView x:Name="WorkflowNavigationBarListView" ItemsSource="{TemplateBinding NavigationItems}" Style="{ThemeResource WorkflowNavigationBarListViewStyle}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1232,6 +1230,7 @@
               FixedVideoWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
               <Border x:Name="PiPControlBorder"
+                  IsVisible="{Binding IsPip}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>

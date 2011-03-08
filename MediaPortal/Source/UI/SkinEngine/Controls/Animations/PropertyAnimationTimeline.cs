@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     /// <summary>
     /// Creates a new <see cref="PropertyAnimationTimeline"/> for use in XAML.
-    /// Method <see cref="Initialize(IParserContext)"/> will have to be called to complete the
+    /// Method <see cref="FinishInitialization"/> will have to be called to complete the
     /// initialization.
     /// </summary>
     public PropertyAnimationTimeline()
@@ -181,9 +181,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Base overrides
 
-    public override void Initialize(IParserContext context)
+    public override void FinishInitialization(IParserContext context)
     {
-      base.Initialize(context);
+      base.FinishInitialization(context);
       if (String.IsNullOrEmpty(Storyboard.GetTargetName(this)) || String.IsNullOrEmpty(Storyboard.GetTargetProperty(this)))
       {
         _propertyExpression = null;

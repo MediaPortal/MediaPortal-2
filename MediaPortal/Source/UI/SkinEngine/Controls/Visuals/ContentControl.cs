@@ -117,10 +117,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ContentPresenter presenter = FindContentPresenter();
       if (presenter == null)
         return;
-      presenter.Content = Content;
-      presenter.ContentTemplate = ContentTemplate;
       presenter.HorizontalContentAlignment = HorizontalContentAlignment;
       presenter.VerticalContentAlignment = VerticalContentAlignment;
+      presenter.ContentTemplate = ContentTemplate;
+      presenter.Content = Content;
     }
 
     #endregion
@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new SubTypeMatcher(typeof(ContentPresenter))) as ContentPresenter;
     }
 
-    #region IAddChild Members
+    #region IAddChild<FrameworkElement> implementation
 
     public void AddChild(FrameworkElement o)
     {

@@ -289,15 +289,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             actualSize.Width + 0.5f, actualSize.Height + 0.5f);
 
         PositionColoredTextured[] verts = new PositionColoredTextured[6];
-        unchecked
-        {
-          verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-          verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
-          verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-          verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
-          verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
-          verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
-        }
+        verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+        verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
+        verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
+        verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+        verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
+        verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
         SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
       }

@@ -29,6 +29,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
   /// </summary>
   public interface IInitializable
   {
-    void Initialize(IParserContext context);
+    void StartInitialization(IParserContext context);
+    void FinishInitialization(IParserContext context);
   }
 }

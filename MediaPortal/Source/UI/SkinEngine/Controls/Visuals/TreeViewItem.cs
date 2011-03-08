@@ -30,7 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class TreeViewItem : HeaderedItemsControl, IAddChild<FrameworkElement>
+  public class TreeViewItem : HeaderedItemsControl, IAddChild<object>
   {
     #region Protected fields
 
@@ -165,9 +165,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new SubTypeMatcher(typeof(ContentPresenter))) as ContentPresenter;
     }
 
-    #region IAddChild Members
+    #region IAddChild<object> implementation
 
-    public void AddChild(FrameworkElement o)
+    public void AddChild(object o)
     {
       Content = o;
     }

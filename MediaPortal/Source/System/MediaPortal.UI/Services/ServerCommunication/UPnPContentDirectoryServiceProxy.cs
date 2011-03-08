@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
@@ -44,6 +45,34 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory") { }
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
+
+    protected string SerializeOnlineState(bool onlyOnline)
+    {
+      return onlyOnline ? "OnlyOnline" : "All";
+    }
+
+    protected string SerializeExcludeClobs(bool excludeCLOBs)
+    {
+      return excludeCLOBs ? "ExcludeCLOBs" : "Normal";
+    }
+
+    protected string SerializeCapitalizationMode(bool caseSensitive)
+    {
+      return caseSensitive ? "CaseSensitive" : "CaseInsensitive";
+    }
+
+    protected string SerializeProjectionFunction(ProjectionFunction projectionFunction)
+    {
+      switch (projectionFunction)
+      {
+        case ProjectionFunction.None:
+          return "None";
+        case ProjectionFunction.DateToYear:
+          return "DateToYear";
+        default:
+          throw new NotImplementedException(string.Format("ProjectionFunction '{0}' is not implemented", projectionFunction));
+      }
+    }
 
     #region Shares management
 
@@ -152,10 +181,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       IList<object> inParameters = new List<object>();
       IList<object> outParameters = action.InvokeAction(inParameters);
       string miaTypeIDs = (string) outParameters[0];
-      ICollection<Guid> result = new List<Guid>();
-      foreach (string miamIdStr in miaTypeIDs.Split(','))
-        result.Add(MarshallingHelper.DeserializeGuid(miamIdStr));
-      return result;
+      return miaTypeIDs.Split(',').Select(MarshallingHelper.DeserializeGuid).ToList();
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId)
@@ -169,51 +195,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
     #endregion
 
     #region Media query
-
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
-    {
-      CpAction action = GetAction("Search");
-      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
-      IList<object> inParameters = new List<object> {query, onlineStateStr};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (IList<MediaItem>) outParameters[0];
-    }
-
-    public IList<MLQueryResultGroup> GroupSearch(MediaItemQuery query, MediaItemAspectMetadata.AttributeSpecification groupingAttributeType,
-        bool onlyOnline, GroupingFunction groupingFunction)
-    {
-      CpAction action = GetAction("GroupSearch");
-      string onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
-      string groupingFunctionStr;
-      switch (groupingFunction)
-      {
-        case GroupingFunction.FirstCharacter:
-          groupingFunctionStr = "FirstCharacter";
-          break;
-        default:
-          throw new NotImplementedException(string.Format("GroupingFunction '{0}' is not implemented", groupingFunction));
-      }
-      IList<object> inParameters = new List<object> {query,
-          MarshallingHelper.SerializeGuid(groupingAttributeType.ParentMIAM.AspectId),
-          groupingAttributeType.AttributeName, onlineStateStr, groupingFunctionStr};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (IList<MLQueryResultGroup>) outParameters[0];
-    }
-
-    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
-        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive)
-    {
-      CpAction action = GetAction("SimpleTextSearch");
-      String searchModeStr = excludeCLOBs ? "ExcludeCLOBs" : "Normal";
-      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
-      String capitalizationMode = caseSensitive ? "CaseSensitive" : "CaseInsensitive";
-      IList<object> inParameters = new List<object> {searchText,
-          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
-          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-          filter, searchModeStr, onlineStateStr, capitalizationMode};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (IList<MediaItem>) outParameters[0];
-    }
 
     public MediaItem LoadItem(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
@@ -237,20 +218,49 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (ICollection<MediaItem>) outParameters[0];
     }
 
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
+    {
+      CpAction action = GetAction("Search");
+      String onlineStateStr = SerializeOnlineState(onlyOnline);
+      IList<object> inParameters = new List<object> {query, onlineStateStr};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (IList<MediaItem>) outParameters[0];
+    }
+
+    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive)
+    {
+      CpAction action = GetAction("SimpleTextSearch");
+      String searchModeStr = SerializeExcludeClobs(excludeCLOBs);
+      String onlineStateStr = SerializeOnlineState(onlyOnline);
+      String capitalizationMode = SerializeCapitalizationMode(caseSensitive);
+      IList<object> inParameters = new List<object> {searchText,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+          filter, searchModeStr, onlineStateStr, capitalizationMode};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (IList<MediaItem>) outParameters[0];
+    }
+
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline)
     {
       CpAction action = GetAction("GetValueGroups");
+      string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
+      string onlineStateStr = SerializeOnlineState(onlyOnline);
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
-          attributeType.AttributeName, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter};
+          attributeType.AttributeName, projectionFunctionStr, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IEnumerable<Guid> necessaryMIATypes, IFilter filter, GroupingFunction groupingFunction)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline,
+        GroupingFunction groupingFunction)
     {
       CpAction action = GetAction("GroupValueGroups");
+      string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
+      string onlineStateStr = SerializeOnlineState(onlyOnline);
       string groupingFunctionStr;
       switch (groupingFunction)
       {
@@ -261,9 +271,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
           throw new NotImplementedException(string.Format("GroupingFunction '{0}' is not implemented", groupingFunction));
       }
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
-          attributeType.AttributeName, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, groupingFunctionStr};
+          attributeType.AttributeName, projectionFunctionStr, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr,
+          groupingFunctionStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
+    }
+
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline)
+    {
+      CpAction action = GetAction("CountMediaItems");
+      string onlineStateStr = SerializeOnlineState(onlyOnline);
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (int) outParameters[0];
     }
 
     #endregion
