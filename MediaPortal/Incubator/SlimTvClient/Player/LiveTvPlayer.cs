@@ -34,7 +34,7 @@ using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
-  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer, IReusablePlayer
+  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IChapterPlayer//, IReusablePlayer
   {
     /// <summary>
     /// Constructs a LiveTvPlayer player object.
