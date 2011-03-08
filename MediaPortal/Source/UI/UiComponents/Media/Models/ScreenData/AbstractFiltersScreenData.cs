@@ -137,8 +137,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           ICollection<FilterValue> fv = _avoidClustering ? null :
               _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
           if (fv != null)
-            foreach (FilterValue filterValue in fv)
-              numItems += filterValue.NumItems.Value;
+            numItems = fv.Select(filterValue => filterValue.NumItems).Select(num => num.HasValue ? num.Value : 0).Sum();
           if (fv == null || numItems <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
             fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, currentVS.Filter);
@@ -161,9 +160,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
             ICollection<AbstractScreenData> remainingScreens = new List<AbstractScreenData>(
                 _navigationData.AvailableScreens.Where(screen => screen.MenuItemLabel != MenuItemLabel));
-            List<FilterValue> filterValues = new List<FilterValue>(fv);
-            filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
-            foreach (FilterValue filterValue in filterValues)
+            foreach (FilterValue filterValue in fv)
             {
               string filterTitle = filterValue.Title;
               IFilter combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { currentVS.Filter, filterValue.Filter});

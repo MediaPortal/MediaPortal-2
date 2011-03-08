@@ -25,9 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using MediaPortal.Backend.Services.Database;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
@@ -36,41 +34,23 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
-  /// Creates an SQL query for selecting a set of distinct media item aspect attribute values for a given attribute type
-  /// and a given set of media items, specified by a filter.
+  /// Creates an SQL query for evaluating the count of media items which contain the given necessary MIA types and which match
+  /// the given filter.
   /// </summary>
-  public class CompiledGroupedAttributeValueQuery
+  public class CompiledCountItemsQuery
   {
     protected readonly MIA_Management _miaManagement;
     protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
-    protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
-    protected readonly SelectProjectionFunction _selectProjectionFunction;
-    protected readonly Type _projectionValueType;
     protected readonly CompiledFilter _filter;
 
-    public CompiledGroupedAttributeValueQuery(
+    public CompiledCountItemsQuery(
         MIA_Management miaManagement,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
-        MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType,
         CompiledFilter filter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
-      _selectAttribute = selectedAttribute;
-      _selectProjectionFunction = selectProjectionFunction;
-      _projectionValueType = projectionValueType;
       _filter = filter;
-    }
-
-    public IEnumerable<MediaItemAspectMetadata> NecessaryRequestedMIATypes
-    {
-      get { return _necessaryRequestedMIATypes; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification SelectAttribute
-    {
-      get { return _selectAttribute; }
     }
 
     public CompiledFilter Filter
@@ -78,10 +58,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        MediaItemAspectMetadata.AttributeSpecification selectAttribute,
-        SelectProjectionFunction selectProjectionFunction, Type projectionValueType, IFilter filter)
+    public static CompiledCountItemsQuery Compile(MIA_Management miaManagement,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       // Raise exception if MIA types are not present, which are contained in filter condition
@@ -101,11 +79,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
         necessaryMIATypes.Add(miam);
       }
-      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute,
-          selectProjectionFunction, projectionValueType, compiledFilter);
+      return new CompiledCountItemsQuery(miaManagement, necessaryMIATypes, compiledFilter);
     }
 
-    public HomogenousMap Execute()
+    public int Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -113,42 +90,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         using (IDbCommand command = transaction.CreateCommand())
         {
-          string valueAlias;
-          string groupSizeAlias;
+          string countAlias;
           string statementStr;
           IList<BindVar> bindVars;
-          if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
-          {
-            QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-            MainQueryBuilder builder = new MainQueryBuilder(_miaManagement,
-                new QueryAttribute[] {selectAttributeQA}, _selectProjectionFunction,
-                _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
-            IDictionary<QueryAttribute, string> qa2a;
-            builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out bindVars);
-            valueAlias = qa2a[selectAttributeQA];
-          }
-          else
-          {
-            ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
-                _selectProjectionFunction, _necessaryRequestedMIATypes, _filter);
-            builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
-                out statementStr, out bindVars);
-          }
+          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new QueryAttribute[] {}, null,
+              _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
+          IDictionary<QueryAttribute, string> qa2a;
+          builder.GenerateSqlGroupByStatement(new Namespace(), out countAlias, out qa2a, out statementStr, out bindVars);
+
           command.CommandText = statementStr;
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          Type valueType = _projectionValueType ?? _selectAttribute.AttributeType;
-          HomogenousMap result = new HomogenousMap(valueType, typeof(int));
-          using (IDataReader reader = command.ExecuteReader())
-          {
-            int valueCol = reader.GetOrdinal(valueAlias);
-            int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
-            while (reader.Read())
-              result.Add(database.ReadDBValue(valueType, reader, valueCol),
-                  database.ReadDBValue<int>(reader, groupSizeCol));
-          }
-          return result;
+          return (int) command.ExecuteScalar();
         }
       }
       finally

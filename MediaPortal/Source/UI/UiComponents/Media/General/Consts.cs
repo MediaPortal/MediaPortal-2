@@ -159,6 +159,12 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_FILTER_PICTURE_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterPictureItemsNavbarDisplayLabel]";
     public const string RES_FILTER_SYSTEM_NAVBAR_DISPLAY_LABEL = "[Media.FilterSystemNavbarDisplayLabel]";
 
+    public const string VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
+
+    public const string RES_PICTURE_FILTER_SMALL = "[Media.PictureFilterSmall]";
+    public const string RES_PICTURE_FILTER_MEDIUM = "[Media.PictureFilterMedium]";
+    public const string RES_PICTURE_FILTER_BIG = "[Media.PictureFilterBig]";
+
     public const string RES_MORE_THAN_MAX_ITEMS_HINT = "[Media.MoreThanMaxItemsHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_BROWSE_HINT = "[Media.MoreThanMaxItemsBrowseHint]";
     public const string RES_MORE_THAN_MAX_ITEMS_SEARCH_RESULT_HINT = "[Media.MoreThanMaxItemsSearchResultHint]";

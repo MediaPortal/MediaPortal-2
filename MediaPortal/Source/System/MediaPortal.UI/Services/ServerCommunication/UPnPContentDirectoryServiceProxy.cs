@@ -277,6 +277,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline)
+    {
+      CpAction action = GetAction("CountMediaItems");
+      string onlineStateStr = SerializeOnlineState(onlyOnline);
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter, onlineStateStr};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (int) outParameters[0];
+    }
+
     #endregion
 
     #region Playlist management

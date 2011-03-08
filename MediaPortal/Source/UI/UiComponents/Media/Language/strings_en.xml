@@ -111,6 +111,7 @@
     <String Name="PicturesRootViewName" Text="Pictures"/>
     <String Name="SimpleSearchViewName" Text="Simple search"/>
 
+    <!-- Other strings -->
     <String Name="ViewInvalid" Text="This view could not be built"/>
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
     <String Name="NoItems" Text="No items"/> <!-- Shown in the header of an items list -->
@@ -123,6 +124,10 @@
     <String Name="MoreThanMaxItemsSearchResultHint" Text="The search result contains more than {0} items. Please narrow your search."/>
     <String Name="ListIsBeingBuiltHint" Text="The items list is being built..."/>
     <String Name="SearchResultIsBeingBuiltHint" Text="Searching..."/>
+
+    <String Name="PictureFilterSmall" Text="Small"/>
+    <String Name="PictureFilterMedium" Text="Medium"/>
+    <String Name="PictureFilterBig" Text="Big"/>
 
     <String Name="ManagePlaylists" Text="Playlists"/>
     <String Name="AddAllToPlaylist" Text="Add all to playlist"/>

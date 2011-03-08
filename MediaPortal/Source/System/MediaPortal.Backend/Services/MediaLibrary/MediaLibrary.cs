@@ -101,12 +101,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
+    #region Protected fields
+
     protected MIA_Management _miaManagement = null;
     protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>(); // System ids mapped to system names
     protected object _syncObj = new object();
     protected string _localSystemId;
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
+
+    #endregion
+
+    #region Ctor & dtor
 
     public MediaLibrary()
     {
@@ -121,10 +127,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
     }
 
+    #endregion
+
     public string LocalSystemId
     {
       get { return _localSystemId; }
     }
+
+    #region Protected methods
 
     protected MediaItemQuery BuildLoadItemQuery(string systemId, ResourcePath path)
     {
@@ -218,7 +228,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
+    protected int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
       string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
@@ -266,7 +276,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IFilter onlineFilter = new BooleanCombinationFilter(BooleanOperator.Or, _systemsOnline.Select(
               systemEntry => new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, systemEntry.Key)).Cast<IFilter>());
-      return innerFilter == null ? onlineFilter : new BooleanCombinationFilter(BooleanOperator.And, new IFilter[] {innerFilter, onlineFilter});
+      return innerFilter == null ? onlineFilter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, innerFilter, onlineFilter);
     }
 
     protected ICollection<string> GetShareMediaCategories(ITransaction transaction, Guid shareId)
@@ -310,6 +320,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (share.SystemId == _localSystemId)
         importerWorker.CancelJobsForPath(share.BaseResourcePath);
     }
+
+    #endregion
 
     #region IMediaLibrary implementation
 
@@ -482,6 +494,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       List<MLQueryResultGroup> result = new List<MLQueryResultGroup>(groups.Values);
       result.Sort((a, b) => groupingFunctionImpl.Compare(a.GroupKey, b.GroupKey));
       return result;
+    }
+
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+    {
+      CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
+          necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+      return cciq.Execute();
     }
 
     #endregion

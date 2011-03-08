@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -58,16 +59,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        string name = group.Key as string ?? string.Empty;
-        name = name.Trim();
+        string name = string.Format("{0}", group.Key).Trim();
         if (name == string.Empty)
           numEmptyEntries += (int) group.Value;
         else
-          result.Add(new FilterValue(group.Key.ToString(),
+          result.Add(new FilterValue(name,
               new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), (int) group.Value, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
       return result;
     }
 
@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(name, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), numEmptyEntries, this));
       return result;
     }
 
