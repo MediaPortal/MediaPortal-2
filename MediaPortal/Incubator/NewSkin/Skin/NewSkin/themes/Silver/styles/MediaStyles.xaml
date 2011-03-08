@@ -11,17 +11,17 @@
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
-        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[0].Color">
+        Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
-        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[1].Color">
+    <!--<ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
+        Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
-        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[2].Color">
+        Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
-    </ColorAnimationUsingKeyFrames>
+    </ColorAnimationUsingKeyFrames>-->
   </Storyboard>
 
   <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -154,7 +154,7 @@
               </ResourceWrapper>
             </Control.Resources>
           </Control>
-          <!--<ControlTemplate.Triggers>
+          <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
@@ -163,7 +163,7 @@
                 <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-          </ControlTemplate.Triggers>-->
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -317,7 +317,7 @@
               </ResourceWrapper>
             </Control.Resources>
           </Control>
-          <!--<ControlTemplate.Triggers>
+          <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
@@ -326,7 +326,7 @@
                 <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-          </ControlTemplate.Triggers>-->
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

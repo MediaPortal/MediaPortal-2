@@ -51,6 +51,29 @@
 
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+
+                    <Grid x:Name="AudioPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,1,0,0">
+                      <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- Must be located the same as Audio_Mouse -->
+                        <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
+                        <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                          <Control.IsVisible>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                              <Binding Path="IsAudio"/>
+                              <Binding Path="IsMuted"/>
+                            </MultiBinding>
+                          </Control.IsVisible>
+                        </Control>
+                      </Grid>
+                      <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- Must be located the same as Audio_NoMouse -->
+                        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 </DockPanel>
               </ResourceWrapper>
@@ -126,29 +149,6 @@
                       <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                       Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
-
-                      <Grid x:Name="AudioPanel" HorizontalAlignment="Right" Margin="0,1,0,0">
-                        <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                          <!-- Must be located the same as Audio_Mouse -->
-                          <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                          <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                            <Control.IsVisible>
-                              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                                <Binding Path="IsAudio"/>
-                                <Binding Path="IsMuted"/>
-                              </MultiBinding>
-                            </Control.IsVisible>
-                          </Control>
-                        </Grid>
-                        <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                          <!-- Must be located the same as Audio_NoMouse -->
-                          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                        </Grid>
-                      </Grid>
-
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>
@@ -158,7 +158,7 @@
 
           </Control>
 
-          <!--<ControlTemplate.Triggers>
+          <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
@@ -167,7 +167,7 @@
                 <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
-          </ControlTemplate.Triggers>-->
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
