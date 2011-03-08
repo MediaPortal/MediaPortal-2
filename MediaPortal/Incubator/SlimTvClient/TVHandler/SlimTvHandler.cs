@@ -39,6 +39,7 @@ namespace MediaPortal.Plugins.SlimTvClient
   {
     private struct TVSlotContext
     {
+      public bool IsPiP;
       public bool CardChanging;
       public string AccessorPath;
       public IChannel Channel;
@@ -106,19 +107,46 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     private int GetMatchingSlotIndex(int requestedSlotIndex)
     {
-      if (requestedSlotIndex == 0)
-        return 0;
+      // requested index 0: master video
+      // requested index 1: PiP video
 
-      if (requestedSlotIndex == 1)
+      // if only one stream is active, reset all PiP information here
+      if (NumberOfActiveSlots == 1)
       {
-        // if MasterStream in PiP mode was stopped, but PiP Stream still active, we fill the 0 slotindex.
-        if (_slotContexes[0].Channel == null && _slotContexes[1].Channel != null)
-          return 0;
-
-        if (_slotContexes[0].Channel != null)
-          return 1;
-
+        _slotContexes[0].IsPiP = false;
+        _slotContexes[1].IsPiP = false;
       }
+
+      // when both are active, return the index that matches to master/PiP
+      if (NumberOfActiveSlots == 2)
+      {
+        if (requestedSlotIndex == 0)
+          return _slotContexes[0].IsPiP ? 1 : 0;
+
+        if (requestedSlotIndex == 1)
+          return _slotContexes[0].IsPiP ? 0 : 1;
+      }
+      // when one is active and PiP requested, return the free slot
+      if (requestedSlotIndex == 1 && NumberOfActiveSlots >= 1)
+      {
+        if (_slotContexes[0].Channel != null)
+        {
+          _slotContexes[0].IsPiP = false;
+          _slotContexes[1].IsPiP = true;
+          return 1;
+        }
+        if (_slotContexes[1].Channel != null)
+        {
+          _slotContexes[1].IsPiP = false;
+          _slotContexes[0].IsPiP = true;
+          return 0;
+        }
+      }
+
+      // when one is active and master is requested, return the used slot
+      if (requestedSlotIndex == 0 && NumberOfActiveSlots >= 1)
+        return _slotContexes[0].Channel != null ? 0 : 1;
+
       return 0;
     }
 
@@ -154,7 +182,7 @@ namespace MediaPortal.Plugins.SlimTvClient
             ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         
         // if slot was empty, start a new player
-        if (_slotContexes[slotIndex].AccessorPath == null)
+        if (_slotContexes[newSlotIndex].AccessorPath == null)
         {
           AddTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
@@ -164,16 +192,16 @@ namespace MediaPortal.Plugins.SlimTvClient
         {
           try
           {
-            _slotContexes[slotIndex].CardChanging = true;
+            _slotContexes[newSlotIndex].CardChanging = true;
             UpdateExistingMediaItem(timeshiftMediaItem);
           }
           finally 
           {
-            _slotContexes[slotIndex].CardChanging = false;
+            _slotContexes[newSlotIndex].CardChanging = false;
           }
         }
-        _slotContexes[slotIndex].AccessorPath = newAccessorPath;
-        _slotContexes[slotIndex].Channel = channel;
+        _slotContexes[newSlotIndex].AccessorPath = newAccessorPath;
+        _slotContexes[newSlotIndex].Channel = channel;
       }
 
       return result;
