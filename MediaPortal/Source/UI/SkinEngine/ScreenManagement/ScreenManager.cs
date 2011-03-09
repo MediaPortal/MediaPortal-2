@@ -705,7 +705,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_currentScreen == null || _currentScreen.ScreenState == Screen.State.Closing || 
-          screen == null || screen.Name != _currentScreen.Name)
+          screen == null || screen.ResourceName != _currentScreen.ResourceName)
           return;
 
         DoCloseDialogs(true, true);
@@ -724,7 +724,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
 
         screen = _nextScreen;
-        if (screen != null && (_currentScreen == null || screen.Name != _currentScreen.Name))
+        if (screen != null && (_currentScreen == null || screen.ResourceName != _currentScreen.ResourceName))
           screen.FireScreenShowingEvent();
 
         DoCloseScreen();
@@ -1147,7 +1147,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected internal void ScreenChanging(string newScreenName)
     {
       Screen screen = _currentScreen;
-      if (newScreenName == null || (screen != null && screen.Name != newScreenName))
+      if (newScreenName == null || (screen != null && screen.ResourceName != newScreenName))
       {
         IncPendingOperations();
         ScreenManagerMessaging.SendMessageScreenClosing(screen);
