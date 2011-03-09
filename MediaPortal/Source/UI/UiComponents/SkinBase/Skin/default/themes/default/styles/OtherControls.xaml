@@ -22,8 +22,8 @@
   <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.3"/>
   <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.3"/>
   
-  <!-- Storyboards which shows an animation when a screen is opened / closed the focus -->
-  <Storyboard x:Key="ScreenGotFocusStoryboard" FillBehavior="HoldEnd">
+  <!-- Storyboards which show an animation when a screen is opened / closed -->
+  <Storyboard x:Key="ScreenGotFocusStoryboard" FillBehavior="Stop">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="5"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
@@ -54,7 +54,7 @@
   </Storyboard>
 
   <!-- Storyboards which shows an animation when a dialog is opened / closed the focus -->
-  <Storyboard x:Key="DialogGotFocusStoryboard" FillBehavior="HoldEnd">
+  <Storyboard x:Key="DialogGotFocusStoryboard" FillBehavior="Stop">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="1"/>

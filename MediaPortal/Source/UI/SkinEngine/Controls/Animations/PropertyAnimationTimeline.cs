@@ -184,13 +184,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     public override void FinishInitialization(IParserContext context)
     {
       base.FinishInitialization(context);
-      if (String.IsNullOrEmpty(Storyboard.GetTargetName(this)) || String.IsNullOrEmpty(Storyboard.GetTargetProperty(this)))
-      {
-        _propertyExpression = null;
-        return;
-      }
       string targetProperty = Storyboard.GetTargetProperty(this);
-      _propertyExpression = PathExpression.Compile(context, targetProperty);
+      _propertyExpression = String.IsNullOrEmpty(targetProperty) ? null : PathExpression.Compile(context, targetProperty);
     }
 
     #endregion

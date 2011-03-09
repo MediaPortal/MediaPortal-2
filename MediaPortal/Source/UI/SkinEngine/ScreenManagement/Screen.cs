@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
@@ -688,13 +689,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         EventTrigger trigger = triggerbase as EventTrigger;
         if (trigger != null && trigger.RoutedEvent == CLOSE_EVENT)
-        {
-          foreach (TriggerAction action in trigger.Actions)
-            duration = Math.Max(duration, action.DurationInMilliseconds);
-        }
-        if (duration > 0.001)
-          endTime = SkinContext.FrameRenderingStartTime.AddMilliseconds(duration);
+          duration = trigger.Actions.Aggregate(duration, (current, action) => Math.Max(current, action.DurationInMilliseconds));
       }
+      if (duration > 0.001)
+        endTime = SkinContext.FrameRenderingStartTime.AddMilliseconds(duration);
 
       foreach (UIElement child in parent.GetChildren())
       {
