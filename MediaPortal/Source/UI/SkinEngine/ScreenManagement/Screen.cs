@@ -673,31 +673,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <returns>The time at which all triggered animations will be completed.</returns>
     public DateTime FindCloseEventCompletionTime()
     {
-      if (_root == null)
-        return DateTime.MinValue;
-      return FindCloseEventCompletionTime(_root);
-    }
-
-    protected DateTime FindCloseEventCompletionTime(UIElement parent)
-    {
-      double duration = 0.0;
       DateTime endTime = DateTime.MinValue;
 
-      foreach (TriggerBase triggerbase in parent.Triggers)
-      {
-        EventTrigger trigger = triggerbase as EventTrigger;
-        if (trigger != null && trigger.RoutedEvent == CLOSE_EVENT)
-          duration = trigger.Actions.Aggregate(duration, (current, action) => Math.Max(current, action.DurationInMilliseconds));
-      }
+      double duration = Triggers.OfType<EventTrigger>().Where(trigger => trigger.RoutedEvent == CLOSE_EVENT).
+          Aggregate(0.0, (current, closeTriggers) => Math.Max(current, closeTriggers.Actions.Max(action => action.DurationInMilliseconds)));
       if (duration > 0.001)
         endTime = SkinContext.FrameRenderingStartTime.AddMilliseconds(duration);
 
-      foreach (UIElement child in parent.GetChildren())
-      {
-        DateTime childPersistence = FindCloseEventCompletionTime(child);
-        if (endTime.CompareTo(childPersistence) < 0)
-          endTime = childPersistence;
-      }
       return endTime;
     }
 
