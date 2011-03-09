@@ -35,6 +35,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
   </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ScreenGotFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Close">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ScreenLostFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
   <DockPanel x:Name="ScreenAnimationElement" Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       RenderTransformOrigin="0.5,0.5" LastChildFill="True">
     <DockPanel.RenderTransform>
@@ -42,18 +54,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ScaleTransform ScaleX="1" ScaleY="1"/>
       </TransformGroup>
     </DockPanel.RenderTransform>
-    <DockPanel.Triggers>
-      <EventTrigger RoutedEvent="Screen.Show">
-        <EventTrigger.Actions>
-          <BeginStoryboard Storyboard="{ThemeResource ScreenGotFocusStoryboard}"/>
-        </EventTrigger.Actions>
-      </EventTrigger>
-      <EventTrigger RoutedEvent="Screen.Close">
-        <EventTrigger.Actions>
-          <BeginStoryboard Storyboard="{ThemeResource ScreenLostFocusStoryboard}"/>
-        </EventTrigger.Actions>
-      </EventTrigger>
-    </DockPanel.Triggers>
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>

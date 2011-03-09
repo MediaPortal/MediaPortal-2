@@ -550,14 +550,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void DoFireScreenShowingEvent()
     {
-      if (_root != null)
-        _root.FireEvent(SHOW_EVENT);
+      FireEvent(SHOW_EVENT);
     }
 
     public void FireScreenClosingEvent()
     {
-      if (_root != null)
-        _root.FireEvent(CLOSE_EVENT);
+      FireEvent(CLOSE_EVENT);
       _closeTime = FindCloseEventCompletionTime();
     }
 
@@ -703,6 +701,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return endTime;
     }
 
+    public override void AddChildren(ICollection<UIElement> childrenOut)
+    {
+      if (_root != null)
+        childrenOut.Add(_root);
+    }
+
     public override string ToString()
     {
       return string.IsNullOrEmpty(_resourceName) ? "Unnamed screen" : _resourceName;
@@ -738,9 +742,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void AddChild(FrameworkElement child)
     {
       _root = child;
-      _root.SetScreen(this);
+      SetScreen(this);
       ScreenState = _state; // Set the visual's element state via our ScreenState setter
       _root.VisualParent = this;
+      InitializeTriggers();
     }
 
     #endregion

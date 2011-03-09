@@ -31,6 +31,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Name="DialogScreen"
     >
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource DialogGotFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Close">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource DialogLostFocusStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
   <Grid x:Name="ScreenAnimationElement">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="50"/>
@@ -42,18 +54,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="*"/>
       <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
-    <Grid.Triggers>
-      <EventTrigger RoutedEvent="Screen.Show">
-        <EventTrigger.Actions>
-          <BeginStoryboard Storyboard="{ThemeResource DialogGotFocusStoryboard}"/>
-        </EventTrigger.Actions>
-      </EventTrigger>
-      <EventTrigger RoutedEvent="Screen.Close">
-        <EventTrigger.Actions>
-          <BeginStoryboard Storyboard="{ThemeResource DialogLostFocusStoryboard}"/>
-        </EventTrigger.Actions>
-      </EventTrigger>
-    </Grid.Triggers>
     <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{ThemeResource DialogBorderColor}" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
         VerticalAlignment="Center" HorizontalAlignment="Center">
       <Grid x:Name="DialogBackgroundGrid" Background="{ThemeResource DialogBackgroundBrush}">

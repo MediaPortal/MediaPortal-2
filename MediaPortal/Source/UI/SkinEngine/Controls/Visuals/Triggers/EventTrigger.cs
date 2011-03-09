@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 

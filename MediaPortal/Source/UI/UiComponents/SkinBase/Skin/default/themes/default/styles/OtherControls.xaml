@@ -53,7 +53,7 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <!-- Storyboards which shows an animation when a dialog is opened / closed the focus -->
+  <!-- Storyboards which show an animation when a dialog is opened / closed -->
   <Storyboard x:Key="DialogGotFocusStoryboard" FillBehavior="Stop">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
