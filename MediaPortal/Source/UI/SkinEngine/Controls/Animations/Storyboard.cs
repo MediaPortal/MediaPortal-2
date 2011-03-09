@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>TargetName</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetTargetName(DependencyObject targetObject, string value)
     {
       targetObject.SetAttachedPropertyValue<string>(TARGET_NAME_ATTACHED_PROPERTY, value);
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>TargetProperty</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetTargetProperty(DependencyObject targetObject, string value)
     {
       targetObject.SetAttachedPropertyValue<string>(TARGET_PROPERTY_ATTACHED_PROPERTY, value);
