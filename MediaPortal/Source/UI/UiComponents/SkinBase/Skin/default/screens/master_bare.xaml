@@ -51,7 +51,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       RenderTransformOrigin="0.5,0.5" LastChildFill="True">
     <DockPanel.RenderTransform>
       <TransformGroup>
-        <ScaleTransform ScaleX="1" ScaleY="1"/>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
     </DockPanel.RenderTransform>
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
