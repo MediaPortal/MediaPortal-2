@@ -31,4 +31,7 @@
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="10"/>
   
+  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.3"/>
+  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.3"/>
+  
 </ResourceDictionary>

@@ -19,11 +19,9 @@
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
 
-  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.3"/>
-  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.3"/>
-  
-  <!-- Storyboards which show an animation when a screen is opened / closed -->
-  <Storyboard x:Key="ScreenGotFocusStoryboard" FillBehavior="Stop">
+  <!-- ******************* Screen/dialog animation storyboards ****************** -->
+
+  <Storyboard x:Key="ShowScreenStoryboard" FillBehavior="Stop">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="5"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
@@ -38,7 +36,7 @@
     </DoubleAnimationUsingKeyFrames>    
   </Storyboard>
 
-  <Storyboard x:Key="ScreenLostFocusStoryboard" FillBehavior="HoldEnd">
+  <Storyboard x:Key="HideScreenStoryboard" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="0.01"/>
@@ -53,15 +51,14 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <!-- Storyboards which show an animation when a dialog is opened / closed -->
-  <Storyboard x:Key="DialogGotFocusStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="ShowDialogStoryboard" FillBehavior="Stop">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="DialogLostFocusStoryboard" FillBehavior="HoldEnd">
+  <Storyboard x:Key="HideDialogStoryboard" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="0"/>

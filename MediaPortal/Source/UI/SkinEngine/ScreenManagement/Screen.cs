@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string VIRTUAL_KEYBOARD_DIALOG = "DialogVirtualKeyboard";
 
     public const string SHOW_EVENT = "Screen.Show";
-    public const string CLOSE_EVENT = "Screen.Close";
+    public const string CLOSE_EVENT = "Screen.Hide";
 
     #endregion
 
