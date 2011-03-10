@@ -607,23 +607,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (!dialogPersistence)
             _dialogStack.Remove(bottomDialogNode);
         }
-        // Restore input attachment
-        // Find top non-closed dialog
-        node = _dialogStack.Last;
-        while (node != null && node.Value.DialogScreen.ScreenState == Screen.State.Closing)
-            node = node.Previous;
-
-        if (node == null)
-        { // Last dialog was removed, attach input to screen
-          if (_currentScreen != null)
-            screenToFocus = _currentScreen;
-        }
-        else
-          screenToFocus = node.Value.DialogScreen;
       }
-      FocusScreen(screenToFocus);
       foreach (DialogData dd in oldDialogData)
         DoCloseDialog(dd, fireCloseDelegates, dialogPersistence);
+
+      CompleteDialogClosures();
     }
 
     protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
@@ -642,8 +630,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         
       if (fireCloseDelegates && dd.CloseCallback != null)
         dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
-
-      CompleteDialogClosures();
     }
 
     protected internal void DoCloseDialogs(bool fireCloseDelegates, bool dialogPersistence)
@@ -653,6 +639,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void CompleteDialogClosures()
     {
+      Screen screenToFocus = null;
       lock (_syncObj)
       {
         LinkedListNode<DialogData> node = _dialogStack.Last;
@@ -666,11 +653,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             ScheduleDisposeScreen(screen);
             _dialogStack.Remove(node);
             node = prevNode;
+            continue;
           }
-          else
-            node = node.Previous;
+          if (screen.ScreenState != Screen.State.Closing)
+            screenToFocus = screen;
+          node = node.Previous;
         }
+        if (screenToFocus == null)
+          screenToFocus = _currentScreen;
       }
+      FocusScreen(screenToFocus);
     }
 
     protected internal void DoCloseScreen()
