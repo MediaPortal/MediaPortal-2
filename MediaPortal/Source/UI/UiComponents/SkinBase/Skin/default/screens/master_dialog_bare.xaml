@@ -31,7 +31,27 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Name="DialogScreen"
     >
-  <Grid>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ShowDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource HideDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5">
+    <Grid.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
+      </TransformGroup>
+    </Grid.RenderTransform>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="50"/>
       <ColumnDefinition Width="*"/>

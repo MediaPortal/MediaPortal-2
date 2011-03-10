@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
@@ -32,6 +33,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -51,6 +53,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     #region Consts
 
     public const string VIRTUAL_KEYBOARD_DIALOG = "DialogVirtualKeyboard";
+
+    public const string SHOW_EVENT = "Screen.Show";
+    public const string CLOSE_EVENT = "Screen.Hide";
 
     #endregion
 
@@ -132,6 +137,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       Preparing,
       Running,
+      Closing,
       Closed
     }
 
@@ -140,10 +146,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     #region Protected fields
 
     protected State _state = State.Preparing;
+    protected DateTime _closeTime = DateTime.MinValue;
     protected Guid _screenInstanceId = Guid.NewGuid();
     protected string _resourceName;
     protected int _skinWidth;
     protected int _skinHeight;
+    protected bool _hasBackground = true;
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -158,6 +166,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
+    protected bool _screenShowEventPending = false;
     protected Animator _animator = new Animator();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
     protected Guid? _virtualKeyboardDialogGuid = null;
@@ -220,6 +229,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _root.SetElementState(ElementState.Available);
         else if (value == State.Running)
           _root.SetElementState(ElementState.Running);
+        else if (value == State.Closing)
+          { } // Nothing to do
         else if (value == State.Closed)
           _root.SetElementState(ElementState.Disposing);
         else
@@ -242,6 +253,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       get { return (bool) _hasInputFocusProperty.GetValue(); }
       set { _hasInputFocusProperty.SetValue(value); }
+    }
+
+    public bool HasBackground
+    {
+      get { return _hasBackground; }
+      set { _hasBackground = value; }
     }
 
     /// <summary>
@@ -336,6 +353,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           DoHandleMouseMove(x, y);
         }
         _root.UpdateLayoutRoot();
+        if (_screenShowEventPending)
+        {
+          DoFireScreenShowingEvent();
+          _screenShowEventPending = false;
+        }
         _root.Render(_renderContext);
       }
     }
@@ -521,6 +543,27 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       internal set { _screenInstanceId = value; }
     }
 
+    public void FireScreenShowingEvent()
+    {
+      _screenShowEventPending = true;
+    }
+
+    protected void DoFireScreenShowingEvent()
+    {
+      FireEvent(SHOW_EVENT);
+    }
+
+    public void FireScreenClosingEvent()
+    {
+      FireEvent(CLOSE_EVENT);
+      _closeTime = FindCloseEventCompletionTime();
+    }
+
+    public bool DoneClosing
+    {
+      get { return SkinContext.FrameRenderingStartTime.CompareTo(_closeTime) > 0; }
+    }
+
     /// <summary>
     /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
     /// focus. This will reset the focus on the former focused element.
@@ -623,6 +666,29 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return null;
     }
 
+    /// <summary>
+    /// Calculates how long is necessary for any animations triggered by the screen CLOSE_EVENT
+    /// to complete.
+    /// </summary>
+    /// <returns>The time at which all triggered animations will be completed.</returns>
+    public DateTime FindCloseEventCompletionTime()
+    {
+      DateTime endTime = DateTime.MinValue;
+
+      double duration = Triggers.OfType<EventTrigger>().Where(trigger => trigger.RoutedEvent == CLOSE_EVENT).
+          Aggregate(0.0, (current, closeTriggers) => Math.Max(current, closeTriggers.Actions.Max(action => action.DurationInMilliseconds)));
+      if (duration > 0.001)
+        endTime = SkinContext.FrameRenderingStartTime.AddMilliseconds(duration);
+
+      return endTime;
+    }
+
+    public override void AddChildren(ICollection<UIElement> childrenOut)
+    {
+      if (_root != null)
+        childrenOut.Add(_root);
+    }
+
     public override string ToString()
     {
       return string.IsNullOrEmpty(_resourceName) ? "Unnamed screen" : _resourceName;
@@ -658,9 +724,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void AddChild(FrameworkElement child)
     {
       _root = child;
-      _root.SetScreen(this);
+      SetScreen(this);
       ScreenState = _state; // Set the visual's element state via our ScreenState setter
       _root.VisualParent = this;
+      InitializeTriggers();
     }
 
     #endregion

@@ -224,6 +224,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    protected class DialogStackList : LinkedList<DialogData>
+    {
+      public void Push(DialogData dd)
+      {
+        AddFirst(dd);
+      }
+
+      public DialogData Pop()
+      {
+        DialogData dd = Peek();
+        if (dd != null) RemoveFirst();
+        return dd;
+      }
+
+      public DialogData Peek()
+      {
+        return (First == null) ? null : First.Value;
+      }
+    }
+
     #endregion
 
     #region Protected fields
@@ -232,11 +252,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected readonly SkinManager _skinManager;
 
     protected readonly BackgroundData _backgroundData;
-    protected readonly Stack<DialogData> _dialogStack = new Stack<DialogData>();
+    protected readonly DialogStackList _dialogStack = new DialogStackList();
     protected Screen _currentScreen = null; // "Normal" screen
+    protected Screen _nextScreen = null; // Holds the next screen while the current screen finishes closing
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
     protected int _numPendingAsyncOperations = 0;
     protected Screen _focusedScreen = null;
+    protected DateTime _screenPersistenceTime = DateTime.MaxValue;
 
     protected bool _backgroundDisabled = false;
 
@@ -311,11 +333,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           case ScreenManagerMessaging.MessageType.CloseDialogs:
             Guid dialogInstanceId = (Guid) message.MessageData[ScreenManagerMessaging.DIALOG_INSTANCE_ID];
             CloseDialogsMode mode = (CloseDialogsMode) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS_MODE];
-            DoCloseDialogs(dialogInstanceId, mode, true);
+            DoCloseDialogs(dialogInstanceId, mode, true, true);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
             DoReloadScreens();
+            DecPendingOperations();
+            break;
+          case ScreenManagerMessaging.MessageType.ScreenClosing:
+            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
+            DoStartClosingScreen(screen);
             DecPendingOperations();
             break;
         }
@@ -491,7 +518,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (closeDialogs)
-          DoCloseDialogs(true);
+          DoCloseDialogs(true, false);
         DoExchangeScreen(screen);
       }
     }
@@ -519,6 +546,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected internal void DoShowDialog(DialogData dialogData)
     {
       dialogData.DialogScreen.Prepare();
+      dialogData.DialogScreen.FireScreenShowingEvent();
       lock (_syncObj)
       {
         UnfocusCurrentScreen();
@@ -530,19 +558,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       FocusScreen(dialogData.DialogScreen);
     }
 
-    protected bool IsDialogPresent(Guid dialogInstanceId)
+    protected LinkedListNode<DialogData> FindDialogNode(Guid dialogInstanceId)
     {
       lock (_syncObj)
-        return _dialogStack.Any(data => data.DialogInstanceId == dialogInstanceId);
+      {
+        LinkedListNode<DialogData> node = _dialogStack.First;
+        while (node != null && node.Value.DialogInstanceId != dialogInstanceId)
+          node = node.Next;
+        return node;
+      }
     }
 
-    protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates)
+    protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
     {
-      Screen screenToFocus = null;
       ICollection<DialogData> oldDialogData = new List<DialogData>();
       lock(_syncObj)
       {
-        if (_dialogStack.Count == 0 || (dialogInstanceId.HasValue && !IsDialogPresent(dialogInstanceId.Value)))
+        LinkedListNode<DialogData> bottomDialogNode = dialogInstanceId.HasValue ? FindDialogNode(dialogInstanceId.Value) : _dialogStack.First;
+        if (bottomDialogNode == null)
         {
           if (dialogInstanceId.HasValue)
             ServiceRegistration.Get<ILogger>().Warn("ScreenManager.DoCloseDialogs: Dialog to close with dialog instance id '{0}' was not found on the dialog stack", dialogInstanceId.Value);
@@ -551,54 +584,84 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // Remove input attachment
         UnfocusCurrentScreen();
 
-        // Search the to-be-closed dialog in the dialog stack and close it.
-        // It's a bit difficult because the Stack implementation doesn't provide methods to access elements in the
-        // middle of the stack. That's why we need a help stack here.
-        // We could also later use a more flexible stack implementation and simplify this method.
-        Stack<DialogData> helpStack = new Stack<DialogData>();
-        while (_dialogStack.Count > 0 && _dialogStack.Peek().DialogInstanceId != dialogInstanceId)
+        // Find all dialogs on top of our dialog
+        LinkedListNode<DialogData> node;
+        if (mode != CloseDialogsMode.CloseSingleDialog)
         {
-          DialogData dd = _dialogStack.Pop();
-          if (mode != CloseDialogsMode.CloseSingleDialog)
-            oldDialogData.Add(dd);
-          else
-            // Save dialog
-            helpStack.Push(dd);
+          node = _dialogStack.First;
+          while (node != bottomDialogNode)
+          {
+            oldDialogData.Add(node.Value);
+            node = node.Next;
+          }
+          // Remove dialogs from stack if no persistence is desired
+          if (!dialogPersistence)
+            while (_dialogStack.First != bottomDialogNode)
+              _dialogStack.RemoveFirst();
         }
-        if (mode != CloseDialogsMode.CloseAllOnTopExcluding && _dialogStack.Count > 0)
-          // Mark our dialog
-          oldDialogData.Add(_dialogStack.Pop());
-
-        // Restore dialogs on top of the removed dialog
-        foreach (DialogData data in helpStack)
-          _dialogStack.Push(data);
-
-        // Restore input attachment
-        if (_dialogStack.Count == 0)
-        { // Last dialog was removed, attach input to screen
-          if (_currentScreen != null)
-            screenToFocus = _currentScreen;
+        // Add our dialog if dictated by mode
+        if (mode != CloseDialogsMode.CloseAllOnTopExcluding)
+        {
+          oldDialogData.Add(bottomDialogNode.Value);
+          if (!dialogPersistence)
+            _dialogStack.Remove(bottomDialogNode);
         }
-        else
-          screenToFocus = _dialogStack.Peek().DialogScreen;
       }
-      FocusScreen(screenToFocus);
       foreach (DialogData dd in oldDialogData)
-        DoCloseDialog(dd, fireCloseDelegates);
+        DoCloseDialog(dd, fireCloseDelegates, dialogPersistence);
+
+      CompleteDialogClosures();
     }
 
-    protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates)
+    protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
     {
       Screen oldDialog = dd.DialogScreen;
-      oldDialog.ScreenState = Screen.State.Closed;
-      ScheduleDisposeScreen(oldDialog);
+      if (dialogPersistence)
+      {
+        oldDialog.ScreenState = Screen.State.Closing;
+        oldDialog.FireScreenClosingEvent();
+      }
+      else
+      {
+        oldDialog.ScreenState = Screen.State.Closed;
+        ScheduleDisposeScreen(oldDialog);
+      }
+        
       if (fireCloseDelegates && dd.CloseCallback != null)
         dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
     }
 
-    protected internal void DoCloseDialogs(bool fireCloseDelegates)
+    protected internal void DoCloseDialogs(bool fireCloseDelegates, bool dialogPersistence)
     {
-      DoCloseDialogs(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates);
+      DoCloseDialogs(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates, dialogPersistence);
+    }
+
+    protected internal void CompleteDialogClosures()
+    {
+      Screen screenToFocus = null;
+      lock (_syncObj)
+      {
+        LinkedListNode<DialogData> node = _dialogStack.Last;
+        while (node != null)
+        {
+          Screen screen = node.Value.DialogScreen;
+          if (screen.ScreenState == Screen.State.Closing && screen.DoneClosing)
+          {
+            LinkedListNode<DialogData> prevNode = node.Previous;
+            node.Value.DialogScreen.ScreenState = Screen.State.Closed;
+            ScheduleDisposeScreen(screen);
+            _dialogStack.Remove(node);
+            node = prevNode;
+            continue;
+          }
+          if (screen.ScreenState != Screen.State.Closing)
+            screenToFocus = screen;
+          node = node.Previous;
+        }
+        if (screenToFocus == null)
+          screenToFocus = _currentScreen;
+      }
+      FocusScreen(screenToFocus);
     }
 
     protected internal void DoCloseScreen()
@@ -609,6 +672,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
         Screen screen = _currentScreen;
         _currentScreen = null;
+        _screenPersistenceTime = DateTime.MinValue;
 
         screen.ScreenState = Screen.State.Closed;
         UnfocusCurrentScreen();
@@ -623,8 +687,44 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _backgroundData.Unload();
       if (closeSuperLayer)
         DoSetSuperLayer(null);
-      DoCloseDialogs(fireCloseDelegates);
+      DoCloseDialogs(fireCloseDelegates, false);
       DoCloseScreen();
+    }
+
+    protected internal void DoStartClosingScreen(Screen screen)
+    {
+      lock (_syncObj)
+      {
+        if (_currentScreen == null || _currentScreen.ScreenState == Screen.State.Closing || 
+          screen == null || screen.ResourceName != _currentScreen.ResourceName)
+          return;
+
+        DoCloseDialogs(true, true);
+        _currentScreen.FireScreenClosingEvent();
+      }
+      UnfocusCurrentScreen();
+    }
+
+    protected internal void CompleteScreenClosure()
+    {
+      Screen screen;
+      lock (_syncObj)
+      {
+        // Has the current screen finished closing?
+        if (_currentScreen != null && (_currentScreen.ScreenState != Screen.State.Closing || !_currentScreen.DoneClosing))
+          return;
+
+        screen = _nextScreen;
+        if (screen != null && (_currentScreen == null || screen.ResourceName != _currentScreen.ResourceName))
+          screen.FireScreenShowingEvent();
+
+        DoCloseScreen();
+        _currentScreen = screen;
+        _nextScreen = null;
+
+        BackgroundDisabled = (_currentScreen == null) ? false : !_currentScreen.HasBackground;
+      }
+      FocusScreen(screen);
     }
 
     protected internal void DoExchangeScreen(Screen screen)
@@ -632,10 +732,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       screen.Prepare();
       lock (_syncObj)
       {
-        DoCloseScreen();
-        _currentScreen = screen;
+        if (_nextScreen != null)
+        {
+          _nextScreen.ScreenState = Screen.State.Closed;
+          ScheduleDisposeScreen(_nextScreen);
+        }
+        if (_currentScreen != null)
+          _currentScreen.ScreenState = Screen.State.Closing;
+  
+        _nextScreen = screen;
+        CompleteScreenClosure();
       }
-      FocusScreen(screen);
     }
 
     protected internal void DoSetSuperLayer(Screen screen)
@@ -724,9 +831,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         if (dialogs)
         {
-          DialogData[] dialogsArray = _dialogStack.ToArray();
-          Array.Reverse(dialogsArray);
-          result.AddRange(dialogsArray.Select(data => data.DialogScreen));
+          LinkedListNode<DialogData> node = _dialogStack.Last;
+          while (node != null) {
+            result.Add(node.Value.DialogScreen);
+            node = node.Previous;
+          }
         }
         if (superLayer)
         {
@@ -782,12 +891,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Render()
     {
-      IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
-      IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
       // The next lock operation could cause deadlocks, see comment of this class
       lock (_syncObj)
       {
         SkinContext.FrameRenderingStartTime = DateTime.Now;
+        
+        // Check if we're waiting for screens to finish closing
+        CompleteScreenClosure();
+        CompleteDialogClosures();
+
+        IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
+        IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
         foreach (Screen screen in disabledScreens)
           // Animation of screen is necessary to avoid an overrun of the async properties setter buffer
           screen.Animate();
@@ -982,7 +1096,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get
       {
         lock (_syncObj)
-          return _dialogStack.Count > 0 ? _dialogStack.Peek() : null;
+          return _dialogStack.Peek();
       }
     }
 
@@ -1019,6 +1133,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       DialogData result = new DialogData(newDialog, dialogCloseCallback);
       ScreenManagerMessaging.SendMessageShowDialog(result);
       return result;
+    }
+
+    protected internal void ScreenChanging(string newScreenName)
+    {
+      Screen screen = _currentScreen;
+      if (newScreenName == null || (screen != null && screen.ResourceName != newScreenName))
+      {
+        IncPendingOperations();
+        ScreenManagerMessaging.SendMessageScreenClosing(screen);
+      }
     }
 
     #region IScreenManager implementation
@@ -1141,26 +1265,42 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Guid? ShowScreen(string screenName)
     {
-      IncPendingOperations();
+      return ShowScreen(screenName, true);
+    }
+
+    public Guid? ShowScreen(string screenName, bool backgroundEnabled)
+    {
+      ScreenChanging(screenName);
+
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return null;
 
+      newScreen.HasBackground = backgroundEnabled;
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageShowScreen(newScreen, true);
       return newScreen.ScreenInstanceId;
     }
 
     public bool ExchangeScreen(string screenName)
     {
-      IncPendingOperations();
+      return ExchangeScreen(screenName, true);
+    }
+
+    public bool ExchangeScreen(string screenName, bool backgroundEnabled)
+    {
+      ScreenChanging(screenName);
+
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
 
+      newScreen.HasBackground = backgroundEnabled;
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageShowScreen(newScreen, false);
       return true;
     }

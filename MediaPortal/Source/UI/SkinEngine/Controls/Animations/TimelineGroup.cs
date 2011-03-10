@@ -21,6 +21,7 @@
 */
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
@@ -176,6 +177,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     public IList<Timeline> Children
     {
       get { return (IList<Timeline>) _childrenProperty.GetValue(); }
+    }
+
+    public override double ActualDurationInMilliseconds
+    {
+      get
+      {
+        double duration = base.ActualDurationInMilliseconds;
+        foreach (Timeline timeline in Children)
+          duration = Math.Max(duration, timeline.ActualDurationInMilliseconds);
+        return duration;
+      }
     }
 
     #endregion

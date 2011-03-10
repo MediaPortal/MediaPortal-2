@@ -245,6 +245,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _fillBehaviourProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Returns the number of milliseconds required to run a complete loop/repeat of this 
+    /// timeline in milliseconds. For composit timelines this should be the maximum duration
+    /// of it's children.
+    /// </summary>
+    public virtual double ActualDurationInMilliseconds
+    {
+      get { return DurationSet ? Duration.TotalMilliseconds : 0.0; }
+    }
+
     #endregion
 
     #region Animation control methods
@@ -443,6 +453,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       context.TimeStarted = timePassed;
       context.State = State.WaitBegin;
+      DoAnimation(context, 0);
     }
 
     /// <summary>

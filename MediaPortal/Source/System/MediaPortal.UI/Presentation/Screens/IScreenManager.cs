@@ -126,12 +126,30 @@ namespace MediaPortal.UI.Presentation.Screens
     Guid? ShowScreen(string screenName);
 
     /// <summary>
+    /// Shows the screen with the given <paramref name="screenName"/>. All dialogs will be closed.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown.</param>
+    /// <param name="backgroundEnabled">Whether this screen will be displayed with a background.</param>
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new screen, if the screen could
+    /// successfully be loaded, else <c>null</c>.</returns>
+    Guid? ShowScreen(string screenName, bool backgroundEnabled);
+
+    /// <summary>
     /// Exchanges the current screen with the screen with the given <paramref name="screenName"/>.
     /// All current dialogs will be left open.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown instead of the current screen.</param>
     /// <returns><c>true</c>, if the screen could successfully be loaded, else <c>false</c>.</returns>
     bool ExchangeScreen(string screenName);
+
+    /// <summary>
+    /// Exchanges the current screen with the screen with the given <paramref name="screenName"/>.
+    /// All current dialogs will be left open.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown instead of the current screen.</param>
+    /// <param name="backgroundEnabled">Whether this screen will be displayed with a background.</param>
+    /// <returns><c>true</c>, if the screen could successfully be loaded, else <c>false</c>.</returns>
+    bool ExchangeScreen(string screenName, bool backgroundEnabled);
 
     /// <summary>
     /// Shows the dialog screen with the specified name.

@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class SoundPlayerAction : TriggerAction
   {
-    #region Private fields
+    #region Protected fields
 
     protected AbstractProperty _sourceProperty;
     protected bool _disableOnAudioOutput = true;

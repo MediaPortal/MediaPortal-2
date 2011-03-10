@@ -35,8 +35,28 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
   </Screen.Resources>
-  <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-      LastChildFill="True">
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource HideScreenStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+  <DockPanel x:Name="ScreenAnimationElement" Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      RenderTransformOrigin="0.5,0.5" LastChildFill="True">
+    <DockPanel.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
+      </TransformGroup>
+    </DockPanel.RenderTransform>
     <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>

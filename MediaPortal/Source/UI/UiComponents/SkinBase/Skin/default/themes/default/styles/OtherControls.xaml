@@ -19,6 +19,36 @@
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
 
+  <!-- ******************* Screen/dialog animation storyboards ****************** -->
+
+  <Storyboard x:Key="ShowScreenStoryboard" FillBehavior="Stop">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>    
+  </Storyboard>
+
+  <Storyboard x:Key="HideScreenStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource ScreenTransitionEndTime}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="ShowDialogStoryboard" FillBehavior="Stop">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="HideDialogStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- ***************************** Brushes ******************************** -->
 
   <!-- default brush used to paint the background of a page/window -->
