@@ -571,7 +571,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
     {
-      Screen screenToFocus = null;
       ICollection<DialogData> oldDialogData = new List<DialogData>();
       lock(_syncObj)
       {
