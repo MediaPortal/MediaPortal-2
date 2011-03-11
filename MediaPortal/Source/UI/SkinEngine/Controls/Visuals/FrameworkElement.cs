@@ -1166,9 +1166,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Updates tle layout of this element in the render thread.
     /// In this method, <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/> are called.
-    /// 
-    /// Must be called from the render thread before the call to <see cref="Render"/>.
     /// </summary>
+    /// <remarks>
+    /// This method should actually be located in the <see cref="Screen"/> class but I leave it here because all the
+    /// layout debug defines are in the scope of this file.
+    /// This method must be called from the render thread before the call to <see cref="Render"/>.
+    /// </remarks>
     public void UpdateLayoutRoot()
     {
       Screen screen = Screen;
@@ -1177,7 +1180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
 #endif
 #endif
       Measure(ref size);
