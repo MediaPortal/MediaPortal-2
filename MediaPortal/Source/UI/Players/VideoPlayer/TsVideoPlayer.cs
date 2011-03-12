@@ -105,7 +105,7 @@ namespace MediaPortal.UI.Players.Video
       }
       _renderer.SetPlayer(this);
 
-      IFileSourceFilter f = (IFileSourceFilter)_fileSource;
+      IFileSourceFilter f = (IFileSourceFilter) _fileSource;
       f.Load(_resourceAccessor.LocalFileSystemPath, null);
     }
 

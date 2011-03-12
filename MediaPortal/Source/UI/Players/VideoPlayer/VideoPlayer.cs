@@ -1396,5 +1396,14 @@ namespace MediaPortal.UI.Players.Video
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("{0}: {1}", GetType().Name, _resourceAccessor.ResourceName);
+    }
+
+    #endregion
   }
 }
