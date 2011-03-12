@@ -60,10 +60,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
     // TODO: Make this configurable
     public static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// Maximum time between frames when our render thread is synchronized to the EVR.
+    /// </summary>
+    public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
+
     private Thread _renderThread;
-    private int _rendering = 0; // We don't use bool because Interlocked.CompareExchange doesn't support bool types
     private bool _renderThreadStopped;
-    private ISlimDXVideoPlayer _renderEVRPlayer = null;
+    private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
+    private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
+    private bool _videoPlayerSuspended = false;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
@@ -134,17 +140,40 @@ namespace MediaPortal.UI.SkinEngine.GUI
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-            IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-            ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
-            SetEVRRenderPlayer(player);
-            break;
+            {
+              IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
+              SetEVRState(player);
+              SynchronizeToVideoPlayerFramerate(player);
+              break;
+            }
+          case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
+            {
+              IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+              ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
+              SetEVRState(player);
+              break;
+            }
         }
       }
     }
 
-    public bool IsEVRRendering
+    /// <summary>
+    /// Checks if the given player is suspended (if it is paused).
+    /// </summary>
+    /// <param name="slimDxPlayer">Player to check.</param>
+    private void SetEVRState(ISlimDXVideoPlayer slimDxPlayer)
     {
-      get { return _renderEVRPlayer != null; }
+      IMediaPlaybackControl player = slimDxPlayer as IMediaPlaybackControl;
+      _videoPlayerSuspended = player == null || player.IsPaused;
+    }
+
+    /// <summary>
+    /// Returns the information if an EVR player is used to synchronize our render thread.
+    /// </summary>
+    public bool SynchronizedToEVR
+    {
+      get { return _synchronizedVideoPlayer != null; }
     }
 
     protected int GetScreenNum()
@@ -267,79 +296,58 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThread = null;
     }
 
-    private void SetEVRRenderPlayer(ISlimDXVideoPlayer evrPlayer)
+    private void SynchronizeToVideoPlayerFramerate(ISlimDXVideoPlayer videoPlayer)
     {
       lock (_screenManager.SyncObj)
       {
-        if (evrPlayer == _renderEVRPlayer)
+        if (videoPlayer == _synchronizedVideoPlayer)
           return;
-        ISlimDXVideoPlayer oldPlayer = evrPlayer;
-        _renderEVRPlayer = null;
+        ISlimDXVideoPlayer oldPlayer = videoPlayer;
+        _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
-        if (evrPlayer != null)
-          if (evrPlayer.SetRenderDelegate(() => DoRender(false)))
+        if (videoPlayer != null)
+          if (videoPlayer.SetRenderDelegate(VideoPlayerRender))
           {
-            _renderEVRPlayer = evrPlayer;
-            ServiceRegistration.Get<ILogger>().Info("MainForm: Set EVR render player '{0}'", evrPlayer);
+            _synchronizedVideoPlayer = videoPlayer;
+            ServiceRegistration.Get<ILogger>().Info("DirectX MainForm: Synchronized render framerate to video player '{0}'", videoPlayer);
           }
           else
             ServiceRegistration.Get<ILogger>().Info(
-                "MainForm: Video player '{0}' doesn't provide render capabilities, using default render thread", evrPlayer);
+                "DirectX MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", videoPlayer);
       }
     }
 
+    private void VideoPlayerRender()
+    {
+      _videoRenderFrameEvent.Set();
+    }
+
     /// <summary>
-    /// Render loop which is executed by the default render thread.
+    /// Render loop executed by the default render thread.
     /// </summary>
     private void RenderLoop()
     {
       GraphicsDevice.SetRenderState();
       while (!_renderThreadStopped)
       {
-        bool doRender;
-        if (!IsEVRRendering)
-          // We're the EVR thread or no EVR thread is assigned - it's our job to render
-          doRender = true;
-        else
-        { // We're the default thread and an EVR player is assigned - actually it's not our job to render but maybe we must provide fallback rendering
-          if (GraphicsDevice.LastRenderTime < DateTime.Now.Subtract(TimeSpan.FromMilliseconds(GraphicsDevice.MsPerFrame * 20)))
-            doRender = true;
-          else
-          {
-            doRender = false;
-            Thread.Sleep(10);
-          }
-        }
-        if (doRender)
-          DoRender(true);
+        // EVR handling
+        bool isVideoPlayer = SynchronizedToEVR;
+
+        if (isVideoPlayer && !_videoPlayerSuspended)
+          // If our video player synchronizes the rendering, it sets the _videoRenderFrameEvent when a new frame is available,
+          // so we wait for that event here.
+          _videoRenderFrameEvent.WaitOne(EVR_RENDER_MAX_MS_PER_FRAME);
+
+        bool shouldWait = GraphicsDevice.Render(!isVideoPlayer || _videoPlayerSuspended); // If the video player isn't active or if it is suspended, use the configured target framerate of the GraphicsDevice
+        if (shouldWait || !_hasFocus)
+          // The device was lost or we don't have focus - reduce the render rate
+          Thread.Sleep(10);
         
         if (GraphicsDevice.DeviceLost)
           break;
       }
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
-    }
-
-    /// <summary>
-    /// Render method which is executed by the default render thread and by the EVR thread of the primary player, if exists.
-    /// </summary>
-    private void DoRender(bool waitForNextFrame)
-    {
-      bool otherRendering = Interlocked.CompareExchange(ref _rendering, 1, 0) == 0;
-      if (!otherRendering)
-      {
-        try
-        {
-          bool shouldWait = GraphicsDevice.Render(waitForNextFrame);
-          if (shouldWait || !_hasFocus)
-            // The device was lost or we don't have focus - reduce the render rate
-            Thread.Sleep(10);
-        }
-        finally
-        {
-          Interlocked.Exchange(ref _rendering, 0);
-        }
-      }
     }
 
     public void Start()

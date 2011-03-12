@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _firstTimeInitialisation = true;
     private static ScreenManager _screenManager = null;
     private static float _targetFrameRate = 25;
-    private static float _msPerFrame = 1 / _targetFrameRate;
+    private static int _msPerFrame = (int) (1.0 / _targetFrameRate);
     private static DateTime _frameRenderingStartTime;
     private static int _fpsCounter = 0;
     private static DateTime _fpsTimer;
@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Returns the time per frame in ms.
     /// </summary>
-    public static float MsPerFrame
+    public static int MsPerFrame
     {
       get { return _msPerFrame; }
     }
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (frameRate == 0)
         frameRate = 1;
       _targetFrameRate = frameRate;
-      _msPerFrame = 1000/_targetFrameRate;
+      _msPerFrame = (int) (1000/_targetFrameRate);
     }
 
     private static void ResetDxDevice()
@@ -384,7 +384,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     private static void WaitForNextFrame()
     {
-      int msToNextFrame = (int) (_msPerFrame - (DateTime.Now - _frameRenderingStartTime).Milliseconds); 
+      int msToNextFrame = _msPerFrame - (DateTime.Now - _frameRenderingStartTime).Milliseconds;
       if (msToNextFrame > 0)
         Thread.Sleep(msToNextFrame);
     }
