@@ -733,6 +733,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return value;
     }
 
+    // TODO: Add routing strategy parameter/functionality? See http://msdn.microsoft.com/en-us/library/ms742806.aspx#routing_strategies
     public virtual void FireEvent(string eventName)
     {
       if (eventName == LOADED_EVENT)
