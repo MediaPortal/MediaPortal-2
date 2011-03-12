@@ -221,6 +221,7 @@ namespace MediaPortal.UI.Presentation.Models
     /// Temporary deactivates the workflow attendance of this workflow model. This means another model
     /// will temporary attend the workflow now.
     /// </summary>
+    /// <remarks>
     /// This method will be called before the call of <see cref="UpdateMenuActions"/>  and the workflow state
     /// might not be the top context onto the workflow context stack yet.
     /// </remarks>
@@ -277,8 +278,10 @@ namespace MediaPortal.UI.Presentation.Models
     /// <param name="screen">Screen which should be set. As input, this parameter will be initialized with the
     /// <see cref="WorkflowState.MainScreen"/> property of the <paramref name="context"/>'s workflow state,
     /// if present. As output, if the return value is <see cref="ScreenUpdateMode.AutoWorkflowManager"/>, this parameter
-    /// must denote a valid screen. In case the return value is <see cref="ScreenUpdateMode.ManualWorkflowModel"/>,
-    /// this parameter won't be evaluated and may be ignored.</param>
+    /// must contain a valid screen. In case the return value is <see cref="ScreenUpdateMode.ManualWorkflowModel"/>,
+    /// the callee is responsible for showing the correct screen. It might do that in this method or
+    /// in one of the <see cref="EnterModelContext"/>/<see cref="ChangeModelContext"/> methods.
+    /// This parameter won't be evaluated by the caller and may be ignored.</param>
     /// <returns>Mode to configure how the screen for the current workflow navigation <paramref name="context"/> should
     /// be set.</returns>
     ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen);
