@@ -44,7 +44,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static readonly WeakEventMulticastDelegate _skinResourcesChangedDelegate = new WeakEventMulticastDelegate();
     private static SkinResources _skinResources = new Skin("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     private static Form _form;
-    private static Thread _renderThread = null;
     private static DateTime _frameRenderingStartTime;
     private static float _fps = 0;
 
@@ -137,16 +136,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       get { return _fps; }
       set { _fps = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the thread which is currently executing the render loop.
-    /// When this property is <c>null</c>, an error might have occured and the render thread stopped.
-    /// </summary>
-    public static Thread RenderThread
-    {
-      get { return _renderThread; }
-      set { _renderThread = value; }
     }
   }
 }

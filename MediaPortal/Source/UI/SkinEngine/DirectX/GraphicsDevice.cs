@@ -60,7 +60,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     private static bool _supportsShaders = false;
     private static bool _firstTimeInitialisation = true;
     private static ScreenManager _screenManager = null;
-    private static int _targetFrameRate = 0;
+    private static float _targetFrameRate = 25;
+    private static float _msPerFrame = 1 / _targetFrameRate;
     private static DateTime _frameRenderingStartTime;
     private static int _fpsCounter = 0;
     private static DateTime _fpsTimer;
@@ -117,9 +118,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Returns the target rendering target framerate. This value can be changed according to screen refresh rate or video fps.
     /// </summary>
-    public static Int32 TargetFrameRate
+    public static float TargetFrameRate
     {
       get { return _targetFrameRate; }
+    }
+
+    /// <summary>
+    /// Returns the time per frame in ms.
+    /// </summary>
+    public static float MsPerFrame
+    {
+      get { return _msPerFrame; }
     }
 
     private static void GetCapabilities()
@@ -161,7 +170,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     private static void AdaptTargetFrameRateToDisplayMode(DisplayMode displayMode)
     {
-      _targetFrameRate = displayMode.RefreshRate;
+      SetFrameRate(displayMode.RefreshRate);
+    }
+
+    public static void SetFrameRate(float frameRate)
+    {
+      if (frameRate == 0)
+        frameRate = 1;
+      _targetFrameRate = frameRate;
+      _msPerFrame = 1000/_targetFrameRate;
     }
 
     private static void ResetDxDevice()
@@ -313,11 +330,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Renders the entire scene.
     /// </summary>
+    /// <param name="doWaitForNextFame"><c>true</c>, if this method should wait to the correct frame start time
+    /// before it renders, else <c>false</c>.</param>
     /// <returns><c>true</c>, if the caller should wait some milliseconds before rendering the next time.</returns>
     public static bool Render(bool doWaitForNextFame)
     {
       if (_device == null || _deviceLost)
         return true;
+#if (MAX_FRAMERATE == false)
+      if (doWaitForNextFame)
+        WaitForNextFrame();
+#endif
       _frameRenderingStartTime = DateTime.Now;
       lock (_setup)
       {
@@ -352,10 +375,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         }
         ServiceRegistration.Get<ContentManager>().Clean();
       }
-#if (MAX_FRAMERATE == false)
-      if (doWaitForNextFame)
-        WaitForNextFrame();
-#endif
       return false;
     }
 
@@ -365,7 +384,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// </summary>
     private static void WaitForNextFrame()
     {
-      int msToNextFrame = (int) (1000f / _targetFrameRate - (DateTime.Now - _frameRenderingStartTime).Milliseconds); 
+      int msToNextFrame = (int) (_msPerFrame - (DateTime.Now - _frameRenderingStartTime).Milliseconds); 
       if (msToNextFrame > 0)
         Thread.Sleep(msToNextFrame);
     }

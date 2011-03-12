@@ -129,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (background == null)
           return false;
         background.Prepare();
-        lock (_parent.SyncRoot)
+        lock (_parent.SyncObj)
           _backgroundScreen = background;
         return true;
       }
@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public void Unload()
       {
         ICollection<Guid> oldModels;
-        lock (_parent.SyncRoot)
+        lock (_parent.SyncObj)
         {
           if (_backgroundScreen == null)
             return;
@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
-        lock (_parent.SyncRoot)
+        lock (_parent.SyncObj)
           return !_models.ContainsKey(new Guid(itemRegistration.Metadata.Id));
       }
 
@@ -180,14 +180,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public object GetOrLoadModel(Guid modelId)
       {
         object result;
-        lock (_parent.SyncRoot)
+        lock (_parent.SyncObj)
           if (_models.TryGetValue(modelId, out result))
             return result;
         result = ServiceRegistration.Get<IPluginManager>().RequestPluginItem<object>(
             MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
         if (result == null)
           throw new ArgumentException(string.Format("ScreenManager: Model with id '{0}' is not available", modelId));
-        lock (_parent.SyncRoot)
+        lock (_parent.SyncObj)
           _models[modelId] = result;
         return result;
       }
@@ -881,7 +881,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       get { return _skinManager; }
     }
 
-    public object SyncRoot
+    public object SyncObj
     {
       get { return _syncObj; }
     }

@@ -28,6 +28,8 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {
+  public delegate void RenderDlgt();
+
   /// <summary>
   /// Interface which has to be implemented by video players, which are written for this SkinEngine.
   /// </summary>
@@ -38,6 +40,14 @@ namespace MediaPortal.UI.SkinEngine.Players
   /// </remarks>
   public interface ISlimDXVideoPlayer : IVideoPlayer
   {
+    /// <summary>
+    /// Sets a delegate function which should be called for reach frame from this player.
+    /// </summary>
+    /// <param name="dlgt">The render delegate function to call.</param>
+    /// <returns><c>true</c>, if this player is able to call the given <paramref name="dlgt"/> for each frame. If this
+    /// method returns <c>false</c>, the default render thread will continue to render, which might cause flickering.</returns>
+    bool SetRenderDelegate(RenderDlgt dlgt);
+
     /// <summary>
     /// Returns the maximum texture UV coords for displaying the complete frame. The frame texture must contain
     /// the cropped video image at its coordinates (0; 0).

@@ -156,6 +156,7 @@ namespace MediaPortal.UI.Players.Video
     protected ILocalFsResourceAccessor _resourceAccessor;
     protected string _mediaItemTitle = null;
     protected AsynchronousMessageQueue _messageQueue = null;
+    protected SkinEngine.Players.RenderDlgt _renderDlgt = null;
 
     // Player event delegates
     protected PlayerEventDlgt _started = null;
@@ -298,6 +299,17 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region EVR Callback
+
+    protected void RenderFrame()
+    {
+      SkinEngine.Players.RenderDlgt dlgt = _renderDlgt;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    #endregion
+
     #region IInitializablePlayer implementation
 
     public void SetMediaItemLocator(IResourceLocator locator)
@@ -333,7 +345,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback {CropSettings = _cropSettings};
+        _evrCallback = new EVRCallback(RenderFrame) {CropSettings = _cropSettings};
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -985,7 +997,7 @@ namespace MediaPortal.UI.Players.Video
       get { return _mediaItemTitle; }
     }
 
-    #region audio streams
+    #region Audio streams
 
 
     private void SetPreferredAudio()
@@ -1238,7 +1250,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback {CropSettings = _cropSettings};
+        _evrCallback = new EVRCallback(RenderFrame) {CropSettings = _cropSettings};
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();
         IEnumPins enumer;
@@ -1285,6 +1297,12 @@ namespace MediaPortal.UI.Players.Video
         }
         _initialized = true;
       }
+    }
+
+    public bool SetRenderDelegate(SkinEngine.Players.RenderDlgt dlgt)
+    {
+      _renderDlgt = dlgt;
+      return true;
     }
 
     public Texture Texture 

@@ -25,14 +25,17 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.General;
 using MediaPortal.Core.Settings;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -51,11 +54,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
   public partial class MainForm : Form, IScreenControl
   {
+    /// <summary>
+    /// Timespan from the last user input to the start of the screen saver.
+    /// </summary>
     // TODO: Make this configurable
-    protected static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
+    public static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
 
     private Thread _renderThread;
+    private int _rendering = 0; // We don't use bool because Interlocked.CompareExchange doesn't support bool types
     private bool _renderThreadStopped;
+    private ISlimDXVideoPlayer _renderEVRPlayer = null;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
@@ -67,6 +75,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected bool _isScreenSaverActive = false;
     protected bool _mouseHidden = false;
     private readonly object _reclaimDeviceSyncObj = new object();
+    private readonly AsynchronousMessageQueue _messageQueue;
 
     private bool _adaptToSizeEnabled;
 
@@ -105,6 +114,37 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       Application.Idle += OnApplicationIdle;
       _adaptToSizeEnabled = true;
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            PlayerManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerStarted:
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
+            IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+            ISlimDXVideoPlayer player = playerManager[PlayerManagerConsts.PRIMARY_SLOT] as ISlimDXVideoPlayer;
+            SetEVRRenderPlayer(player);
+            break;
+        }
+      }
+    }
+
+    public bool IsEVRRendering
+    {
+      get { return _renderEVRPlayer != null; }
     }
 
     protected int GetScreenNum()
@@ -227,30 +267,80 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThread = null;
     }
 
+    private void SetEVRRenderPlayer(ISlimDXVideoPlayer evrPlayer)
+    {
+      lock (_screenManager.SyncObj)
+      {
+        if (evrPlayer == _renderEVRPlayer)
+          return;
+        ISlimDXVideoPlayer oldPlayer = evrPlayer;
+        _renderEVRPlayer = null;
+        if (oldPlayer != null)
+          oldPlayer.SetRenderDelegate(null);
+        if (evrPlayer != null)
+          if (evrPlayer.SetRenderDelegate(() => DoRender(false)))
+          {
+            _renderEVRPlayer = evrPlayer;
+            ServiceRegistration.Get<ILogger>().Info("MainForm: Set EVR render player '{0}'", evrPlayer);
+          }
+          else
+            ServiceRegistration.Get<ILogger>().Info(
+                "MainForm: Video player '{0}' doesn't provide render capabilities, using default render thread", evrPlayer);
+      }
+    }
+
+    /// <summary>
+    /// Render loop which is executed by the default render thread.
+    /// </summary>
     private void RenderLoop()
     {
-      SkinContext.RenderThread = Thread.CurrentThread;
-
-      try
+      GraphicsDevice.SetRenderState();
+      while (!_renderThreadStopped)
       {
-        GraphicsDevice.SetRenderState();
-        while (!_renderThreadStopped)
-        {
-          bool shouldWait = GraphicsDevice.Render(true);
-          if (shouldWait || !_hasFocus)
-            Thread.Sleep(20);
-        
-          if (GraphicsDevice.DeviceLost)
-            break;
+        bool doRender;
+        if (!IsEVRRendering)
+          // We're the EVR thread or no EVR thread is assigned - it's our job to render
+          doRender = true;
+        else
+        { // We're the default thread and an EVR player is assigned - actually it's not our job to render but maybe we must provide fallback rendering
+          if (GraphicsDevice.LastRenderTime < DateTime.Now.Subtract(TimeSpan.FromMilliseconds(GraphicsDevice.MsPerFrame * 20)))
+            doRender = true;
+          else
+          {
+            doRender = false;
+            Thread.Sleep(10);
+          }
         }
-      }
-      finally
-      {
-        SkinContext.RenderThread = null;
+        if (doRender)
+          DoRender(true);
+        
+        if (GraphicsDevice.DeviceLost)
+          break;
       }
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }
 
+    /// <summary>
+    /// Render method which is executed by the default render thread and by the EVR thread of the primary player, if exists.
+    /// </summary>
+    private void DoRender(bool waitForNextFrame)
+    {
+      bool otherRendering = Interlocked.CompareExchange(ref _rendering, 1, 0) == 0;
+      if (!otherRendering)
+      {
+        try
+        {
+          bool shouldWait = GraphicsDevice.Render(waitForNextFrame);
+          if (shouldWait || !_hasFocus)
+            // The device was lost or we don't have focus - reduce the render rate
+            Thread.Sleep(10);
+        }
+        finally
+        {
+          Interlocked.Exchange(ref _rendering, 0);
+        }
+      }
+    }
 
     public void Start()
     {
@@ -261,6 +351,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Shutdown()
     {
+      _messageQueue.Shutdown();
       Close();
     }
 
@@ -348,13 +439,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public IList<string> DisplayModes
     {
-      get
-      {
-        IList<string> result = new List<string>();
-        foreach (DisplayMode mode in GraphicsDevice.GetDisplayModes())
-          result.Add(ToString(mode));
-        return result;
-      }
+      get { return GraphicsDevice.GetDisplayModes().Select(ToString).ToList(); }
     }
 
     public IntPtr MainWindowHandle
@@ -448,7 +533,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private void MainForm_KeyDown(object sender, KeyEventArgs e)
+    private static void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       try
       {
@@ -467,7 +552,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+    private static void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
       try
       {
@@ -486,7 +571,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private void MainForm_MouseClick(object sender, MouseEventArgs e)
+    private static void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
       try
       {

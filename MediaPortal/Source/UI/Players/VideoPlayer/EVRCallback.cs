@@ -50,6 +50,8 @@ namespace MediaPortal.UI.Players.Video
     int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
   }
 
+  public delegate void RenderDlgt();
+
   [ComVisible(true)]
   [ClassInterface(ClassInterfaceType.None)]
   public class EVRCallback : IEVRPresentCallback, IDisposable
@@ -61,12 +63,18 @@ namespace MediaPortal.UI.Players.Video
     private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
     private Size _aspectRatio = Size.Empty;
+    private readonly RenderDlgt _renderDlgt;
     private Texture _texture = null;
     private Surface _surface = null;
     private SizeF _surfaceMaxUV = Size.Empty;
     private bool _guiBeingReinitialized = false;
 
     #endregion
+
+    public EVRCallback(RenderDlgt renderDlgt)
+    {
+      _renderDlgt = renderDlgt;
+    }
 
     #region public properties
 
@@ -226,6 +234,8 @@ namespace MediaPortal.UI.Players.Video
               _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
         }
       }
+      if (_renderDlgt != null)
+        _renderDlgt();
       return 0;
     }
 
