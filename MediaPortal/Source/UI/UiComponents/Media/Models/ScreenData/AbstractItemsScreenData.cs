@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
@@ -195,14 +196,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                     goto RebuildView;
 
                 PlayableItemCreatorDelegate picd = PlayableItemCreator;
-                List<ListItem> itemsList = new List<ListItem>();
-                foreach (MediaItem childItem in mediaItems)
-                {
-                  PlayableItem item = picd(childItem);
-                  if (item == null)
-                    continue;
-                  itemsList.Add(item);
-                }
+                List<ListItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<ListItem>().ToList();
                 itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_NAME], i2[Consts.KEY_NAME]));
                 CollectionUtils.AddAll(items, itemsList);
 
