@@ -129,14 +129,13 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (result && convertedParameters.Length <= indexTypes.Length &&
           convertedParameters.Length >= numMandatory)
         return true;
-      else if (mustMatchSignature)
+      if (mustMatchSignature)
         if (result)
           throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
               parameterInfos.Length, convertedParameters.Length);
         else
           throw new XamlBindingException("Could not convert parameters");
-      else
-        return false;
+      return false;
     }
 
     /// <summary>
@@ -409,7 +408,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <see cref="IAddChild{T}.AddChild"/> method.</param>
     /// <param name="entryType">If the specified <paramref name="type"/> implements the
     /// <see cref="IAddChild{T}"/> interface, this parameter returns the entry type
-    /// (type parameter T) of the implemented <see cref="IAddChild{T}"/> interface type.
+    /// (type parameter T) of the implemented <see cref="IAddChild{T}"/> interface type.</param>
     /// <returns><c>true</c>, if the specified type implements <see cref="IAddChild{T}"/>,
     /// else <c>false</c>.</returns>
     public static bool IsIAddChild(Type type, out MethodInfo method, out Type entryType)
@@ -515,8 +514,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           method.Invoke(maybeCollectionTarget, new object[] { TypeConverter.Convert(child, entryType) });
         return true;
       }
-      else
-        return false;
+      return false;
     }
   }
 }
