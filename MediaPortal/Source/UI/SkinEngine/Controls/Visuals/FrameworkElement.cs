@@ -588,6 +588,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _elementState = value; }
     }
 
+    public bool IsMeasureInvalid
+    {
+      get { return _isMeasureInvalid; }
+    }
+
+    public bool IsArrangeInvalid
+    {
+      get { return _isArrangeInvalid; }
+    }
+
     #endregion
 
     public string GetFontFamilyOrInherited()
