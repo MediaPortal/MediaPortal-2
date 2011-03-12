@@ -1118,11 +1118,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public void ResetSize()
-    {
-      ForEachScreen(screen => screen.ResetSize());
-    }
-
     public DialogData ShowDialogEx(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       IncPendingOperations();

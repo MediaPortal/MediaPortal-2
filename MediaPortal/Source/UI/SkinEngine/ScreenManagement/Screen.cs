@@ -327,11 +327,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _keyBindings.Remove(key);
     }
 
-    public void ResetSize()
-    {
-      _root.InvalidateLayout(true, false);
-    }
-
     public void Animate()
     {
       lock (_root)

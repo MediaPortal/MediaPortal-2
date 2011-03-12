@@ -229,11 +229,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     private void RenderLoop()
     {
-      // The render loop is restarted after toggle windowed / fullscreen
-      // Make sure we invalidate all windows so the layout is re-done 
-      // Big window layout does not fit into small window
-      _screenManager.ResetSize();
-
       SkinContext.RenderThread = Thread.CurrentThread;
 
       try
