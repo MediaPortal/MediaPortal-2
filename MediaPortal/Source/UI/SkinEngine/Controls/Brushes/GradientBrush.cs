@@ -24,6 +24,7 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -48,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     Repeat
   };
 
-  public abstract class GradientBrush : Brush, IAddChild<GradientStop>
+  public abstract class GradientBrush : Brush, IAddChild<object>
   {
     #region Protected fields
 
@@ -190,9 +191,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region IAddChild Members
 
-    public void AddChild(GradientStop o)
+    public void AddChild(object o)
     {
-      GradientStops.Add(o);
+      GradientStopCollection gsc = o as GradientStopCollection;
+      GradientStop gs = o as GradientStop;
+      if (gsc != null)
+      {
+        GradientStops.Dispose();
+        GradientStopsProperty.SetValue(gsc);
+      }
+      else if (gs != null)
+        GradientStops.Add(gs);
+      else if (o != null)
+        throw new XamlParserException("Objects of type {0} cannot be added to {1}", o.GetType().Name, GetType().Name);
     }
 
     #endregion
