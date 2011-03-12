@@ -696,7 +696,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_currentScreen == null || _currentScreen.ScreenState == Screen.State.Closing || 
-          screen == null || screen.ResourceName != _currentScreen.ResourceName)
+            screen == null || screen != _currentScreen)
           return;
 
         DoCloseDialogs(true, true);
@@ -715,7 +715,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return;
 
         screen = _nextScreen;
-        if (screen != null && (_currentScreen == null || screen.ResourceName != _currentScreen.ResourceName))
+        if (screen != null)
           screen.FireScreenShowingEvent();
 
         DoCloseScreen();
@@ -1130,14 +1130,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return result;
     }
 
-    protected internal void ScreenChanging(string newScreenName)
+    protected internal void ScreenChanging()
     {
       Screen screen = _currentScreen;
-      if (newScreenName == null || (screen != null && screen.ResourceName != newScreenName))
-      {
-        IncPendingOperations();
-        ScreenManagerMessaging.SendMessageScreenClosing(screen);
-      }
+      IncPendingOperations();
+      ScreenManagerMessaging.SendMessageScreenClosing(screen);
     }
 
     #region IScreenManager implementation
@@ -1265,7 +1262,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Guid? ShowScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging(screenName);
+      ScreenChanging();
 
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
@@ -1286,7 +1283,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool ExchangeScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging(screenName);
+      ScreenChanging();
 
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
