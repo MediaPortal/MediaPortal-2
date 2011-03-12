@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Players
   public interface ISlimDXVideoPlayer : IVideoPlayer
   {
     /// <summary>
-    /// Sets a delegate function which should be called for reach frame from this player.
+    /// Sets a delegate function which should be called for each frame from this player.
     /// </summary>
     /// <param name="dlgt">The render delegate function to call.</param>
     /// <returns><c>true</c>, if this player is able to call the given <paramref name="dlgt"/> for each frame. If this

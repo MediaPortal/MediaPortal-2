@@ -1312,7 +1312,7 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region ISubtitlePlayer Member
+    #region ISubtitlePlayer implementation
 
     private void SetPreferredSubtitle()
     {
