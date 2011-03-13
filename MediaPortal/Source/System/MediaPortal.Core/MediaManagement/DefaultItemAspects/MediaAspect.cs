@@ -56,7 +56,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a rating of the media item.
+    /// Contains a rating of the media item. Value ranges from -100 (very bad) to 100 (very good).
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
         MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
