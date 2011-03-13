@@ -540,7 +540,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // Check properties which are necessary to build items automatically
           if (ItemContainerStyle == null) return;
-          if (ItemTemplate == null) return;
+          // Albert: We can work without ItemTemplate - in that case, the ListViewItem/TreeViewItem (ContentControl) will automatically search the data template
+          //if (ItemTemplate == null) return;
           IList<object> l = new List<object>();
           ISynchronizable sync = itemsSource as ISynchronizable;
           if (sync != null)

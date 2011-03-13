@@ -159,7 +159,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // data template copy by assigning its LogicalParent.
       IEnumerable<IBinding> deferredBindings;
       DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
-      childItemTemplate.LogicalParent = result;
+      if (childItemTemplate != null)
+        childItemTemplate.LogicalParent = result;
       result.ContentTemplate = childItemTemplate;
       MpfCopyManager.ActivateBindings(deferredBindings);
       return result;
