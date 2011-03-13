@@ -104,7 +104,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (currentWorkflowStateId == Consts.WF_STATE_ID_WATCH_NOTIFICATIONS)
           workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS, true);
       }
-      IsNotificationsHintVisible = currentWorkflowStateId != Consts.WF_STATE_ID_WATCH_NOTIFICATIONS && numNotifications > 0;
+      IsNotificationsHintVisible = !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS) && numNotifications > 0;
       NumNotificationsTotal = numNotifications;
       IsNotificationsAvailable = numNotifications > 0;
       IsMoreThanOneNotificationAvailable = numNotifications > 1;
