@@ -284,13 +284,13 @@ namespace MediaPortal.Core.MediaManagement
 
     public void Serialize(XmlWriter writer)
     {
-      writer.WriteStartElement("MediaItemAspect");
-      writer.WriteAttributeString("AspectTypeId", _metadata.AspectId.ToString());
+      writer.WriteStartElement("Aspect");
+      writer.WriteAttributeString("Id", _metadata.AspectId.ToString());
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in _aspectData.Keys)
       {
         if (IsIgnore(spec))
           continue;
-        writer.WriteStartElement("Attribute");
+        writer.WriteStartElement("Attr");
         writer.WriteAttributeString("Name", spec.AttributeName);
         if (spec.IsCollectionAttribute)
         {
@@ -301,15 +301,15 @@ namespace MediaPortal.Core.MediaManagement
         }
         else
           SerializeValue(writer, GetAttributeValue(spec), spec.AttributeType);
-        writer.WriteEndElement(); // Attribute
+        writer.WriteEndElement(); // Attr
       }
-      writer.WriteEndElement(); // MediaItemAspect
+      writer.WriteEndElement(); // Aspect
     }
 
     public static MediaItemAspect Deserialize(XmlReader reader)
     {
-      if (!reader.MoveToAttribute("AspectTypeId"))
-        throw new ArgumentException("Media item aspect cannot be deserialized: 'AspectTypeId' attribute missing");
+      if (!reader.MoveToAttribute("Id"))
+        throw new ArgumentException("Media item aspect cannot be deserialized: 'Id' attribute missing");
       Guid aspectTypeId = new Guid(reader.ReadContentAsString());
       reader.MoveToElement();
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -318,7 +318,7 @@ namespace MediaPortal.Core.MediaManagement
         throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}'",
             aspectTypeId));
       MediaItemAspect result = new MediaItemAspect(miaType);
-      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItemAspect"))
+      if (SoapHelper.ReadEmptyStartElement(reader, "Aspect"))
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
       {
@@ -326,7 +326,7 @@ namespace MediaPortal.Core.MediaManagement
           throw new ArgumentException("Media item aspect attribute cannot be deserialized: 'Name' attribute missing");
         String attributeName = reader.ReadContentAsString();
         reader.MoveToElement();
-        if (SoapHelper.ReadEmptyStartElement(reader, "Attribute"))
+        if (SoapHelper.ReadEmptyStartElement(reader, "Attr"))
           continue;
         MediaItemAspectMetadata.AttributeSpecification attributeSpec;
         if (!miaType.AttributeSpecifications.TryGetValue(attributeName, out attributeSpec))
@@ -341,15 +341,15 @@ namespace MediaPortal.Core.MediaManagement
         }
         else
           result.SetAttribute(attributeSpec, DeserializeValue(reader, attributeSpec.AttributeType));
-        reader.ReadEndElement(); // Attribute
+        reader.ReadEndElement(); // Attr
       }
-      reader.ReadEndElement(); // MediaItemAspect
+      reader.ReadEndElement(); // Aspect
       return result;
     }
 
     public static void SerializeValue(XmlWriter writer, object obj, Type type)
     {
-      writer.WriteStartElement("Value");
+      writer.WriteStartElement("Val");
       if (type == typeof(string) || MediaItemAspectMetadata.SUPPORTED_BASIC_TYPES.Contains(type))
       {
         if (obj == null)

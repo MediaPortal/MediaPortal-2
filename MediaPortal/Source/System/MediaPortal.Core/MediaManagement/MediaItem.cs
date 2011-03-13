@@ -35,8 +35,8 @@ namespace MediaPortal.Core.MediaManagement
   /// Instances of this class are used for holding the data for single entries in media item views.
   /// </summary>
   /// <remarks>
-  /// Instances of this class contain multiple media item aspect instances; not necessarily all media item
-  /// aspects are contained here.
+  /// Instances of this class contain multiple media item aspect instances but not necessarily all media item
+  /// aspects of the underlaying media item from the media library are contained.
   /// </remarks>
   public class MediaItem : IEquatable<MediaItem>, IXmlSerializable
   {
@@ -110,7 +110,7 @@ namespace MediaPortal.Core.MediaManagement
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
         _aspects[mia.Metadata.AspectId] = mia;
       }
-      reader.ReadEndElement(); // MediaItem
+      reader.ReadEndElement(); // MI
     }
 
     void IXmlSerializable.WriteXml(XmlWriter writer)
@@ -122,7 +122,7 @@ namespace MediaPortal.Core.MediaManagement
 
     public void Serialize(XmlWriter writer)
     {
-      writer.WriteStartElement("MediaItem");
+      writer.WriteStartElement("MI"); // MediaItem
       ((IXmlSerializable) this).WriteXml(writer);
       writer.WriteEndElement(); // MediaItem
     }
