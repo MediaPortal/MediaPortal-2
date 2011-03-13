@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
@@ -152,7 +153,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SetTemplateControl(null);
         return;
       }
-      DataTemplate dt = FindResource(content.GetType()) as DataTemplate;
+      Type type = content.GetType();
+      DataTemplate dt = null;
+      while (dt == null && type != null)
+      {
+        dt = FindResource(type) as DataTemplate;
+        type = type.BaseType;
+      }
       if (dt != null)
       {
         FinishBindingsDlgt finishDlgt;
