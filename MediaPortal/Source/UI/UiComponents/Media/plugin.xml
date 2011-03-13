@@ -4,8 +4,9 @@
     PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"
     Author="Albert"
     Copyright="GPL"
+    AutoActivate="true"
     Description="Media Navigation Plugin"
-    PluginVersion="1.0">
+    PluginVersion="1.0"> <!-- AutoActivate = Workaround - else, the SkinEngine is not able to find the Media assembly which is referenced by MediaStyles.xaml -->
 
   <DependsOn>
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->

@@ -40,13 +40,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public abstract class AbstractItemsScreenData : AbstractScreenData
   {
-    public delegate PlayableItem PlayableItemCreatorDelegate(MediaItem mi);
+    public delegate PlayableMediaItem PlayableItemCreatorDelegate(MediaItem mi);
 
     protected string _navbarSubViewNavigationDisplayLabel;
     protected bool _presentsBaseView;
     protected PlayableItemCreatorDelegate _playableItemCreator;
 
     protected object _syncObj = new object();
+
     // Variables to be synchronized for multithreading access
     protected View _view = null;
     protected bool _buildingList = false;
@@ -181,7 +182,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 List<ListItem> viewsList = new List<ListItem>();
                 foreach (View sv in subViews)
                 {
-                  NavigationItem item = new NavigationItem(sv, null, sv.AbsNumItems);
+                  ViewItem item = new ViewItem(sv, null, sv.AbsNumItems);
                   View subView = sv;
                   item.Command = new MethodDelegateCommand(() => NavigateToView(subView.Specification));
                   viewsList.Add(item);

@@ -22,20 +22,24 @@
 
 #endregion
 
-using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
-  /// Base class for each ListItem used as navigation item in the Media plugin
+  /// Base class for all navigation items which represent containers for more items.
   /// </summary>
-  public class NavigationItem : ListItem
+  public class ContainerItem : NavigationItem
   {
-    public string SimpleTitle
+    public ContainerItem(int? absNumItems)
     {
-      get { return this[Consts.KEY_SIMPLE_TITLE]; }
-      set { SetLabel(Consts.KEY_SIMPLE_TITLE, value); }
+      NumItems = absNumItems;
+    }
+
+    public int? NumItems
+    {
+      get { return (int?) AdditionalProperties[Consts.KEY_NUM_ITEMS]; }
+      set { AdditionalProperties[Consts.KEY_NUM_ITEMS] = value; }
     }
   }
 }

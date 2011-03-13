@@ -22,26 +22,16 @@
 
 #endregion
 
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.Media.General;
-
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
   /// Holds a GUI item which represents a filter choice.
   /// </summary>
-  public class FilterItem : ListItem
+  public class FilterItem : ContainerItem
   {
-    public FilterItem(string name, int? numItems)
+    public FilterItem(string name, int? numItems) : base(numItems)
     {
-      UpdateData(name, numItems);
-    }
-
-    public void UpdateData(string name, int? numItems)
-    {
-      SetLabel(Consts.KEY_NAME, name);
-      if (numItems.HasValue)
-        SetLabel(Consts.KEY_NUM_ITEMS, "(" + numItems.Value + ")");
+      SimpleTitle = name;
     }
   }
 }

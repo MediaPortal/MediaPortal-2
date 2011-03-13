@@ -4,7 +4,7 @@
     PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"
     Author="Frodo, Albert, Baboonanza"
     Copyright="GPL"
-    AutoActivate="true" 
+    AutoActivate="true"
     Description="DirectX Window Manager"
     PluginVersion="1.0">
 

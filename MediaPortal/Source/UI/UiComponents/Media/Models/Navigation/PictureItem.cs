@@ -23,14 +23,27 @@
 #endregion
 
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public class PictureItem : PlayableItem
+  public class PictureItem : PlayableMediaItem
   {
     public PictureItem(MediaItem mediaItem) : base(mediaItem)
     {
-      // TODO: Add more properties for picture media item to ListItem
+      MediaItemAspect pictureAspect;
+      if (mediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
+      {
+        SimpleTitle = Title;
+        Size = pictureAspect[PictureAspect.ATTR_WIDTH] + "x" + pictureAspect[PictureAspect.ATTR_HEIGHT];
+      }
+    }
+
+    public string Size
+    {
+      get { return this[Consts.KEY_SIZE]; }
+      set { SetLabel(Consts.KEY_SIZE, value); }
     }
   }
 }

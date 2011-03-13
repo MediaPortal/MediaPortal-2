@@ -149,7 +149,7 @@ namespace MediaPortal.UiComponents.Media.Models
           foreach (MediaItem mediaItem in playlist.ItemList)
           {
             int idx = ct++;
-            PlayableItem item = new PlayableItem(mediaItem);
+            PlayableMediaItem item = PlayableMediaItem.CreateItem(mediaItem);
 
             item.SetLabel(Consts.KEY_NUMBERSTR, (idx + 1) + ".");
             item.AdditionalProperties[Consts.KEY_INDEX] = idx;
@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (playlist == null || playlist != _playlist)
           return;
       int idx = playlist.ItemListIndex;
-      foreach (PlayableItem item in _items)
+      foreach (PlayableMediaItem item in _items)
       {
         bool isCurrentItem = idx-- == 0;
         bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[Consts.KEY_IS_CURRENT_ITEM];

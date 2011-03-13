@@ -263,6 +263,13 @@ namespace MediaPortal.UiComponents.Media.General
 
     // Accessor keys for GUI communication
     public const string KEY_NAME = "Name";
+    public const string KEY_SIMPLE_TITLE = "SimpleTitle";
+    public const string KEY_TITLE = "Title";
+    public const string KEY_ARTISTS = "Artists";
+    public const string KEY_YEAR = "Year";
+    public const string KEY_SIZE = "Size";
+    public const string KEY_RATING = "Rating";
+
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_NUM_ITEMS = "NumItems";
     public const string KEY_DURATION = "Duration";

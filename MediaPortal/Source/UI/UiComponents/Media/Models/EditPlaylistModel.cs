@@ -168,7 +168,7 @@ namespace MediaPortal.UiComponents.Media.Models
           for (int i = 0; i < items.Count; i++)
           {
             MediaItem mediaItem = items[i];
-            PlayableItem item = new PlayableItem(mediaItem);
+            PlayableMediaItem item = PlayableMediaItem.CreateItem(mediaItem);
 
             item.SetLabel(Consts.KEY_NUMBERSTR, (i + 1) + ".");
             item.AdditionalProperties[Consts.KEY_INDEX] = i;

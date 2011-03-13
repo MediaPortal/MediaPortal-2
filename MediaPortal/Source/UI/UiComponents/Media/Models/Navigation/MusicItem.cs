@@ -22,15 +22,35 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public class MusicItem : PlayableItem
+  public class MusicItem : PlayableMediaItem
   {
     public MusicItem(MediaItem mediaItem) : base(mediaItem)
     {
-      // TODO: Add more properties for music media item to ListItem
+      MediaItemAspect audioAspect;
+      if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+      {
+        IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
+        string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
+        SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+        long? duration = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty;
+      }
+    }
+
+    public string Duration
+    {
+      get { return this[Consts.KEY_DURATION]; }
+      set { SetLabel(Consts.KEY_DURATION, value); }
     }
   }
 }

@@ -22,20 +22,23 @@
 
 #endregion
 
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
-  /// Base class for each ListItem used as navigation item in the Media plugin
+  /// Holds a GUI item which represents a view to navigate to.
   /// </summary>
-  public class NavigationItem : ListItem
+  /// <remarks>
+  /// Instances of this class represent view items to be displayed in a GUI view's items list.
+  /// View's items lists contain view items (<see cref="ViewItem"/>s) as well as
+  /// playable items (<see cref="PlayableMediaItem"/>).
+  /// </remarks>
+  public class ViewItem : ContainerItem
   {
-    public string SimpleTitle
+    public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
     {
-      get { return this[Consts.KEY_SIMPLE_TITLE]; }
-      set { SetLabel(Consts.KEY_SIMPLE_TITLE, value); }
+      SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
     }
   }
 }
