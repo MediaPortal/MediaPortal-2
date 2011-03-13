@@ -212,7 +212,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// When a home server is connected, we store the connection data of the server to be able to
     /// provide the home server's data also when the connection is down. We'll refresh the data each time
     /// the server is connected to track changes in the server's location, name, ...
-    /// <summary>
+    /// </summary>
     protected static void SaveLastHomeServerData(ServerDescriptor serverDescriptor)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -247,13 +247,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
       if (sc != null)
         try
         {
+          // Check if we're attached to the server. If the server lost its state, it might have forgotten us.
           if (!sc.IsClientAttached(systemResolver.LocalSystemId))
             sc.AttachClient(systemResolver.LocalSystemId);
         }
         catch (Exception e)
         {
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e, HomeServerSystemId);
-          return; // As this is a real error case, we don't need to try any other service calls
+          return; // This is a real error case, we don't need to try any other service calls
         }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
