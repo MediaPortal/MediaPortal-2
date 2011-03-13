@@ -260,9 +260,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(MediaItemQuery), new Type[] {typeof(FilterWrapper)});
-      return _xmlSerializer;
+      return _xmlSerializer ??
+          (_xmlSerializer = new XmlSerializer(typeof(MediaItemQuery), new Type[] {typeof(FilterWrapper)}));
     }
 
     protected static XmlSerializer GetOrCreateXMLFilterSerializer()

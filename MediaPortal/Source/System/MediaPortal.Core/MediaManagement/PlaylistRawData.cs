@@ -114,9 +114,7 @@ namespace MediaPortal.Core.MediaManagement
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(PlaylistRawData));
-      return _xmlSerializer;
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(PlaylistRawData)));
     }
 
     /// <summary>

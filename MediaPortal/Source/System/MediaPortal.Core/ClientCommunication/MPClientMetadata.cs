@@ -115,9 +115,7 @@ namespace MediaPortal.Core.ClientCommunication
 
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
-      if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(MPClientMetadata));
-      return _xmlSerializer;
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(MPClientMetadata)));
     }
 
     /// <summary>
