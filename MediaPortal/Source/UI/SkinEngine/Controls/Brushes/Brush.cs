@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected AbstractProperty _opacityProperty;
     protected AbstractProperty _relativeTransformProperty;
-    protected Transform _transform;
+    protected AbstractProperty _transformProperty;
     protected AbstractProperty _freezableProperty;
     protected RectangleF _vertsBounds;
     protected Matrix? _finalBrushTransform = null;
@@ -70,15 +70,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      if (_transform != null)
-        _transform.Dispose();
+      Registration.TryCleanupAndDispose(RelativeTransform);
+      Registration.TryCleanupAndDispose(Transform);
     }
 
     void Init()
     {
       _opacityProperty = new SProperty(typeof(double), 1.0);
       _relativeTransformProperty = new SProperty(typeof(Transform), null);
-      _transform = null;
+      _transformProperty = new SProperty(typeof(Transform), null);
       _freezableProperty = new SProperty(typeof(bool), false);
       _vertsBounds = new RectangleF(0, 0, 0, 0);
     }
@@ -86,11 +86,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Attach()
     {
       _opacityProperty.Attach(OnPropertyChanged);
+      _relativeTransformProperty.Attach(OnRelativeTransformChanged);
+      _transformProperty.Attach(OnTransformChanged);
     }
 
     void Detach()
     {
       _opacityProperty.Detach(OnPropertyChanged);
+      _relativeTransformProperty.Detach(OnRelativeTransformChanged);
+      _transformProperty.Detach(OnTransformChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -107,6 +111,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     }
 
     #endregion
+
+    void OnRelativeTransformChanged(AbstractProperty prop, object oldVal)
+    {
+      Transform oldTransform = (Transform) oldVal;
+      if (oldTransform != null)
+        oldTransform.ObjectChanged -= OnRelativeTransformChanged;
+      Transform transform = (Transform) prop.GetValue();
+      if (transform != null)
+        transform.ObjectChanged += OnRelativeTransformChanged;
+    }
+
+    void OnTransformChanged(AbstractProperty prop, object oldVal)
+    {
+      Transform oldTransform = (Transform) oldVal;
+      if (oldTransform != null)
+        oldTransform.ObjectChanged -= OnTransformChanged;
+      Transform transform = (Transform) prop.GetValue();
+      if (transform != null)
+        transform.ObjectChanged += OnTransformChanged;
+    }
 
     public event ObjectChangedDlgt ObjectChanged
     {
@@ -127,7 +151,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// <param name="prop">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
     protected virtual void OnPropertyChanged(AbstractProperty prop, object oldValue)
-    { }
+    {
+      FireChanged();
+    }
+
+    protected virtual void OnRelativeTransformChanged(IObservable trans)
+    {
+      _finalBrushTransform = null;
+      FireChanged();
+    }
+
+    protected virtual void OnTransformChanged(IObservable trans)
+    {
+      _finalBrushTransform = null;
+      FireChanged();
+    }
 
     #endregion
 
@@ -166,14 +204,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _relativeTransformProperty.SetValue(value); }
     }
 
+    public AbstractProperty TransformProperty
+    {
+      get { return _transformProperty; }
+    }
+
     public Transform Transform
     {
-      get { return _transform; }
-      set
-      {
-        _transform = value;
-        _finalBrushTransform = null;
-      }
+      get { return (Transform) _transformProperty.GetValue(); }
+      set { _transformProperty.SetValue(value); }
     }
 
     public virtual Texture Texture

@@ -53,16 +53,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    #region Private fields
+    #region Protected fields
 
-    EffectAsset _effect;
+    protected EffectAsset _effect;
 
-    AbstractProperty _startPointProperty;
-    AbstractProperty _endPointProperty;
-    GradientBrushTexture _gradientBrushTexture;
-    float[] g_startpoint;
-    float[] g_endpoint;
-    bool _refresh = false;
+    protected AbstractProperty _startPointProperty;
+    protected AbstractProperty _endPointProperty;
+    protected GradientBrushTexture _gradientBrushTexture;
+    protected float[] g_startpoint;
+    protected float[] g_endpoint;
+    protected volatile bool _refresh = false;
 
     #endregion
 
@@ -105,6 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       LinearGradientBrush b = (LinearGradientBrush) source;
       StartPoint = copyManager.GetCopy(b.StartPoint);
       EndPoint = copyManager.GetCopy(b.EndPoint);
+      _refresh = true;
       Attach();
     }
 
@@ -113,7 +114,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
-      FireChanged();
+      base.OnPropertyChanged(prop, oldValue);
+    }
+
+    protected override void OnRelativeTransformChanged(IObservable trans)
+    {
+      _refresh = true;
+      base.OnRelativeTransformChanged(trans);
     }
 
     public AbstractProperty StartPointProperty

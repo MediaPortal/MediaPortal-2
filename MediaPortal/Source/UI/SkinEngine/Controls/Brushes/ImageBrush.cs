@@ -36,12 +36,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class ImageBrush : TileBrush
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _imageSourceProperty;
-    AbstractProperty _downloadProgressProperty;
-    AbstractProperty _thumbnailProperty;
-    TextureAsset _tex;
+    protected AbstractProperty _imageSourceProperty;
+    protected AbstractProperty _downloadProgressProperty;
+    protected AbstractProperty _thumbnailProperty;
+    protected TextureAsset _tex;
 
     #endregion
 

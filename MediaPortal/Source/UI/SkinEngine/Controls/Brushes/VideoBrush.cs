@@ -71,6 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
     protected RectangleF _lastVertsBounds;
+    protected volatile bool _refresh = true;
 
     #endregion
 
@@ -113,6 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Stream = b.Stream;
       Geometry = b.Geometry;
       BorderColor = b.BorderColor;
+      _refresh = true;
       Attach();
     }
 
@@ -129,6 +131,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
         _currentGeometry = null;
       }
+    }
+
+    protected override void OnRelativeTransformChanged(IObservable trans)
+    {
+      _refresh = true;
+      base.OnRelativeTransformChanged(trans);
     }
 
     #endregion
@@ -206,7 +214,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       RectangleF vertsBounds = _vertsBounds;
 
       // Do we need a refresh?
-      if (_lastVideoSize == playerSize &&
+      if (!_refresh &&
+          _lastVideoSize == playerSize &&
           _lastAspectRatio == aspectRatio &&
           _lastGeometry == geometry &&
           _lastEffect == effectName &&

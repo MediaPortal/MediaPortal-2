@@ -55,20 +55,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    #region Private fields
+    #region Protected fields
 
-    EffectAsset _effect;
+    protected EffectAsset _effect;
 
-    AbstractProperty _centerProperty;
-    AbstractProperty _gradientOriginProperty;
-    AbstractProperty _radiusXProperty;
-    AbstractProperty _radiusYProperty;
-    GradientBrushTexture _gradientBrushTexture;
-    float[] g_focus;
-    float[] g_center;
-    float[] g_radius;
-    Matrix g_relativetransform;
-    volatile bool _refresh = false;
+    protected AbstractProperty _centerProperty;
+    protected AbstractProperty _gradientOriginProperty;
+    protected AbstractProperty _radiusXProperty;
+    protected AbstractProperty _radiusYProperty;
+    protected GradientBrushTexture _gradientBrushTexture;
+    protected float[] g_focus;
+    protected float[] g_center;
+    protected float[] g_radius;
+    protected Matrix g_relativetransform;
+    protected volatile bool _refresh = false;
 
     #endregion
 
@@ -119,17 +119,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
       RadiusX = b.RadiusX;
       RadiusY = b.RadiusY;
+      _refresh = true;
       Attach();
     }
 
     #endregion
+
+    protected override void OnRelativeTransformChanged(IObservable trans)
+    {
+      _refresh = true;
+      base.OnRelativeTransformChanged(trans);
+    }
 
     #region Protected methods
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
-      FireChanged();
+      base.OnPropertyChanged(prop, oldValue);
     }
 
     #endregion

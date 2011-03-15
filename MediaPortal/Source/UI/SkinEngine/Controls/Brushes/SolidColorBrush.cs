@@ -44,10 +44,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    #region Private properties
+    #region Protected properties
 
-    AbstractProperty _colorProperty;
-    EffectAsset _effect;
+    protected AbstractProperty _colorProperty;
+    protected EffectAsset _effect;
 
     #endregion
 
@@ -90,11 +90,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     }
 
     #endregion
-
-    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
-    {
-      FireChanged();
-    }
 
     public AbstractProperty ColorProperty
     {

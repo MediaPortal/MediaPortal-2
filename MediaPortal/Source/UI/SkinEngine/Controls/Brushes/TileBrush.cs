@@ -140,8 +140,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Stretch = b.Stretch;
       Tile = b.Tile;
       ViewPort = copyManager.GetCopy(b.ViewPort);
-      Attach();
       _refresh = true;
+      Attach();
     }
 
     #endregion
@@ -228,10 +228,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return new Vector2(1.0f, 1.0f); }
     }
 
+    protected override void OnRelativeTransformChanged(IObservable trans)
+    {
+      _refresh = true;
+      base.OnRelativeTransformChanged(trans);
+    }
+
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
-      FireChanged();
+      base.OnPropertyChanged(prop, oldValue);
     }
 
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)

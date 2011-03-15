@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected SizeF _visualSize = Size.Empty;
     protected FrameworkElement _preparedVisual = null;
     protected String _renderTextureKey;
-    static int _visualBrushId = 0;
+    protected static int _visualBrushId = 0;
 
     #endregion
 
@@ -181,26 +181,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override Texture Texture
     {
-      get
-      {
-        return _textureVisual.Texture;
-      }
+      get { return _textureVisual.Texture; }
     }
 
     protected override Vector2 BrushDimensions
     {
-      get
-      {
-        return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f);
-      }
+      get { return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f); }
     }
 
     protected override Vector2 TextureMaxUV
     {
-      get
-      {
-        return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f);
-      }
+      get { return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f); }
     }
   }
 }
