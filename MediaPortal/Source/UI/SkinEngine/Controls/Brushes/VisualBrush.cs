@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
@@ -61,6 +62,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       Init();
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      FrameworkElement visual = Visual;
+      if (visual != null)
+        Registration.TryCleanupAndDispose(visual);
+      base.Dispose();
     }
 
     void Init()
@@ -98,14 +107,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected void PrepareVisual()
     {
-      if (_preparedVisual != null)
+      FrameworkElement visual = Visual;
+      if (_preparedVisual != null && _preparedVisual != visual)
       {
         _preparedVisual.SetElementState(ElementState.Available);
         _preparedVisual.Deallocate();
+        _preparedVisual = null;
       }
       if (_screen == null)
         return;
-      FrameworkElement visual = Visual;
       if (visual == null)
         return;
       if (AutoLayoutContent)
