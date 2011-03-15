@@ -525,10 +525,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void FocusScreen(Screen screen)
     {
+      lock (_syncObj)
+        if (screen == _focusedScreen)
+          return;
+        else
+          _focusedScreen = screen;
       if (screen != null)
         screen.AttachInput();
-      lock (_syncObj)
-        _focusedScreen = screen;
     }
 
     public void UnfocusCurrentScreen()
@@ -733,7 +736,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         if (_nextScreen != null)
-        {
+        { // If next screen is already set, dispose it. This might happen if during a screen change, another screen change is scheduled.
           _nextScreen.ScreenState = Screen.State.Closed;
           ScheduleDisposeScreen(_nextScreen);
         }
@@ -755,6 +758,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           ScheduleDisposeScreen(_currentSuperLayer);
         _currentSuperLayer = screen;
       }
+      if (screen == null)
+        FocusScreen(GetScreens(false, true, true, false).Last());
+      else
+        UnfocusCurrentScreen();
     }
 
     protected internal void DoReloadScreens()
