@@ -528,11 +528,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected ICollection<Guid> GetSelectedPlaylists(ItemsList playlistsList)
     {
-      ICollection<Guid> result = new List<Guid>();
+      List<Guid> result = new List<Guid>();
       lock (_syncObj)
-        foreach (ListItem playlistItem in playlistsList)
-          if (playlistItem.Selected)
-            result.Add(((PlaylistBase) playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA]).PlaylistId);
+        result.AddRange(playlistsList.
+            Where(playlistItem => playlistItem.Selected).
+            Select(playlistItem => ((PlaylistBase) playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA]).PlaylistId));
       return result;
     }
 
