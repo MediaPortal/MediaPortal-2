@@ -47,7 +47,6 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string STR_WF_STATE_ID_SHOW_PLAYLIST = "95E38A80-234C-4494-9F7A-006D8E4D6FDA";
     public const string STR_WF_STATE_ID_EDIT_PLAYLIST = "078DCC03-AE75-4347-8C07-183605CDB1B7";
-    public const string STR_WF_STATE_ID_MANAGE_PLAYLISTS = "4A0981A3-2051-46f7-89ED-2DD3A9237DE9";
 
     public const string STR_WF_STATE_ID_PLAYLISTS_OVERVIEW = "4A0981A3-2051-46f7-89ED-2DD3A9237DE9";
     public const string STR_WF_STATE_ID_PLAYLIST_INFO = "00E50877-E3BF-4361-A57D-15F5B495FDEF";
@@ -79,12 +78,10 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid WF_STATE_ID_SHOW_PLAYLIST = new Guid(STR_WF_STATE_ID_SHOW_PLAYLIST);
     public static readonly Guid WF_STATE_ID_EDIT_PLAYLIST = new Guid(STR_WF_STATE_ID_EDIT_PLAYLIST);
-    public static readonly Guid WF_STATE_ID_MANAGE_PLAYLISTS = new Guid(STR_WF_STATE_ID_MANAGE_PLAYLISTS);
 
     public static readonly Guid WF_STATE_ID_PLAYLISTS_OVERVIEW = new Guid(STR_WF_STATE_ID_PLAYLISTS_OVERVIEW);
     public static readonly Guid WF_STATE_ID_PLAYLIST_INFO = new Guid(STR_WF_STATE_ID_PLAYLIST_INFO);
     public static readonly Guid WF_STATE_ID_PLAYLISTS_REMOVE = new Guid(STR_WF_STATE_ID_PLAYLISTS_REMOVE);
-    public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION);
     public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
 
     public static readonly Guid WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL = new Guid(STR_WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
@@ -192,14 +189,10 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_VIDEO_PLAYLIST = "[Media.VideoPlaylistHeader]";
     public const string RES_PIP_PLAYLIST = "[Media.PiPPlaylistHeader]";
 
-    public const string RES_SAVE_PL_LOCALLY = "[Media.SavePLLocally]";
-    public const string RES_SAVE_PL_AT_SERVER = "[Media.SavePLAtServer]";
-
     public const string RES_SAVE_PLAYLIST_FAILED_TEXT = "[Media.SavePlaylistFailedText]";
     public const string RES_SAVE_PLAYLIST_FAILED_LOCAL_MEDIAITEMS_TEXT = "[Media.CannotSavePlaylistWithLocalMediaItems]";
     public const string RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS = "[Media.SavePlaylistFailedAlreadyExists]";
-    public const string RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT = "[Media.SavePlaylistLocalSuccessfulText]";
-    public const string RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT = "[Media.SavePlaylistServerSuccessfulText]";
+    public const string RES_SAVE_PLAYLIST_SUCCESSFUL_TEXT = "[Media.SavePlaylistSuccessfulText]";
 
     public const string RES_PLAYLIST_LOAD_NO_PLAYLIST = "[Media.PlaylistLoadNoPlaylistText]";
     public const string RES_PLAYLIST_LOAD_ERROR_LOADING = "[Media.PlaylistLoadErrorLoadingPlaylist]";

@@ -40,8 +40,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Back]"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+              Content="[System.Back]" IsEnabled="False"/>
           <Button x:Name="FinishButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Finish]" IsEnabled="{Binding IsPlaylistNameValid}"
               Command="{Command SavePlaylistAndFinish}"/>

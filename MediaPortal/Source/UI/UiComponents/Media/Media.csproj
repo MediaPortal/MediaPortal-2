@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -100,7 +100,6 @@
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
-    <Compile Include="Models\LocalPlaylists.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
     <Compile Include="Models\Navigation\ViewItem.cs" />
@@ -199,7 +198,6 @@
     <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
     <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
     <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
-    <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
