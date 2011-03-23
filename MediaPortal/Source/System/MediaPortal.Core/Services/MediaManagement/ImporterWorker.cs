@@ -568,7 +568,7 @@ namespace MediaPortal.Core.Services.MediaManagement
               IFileSystemResourceAccessor fsra = pendingImportResource.ResourceAccessor;
               int numPending = importJob.PendingResources.Count;
               string moreResources = numPending > 1 ? string.Format(" ({0} more resources pending)", numPending) : string.Empty;
-              ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'{1}", fsra.ResourcePathName, moreResources);
+              ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Importing '{0}'{1}", fsra.ResourcePathName, moreResources);
               if (fsra.IsFile)
                 ImportResource(fsra, pendingImportResource.ParentDirectory, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
               else if (fsra.IsDirectory)
