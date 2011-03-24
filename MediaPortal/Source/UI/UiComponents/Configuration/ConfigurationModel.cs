@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
@@ -78,6 +79,8 @@ namespace MediaPortal.UiComponents.Configuration
     public const string KEY_NAME = "Name";
     public const string KEY_HELPTEXT = "Help";
     public const string KEY_ENABLED = "Enabled";
+
+    public const string RES_CONFIGURATION_NAME = "[Configuration.Name]";
 
     #region Protected fields
 
@@ -150,6 +153,17 @@ namespace MediaPortal.UiComponents.Configuration
     public ConfigurationController CurrentConfigController
     {
       get { return _currentConfigController; }
+    }
+
+    public AbstractProperty HeaderTextProperty
+    {
+      get { return _headerTextProperty; }
+    }
+
+    public string HeaderText
+    {
+      get { return (string) _headerTextProperty.GetValue(); }
+      set { _headerTextProperty.SetValue(value); }
     }
 
     #endregion
@@ -262,10 +276,10 @@ namespace MediaPortal.UiComponents.Configuration
 
     protected ConfigurationController FindConfigurationController(Type settingType)
     {
-      foreach (KeyValuePair<Type, ConfigurationController> registration in _registeredSettingTypes)
-        if (registration.Key.IsAssignableFrom(settingType))
-          return registration.Value;
-      return null;
+      return _registeredSettingTypes.
+          Where(registration => registration.Key.IsAssignableFrom(settingType)).
+          Select(registration => registration.Value).
+          FirstOrDefault();
     }
 
     /// <summary>
@@ -350,10 +364,10 @@ namespace MediaPortal.UiComponents.Configuration
 
     void OnVisibleEnabledChanged(AbstractProperty visibleOrEnabledProperty, object oldValue)
     {
-      UpdateConfigSettings();
+      UpdateConfigSettingsAndHeader();
     }
 
-    protected void UpdateConfigSettings()
+    protected void UpdateConfigSettingsAndHeader()
     {
       _configSettingsList.Clear();
       IConfigurationManager configurationManager = ServiceRegistration.Get<IConfigurationManager>();
@@ -363,6 +377,8 @@ namespace MediaPortal.UiComponents.Configuration
         return;
       AddConfigSettings(currentNode, _configSettingsList);
       _configSettingsList.FireChange();
+      ConfigBase configObj = currentNode.ConfigObj;
+      HeaderText = configObj == null ? RES_CONFIGURATION_NAME : configObj.Metadata.Text;
     }
 
     /// <summary>
@@ -381,10 +397,11 @@ namespace MediaPortal.UiComponents.Configuration
         configurationManager.Initialize();
 
       _currentLocation = configLocation;
-      // We need to create a new items list instance because the old GUI screen is still showing the old items list and we don't
-      // want to update it
+      // We need to create new instances because the old GUI screen is still attached to the old instances and we don't
+      // want to update them
+      _headerTextProperty = new WProperty(typeof(string), null);
       _configSettingsList = new ItemsList();
-      UpdateConfigSettings();
+      UpdateConfigSettingsAndHeader();
     }
 
     #endregion

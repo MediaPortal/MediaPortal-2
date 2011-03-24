@@ -34,23 +34,17 @@
           </Grid.ColumnDefinitions>
           <Label Grid.Row="0" Content="[Media.ChoosePlaylistsToBeRemovedText]" Wrap="True"/>
           <DockPanel LastChildFill="True" Grid.Row="1">
-            <Grid x:Name="PlaylistsPanel" Margin="0,0,0,10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[Media.Playlists]"/>
-              <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <DockPanel x:Name="PlaylistsPanel" Margin="0,0,0,10" DockPanel.Dock="Center"
+                LastChildFill="True"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ListView Margin="10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkablePlaylistsListViewStyle}"
                   IsVisible="{Binding IsHomeServerConnected}"
                   ItemsSource="{Binding Path=Playlists,Mode=OneTime}"/>
-              <Label Margin="10" Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsHomeServerConnected}"
+              <Label Margin="10" DockPanel.Dock="Center" IsVisible="{Binding !IsHomeServerConnected}"
                   Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            </Grid>
+            </DockPanel>
           </DockPanel>
           <Grid Grid.Row="2" Margin="10,10,10,0">
             <Grid.RowDefinitions>

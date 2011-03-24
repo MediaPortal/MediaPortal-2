@@ -10,6 +10,7 @@
     <Grid DockPanel.Dock="Center" HorizontalAlignment="Center">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="30"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
@@ -90,15 +91,15 @@
   
       <!-- First transform -->
   
-      <Label Grid.Row="0" Grid.Column="0" Content="RenderTransform"/>
-      <Label Grid.Row="0" Grid.Column="1" Content="LayoutTransform" Margin="20,30,0,30"/>
+      <Label Grid.Row="0" Grid.Column="0" Content="RenderTransform" Margin="0,30,0,30"/>
+      <Label Grid.Row="0" Grid.Column="2" Content="LayoutTransform" Margin="0,30,0,30"/>
 
       <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{StaticResource Transform1Text}"/>
       <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="2" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform1}"/>
   
-      <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-      <Rectangle Grid.Row="2" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform1}"/>
+      <Rectangle Grid.Row="2" Grid.Column="2" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="2" Grid.Column="2" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform1}"/>
   
       <!-- Second transform -->
   
@@ -106,8 +107,8 @@
       <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="4" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform2}"/>
   
-      <Rectangle Grid.Row="4" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-      <Rectangle Grid.Row="4" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform2}"/>
+      <Rectangle Grid.Row="4" Grid.Column="2" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="4" Grid.Column="2" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform2}"/>
   
       <!-- Third transform -->
   
@@ -115,8 +116,8 @@
       <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="6" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform3}"/>
   
-      <Rectangle Grid.Row="6" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-      <Rectangle Grid.Row="6" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform3}"/>
+      <Rectangle Grid.Row="6" Grid.Column="2" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="6" Grid.Column="2" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform3}"/>
   
       <!-- Fourth transform -->
   
@@ -124,8 +125,8 @@
       <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource ReferenceRectStyle}"/>
       <Rectangle Grid.Row="8" Grid.Column="0" Style="{StaticResource TestRectStyle}" RenderTransform="{StaticResource Transform4}"/>
   
-      <Rectangle Grid.Row="8" Grid.Column="1" Style="{StaticResource ReferenceRectStyle}"/>
-      <Rectangle Grid.Row="8" Grid.Column="1" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform4}"/>
+      <Rectangle Grid.Row="8" Grid.Column="2" Style="{StaticResource ReferenceRectStyle}"/>
+      <Rectangle Grid.Row="8" Grid.Column="2" Style="{StaticResource TestRectStyle}" LayoutTransform="{StaticResource Transform4}"/>
     </Grid>
   </DockPanel>
 </Screen>

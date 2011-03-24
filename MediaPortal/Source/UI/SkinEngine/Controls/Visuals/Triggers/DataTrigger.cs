@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       TriggerIfValuesEqual(bindingValue.GetValue(), Value);
     }
 
-    #region IAddChild Members
+    #region IAddChild<Setter> implementation
 
     public void AddChild(Setter s)
     {

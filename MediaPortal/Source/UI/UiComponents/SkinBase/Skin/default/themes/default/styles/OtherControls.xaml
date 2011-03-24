@@ -938,31 +938,31 @@
   <Style x:Key="PlayerControlGroupBoxStyle">
     <Setter Property="BorderBrush">
       <Setter.Value>
-        <SolidColorBrush Color="{ThemeResource DefaultPlayerControlBorderColor}"/>
+        <SolidColorBrush Color="{ThemeResource PlayerControlBorderColor}"/>
       </Setter.Value>
     </Setter>
     <Setter Property="BorderThickness" Value="{ThemeResource DefaultPlayerControlBorderThickness}"/>
     <Setter Property="CornerRadius" Value="{ThemeResource DefaultPlayerControlCornerRadius}"/>
-    <Setter Property="HeaderColor" Value="{ThemeResource DefaultPlayerControlTitleColor}"/>
+    <Setter Property="HeaderColor" Value="{ThemeResource PlayerControlTitleColor}"/>
     <Setter Property="FontSize" Value="{ThemeResource SmallFontSize}"/>
   </Style>
 
   <Storyboard x:Key="DefaultCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="BorderBrush.Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBorderColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBorderColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="HeaderColor">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlTitleColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlTitleColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor1}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor2}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor2}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="Background.GradientStops[2].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor3}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor3}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -993,9 +993,9 @@
               Header="{Binding Title}">
             <GroupBox.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="{ThemeResource DefaultPlayerControlBackgroundColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource DefaultPlayerControlBackgroundColor}" Offset="0.5"/>
-                <GradientStop Color="{ThemeResource DefaultPlayerControlBackgroundColor}" Offset="1"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.5"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
               </LinearGradientBrush>
             </GroupBox.Background>
             <GroupBox.Triggers>
@@ -1011,6 +1011,9 @@
                   <Setter TargetName="AudioIndicatorButton" Property="IsVisible" Value="True"/>
                 </Trigger.Setters>
               </Trigger>
+              <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
+                <Setter Property="OpacityMask" Value="{ThemeResource PlayerControlInactiveOpacityMaskColor}"/>
+              </DataTrigger>
             </GroupBox.Triggers>
             <StackPanel Orientation="Vertical">
               <Grid x:Name="MediaInfoPanel" Margin="5" HorizontalAlignment="Stretch">
@@ -1033,8 +1036,14 @@
                       VerticalAlignment="Center"/>
                   <Label x:Name="SeekHint" FontSize="{ThemeResource TinyFontSize}" Content="{Binding SeekHint}" Color="{ThemeResource TextColor}"/>
                 </Grid>
-                <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="1" Color="{ThemeResource DefaultPlayerControlMediaItemColor}"
-                    Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="1" Color="{ThemeResource PlayerControlMediaItemColor}"
+                    Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
+                      <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
                 <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"
                     IsVisible="{Binding HasAudio}">
                   <Grid Name="AudioIndicatorNoMouse">

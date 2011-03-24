@@ -15,16 +15,9 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
-        <Grid Margin="0,0,0,10" DockPanel.Dock="Center">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Margin="10" Content="[Media.Playlists]"/>
-          <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <DockPanel Margin="0,0,0,10" DockPanel.Dock="Center"
+            LastChildFill="True">
+          <ListView Margin="10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource PlaylistsListViewStyle}"
               IsVisible="{Binding IsHomeServerConnected}"
               ItemsSource="{Binding Path=Playlists,Mode=OneTime}">
@@ -32,10 +25,10 @@
               <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+          <Label Margin="10" DockPanel.Dock="Center" IsVisible="{Binding !IsHomeServerConnected}"
               Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-        </Grid>
+        </DockPanel>
       </DockPanel>
     </ResourceWrapper>
 
