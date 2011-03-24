@@ -12,8 +12,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[Configuration.Name]"/>
 
-    <ReferenceNotNull_BoolConverter x:Key="RefToBoolConverter"/>
-
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <Grid>
@@ -37,7 +35,7 @@
             HorizontalAlignment="Stretch"
             DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
             Content="{Binding [Help]}" Wrap="True"
-            IsVisible="{Binding Converter={StaticResource RefToBoolConverter}}"/>
+            IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
       </Grid>
     </ResourceWrapper>
 

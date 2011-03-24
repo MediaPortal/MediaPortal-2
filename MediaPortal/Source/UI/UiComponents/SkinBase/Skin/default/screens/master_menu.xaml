@@ -2,8 +2,15 @@
 
 <!--
 This is the master template for standard menu screens:
-A header text, left the menu, under the menu a small video preview,
-at the right side the content pane and at the bottom the current play control.
+On top the window buttons, the player controls and the notification symbol,
+at the left side the menu,
+at the right side the content pane and
+at the bottom the navbar.
+
+The contents (Contents_Element) are displayed inside a GroupBox.
+If an alternative contents display should be used,
+the element Alternative_Contents_Element can be used; in that case, no
+surrounding GroupBox will be used.
 
 Usage:
 
@@ -15,16 +22,25 @@ Usage:
       <ResourceWrapper x:Key="Header_Text">
         [Header text]
       </ResourceWrapper>
+
+      <!- Either ->
       <ResourceWrapper x:Key="Contents_Element">
         [UI element to be displayed in the content area]
       </ResourceWrapper>
+      <!- Or ->
+      <ResourceWrapper x:Key="Alternative_Contents_Element">
+        [UI element to be displayed in the content area]
+      </ResourceWrapper>
+
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Header_Text (String): The text to be displayed as header
- - Contents_Element (Any UI element): Contents to be displayed in the content
-   area at the right side
+ - Header_Text (String): The text to be displayed as header. Only used when Contents_Element is given.
+ - Contents_Element (Any UI element): Contents to be displayed in the content area at the right side,
+   inside a GroupBox.
+ - Alternative_Contents_Element (Any UI element): Contents to be displayed in the content area at
+   the right side, without a GroupBox.
 -->
 
 <Include
@@ -51,10 +67,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </ListView.Resources>
         </ListView>
 
-        <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <ContentPresenter x:Name="ContentViewer" DockPanel.Dock="Center" Margin="10,0,10,10"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}" SetFocus="true"/>
+        <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
+        <Grid x:Name="ContentPanel" SetFocus="true">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <GroupBox x:Name="ContentGroupBox" Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
+              Header="{Binding Source={DynamicResource ResourceKey=Header_Text,TreeSearchMode=Hybrid},Path=Resource,Mode=OneTime}" DockPanel.Dock="Center"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Content="{Binding Source={DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"
+              IsVisible="{Binding RelativeSource={RelativeSource Self},Converter={StaticResource ReferenceToBoolConverter},Path=Content}"
+              Style="{ThemeResource ContentGroupBoxStyle}"/>
+          <ContentPresenter x:Name="AlternativeContentViewer" Grid.Row="0" Grid.Column="0"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             Content="{DynamicResource ResourceKey=Alternative_Contents_Element,TreeSearchMode=Hybrid}"
+             IsVisible="{Binding RelativeSource={RelativeSource Self},Converter={StaticResource ReferenceToBoolConverter},Path=Content}"/>
+        </Grid>
       </DockPanel>
     </ResourceWrapper>
 

@@ -75,7 +75,6 @@
     <String Name="SavePlaylistFailedHeader" Text="Save playlist"/>
     <String Name="SavePlaylistSuccessfulHeader" Text="Save playlist"/>
     <String Name="RemovePlaylistsHeader" Text="Remove playlists"/>
-    <String Name="PlaylistInfoHeader" Text="Playlist information"/>
     <String Name="PlaylistDetailsHeader" Text="Playlist details"/>
 
     <String Name="PlaylistLoadNoPlaylistText" Text="No playlist to load"/>
@@ -161,8 +160,7 @@
     <String Name="VideoPictureContextName" Text="Video/Picture"/>
     <String Name="AudioContextName" Text="Audio"/>
 
-    <String Name="VideoCurrentlyPlayingHeader" Text="Currently playing"/>
-    <String Name="VideoCurrentlyPlayingInformationHeader" Text="Video information"/>
+    <String Name="VideoCurrentlyPlayingHeader" Text="Current video information"/>
     <String Name="VideoTitleLabel" Text="Title: "/>
     <String Name="VideoGenreLabel" Text="Genre: "/>
     <String Name="VideoYearLabel" Text="Year: "/>
@@ -170,11 +168,9 @@
     <String Name="VideoActorsLabel" Text="Actor(s): "/>
     <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
 
-    <String Name="DVDCurrentlyPlayingHeader" Text="Currently playing"/>
-    <String Name="DVDCurrentlyPlayingInformationHeader" Text="DVD information"/>
+    <String Name="DVDCurrentlyPlayingHeader" Text="Current DVD information"/>
 
-    <String Name="AudioCurrentlyPlayingHeader" Text="Currently playing"/>
-    <String Name="AudioCurrentlyPlayingInformationHeader" Text="Audio information"/>
+    <String Name="AudioCurrentlyPlayingHeader" Text="Current audio information"/>
     <String Name="AudioArtistsLabel" Text="Artists: "/>
     <String Name="AudioTitleLabel" Text="Title: "/>
     <String Name="AudioYearLabel" Text="Year: "/>
@@ -228,8 +224,7 @@
     <String Name="ChooseSubtitleDialogHeader" Text="Choose subtitle"/>
 
     <!-- Picture player related -->
-    <String Name="PictureCurrentlyPlayingHeader" Text="Current picture"/>
-    <String Name="PictureCurrentlyPlayingInformation" Text="Current picture information"/>
+    <String Name="PictureCurrentlyPlayingHeader" Text="Current picture information"/>
     <String Name="PictureTitleLabel" Text="Picture: "/>
     <String Name="PictureDimensions" Text="Dimensions: "/>
     <String Name="PictureMake" Text="Camera make: "/>

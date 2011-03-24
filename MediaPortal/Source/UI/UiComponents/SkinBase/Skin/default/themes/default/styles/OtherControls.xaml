@@ -18,6 +18,7 @@
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
+  <ReferenceNotNull_BoolConverter x:Key="ReferenceToBoolConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
@@ -51,15 +52,35 @@
 
   <!-- ***************************** Brushes ******************************** -->
 
-  <!-- default brush used to paint the background of a page/window -->
+  <!-- Master screen brushes -->
+  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+  <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <!-- Default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
-      <GradientStop Color="{ThemeResource BackgroundGradientLightColor}" Offset="0"/>
-      <GradientStop Color="{ThemeResource BackgroundGradientDarkColor}" Offset="1"/>
+      <GradientStop Color="{ThemeResource BackgroundGradient1Color}" Offset="0"/>
+      <GradientStop Color="{ThemeResource BackgroundGradient2Color}" Offset="1"/>
     </RadialGradientBrush>
   </ResourceWrapper>
 
-  <!-- default brush used to paint the background of a dialog -->
+  <!-- Default brush used to paint the background of a dialog -->
   <ResourceWrapper x:Key="DialogBackgroundBrush" Freezable="true">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
       <RadialGradientBrush.RelativeTransform>
@@ -68,9 +89,29 @@
           <TranslateTransform X="-0.036" Y="-0.146"/>
         </TransformGroup>
       </RadialGradientBrush.RelativeTransform>
-      <GradientStop Color="{ThemeResource DialogBackgroundGradientLightColor}" Offset="0"/>
-      <GradientStop Color="{ThemeResource DialogBackgroundGradientDarkColor}" Offset="1"/>
+      <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
+      <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
     </RadialGradientBrush>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="DialogBorderBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="{ThemeResource DialogBorderGradient1Color}"/>
+        <GradientStop Offset="0.5" Color="{ThemeResource DialogBorderGradient2Color}"/>
+        <GradientStop Offset="1" Color="{ThemeResource DialogBorderGradient3Color}"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper> 
+
+  <ResourceWrapper x:Key="ContentGroupBoxBackgroundBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush" Freezable="true">
@@ -206,8 +247,9 @@
   <!-- *********************************** Content GroupBox style ********************************* -->
 
   <Style x:Key="ContentGroupBoxStyle" TargetType="{x:Type GroupBox}">
+    <Setter Property="HeaderColor" Value="{ThemeResource ContentGroupBoxHeaderColor}"/>
     <Setter Property="BorderBrush" Value="{ThemeResource ContentGroupBoxBorderColor}"/>
-    <Setter Property="Background" Value="{ThemeResource ContentGroupBoxBackgroundColor}"/>
+    <Setter Property="Background" Value="{ThemeResource ContentGroupBoxBackgroundBrush}"/>
     <Setter Property="CornerRadius" Value="{ThemeResource ContentGroupBoxCornerRadius}"/>
   </Style>
 
@@ -1164,7 +1206,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Label Content="..." Margin="10" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+          <Label Content="..." Margin="10,2,10,2" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

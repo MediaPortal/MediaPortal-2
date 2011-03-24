@@ -20,14 +20,14 @@
       <SplinePointKeyFrame KeyTime="00:00:04" Value="0.5,1.719"/>
     </PointAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedButtonGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:02" Value="{ThemeResource FocusedButtonGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:04" Value="{ThemeResource FocusedButtonGradientDarkColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedButtonGradient3Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:02" Value="{ThemeResource FocusedButtonGradient3Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:04" Value="{ThemeResource FocusedButtonGradient3Color}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedButtonGradientLightColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:02" Value="{ThemeResource FocusedButtonGradientLighterColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:04" Value="{ThemeResource FocusedButtonGradientLightColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedButtonGradient1Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:02" Value="{ThemeResource FocusedButtonGradient2Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:04" Value="{ThemeResource FocusedButtonGradient1Color}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Stroke.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource HighlightButtonStrokeColor}"/>
@@ -81,14 +81,14 @@
   <!-- Base storyboard which shows an animation when a button is pressed -->
   <Storyboard x:Key="PressedButtonStoryboard_Base" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradientDark2Color}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradientDark1Color}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="{ThemeResource PressedButtonGradientDark2Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradient2Color2}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradient2Color1}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="{ThemeResource PressedButtonGradient2Color2}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradientLight2Color}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradientLight1Color}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="{ThemeResource PressedButtonGradientLight2Color}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradient1Color2}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradient1Color1}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.4000000" Value="{ThemeResource PressedButtonGradient1Color2}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Stroke.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource HighlightButtonStrokeColor}"/>
@@ -164,8 +164,8 @@
                     <TranslateTransform X="0.027" Y="-0.006"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+                <GradientStop Color="{ThemeResource ButtonGradient1Color}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ButtonGradient2Color}" Offset="1"/>
               </RadialGradientBrush>
             </Rectangle.Fill>
           </Rectangle>
@@ -187,8 +187,8 @@
                     <TranslateTransform X="0.027" Y="-0.006"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+                <GradientStop Color="{ThemeResource ButtonGradient1Color}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ButtonGradient2Color}" Offset="1"/>
               </RadialGradientBrush>
             </Rectangle.Fill>
           </Rectangle>

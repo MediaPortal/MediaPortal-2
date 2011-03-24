@@ -142,7 +142,6 @@
     <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
     <String Name="NoSharesAvailable" Text="There are no shares available"/>
     <String Name="ShareInformationHeader" Text="Share information"/>
-    <String Name="ShareData" Text="Share data"/>
     <String Name="ShareNameInfo" Text="Name:"/>
     <String Name="ShareMediaProviderInfo" Text="Base media provider:"/>
     <String Name="ShareSystem" Text="System:"/>

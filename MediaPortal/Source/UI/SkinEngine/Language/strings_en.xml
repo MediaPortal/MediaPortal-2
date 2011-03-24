@@ -41,7 +41,7 @@
   </Section>
   <Section Name="PlayerControl">
     <String Name="NoPlayer" Text="No player"/>
-    <String Name="NoMediaItem" Text="No media item"/>
+    <String Name="NoMediaItem" Text="- No media item -"/>
     <String Name="UnknownMediaItem" Text="Unknown media item"/>
     <String Name="UnknownPlayerContextName" Text="Player"/>
     <String Name="HeaderNormal" Text="{0}"/> <!-- {0} = media item title -->

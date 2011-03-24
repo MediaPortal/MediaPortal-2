@@ -6,26 +6,14 @@
     >
   <Include.Resources>
 
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Home.Title]"/>
+    <!-- We're using the alternative contents element so no need for a title -->
 
-    <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <!-- Alternative contents -->
+    <ResourceWrapper x:Key="Alternative_Contents_Element">
       <DockPanel LastChildFill="False">
-        <DockPanel.Resources>
-          <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-        </DockPanel.Resources>
-<!--
-        <StackPanel Orientation="Vertical" DockPanel.Dock="Center"
-            HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
-              HorizontalAlignment="Center"
-              Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
-          <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
-              HorizontalAlignment="Center"
-              Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
-        </StackPanel>
--->
+        <Label FontSize="{ThemeResource HugeFontSize}" DockPanel.Dock="Center"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Home.Title]"/>
       </DockPanel>
     </ResourceWrapper>
 

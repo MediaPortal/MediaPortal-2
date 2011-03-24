@@ -12,8 +12,8 @@
             <Ellipse VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource AnalogClockBackgroundColor}" StrokeThickness="3">
               <Ellipse.Stroke>
                 <LinearGradientBrush>
-                  <GradientStop Color="{ThemeResource AnalogClockBorderGradientDarkColor}" Offset="0" />
-                  <GradientStop Color="{ThemeResource AnalogClockBorderGradientLightColor}" Offset="1" />
+                  <GradientStop Color="{ThemeResource AnalogClockBorderGradient2Color}" Offset="0" />
+                  <GradientStop Color="{ThemeResource AnalogClockBorderGradient1Color}" Offset="1" />
                 </LinearGradientBrush>
               </Ellipse.Stroke>
             </Ellipse>

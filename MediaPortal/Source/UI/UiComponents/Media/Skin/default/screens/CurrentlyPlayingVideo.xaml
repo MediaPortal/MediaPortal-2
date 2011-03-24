@@ -10,46 +10,44 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
 
     <ResourceWrapper x:Key="Contents_Element">
-      <GroupBox Header="[Media.VideoCurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
-        <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
-          <DockPanel.Context>
-            <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"/>
-          </DockPanel.Context>
-          <Grid DockPanel.Dock="Top"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.VideoTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
-            <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0" Content="[Media.VideoGenreLabel]"/>
-            <Label x:Name="Genre" Grid.Row="1" Grid.Column="1" Content="{Binding VideoGenre}"/>
-            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.VideoYearLabel]"/>
-            <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding VideoYear}"/>
-            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.VideoDurationLabel]"/>
-            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
-            <Label x:Name="ActorsLabel" Grid.Row="4" Grid.Column="0" Content="[Media.VideoActorsLabel]"/>
-            <Label x:Name="Actors" Grid.Row="4" Grid.Column="1" Wrap="true" HorizontalAlignment="Stretch"
-                Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"/>
-          </Grid>
-          <StackPanel DockPanel.Dock="Center" Orientation="Vertical"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Content="[Media.VideoStoryPlotLabel]"/>
-            <TextBox x:Name="StoryPlot"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Text="{Binding VideoStoryPlot}"/>
-          </StackPanel>
-        </DockPanel>
-      </GroupBox>
+      <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
+        <DockPanel.Context>
+          <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"/>
+        </DockPanel.Context>
+        <Grid DockPanel.Dock="Top"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.VideoTitleLabel]"/>
+          <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
+          <Label x:Name="GenreLabel" Grid.Row="1" Grid.Column="0" Content="[Media.VideoGenreLabel]"/>
+          <Label x:Name="Genre" Grid.Row="1" Grid.Column="1" Content="{Binding VideoGenre}"/>
+          <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.VideoYearLabel]"/>
+          <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding VideoYear}"/>
+          <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.VideoDurationLabel]"/>
+          <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
+          <Label x:Name="ActorsLabel" Grid.Row="4" Grid.Column="0" Content="[Media.VideoActorsLabel]"/>
+          <Label x:Name="Actors" Grid.Row="4" Grid.Column="1" Wrap="true" HorizontalAlignment="Stretch"
+              Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"/>
+        </Grid>
+        <StackPanel DockPanel.Dock="Center" Orientation="Vertical"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
+              Content="[Media.VideoStoryPlotLabel]"/>
+          <TextBox x:Name="StoryPlot"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Text="{Binding VideoStoryPlot}"/>
+        </StackPanel>
+      </DockPanel>
     </ResourceWrapper>
 
   </Include.Resources>

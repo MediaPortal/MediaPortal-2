@@ -10,34 +10,32 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
 
     <ResourceWrapper x:Key="Contents_Element">
-      <GroupBox Header="[Media.AudioCurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
-        <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
-          <DockPanel.Context>
-            <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"/>
-          </DockPanel.Context>
-          <Grid DockPanel.Dock="Top"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0" Content="[Media.AudioArtistsLabel]"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1" Content="{Binding AudioArtists}"/>
-            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Content="[Media.AudioTitleLabel]"/>
-            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
-            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.AudioYearLabel]"/>
-            <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding AudioYear}"/>
-            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.AudioDurationLabel]"/>
-            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
-          </Grid>
-        </DockPanel>
-      </GroupBox>
+      <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
+        <DockPanel.Context>
+          <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"/>
+        </DockPanel.Context>
+        <Grid DockPanel.Dock="Top"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0" Content="[Media.AudioArtistsLabel]"/>
+          <Label x:Name="Artists" Grid.Row="0" Grid.Column="1" Content="{Binding AudioArtists}"/>
+          <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Content="[Media.AudioTitleLabel]"/>
+          <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
+          <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.AudioYearLabel]"/>
+          <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding AudioYear}"/>
+          <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.AudioDurationLabel]"/>
+          <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
+        </Grid>
+      </DockPanel>
     </ResourceWrapper>
 
   </Include.Resources>
