@@ -211,8 +211,10 @@
   <ResourceWrapper x:Key="AnalogClockBorderGradient1Color" Resource="#F8AAAAAA"/>
 
   <!-- Yellow -->
-  <ResourceWrapper x:Key="PlayControlsFillColor" Resource="Yellow"/>
-
+  <ResourceWrapper x:Key="PlayControlsFillColor1" Resource="Yellow"/>
+  <ResourceWrapper x:Key="PlayControlsFillColor2" Resource="Yellow"/>
+  <ResourceWrapper x:Key="PlayControlsFillColor3" Resource="Yellow"/>
+  
   <!-- Light gray -->
   <ResourceWrapper x:Key="InactivePlayControlsFillColor" Resource="LightGray"/>
 

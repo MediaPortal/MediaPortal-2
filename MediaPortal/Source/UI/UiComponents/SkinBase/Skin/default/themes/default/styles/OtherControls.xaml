@@ -5,7 +5,7 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors,Buttons,Consts"
+    DependsOnStyleResources="Colors,Buttons,Consts,Brushes"
     >
 
   <!-- ************************** Default conversions ****************************** -->
@@ -49,78 +49,6 @@
       <SplineDoubleKeyFrame KeyTime="{ThemeResource DialogTransitionEndTime}" Value="0"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
-
-  <!-- ***************************** Brushes ******************************** -->
-
-  <!-- Master screen brushes -->
-  <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-  <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-
-  <!-- Default brush used to paint the background of a page/window -->
-  <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
-    <RadialGradientBrush GradientOrigin="0.186,0.311">
-      <GradientStop Color="{ThemeResource BackgroundGradient1Color}" Offset="0"/>
-      <GradientStop Color="{ThemeResource BackgroundGradient2Color}" Offset="1"/>
-    </RadialGradientBrush>
-  </ResourceWrapper>
-
-  <!-- Default brush used to paint the background of a dialog -->
-  <ResourceWrapper x:Key="DialogBackgroundBrush" Freezable="true">
-    <RadialGradientBrush GradientOrigin="0.186,0.311">
-      <RadialGradientBrush.RelativeTransform>
-        <TransformGroup>
-          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
-          <TranslateTransform X="-0.036" Y="-0.146"/>
-        </TransformGroup>
-      </RadialGradientBrush.RelativeTransform>
-      <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
-      <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
-    </RadialGradientBrush>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="DialogBorderBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="{ThemeResource DialogBorderGradient1Color}"/>
-        <GradientStop Offset="0.5" Color="{ThemeResource DialogBorderGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource DialogBorderGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper> 
-
-  <ResourceWrapper x:Key="ContentGroupBoxBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-
-  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush" Freezable="true">
-  	<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
-  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient1Color}" Offset="0"/>
-  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient2Color}" Offset="0.3"/>
-  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient3Color}" Offset="1"/>
-  	</LinearGradientBrush>
-  </ResourceWrapper>
 
   <!-- ***************************** Progress bar ******************************** -->
 

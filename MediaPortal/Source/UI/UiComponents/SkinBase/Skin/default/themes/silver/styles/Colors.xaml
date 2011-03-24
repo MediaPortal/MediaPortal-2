@@ -208,18 +208,10 @@
   <!-- Very light gray -->
   <ResourceWrapper x:Key="AnalogClockBorderGradient1Color" Resource="#F8AAAAAA"/>
 
-  <!-- Yellow -->
-  <ResourceWrapper x:Key="PlayControlsFillColor">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="#E0A0A0A0"/>
-        <GradientStop Offset="0.5" Color="#F0F0F0F0"/>
-        <GradientStop Offset="1" Color="#E0A0A0A0"/>
-      </LinearGradientBrush>
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
+  <ResourceWrapper x:Key="PlayControlsFillColor1" Resource="#E0A0A0A0"/>
+  <ResourceWrapper x:Key="PlayControlsFillColor2" Resource="#F0F0F0F0"/>
+  <ResourceWrapper x:Key="PlayControlsFillColor3" Resource="#E0A0A0A0"/>
   
-  <!-- Light gray -->
   <ResourceWrapper x:Key="InactivePlayControlsFillColor" Resource="LightGray"/>
 
   <!-- Red -->
