@@ -12,7 +12,7 @@
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName="Services.AutoPlay.dll"/>
+    <Assembly FileName="AutoPlay.dll"/>
     <PluginStateTracker ClassName="Components.Services.AutoPlay.AutoPlay"/>
   </Runtime>
 
