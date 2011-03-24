@@ -55,7 +55,6 @@
     <String Name="PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel" Text="Playlists"/>
     <String Name="PlaylistInfoWorkflowStateNavigationContextDisplayLabel" Text="Playlist info"/>
     <String Name="RemovePlaylistsWorkflowStateNavigationContextDisplayLabel" Text="Remove playlists"/>
-    <String Name="SavePlaylistChooseLocationWorkflowStateNavigationContextDisplayLabel" Text="Choose location"/>
     <String Name="SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel" Text="Edit playlist name"/>
     <String Name="SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel" Text="Successful"/>
     <String Name="SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel" Text="Failed"/>
@@ -72,7 +71,6 @@
     <String Name="PicturesHeader" Text="Pictures"/>
 
     <String Name="PlaylistsOverviewHeader" Text="Playlists"/>
-    <String Name="SavePlaylistChooseLocationHeader" Text="Save playlist"/>
     <String Name="SavePlaylistEditNameHeader" Text="Save playlist"/>
     <String Name="SavePlaylistFailedHeader" Text="Save playlist"/>
     <String Name="SavePlaylistSuccessfulHeader" Text="Save playlist"/>
@@ -207,14 +205,11 @@
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
     
-    <String Name="GlobalPlaylists" Text="Global playlists"/>
-    <String Name="LocalPlaylists" Text="Local playlists"/>
+    <String Name="Playlists" Text="Playlists"/>
     <String Name="NoPlaylistsInThisList" Text="- No playlists in this list -"/>
-    <String Name="NoConfigGlobalPlaylistsHomeServerNotConnectedText" Text="The home server is currently not connected, so global playlists cannot be managed at the moment"/>
-    <String Name="ChooseLocationToSavePlaylist" Text="Choose the location where to save the playlist"/>
+    <String Name="NoConfigPlaylistsHomeServerNotConnectedText" Text="The home server is currently not connected, so playlists cannot be managed at the moment"/>
     <String Name="EditNameOfPlaylist" Text="Edit the name of the playlist"/>
-    <String Name="SavePlaylistLocalSuccessfulText" Text="The playlist was successfully saved in file '{0}'."/>
-    <String Name="SavePlaylistServerSuccessfulText" Text="The playlist was successfully saved at the server."/>
+    <String Name="SavePlaylistSuccessfulText" Text="The playlist was successfully saved at the server."/>
     <String Name="SavePlaylistFailedText" Text="The playlist could not be saved. Error message: '{0}'"/>
     <String Name="SavePlaylistFailedAlreadyExists" Text="The playlist could not be saved: Playlist '{0}' already exists"/>
     <String Name="ChoosePlaylistsToBeRemovedText" Text="Choose playlists to be removed"/>

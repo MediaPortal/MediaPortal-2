@@ -33,8 +33,8 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Label Grid.Row="0" Content="[Media.ChoosePlaylistsToBeRemovedText]" Wrap="True"/>
-          <UniformGrid Grid.Row="1" Columns="1">
-            <Grid x:Name="GlobalPlaylistsPanel" Margin="0,0,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <DockPanel LastChildFill="True" Grid.Row="1">
+            <Grid x:Name="PlaylistsPanel" Margin="0,0,0,10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -42,29 +42,16 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[Media.GlobalPlaylists]"/>
+              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[Media.Playlists]"/>
               <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkablePlaylistsListViewStyle}"
                   IsVisible="{Binding IsHomeServerConnected}"
-                  ItemsSource="{Binding Path=ServerPlaylists,Mode=OneTime}"/>
+                  ItemsSource="{Binding Path=Playlists,Mode=OneTime}"/>
               <Label Margin="10" Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsHomeServerConnected}"
-                  Content="[Media.NoConfigGlobalPlaylistsHomeServerNotConnectedText]" Wrap="true"
+                  Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             </Grid>
-            <Grid x:Name="LocalPlaylistsPanel" Margin="0,0,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[Media.LocalPlaylists]"/>
-              <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  Style="{ThemeResource MultiMarkablePlaylistsListViewStyle}"
-                  ItemsSource="{Binding Path=LocalPlaylists,Mode=OneTime}"/>
-            </Grid>
-          </UniformGrid>
+          </DockPanel>
           <Grid Grid.Row="2" Margin="10,10,10,0">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>

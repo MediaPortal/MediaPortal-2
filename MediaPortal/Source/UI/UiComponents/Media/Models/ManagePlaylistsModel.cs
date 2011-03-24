@@ -46,13 +46,6 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  public enum PlaylistLocation
-  {
-    None,
-    Local,
-    Server
-  }
-
   public class ManagePlaylistsModel : IWorkflowModel
   {
     #region Consts
@@ -67,18 +60,14 @@ namespace MediaPortal.UiComponents.Media.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
 
-    protected LocalPlaylists _localPlaylistsHandler = null;
     protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _isPlaylistsSelectedProperty;
     protected AbstractProperty _playlistNameProperty;
     protected AbstractProperty _isPlaylistNameValidProperty;
     protected PlaylistBase _playlist = null;
-    protected PlaylistLocation _playlistLocation = PlaylistLocation.None;
 
     protected string _message = string.Empty;
-    protected ItemsList _localPlaylists = null;
-    protected ItemsList _serverPlaylists = null;
-    protected ItemsList _playlistLocationList = null;
+    protected ItemsList _playlists = null;
 
     protected AsynchronousMessageQueue _messageQueue = null;
 
@@ -142,16 +131,12 @@ namespace MediaPortal.UiComponents.Media.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             UpdateProperties();
-            UpdatePlaylistLocations();
             UpdatePlaylists(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            if (_playlistLocation == PlaylistLocation.Server)
-              NavigateRemovePlaylistSaveWorkflow();
-            else
+            if (!NavigateRemovePlaylistSaveWorkflow())
             {
               UpdateProperties();
-              UpdatePlaylistLocations();
               UpdatePlaylists(false);
             }
             break;
@@ -178,38 +163,14 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// List of all local playlists to be displayed in the screens.
+    /// List of all playlists to be displayed in the screens.
     /// </summary>
-    public ItemsList LocalPlaylists
+    public ItemsList Playlists
     {
       get
       {
         lock (_syncObj)
-          return _localPlaylists;
-      }
-    }
-
-    /// <summary>
-    /// List of all server playlists to be displayed in the screens.
-    /// </summary>
-    public ItemsList ServerPlaylists
-    {
-      get
-      {
-        lock (_syncObj)
-          return _serverPlaylists;
-      }
-    }
-
-    /// <summary>
-    /// List of locations where the playlist can be saved.
-    /// </summary>
-    public ItemsList PlaylistLocationList
-    {
-      get
-      {
-        lock (_syncObj)
-          return _playlistLocationList;
+          return _playlists;
       }
     }
 
@@ -219,7 +180,7 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// <c>true</c> if at least one playlist of the local playlists or of the server playlists is selected.
+    /// <c>true</c> if at least one playlist is selected.
     /// </summary>
     public bool IsPlaylistsSelected
     {
@@ -272,14 +233,6 @@ namespace MediaPortal.UiComponents.Media.Models
       get { return _playlist; }
     }
 
-    /// <summary>
-    /// Returns the current playlist location (in Info and Save workflows).
-    /// </summary>
-    public PlaylistLocation PlaylistLocation
-    {
-      get { return _playlistLocation; }
-    }
-
     #endregion
 
     #region Public methods
@@ -288,8 +241,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       try
       {
-        _localPlaylistsHandler.RemovePlaylists(GetSelectedLocalPlaylists());
-        Models.ServerPlaylists.RemovePlaylists(GetSelectedServerPlaylists());
+       Models.ServerPlaylists.RemovePlaylists(GetSelectedPlaylists());
         UpdatePlaylists(false);
         NavigateBackToOverview();
       }
@@ -299,43 +251,19 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    public void SavePlaylistSetLocationAndContinue()
-    {
-      _playlistLocation = GetSelectedPlaylistLocation();
-      if (_playlistLocation == PlaylistLocation.None)
-        return;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
-    }
-
     public void SavePlaylistAndFinish()
     {
       PlaylistRawData playlistData = (PlaylistRawData) _playlist;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       try
       {
-        if (_playlistLocation == PlaylistLocation.Local)
-        {
-          if (_localPlaylistsHandler.Playlists.Any(p => p.Name == _playlist.Name))
-            SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
-          else
-          {
-            string fileName;
-            _localPlaylistsHandler.SavePlaylist(playlistData, out fileName);
-            _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_LOCAL_SUCCESSFUL_TEXT, fileName);
-            workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
-          }
-        }
+        if (Models.ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
+          SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
         else
         {
-          if (Models.ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
-            SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
-          else
-          {
-            Models.ServerPlaylists.SavePlaylist(playlistData);
-            _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SERVER_SUCCESSFUL_TEXT);
-            workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
-          }
+          Models.ServerPlaylists.SavePlaylist(playlistData);
+          _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SUCCESSFUL_TEXT);
+          workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
         }
       }
       catch (Exception e)
@@ -370,22 +298,8 @@ namespace MediaPortal.UiComponents.Media.Models
               VideoAspect.ASPECT_ID,
               PictureAspect.ASPECT_ID,
           };
-      IList<MediaItem> mediaItems;
-      switch (_playlistLocation)
-      {
-        case PlaylistLocation.Local:
-          PlaylistRawData playlistData = _playlist as PlaylistRawData;
-          if (playlistData == null)
-            return;
-          mediaItems = cd.LoadCustomPlaylist(playlistData.MediaItemIds, necessaryMIATypes, null);
-          break;
-        case PlaylistLocation.Server:
-          PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
-          mediaItems = playlistContents.ItemList;
-          break;
-        default:
-          throw new NotImplementedException(string.Format("No handler for PlaylistLocation {0}", _playlistLocation));
-      }
+      PlaylistContents playlistContents = cd.LoadServerPlaylist(_playlist.PlaylistId, necessaryMIATypes, optionalMIATypes);
+      IList<MediaItem> mediaItems = playlistContents.ItemList;
       INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
       // Add notification if not all media items could be loaded
       if (mediaItems.Count == 0)
@@ -411,12 +325,13 @@ namespace MediaPortal.UiComponents.Media.Models
       PlayItemsModel.CheckQueryPlayAction(() => mediaItems, avType.Value);
     }
 
-    public void NavigateRemovePlaylistSaveWorkflow()
+    public bool NavigateRemovePlaylistSaveWorkflow()
     {
       ClearData();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION, true);
-      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_FAILED, true);
+      bool result = workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
+      workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME, true);
+      return result;
     }
 
     public void NavigateBackToOverview()
@@ -429,18 +344,17 @@ namespace MediaPortal.UiComponents.Media.Models
     public static void ShowPlaylistsOverview()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_MANAGE_PLAYLISTS);
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW);
     }
 
-    public static void ShowPlaylistInfo(PlaylistBase playlistData, PlaylistLocation location)
+    public static void ShowPlaylistInfo(PlaylistBase playlistData)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_INFO, new NavigationContextConfig
         {
             AdditionalContextVariables = new Dictionary<string, object>
               {
-                  {Consts.KEY_PLAYLIST_DATA, playlistData},
-                  {Consts.KEY_PLAYLIST_LOCATION, location}
+                  {Consts.KEY_PLAYLIST_DATA, playlistData}
               }
         });
     }
@@ -457,11 +371,16 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       PlaylistRawData playlistData = new PlaylistRawData(Guid.NewGuid(), string.Empty, ConvertAVTypeToPlaylistType(pc.AVType));
       playlist.ExportPlaylistRawData(playlistData);
+      SavePlaylist(playlistData);
+    }
+
+    public static void SavePlaylist(PlaylistRawData playlistData)
+    {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (ContainsLocalMediaItems(playlistData))
         SaveFailed(Consts.RES_SAVE_PLAYLIST_FAILED_LOCAL_MEDIAITEMS_TEXT);
       else
-        workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION, new NavigationContextConfig
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME, new NavigationContextConfig
           {
               AdditionalContextVariables = new Dictionary<string, object>
                 {
@@ -499,64 +418,19 @@ namespace MediaPortal.UiComponents.Media.Models
       return avType.ToString();
     }
 
-    protected void UpdatePlaylistLocations()
+    protected ICollection<Guid> GetSelectedPlaylists()
     {
+      List<Guid> result = new List<Guid>();
       lock (_syncObj)
-      {
-        if (_playlistLocationList == null)
-          _playlistLocationList = new ItemsList();
-        else
-          _playlistLocationList.Clear();
-
-        ListItem locationItem = new ListItem(Consts.KEY_NAME, Consts.RES_SAVE_PL_LOCALLY);
-        locationItem.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION] = PlaylistLocation.Local;
-        locationItem.Command = new MethodDelegateCommand(() => SavePlaylistChooseLocation(PlaylistLocation.Local));
-        locationItem.Selected = true;
-        _playlistLocationList.Add(locationItem);
-
-        if (IsHomeServerConnected)
-        {
-          locationItem = new ListItem(Consts.KEY_NAME, Consts.RES_SAVE_PL_AT_SERVER);
-          locationItem.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION] = PlaylistLocation.Server;
-          locationItem.Command = new MethodDelegateCommand(() => SavePlaylistChooseLocation(PlaylistLocation.Server));
-          _playlistLocationList.Add(locationItem);
-        }
-
-        _playlistLocationList.FireChange();
-      }
-    }
-
-    protected ICollection<Guid> GetSelectedPlaylists(ItemsList playlistsList)
-    {
-      ICollection<Guid> result = new List<Guid>();
-      lock (_syncObj)
-        foreach (ListItem playlistItem in playlistsList)
-          if (playlistItem.Selected)
-            result.Add(((PlaylistBase) playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA]).PlaylistId);
+        result.AddRange(_playlists.
+            Where(playlistItem => playlistItem.Selected).
+            Select(playlistItem => ((PlaylistBase) playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA]).PlaylistId));
       return result;
-    }
-
-    protected ICollection<Guid> GetSelectedLocalPlaylists()
-    {
-      return GetSelectedPlaylists(_localPlaylists);
-    }
-
-    protected ICollection<Guid> GetSelectedServerPlaylists()
-    {
-      return GetSelectedPlaylists(_serverPlaylists);
-    }
-
-    protected PlaylistLocation GetSelectedPlaylistLocation()
-    {
-      foreach (ListItem item in _playlistLocationList)
-        if (item.Selected)
-          return (PlaylistLocation) item.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION];
-      return PlaylistLocation.None;
     }
 
     protected void UpdateIsPlaylistSelected()
     {
-      IsPlaylistsSelected = GetSelectedLocalPlaylists().Count > 0 || GetSelectedServerPlaylists().Count > 0;
+      IsPlaylistsSelected = GetSelectedPlaylists().Count > 0;
     }
 
     protected void UpdatePlaylists(bool create)
@@ -567,24 +441,19 @@ namespace MediaPortal.UiComponents.Media.Models
           return;
         _updatingProperties = true;
         if (create)
-          _localPlaylists = new ItemsList();
-        if (create)
-          _serverPlaylists = new ItemsList();
+          _playlists = new ItemsList();
       }
       try
       {
-        List<PlaylistBase> localPlaylists = new List<PlaylistBase>();
-        CollectionUtils.AddAll(localPlaylists, _localPlaylistsHandler.Playlists);
-        List<PlaylistBase> serverPlaylists = new List<PlaylistBase>();
+        List<PlaylistBase> playlists = new List<PlaylistBase>();
         try
         {
           if (IsHomeServerConnected)
-            CollectionUtils.AddAll(serverPlaylists, Models.ServerPlaylists.GetPlaylists());
+            CollectionUtils.AddAll(playlists, Models.ServerPlaylists.GetPlaylists());
         }
         catch (NotConnectedException) { }
-        int numPlaylists = localPlaylists.Count + serverPlaylists.Count;
-        UpdatePlaylists(_localPlaylists, localPlaylists, PlaylistLocation.Local, numPlaylists == 1);
-        UpdatePlaylists(_serverPlaylists, serverPlaylists, PlaylistLocation.Server, numPlaylists == 1);
+        int numPlaylists = playlists.Count;
+        UpdatePlaylists(_playlists, playlists, numPlaylists == 1);
         IsPlaylistsSelected = numPlaylists == 1;
       }
       finally
@@ -603,8 +472,7 @@ namespace MediaPortal.UiComponents.Media.Models
       return AVType.None;
     }
 
-    protected void UpdatePlaylists(ItemsList list, List<PlaylistBase> playlistsData,
-        PlaylistLocation location, bool selectFirstItem)
+    protected void UpdatePlaylists(ItemsList list, List<PlaylistBase> playlistsData, bool selectFirstItem)
     {
       list.Clear();
       bool selectPlaylist = selectFirstItem;
@@ -617,9 +485,8 @@ namespace MediaPortal.UiComponents.Media.Models
         ListItem playlistItem = new ListItem(Consts.KEY_NAME, playlistData.Name);
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_AV_TYPE] = avType.Value;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA] = playlistData;
-        playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_LOCATION] = location;
         PlaylistBase plCopy = playlistData;
-        playlistItem.Command = new MethodDelegateCommand(() => ShowPlaylistInfo(plCopy, location));
+        playlistItem.Command = new MethodDelegateCommand(() => ShowPlaylistInfo(plCopy));
         if (selectPlaylist)
         {
           selectPlaylist = false;
@@ -644,9 +511,6 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IsHomeServerConnected = serverConnectionManager.IsHomeServerConnected;
-
-        _localPlaylistsHandler = new LocalPlaylists();
-        _localPlaylistsHandler.Refresh();
       }
       finally
       {
@@ -664,10 +528,7 @@ namespace MediaPortal.UiComponents.Media.Models
         IsPlaylistsSelected = false;
         PlaylistName = string.Empty;
         IsPlaylistsSelected = false;
-        _localPlaylists = null;
-        _serverPlaylists = null;
-        _playlistLocationList = null;
-        _localPlaylistsHandler = null;
+        _playlists = null;
       }
     }
 
@@ -692,20 +553,12 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_INFO)
       {
         _playlist = GetCurrentPlaylist(navigationContext);
-        PlaylistLocation? location = GetCurrentPlaylistLocation(navigationContext);
-        _playlistLocation = location.HasValue ? location.Value : PlaylistLocation.Local;
       }
       if (!push)
         return;
-      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION)
+      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME)
       {
-        UpdatePlaylistLocations();
         _playlist = GetCurrentPlaylist(navigationContext);
-        _playlistLocation = PlaylistLocation.None;
-      }
-      else if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME)
-      {
-        // Nothing to do
       }
       else if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL)
       {
@@ -727,18 +580,6 @@ namespace MediaPortal.UiComponents.Media.Models
       return (PlaylistBase) navigationContext.GetContextVariable(Consts.KEY_PLAYLIST_DATA, false);
     }
 
-    protected PlaylistLocation? GetCurrentPlaylistLocation(NavigationContext navigationContext)
-    {
-      return (PlaylistLocation?) navigationContext.GetContextVariable(Consts.KEY_PLAYLIST_LOCATION, false);
-    }
-
-    public void SavePlaylistChooseLocation(PlaylistLocation location)
-    {
-      _playlistLocation = location;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
-    }
-
     #region IWorkflowModel implementation
 
     public Guid ModelId
@@ -754,9 +595,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLISTS_REMOVE)
         return true;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_INFO)
-        return GetCurrentPlaylist(newContext) != null && GetCurrentPlaylistLocation(newContext) != null;
-      if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_CHOOSE_LOCATION)
-        return GetCurrentPlaylist(newContext) is PlaylistRawData;
+        return GetCurrentPlaylist(newContext) != null;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME)
         return true;
       if (workflowStateId == Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL)

@@ -45,11 +45,26 @@ namespace MediaPortal.UiComponents.Media.Models
   public delegate IEnumerable<MediaItem> GetMediaItemsDlgt();
 
   /// <summary>
-  /// Workflow model which attends all play items workflow states. As entrance point see static methods
-  /// <see cref="PlayOrEnqueueItem"/>, <see cref="PlayOrEnqueueItems"/>, <see cref="CheckQueryPlayAction(MediaItem)"/>,
-  /// <see cref="CheckQueryPlayAction(GetMediaItemsDlgt,AVType)"/> and
-  /// <see cref="CheckQueryPlayAction(GetMediaItemsDlgt)"/>.
+  /// Workflow model which attends all play items workflow states. This model provides static methods to start playing
+  /// of media items.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This class is the central starting point for all callers that have one or more media items which should be played and who want
+  /// to use the play infrastructure of this Media plugin. Items will be played using default play menus and default CP and FSC states.
+  /// </para>
+  /// <para>
+  /// There are methods are available with several signatures to provide a maximum of flexibility for the caller. The user can be
+  /// asked if he wants to play or enqueue the item(s) or the function can be choosen explicitly by the caller. The user
+  /// can also be asked which kind of media items (audio/video/pictures) he wants to play/enqueue.
+  /// </para>
+  /// <para>
+  /// As entrance point see the static methods <see cref="PlayItem"/>, <see cref="PlayItems"/>,
+  /// <see cref="PlayOrEnqueueItem"/>, <see cref="PlayOrEnqueueItems"/>,
+  /// <see cref="CheckQueryPlayAction(MediaItem)"/>, <see cref="CheckQueryPlayAction(GetMediaItemsDlgt,AVType)"/> and
+  /// <see cref="CheckQueryPlayAction(GetMediaItemsDlgt)"/>.
+  /// </para>
+  /// </remarks>
   public class PlayItemsModel : IWorkflowModel
   {
     #region Consts
@@ -137,6 +152,64 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Static methods which also can be called from other models
 
     /// <summary>
+    /// Checks if we need to show a menu for playing all items provided by the given <paramref name="getMediaItemsFunction"/>
+    /// and shows that menu or adds all items to the playlist at once, starting playing, if no player is active and thus
+    /// no menu needs to be shown.
+    /// </summary>
+    /// <param name="getMediaItemsFunction">Function which returns the media items to be added to the playlist. This function
+    /// might take some time to return the items; in that case, a progress dialog will be shown.</param>
+    /// <param name="avType">AV type of media items to be played.</param>
+    public static void CheckQueryPlayAction(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_GET_MEDIA_ITEMS_FUNCTION, getMediaItemsFunction},
+                  {KEY_AV_TYPE, avType},
+              }
+        });
+    }
+
+    /// <summary>
+    /// First shows a menu to choose which media type should be played (Video, Audio, Picture), then
+    /// filters the items returned from the given <paramref name="getMediaItemsFunction"/>, checks if we need to show a
+    /// menu for playing those items and shows that menu or adds all items to the playlist at once, starting playing,
+    /// if no player is active and thus no menu needs to be shown.
+    /// </summary>
+    /// <param name="getMediaItemsFunction">Function which returns the media items to be added to the playlist. This function
+    /// might take some time to return the items; in that case, a progress dialog will be shown.</param>
+    public static void CheckQueryPlayAction(GetMediaItemsDlgt getMediaItemsFunction)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_GET_MEDIA_ITEMS_FUNCTION, getMediaItemsFunction},
+              }
+        });
+    }
+
+    /// <summary>
+    /// Checks if we need to show a menu for playing the specified <paramref name="item"/> and shows that
+    /// menu or plays the item, if no player is active and thus no menu needs to be shown.
+    /// </summary>
+    /// <param name="item">The item which should be played.</param>
+    public static void CheckQueryPlayAction(MediaItem item)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM, new NavigationContextConfig
+        {
+            AdditionalContextVariables = new Dictionary<string, object>
+              {
+                  {KEY_MEDIA_ITEM, item},
+              }
+        });
+    }
+
+    /// <summary>
     /// Discards any current player and plays the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
@@ -201,64 +274,6 @@ namespace MediaPortal.UiComponents.Media.Models
                   {KEY_AV_TYPE, avType},
                   {KEY_DO_PLAY, play},
                   {KEY_CONCURRENCY_MODE, concurrencyMode},
-              }
-        });
-    }
-
-    /// <summary>
-    /// Checks if we need to show a menu for playing all items provided by the given <paramref name="getMediaItemsFunction"/>
-    /// and shows that menu or adds all items to the playlist at once, starting playing, if no player is active and thus
-    /// no menu needs to be shown.
-    /// </summary>
-    /// <param name="getMediaItemsFunction">Function which returns the media items to be added to the playlist. This function
-    /// might take some time to return the items; in that case, a progress dialog will be shown.</param>
-    /// <param name="avType">AV type of media items to be played.</param>
-    public static void CheckQueryPlayAction(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, new NavigationContextConfig
-        {
-            AdditionalContextVariables = new Dictionary<string, object>
-              {
-                  {KEY_GET_MEDIA_ITEMS_FUNCTION, getMediaItemsFunction},
-                  {KEY_AV_TYPE, avType},
-              }
-        });
-    }
-
-    /// <summary>
-    /// First shows a menu to choose which media type should be played (Video, Audio, Picture), then
-    /// filters the items returned from the given <paramref name="getMediaItemsFunction"/>, checks if we need to show a
-    /// menu for playing those items and shows that menu or adds all items to the playlist at once, starting playing,
-    /// if no player is active and thus no menu needs to be shown.
-    /// </summary>
-    /// <param name="getMediaItemsFunction">Function which returns the media items to be added to the playlist. This function
-    /// might take some time to return the items; in that case, a progress dialog will be shown.</param>
-    public static void CheckQueryPlayAction(GetMediaItemsDlgt getMediaItemsFunction)
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS, new NavigationContextConfig
-        {
-            AdditionalContextVariables = new Dictionary<string, object>
-              {
-                  {KEY_GET_MEDIA_ITEMS_FUNCTION, getMediaItemsFunction},
-              }
-        });
-    }
-
-    /// <summary>
-    /// Checks if we need to show a menu for playing the specified <paramref name="item"/> and shows that
-    /// menu or plays the item, if no player is active and thus no menu needs to be shown.
-    /// </summary>
-    /// <param name="item">The item which should be played.</param>
-    public static void CheckQueryPlayAction(MediaItem item)
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM, new NavigationContextConfig
-        {
-            AdditionalContextVariables = new Dictionary<string, object>
-              {
-                  {KEY_MEDIA_ITEM, item},
               }
         });
     }

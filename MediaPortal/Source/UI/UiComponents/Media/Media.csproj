@@ -86,9 +86,7 @@
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\SavePlaylistAction.cs" />
-    <Compile Include="Actions\ManagePlaylistsAction.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Actions\ManagePlaylistsAction.cs" />
     <Compile Include="Actions\PicturesAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\MusicAction.cs" />
@@ -102,7 +100,6 @@
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
-    <Compile Include="Models\LocalPlaylists.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
     <Compile Include="Models\Navigation\ViewItem.cs" />
@@ -201,7 +198,6 @@
     <Content Include="Skin\default\screens\PlaylistsOverview.xaml" />
     <Content Include="Skin\default\screens\PlaylistInfo.xaml" />
     <Content Include="Skin\default\screens\RemovePlaylists.xaml" />
-    <Content Include="Skin\default\screens\SavePlaylistChooseLocation.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistEditName.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />

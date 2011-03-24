@@ -700,8 +700,7 @@
             </Grid.ColumnDefinitions>
             <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
-                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"

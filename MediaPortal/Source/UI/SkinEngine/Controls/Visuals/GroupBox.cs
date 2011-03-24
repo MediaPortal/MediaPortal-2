@@ -104,13 +104,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnHeaderChanged(AbstractProperty prop, object oldValue)
     {
       InitializeHeaderLabel();
-      InvalidateLayout(true, true);
     }
 
     protected void InitializeHeaderLabel()
     {
       _headerLabel.Content = Header;
       _headerLabel.Color = HeaderColor;
+      InvalidateLayout(true, true);
     }
 
     #region Properties

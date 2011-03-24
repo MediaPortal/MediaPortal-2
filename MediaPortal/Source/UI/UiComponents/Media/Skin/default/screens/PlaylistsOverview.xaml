@@ -14,8 +14,8 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}">
-        <Grid Margin="0,0,0,10">
+      <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid Margin="0,0,0,10" DockPanel.Dock="Center">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -23,37 +23,20 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Margin="10" Content="[Media.GlobalPlaylists]"/>
+          <Label Grid.Row="0" Margin="10" Content="[Media.Playlists]"/>
           <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource PlaylistsListViewStyle}"
               IsVisible="{Binding IsHomeServerConnected}"
-              ItemsSource="{Binding Path=ServerPlaylists,Mode=OneTime}">
+              ItemsSource="{Binding Path=Playlists,Mode=OneTime}">
             <ListView.Resources>
               <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
-              Content="[Media.NoConfigGlobalPlaylistsHomeServerNotConnectedText]" Wrap="true"
+              Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </Grid>
-        <Grid Margin="0,0,0,10">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label Margin="10" Grid.Row="0" Content="[Media.LocalPlaylists]"/>
-          <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource PlaylistsListViewStyle}"
-              ItemsSource="{Binding Path=LocalPlaylists,Mode=OneTime}">
-            <ListView.Resources>
-              <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
-        </Grid>
-      </UniformGrid>
+      </DockPanel>
     </ResourceWrapper>
 
   </Include.Resources>

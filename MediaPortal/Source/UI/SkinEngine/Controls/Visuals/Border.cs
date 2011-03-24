@@ -48,12 +48,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _borderBrushProperty;
     protected AbstractProperty _borderThicknessProperty;
     protected AbstractProperty _cornerRadiusProperty;
-    protected FrameworkElement _content;
+    protected AbstractProperty _contentProperty;
     protected int _verticesCountBorder;
     protected PrimitiveBuffer _backgroundContext;
     protected PrimitiveBuffer _borderContext;
     protected bool _performLayout;
     protected RectangleF _borderRect;
+    protected FrameworkElement _initializedContent = null; // We need to cache the Content because after it was set, it first needs to be initialized before it can be used
 
     #endregion
 
@@ -71,6 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _backgroundProperty = new SProperty(typeof(Brush), null);
       _borderThicknessProperty = new SProperty(typeof(double), 1.0);
       _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
+      _contentProperty = new SProperty(typeof(FrameworkElement), null);
     }
 
     void Attach()
@@ -79,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _backgroundProperty.Attach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Attach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Attach(OnLayoutPropertyChanged);
+      _contentProperty.Attach(OnContentChanged);
     }
 
     void Detach()
@@ -87,6 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _backgroundProperty.Detach(OnBackgroundBrushPropertyChanged);
       _borderThicknessProperty.Detach(OnLayoutPropertyChanged);
       _cornerRadiusProperty.Detach(OnLayoutPropertyChanged);
+      _contentProperty.Detach(OnContentChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -98,7 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = b.BorderThickness;
       CornerRadius = b.CornerRadius;
-      _content = copyManager.GetCopy(b._content);
+      Content = copyManager.GetCopy(b.Content);
+      _initializedContent = copyManager.GetCopy(b._initializedContent);
 
       Attach();
     }
@@ -151,9 +156,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = true;
     }
 
+    void OnContentChanged(AbstractProperty property, object oldValue)
+    {
+      FrameworkElement oldContent = oldValue as FrameworkElement;
+      if (oldContent != null)
+        oldContent.CleanupAndDispose();
+
+      FrameworkElement content = Content;
+      if (content != null)
+      {
+        content.SetScreen(Screen);
+        content.SetElementState(ElementState.Running);
+        content.VisualParent = this;
+      }
+      _initializedContent = content;
+      InvalidateLayout(true, true);
+    }
+
     #endregion
 
     #region Properties
+
+    public AbstractProperty ContentProperty
+    {
+      get { return _contentProperty; }
+    }
+
+    public FrameworkElement Content
+    {
+      get { return (FrameworkElement) _contentProperty.GetValue(); }
+      set { _contentProperty.SetValue(value); }
+    }
 
     public AbstractProperty BackgroundProperty
     {
@@ -211,8 +244,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Thickness borderMargin = GetTotalBorderMargin();
       RemoveMargin(ref totalSize, borderMargin);
 
-      if (_content != null && _content.IsVisible)
-        _content.Measure(ref totalSize);
+      FrameworkElement content = _initializedContent;
+      if (content != null && content.IsVisible)
+        content.Measure(ref totalSize);
       else
         totalSize = SizeF.Empty;
 
@@ -226,14 +260,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = true;
       base.ArrangeOverride();
       ArrangeBorder(_innerRect);
-      if (_content == null)
+      FrameworkElement content = _initializedContent;
+      if (content == null)
         return;
       RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
       RemoveMargin(ref layoutRect, GetTotalBorderMargin());
       PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
       SizeF size = new SizeF(layoutRect.Size);
-      ArrangeChild(_content, _content.HorizontalAlignment, _content.VerticalAlignment, ref location, ref size);
-      _content.Arrange(new RectangleF(location, size));
+      ArrangeChild(content, content.HorizontalAlignment, content.VerticalAlignment, ref location, ref size);
+      content.Arrange(new RectangleF(location, size));
     }
 
     /// <summary>
@@ -368,8 +403,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           BorderBrush.EndRender();
         }
 
-      if (_content != null)
-        _content.Render(localRenderContext);
+      FrameworkElement content = _initializedContent;
+      if (content != null)
+        content.Render(localRenderContext);
     }
 
     #endregion
@@ -400,18 +436,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      if (_content != null)
-        childrenOut.Add(_content);
+      FrameworkElement content = _initializedContent;
+      if (content != null)
+        childrenOut.Add(content);
     }
 
     #endregion
 
-    #region IAddChild Members
+    #region IAddChild<FrameworkElement> implementation
 
     public void AddChild(FrameworkElement o)
     {
-      _content = o;
-      _content.VisualParent = this;
+      Content = o;
     }
 
     #endregion
