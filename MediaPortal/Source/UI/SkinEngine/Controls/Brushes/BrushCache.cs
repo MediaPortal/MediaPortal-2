@@ -29,8 +29,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   // TODO Albert: Cleanup brush textures when not used any more
   public class BrushCache
   {
-    static BrushCache _instance;
-    ICollection<GradientBrushTexture> _cache;
+    protected static readonly BrushCache _instance;
+    protected readonly ICollection<GradientBrushTexture> _cache;
 
     static BrushCache()
     {
@@ -39,11 +39,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public static BrushCache Instance
     {
-      get
-      {
-        return _instance;
-      }
+      get { return _instance; }
     }
+
     public BrushCache()
     {
       _cache = new List<GradientBrushTexture>();
@@ -59,5 +57,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return gradientBrush;
     }
 
+    public void Clear()
+    {
+      foreach (GradientBrushTexture brushTexture in _cache)
+        brushTexture.Dispose();
+    }
   }
 }

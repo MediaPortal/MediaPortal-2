@@ -947,6 +947,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         PlayersHelper.ReleaseGUIResources();
 
+        // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
+        // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
+        // need to clear the brush cache.
+        Controls.Brushes.BrushCache.Instance.Clear();
         ServiceRegistration.Get<ContentManager>().Clear();
 
         WaitForPendingOperations();
