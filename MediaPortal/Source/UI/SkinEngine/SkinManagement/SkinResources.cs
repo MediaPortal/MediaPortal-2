@@ -347,9 +347,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       _localResourceFilePaths = null;
       if (_localStyleResources != null)
-        foreach (object resource in _localStyleResources.Values)
-          if (resource is IDisposable)
-            ((IDisposable) resource).Dispose();
+        _localStyleResources.Dispose();
       _localStyleResources = null;
       ReleaseAllGUIModels();
     }
