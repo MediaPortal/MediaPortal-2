@@ -20,19 +20,11 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Grid.Row="0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\MediaItemsListHeader.inc"/>
-            </Control.TemplateControl>
-          </Control>
-        </Grid>
+        <Control Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+        </Control>
         <Control Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>

@@ -8,9 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.MusicHeader]"/>
-
-    <ResourceWrapper x:Key="ItemsListTitle" Resource="[Media.SimpleSearchViewTitle]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.SimpleSearchHeader]"/>
 
   </Include.Resources>
 </Include>

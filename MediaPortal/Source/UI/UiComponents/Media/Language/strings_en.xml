@@ -64,11 +64,23 @@
     <String Name="CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel" Text="Choose media type"/>
 
     <!-- Screen headers -->
-    <String Name="BrowseMediaHeader" Text="Browse media"/>
-    <String Name="LocalMediaHeader" Text="Local media"/>
-    <String Name="MusicHeader" Text="Music"/>
-    <String Name="MoviesHeader" Text="Movies"/>
-    <String Name="PicturesHeader" Text="Pictures"/>
+    <String Name="BrowseMediaNavigationHeader" Text="Browse media navigation"/>
+    <String Name="LocalMediaNavigationHeader" Text="Local media navigation"/>
+    <String Name="MediaItemsHeader" Text="Media items"/>
+    <String Name="MovieItemsHeader" Text="Movies"/>
+    <String Name="MusicItemsHeader" Text="Music items"/>
+    <String Name="PictureItemsHeader" Text="Pictures"/>
+    <String Name="SimpleSearchHeader" Text="Simple search"/>
+    <String Name="ChooseActorHeader" Text="Choose an actor"/>
+    <String Name="ChooseMovieGenreHeader" Text="Choose a genre"/>
+    <String Name="ChooseMovieYearHeader" Text="Choose a year"/>
+    <String Name="ChooseMusicDecadeHeader" Text="Choose a decade"/>
+    <String Name="ChooseAlbumHeader" Text="Choose an album"/>
+    <String Name="ChooseArtistHeader" Text="Choose an artist"/>
+    <String Name="ChooseMusicGenreHeader" Text="Choose a genre"/>
+    <String Name="ChoosePictureYearHeader" Text="Choose a year"/>
+    <String Name="ChoosePictureSizeHeader" Text="Choose a size"/>
+    <String Name="ChooseSystemHeader" Text="Choose a system"/>
 
     <String Name="PlaylistsOverviewHeader" Text="Playlists"/>
     <String Name="SavePlaylistEditNameHeader" Text="Save playlist"/>
@@ -80,25 +92,6 @@
     <String Name="PlaylistLoadNoPlaylistText" Text="No playlist to load"/>
     <String Name="PlaylistLoadErrorLoadingPlaylist" Text="Error loading playlist"/>
     <String Name="CannotSavePlaylistWithLocalMediaItems" Text="A playlist can only be saved if all media items were queried from the home server (i.e. not by disconnected local media navigation)."/>
-
-    <!-- View titles (shown in the skin) -->
-    <String Name="BrowseMediaNavigationViewTitle" Text="Browse media navigation"/>
-    <String Name="LocalMediaNavigationViewTitle" Text="Local media navigation"/>
-    <String Name="MediaItemsViewTitle" Text="Media items"/>
-    <String Name="MovieItemsViewTitle" Text="Movies"/>
-    <String Name="MusicItemsViewTitle" Text="Music items"/>
-    <String Name="PictureItemsViewTitle" Text="Pictures"/>
-    <String Name="SimpleSearchViewTitle" Text="Simple search"/>
-    <String Name="ChooseActorViewTitle" Text="Choose an actor"/>
-    <String Name="ChooseMovieGenreViewTitle" Text="Choose a genre"/>
-    <String Name="ChooseMovieYearViewTitle" Text="Choose a year"/>
-    <String Name="ChooseMusicDecadeViewTitle" Text="Choose a decade"/>
-    <String Name="ChooseAlbumViewTitle" Text="Choose an album"/>
-    <String Name="ChooseArtistViewTitle" Text="Choose an artist"/>
-    <String Name="ChooseMusicGenreViewTitle" Text="Choose a genre"/>
-    <String Name="ChoosePictureYearViewTitle" Text="Choose a year"/>
-    <String Name="ChoosePictureSizeViewTitle" Text="Choose a size"/>
-    <String Name="ChooseSystemViewTitle" Text="Choose a system"/>
 
     <!-- View names (names for the view instances) -->
     <String Name="BrowseMediaRootViewName" Text="Browse media"/>

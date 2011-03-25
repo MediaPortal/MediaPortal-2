@@ -8,9 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.PicturesHeader]"/>
-
-    <ResourceWrapper x:Key="ItemsListTitle" Resource="[Media.ChoosePictureYearViewTitle]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ChoosePictureYearHeader]"/>
 
   </Include.Resources>
 </Include>
