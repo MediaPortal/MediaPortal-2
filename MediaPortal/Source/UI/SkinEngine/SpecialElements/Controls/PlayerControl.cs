@@ -451,7 +451,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerContext);
         IPlayerSlotController playerSlotController = playerContext == null ? null : playerContext.PlayerSlotController;
         IPlayer player = playerSlotController == null ? null : playerSlotController.CurrentPlayer;
-        int slotIndex = playerSlotController == null ? -1 : playerSlotController.SlotIndex;
+        int? slotIndex = playerSlotController == null ? (int?) null : playerSlotController.SlotIndex;
 
         if (playerContext == null)
         {
@@ -517,7 +517,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         MediaItemAspect audioAspect;
         if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
           audioAspect = null;
-        IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == slotIndex;
+        IsCurrentPlayer = slotIndex.HasValue && playerContextManager.CurrentPlayerIndex == slotIndex.Value;
         if (player == null)
         {
           Title = playerContext == null ? RES_NO_PLAYER : playerContext.Name;
