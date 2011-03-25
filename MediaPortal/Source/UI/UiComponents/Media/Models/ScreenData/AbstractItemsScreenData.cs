@@ -189,7 +189,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   if (sv.AbsNumItems.HasValue)
                     totalNumItems += sv.AbsNumItems.Value;
                 }
-                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.KEY_NAME], v2[Consts.KEY_NAME]));
+                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.KEY_SIMPLE_TITLE], v2[Consts.KEY_SIMPLE_TITLE]));
                 CollectionUtils.AddAll(items, viewsList);
 
                 lock (_syncObj)
@@ -198,7 +198,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
                 PlayableItemCreatorDelegate picd = PlayableItemCreator;
                 List<ListItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<ListItem>().ToList();
-                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_NAME], i2[Consts.KEY_NAME]));
+                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_SIMPLE_TITLE], i2[Consts.KEY_SIMPLE_TITLE]));
                 CollectionUtils.AddAll(items, itemsList);
 
                 Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
