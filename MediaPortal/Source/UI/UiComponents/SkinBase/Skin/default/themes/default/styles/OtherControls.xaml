@@ -875,7 +875,7 @@
     <Setter Property="FontSize" Value="{ThemeResource SmallFontSize}"/>
   </Style>
 
-  <Storyboard x:Key="DefaultCurrentPlayerControlStoryboard" FillBehavior="Stop">
+  <Storyboard x:Key="NavigationScreenCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="PCGroupBox" Storyboard.TargetProperty="BorderBrush.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBorderColor}"/>
@@ -912,7 +912,7 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Style x:Key="DefaultPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -1023,7 +1023,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource DefaultCurrentPlayerControlStoryboard}"/>
+                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource NavigationScreenCurrentPlayerControlStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
