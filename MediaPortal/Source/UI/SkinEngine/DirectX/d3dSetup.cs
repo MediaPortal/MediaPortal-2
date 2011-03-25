@@ -1009,7 +1009,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public void BuildPresentParamsFromSettings()
     {
       _presentParams.Windowed = _graphicsSettings.IsWindowed;
-      _presentParams.BackBufferCount = 2;
 
       _presentParams.EnableAutoDepthStencil = false;
 
@@ -1024,13 +1023,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.BackBufferWidth = _ourRenderTarget.ClientRectangle.Width;
         _presentParams.BackBufferHeight = _ourRenderTarget.ClientRectangle.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.BackBufferFormat;
+        _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
 #if PROFILE_PERFORMANCE
         _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
 #else
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
         else
-          _presentParams.PresentationInterval = PresentInterval.Default;
+          _presentParams.PresentationInterval = PresentInterval.One; // Immediate.Default;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
         _presentParams.SwapEffect = SwapEffect.FlipEx;
@@ -1048,6 +1048,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.BackBufferWidth = _graphicsSettings.DisplayMode.Width;
         _presentParams.BackBufferHeight = _graphicsSettings.DisplayMode.Height;
         _presentParams.BackBufferFormat = _graphicsSettings.DeviceCombo.BackBufferFormat;
+        _presentParams.BackBufferCount = _graphicsSettings.BackBufferCount;
 
 #if PROFILE_PERFORMANCE
         _presentParams.PresentationInterval = PresentInterval.Immediate;
@@ -1055,7 +1056,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
         else
-          _presentParams.PresentationInterval = PresentInterval.Default;
+          _presentParams.PresentationInterval = PresentInterval.One;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
         _presentParams.SwapEffect = SwapEffect.FlipEx;

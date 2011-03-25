@@ -183,7 +183,7 @@ namespace MediaPortal.UI.Players.Video
     #region IEVRPresentCallback implementation
 
     /// <summary>
-    /// Callback from DShowHelper.dll to display a DirectX surface.
+    /// Callback from EVRPresenter.dll to display a DirectX surface.
     /// </summary>
     /// <param name="cx">Video width.</param>
     /// <param name="cy">Video height.</param>

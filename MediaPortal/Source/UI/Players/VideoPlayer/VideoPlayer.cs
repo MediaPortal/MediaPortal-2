@@ -70,21 +70,11 @@ namespace MediaPortal.UI.Players.Video
 
     #region DLL imports
 
-    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice,
-        IBaseFilter evrFilter, uint monitor);
+    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, uint monitor);
 
-    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrDeinit(int handle);
-
-    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrEnableFrameSkipping(int handle, bool onOff);
-
-    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrFreeResources(int handle);
-
-    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrReAllocResources(int handle);
+    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern void EvrDeinit();
 
     #endregion
 
@@ -128,7 +118,6 @@ namespace MediaPortal.UI.Players.Video
     protected Size _displaySize = new Size(100, 100);
 
     protected IntPtr _instancePtr;
-    protected int _allocatorKey = -1;
 
     protected Size _previousTextureSize;
     protected Size _previousVideoSize;
@@ -487,21 +476,15 @@ namespace MediaPortal.UI.Players.Video
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
       IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
-      _allocatorKey = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
-      if (_allocatorKey < 0)
+      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
+      if (hr != 0)
       {
+        EvrDeinit();
+        Marshal.ReleaseComObject(_evr);
+        FilterGraphTools.TryDispose(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
-    }
-
-    /// <summary>
-    /// Enables/disables frame skipping. Used for DVD Player.
-    /// </summary>
-    /// <param name="onOff"><c>true</c> enables frame skipping, <c>false</c> disables it.</param>
-    protected void EnableFrameSkipping(bool onOff)
-    {
-      EvrEnableFrameSkipping(_allocatorKey, onOff);
     }
 
     /// <summary>
@@ -618,11 +601,7 @@ namespace MediaPortal.UI.Players.Video
         FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
       FilterGraphTools.TryRelease(ref _evr);
 
-      if (_allocatorKey >= 0)
-      {
-        EvrDeinit(_allocatorKey);
-        _allocatorKey = -1;
-      }
+      EvrDeinit();
       FreeEvrCallback();
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder);
@@ -1173,8 +1152,6 @@ namespace MediaPortal.UI.Players.Video
     public virtual void ReleaseGUIResources()
     {
       //stops the renderer threads all of it's own.
-      //this could be split into two parts, but we would need
-      //EvrSuspend(_allocatorKey) for that.
       lock (_evrCallback)
       {
         FreeResources();
@@ -1223,14 +1200,10 @@ namespace MediaPortal.UI.Players.Video
 
         if (_evr != null)
           _graphBuilder.RemoveFilter(_evr);
-
         FreeEvrCallback();
         FilterGraphTools.TryRelease(ref _evr);
 
-        if (_allocatorKey >= 0)
-          EvrDeinit(_allocatorKey);
-
-        _allocatorKey = -1;
+        EvrDeinit();
         _initialized = false;
       }
     }

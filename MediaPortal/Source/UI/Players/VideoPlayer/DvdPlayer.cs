@@ -560,14 +560,12 @@ namespace MediaPortal.UI.Players.Video
             case EventCode.DvdStillOn:
               {
                 ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOn: {0}", p1.ToInt32());
-                EnableFrameSkipping(false);
                 break;
               }
 
             case EventCode.DvdStillOff:
               {
                 ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdStillOff: {0}", p1.ToInt32());
-                EnableFrameSkipping(true);
                 break;
               }
 
