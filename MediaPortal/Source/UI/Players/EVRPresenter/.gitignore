@@ -1,6 +1,2 @@
-obj
-*.suo
-*.sln.cache
-*.resharper
-*.user
-_ReSharper.*
+!bin
+!Bin
