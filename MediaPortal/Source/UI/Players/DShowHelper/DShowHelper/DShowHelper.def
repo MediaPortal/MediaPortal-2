@@ -1,8 +1,0 @@
-LIBRARY	"DShowHelper"
-
-EXPORTS
-EvrInit                 @1
-EvrDeinit               @2
-EvrEnableFrameSkipping  @3
-EvrFreeResources        @4
-EvrReAllocResources     @5

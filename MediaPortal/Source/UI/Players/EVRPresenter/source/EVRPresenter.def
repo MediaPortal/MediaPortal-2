@@ -1,0 +1,5 @@
+LIBRARY	"EVRPresenter"
+
+EXPORTS
+EvrInit                 @1
+EvrDeinit               @2
