@@ -92,11 +92,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_texture == null)
         _texture = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_name);
-      if (!_texture.IsAllocated)
-      {
-        _texture.AllocateDynamic(GRADIENT_TEXTURE_WIDTH, GRADIENT_TEXTURE_HEIGHT);
-        CreateGradient();
-      }
+      if (_texture.IsAllocated)
+        return;
+      _texture.AllocateDynamic(GRADIENT_TEXTURE_WIDTH, GRADIENT_TEXTURE_HEIGHT);
+      CreateGradient();
     }
 
     public bool IsSame(GradientStopCollection stops)

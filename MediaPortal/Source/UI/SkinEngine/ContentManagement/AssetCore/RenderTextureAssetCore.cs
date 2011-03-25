@@ -86,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       get { return _maxV; }
     }
+
     public void Allocate(int width, int height, Usage usage, Format format)
     {
       if (width != _size.Width || height != _size.Height || usage != _usage || format != _format)
@@ -98,8 +99,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _usage = usage;
       _format = format;
 
-      _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage,
-          format, Pool.Default);
+      _texture = new Texture(GraphicsDevice.Device, width, height, 1, usage, format, Pool.Default);
       _surface0 = _texture.GetSurfaceLevel(0);
 
       SurfaceDescription desc = _texture.GetLevelDescription(0);
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsAllocated
     {
-      get { return (_texture != null); }
+      get { return _texture != null; }
     }
 
     public int AllocationSize
@@ -124,18 +124,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public void Free()
     {
-      if (_texture != null)
+      if (_texture == null)
+        return;
+      lock (_texture)
       {
-        lock (_texture)
-        {
-          AllocationChanged(-AllocationSize);
-          _surface0.Dispose();
-          _texture.Dispose();
-          _texture = null;
-          _surface0 = null;
-        }
-        _size = Size.Empty;
+        AllocationChanged(-AllocationSize);
+        _surface0.Dispose();
+        _texture.Dispose();
+        _texture = null;
+        _surface0 = null;
       }
+      _size = Size.Empty;
     }
 
     #endregion

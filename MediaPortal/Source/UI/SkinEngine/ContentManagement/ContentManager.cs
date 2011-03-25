@@ -378,11 +378,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     #endregion
 
-    #region private asset management methods
+    #region Private asset management methods
 
     private TextureAsset GetCreateTexture(string fileName, string key, int width, int height, bool thumb)
     {
-      int type = (int)(thumb ? AssetType.Thumbnail : AssetType.Texture);
+      int type = (int) (thumb ? AssetType.Thumbnail : AssetType.Texture);
       AssetInstance texture;
       TextureAsset asset = null;
 
@@ -392,7 +392,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         {
           texture = NewAssetInstance(key, thumb ? AssetType.Thumbnail : AssetType.Texture,
               new TextureAssetCore(fileName, width, height));
-          ((TextureAssetCore)texture.core).UseThumbnail = thumb;
+          ((TextureAssetCore) texture.core).UseThumbnail = thumb;
         }
         else
           asset = texture.asset.Target as TextureAsset;

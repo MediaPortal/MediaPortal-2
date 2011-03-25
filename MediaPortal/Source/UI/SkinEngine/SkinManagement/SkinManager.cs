@@ -294,8 +294,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       // Setup the resource chain: Inherit the theme resources of the based-on-skin for all
       // skins, and use the default skin as last fallback
       Skin defaultSkin = DefaultSkin;
-      SkinResources defaultInheritResources = (defaultSkin == null ? null : defaultSkin.DefaultTheme) ??
-          (SkinResources) defaultSkin;
+      SkinResources defaultInheritResources = (defaultSkin == null ? null : defaultSkin.DefaultTheme) ?? (SkinResources) defaultSkin;
       foreach (KeyValuePair<string, Skin> kvp in _skins)
       {
         Skin current = kvp.Value;
