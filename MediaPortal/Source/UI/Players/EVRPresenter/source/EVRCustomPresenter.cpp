@@ -91,7 +91,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
 }
 
 
-__declspec(dllexport) void EvrDeinit(int id)
+__declspec(dllexport) void EvrDeinit()
 {
 }
 
