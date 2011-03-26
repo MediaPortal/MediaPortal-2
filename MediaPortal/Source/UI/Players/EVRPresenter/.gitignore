@@ -1,2 +1,3 @@
-!bin
-!Bin
+ipch
+*.sdf
+*.opensdf

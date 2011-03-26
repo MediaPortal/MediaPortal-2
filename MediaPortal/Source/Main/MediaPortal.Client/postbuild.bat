@@ -8,4 +8,5 @@ set target_dir=%~f2.
 
 echo Solution directory = %solution_dir%, target directory = %target_dir%
 RoboCopy "%solution_dir%\Base\Client" "%target_dir%" /E /NP /XD .svn
-copy "%solution_dir%\Ui\Players\EVRPresenter\bin\release\EVRPresenter.dll" "%target_dir%"
+@REM Reset RoboCopy's exit code which is different from 0
+IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL=0
