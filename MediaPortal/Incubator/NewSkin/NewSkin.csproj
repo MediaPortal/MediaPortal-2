@@ -534,12 +534,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\NewSkin\themes\Silver\styles\SlimTvStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\NewSkin\themes\Silver\styles\Graphics.xaml">
       <SubType>Designer</SubType>
     </Content>
