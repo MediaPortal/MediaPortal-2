@@ -30,6 +30,10 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="10"/>
+
+  <!-- width and margin for small OSD buttons -->
+  <ResourceWrapper x:Key="OSDControlWidth" Resource="18" />
+  <ResourceWrapper x:Key="OSDControlMargin" Resource="8,4,8,4" />
   
   <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.15"/>
   <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.15"/>

@@ -179,6 +179,7 @@
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
+    <Compile Include="MpfElements\Converters\DateFormatConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionMultiValueConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionValueConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\BinaryHelper.cs" />
@@ -393,7 +394,10 @@
     <Compile Include="Utils\GeometricHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
+    <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\font.fx" />

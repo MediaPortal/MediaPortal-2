@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="SlimTvClient">
+    <String Name="Title" Text="Slim TV Client"/>
+    
+    <String Name="CurrentlyPlayingInformationHeader" Text="Program information"/>
+
+    <String Name="ChannelLabel" Text="Channel"/>
+    <String Name="ProgramLabel" Text="Program"/>
+    <String Name="DescriptionLabel" Text="Description"/>
+    <String Name="GenreLabel" Text="Genre"/>
+    <String Name="ProgramStartLabel" Text="Start time"/>
+    <String Name="ProgramEndLabel" Text="End time"/>
+    <String Name="EpisodeLabel" Text="Episode"/>
+
+    <String Name="Guide" Text="TV Guide"/>
+    <String Name="NoProgram" Text="No program data."/>
+    <String Name="ChooseProgramAction" Text="Choose program action..."/>
+
+    <String Name="ProgramOver" Text="Program already over"/>
+    <String Name="WatchNow" Text="Watch program now"/>
+    <String Name="DeleteSchedule" Text="Delete schedule"/>
+    <String Name="CreateSchedule" Text="Create recording schedule"/>
+
+  </Section>
+</Language>

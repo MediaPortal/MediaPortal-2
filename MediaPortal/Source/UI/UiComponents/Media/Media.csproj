@@ -98,6 +98,7 @@
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
+    <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
@@ -212,6 +213,11 @@
     <Content Include="Skin\default\screens\DialogChooseChapter.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaButtons.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaGraphics.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

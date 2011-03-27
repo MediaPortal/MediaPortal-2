@@ -100,6 +100,8 @@
     <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />
     <Compile Include="Presentation\Players\IVolumeControl.cs" />
+    <Compile Include="Presentation\Players\IUIContributorPlayer.cs" />
+    <Compile Include="Presentation\Players\IChapterPlayer.cs" />
     <Compile Include="Presentation\Players\PlayerContextManagerMessaging.cs" />
     <Compile Include="Presentation\Players\PlayerManagerConsts.cs" />
     <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />

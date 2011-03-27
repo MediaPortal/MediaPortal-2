@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Skin Name="NewSkin" Version="1.0">
+  <ShortDescription>New skin for MP 2</ShortDescription>
+  <UsageNote>Test skin for new ideas.</UsageNote>
+  <Preview>media\preview.png</Preview>
+  <Author>Morpheus_xx</Author>
+  <SkinVersion>1.0</SkinVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <NativeWidth>1280</NativeWidth>
+  <NativeHeight>720</NativeHeight>
+  <DefaultTheme>Silver</DefaultTheme>
+</Skin>

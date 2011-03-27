@@ -272,5 +272,36 @@ namespace MediaPortal.UI.Presentation.Players
     /// <c>true</c>, if the next item could be started, else <c>false</c>.
     /// </returns>
     bool NextItem();
+
+    /// <summary>
+    /// InstantSkipForward immediately skips the playback position forward/backward by a specific percentual value.
+    /// </summary>
+    /// <param name="percent">Skip percent (+/- supported).</param>
+    void InstantSkip(int percent);
+
+    /// <summary>
+    /// Checks the player if the requested skip can be done. If the total duration and current playback position do not 
+    /// allow a skip, the result is false.
+    /// </summary>
+    /// <param name="skipDuration">duration</param>
+    /// <returns>True if supported.</returns>
+    bool CanSkipRelative(TimeSpan skipDuration);
+
+    /// <summary>
+    /// Skips the playback for a given timespan. The <see cref="skipDuration"/> can be positive or negative related
+    /// to the current playback position.
+    /// </summary>
+    /// <param name="skipDuration">duration</param>
+    void SkipRelative(TimeSpan skipDuration);
+    
+    /// <summary>
+    /// Skips to the start.
+    /// </summary>
+    void SkipToStart();
+
+    /// <summary>
+    /// Skips to the end. By default the skip takes 10 seconds before the end. 
+    /// </summary>
+    void SkipToEnd();
   }
 }

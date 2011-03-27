@@ -99,5 +99,8 @@ namespace MediaPortal.UI.Players.Video.Interfaces
 
     [PreserveSig]
     int OnGraphRebuild(int info);
+
+    [PreserveSig]
+    int SetMediaPosition(long mediaPos);
   }
 }

@@ -3,262 +3,40 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="MediaColors,MediaGraphics,Colors,Graphics"
+    DependsOnStyleResources="MediaColors,MediaGraphics,Buttons,Colors,Graphics"
     >
 
-  <Style x:Key="ShowDvdMenuButtonStyle" TargetType="{x:Type Button}">
-  <Setter Property="Template">
-    <Setter.Value>
-      <ControlTemplate TargetType="{x:Type Button}">
-        <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          <Control x:Name="DvdMenu" Template="{ThemeResource ShowDvdMenuControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        </Grid>
-        <ControlTemplate.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsPressed" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsEnabled" Value="False">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </ControlTemplate.Triggers>
-      </ControlTemplate>
-    </Setter.Value>
-  </Setter>
-</Style>
+  <!-- extended player OSD buttons for Media plugin -->
 
-<Style x:Key="SelectChapterButtonStyle" TargetType="{x:Type Button}">
-  <Setter Property="Template">
-    <Setter.Value>
-      <ControlTemplate TargetType="{x:Type Button}">
-        <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          <Control x:Name="SelectSubtitle" Template="{ThemeResource SelectChapterControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        </Grid>
-        <ControlTemplate.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsPressed" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsEnabled" Value="False">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </ControlTemplate.Triggers>
-      </ControlTemplate>
-    </Setter.Value>
-  </Setter>
-</Style>
+  <Style x:Key="ShowDvdMenuButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ShowDvdMenuControlTemplate}" />
+    </Style.Resources>
+  </Style>
 
-<Style x:Key="SelectSubtitleButtonStyle" TargetType="{x:Type Button}">
-  <Setter Property="Template">
-    <Setter.Value>
-      <ControlTemplate TargetType="{x:Type Button}">
-        <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          <Control x:Name="SelectSubtitle" Template="{ThemeResource SelectSubtitleControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        </Grid>
-        <ControlTemplate.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsPressed" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsEnabled" Value="False">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </ControlTemplate.Triggers>
-      </ControlTemplate>
-    </Setter.Value>
-  </Setter>
-</Style>
+  <Style x:Key="SelectChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectChapterControlTemplate}" />
+    </Style.Resources>
+  </Style>
 
-<Style x:Key="NextChapterButtonStyle" TargetType="{x:Type Button}">
-  <Setter Property="Template">
-    <Setter.Value>
-      <ControlTemplate TargetType="{x:Type Button}">
-        <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          <Control x:Name="SkipForward" Template="{ThemeResource NextChapterControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        </Grid>
-        <ControlTemplate.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsPressed" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                  HandoffBehavior="TemporaryReplace"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsEnabled" Value="False">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </ControlTemplate.Triggers>
-      </ControlTemplate>
-    </Setter.Value>
-  </Setter>
-</Style>
+  <Style x:Key="SelectSubtitleButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectSubtitleControlTemplate}" />
+    </Style.Resources>
+  </Style>
 
-<Style x:Key="PreviousChapterButtonStyle" TargetType="{x:Type Button}">
-  <Setter Property="Template">
-    <Setter.Value>
-      <ControlTemplate TargetType="{x:Type Button}">
-        <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="1"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          <Control x:Name="SkipBack" Template="{ThemeResource PreviousChapterControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        </Grid>
-        <ControlTemplate.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsPressed" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                  HandoffBehavior="TemporaryReplace"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-          <Trigger Property="IsEnabled" Value="False">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </ControlTemplate.Triggers>
-      </ControlTemplate>
-    </Setter.Value>
-  </Setter>
-</Style>
+  <Style x:Key="NextChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NextChapterControlTemplate}" />
+    </Style.Resources>
+  </Style>
 
+  <Style x:Key="PreviousChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PreviousChapterControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <!-- / extended player OSD buttons for Media plugin -->  
 </ResourceDictionary>

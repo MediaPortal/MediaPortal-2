@@ -1,0 +1,29 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Tve3MediaProvider"
+    PluginId="{847373A1-3BF9-470e-B7FC-F962EAACE5F7}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="TVE3 WebServices Media Provider"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="Tve3MediaProvider.dll"/>
+  </Runtime>
+
+  <!-- The MediaProvider to access Tve3. -->
+  <Register Location="/Media/MediaProviders">
+    <Instance Id="Tve3Provider" ClassName="MediaPortal.Media.MediaProviders.Tve3MediaProvider.Tve3MediaProvider"/>
+  </Register>
+
+  <!-- The Metadata extractor. -->
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="Tve3MetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.Tve3MetadataExtractor.Tve3MetadataExtractor"/>
+  </Register>
+  
+  <Register Location="/Resources/Language">
+    <Resource Id="Tve3MediaProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>

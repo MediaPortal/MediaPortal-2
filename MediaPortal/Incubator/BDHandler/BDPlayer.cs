@@ -421,14 +421,14 @@ namespace MediaPortal.UI.Players.Video
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
     }
 
-    public string[] DvdChapters
+    public string[] Chapters
     {
       get { return _chapterNames; }
     }
 
-    public void SetDvdChapter(string chapter)
+    public void SetChapter(string chapter)
     {
-      string[] chapters = DvdChapters;
+      string[] chapters = Chapters;
       for (int i = 0; i < chapters.Length; i++)
       {
         if (chapter == chapters[i])
@@ -486,7 +486,7 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    public string CurrentDvdChapter
+    public string CurrentChapter
     {
       get { return null; }
     }

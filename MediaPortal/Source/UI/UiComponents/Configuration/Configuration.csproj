@@ -96,17 +96,61 @@
   <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\screens\configuration-section.xaml" />
-    <Content Include="Skin\default\screens\master_configuration_dialog.xaml" />
-    <Content Include="Skin\default\screens\master_configuration_dialog_wob.xaml" />
-    <Content Include="Skin\default\screens\master_configuration_dialog_wb.xaml" />
-    <Content Include="Skin\default\screens\dialog_configuration_yesno.xaml" />
-    <Content Include="Skin\default\screens\dialog_configuration_entry.xaml" />
-    <Content Include="Skin\default\screens\dialog_configuration_singleselectionlist.xaml" />
-    <Content Include="Skin\default\screens\dialog_configuration_multiselectionlist.xaml" />
-    <Content Include="Skin\default\screens\dialog_configuration_numberselect.xaml" />
+    <Content Include="Skin\default\screens\configuration-section.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_configuration_dialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_configuration_dialog_wob.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\master_configuration_dialog_wb.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\dialog_configuration_yesno.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\dialog_configuration_entry.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\dialog_configuration_singleselectionlist.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\dialog_configuration_multiselectionlist.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\dialog_configuration_numberselect.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\configuration-states.xml" />
     <Content Include="Skin\default\workflow\configuration-actions.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

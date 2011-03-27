@@ -248,17 +248,14 @@ namespace MediaPortal.UI.Players.Video
 
     #region Message handling
 
-    protected void SubscribeToMessages()
+    protected virtual void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           WindowsMessaging.CHANNEL
-        });
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] {WindowsMessaging.CHANNEL});
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
 
-    protected void UnsubscribeFromMessages()
+    protected virtual void UnsubscribeFromMessages()
     {
       if (_messageQueue == null)
         return;
@@ -800,7 +797,7 @@ namespace MediaPortal.UI.Players.Video
           // If the player isn't active when setting its position, we will switch to pause mode to prevent the
           // player from run.
           Pause();
-        lock (_graphBuilder)
+        lock (SyncObj)
         {
           IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
           if (mediaSeeking == null)
@@ -999,8 +996,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-
-    private void SetPreferredAudio()
+    protected void SetPreferredAudio()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       if (_streamInfoAudio == null)
@@ -1073,7 +1069,7 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    private void EnumerateStreams()
+    protected virtual void EnumerateStreams()
     {
       FilterGraphTools.TryDispose(ref _streamInfoAudio);
       FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
@@ -1084,9 +1080,7 @@ namespace MediaPortal.UI.Players.Video
 
       foreach (IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
       {
-        FilterInfo fi;
-        ((IBaseFilter) streamSelector).QueryFilterInfo(out fi);
-
+        FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter)streamSelector));
         int streamCount;
         streamSelector.Count(out streamCount);
 
@@ -1134,6 +1128,9 @@ namespace MediaPortal.UI.Players.Video
             // subtitles
             _streamInfoSubtitles.AddUnique(currentStream, true);
           }
+
+          // free MediaType and references
+          FilterGraphTools.FreeAMMediaType(mediaType);
         }
       }
     }
@@ -1314,7 +1311,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region ISubtitlePlayer implementation
 
-    private void SetPreferredSubtitle()
+    protected void SetPreferredSubtitle()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       if (_streamInfoSubtitles == null)

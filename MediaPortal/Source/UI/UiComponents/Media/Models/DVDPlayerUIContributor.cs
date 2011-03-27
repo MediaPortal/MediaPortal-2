@@ -149,18 +149,18 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get
       {
-        string currentChapter = _player.CurrentDvdChapter;
+        string currentChapter = _player.CurrentChapter;
         _chapterMenuItems.Clear();
         if (ChaptersAvailable)
         {
-          foreach (string chapter in _player.DvdChapters)
+          foreach (string chapter in _player.Chapters)
           {
             // use local variable, otherwise delegate argument is not fixed
             string localChapter = chapter;
 
             ListItem item = new ListItem(Consts.KEY_NAME, localChapter)
                 {
-                  Command = new MethodDelegateCommand(() => _player.SetDvdChapter(localChapter)),
+                  Command = new MethodDelegateCommand(() => _player.SetChapter(localChapter)),
                   // check if it is the selected chapter, then mark it
                   Selected = (localChapter == currentChapter)
                 };
