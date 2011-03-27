@@ -72,10 +72,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TV4Home.Server.TVEInteractionLibrary.Interfaces, Version=0.1.0.0, Culture=neutral, PublicKeyToken=3cf46e400c1bd362, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\TV4Home Core Service\TV4Home.Server.TVEInteractionLibrary.Interfaces.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\FormatHelper.cs" />
@@ -94,10 +90,6 @@
     <Compile Include="TVHandler\TimeshiftContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SlimTv4HomeProvider\SlimTv4HomeProvider.csproj">
-      <Project>{2B8AE979-A3AD-47BF-89C5-56170CA6C87C}</Project>
-      <Name>SlimTv4HomeProvider</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>

@@ -354,27 +354,26 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       if (!_isInitialized)
       {
-        _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
-        _selectedCurrentProgramProperty = new WProperty(typeof(string), string.Empty);
-        _selectedNextProgramProperty = new WProperty(typeof(string), string.Empty);
+        _currentGroupNameProperty = new WProperty(typeof (string), string.Empty);
+        _selectedCurrentProgramProperty = new WProperty(typeof (string), string.Empty);
+        _selectedNextProgramProperty = new WProperty(typeof (string), string.Empty);
 
-        _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
-        _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
-        _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
-        _programProgressProperty = new WProperty(typeof(double), 0d);
-        _timeshiftProgressProperty = new WProperty(typeof(double), 0d);
+        _currentChannelNameProperty = new WProperty(typeof (string), string.Empty);
+        _currentProgramProperty = new WProperty(typeof (ProgramProperties), new ProgramProperties());
+        _nextProgramProperty = new WProperty(typeof (ProgramProperties), new ProgramProperties());
+        _programProgressProperty = new WProperty(typeof (double), 0d);
+        _timeshiftProgressProperty = new WProperty(typeof (double), 0d);
 
-        _piPAvailableProperty = new WProperty(typeof(bool), false);
-        _piPEnabledProperty = new WProperty(typeof(bool), false);
-
-        if (!ServiceRegistration.IsRegistered<ITvHandler>())
-          ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
+        _piPAvailableProperty = new WProperty(typeof (bool), false);
+        _piPEnabledProperty = new WProperty(typeof (bool), false);
 
         _tvHandler = ServiceRegistration.Get<ITvHandler>();
-
+        _tvHandler.Initialize();
         _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
-
+        
+        // TODO: remember last user selection for group and channel
         _channelGroupIndex = 0;
+
         UpdateGroupAndChannels();
         _isInitialized = true;
       }

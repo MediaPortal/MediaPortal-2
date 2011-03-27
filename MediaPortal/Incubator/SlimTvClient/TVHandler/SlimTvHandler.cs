@@ -26,7 +26,6 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.SlimTv.Providers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
@@ -47,11 +46,14 @@ namespace MediaPortal.Plugins.SlimTvClient
     private ITvProvider _tvProvider;
     private readonly TVSlotContext[] _slotContexes = new TVSlotContext[2];
 
-
-    public SlimTvHandler()
+    public void Initialize()
     {
-      _tvProvider = new SlimTv4HomeProvider();
-      _tvProvider.Init();
+      if (_tvProvider != null)
+        return;
+
+      _tvProvider = ServiceRegistration.Get<ITvProvider>();
+      if (_tvProvider != null)
+        _tvProvider.Init();
     }
 
     public ITimeshiftControl TimeshiftControl

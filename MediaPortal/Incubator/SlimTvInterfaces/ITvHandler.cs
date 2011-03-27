@@ -33,6 +33,11 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
   public interface ITvHandler: IDisposable
   {
     /// <summary>
+    /// Initializes internal structures. This has to be called before any other methods can be used.
+    /// </summary>
+    void Initialize();
+
+    /// <summary>
     /// Exposes the ITimeshiftControl interface of active TvProvider.
     /// </summary>
     ITimeshiftControl TimeshiftControl { get; }
