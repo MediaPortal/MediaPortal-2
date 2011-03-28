@@ -46,8 +46,17 @@ namespace MediaPortal.UI.Players.Video
    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IEVRPresentCallback
   {
+    /// <summary>
+    /// Callback from EVRPresenter.dll to display a DirectX surface.
+    /// </summary>
+    /// <param name="cx">Video width.</param>
+    /// <param name="cy">Video height.</param>
+    /// <param name="arx">Aspect Ratio X.</param>
+    /// <param name="ary">Aspect Ratio Y.</param>
+    /// <param name="dwSurface">Address of the DirectX surface.</param>
+    /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
+    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwSurface);
   }
 
   public delegate void RenderDlgt();
@@ -182,20 +191,11 @@ namespace MediaPortal.UI.Players.Video
 
     #region IEVRPresentCallback implementation
 
-    /// <summary>
-    /// Callback from EVRPresenter.dll to display a DirectX surface.
-    /// </summary>
-    /// <param name="cx">Video width.</param>
-    /// <param name="cy">Video height.</param>
-    /// <param name="arx">Aspect Ratio X.</param>
-    /// <param name="ary">Aspect Ratio Y.</param>
-    /// <param name="dwImg">Address of the DirectX surface.</param>
-    /// <returns></returns>
-    public int PresentSurface(short cx, short cy, short arx, short ary, uint dwImg)
+    public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
       lock (_lock)
       {
-        if (dwImg == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
+        if (dwSurface == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
           return 0;
 
         if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
@@ -228,7 +228,7 @@ namespace MediaPortal.UI.Players.Video
           _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
         }
 
-        using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))
+        using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
         {
           GraphicsDevice.Device.StretchRectangle(surf, cropRect,
               _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);

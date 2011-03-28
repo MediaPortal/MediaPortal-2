@@ -216,14 +216,14 @@ protected:
     {
     }
 
-    FRAMESTEP_STATE     state;          // Current frame-step state.
-    VideoSampleList     samples;        // List of pending samples for frame-stepping.
-    DWORD               steps;          // Number of steps left.
+    FRAMESTEP_STATE     state;          // Current frame-step state
+    VideoSampleList     samples;        // List of pending samples for frame-stepping
+    DWORD               steps;          // Number of steps left
     DWORD_PTR           pSampleNoRef;   // Identifies the frame-step sample.
   };
 
-  RENDER_STATE                m_RenderState;          // render state
-  FrameStep                   m_FrameStep;            // Frame-stepping information.
+  RENDER_STATE                m_RenderState;          // Render state
+  FrameStep                   m_FrameStep;            // Frame-stepping information
 
 
   // Rendering state
@@ -233,12 +233,12 @@ protected:
   BOOL                        m_bEndStreaming;        // Did we reach the end of the stream?
 
   // Samples and scheduling
-  Scheduler                   m_scheduler;            // Manages scheduling of samples.
-  SamplePool                  m_SamplePool;           // Pool of allocated samples.
+  Scheduler                   m_scheduler;            // Manages scheduling of samples
+  SamplePool                  m_SamplePool;           // Pool of allocated samples
   DWORD                       m_TokenCounter;         // Counter. Incremented whenever we create new samples.
 
-  MFVideoNormalizedRect       m_nrcSource;            // Source rectangle.
-  float                       m_fRate;                // Playback rate.
+  MFVideoNormalizedRect       m_nrcSource;            // Source rectangle
+  float                       m_fRate;                // Playback rate
 
   // Deletable objects.
   D3DPresentEngine            *m_pD3DPresentEngine;   // Rendering engine. (Never null if the constructor succeeds.)
@@ -246,7 +246,7 @@ protected:
   // COM Interfaces
   IMFClock                    *m_pClock;              // The EVR's clock
   IMFTransform                *m_pMixer;              // The mixer 
-  IMediaEventSink             *m_pMediaEventSink;     // The EVR's event-sink interface.
+  IMediaEventSink             *m_pMediaEventSink;     // The EVR's event-sink interface
   IMFMediaType                *m_pMediaType;          // Output media type
 };
 
