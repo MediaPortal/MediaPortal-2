@@ -35,6 +35,9 @@ using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
+  /// <summary>
+  /// ExtendedVideoSkip model provides additional seeking methods for media playback.
+  /// </summary>
   public class ExtendedVideoSkip
   {
     protected int _skipStepIndex = 0;
@@ -218,8 +221,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     private void HideSkipOSD()
     {
-      //ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-      //superLayerManager.ShowSuperLayer(null, TimeSpan.FromSeconds(-1));
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.SetSuperLayer(null);
     }
 
     private void ClearSkipTimer()

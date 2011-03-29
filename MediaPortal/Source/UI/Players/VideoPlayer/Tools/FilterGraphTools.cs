@@ -704,9 +704,6 @@ namespace MediaPortal.UI.Players.Video.Tools
         Marshal.ReleaseComObject(info.pGraph);
     }
 
-
-
-
     /// <summary>
     /// Save a DirectShow Graph to a GRF file
     /// </summary>

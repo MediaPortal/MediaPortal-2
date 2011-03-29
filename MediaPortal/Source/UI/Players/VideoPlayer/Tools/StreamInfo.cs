@@ -51,14 +51,17 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// Gets or Sets the stream index.
     /// </summary>
     public int StreamIndex { get; set; }
+
     /// <summary>
     /// Gets or Sets the stream name.
     /// </summary>
     public string Name { get; set; }
+
     /// <summary>
     /// Gets or Sets reference to the IAMStreamSelect instance, that provided the information.
     /// </summary>
     public IAMStreamSelect StreamSelector { get; set; }
+
     /// <summary>
     /// Gets or Sets the LCID (Locale ID).
     /// </summary>

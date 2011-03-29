@@ -43,7 +43,7 @@ namespace MediaPortal.UiComponents.Media.Settings
     }
 
     /// <summary>
-    /// Percent to instant skip playback back-/forward.
+    /// Percent of total media duration to instant skip playback back-/forward.
     /// </summary>
     [Setting(SettingScope.Global, DEFAULT_INSTANT_SKIP_PERCENT)]
     public double InstantSkipPercent { get; set; }
