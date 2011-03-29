@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -213,11 +213,9 @@
     <Content Include="Skin\default\screens\DialogChooseChapter.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaButtons.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaGraphics.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\superlayers\SkipStepOSD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\superlayers\SkipStepOSD.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistFailed.xaml" />
+    <Content Include="Skin\default\screens\SavePlaylistSuccessful.xaml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
