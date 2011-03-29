@@ -8,31 +8,31 @@
 
   <!-- extended player OSD buttons for Media plugin -->
 
-  <Style x:Key="ShowDvdMenuButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="ShowDvdMenuButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ShowDvdMenuControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="SelectChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="SelectChapterButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectChapterControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="SelectSubtitleButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="SelectSubtitleButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectSubtitleControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NextChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="NextChapterButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NextChapterControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="PreviousChapterButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="PreviousChapterButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PreviousChapterControlTemplate}" />
     </Style.Resources>

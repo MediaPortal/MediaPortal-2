@@ -815,7 +815,7 @@
 
   <!-- *************************** Play control buttons ****************************** -->
 
-  <Style x:Key="GenericOSDButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="BasePlayerControlButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -866,43 +866,43 @@
     </Setter>
   </Style>
 
-  <Style x:Key="PlayButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="PlayButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PlayControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="PauseButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="PauseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PauseControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="StopButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="StopButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource StopControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="ForwardButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="ForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ForwardControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="RewindButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="RewindButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource RewindControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="SkipForwardButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="SkipForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipForwardControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="SkipBackButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="SkipBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipBackControlTemplate}" />
     </Style.Resources>
@@ -1016,25 +1016,25 @@
   
   <!-- global buttons -->
   
-  <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowCloseControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="WindowMinimizeButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="WindowMinimizeButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowMinimizeControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="HibernateButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="HibernateButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource HibernateControlTemplate}" />
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource GenericOSDButtonStyle}">
+  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
     </Style.Resources>
