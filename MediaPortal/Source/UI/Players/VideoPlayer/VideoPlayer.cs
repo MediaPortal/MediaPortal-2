@@ -71,7 +71,7 @@ namespace MediaPortal.UI.Players.Video
     #region DLL imports
 
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, uint monitor);
+    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor);
 
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrDeinit();
@@ -474,9 +474,10 @@ namespace MediaPortal.UI.Players.Video
 
       int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
-      IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
+      // Albert: TODO: Remove
+//      IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
-      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
+      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);//(uint) hMonitor.ToInt32());
       if (hr != 0)
       {
         EvrDeinit();

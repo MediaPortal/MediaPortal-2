@@ -194,46 +194,44 @@ namespace MediaPortal.UI.Players.Video
     public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
       lock (_lock)
-      {
-        if (dwSurface == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
-          return 0;
-
-        if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
+        if (dwSurface != 0 && cx != 0 && cy != 0 && !_guiBeingReinitialized)
         {
-          FreeTexture();
-          _originalVideoSize = new Size(cx, cy);
-        }
-        Rectangle cropRect = (CropSettings == null) ? new Rectangle(Point.Empty, _originalVideoSize) :
-            _cropSettings.CropRect(_originalVideoSize);
-        _croppedVideoSize = cropRect.Size;
+          if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
+          {
+            FreeTexture();
+            _originalVideoSize = new Size(cx, cy);
+          }
+          Rectangle cropRect = (CropSettings == null) ? new Rectangle(Point.Empty, _originalVideoSize) :
+              _cropSettings.CropRect(_originalVideoSize);
+          _croppedVideoSize = cropRect.Size;
 
-        _aspectRatio.Width = arx;
-        _aspectRatio.Height = ary;
+          _aspectRatio.Width = arx;
+          _aspectRatio.Height = ary;
 
-        VideoSizePresentDlgt vsp = VideoSizePresent;
-        if (vsp != null)
-        {
-          vsp(this);
-          VideoSizePresent = null;
-        }
-        if (_texture == null)
-        {
-          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-          _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-              1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
-          _surface = _texture.GetSurfaceLevel(0);
+          VideoSizePresentDlgt vsp = VideoSizePresent;
+          if (vsp != null)
+          {
+            vsp(this);
+            VideoSizePresent = null;
+          }
+          if (_texture == null)
+          {
+            int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+            AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+            _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
+                1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
+            _surface = _texture.GetSurfaceLevel(0);
 
-          SurfaceDescription desc = _texture.GetLevelDescription(0);
-          _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
-        }
+            SurfaceDescription desc = _texture.GetLevelDescription(0);
+            _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
+          }
 
-        using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
-        {
-          GraphicsDevice.Device.StretchRectangle(surf, cropRect,
-              _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
+          {
+            GraphicsDevice.Device.StretchRectangle(surf, cropRect,
+                _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          }
         }
-      }
       if (_renderDlgt != null)
         _renderDlgt();
       return 0;

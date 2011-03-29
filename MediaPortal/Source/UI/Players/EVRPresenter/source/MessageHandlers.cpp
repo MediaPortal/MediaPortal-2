@@ -157,7 +157,7 @@ HRESULT EVRCustomPresenter::RenegotiateMediaType()
     hr = IsMediaTypeSupported(pMixerType);
     if (FAILED(hr))
     {
-      Log("EVRCustomPresenter::RenegotiateMediaType EVRCUstomPresenter::IsMediaTypeSupported failed");
+      Log("EVRCustomPresenter::RenegotiateMediaType EVRCustomPresenter::IsMediaTypeSupported failed");
       continue;
     }
 
@@ -165,7 +165,7 @@ HRESULT EVRCustomPresenter::RenegotiateMediaType()
     hr = CreateOptimalVideoType(pMixerType, &pOptimalType);
     if (FAILED(hr))
     {
-      Log("EVRCustomPresenter::RenegotiateMediaType EVRCUstomPresenter::CreateOptimalVideoType failed");
+      Log("EVRCustomPresenter::RenegotiateMediaType EVRCustomPresenter::CreateOptimalVideoType failed");
       continue;
     }
 
@@ -181,7 +181,7 @@ HRESULT EVRCustomPresenter::RenegotiateMediaType()
     hr = SetMediaType(pOptimalType);
     if (FAILED(hr))
     {
-      Log("EVRCustomPresenter::RenegotiateMediaType EVRCUstomPresenter::SetMediaType failed");
+      Log("EVRCustomPresenter::RenegotiateMediaType EVRCustomPresenter::SetMediaType failed");
       continue;
     }
 

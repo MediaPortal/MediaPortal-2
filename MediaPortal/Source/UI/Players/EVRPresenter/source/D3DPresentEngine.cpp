@@ -11,20 +11,22 @@
 
 #include "EVRCustomPresenter.h"
 #include "MediaType.h"
-
-const DWORD PRESENTER_BUFFER_COUNT = 3;
+#include <dvdmedia.h>
 
 HRESULT FindAdapter(IDirect3D9 *pD3D9, HMONITOR hMonitor, UINT *puAdapterID);
 
 
 // Constructor
-D3DPresentEngine::D3DPresentEngine(HRESULT& hr) : 
-  m_hwnd(NULL),
+D3DPresentEngine::D3DPresentEngine(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr) : 
+  m_hwnd(hwnd),
   m_DeviceResetToken(0),
   m_pD3D9(NULL),
-  m_pDevice(NULL),
+  m_pDevice(d3DDevice),
   m_pDeviceManager(NULL),
-  m_pSurfaceRepaint(NULL)
+  m_pSurfaceRepaint(NULL),
+  m_EVRCallback(callback),
+  m_Width(0),
+  m_Height(0)
 {
   SetRectEmpty(&m_rcDestRect);
 
@@ -32,10 +34,7 @@ D3DPresentEngine::D3DPresentEngine(HRESULT& hr) :
 
   hr = InitializeD3D();
 
-  if (SUCCEEDED(hr))
-  {
-     hr = CreateD3DDevice();
-  }
+  m_pDeviceManager->ResetDevice(m_pDevice, m_DeviceResetToken);
 }
 
 
@@ -149,100 +148,123 @@ HRESULT D3DPresentEngine::SetDestinationRect(const RECT& rcDest)
 }
 
 
+HRESULT GetAspectRatio(IMFMediaType* pFormat, UINT32& arX, UINT32& arY)
+{
+  HRESULT hr;
+  UINT32 u32;
+  if ( SUCCEEDED(pFormat->GetUINT32(MF_MT_SOURCE_CONTENT_HINT, &u32) ) )
+  {
+    Log("Getting aspect ratio 'MediaFoundation style'");
+    switch (u32)
+    {
+      case MFVideoSrcContentHintFlag_None:
+        Log("Aspect ratio unknown");
+        break;
+      case MFVideoSrcContentHintFlag_16x9:
+        Log("Source is 16:9 within 4:3!");
+        arX = 16;
+        arY = 9;
+        break;
+      case MFVideoSrcContentHintFlag_235_1:
+        Log("Source is 2.35:1 within 16:9 or 4:3");
+        arX = 47;
+        arY = 20;
+        break;
+      default:
+        Log("Unkown aspect ratio flag: %d", u32);
+    }
+  }
+  else
+  {
+    //Try old DirectShow-Header, if above does not work
+    Log( "Getting aspect ratio 'DirectShow style'");
+    AM_MEDIA_TYPE* pAMMediaType;
+    CHECK_HR(
+      hr = pFormat->GetRepresentation(FORMAT_VideoInfo2, (void**)&pAMMediaType),
+      "Getting DirectShow Video Info failed");
+    if ( SUCCEEDED(hr) ) 
+    {
+      VIDEOINFOHEADER2* vheader = (VIDEOINFOHEADER2*)pAMMediaType->pbFormat;
+      arX = vheader->dwPictAspectRatioX;
+      arY = vheader->dwPictAspectRatioY;
+      pFormat->FreeRepresentation(FORMAT_VideoInfo2, (void*)pAMMediaType);
+    }
+    else
+    {
+      Log( "Could not get directshow representation.");
+    }
+  }
+  return hr;
+}
+
 // Creates video samples based on a specified media type.
 HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleList& videoSampleQueue)
 {
-  if (m_hwnd == NULL)
-  {
-    return MF_E_INVALIDREQUEST;
-  }
-
   if (pFormat == NULL)
   {
     return MF_E_UNEXPECTED;
   }
 
   HRESULT hr = S_OK;
-  D3DPRESENT_PARAMETERS pp;
 
-  IDirect3DSwapChain9 *pSwapChain = NULL;    // Swap chain
-  IMFSample *pVideoSample = NULL;            // Sampl
+  D3DFORMAT d3dFormat = D3DFMT_UNKNOWN;
+
+  IMFSample *pVideoSample = NULL;
     
   AutoLock lock(m_ObjectLock);
 
   ReleaseResources();
 
-  // Get the swap chain parameters from the media type.
-  hr = GetSwapChainPresentParameters(pFormat, &pp);
+  // Helper object for reading the proposed type.
+  VideoType videoType(pFormat);
+
+  // Get some information about the video format.
+  hr = videoType.GetFrameDimensions(&m_Width, &m_Height);
+  CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFrameDimensions() failed");
+  hr = GetAspectRatio(pFormat, m_ArX, m_ArY);
   if (FAILED(hr))
   {
-    ReleaseResources();
-    return hr;
+    m_ArX = m_Width;
+    m_ArY = m_Height;
   }
 
-  UpdateDestRect();
+  hr = videoType.GetFourCC((DWORD*)&d3dFormat);
+  CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
 
-  // Create the video samples.
-  for (int i = 0; i < PRESENTER_BUFFER_COUNT; i++)
+  for (int i=0; i < NUM_PRESENTER_BUFFERS; i++) 
   {
-    // Create a new swap chain.
-    hr = m_pDevice->CreateAdditionalSwapChain(&pp, &pSwapChain);
+    CComPtr<IDirect3DTexture9> texture;
+    hr = m_pDevice->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_RENDERTARGET, d3dFormat, D3DPOOL_DEFAULT, &texture, NULL);
     if (FAILED(hr))
     {
-      SAFE_RELEASE(pSwapChain);
-      SAFE_RELEASE(pVideoSample);
-      ReleaseResources();
-      return hr;
+      Log("D3DPresentEngine::CreateVideoSamples Could not create texture %d. Error 0x%x",i, hr);
+      break;
     }
-        
-    // Create the video sample from the swap chain.
-    hr = CreateD3DSample(pSwapChain, &pVideoSample);
+    CComPtr<IDirect3DSurface9> surface;
+    hr = texture->GetSurfaceLevel(0, &surface);
     if (FAILED(hr))
     {
-      SAFE_RELEASE(pSwapChain);
-      SAFE_RELEASE(pVideoSample);
-      ReleaseResources();
-      return hr;
+      Log("D3DPresentEngine::CreateVideoSamples Could not get surface from texture. Error 0x%x", hr);
+      break;
+    }
+  
+    hr = MFCreateVideoSampleFromSurface(surface, &pVideoSample);
+    if (FAILED(hr)) 
+    {
+      Log("D3DPresentEngine::CreateVideoSamples CreateVideoSampleFromSurface failed: 0x%x", hr);
+      break;
     }
 
     // Add it to the list.
     hr = videoSampleQueue.InsertBack(pVideoSample);
     if (FAILED(hr))
     {
-      SAFE_RELEASE(pSwapChain);
       SAFE_RELEASE(pVideoSample);
       ReleaseResources();
       return hr;
     }
-
-    // Set the swap chain pointer as a custom attribute on the sample. This keeps
-    // a reference count on the swap chain, so that the swap chain is kept alive
-    // for the duration of the sample's lifetime.
-    hr = pVideoSample->SetUnknown(MFSamplePresenter_SampleSwapChain, pSwapChain);
-    if (FAILED(hr))
-    {
-      SAFE_RELEASE(pSwapChain);
-      SAFE_RELEASE(pVideoSample);
-      ReleaseResources();
-      return hr;
-    }
-
     SAFE_RELEASE(pVideoSample);
-    SAFE_RELEASE(pSwapChain);
   }
-
-  // Let the derived class create any additional D3D resources that it needs.
-  hr = OnCreateVideoSamples(pp);
-  if (FAILED(hr))
-  {
-    SAFE_RELEASE(pSwapChain);
-    SAFE_RELEASE(pVideoSample);
-    ReleaseResources();
-    return hr;
-  }
-
-  SAFE_RELEASE(pSwapChain);
-  SAFE_RELEASE(pVideoSample);
 
   return hr;
 }
@@ -251,9 +273,6 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
 // Released Direct3D resources used by this object. 
 void D3DPresentEngine::ReleaseResources()
 {
-  // Let the derived class release any resources it created.
-  OnReleaseResources();
-
   SAFE_RELEASE(m_pSurfaceRepaint);
 }
 
@@ -312,45 +331,23 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
 
   IMFMediaBuffer* pBuffer = NULL;
   IDirect3DSurface9* pSurface = NULL;
-  IDirect3DSwapChain9* pSwapChain = NULL;
 
   if (pSample)
   {
     // Get the buffer from the sample.
     hr = pSample->GetBufferByIndex(0, &pBuffer);
-    if (FAILED(hr))
+    if (SUCCEEDED(hr))
     {
-      SAFE_RELEASE(pBuffer);
-
-      if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
-      {
-        // We failed because the device was lost. Fill the destination rectangle.
-        PaintFrameWithGDI();
-
-        // Ignore. The Reset(Ex) method must be called from the thread that created the device.
-
-        // The presenter will detect the state when it calls CheckDeviceState() on the next sample.
-        hr = S_OK;
-      }
+      // Get the surface from the buffer.
+      hr = MFGetService(pBuffer, MR_BUFFER_SERVICE, __uuidof(IDirect3DSurface9), (void**)&pSurface);
     }
-
-    // Get the surface from the buffer.
-    hr = MFGetService(pBuffer, MR_BUFFER_SERVICE, __uuidof(IDirect3DSurface9), (void**)&pSurface);
-    if (FAILED(hr))
+    if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
     {
-      SAFE_RELEASE(pSurface);
-      SAFE_RELEASE(pBuffer);
+      // We failed because the device was lost.
+      // This case is ignored. The Reset(Ex) method must be called from the thread that created the device.
 
-      if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
-      {
-        // We failed because the device was lost. Fill the destination rectangle.
-        PaintFrameWithGDI();
-
-        // Ignore. The Reset(Ex) method must be called from the thread that created the device.
-
-        // The presenter will detect the state when it calls CheckDeviceState() on the next sample.
-        hr = S_OK;
-      }
+      // The presenter will detect the state when it calls CheckDeviceState() on the next sample.
+      hr = S_OK;
     }
   }
   else if (m_pSurfaceRepaint)
@@ -360,58 +357,8 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     pSurface->AddRef();
   }
 
-  if (pSurface)
-  {
-    // Get the swap chain from the surface.
-    hr = pSurface->GetContainer(__uuidof(IDirect3DSwapChain9), (LPVOID*)&pSwapChain);
-    if (FAILED(hr))
-    {
-      SAFE_RELEASE(pSwapChain);
-      SAFE_RELEASE(pSurface);
-      SAFE_RELEASE(pBuffer);
+  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD) pSurface);
 
-      if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
-      {
-        // We failed because the device was lost. Fill the destination rectangle.
-        PaintFrameWithGDI();
-
-        // Ignore. The Reset(Ex) method must be called from the thread that created the device.
-
-        // The presenter will detect the state when it calls CheckDeviceState() on the next sample.
-        hr = S_OK;
-      }
-    }
-
-    // Present the swap chain.
-    hr = PresentSwapChain(pSwapChain, pSurface);
-    if (FAILED(hr))
-    {
-      SAFE_RELEASE(pSwapChain);
-      SAFE_RELEASE(pSurface);
-      SAFE_RELEASE(pBuffer);
-
-      if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET || hr == D3DERR_DEVICEHUNG)
-      {
-        // We failed because the device was lost. Fill the destination rectangle.
-        PaintFrameWithGDI();
-
-        // Ignore. The Reset(Ex) method must be called from the thread that created the device.
-
-        // The presenter will detect the state when it calls CheckDeviceState() on the next sample.
-        hr = S_OK;
-      }
-    }
-
-    // Store this pointer in case we need to repaint the surface.
-    CopyComPointer(m_pSurfaceRepaint, pSurface);
-  }
-  else
-  {
-    // No surface. All we can do is paint a black rectangle.
-    PaintFrameWithGDI();
-  }
-
-  SAFE_RELEASE(pSwapChain);
   SAFE_RELEASE(pSurface);
   SAFE_RELEASE(pBuffer);
 
@@ -439,6 +386,7 @@ HRESULT D3DPresentEngine::InitializeD3D()
 }
 
 
+// Albert TODO: Remove
 // Creates the Direct3D device.
 HRESULT D3DPresentEngine::CreateD3DDevice()
 {
@@ -552,6 +500,7 @@ HRESULT D3DPresentEngine::CreateD3DDevice()
 }
 
 
+// Albert TODO: Remove
 // Creates an sample object (IMFSample) to hold a Direct3D swap chain.
 HRESULT D3DPresentEngine::CreateD3DSample(IDirect3DSwapChain9 *pSwapChain, IMFSample **ppVideoSample)
 {
@@ -600,6 +549,7 @@ HRESULT D3DPresentEngine::CreateD3DSample(IDirect3DSwapChain9 *pSwapChain, IMFSa
 }
 
 
+// Albert TODO: Remove?
 // Presents a swap chain that contains a video frame.
 HRESULT D3DPresentEngine::PresentSwapChain(IDirect3DSwapChain9* pSwapChain, IDirect3DSurface9* pSurface)
 {
@@ -617,6 +567,7 @@ HRESULT D3DPresentEngine::PresentSwapChain(IDirect3DSwapChain9* pSwapChain, IDir
 }
 
 
+// Albert TODO: Remove?
 // Fills the destination rectangle with black.
 void D3DPresentEngine::PaintFrameWithGDI()
 {
@@ -638,6 +589,7 @@ void D3DPresentEngine::PaintFrameWithGDI()
 
 
 // Given a media type that describes the video format, fills in the D3DPRESENT_PARAMETERS for creating a swap chain.
+// Albert TODO: Remove
 HRESULT D3DPresentEngine::GetSwapChainPresentParameters(IMFMediaType *pType, D3DPRESENT_PARAMETERS* pPP)
 {
   // Caller holds the object lock.
@@ -713,7 +665,7 @@ HRESULT D3DPresentEngine::UpdateDestRect()
   return S_OK;
 }
 
-
+// Albert TODO: Remove?
 // Given a handle to a monitor, returns the ordinal number that D3D uses to identify the adapter.
 HRESULT FindAdapter(IDirect3D9 *pD3D9, HMONITOR hMonitor, UINT *puAdapterID)
 {

@@ -42,7 +42,9 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::InitServicePointers(IMFTopologySer
     CHECK_HR(hr, "EVRCustomPresenter::InitServicePointers initializing when playing or paused");
   }
 
-  ReleaseServicePointers();
+  SAFE_RELEASE(m_pClock);
+  SAFE_RELEASE(m_pMixer);
+  SAFE_RELEASE(m_pMediaEventSink);
 
   // Ask for the clock. Optional, because the EVR might not have a clock.
   dwObjectCount = 1;
@@ -85,7 +87,6 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::InitServicePointers(IMFTopologySer
 
   // Successfully initialized. Set the state to "stopped."
   m_RenderState = RENDER_STATE_STOPPED;
-
   return hr;
 }
 

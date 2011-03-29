@@ -247,6 +247,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::SetVideoWindow(HWND hwndVideo)
   HRESULT hr = S_OK;
   HWND oldHwnd = m_pD3DPresentEngine->GetVideoWindow();
 
+  // TODO Albert: Change comment. No new Direct3D device will be created.
   // If the window has changed, notify the D3DPresentEngine object. This will cause a new Direct3D device to be created.
   if (oldHwnd != hwndVideo)
   {

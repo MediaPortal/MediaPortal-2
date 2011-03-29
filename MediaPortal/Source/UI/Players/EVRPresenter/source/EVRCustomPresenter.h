@@ -24,6 +24,7 @@
 #include "AsyncCallback.h"
 #include "Scheduler.h"
 #include "SamplePool.h"
+#include "IEVRCallback.h"
 #include "D3DPresentEngine.h"
 
 class EVRCustomPresenter : 
@@ -134,7 +135,7 @@ public:
   virtual ULONG STDMETHODCALLTYPE AddRef();
   virtual ULONG STDMETHODCALLTYPE Release();
 
-  EVRCustomPresenter(HRESULT& hr);
+  EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr);
   virtual ~EVRCustomPresenter();
 
 protected:

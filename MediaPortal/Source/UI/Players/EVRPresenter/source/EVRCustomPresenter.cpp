@@ -15,10 +15,9 @@
 // along with MediaPortal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "EVRCustomPresenter.h"
-#include "IEVRCallback.h"
 
 // Constructor
-EVRCustomPresenter::EVRCustomPresenter(HRESULT& hr) :
+EVRCustomPresenter::EVRCustomPresenter(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr) :
   m_RenderState(RENDER_STATE_SHUTDOWN),
   m_pD3DPresentEngine(NULL),
   m_pClock(NULL),
@@ -41,7 +40,7 @@ EVRCustomPresenter::EVRCustomPresenter(HRESULT& hr) :
   m_nrcSource.bottom = 1;
   m_nrcSource.right = 1;
 
-  m_pD3DPresentEngine = new D3DPresentEngine(hr);
+  m_pD3DPresentEngine = new D3DPresentEngine(callback, d3DDevice, hwnd, hr);
   if (m_pD3DPresentEngine == NULL)
   {
     hr = E_OUTOFMEMORY;
@@ -62,7 +61,8 @@ EVRCustomPresenter::~EVRCustomPresenter()
 
 
 // Init EVR Presenter (called by VideoPlayer.cs)
-__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, DWORD monitor)
+// Albert TODO: Remove monitor parameter
+__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd)
 {
 	HRESULT hr;
 
@@ -75,11 +75,18 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
     return hr;
 	}
 
-  //EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (LPDIRECT3DDEVICE9) dwD3DDevice, (HMONITOR) monitor);
-  EVRCustomPresenter* presenter = new EVRCustomPresenter(hr);
+  // Albert: Test for presenting the surface in MediaPortal 2
+  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*) dwD3DDevice, hwnd, hr);
+  //EVRCustomPresenter* presenter = new EVRCustomPresenter(hr);
+  if (FAILED(hr))
+  {
+    Log("EvrInit EVRCustomPresenter() failed");
+    delete presenter;
+	  return hr;
+  }
 
   hr = pVideoRenderer->InitializeRenderer(NULL, presenter);
-  if (FAILED(hr) ) 
+  if (FAILED(hr))
   {
     Log("EvrInit IMFVIdeoRenderer::InitializeRenderer failed");
     pVideoRenderer.Release();

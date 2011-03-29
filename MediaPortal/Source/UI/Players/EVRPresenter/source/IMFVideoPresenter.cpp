@@ -26,9 +26,14 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetCurrentMediaType(IMFVideoMediaT
 
   HRESULT hr = S_OK;
 
-  CAutoLock lock(this);
+  if (ppMediaType == NULL)
+  {
+    return E_POINTER;
+  }
 
-  CheckPointer(ppMediaType, E_POINTER);
+  *ppMediaType = NULL;
+
+  CAutoLock lock(this);
 
   hr = CheckShutdown();
   CHECK_HR(hr, "EVRCustomPresenter::GetCurrentMediaType presenter is shutdown");

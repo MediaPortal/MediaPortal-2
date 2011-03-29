@@ -12,6 +12,9 @@
 #include <d3d9.h>
 #include <dxva2api.h>
 
+const DWORD NUM_PRESENTER_BUFFERS = 3;
+
+// Albert TODO: Remove virtual modifier from methods
 class D3DPresentEngine : public SchedulerCallback
 {
 public:
@@ -24,7 +27,7 @@ public:
     DeviceRemoved,  // The device was removed.
   };
 
-  D3DPresentEngine(HRESULT& hr);
+  D3DPresentEngine(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr);
   virtual ~D3DPresentEngine();
 
   // GetService: Returns the IDirect3DDeviceManager9 interface.
@@ -53,9 +56,6 @@ protected:
   HRESULT UpdateDestRect();
 
   // A derived class can override these handlers to allocate any additional D3D resources.
-  virtual HRESULT OnCreateVideoSamples(D3DPRESENT_PARAMETERS& pp) { return S_OK; }
-  virtual void    OnReleaseResources() { }
-
   virtual HRESULT PresentSwapChain(IDirect3DSwapChain9* pSwapChain, IDirect3DSurface9* pSurface);
   virtual void    PaintFrameWithGDI();
 
@@ -63,9 +63,15 @@ protected:
 
   HWND                        m_hwnd;                 // Application-provided destination window.
   RECT                        m_rcDestRect;           // Destination rectangle.
+  UINT32                      m_Width;
+  UINT32                      m_Height;
+  UINT32                      m_ArX;
+  UINT32                      m_ArY;
   D3DDISPLAYMODE              m_DisplayMode;          // Adapter's display mode.
 
   CritSec                     m_ObjectLock;           // Thread lock for the D3D device.
+
+  IEVRCallback                *m_EVRCallback;         // Callback interface to MP2
 
   // COM interfaces
   IDirect3D9Ex                *m_pD3D9;

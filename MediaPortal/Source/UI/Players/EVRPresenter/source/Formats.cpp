@@ -22,6 +22,8 @@
 // Sets or clears the presenter's media type. 
 HRESULT EVRCustomPresenter::SetMediaType(IMFMediaType *pMediaType)
 {
+  Log("EVRCustomPresenter::SetMediaType");
+
   // Note: pMediaType can be NULL (to clear the type)
 
   // Clearing the media type is allowed in any state (including shutdown).
