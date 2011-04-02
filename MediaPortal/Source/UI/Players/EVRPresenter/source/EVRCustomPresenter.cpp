@@ -61,7 +61,6 @@ EVRCustomPresenter::~EVRCustomPresenter()
 
 
 // Init EVR Presenter (called by VideoPlayer.cs)
-// Albert TODO: Remove monitor parameter
 __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd)
 {
 	HRESULT hr;
@@ -75,9 +74,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
     return hr;
 	}
 
-  // Albert: Test for presenting the surface in MediaPortal 2
-  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*) dwD3DDevice, hwnd, hr);
-  //EVRCustomPresenter* presenter = new EVRCustomPresenter(hr);
+  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*)dwD3DDevice, hwnd, hr);
   if (FAILED(hr))
   {
     Log("EvrInit EVRCustomPresenter() failed");

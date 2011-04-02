@@ -51,12 +51,6 @@
     <ClCompile Include="IMFVideoDeviceID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IMFVideoDisplayControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IMFVideoPositionMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IMFVideoPresenter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

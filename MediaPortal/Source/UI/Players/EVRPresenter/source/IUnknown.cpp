@@ -54,10 +54,6 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::QueryInterface(REFIID riid, void *
   {
     *ppv = static_cast<IMFTopologyServiceLookupClient*>(this);
   }
-  else if (riid == __uuidof(IMFVideoDisplayControl))
-  {
-    *ppv = static_cast<IMFVideoDisplayControl*>(this);
-  }
   else if (riid == __uuidof(IEVRTrustedVideoPlugin))
   {
     *ppv = static_cast<IEVRTrustedVideoPlugin*>(this);
@@ -65,10 +61,6 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::QueryInterface(REFIID riid, void *
   else if (riid == __uuidof(IMFAsyncCallback))
   {
     *ppv = static_cast<IMFAsyncCallback*>(this);
-  }
-  else if (riid == __uuidof(IMFVideoPositionMapper))
-  {
-    *ppv = static_cast<IMFVideoPositionMapper*>(this);
   }
   else if (riid == IID_IQualProp)
   {

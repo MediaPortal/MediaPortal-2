@@ -135,8 +135,6 @@
     <ClCompile Include="IMFRateSupport.cpp" />
     <ClCompile Include="IMFTopologyServiceLookupClient.cpp" />
     <ClCompile Include="IMFVideoDeviceID.cpp" />
-    <ClCompile Include="IMFVideoDisplayControl.cpp" />
-    <ClCompile Include="IMFVideoPositionMapper.cpp" />
     <ClCompile Include="IMFVideoPresenter.cpp" />
     <ClCompile Include="IQualProp.cpp" />
     <ClCompile Include="IUnknown.cpp" />

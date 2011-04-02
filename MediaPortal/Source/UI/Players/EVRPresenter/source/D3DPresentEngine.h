@@ -14,7 +14,6 @@
 
 const DWORD NUM_PRESENTER_BUFFERS = 3;
 
-// Albert TODO: Remove virtual modifier from methods
 class D3DPresentEngine : public SchedulerCallback
 {
 public:
@@ -28,17 +27,11 @@ public:
   };
 
   D3DPresentEngine(IEVRCallback* callback, IDirect3DDevice9Ex* d3DDevice, HWND hwnd, HRESULT& hr);
-  virtual ~D3DPresentEngine();
+  ~D3DPresentEngine();
 
   // GetService: Returns the IDirect3DDeviceManager9 interface.
-  virtual HRESULT GetService(REFGUID guidService, REFIID riid, void** ppv);
-  virtual HRESULT CheckFormat(D3DFORMAT format);
-
-  // The presenter's implementation of IMFVideoDisplayControl calls these methods.
-  HRESULT SetVideoWindow(HWND hwnd);
-  HWND    GetVideoWindow() const { return m_hwnd; }
-  HRESULT SetDestinationRect(const RECT& rcDest);
-  RECT    GetDestinationRect() const { return m_rcDestRect; };
+  HRESULT GetService(REFGUID guidService, REFIID riid, void** ppv);
+  HRESULT CheckFormat(D3DFORMAT format);
 
   HRESULT CreateVideoSamples(IMFMediaType *pFormat, VideoSampleList& videoSampleQueue);
   void    ReleaseResources();
@@ -50,14 +43,6 @@ public:
 
 protected:
   HRESULT InitializeD3D();
-  HRESULT GetSwapChainPresentParameters(IMFMediaType *pType, D3DPRESENT_PARAMETERS* pPP);
-  HRESULT CreateD3DDevice();
-  HRESULT CreateD3DSample(IDirect3DSwapChain9 *pSwapChain, IMFSample **ppVideoSample);
-  HRESULT UpdateDestRect();
-
-  // A derived class can override these handlers to allocate any additional D3D resources.
-  virtual HRESULT PresentSwapChain(IDirect3DSwapChain9* pSwapChain, IDirect3DSurface9* pSurface);
-  virtual void    PaintFrameWithGDI();
 
   UINT                        m_DeviceResetToken;     // Reset token for the D3D device manager.
 

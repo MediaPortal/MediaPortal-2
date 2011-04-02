@@ -220,14 +220,9 @@ HRESULT EVRCustomPresenter::CreateOptimalVideoType(IMFMediaType* pProposedType, 
   hr = mtOptimal.SetPixelAspectRatio(1, 1);
   CHECK_HR(hr, "EVRCustomPresenter::CreateOptimalVideoType VideoType::SetPixelAspectRatio() failed");
 
-  // Get the output rectangle.
-  rcOutput = m_pD3DPresentEngine->GetDestinationRect();
-  if (IsRectEmpty(&rcOutput))
-  {
-    // Calculate the output rectangle based on the media type.
-    hr = CalculateOutputRectangle(pProposedType, &rcOutput);
-    CHECK_HR(hr, "EVRCustomPresenter::CreateOptimalVideoType EVRCustomPresenter::CalculateOutputRectangle() failed");
-  }
+  // Calculate the output rectangle based on the media type.
+  hr = CalculateOutputRectangle(pProposedType, &rcOutput);
+  CHECK_HR(hr, "EVRCustomPresenter::CreateOptimalVideoType EVRCustomPresenter::CalculateOutputRectangle() failed");
 
   // Set the extended color information: Use BT.709 
   hr = mtOptimal.SetYUVMatrix(MFVideoTransferMatrix_BT709);

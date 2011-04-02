@@ -36,10 +36,8 @@ class EVRCustomPresenter :
   public IMFTopologyServiceLookupClient,
   public IMFVideoDeviceID,
   public IMFRateSupport,
-  public IMFVideoPositionMapper,
   public IQualProp,
   public IEVRTrustedVideoPlugin,
-  public IMFVideoDisplayControl,
   public IMFAsyncCallback,
   public CCritSec
 {
@@ -91,9 +89,6 @@ public:
   virtual HRESULT STDMETHODCALLTYPE GetSlowestRate(MFRATE_DIRECTION eDirection, BOOL bThin, float *pfRate);
   virtual HRESULT STDMETHODCALLTYPE IsRateSupported(BOOL bThin, float fRate, float *pfNearestSupportedRate);
 
-  // IMFVideoPositionMapper Interface http://msdn.microsoft.com/en-us/library/ms695386(v=VS.85).aspx
-  virtual HRESULT STDMETHODCALLTYPE MapOutputCoordinateToInputStream(float xOut, float yOut, DWORD dwOutputStreamIndex, DWORD dwInputStreamIndex, float *pxIn, float *pyIn);
-
   // IQualProp Interface http://msdn.microsoft.com/en-us/library/dd376915(v=VS.85).aspx
   virtual HRESULT STDMETHODCALLTYPE get_AvgFrameRate(int *piAvgFrameRate);
   virtual HRESULT STDMETHODCALLTYPE get_AvgSyncOffset(int *piAvg);
@@ -107,24 +102,6 @@ public:
   virtual HRESULT STDMETHODCALLTYPE DisableImageExport(BOOL bDisable);
   virtual HRESULT STDMETHODCALLTYPE IsInTrustedVideoMode(BOOL *pYes);
   virtual HRESULT STDMETHODCALLTYPE SetConstriction(DWORD dwKPix);
-
-  // IMFVideoDisplayControl Interface http://msdn.microsoft.com/en-us/library/ms704002(v=VS.85).aspx
-  virtual HRESULT STDMETHODCALLTYPE GetAspectRatioMode(DWORD *pdwAspectRatioMode);
-  virtual HRESULT STDMETHODCALLTYPE GetBorderColor(COLORREF *pClr);
-  virtual HRESULT STDMETHODCALLTYPE GetCurrentImage(BITMAPINFOHEADER *pBih, BYTE **pDib, DWORD *pcbDib,LONGLONG *pTimeStamp);
-  virtual HRESULT STDMETHODCALLTYPE GetFullscreen(BOOL *pfFullscreen);
-  virtual HRESULT STDMETHODCALLTYPE GetIdealVideoSize(SIZE *pszMin, SIZE *pszMax);
-  virtual HRESULT STDMETHODCALLTYPE GetNativeVideoSize(SIZE *pszVideo, SIZE *pszARVideo);
-  virtual HRESULT STDMETHODCALLTYPE GetRenderingPrefs(DWORD *pdwRenderFlags);
-  virtual HRESULT STDMETHODCALLTYPE GetVideoPosition(MFVideoNormalizedRect *pnrcSource, LPRECT prcDest);
-  virtual HRESULT STDMETHODCALLTYPE GetVideoWindow(HWND *phwndVideo);
-  virtual HRESULT STDMETHODCALLTYPE RepaintVideo();
-  virtual HRESULT STDMETHODCALLTYPE SetAspectRatioMode(DWORD dwAspectRatioMode);
-  virtual HRESULT STDMETHODCALLTYPE SetBorderColor(COLORREF Clr);
-  virtual HRESULT STDMETHODCALLTYPE SetFullscreen(BOOL fFullscreen);
-  virtual HRESULT STDMETHODCALLTYPE SetRenderingPrefs(DWORD dwRenderFlags);
-  virtual HRESULT STDMETHODCALLTYPE SetVideoPosition(const MFVideoNormalizedRect *pnrcSource, const LPRECT prcDest);
-  virtual HRESULT STDMETHODCALLTYPE SetVideoWindow(HWND hwndVideo);
 
   // IMFAsyncCallback Interface http://msdn.microsoft.com/en-us/library/ms699856(v=VS.85).aspx
   virtual HRESULT STDMETHODCALLTYPE GetParameters(DWORD *pdwFlags, DWORD *pdwQueue);
