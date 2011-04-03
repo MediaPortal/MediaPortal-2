@@ -19,7 +19,7 @@ template <class T>
 class ThreadSafeQueue
 {
 public:
-  HRESULT Queue(T *p)
+  HRESULT Enqueue(T *p)
   {
     AutoLock lock(m_lock);
     return m_list.InsertBack(p);
@@ -53,6 +53,12 @@ public:
     m_list.Clear();
   }
 
+
+  bool IsEmpty()
+  {
+    AutoLock lock(m_lock);
+    return m_list.IsEmpty();
+  }
 
 private:
   CritSec         m_lock; 

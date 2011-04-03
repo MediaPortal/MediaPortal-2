@@ -61,7 +61,7 @@ void Scheduler::SetFrameRate(const MFRatio& fps)
   UINT64 AvgTimePerFrame = 0;
 
   // Convert to a duration.
-  MFFrameRateToAverageTimePerFrame(fps.Numerator, fps.Denominator, &AvgTimePerFrame);
+  HRESULT hr = MFFrameRateToAverageTimePerFrame(fps.Numerator, fps.Denominator, &AvgTimePerFrame);
 
   m_PerFrameInterval = (MFTIME)AvgTimePerFrame;
 
@@ -253,7 +253,7 @@ HRESULT Scheduler::ScheduleSample(IMFSample *pSample, BOOL bPresentNow)
   else
   {
     // Queue the sample and ask the scheduler thread to wake up.
-    hr = m_ScheduledSamples.Queue(pSample);
+    hr = m_ScheduledSamples.Enqueue(pSample);
 
     if (SUCCEEDED(hr))
     {
@@ -276,17 +276,13 @@ HRESULT Scheduler::ProcessSamplesInQueue(LONG *plNextSleep)
 
   // Process samples until the queue is empty or until the wait time > 0.
 
-  // Note: Dequeue returns S_FALSE when the queue is empty.
-  while (m_ScheduledSamples.Dequeue(&pSample) == S_OK) 
+  while (true) 
   {
     // Process the next sample in the queue. If the sample is not ready
     // for presentation. the value returned in lWait is > 0, which
     // means the scheduler should sleep for that amount of time.
 
-    hr = ProcessSample(pSample, &lWait);
-    SAFE_RELEASE(pSample);
-
-    if (FAILED(hr))
+    if (!ProcessSample(&lWait))
     {
       break;
     }
@@ -310,7 +306,7 @@ HRESULT Scheduler::ProcessSamplesInQueue(LONG *plNextSleep)
 
 
 // Processes a sample.
-HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
+bool Scheduler::ProcessSample(LONG *plNextSleep)
 {
   HRESULT hr = S_OK;
 
@@ -320,6 +316,12 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
 
   BOOL bPresentNow = TRUE;
   LONG lNextSleep = 0;
+
+  IMFSample *pSample;
+  // Note: Dequeue returns S_FALSE when the queue is empty.
+  hr = m_ScheduledSamples.Dequeue(&pSample);
+  if (hr != S_OK)
+    return false;
 
   if (m_pClock)
   {
@@ -339,18 +341,18 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
       if (m_fRate < 0)
       {
         // For reverse playback, the clock runs backward. Therefore the delta is reversed.
-        hnsDelta = - hnsDelta;
+        hnsDelta = -hnsDelta;
       }
 
-      if (hnsDelta < - m_PerFrame_1_4th)
+      if (hnsDelta < 0)
       {
         // This sample is late.
         bPresentNow = TRUE;
       }
-      else if (hnsDelta > (3 * m_PerFrame_1_4th))
+      else if (hnsDelta > m_PerFrame_1_4th)
       {
         // This sample is still too early. Go to sleep.
-        lNextSleep = MFTimeToMsec(hnsDelta - (3 * m_PerFrame_1_4th));
+        lNextSleep = MFTimeToMsec(hnsDelta - m_PerFrame_1_4th);
 
         // Adjust the sleep time for the clock rate. (The presentation clock runs
         // at m_fRate, but sleeping uses the system clock.)
@@ -374,7 +376,8 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
 
   *plNextSleep = lNextSleep;
 
-  return hr;
+  SAFE_RELEASE(pSample);
+  return true;
 }
 
 

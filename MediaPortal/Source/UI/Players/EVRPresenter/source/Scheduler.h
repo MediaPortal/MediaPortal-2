@@ -39,7 +39,7 @@ public:
 
   HRESULT ScheduleSample(IMFSample *pSample, BOOL bPresentNow);
   HRESULT ProcessSamplesInQueue(LONG *plNextSleep);
-  HRESULT ProcessSample(IMFSample *pSample, LONG *plNextSleep);
+  bool ProcessSample(LONG *plNextSleep);
   HRESULT Flush();
 
   // ThreadProc for the scheduler thread.
