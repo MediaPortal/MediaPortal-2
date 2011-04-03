@@ -153,6 +153,7 @@ HRESULT GetAspectRatio(IMFMediaType* pFormat, UINT32& arX, UINT32& arY)
   return hr;
 }
 
+
 // Creates video samples based on a specified media type.
 HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleList& videoSampleQueue)
 {

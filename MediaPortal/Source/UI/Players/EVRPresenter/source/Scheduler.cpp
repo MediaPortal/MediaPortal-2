@@ -20,6 +20,7 @@
 
 #include "EVRCustomPresenter.h"
 
+
 // Messages for the scheduler thread.
 enum ScheduleEvent
 {
@@ -29,6 +30,7 @@ enum ScheduleEvent
 };
 
 const DWORD SCHEDULER_TIMEOUT = 5000;
+
 
 // Constructor
 Scheduler::Scheduler() : 
@@ -333,7 +335,7 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
 
       // Calculate the time until the sample's presentation time. 
       // A negative value means the sample is late.
-      LONGLONG hnsDelta = hnsPresentationTime - hnsTimeNow;   
+      LONGLONG hnsDelta = hnsPresentationTime - hnsTimeNow;
       if (m_fRate < 0)
       {
         // For reverse playback, the clock runs backward. Therefore the delta is reversed.
@@ -342,7 +344,7 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
 
       if (hnsDelta < - m_PerFrame_1_4th)
       {
-        // This sample is late. 
+        // This sample is late.
         bPresentNow = TRUE;
       }
       else if (hnsDelta > (3 * m_PerFrame_1_4th))
@@ -453,4 +455,3 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
 
   return (SUCCEEDED(hr) ? 0 : 1);
 }
-
