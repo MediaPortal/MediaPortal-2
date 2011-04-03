@@ -76,7 +76,6 @@ namespace MediaPortal.UI.Players.Video
     private Texture _texture = null;
     private Surface _surface = null;
     private SizeF _surfaceMaxUV = Size.Empty;
-    private bool _guiBeingReinitialized = false;
 
     #endregion
 
@@ -156,25 +155,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
-    public void ReleaseResources()
-    {
-      lock (_lock)
-      {
-        Dispose();
-        _guiBeingReinitialized = true;
-      }
-    }
-
-    public void ReallocResources()
-    {
-      lock (_lock)
-      {
-        _guiBeingReinitialized = false;
-      }
-    }
-
     public void Dispose()
     {
+      VideoSizePresent = null;
       FreeTexture();
     }
 
@@ -194,14 +177,14 @@ namespace MediaPortal.UI.Players.Video
     public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
       lock (_lock)
-        if (dwSurface != 0 && cx != 0 && cy != 0 && !_guiBeingReinitialized)
+        if (dwSurface != 0 && cx != 0 && cy != 0)
         {
           if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
           {
             FreeTexture();
             _originalVideoSize = new Size(cx, cy);
           }
-          Rectangle cropRect = (CropSettings == null) ? new Rectangle(Point.Empty, _originalVideoSize) :
+          Rectangle cropRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
               _cropSettings.CropRect(_originalVideoSize);
           _croppedVideoSize = cropRect.Size;
 

@@ -316,7 +316,6 @@ namespace MediaPortal.UI.Players.Video
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
         int hr;
-        AllocateResources();
 
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
@@ -648,33 +647,11 @@ namespace MediaPortal.UI.Players.Video
           }
 
           FreeCodecs();
-
-          FreeResources();
         }
       }
       // Dispose resource locator and accessor
       FilterGraphTools.TryDispose(ref _resourceAccessor);
       FilterGraphTools.TryDispose(ref _resourceLocator);
-    }
-
-    #endregion
-
-    #region Resources Handling
-
-    /// <summary>
-    /// Allocates the vertex buffers
-    /// </summary>
-    protected void AllocateResources()
-    {
-      //Trace.WriteLine("{0}: Alloc vertex", PlayerTitle);
-    }
-
-    /// <summary>
-    /// Frees the vertext buffers.
-    /// </summary>
-    protected void FreeResources()
-    {
-      ServiceRegistration.Get<ILogger>().Info("{0}: FreeResources", PlayerTitle);
     }
 
     #endregion
@@ -1155,8 +1132,7 @@ namespace MediaPortal.UI.Players.Video
       //stops the renderer threads all of it's own.
       lock (_evrCallback)
       {
-        FreeResources();
-        _evrCallback.ReleaseResources();
+        FreeEvrCallback();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
         if (enumer != null)
@@ -1201,7 +1177,6 @@ namespace MediaPortal.UI.Players.Video
 
         if (_evr != null)
           _graphBuilder.RemoveFilter(_evr);
-        FreeEvrCallback();
         FilterGraphTools.TryRelease(ref _evr);
 
         EvrDeinit();
@@ -1212,10 +1187,7 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void FreeEvrCallback()
     {
       if (_evrCallback !=null)
-      {
-        _evrCallback.VideoSizePresent -= OnVideoSizePresent;
         _evrCallback.Dispose();
-      }
       _evrCallback = null;
     }
 
@@ -1258,8 +1230,6 @@ namespace MediaPortal.UI.Players.Video
           Marshal.FreeCoTaskMem(ptrFetched);
           Marshal.ReleaseComObject(enumer);
         }
-        AllocateResources();
-        _evrCallback.ReallocResources();
 
         if (State == PlayerState.Active)
         {
