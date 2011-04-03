@@ -51,7 +51,8 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetCurrentMediaType(IMFVideoMediaT
 // Sends a message to the video presenter.
 HRESULT STDMETHODCALLTYPE EVRCustomPresenter::ProcessMessage(MFVP_MESSAGE_TYPE eMessage, ULONG_PTR ulParam)
 {
-  Log("EVRCustomPresenter::ProcessMessage");
+  // Albert: Don't produce so much log output
+  //Log("EVRCustomPresenter::ProcessMessage");
 
   HRESULT hr = S_OK;
 
@@ -76,7 +77,8 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::ProcessMessage(MFVP_MESSAGE_TYPE e
 
     // The mixer received a new input sample. 
     case MFVP_MESSAGE_PROCESSINPUTNOTIFY:
-      Log("ProcessMessage: MFVP_MESSAGE_PROCESSINPUTNOTIFY");
+      // Albert: Don't produce so much log output
+      //Log("ProcessMessage: MFVP_MESSAGE_PROCESSINPUTNOTIFY");
       hr = ProcessInputNotify();
     break;
 
