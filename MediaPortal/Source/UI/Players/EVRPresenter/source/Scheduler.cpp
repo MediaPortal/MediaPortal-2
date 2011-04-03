@@ -330,33 +330,33 @@ HRESULT Scheduler::ProcessSample(IMFSample *pSample, LONG *plNextSleep)
     if (SUCCEEDED(hr))
     {
       hr = m_pClock->GetCorrelatedTime(0, &hnsTimeNow, &hnsSystemTime);
-    }
 
-    // Calculate the time until the sample's presentation time. 
-    // A negative value means the sample is late.
-    LONGLONG hnsDelta = hnsPresentationTime - hnsTimeNow;   
-    if (m_fRate < 0)
-    {
-      // For reverse playback, the clock runs backward. Therefore the delta is reversed.
-      hnsDelta = - hnsDelta;
-    }
+      // Calculate the time until the sample's presentation time. 
+      // A negative value means the sample is late.
+      LONGLONG hnsDelta = hnsPresentationTime - hnsTimeNow;   
+      if (m_fRate < 0)
+      {
+        // For reverse playback, the clock runs backward. Therefore the delta is reversed.
+        hnsDelta = - hnsDelta;
+      }
 
-    if (hnsDelta < - m_PerFrame_1_4th)
-    {
-      // This sample is late. 
-      bPresentNow = TRUE;
-    }
-    else if (hnsDelta > (3 * m_PerFrame_1_4th))
-    {
-      // This sample is still too early. Go to sleep.
-      lNextSleep = MFTimeToMsec(hnsDelta - (3 * m_PerFrame_1_4th));
+      if (hnsDelta < - m_PerFrame_1_4th)
+      {
+        // This sample is late. 
+        bPresentNow = TRUE;
+      }
+      else if (hnsDelta > (3 * m_PerFrame_1_4th))
+      {
+        // This sample is still too early. Go to sleep.
+        lNextSleep = MFTimeToMsec(hnsDelta - (3 * m_PerFrame_1_4th));
 
-      // Adjust the sleep time for the clock rate. (The presentation clock runs
-      // at m_fRate, but sleeping uses the system clock.)
-      lNextSleep = (LONG)(lNextSleep / fabsf(m_fRate));
+        // Adjust the sleep time for the clock rate. (The presentation clock runs
+        // at m_fRate, but sleeping uses the system clock.)
+        lNextSleep = (LONG)(lNextSleep / fabsf(m_fRate));
 
-      // Don't present yet.
-      bPresentNow = FALSE;
+        // Don't present yet.
+        bPresentNow = FALSE;
+      }
     }
   }
 
@@ -403,7 +403,7 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
   // Signal to the scheduler that the thread is ready.
   SetEvent(m_hThreadReadyEvent);
 
-  while( !bExitThread )
+  while(!bExitThread)
   {
     // Wait for a thread message OR until the wait time expires.
     DWORD dwResult = MsgWaitForMultipleObjects(0, NULL, FALSE, lWait, QS_POSTMESSAGE);
@@ -448,9 +448,7 @@ DWORD Scheduler::SchedulerThreadProcPrivate()
         }
       break;
       }
- 
-    }
-
+     }
   }
 
   return (SUCCEEDED(hr) ? 0 : 1);
