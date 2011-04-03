@@ -108,46 +108,46 @@ HRESULT GetAspectRatio(IMFMediaType* pFormat, UINT32& arX, UINT32& arY)
 {
   HRESULT hr;
   UINT32 u32;
-  if ( SUCCEEDED(pFormat->GetUINT32(MF_MT_SOURCE_CONTENT_HINT, &u32) ) )
+  if (SUCCEEDED(pFormat->GetUINT32(MF_MT_SOURCE_CONTENT_HINT, &u32)))
   {
-    Log("Getting aspect ratio 'MediaFoundation style'");
     switch (u32)
     {
       case MFVideoSrcContentHintFlag_None:
-        Log("Aspect ratio unknown");
+        Log("Aspect ratio ('MediaFoundation style') is unknown");
         break;
       case MFVideoSrcContentHintFlag_16x9:
-        Log("Source is 16:9 within 4:3!");
+        Log("Aspect ratio ('MediaFoundation style') is 16:9 within 4:3!");
         arX = 16;
         arY = 9;
         break;
       case MFVideoSrcContentHintFlag_235_1:
-        Log("Source is 2.35:1 within 16:9 or 4:3");
+        Log("Aspect ratio ('MediaFoundation style') is 2.35:1 within 16:9 or 4:3");
         arX = 47;
         arY = 20;
         break;
       default:
-        Log("Unkown aspect ratio flag: %d", u32);
+        Log("Aspect ratio ('MediaFoundation style') is unknown. Flag: %d", u32);
     }
   }
   else
   {
     //Try old DirectShow-Header, if above does not work
-    Log( "Getting aspect ratio 'DirectShow style'");
+    Log("Getting aspect ratio 'DirectShow style'");
     AM_MEDIA_TYPE* pAMMediaType;
     CHECK_HR(
       hr = pFormat->GetRepresentation(FORMAT_VideoInfo2, (void**)&pAMMediaType),
       "Getting DirectShow Video Info failed");
-    if ( SUCCEEDED(hr) ) 
+    if (SUCCEEDED(hr))
     {
       VIDEOINFOHEADER2* vheader = (VIDEOINFOHEADER2*)pAMMediaType->pbFormat;
       arX = vheader->dwPictAspectRatioX;
       arY = vheader->dwPictAspectRatioY;
       pFormat->FreeRepresentation(FORMAT_VideoInfo2, (void*)pAMMediaType);
+      Log("Aspect ratio ('DirectShow style') is %i:%i", arX, arY);
     }
     else
     {
-      Log( "Could not get directshow representation.");
+      Log( "Could not get DirectShow representation.");
     }
   }
   return hr;
