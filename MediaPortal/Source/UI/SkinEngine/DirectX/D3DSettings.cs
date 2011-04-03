@@ -42,6 +42,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public int WindowedMultisampleQuality;
     public VertexProcessingType WindowedVertexProcessingType;
     public PresentInterval WindowedPresentInterval;
+    public int BackBufferCount = 4; // 2 to 4 are recommended for FlipEx swap mode
     public int WindowedWidth;
     public int WindowedHeight;
 

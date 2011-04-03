@@ -1,23 +1,3 @@
-/*
-    Copyright (C) 2007-2010 Team MediaPortal
-    http://www.team-mediaportal.com
-
-    This file is part of MediaPortal 2
-
-    MediaPortal 2 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    MediaPortal 2 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include <windows.h>
 #include <streams.h>
 #include <stdio.h>
@@ -38,106 +18,13 @@ using namespace std;
 
 void Log(const char *fmt, ...) ;
 
-HMODULE m_hModuleDXVA2 = NULL;
-HMODULE m_hModuleEVR = NULL;
-HMODULE m_hModuleMFPLAT = NULL;
-
-TDXVA2CreateDirect3DDeviceManager9* m_pDXVA2CreateDirect3DDeviceManager9 = NULL;
-TMFCreateVideoSampleFromSurface* m_pMFCreateVideoSampleFromSurface = NULL;
-TMFCreateMediaType* m_pMFCreateMediaType = NULL;
-BOOL m_bEVRLoaded = false;
-
-
 static list<EVRCustomPresenter*> m_evrPresenters;
 typedef list<EVRCustomPresenter*>::iterator itevrAllocator;
-
-
-void UnloadEVR();
-
-
-bool LoadEVR()
-{
-	Log("Loading EVR libraries");
-  char systemFolder[MAX_PATH];
-  char mfDLLFileName[MAX_PATH];
-  GetSystemDirectory(systemFolder,sizeof(systemFolder));
-  sprintf(mfDLLFileName,"%s\\dxva2.dll", systemFolder);
-  m_hModuleDXVA2=LoadLibrary(mfDLLFileName);
-  if (m_hModuleDXVA2!=NULL)
-  {
-	  Log("Found dxva2.dll");
-    m_pDXVA2CreateDirect3DDeviceManager9=(TDXVA2CreateDirect3DDeviceManager9*) GetProcAddress(m_hModuleDXVA2, "DXVA2CreateDirect3DDeviceManager9");
-    if (m_pDXVA2CreateDirect3DDeviceManager9!=NULL)
-    {
-      Log("Found method DXVA2CreateDirect3DDeviceManager9");
-      sprintf(mfDLLFileName, "%s\\evr.dll", systemFolder);
-      m_hModuleEVR=LoadLibrary(mfDLLFileName);
-      m_pMFCreateVideoSampleFromSurface=(TMFCreateVideoSampleFromSurface*) GetProcAddress(m_hModuleEVR, "MFCreateVideoSampleFromSurface");
-      if (m_pMFCreateVideoSampleFromSurface)
-  	  {
-        Log("Found method MFCreateVideoSampleFromSurface");
-        sprintf(mfDLLFileName,"%s\\mfplat.dll", systemFolder);
-        m_hModuleMFPLAT=LoadLibrary(mfDLLFileName);
-        m_pMFCreateMediaType=(TMFCreateMediaType*) GetProcAddress(m_hModuleMFPLAT, "MFCreateMediaType");
-        if (m_pMFCreateMediaType)
-        {
-          Log("Found method MFCreateMediaType");
-          Log("Successfully loaded EVR dlls");
-          return TRUE;
-        }
-      }
-    }
-  }
-  Log("Could not find all dependencies for EVR!");
-  UnloadEVR();
-  return FALSE;
-}
-
-
-void UnloadEVR()
-{
-  Log("Unloading EVR libraries");
-  if (m_hModuleDXVA2!=NULL)
-  {
-    Log("Freeing library DXVA2.dll");
-
-    if (!FreeLibrary(m_hModuleDXVA2))
-    {
-	    Log("DXVA2.dll could not be unloaded!");
-    }
-    m_hModuleDXVA2 = NULL;
-  }
-  if (m_hModuleEVR!=NULL)
-  {
-	  Log("Freeing lib: EVR.dll");
-	  if ( !FreeLibrary(m_hModuleEVR) )
-	  {
-		  Log("EVR.dll could not be unloaded");
-	  }
-    m_hModuleEVR = NULL;
-  }
-  if (m_hModuleMFPLAT!=NULL)
-  {
-	  Log("Freeing lib: MFPLAT.dll");
-	  if ( !FreeLibrary(m_hModuleMFPLAT) )
-	  {
-		  Log("MFPLAT.dll could not be unloaded");
-	  }
-    m_hModuleMFPLAT = NULL;
-  }
-  Log("Freeing lib: MFPLAT.dll done");
-}
 
 
 __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, DWORD monitor)
 {
 	HRESULT hr;
-	m_bEVRLoaded = LoadEVR();
-	if ( !m_bEVRLoaded ) 
-	{
-		Log("EVR libraries are not loaded. Cannot init EVR");
-		return -1;
-	}
 
 	CComQIPtr<IMFVideoRenderer> pRenderer = evrFilter;
 	if (!pRenderer) 
@@ -150,7 +37,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
   while (true)
   {
     bool inUse=false;
-    for (itevrAllocator it=m_evrPresenters.begin(); it !=m_evrPresenters.end(); it++)
+    for (itevrAllocator it=m_evrPresenters.begin(); it !=m_evrPresenters.end();it++)
     {
       EVRCustomPresenter* allocator=*it;
       if (allocator->Id()==id)
@@ -201,14 +88,8 @@ __declspec(dllexport) void EvrDeinit(int id)
         break;
       }
     }
-
-	  if ( m_evrPresenters.size() == 0 && m_bEVRLoaded )
-	  {
-		  UnloadEVR();
-		  m_bEVRLoaded = FALSE;
-	  }
   }
-  catch (...)
+  catch(...)
   {
     Log("EvrDeinit:exception");
   }

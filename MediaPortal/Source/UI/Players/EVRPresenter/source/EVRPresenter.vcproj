@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="DShowHelper"
+	Version="9.00"
+	Name="EVRPresenter"
 	ProjectGUID="{BC2D286C-9ED7-499B-AC3A-6978B708190E}"
-	RootNamespace="DShowHelper"
+	RootNamespace="EVRPresenter"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\obj\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -42,14 +42,15 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(DSHOW_BASE)&quot;;&quot;$(WINDOWS_SDK)Include\&quot;;&quot;$(DXSDK_DIR)Include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DSHOWHELPER_EXPORTS"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;EVRPRESENTER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				CallingConvention="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -62,10 +63,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbasd.lib"
+				AdditionalDependencies="winmm.lib strmbasd.lib mfplat.lib d3d9.lib evr.lib mf.lib mfuuid.lib dxva2.lib"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="2"
+				SuppressStartupBanner="false"
 				AdditionalLibraryDirectories="&quot;$(DSHOW_BASE)Debug_MBCS&quot;;&quot;$(DXSDK_DIR)lib\x86&quot;;&quot;$(WINDOWS_SDK)\lib&quot;"
-				ModuleDefinitionFile="DShowHelper.def"
+				ModuleDefinitionFile="$(SolutionDir)\source\EVRPresenter.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -96,8 +99,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\obj\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			CharacterSet="2"
@@ -124,11 +127,12 @@
 				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(DSHOW_BASE)&quot;;&quot;$(WINDOWS_SDK)Include&quot;;&quot;$(DXSDK_DIR)Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DSHOWHELPER_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EVRPRESENTER_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="1"
+				CallingConvention="2"
 				UseFullPaths="false"
 				OmitDefaultLibName="false"
 			/>
@@ -146,15 +150,16 @@
 				IgnoreImportLibrary="false"
 				LinkLibraryDependencies="true"
 				UseLibraryDependencyInputs="false"
-				AdditionalDependencies="winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbase.lib"
+				AdditionalDependencies="winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbase.lib Mfplat.lib"
 				ShowProgress="0"
+				OutputFile="$(SolutionDir)\bin\$(ConfigurationName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(DSHOW_BASE)Release_MBCS&quot;;&quot;$(DXSDK_DIR)lib\x86&quot;;&quot;$(WINDOWS_SDK)lib&quot;"
 				GenerateManifest="true"
 				EnableUAC="true"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile="DShowHelper.def"
+				ModuleDefinitionFile="$(SolutionDir)\source\EVRPresenter.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -195,15 +200,95 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\DShowHelper.cpp"
+				RelativePath="..\source\D3DPresentEngine.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DShowHelper.def"
+				RelativePath="..\source\EVRCustomPresenter.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\EVRCustomPresenter.cpp"
+				RelativePath="..\source\Formats.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\FrameStepping.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\Helpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IEVRTrustedVideoPlugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFAsyncCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFClockStateSink.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFGetService.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFRateSupport.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFTopologyServiceLookupClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFVideoDeviceID.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFVideoDisplayControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFVideoPositionMapper.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IMFVideoPresenter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IQualProp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\IUnknown.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\Logging.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\MessageHandlers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\Mixer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\SampleManagement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\SamplePool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\source\Scheduler.cpp"
 				>
 			</File>
 		</Filter>
@@ -213,11 +298,47 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\EVRCustomPresenter.h"
+				RelativePath="..\source\AsyncCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\ClassFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\ComPtrList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\CritSec.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\D3DPresentEngine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\EVRCustomPresenter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\EVRPresenter.h"
 				>
 			</File>
 			<File
 				RelativePath=".\IEVRCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\MediaType.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\Scheduler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\source\ThreadSafeQueue.h"
 				>
 			</File>
 		</Filter>
@@ -226,6 +347,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath="..\source\EVRPresenter.def"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

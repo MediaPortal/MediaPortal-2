@@ -46,8 +46,17 @@ namespace MediaPortal.UI.Players.Video
    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
   public interface IEVRPresentCallback
   {
+    /// <summary>
+    /// Callback from EVRPresenter.dll to display a DirectX surface.
+    /// </summary>
+    /// <param name="cx">Video width.</param>
+    /// <param name="cy">Video height.</param>
+    /// <param name="arx">Aspect Ratio X.</param>
+    /// <param name="ary">Aspect Ratio Y.</param>
+    /// <param name="dwSurface">Address of the DirectX surface.</param>
+    /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
+    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwSurface);
   }
 
   public delegate void RenderDlgt();
@@ -67,7 +76,6 @@ namespace MediaPortal.UI.Players.Video
     private Texture _texture = null;
     private Surface _surface = null;
     private SizeF _surfaceMaxUV = Size.Empty;
-    private bool _guiBeingReinitialized = false;
 
     #endregion
 
@@ -147,25 +155,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
-    public void ReleaseResources()
-    {
-      lock (_lock)
-      {
-        Dispose();
-        _guiBeingReinitialized = true;
-      }
-    }
-
-    public void ReallocResources()
-    {
-      lock (_lock)
-      {
-        _guiBeingReinitialized = false;
-      }
-    }
-
     public void Dispose()
     {
+      VideoSizePresent = null;
       FreeTexture();
     }
 
@@ -182,58 +174,47 @@ namespace MediaPortal.UI.Players.Video
 
     #region IEVRPresentCallback implementation
 
-    /// <summary>
-    /// Callback from DShowHelper.dll to display a DirectX surface.
-    /// </summary>
-    /// <param name="cx">Video width.</param>
-    /// <param name="cy">Video height.</param>
-    /// <param name="arx">Aspect Ratio X.</param>
-    /// <param name="ary">Aspect Ratio Y.</param>
-    /// <param name="dwImg">Address of the DirectX surface.</param>
-    /// <returns></returns>
-    public int PresentSurface(short cx, short cy, short arx, short ary, uint dwImg)
+    public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
       lock (_lock)
-      {
-        if (dwImg == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
-          return 0;
-
-        if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
+        if (dwSurface != 0 && cx != 0 && cy != 0)
         {
-          FreeTexture();
-          _originalVideoSize = new Size(cx, cy);
-        }
-        Rectangle cropRect = (CropSettings == null) ? new Rectangle(Point.Empty, _originalVideoSize) :
-            _cropSettings.CropRect(_originalVideoSize);
-        _croppedVideoSize = cropRect.Size;
+          if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
+          {
+            FreeTexture();
+            _originalVideoSize = new Size(cx, cy);
+          }
+          Rectangle cropRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
+              _cropSettings.CropRect(_originalVideoSize);
+          _croppedVideoSize = cropRect.Size;
 
-        _aspectRatio.Width = arx;
-        _aspectRatio.Height = ary;
+          _aspectRatio.Width = arx;
+          _aspectRatio.Height = ary;
 
-        VideoSizePresentDlgt vsp = VideoSizePresent;
-        if (vsp != null)
-        {
-          vsp(this);
-          VideoSizePresent = null;
-        }
-        if (_texture == null)
-        {
-          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-          _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-              1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
-          _surface = _texture.GetSurfaceLevel(0);
+          VideoSizePresentDlgt vsp = VideoSizePresent;
+          if (vsp != null)
+          {
+            vsp(this);
+            VideoSizePresent = null;
+          }
+          if (_texture == null)
+          {
+            int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+            AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+            _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
+                1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
+            _surface = _texture.GetSurfaceLevel(0);
 
-          SurfaceDescription desc = _texture.GetLevelDescription(0);
-          _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
-        }
+            SurfaceDescription desc = _texture.GetLevelDescription(0);
+            _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
+          }
 
-        using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))
-        {
-          GraphicsDevice.Device.StretchRectangle(surf, cropRect,
-              _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
+          {
+            GraphicsDevice.Device.StretchRectangle(surf, cropRect,
+                _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          }
         }
-      }
       if (_renderDlgt != null)
         _renderDlgt();
       return 0;
