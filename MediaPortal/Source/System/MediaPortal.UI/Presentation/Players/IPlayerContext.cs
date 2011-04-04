@@ -284,7 +284,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// For positive TimeSpans it's checked if the current playback position plus the <paramref name="skipDuration"/> is less than the total duration.
     /// For negative TimeSpans it's checked if the current playback position plus the <paramref name="skipDuration"/> is greater than zero.
     /// </summary>
-    /// <param name="skipDuration">Duration to skip</param>
+    /// <param name="skipDuration">Duration to skip starting at the current position.</param>
     /// <returns>True if supported.</returns>
     bool CanSkipRelative(TimeSpan skipDuration);
 
@@ -292,7 +292,8 @@ namespace MediaPortal.UI.Presentation.Players
     /// Skips the playback for a given timespan. The <see cref="skipDuration"/> can be positive or negative related
     /// to the current playback position.
     /// </summary>
-    /// <param name="skipDuration">Duration to skip</param>
+    /// <param name="skipDuration">Skips the given duration starting at the current position. The skip might be done asynchronous,
+    /// so the given duration is not met exactly.</param>
     void SkipRelative(TimeSpan skipDuration);
     
     /// <summary>

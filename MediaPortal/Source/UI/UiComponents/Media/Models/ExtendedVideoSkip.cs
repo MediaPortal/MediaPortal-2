@@ -212,14 +212,14 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    private void ShowSkipOSD()
+    private static void ShowSkipOSD()
     {
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
       ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
       superLayerManager.ShowSuperLayer(SKIP_OSD_SUPERLAYER_SCREEN_NAME, TimeSpan.FromSeconds(settings.SkipStepTimeout));
     }
 
-    private void HideSkipOSD()
+    private static void HideSkipOSD()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.SetSuperLayer(null);
