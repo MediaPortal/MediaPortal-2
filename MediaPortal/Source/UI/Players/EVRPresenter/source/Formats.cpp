@@ -234,7 +234,7 @@ HRESULT EVRCustomPresenter::CreateOptimalVideoType(IMFMediaType* pProposedType, 
   hr = mtOptimal.SetVideoPrimaries(MFVideoPrimaries_BT709);
   CHECK_HR(hr, "EVRCustomPresenter::CreateOptimalVideoType VideoType::SetVideoPrimaries() failed");
 
-  hr = mtOptimal.SetVideoNominalRange(MFNominalRange_16_235);
+  hr = mtOptimal.SetVideoNominalRange(MFNominalRange_0_255);
   CHECK_HR(hr, "EVRCustomPresenter::CreateOptimalVideoType VideoType::SetVideoNominalRange() failed");
 
   hr = mtOptimal.SetVideoLighting(MFVideoLighting_dim);
