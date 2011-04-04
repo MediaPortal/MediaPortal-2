@@ -1,0 +1,18 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="NewSkin"
+    PluginId="{77D2381E-2591-43d6-85B5-9EF77E95E9DB}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="NewSkin for MP2."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/>
+    <!-- SkinBase -->
+  </DependsOn>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="NewSkinSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

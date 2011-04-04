@@ -19,6 +19,7 @@
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
   <ReferenceNotNull_BoolConverter x:Key="ReferenceToBoolConverter"/>
+  <DateFormatConverter x:Key="DateFormatConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 

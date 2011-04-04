@@ -70,6 +70,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected override Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType)
     {
+      // First check if the player provides an own UI contributor.
+      IUIContributorPlayer uicPlayer = player as IUIContributorPlayer;
+      if (uicPlayer != null)
+        return uicPlayer.UIContributorType;
+
       // Return the more specific player types first
       if (player is IPicturePlayer)
         return typeof(PicturePlayerUIContributor);

@@ -190,6 +190,30 @@ namespace MediaPortal.UI.Services.Players
         player.SetPlaybackRate(4*newRate);
     }
 
+    public void InstantSkip(int skipPercent)
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+
+      TimeSpan currentPosition = player.CurrentTime;
+      TimeSpan duration = player.Duration;
+      double skipSeconds = skipPercent * player.Duration.TotalSeconds / 100;
+      if (skipSeconds > 0)
+      {
+        if (currentPosition.TotalSeconds + skipSeconds < duration.TotalSeconds)
+          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
+      }
+      else
+      {
+        // skipSeconds is negative
+        if (currentPosition.TotalSeconds + skipSeconds > 0)
+          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
+        else
+          player.CurrentTime = TimeSpan.FromSeconds(0); // seek to beginning
+      }
+    }
+
     public static PlayerContext GetPlayerContext(IPlayerSlotController psc)
     {
       if (psc == null)
@@ -461,6 +485,46 @@ namespace MediaPortal.UI.Services.Players
     public void SeekBackward()
     {
       Seek(-0.5);
+    }
+
+    public bool CanSkipRelative(TimeSpan skipDuration)
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return false;
+
+      TimeSpan currentPosition = player.CurrentTime;
+      TimeSpan duration = player.Duration;
+      TimeSpan targetPosition = currentPosition.Add(skipDuration);
+      return targetPosition.TotalSeconds > 0 && targetPosition <= duration;
+    }
+
+    public void SkipRelative(TimeSpan skipDuration)
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+
+      TimeSpan targetPosition = player.CurrentTime.Add(skipDuration);
+      player.CurrentTime = targetPosition;
+    }
+
+    public void SkipToStart()
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+
+      player.CurrentTime = TimeSpan.FromSeconds(0);
+    }
+
+    public void SkipToEnd()
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+
+      player.CurrentTime = player.Duration;
     }
 
     public bool PreviousItem()

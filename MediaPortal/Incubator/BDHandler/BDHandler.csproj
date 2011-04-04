@@ -49,13 +49,11 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005, Version=2.1.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\MP2-Trunk\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
+    <Reference Include="DirectShowLib-2005">
+      <HintPath>..\..\Source\UI\Players\VideoPlayer\References\DirectShowLib-2005.dll</HintPath>
     </Reference>
-    <Reference Include="SlimDX, Version=2.0.10.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\MP2-Trunk\Source\UI\SkinEngine\References\SlimDX.dll</HintPath>
+    <Reference Include="SlimDX">
+      <HintPath>..\..\Source\UI\SkinEngine\References\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

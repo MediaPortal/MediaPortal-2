@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Default background image - no media present
+-->
+
+<Screen xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid x:Name="DefaultBackgroundPanel">
+    <Grid.Resources>
+    <!-- Background Manager for menu hovers -->
+    <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+
+    <!-- Storyboard which animates the 2 spots in background -->
+    <Storyboard xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Key="MoveSpotlight" FillBehavior="Stop">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight1" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.3"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="-0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.3"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:30" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:40" Value="-0.3"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight1" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:30" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight2" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.3"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="-0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:20" Value="-0.3"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:30" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="0.2"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.3"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight2" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:30" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.15"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+  </Grid.Resources>
+  
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.Triggers>
+    <EventTrigger RoutedEvent="UIElement.Loaded">
+      <BeginStoryboard x:Name="MoveSpotlight_BeginStoryboard" HandoffBehavior="SnapshotAndReplace" Storyboard="{StaticResource MoveSpotlight}"/>
+    </EventTrigger>
+  </Grid.Triggers>
+  
+  <!-- Graphics -->
+  <Rectangle x:Name="Background">
+    <Rectangle.Fill>
+      <LinearGradientBrush EndPoint="0.5,0" StartPoint="0.5,1">
+        
+					  <GradientStop Color="#FF152854" Offset="0"/>
+					  <GradientStop Color="#FF2E4268" Offset="0.2"/>
+            <GradientStop Color="#FF2E4268" Offset="0.25"/>
+					  <GradientStop Color="#FF132349" Offset="0.5"/>
+					  <GradientStop Color="#FF020d28" Offset="0.85"/>
+					  <GradientStop Color="#FF000a22" Offset="1"/>
+        <!--<GradientStop Color="#FF8A8AD0" Offset="0.0"/>
+        <GradientStop Color="#FF4E4E89" Offset="0.219"/>
+        <GradientStop Color="#FF35356C" Offset="0.353"/>
+        <GradientStop Color="#FF232355" Offset="0.5"/>
+        <GradientStop Color="#FF0D0D28" Offset="0.85"/>
+        <GradientStop Color="#FF0A0A14" Offset="1"/>-->
+
+      </LinearGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  
+  <Rectangle x:Name="DarkenCorners">
+    <Rectangle.Fill>
+      <RadialGradientBrush GradientOrigin="0.60,0.5">
+        <RadialGradientBrush.RelativeTransform>
+          <TransformGroup>
+            <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.45" ScaleY="1.45"/>
+            <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+            <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          </TransformGroup>
+        </RadialGradientBrush.RelativeTransform>
+        <!--
+		                <GradientStop Color="#00000000" Offset="0.518"/>
+		                <GradientStop Color="#33000000" Offset="1"/>
+		                -->
+        <GradientStop Color="#00000000" Offset="0"/>
+        <GradientStop Color="#00000000" Offset="0.518"/>
+        <GradientStop Color="#2D000000" Offset="0.643"/>
+        <GradientStop Color="#7F00001E" Offset="0.777"/>
+        <GradientStop Color="#F3000028" Offset="1"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  
+  <Rectangle Margin="246,510,0,0" Height="140" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SpotLight1">
+    <Rectangle.Fill>
+      <RadialGradientBrush>
+        <RadialGradientBrush.RelativeTransform>
+          <TransformGroup>
+            <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.828" ScaleY="0.902"/>
+            <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+            <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+            <TranslateTransform X="-0.3" Y="0.0"/>
+          </TransformGroup>
+        </RadialGradientBrush.RelativeTransform>
+        <GradientStop Color="#3FFFFFFF" Offset="0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.344"/>
+        <GradientStop Color="#07FFFFFF" Offset="0.442"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.549"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  
+  <Rectangle Margin="246,530,0,0" Height="140" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SpotLight2">
+    <Rectangle.Fill>
+      <RadialGradientBrush>
+        <RadialGradientBrush.RelativeTransform>
+          <TransformGroup>
+            <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.828" ScaleY="0.902"/>
+            <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+            <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+            <TranslateTransform X="0.3" Y="0.0"/>
+          </TransformGroup>
+        </RadialGradientBrush.RelativeTransform>
+        <GradientStop Color="#3FFFFFFF" Offset="0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.344"/>
+        <GradientStop Color="#07FFFFFF" Offset="0.442"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.549"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+  <!-- Hovers -->
+  <Image x:Name="BackdropImageBackground" Stretch="Uniform" Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" 
+          Opacity="0.12"/>
+  </Grid>
+</Screen>

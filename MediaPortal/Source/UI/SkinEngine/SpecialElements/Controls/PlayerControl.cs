@@ -1544,6 +1544,20 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
+    /// Called from the skin if the user invokes the "InstantSkip" action. This will start the InstantSkip in the
+    /// underlaying player.
+    /// </summary>
+    /// <param name="percent">Percent to skip (+/- supported).</param>
+    public void InstantSkip(int percent)
+    {
+      IPlayerContext pc = GetPlayerContext();
+      if (pc == null)
+        return;
+      pc.InstantSkip(percent);
+    }
+
+
+    /// <summary>
     /// Called from the skin if the user presses the "previous" button. This will play the previous media item in the
     /// playlist of the underlaying player.
     /// </summary>
@@ -1623,5 +1637,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     #endregion
+
   }
 }
