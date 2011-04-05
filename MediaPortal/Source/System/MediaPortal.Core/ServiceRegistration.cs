@@ -187,7 +187,7 @@ namespace MediaPortal.Core
     /// <see cref="ServiceNotFoundException"/> when the requested service is not found</param>
     /// <returns>the service implementation or <b>null</b> if the service is not available
     /// and <paramref name="throwIfNotFound"/> is false.</returns>
-    /// <exception cref="ServiceNotFoundException">when <paramref="throwIfNotFound"/>
+    /// <exception cref="ServiceNotFoundException">when <paramref name="throwIfNotFound"/>
     /// is <b>true</b> andthe requested service type is not found.</exception>
     public static T Get<T>(bool throwIfNotFound) where T : class
     {
@@ -216,7 +216,14 @@ namespace MediaPortal.Core
         Instance.RemoveService(type);
         IDisposable disposableService = service as IDisposable;
         if (disposableService != null)
-          disposableService.Dispose();
+          try
+          {
+            disposableService.Dispose();
+          }
+          catch (Exception e)
+          {
+            Get<ILogger>().Error("ServiceRegistration: Error while removing service of type {0}", e, type.Name);
+          }
       }
     }
 
