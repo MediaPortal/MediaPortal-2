@@ -8,8 +8,7 @@
     PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/>
-    <!-- SkinBase -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
   </DependsOn>
 
   <Register Location="/Resources/Skin">
