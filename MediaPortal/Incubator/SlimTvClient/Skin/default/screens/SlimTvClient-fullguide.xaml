@@ -16,7 +16,8 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Client_Element">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
+              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}"
+              Margin="0,10,0,0">
           
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
