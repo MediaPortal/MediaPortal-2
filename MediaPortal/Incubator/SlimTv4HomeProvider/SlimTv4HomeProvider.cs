@@ -81,10 +81,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           new NetNamedPipeBinding {MaxReceivedMessageSize = 10000000},
           new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService")
           );
+        _tvServer.TestConnectionToTVService();
         return true;
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+        ServiceRegistration.Get<ILogger>().Error("SlimTv4HomeProvider Error: "+ex.Message);
         return false;
       }
     }
@@ -93,10 +95,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     {
       if (_tvServer == null)
         return false;
-     
-      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
-      _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
-      //_tvServer.Disconnect();
+
+      try
+      {
+        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
+        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
+      }
+      catch(Exception) {}
+
       _tvServer = null;
       return true;
     }
