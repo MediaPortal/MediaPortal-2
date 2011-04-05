@@ -437,7 +437,7 @@
             <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}"/>
 
             <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5" Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource DateFormatConverter}}"/>
-            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5" Content="{Binding Path=Programs[1].Program.EndTime, Converter={StaticResource DateFormatConverter}}"/>
+            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5" Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}"/>
             <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5" Content="{Binding Programs[0].Program.Title}"/>
             <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5" Content="{Binding Programs[1].Program.Title}"/>
             <!--<ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>-->
