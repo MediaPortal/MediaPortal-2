@@ -514,6 +514,12 @@ namespace MediaPortal.Plugins.SlimTvClient
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds/
                                 (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds*100;
               _programProgressProperty.SetValue(progress);
+
+              IList<IProgram> nextPrograms;
+              DateTime nextTime = currentProgram.EndTime.Add(TimeSpan.FromSeconds(10));
+              _tvHandler.ProgramInfo.GetPrograms(context.Channel, nextTime, nextTime, out nextPrograms);
+              if (nextPrograms != null)
+                NextProgram.SetProgram(nextPrograms[0]);
             }
           }
         }
