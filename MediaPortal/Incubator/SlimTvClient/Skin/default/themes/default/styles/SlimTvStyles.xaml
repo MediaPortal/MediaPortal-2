@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
+    DependsOnStyleResources="SlimTvColors,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
@@ -70,7 +70,8 @@
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
                   <Label x:Name="NextProgramTitleLabel"  Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=PlayingNextProgram}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      Color="{ThemeResource NextProgramLabelColor}"/>
 
 
                   <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Grid.Row="2" 
@@ -437,9 +438,9 @@
             <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}"/>
 
             <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5" Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource DateFormatConverter}}"/>
-            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5" Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}"/>
+            <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5" Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource DateFormatConverter}}" Color="{ThemeResource NextProgramLabelColor}"/>
             <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5" Content="{Binding Programs[0].Program.Title}"/>
-            <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5" Content="{Binding Programs[1].Program.Title}"/>
+            <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5" Content="{Binding Programs[1].Program.Title}" Color="{ThemeResource NextProgramLabelColor}"/>
             <!--<ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>-->
           </Grid>
           <ControlTemplate.Triggers>
