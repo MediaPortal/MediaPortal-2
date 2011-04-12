@@ -186,6 +186,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (_vertexBuffer == null)
         return;
       GraphicsDevice.Device.VertexFormat = VertexFormat;
+
+      GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, true);
+
       GraphicsDevice.Device.SetStreamSource(stream, _vertexBuffer, 0, StrideSize);
       GraphicsDevice.Device.DrawPrimitives(_primitiveType, 0, _primitiveCount);
     }

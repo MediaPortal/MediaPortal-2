@@ -351,8 +351,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         foreach (KeyValuePair<string, object> pair in _extraParameters)
           _effect.Parameters[pair.Key] = pair.Value;
 
+      // Disable antialiasing for image rendering.
+      GraphicsDevice.Device.SetRenderState(RenderState.MultisampleAntialias, false);
+
       // Set border colour for area outside of texture boundaries
       GraphicsDevice.Device.SetSamplerState(0, SamplerState.BorderColor, borderColor);
+      
       // Render
       _effect.StartRender(_lastTexture, renderContext.Transform);
       return true;
