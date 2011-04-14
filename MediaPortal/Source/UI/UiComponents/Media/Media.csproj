@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -157,6 +157,9 @@
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
+    <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
+    <Compile Include="Settings\Configuration\SkipStepList.cs" />
+    <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
   </ItemGroup>
   <ItemGroup>
