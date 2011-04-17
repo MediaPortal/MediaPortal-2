@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     /// <param name="effectName"> The name of the shader file or a semi-colon seperated list of filenames,
     /// all which will be assumed to be in the directory specified by <see cref="SkinResources.SHADERS_DIRECTORY"/>.
-    /// The files will be concatenated in reverse order to create the final effect.
+    /// The files will be concatenated in reverse order to create the final effect.</param>
     public EffectAssetCore(string effectName)
     {
       _parameterValues = new Dictionary<string, object>();
