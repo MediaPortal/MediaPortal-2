@@ -114,6 +114,10 @@
       <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
       <Name>Media</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SlimTvInterfaces\SlimTvInterfaces.csproj">
       <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
       <Name>SlimTvInterfaces</Name>
@@ -216,6 +220,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\NewSkin\themes\Silver\styles\SlimTvStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

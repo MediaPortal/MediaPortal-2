@@ -325,6 +325,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _imageSourceSetup = false;
         result.Allocate();
+        if (!result.IsAllocated)
+        {
+          result.Deallocate();
+          result.Dispose();
+          result = null;
+        }
       }
       return result;
     }
