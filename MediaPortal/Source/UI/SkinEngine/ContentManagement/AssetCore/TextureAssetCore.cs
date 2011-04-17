@@ -363,11 +363,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected void AllocateThumbAsync_NoLock(string path)
     {
       IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      ImageType imageType;
-      byte[] thumbData;
+      
+      //FIXME: asynchronous method is not working with Image, because the FallbackSource gets used 
+      //generator.Create(path, 0, 0, 0, ThumbnailCreated);
 
       // Start asyncronous thumb generation (if not started already)
-      generator.CreateThumbnail(path);
+      //generator.CreateThumbnail(path);
+      byte[] thumbData;
+      ImageType imageType;
       // Has thumb generation been completed yet (or failed/timed out)?
       if (generator.GetThumbnail(path, out thumbData, out imageType))
       {
@@ -381,6 +384,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         lock (_syncObj)
           _state = State.LoadingThumb;
     }
+
 
     protected void AllocateFromWeb(Uri uri)
     {
@@ -576,6 +580,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _state = State.Failed;
           DisposeFileReadContext();
         }
+      }
+    }
+
+    public void ThumbnailCreated(string sourcePath, bool success, byte[] imageData, ImageType imageType)
+    {
+      lock (_syncObj)
+      {
+        if (success)
+          AllocateFromBuffer(imageData);
+        else
+          _state = State.Failed;
       }
     }
 
