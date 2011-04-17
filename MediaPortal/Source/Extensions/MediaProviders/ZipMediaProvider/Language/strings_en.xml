@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Language>
+  <Section Name="ZipMediaProvider">
+    <String Name="Name" Text="Zip file mediaprovider"/>
+  </Section>
+</Language>

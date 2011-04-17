@@ -1,0 +1,22 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="ZipMediaProvider"
+    PluginId="{6B042DB8-69AD-4B57-B869-1BCEA4E43C77}"
+    Author="Bavarian"
+    Copyright="GPL"
+    Description="Zip Files Media Provider"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="ZipMediaProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MediaProviders">
+    <Instance Id="ZipProvider" ClassName="MediaPortal.Extensions.MediaProviders.ZipMediaProvider.ZipMediaProvider"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="ZipMediaProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>
+
