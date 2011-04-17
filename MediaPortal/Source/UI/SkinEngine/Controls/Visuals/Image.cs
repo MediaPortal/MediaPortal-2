@@ -26,6 +26,8 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
@@ -309,9 +311,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ImageSource LoadImageSource(object source)
     {
       ImageSource result = source as ImageSource;
+      string uriSource = source as string;
+      MediaItem mediaItem = source as MediaItem;
+      ILocalFsResourceAccessor localFsResourceAccessor = null;
+
+      if (Thumbnail && mediaItem != null)
+      {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        IResourceLocator locator = mediaAccessor.GetResourceLocator(mediaItem);
+        localFsResourceAccessor = locator.CreateLocalFsAccessor();
+        if (localFsResourceAccessor != null)
+          uriSource = localFsResourceAccessor.LocalFileSystemPath;
+      }
+
       if (result == null)
       {
-        string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
           // Remember to adapt list of supported extensions for picture player plugin...
@@ -332,6 +346,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
         }
       }
+
+      if (localFsResourceAccessor != null)
+        localFsResourceAccessor.Dispose();
+
       if (result != null && !result.IsAllocated)
       {
         _imageSourceSetup = false;
