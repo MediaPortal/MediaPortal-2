@@ -294,6 +294,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return _imageSource;
     }
 
+    protected bool IsValidSource(string uriSource)
+    {
+      string lower = uriSource.ToLower();
+      if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+        return true;
+
+      if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv")))
+        return true;
+
+      return false;
+    }
+
     protected ImageSource LoadImageSource(object source)
     {
       ImageSource result = source as ImageSource;
@@ -302,9 +314,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
-          string lower = uriSource.ToLower();
           // Remember to adapt list of supported extensions for picture player plugin...
-          if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+          if (IsValidSource(uriSource))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             result = bmi;
@@ -325,6 +336,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _imageSourceSetup = false;
         result.Allocate();
+        if (!result.IsAllocated)
+          result = null;
       }
       return result;
     }
