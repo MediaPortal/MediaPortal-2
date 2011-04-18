@@ -363,26 +363,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected void AllocateThumbAsync_NoLock(string path)
     {
       IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      
-      //FIXME: asynchronous method is not working with Image, because the FallbackSource gets used 
-      //generator.Create(path, 0, 0, 0, ThumbnailCreated);
-
-      // Start asyncronous thumb generation (if not started already)
-      //generator.CreateThumbnail(path);
-      byte[] thumbData;
-      ImageType imageType;
-      // Has thumb generation been completed yet (or failed/timed out)?
-      if (generator.GetThumbnail(path, out thumbData, out imageType))
-      {
-        lock (_syncObj)
-          if (thumbData != null)
-            AllocateFromBuffer(thumbData);
-          else
-            _state = State.Failed;
-      }
-      else
-        lock (_syncObj)
-          _state = State.LoadingThumb;
+      _state = State.LoadingThumb; 
+      //FIXME: add a property to pass the desired resolution level
+      generator.Create(path, 0, 0, 0, ThumbnailCreated);
     }
 
 

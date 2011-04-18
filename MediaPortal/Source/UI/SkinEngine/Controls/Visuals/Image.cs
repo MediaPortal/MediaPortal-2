@@ -354,12 +354,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         _imageSourceSetup = false;
         result.Allocate();
-        if (!result.IsAllocated)
-        {
-          result.Deallocate();
-          result.Dispose();
-          result = null;
-        }
+        //FIXME: this breaks asynch loading, because FallbackSource is used before the load finishes.
+        //       better solution would be to show FallbackSource _while_ loading the image asynch.
+        //if (!result.IsAllocated)
+        //{
+        //  result.Deallocate();
+        //  result.Dispose();
+        //  result = null;
+        //}
       }
       return result;
     }
