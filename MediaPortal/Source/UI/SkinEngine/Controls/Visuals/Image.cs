@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -332,6 +333,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (IsValidSource(uriSource))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
+            if (Thumbnail)
+            {
+              // Set the requested thumbnail dimension, to use the best matching format.
+              bmi.ThumbnailDimension = (int)Math.Max(Width, Height);
+            }
             result = bmi;
           }
           // TODO: More image types

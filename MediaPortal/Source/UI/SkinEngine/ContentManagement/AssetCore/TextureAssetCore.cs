@@ -88,6 +88,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected readonly string _textureName;
     protected Texture _texture = null;
     protected bool _useThumbnail = true;
+    protected int _thumbnailDimension = 0;
     protected int _width = 0;
     protected int _height = 0;
     protected int _decodeWidth = 0;
@@ -146,6 +147,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       get { return _useThumbnail; }
       set { _useThumbnail = value; }
+    }
+
+    public int ThumbnailDimension
+    {
+      get { return _thumbnailDimension; }
+      set { _thumbnailDimension = value; }
     }
 
     public string Name
@@ -363,9 +370,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected void AllocateThumbAsync_NoLock(string path)
     {
       IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      _state = State.LoadingThumb; 
-      //FIXME: add a property to pass the desired resolution level
-      generator.Create(path, 0, 0, 0, ThumbnailCreated);
+      _state = State.LoadingThumb;
+      generator.Create(path, _thumbnailDimension, _thumbnailDimension, 0, ThumbnailCreated);
     }
 
 
