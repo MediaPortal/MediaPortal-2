@@ -388,7 +388,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       lock (_assets[type])
       {
-        if (!_assets[type].TryGetValue(fileName, out texture))
+        if (!_assets[type].TryGetValue(key, out texture))
         {
           texture = NewAssetInstance(key, thumb ? AssetType.Thumbnail : AssetType.Texture,
               new TextureAssetCore(fileName, width, height));
