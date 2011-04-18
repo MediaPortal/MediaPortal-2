@@ -144,6 +144,10 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
     {
       if (IsCreating(fileOrFolderPath))
         return;
+      if (width == 0)
+        width = DEFAULT_THUMB_WIDTH;
+      if (height == 0)
+        height = DEFAULT_THUMB_WIDTH;
       WorkItem newItem = new WorkItem(fileOrFolderPath, width, height, quality, createdDelegate);
       lock (this)
       {
