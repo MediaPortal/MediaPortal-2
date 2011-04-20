@@ -311,19 +311,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected ImageSource LoadImageSource(object source)
     {
-      ImageSource result = source as ImageSource;
+      ImageSource result = null;
+      if (source is MediaItem)
+        result = new MediaItemSource(source as MediaItem, (int)Math.Max(Width, Height));
+      else
+        result = source as ImageSource;
       string uriSource = source as string;
-      MediaItem mediaItem = source as MediaItem;
-      ILocalFsResourceAccessor localFsResourceAccessor = null;
-
-      if (Thumbnail && mediaItem != null)
-      {
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        IResourceLocator locator = mediaAccessor.GetResourceLocator(mediaItem);
-        localFsResourceAccessor = locator.CreateLocalFsAccessor();
-        if (localFsResourceAccessor != null)
-          uriSource = localFsResourceAccessor.LocalFileSystemPath;
-      }
 
       if (result == null)
       {
@@ -334,10 +327,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             if (Thumbnail)
-            {
               // Set the requested thumbnail dimension, to use the best matching format.
               bmi.ThumbnailDimension = (int)Math.Max(Width, Height);
-            }
             result = bmi;
           }
           // TODO: More image types
@@ -352,9 +343,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
         }
       }
-
-      if (localFsResourceAccessor != null)
-        localFsResourceAccessor.Dispose();
 
       if (result != null && !result.IsAllocated)
       {
