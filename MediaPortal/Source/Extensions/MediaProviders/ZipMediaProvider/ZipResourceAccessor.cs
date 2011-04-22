@@ -25,12 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ICSharpCode.SharpZipLib.Core;
-using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
-using MediaPortal.Core.Logging;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
@@ -96,8 +95,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     private void ReadCurrentDirectory()
     {
       int rootCount = CountChar(_pathOrFile, '/');
-      int zipCount = 0;
-      
+
       string path = _pathOrFile;
       if (path.StartsWith("/"))
         path = path.Substring(1);
@@ -110,13 +108,15 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       {
         if (entry.IsDirectory)
         {
-          zipCount = CountChar(entry.Name, '/');
+          int zipCount = CountChar(entry.Name, '/');
           if (zipCount == rootCount)
             _currentDirList.Add(entry);
         }
         else
         {
-          string p = Path.GetDirectoryName(entry.Name).Replace('\\', '/');
+          string p = Path.GetDirectoryName(entry.Name);
+          if (p != null)
+            p = p.Replace('\\', '/');
           if (path.Equals(p, StringComparison.OrdinalIgnoreCase))
           {
             _currentDirList.Add(entry);
@@ -125,15 +125,11 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       }
     }
 
-    private int CountChar(string Name, char c)
+    private static int CountChar(string Name, char c)
     {
       if (string.IsNullOrEmpty(Name)) 
         return 0;
-      int count = 0;
-      for (int i = 0; i < Name.Length; i++)
-        if (Name[i] == c)
-          count++;
-      return count;
+      return Name.Count(t => t == c);
     }
 
     #endregion
@@ -325,13 +321,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (path.Equals("/") && _currentDirList.Count > 0)
         return true;
-      foreach (ZipEntry entry in _currentDirList)
-      {
-        if ((entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.OrdinalIgnoreCase)))
-          return true;
-      }
-
-      return false;
+      return _currentDirList.Any(entry => (entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>
@@ -354,13 +344,9 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (string.IsNullOrEmpty(_pathOrFile))
         return null;
-      List<IFileSystemResourceAccessor> list = new List<IFileSystemResourceAccessor>();
-      foreach (ZipEntry entry in _currentDirList)
-      {
-        if (entry.IsFile)
-          list.Add(new ZipResourceAccessor(_provider, _zipPath, "/" + entry.Name));
-      }
-      return list;
+      List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
+      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry => new ZipResourceAccessor(_provider, _zipPath, "/" + fileEntry.Name)));
+      return files;
     }
 
     /// <summary>
@@ -372,13 +358,9 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (string.IsNullOrEmpty(_pathOrFile))
         return null;
-      ICollection<IFileSystemResourceAccessor> list = new List<IFileSystemResourceAccessor>();
-      foreach (ZipEntry entry in _currentDirList)
-      {
-        if (entry.IsDirectory)
-          list.Add(new ZipResourceAccessor(_provider, _zipPath, "/" + entry.Name));
-      }
-      return list;
+      ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
+      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry => new ZipResourceAccessor(_provider, _zipPath, "/" + directoryEntry.Name)));
+      return directories;
     }
 
     #endregion

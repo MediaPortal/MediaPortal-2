@@ -24,10 +24,10 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using ICSharpCode.SharpZipLib.Zip;
-using MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider;
 
 namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 {
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
         return false;
-      if (Path.GetExtension(potentialBaseResourceAccessor.ResourceName).Equals(".zip",StringComparison.CurrentCultureIgnoreCase))
+      if (Path.GetExtension(potentialBaseResourceAccessor.ResourceName) == ".zip")
       {
         try
         {
@@ -117,13 +117,8 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       {
         if (path.Equals("/") && zFile.Count > 0) 
           return true;
-        foreach (ZipEntry entry in zFile)
-        {
-          if ((entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.CurrentCultureIgnoreCase))) 
-            return true;
-        }
+        return zFile.Cast<ZipEntry>().Any(entry => (entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.CurrentCultureIgnoreCase)));
       }
-      return false;
     }
 
     /// <summary>
