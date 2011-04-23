@@ -91,6 +91,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// Prepares this resource accessor to get a stream for the resource's contents.
     /// This might take some time, so this method might block some seconds.
     /// </summary>
+    /// <remarks>
+    /// Resource accessors wrap resource access to different kinds of resources. Some of
+    /// them might require a local file cache, for example. This method can be implemented to prepare such a cache.
+    /// That avoids long latencies in the methods <see cref="OpenRead"/> and <see cref="OpenWrite"/>.
+    /// </remarks>
     void PrepareStreamAccess();
 
     /// <summary>
