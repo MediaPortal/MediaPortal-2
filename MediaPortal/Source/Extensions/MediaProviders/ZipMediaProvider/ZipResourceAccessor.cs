@@ -29,7 +29,6 @@ using System.Linq;
 using ICSharpCode.SharpZipLib.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
@@ -141,10 +140,6 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     #region IDisposable implementation
 
-    /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
-    /// <filterpriority>2</filterpriority>
     public void Dispose()
     {
       if (!string.IsNullOrEmpty(_tempPathFile))
