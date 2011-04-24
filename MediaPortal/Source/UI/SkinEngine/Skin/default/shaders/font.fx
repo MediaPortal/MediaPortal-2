@@ -5,10 +5,10 @@
 
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 texture	g_texture; // Color texture 
-float4 g_scrollpos;
-float4 g_textbox;
-float4 g_color;
-float4 g_alignment;
+float4  g_scrollpos;
+float4  g_textbox;
+float4  g_color;
+float4  g_alignment;
 
 sampler TextureSampler = sampler_state
 {

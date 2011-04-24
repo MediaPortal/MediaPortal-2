@@ -6,15 +6,15 @@
 float4x4 worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
-float4x4 g_relativetransform;
+float4x4  g_relativetransform;
 float2    g_radius = {0.5f, 0.5f};
 float2    g_center = {0.5f, 0.5f};
 float2    g_focus = {0.5f, 0.5f};
 float     g_opacity;
 float2    g_uppervertsbounds;
 float2    g_lowervertsbounds;
-texture  g_texture; // Color texture 
-texture  g_alphatex; // Alpha gradient texture 
+texture   g_texture; // Color texture 
+texture   g_alphatex; // Alpha gradient texture 
 
 sampler TextureSampler = sampler_state
 {
