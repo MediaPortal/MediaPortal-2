@@ -327,8 +327,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       _lastTexture = texture;
       // If necessary update our image transformation to best fit the frame
-      if (_refresh || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT
-        || Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
+      if (_refresh || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
+          Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
         // Convert image dimensions to texture space
         Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width+1.0f, imageSize.Height+1.0f);
