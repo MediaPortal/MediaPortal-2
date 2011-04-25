@@ -4,7 +4,7 @@
     PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"
     Author="Morpheus_xx"
     Copyright="GPL"
-    Description="Plugin for background handling, including theme."
+    Description="Automatic exchange of backgrounds according to selected menu item"
     PluginVersion="1.0">
 
   <DependsOn>

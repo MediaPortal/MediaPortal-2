@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -62,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// </summary>
     /// <param name="effectName"> The name of the shader file or a semi-colon seperated list of filenames,
     /// all which will be assumed to be in the directory specified by <see cref="SkinResources.SHADERS_DIRECTORY"/>.
-    /// The files will be concatenated in reverse order to create the final effect.
+    /// The files will be concatenated in reverse order to create the final effect.</param>
     public EffectAssetCore(string effectName)
     {
       _parameterValues = new Dictionary<string, object>();
@@ -75,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       if (files.Length == 0) 
         return false;
 
-      string effectShader = "";
+      StringBuilder effectShader = new StringBuilder(8196);
       Version vertexShaderVersion = GraphicsDevice.Device.Capabilities.VertexShaderVersion;
       Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
       for (int i = files.Length-1; i >= 0; --i)
@@ -90,23 +91,21 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         }
         _fileMissing = false;
 
-        string partialShader;
         using (StreamReader reader = new StreamReader(effectFilePath))
-          partialShader = reader.ReadToEnd();
-
-        //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
-        partialShader = partialShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
-        partialShader = partialShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
+          effectShader.Append(reader.ReadToEnd());
 
         // Concatenate
-        effectShader += partialShader + Environment.NewLine;
+        effectShader.Append(Environment.NewLine);
       }
+
+      effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
+      effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
 
       string errors = string.Empty;
       try
       {
         const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-        _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
+        _effect = Effect.FromString(GraphicsDevice.Device, effectShader.ToString(), null, null, null, shaderFlags, null, out errors);
         _handleWorldProjection = _effect.GetParameter(null, PARAM_WORLDVIEWPROJ);
         _handleTexture = _effect.GetParameter(null, PARAM_TEXTURE);
         _handleTechnique = _effect.GetTechnique(0);
@@ -124,7 +123,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public Effect Effect
     {
-      get {
+      get
+      {
         if (!IsAllocated)
           Allocate(); 
         return _effect;

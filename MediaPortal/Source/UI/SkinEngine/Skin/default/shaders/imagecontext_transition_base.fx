@@ -19,7 +19,7 @@ texture   g_texture;
 float4    g_imagetransform;
 float4    g_framedata; // xy = width, height in pixels. z = time since rendering start in seconds. Max value 5 hours.
 // Transition control value 0.0 = A, 1.0 = B.
-float	    g_mixAB; 
+float     g_mixAB; 
 
 sampler TextureSamplerA = sampler_state
 {

@@ -161,7 +161,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <summary>
     /// Gets or sets the partial effect to be used for the image effect.
     /// </summary>
-    public string ShaderTransition    {
+    public string ShaderTransition
+    {
       get { return _shaderTransitionName; }
       set
       {
@@ -185,7 +186,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _refresh |= texture.Texture != _lastTexture;
       RefreshParameters(imageSize, texture.Texture, texture.MaxU, texture.MaxV);
     }
-
 
     /// <summary>
     /// Renders this <see cref="ImageContext"/>.
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return false;
 
       // Apply effect parameters
-      _effect.Parameters[PARAM_OPACITY] = (float)renderContext.Opacity;
+      _effect.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
       _effect.Parameters[PARAM_FRAME_DATA] = frameData;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
 
@@ -327,8 +327,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       _lastTexture = texture;
       // If necessary update our image transformation to best fit the frame
-      if (_refresh || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT
-        || Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
+      if (_refresh || Math.Abs(imageSize.Width - _lastImageSize.Width) > FLOAT_EQUALITY_LIMIT ||
+          Math.Abs(imageSize.Height - _lastImageSize.Height) > FLOAT_EQUALITY_LIMIT)
       {
         // Convert image dimensions to texture space
         Vector4 textureRect = new Vector4(0.0f, 0.0f, imageSize.Width+1.0f, imageSize.Height+1.0f);

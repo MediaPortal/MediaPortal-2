@@ -27,9 +27,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Core;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities;
 using ICSharpCode.SharpZipLib.Zip;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 {
@@ -39,7 +42,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     protected ZipMediaProvider _zipProvider;
     protected IResourceAccessor _zipResourceAccessor;
-    protected string _pathFile;
+    protected string _pathToDirOrFile;
 
     protected bool _isDirectory;
     protected string _resourceName;
@@ -57,12 +60,12 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       _zipProvider = zipProvider;
       _zipResourceAccessor = accessor;
-      _pathFile = LocalFsMediaProviderBase.ToProviderPath(pathFile);
+      _pathToDirOrFile = LocalFsMediaProviderBase.ToProviderPath(pathFile);
 
       // default is root config
       _isDirectory = true;
       _resourceName = Path.GetFileName(_zipResourceAccessor.ResourceName);
-      _resourcePath = _pathFile == "/" ? "/" : LocalFsMediaProviderBase.ToDosPath(_pathFile);
+      _resourcePath = _pathToDirOrFile == "/" ? "/" : LocalFsMediaProviderBase.ToDosPath(_pathToDirOrFile);
       _lastChanged = DateTime.MinValue;
       _size = -1;
 
@@ -70,7 +73,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
       if (!IsEmptyOrRoot)
       {
-        string path = StringUtils.RemovePrefixIfPresent(_pathFile, "/");
+        string path = StringUtils.RemovePrefixIfPresent(_pathToDirOrFile, "/");
 
         ZipFile zFile = new ZipFile(_zipResourceAccessor.ResourcePathName);
         foreach (ZipEntry entry in zFile)
@@ -89,10 +92,10 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     private void ReadCurrentDirectory()
     {
-      int rootCount = CountChar(_pathFile, '/');
+      int rootCount = CountChar(_pathToDirOrFile, '/');
       int zipCount = 0;
 
-      string path = StringUtils.RemoveSuffixIfPresent(_pathFile, "/");
+      string path = StringUtils.RemoveSuffixIfPresent(_pathToDirOrFile, "/");
       path = StringUtils.RemovePrefixIfPresent(path, "/");
 
       _currentDirList.Clear();
@@ -136,7 +139,14 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (!string.IsNullOrEmpty(_tempPathFile))
       {
-        File.Delete(_tempPathFile);
+        try
+        {
+          File.Delete(_tempPathFile);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ZipResourceAccessor: Could not delete temp file '{0}'", e, _tempPathFile);
+        }
         _tempPathFile = string.Empty;
       }
     }
@@ -147,12 +157,12 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     protected bool IsEmptyOrRoot
     {
-      get { return (string.IsNullOrEmpty(_pathFile) || _pathFile == "/"); }
+      get { return (string.IsNullOrEmpty(_pathToDirOrFile) || _pathToDirOrFile == "/"); }
     }
 
     #endregion
 
-    #region Implementation of IResourceAccessor
+    #region IResourceAccessor implementation
 
     public IMediaProvider ParentProvider
     {
@@ -184,7 +194,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       get
       {
         ResourcePath resourcePath = _zipResourceAccessor.LocalResourcePath;
-        resourcePath.Append(ZipMediaProvider.ZIP_MEDIA_PROVIDER_ID, _pathFile);
+        resourcePath.Append(ZipMediaProvider.ZIP_MEDIA_PROVIDER_ID, _pathToDirOrFile);
         return resourcePath;
       }
     }
@@ -203,7 +213,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (!string.IsNullOrEmpty(_tempPathFile))
         return;
-      string path = _pathFile;
+      string path = _pathToDirOrFile;
       if (path.StartsWith("/"))
         path = path.Substring(1);
       ZipFile zFile = new ZipFile(_zipResourceAccessor.ResourcePathName);
@@ -213,7 +223,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
         {
           if (string.IsNullOrEmpty(_tempPathFile))
           {
-            _tempPathFile = Path.GetTempFileName();
+            _tempPathFile = FileUtils.CreateHumanReadableTempFilePath(_pathToDirOrFile);
             using (FileStream streamWriter = File.Create(_tempPathFile))
             {
               byte[] buffer = new byte[4096];		// 4K is optimum
@@ -239,7 +249,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     #endregion
 
-    #region Implementation of IFileSystemResourceAccessor
+    #region IFileSystemResourceAccessor implementation
 
     public bool Exists(string path)
     {
@@ -250,13 +260,13 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     public IResourceAccessor GetResource(string path)
     {
-      string pathFile = StringUtils.RemovePrefixIfPresent(Path.Combine(_pathFile, path), "/");
+      string pathFile = StringUtils.RemovePrefixIfPresent(Path.Combine(_pathToDirOrFile, path), "/");
       return _zipProvider.CreateResourceAccessor(_zipResourceAccessor, pathFile);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
-      if (string.IsNullOrEmpty(_pathFile))
+      if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
       CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, "/" + fileEntry.Name)));
@@ -265,7 +275,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      if (string.IsNullOrEmpty(_pathFile))
+      if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
       CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, "/" + directoryEntry.Name)));
