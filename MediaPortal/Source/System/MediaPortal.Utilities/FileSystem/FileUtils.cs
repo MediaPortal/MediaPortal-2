@@ -173,7 +173,7 @@ namespace MediaPortal.Utilities.FileSystem
           BitConverter.ToString(_sha1.ComputeHash(Encoding.UTF8.GetBytes(underlayingResourcePath))).Replace("-","");
       Directory.CreateDirectory(directory);
       string path = directory  + "\\" + fileName;
-      File.Create(path);
+      //File.Create(path);  // do not create file here
       return path;
     }
   }

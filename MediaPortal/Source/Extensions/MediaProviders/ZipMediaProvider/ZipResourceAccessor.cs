@@ -269,7 +269,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, "/" + fileEntry.Name)));
+      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(fileEntry.Name))));
       return files;
     }
 
@@ -278,7 +278,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, "/" + directoryEntry.Name)));
+      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(directoryEntry.Name))));
       return directories;
     }
 
