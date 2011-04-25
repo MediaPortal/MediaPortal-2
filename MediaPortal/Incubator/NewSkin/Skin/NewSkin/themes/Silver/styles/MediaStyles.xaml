@@ -742,7 +742,10 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0" Source="Movie.png" />
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" 
+             Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" 
+             FallbackSource="Movie.png"
+             Thumbnail="True" />
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
@@ -768,7 +771,11 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0" Source="Picture.png" />
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" 
+             Stretch="Uniform" Margin="0,0,4,0" 
+             Source="{Binding MediaItem}" 
+             FallbackSource="Picture.png"
+             Thumbnail="True" />
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>

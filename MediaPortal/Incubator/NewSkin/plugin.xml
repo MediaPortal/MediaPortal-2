@@ -9,6 +9,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- Background Manager -->    
   </DependsOn>
 
   <Register Location="/Resources/Skin">

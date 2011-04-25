@@ -51,6 +51,13 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack">
+      <HintPath>References\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -160,13 +167,11 @@
     <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ShellThumbnailBuilder.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
     <Compile Include="Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />
-    <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
-    <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
-    <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
@@ -179,7 +184,7 @@
     <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
     <Compile Include="Shares\ILocalSharesManagement.cs" />
-    <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
+    <Compile Include="Thumbnails\IThumbnailGenerator.cs" />
     <Compile Include="UiExtension.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
     <Compile Include="UserManagement\IPermissionObject.cs" />
@@ -234,6 +239,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

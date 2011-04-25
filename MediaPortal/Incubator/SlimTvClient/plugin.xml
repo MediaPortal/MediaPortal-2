@@ -12,6 +12,11 @@
     <Assembly FileName="SlimTvClient.dll"/>
   </Runtime>
 
+  <DependsOn>
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/>    <!-- SkinBase -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"/>    <!-- Media -->
+  </DependsOn>
+
   <Register Location="/Players/Builders">
     <PlayerBuilder Id="87B0BEAD-9345-47d6-83F8-A42A752CB6E1" ClassName="MediaPortal.Plugins.SlimTvClient.SlimTvPlayerBuilder"/>
   </Register>

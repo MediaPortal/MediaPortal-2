@@ -35,7 +35,7 @@ using MediaPortal.UI.Thumbnails;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-// TODO: Add support for web thumbnails? Requires changing IAsyncThumbnailGenerator
+// TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -88,6 +88,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected readonly string _textureName;
     protected Texture _texture = null;
     protected bool _useThumbnail = true;
+    protected int _thumbnailDimension = 0;
     protected int _width = 0;
     protected int _height = 0;
     protected int _decodeWidth = 0;
@@ -146,6 +147,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       get { return _useThumbnail; }
       set { _useThumbnail = value; }
+    }
+
+    public int ThumbnailDimension
+    {
+      get { return _thumbnailDimension; }
+      set { _thumbnailDimension = value; }
     }
 
     public string Name
@@ -362,25 +369,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateThumbAsync_NoLock(string path)
     {
-      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      ImageType imageType;
-      byte[] thumbData;
-
-      // Start asyncronous thumb generation (if not started already)
-      generator.CreateThumbnail(path);
-      // Has thumb generation been completed yet (or failed/timed out)?
-      if (generator.GetThumbnail(path, out thumbData, out imageType))
-      {
-        lock (_syncObj)
-          if (thumbData != null)
-            AllocateFromBuffer(thumbData);
-          else
-            _state = State.Failed;
-      }
-      else
-        lock (_syncObj)
-          _state = State.LoadingThumb;
+      IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+      _state = State.LoadingThumb;
+      generator.GetThumbnail_Async(path, _thumbnailDimension, _thumbnailDimension, ThumbnailCreated);
     }
+
 
     protected void AllocateFromWeb(Uri uri)
     {
@@ -576,6 +569,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _state = State.Failed;
           DisposeFileReadContext();
         }
+      }
+    }
+
+    public void ThumbnailCreated(string sourcePath, bool success, byte[] imageData, ImageType imageType)
+    {
+      lock (_syncObj)
+      {
+        if (success)
+          AllocateFromBuffer(imageData);
+        else
+          _state = State.Failed;
       }
     }
 
