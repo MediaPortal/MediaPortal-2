@@ -1,0 +1,1 @@
+To build the EVRPresenter project, you need to have the Windows 7 SDK and the DirectX SDK installed. Perhaps you need to adapt the include directories in the project settings.
