@@ -71,8 +71,8 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Registering IUserService service");
       ServiceRegistration.Set<IUserService>(new UserService());
 
-      logger.Debug("UiExtension: Registering IAsyncThumbnailGenerator service");
-      ServiceRegistration.Set<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
+      logger.Debug("UiExtension: Registering IThumbnailGenerator service");
+      ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
 
       logger.Debug("UiExtension: Registering ILocalSharesManagement service");
       ServiceRegistration.Set<ILocalSharesManagement>(new LocalSharesManagement());
@@ -119,8 +119,8 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Removing ILocalSharesManagement service");
       ServiceRegistration.RemoveAndDispose<ILocalSharesManagement>();
 
-      logger.Debug("UiExtension: Removing IAsyncThumbnailGenerator service");
-      ServiceRegistration.RemoveAndDispose<IAsyncThumbnailGenerator>();
+      logger.Debug("UiExtension: Removing IThumbnailGenerator service");
+      ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
 
       logger.Debug("UiExtension: Removing IUserService service");
       ServiceRegistration.RemoveAndDispose<IUserService>();

@@ -35,7 +35,7 @@ using MediaPortal.UI.Thumbnails;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-// TODO: Add support for web thumbnails? Requires changing IAsyncThumbnailGenerator
+// TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -369,9 +369,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateThumbAsync_NoLock(string path)
     {
-      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
+      IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
       _state = State.LoadingThumb;
-      generator.Create(path, _thumbnailDimension, _thumbnailDimension, 0, ThumbnailCreated);
+      generator.GetThumbnail_Async(path, _thumbnailDimension, _thumbnailDimension, ThumbnailCreated);
     }
 
 

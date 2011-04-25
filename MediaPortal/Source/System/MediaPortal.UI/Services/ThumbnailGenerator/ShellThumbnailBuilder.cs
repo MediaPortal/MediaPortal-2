@@ -22,9 +22,12 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using Microsoft.WindowsAPICodePack.Shell;
 
 namespace MediaPortal.UI.Services.ThumbnailGenerator
@@ -33,27 +36,36 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
   {
     public bool GetThumbnail(string fileName, int width, int height, out byte[] thumbnailBinary)
     {
-      MemoryStream memoryStream = new MemoryStream();
-
-      using (memoryStream)
-      using (ShellObject item = ShellObject.FromParsingName(fileName))
+      try
       {
-        Bitmap bestMatchingBmp;
-        if (width > 256 || height > 256)
-          bestMatchingBmp = item.Thumbnail.ExtraLargeBitmap;
-        else if (width > 96 || height > 96)
-          bestMatchingBmp = item.Thumbnail.LargeBitmap;
-        else if (width > 32 || height > 32)
-          bestMatchingBmp = item.Thumbnail.MediumBitmap;
-        else
-          bestMatchingBmp = item.Thumbnail.SmallBitmap;
+        MemoryStream memoryStream = new MemoryStream();
 
-        using (bestMatchingBmp)
-          bestMatchingBmp.Save(memoryStream, ImageFormat.Jpeg);
+        using (memoryStream)
+        using (ShellObject item = ShellObject.FromParsingName(fileName))
+        {
+          Bitmap bestMatchingBmp;
+          if (width > 256 || height > 256)
+            bestMatchingBmp = item.Thumbnail.ExtraLargeBitmap;
+          else if (width > 96 || height > 96)
+            bestMatchingBmp = item.Thumbnail.LargeBitmap;
+          else if (width > 32 || height > 32)
+            bestMatchingBmp = item.Thumbnail.MediumBitmap;
+          else
+            bestMatchingBmp = item.Thumbnail.SmallBitmap;
 
-        thumbnailBinary = memoryStream.ToArray();
+          using (bestMatchingBmp)
+            bestMatchingBmp.Save(memoryStream, ImageFormat.Jpeg);
+
+          thumbnailBinary = memoryStream.ToArray();
+        }
+        return true;
       }
-      return true;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ShellThumbnailBuilder: Could not create thumbnail for file '{0}'", e, fileName);
+        thumbnailBinary = null;
+        return false;
+      }
     }
   }
 }

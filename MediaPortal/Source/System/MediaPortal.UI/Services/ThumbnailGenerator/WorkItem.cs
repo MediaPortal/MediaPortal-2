@@ -32,17 +32,14 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
   public class WorkItem
   {
     public string _sourcePath;
-    public int _quality;
     public int _width;
     public int _height;
     public CreatedDelegate _createdDelegate;
 
-    public WorkItem(string sourcePath, int width, int height, int quality,
-      CreatedDelegate createdDelegate)
+    public WorkItem(string sourcePath, int width, int height, CreatedDelegate createdDelegate)
     {
       _width = width;
       _height = height;
-      _quality = quality;
 
       _sourcePath = sourcePath;
       _createdDelegate = createdDelegate;
@@ -61,11 +58,6 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
     public int Height
     {
       get { return _height; }
-    }
-
-    public int Quality
-    {
-      get { return _quality; }
     }
 
     public CreatedDelegate CreatedDelegate

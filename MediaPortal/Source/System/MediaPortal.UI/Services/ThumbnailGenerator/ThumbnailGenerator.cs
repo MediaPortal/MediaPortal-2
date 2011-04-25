@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -38,12 +39,11 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
   /// files and folders to execute asynchronously. There are also methods to query the execution
   /// state for input files.
   /// </summary>
-  public class ThumbnailGenerator : IAsyncThumbnailGenerator, IDisposable
+  public class ThumbnailGenerator : IThumbnailGenerator, IDisposable
   {
     public const string FOLDER_THUMB_NAME = "folder.jpg";
     public const int DEFAULT_THUMB_WIDTH = 192;
     public const int DEFAULT_THUMB_HEIGHT = 192;
-    public const int DEFAULT_THUMB_QUALITY = 50;
     public const ImageType DEFAULT_THUMB_IMAGE_TYPE = ImageType.Jpeg;
 
     protected readonly Queue<WorkItem> _workToDo = new Queue<WorkItem>();
@@ -54,16 +54,13 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
     {
     }
 
-    private bool IsInQueue(string fileOrFolderPath)
+    protected bool IsInQueue(string fileOrFolderPath)
     {
       lock (this)
-        foreach (WorkItem item in _workToDo)
-          if (FileUtils.PathEquals(item.SourcePath, fileOrFolderPath))
-            return true;
-      return false;
+        return _workToDo.Any(item => FileUtils.PathEquals(item.SourcePath, fileOrFolderPath));
     }
 
-    private void WorkerThreadMethod()
+    protected void Worker()
     {
       while (true)
       {
@@ -85,7 +82,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
       }
     }
 
-    private bool CreateThumbCallback(string sourcePath, int width, int height, CreatedDelegate createdDelegate)
+    protected static bool CreateThumbCallback(string sourcePath, int width, int height, CreatedDelegate createdDelegate)
     {
       bool success = false;
       byte[] imageData = null;
@@ -104,18 +101,11 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
       return success;
     }
 
-    private bool GetThumbnailInternal(string fileOrFolderPath, int width, int height, out byte[] imageData, out ImageType imageType)
+    protected static bool GetThumbnailInternal(string fileOrFolderPath, int width, int height, out byte[] imageData, out ImageType imageType)
     {
       imageType = ImageType.Jpeg;
       ShellThumbnailBuilder shellThumbnailBuilder = new ShellThumbnailBuilder();
       return shellThumbnailBuilder.GetThumbnail(fileOrFolderPath, width, height, out imageData);
-    }
-
-    #region IAsyncThumbnailGenerator implementation
-
-    public bool Exists(string fileOrFolderPath)
-    {
-      return false;
     }
 
     public bool IsCreating(string fileOrFolderPath)
@@ -130,17 +120,24 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
       return false;
     }
 
+    #region IThumbnailGenerator implementation
+
     public bool GetThumbnail(string fileOrFolderPath, out byte[] imageData, out ImageType imageType)
     {
-      return GetThumbnailInternal(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, out imageData, out imageType);
+      return GetThumbnail(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, out imageData, out imageType);
     }
 
-    public void CreateThumbnail(string fileOrFolderPath)
+    public bool GetThumbnail(string fileOrFolderPath, int width, int height, out byte[] imageData, out ImageType imageType)
     {
-      Create(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, DEFAULT_THUMB_QUALITY, null);
+      return GetThumbnailInternal(fileOrFolderPath, width, height, out imageData, out imageType);
     }
 
-    public void Create(string fileOrFolderPath, int width, int height, int quality, CreatedDelegate createdDelegate)
+    public void GetThumbnail_Async(string fileOrFolderPath, CreatedDelegate createdDelegate)
+    {
+      GetThumbnail_Async(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, createdDelegate);
+    }
+
+    public void GetThumbnail_Async(string fileOrFolderPath, int width, int height, CreatedDelegate createdDelegate)
     {
       if (IsCreating(fileOrFolderPath))
         return;
@@ -148,13 +145,13 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
         width = DEFAULT_THUMB_WIDTH;
       if (height == 0)
         height = DEFAULT_THUMB_WIDTH;
-      WorkItem newItem = new WorkItem(fileOrFolderPath, width, height, quality, createdDelegate);
+      WorkItem newItem = new WorkItem(fileOrFolderPath, width, height, createdDelegate);
       lock (this)
       {
         _workToDo.Enqueue(newItem);
         if (_workerThread != null)
           return;
-        _workerThread = new Thread(WorkerThreadMethod) {IsBackground = true, Name = "ThumbGen"};
+        _workerThread = new Thread(Worker) {IsBackground = true, Name = "ThumbGen"};
         _workerThread.Start();
       }
     }
