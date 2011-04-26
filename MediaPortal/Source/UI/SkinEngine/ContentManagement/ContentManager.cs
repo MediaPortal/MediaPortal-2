@@ -31,6 +31,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.Thumbnails;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
@@ -136,6 +137,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public TextureAsset GetTexture(string fileName)
     {
       return GetTexture(fileName, false);
+    }
+
+    public TextureAsset GetTexture(byte[] binaryData, string key)
+    {
+      return GetCreateThumbTexture(binaryData, key);
     }
 
     /// <summary>
@@ -401,6 +407,32 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       if (asset == null)
       {
         asset = new TextureAsset(texture.core as TextureAssetCore);
+        if (texture.asset == null)
+          texture.asset = new WeakReference(asset);
+      }
+      return asset;
+    }
+
+
+    protected TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
+    {
+      int type = (int)AssetType.Thumbnail;
+      AssetInstance texture;
+      TextureAsset asset = null;
+
+      lock (_assets[type])
+      {
+        if (!_assets[type].TryGetValue(key, out texture))
+        {
+          texture = NewAssetInstance(key, AssetType.Thumbnail, new ThumbnailBinaryTextureAssetCore(binaryData, key));
+        }
+        else
+          asset = texture.asset.Target as TextureAsset;
+      }
+      // If the asset wrapper has been garbage collected then re-allocate it
+      if (asset == null)
+      {
+        asset = new TextureAsset(texture.core as ThumbnailBinaryTextureAssetCore);
         if (texture.asset == null)
           texture.asset = new WeakReference(asset);
       }

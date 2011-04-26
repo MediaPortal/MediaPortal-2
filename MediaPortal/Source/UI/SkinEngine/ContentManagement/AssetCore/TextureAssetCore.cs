@@ -330,7 +330,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         FinalizeAllocation(info.Width, info.Height);
       }
     }
-
+    
     protected void AllocateFromFileAsync(string path)
     {
       lock (_syncObj)
@@ -628,6 +628,22 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       AssetAllocationHandler dlgt = AllocationChanged;
       if (dlgt != null)
         dlgt(allocation);
+    }
+  }
+
+  public class ThumbnailBinaryTextureAssetCore : TextureAssetCore
+  {
+    private byte[] _binaryThumbdata = null;
+
+    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName)
+      : base (textureName, 0, 0)
+    {
+      _binaryThumbdata = binaryThumbdata;
+    }
+
+    public override void Allocate()
+    {
+      AllocateFromBuffer(_binaryThumbdata);
     }
   }
 
