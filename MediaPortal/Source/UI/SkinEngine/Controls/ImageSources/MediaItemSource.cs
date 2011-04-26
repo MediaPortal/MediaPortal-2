@@ -22,9 +22,10 @@
 
 #endregion
 
-using MediaPortal.Core;
+using System;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
@@ -36,9 +37,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   {
     #region Variables
 
-    private ILocalFsResourceAccessor _localFsResourceAccessor;
-    private IResourceLocator _locator;
-
+    protected byte[] _thumbBinary = null;
+    protected Guid _mediaItemId;
+    protected int _thumbnailDimension;
     #endregion
 
     #region Constructor
@@ -50,10 +51,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// <param name="thumbnailDimension">Requested thumbnail dimension.</param>
     public MediaItemSource(MediaItem mediaItem, int thumbnailDimension)
     {
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      _locator = mediaAccessor.GetResourceLocator(mediaItem);
-      Thumbnail = true; // Only Thumnbnail layouts are allowed for MediaItems (audio, video).
-      ThumbnailDimension = thumbnailDimension;
+      _thumbnailDimension = thumbnailDimension;
+      _mediaItemId = mediaItem.MediaItemId;
+      //FIXME: why have local media items no Guid?
+      if (_mediaItemId == Guid.Empty)
+        _mediaItemId = Guid.NewGuid();
+
+      if (thumbnailDimension <= 32)
+        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_SMALL);
+      if (thumbnailDimension <= 96)
+        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_MEDIUM);
+      if (thumbnailDimension <= 256)
+        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_LARGE);
+      if (thumbnailDimension > 256)
+        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_XLARGE);
+
     }
 
     #endregion
@@ -62,21 +74,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
-      _localFsResourceAccessor = _locator.CreateLocalFsAccessor();
-      if (_localFsResourceAccessor != null)
-        UriSource = _localFsResourceAccessor.LocalFileSystemPath;
-      base.Allocate();
-    }
-
-    public override void Deallocate()
-    {
-      if (_localFsResourceAccessor != null)
+      if (_thumbBinary != null)
       {
-        _localFsResourceAccessor.Dispose();
-        _localFsResourceAccessor = null;
+        string key = _mediaItemId == Guid.Empty ? Guid.NewGuid().ToString() : _mediaItemId.ToString();
+        if (_texture == null)
+          _texture = ContentManager.Instance.GetTexture(_thumbBinary, key);
       }
-      _locator = null;
-      base.Deallocate();
+      if (_texture != null && !_texture.IsAllocated)
+      {
+        _texture.Allocate();
+        if (_texture.IsAllocated)
+        {
+          _frameData.X = _texture.Width;
+          _frameData.Y = _texture.Height;
+          _imageContext.Refresh();
+          FireChanged();
+        }
+      }
     }
 
     #endregion
