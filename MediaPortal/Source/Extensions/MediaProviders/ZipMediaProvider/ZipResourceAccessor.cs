@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
         if (entry.IsDirectory)
         {
           zipCount = CountChar(entry.Name, '/');
-          if (zipCount == rootCount)
+          if ((zipCount == rootCount) && (entry.Name.StartsWith(path)))
             _currentDirList.Add(entry);
         }
         else
