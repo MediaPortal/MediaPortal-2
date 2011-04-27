@@ -1,0 +1,22 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="IsoMediaProvider"
+    PluginId="{112728B1-F71D-4284-9E5C-3462E8D3C74D}"
+    Author="Bavarian"
+    Copyright="GPL"
+    Description="ISO Files Media Provider"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="IsoMediaProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MediaProviders">
+    <Instance Id="IsoProvider" ClassName="MediaPortal.Extensions.MediaProviders.IsoMediaProvider.IsoMediaProvider"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="IsoMediaProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>
+
