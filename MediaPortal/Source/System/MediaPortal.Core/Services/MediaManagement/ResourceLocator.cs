@@ -60,7 +60,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
       // Try to access resource locally. This might work if we have the correct media providers installed.
-      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
+      if (nativeSystem != null && nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
         return _nativeResourcePath.CreateLocalResourceAccessor();
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
