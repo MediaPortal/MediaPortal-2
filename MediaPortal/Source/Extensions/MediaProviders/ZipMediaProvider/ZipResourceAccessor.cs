@@ -93,7 +93,6 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     private void ReadCurrentDirectory()
     {
       int rootCount = CountChar(_pathToDirOrFile, '/');
-      int zipCount = 0;
 
       string path = StringUtils.RemoveSuffixIfPresent(_pathToDirOrFile, "/");
       path = StringUtils.RemovePrefixIfPresent(path, "/");
@@ -104,22 +103,21 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       {
         if (entry.IsDirectory)
         {
-          zipCount = CountChar(entry.Name, '/');
-          if ((zipCount == rootCount) && (entry.Name.StartsWith(path)))
+          int zipCount = CountChar(entry.Name, '/');
+          if (zipCount == rootCount && entry.Name.StartsWith(path))
             _currentDirList.Add(entry);
         }
         else
         {
-          string p = Path.GetDirectoryName(entry.Name).Replace('\\', '/');
-          if (path.Equals(p, StringComparison.OrdinalIgnoreCase))
-          {
+          string dirName = Path.GetDirectoryName(entry.Name);
+          dirName = dirName == null ? null : dirName.Replace('\\', '/');
+          if (path.Equals(dirName, StringComparison.OrdinalIgnoreCase))
             _currentDirList.Add(entry);
-          }
         }
       }
     }
 
-    private int CountChar(string Name, char c)
+    private static int CountChar(string Name, char c)
     {
       if (string.IsNullOrEmpty(Name))
         return 0;
@@ -133,7 +131,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       Dispose();
     }
 
-    #region Implementation of IDisposable
+    #region IDisposable implementation
 
     public void Dispose()
     {
