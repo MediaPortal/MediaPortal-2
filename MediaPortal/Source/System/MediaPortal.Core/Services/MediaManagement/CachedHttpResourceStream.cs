@@ -45,8 +45,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       _length = length;
       _resourceURL = resourceURL;
       _tempFilePath = Path.GetTempFileName();
-      _fileBufferStream = new FileStream(_tempFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None,
-          FILE_BUF_SIZE, FileOptions.Asynchronous | FileOptions.RandomAccess | FileOptions.DeleteOnClose);
+      _fileBufferStream = NTFS.Sparse.SparseFile.Create(_tempFilePath);
       _fileBufferStream.SetLength(length);
       ForceEagerAllocation(_fileBufferStream);
       _underlayingStream = new BackgroundHttpDataTransfer(_resourceURL, _fileBufferStream);
