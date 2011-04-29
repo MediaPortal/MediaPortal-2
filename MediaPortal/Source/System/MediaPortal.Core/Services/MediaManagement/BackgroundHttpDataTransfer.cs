@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.SystemAPI;
@@ -189,8 +190,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         request.KeepAlive = true;
         request.AllowAutoRedirect = true;
         request.UserAgent = _userAgent;
-        // TODO: Since .net 4, the AddRange method supports long parameters
-        request.AddRange((int) block.Start, (int) block.End);
+        SetRequestLongRange(request, block.Start, block.End);
 
         _pendingRequest = request;
       }
@@ -208,6 +208,14 @@ namespace MediaPortal.Core.Services.MediaManagement
           SetError(e.Message);
         }
       }
+    }
+
+    private static void SetRequestLongRange(HttpWebRequest request, long start, long end)
+    {
+      MethodInfo method = typeof(WebHeaderCollection).GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+      const string key = "Range";
+      string val = string.Format("bytes={0}-{1}", start, end);
+      method.Invoke(request.Headers, new object[] { key, val });
     }
 
     private void OnResponseReceived(IAsyncResult asyncResult)
