@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
   {
     #region Protected fields
 
-    protected bool disposed;
+    protected bool _disposed;
     protected IsoMediaProvider _isoProvider;
     protected IResourceAccessor _isoResourceAccessor;
     protected string _pathFile;
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     public void Dispose(bool disposing)
     {
-      if (!disposed)
+      if (!_disposed)
       {
         if (disposing)
         {
@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
           }
         }
       }
-      disposed = true;
+      _disposed = true;
     }
 
     #endregion
@@ -109,12 +109,12 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     protected bool IsEmptyOrRoot
     {
-      get { return (string.IsNullOrEmpty(_pathFile) || _pathFile == "/"); }
+      get { return string.IsNullOrEmpty(_pathFile) || _pathFile == "/"; }
     }
 
     #endregion
 
-    #region Implementation of IResourceAccessor
+    #region IResourceAccessor implementation
 
     public IMediaProvider ParentProvider
     {
@@ -123,10 +123,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     public bool IsFile
     {
-      get
-      {
-        return !_isDirectory;
-      }
+      get { return !_isDirectory; }
     }
 
     public string ResourceName
@@ -174,17 +171,13 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
       return null;
     }
 
-
     #endregion
 
-    #region Implementation of IFileSystemResourceAccessor
+    #region IFileSystemResourceAccessor implementation
 
     public bool IsDirectory
     {
-      get
-      {
-        return _isDirectory;
-      }
+      get { return _isDirectory; }
     }
 
     public bool Exists(string path)
@@ -206,25 +199,15 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_pathFile);
-      List<IFileSystemResourceAccessor> list = new List<IFileSystemResourceAccessor>();
       string[] files = _isoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      foreach (var s in files)
-      {
-        list.Add(new IsoResourceAccessor(_isoProvider, _isoResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(s)));
-      }
-      return list;
+      return files.Select(s => new IsoResourceAccessor(_isoProvider, _isoResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(s))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_pathFile);
-      List<IFileSystemResourceAccessor> list = new List<IFileSystemResourceAccessor>();
       string[] files = _isoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      foreach (var s in files)
-      {
-        list.Add(new IsoResourceAccessor(_isoProvider, _isoResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(s)));
-      }
-      return list;
+      return files.Select(s => new IsoResourceAccessor(_isoProvider, _isoResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(s))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     #endregion

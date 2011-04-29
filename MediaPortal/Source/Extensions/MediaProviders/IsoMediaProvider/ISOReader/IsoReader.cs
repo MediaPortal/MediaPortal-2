@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace ISOReader
 {
-  public class IsoReader : IsoReaderBase, IDisposable
+  public class IsoReader : IsoReaderBase
   {
     protected uint _rootDirExtLoc;
     protected uint _rootDirLength;
