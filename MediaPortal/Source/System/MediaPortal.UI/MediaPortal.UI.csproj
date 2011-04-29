@@ -167,14 +167,10 @@
     <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ShellThumbnailBuilder.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
     <Compile Include="Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
-    <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
     <Compile Include="Services\UserManagement\Permission.cs" />
     <Compile Include="Services\UserManagement\Role.cs" />
     <Compile Include="Services\UserManagement\User.cs" />
@@ -184,7 +180,6 @@
     <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
     <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
     <Compile Include="Shares\ILocalSharesManagement.cs" />
-    <Compile Include="Thumbnails\IThumbnailGenerator.cs" />
     <Compile Include="UiExtension.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
     <Compile Include="UserManagement\IPermissionObject.cs" />
@@ -241,7 +236,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
+    <Folder Include="References\" />
+    <Folder Include="Thumbnails\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

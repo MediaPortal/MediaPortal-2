@@ -32,9 +32,9 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 using MediaPortal.Core.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
-using MediaPortal.UI.Thumbnails;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 

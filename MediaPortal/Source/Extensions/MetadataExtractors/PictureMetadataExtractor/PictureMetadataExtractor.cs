@@ -32,6 +32,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 using MediaPortal.Core.Settings;
 using MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.Settings;
 using MediaPortal.Utilities;
@@ -156,6 +157,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
+        
+          //Thumbnail extraction
+          string resourcePath = mediaItemAccessor.ResourcePathName;
+          IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+          byte[] thumbData;
+          ImageType imageType;
+          if (generator.GetThumbnail(resourcePath, 32, 32, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_SMALL, thumbData);
+          if (generator.GetThumbnail(resourcePath, 96, 96, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
+          if (generator.GetThumbnail(resourcePath, 256, 256, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
+          if (generator.GetThumbnail(resourcePath, 1024, 1024, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
         }
         return true;
       }

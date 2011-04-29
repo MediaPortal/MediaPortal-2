@@ -26,11 +26,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using Microsoft.WindowsAPICodePack.Shell;
 
-namespace MediaPortal.UI.Services.ThumbnailGenerator
+namespace MediaPortal.Core.Services.ThumbnailGenerator
 {
   public class ShellThumbnailBuilder
   {

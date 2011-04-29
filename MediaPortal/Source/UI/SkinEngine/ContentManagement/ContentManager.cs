@@ -31,7 +31,6 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.Thumbnails;
 using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement

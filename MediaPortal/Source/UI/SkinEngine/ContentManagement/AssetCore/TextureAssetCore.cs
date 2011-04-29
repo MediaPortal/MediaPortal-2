@@ -31,9 +31,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.Thumbnails;
 using SlimDX;
 using SlimDX.Direct3D9;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 
 // TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 

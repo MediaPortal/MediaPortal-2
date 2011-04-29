@@ -35,12 +35,10 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.SystemResolver;
 using MediaPortal.UI.Services.UiNotifications;
 using MediaPortal.UI.Shares;
-using MediaPortal.UI.Thumbnails;
 using MediaPortal.UI.UserManagement;
 using MediaPortal.UI.Services.Players;
 using MediaPortal.UI.Services.ServerCommunication;
 using MediaPortal.UI.Services.Shares;
-using MediaPortal.UI.Services.ThumbnailGenerator;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.Services.Workflow;
 using MediaPortal.UI.Services.MediaManagement;
@@ -70,9 +68,6 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Registering IUserService service");
       ServiceRegistration.Set<IUserService>(new UserService());
-
-      logger.Debug("UiExtension: Registering IThumbnailGenerator service");
-      ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
 
       logger.Debug("UiExtension: Registering ILocalSharesManagement service");
       ServiceRegistration.Set<ILocalSharesManagement>(new LocalSharesManagement());
@@ -118,9 +113,6 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Removing ILocalSharesManagement service");
       ServiceRegistration.RemoveAndDispose<ILocalSharesManagement>();
-
-      logger.Debug("UiExtension: Removing IThumbnailGenerator service");
-      ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
 
       logger.Debug("UiExtension: Removing IUserService service");
       ServiceRegistration.RemoveAndDispose<IUserService>();

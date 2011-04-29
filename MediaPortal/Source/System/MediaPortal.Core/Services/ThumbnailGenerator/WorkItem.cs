@@ -22,9 +22,7 @@
 
 #endregion
 
-using MediaPortal.UI.Thumbnails;
-
-namespace MediaPortal.UI.Services.ThumbnailGenerator
+namespace MediaPortal.Core.Services.ThumbnailGenerator
 {
   /// <summary>
   /// Holds the data of one work item for the thumbnail generator thread.

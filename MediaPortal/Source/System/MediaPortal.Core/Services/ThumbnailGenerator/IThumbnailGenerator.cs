@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.UI.Thumbnails
+namespace MediaPortal.Core.Services.ThumbnailGenerator
 {
   public enum ImageType
   {
