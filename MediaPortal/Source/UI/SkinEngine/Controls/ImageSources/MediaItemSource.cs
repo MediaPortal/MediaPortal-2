@@ -59,11 +59,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
       if (thumbnailDimension <= 32)
         _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_SMALL);
-      if (thumbnailDimension <= 96)
+      else if (thumbnailDimension <= 96)
         _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_MEDIUM);
-      if (thumbnailDimension <= 256)
+      else if (thumbnailDimension <= 256)
         _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_LARGE);
-      if (thumbnailDimension > 256)
+      else
         _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_XLARGE);
 
     }
