@@ -32,7 +32,7 @@ using ISOReader;
 namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 {
   /// <summary>
-  /// Media provider implementation for the ZIP files.
+  /// Media provider implementation for ISO files.
   /// </summary>
   public class IsoMediaProvider : IChainedMediaProvider
   {
@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     #endregion
 
-    #region Implementation of IMediaProvider
+    #region IMediaProvider implementation
 
     public MediaProviderMetadata Metadata
     {
@@ -67,13 +67,13 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     #endregion
 
-    #region Implementation of IChainedMediaProvider
+    #region IChainedMediaProvider implementation
 
     public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
     {
       if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
         return false;
-      if (Path.GetExtension(potentialBaseResourceAccessor.ResourceName).Equals(".iso",StringComparison.OrdinalIgnoreCase))
+      if (".iso".Equals(Path.GetExtension(potentialBaseResourceAccessor.ResourceName), StringComparison.OrdinalIgnoreCase))
       {
         return true;
       }
