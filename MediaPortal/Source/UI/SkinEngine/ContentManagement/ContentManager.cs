@@ -413,9 +413,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
 
-    protected TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
+    private TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
     {
-      int type = (int)AssetType.Thumbnail;
+      int type = (int) AssetType.Thumbnail;
       AssetInstance texture;
       TextureAsset asset = null;
 
