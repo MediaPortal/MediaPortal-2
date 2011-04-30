@@ -27,11 +27,11 @@ using System.Text.RegularExpressions;
 
 namespace MediaPortal.Tools.BuildReport
 {
-  class AnalyseVS2005Input : IAnalyseInput
+  class AnalyseVSInput : IAnalyseInput
   {
     Solution _solution;
 
-    public AnalyseVS2005Input()
+    public AnalyseVSInput()
     {
     }
 

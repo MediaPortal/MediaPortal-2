@@ -16,8 +16,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>MediaPortal.Tools.BuildReport.BuildReport</StartupObject>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -77,7 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildReport.cs" />
-    <Compile Include="AnalyseVS2005Input.cs" />
+    <Compile Include="AnalyseVSInput.cs" />
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="AnalyseMsbuildInput.cs" />
     <Compile Include="IAnalyseInput.cs" />
