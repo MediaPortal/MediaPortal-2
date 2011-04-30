@@ -74,25 +74,25 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a small size (max. 32x32) thumbnail.
+    /// Contains a small sized (max. 32x32) thumbnail.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_SMALL =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumb32", typeof(byte[]), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a medium size (max. 96x96) thumbnail.
+    /// Contains a medium sized (max. 96x96) thumbnail.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_MEDIUM =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumb96", typeof(byte[]), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a large size (max. 256x256) thumbnail.
+    /// Contains a large sized (max. 256x256) thumbnail.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_LARGE =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumb256", typeof(byte[]), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a extra large size (max. 1024x1024) thumbnail.
+    /// Contains an extra large sized (max. 1024x1024) thumbnail.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_XLARGE =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumb1024", typeof(byte[]), Cardinality.Inline, false);
