@@ -325,7 +325,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             extractedAspectData[VideoAspect.ASPECT_ID] = videoAspect = new MediaItemAspect(VideoAspect.Metadata);
 
           ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-          result.UpdateMetadata(mediaAspect, videoAspect, lfsra == null ? null : lfsra.LocalFileSystemPath);
+          result.UpdateMetadata(mediaAspect, videoAspect, lfsra.LocalFileSystemPath);
           return true;
         }
       }
