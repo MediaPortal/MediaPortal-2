@@ -124,7 +124,7 @@ namespace MediaPortal.Utilities.FileSystem
     public static IList<string> GetAllFilesRecursively(string directoryPath)
     {
       IList<string> result = Directory.GetFiles(directoryPath).ToList();
-      foreach (string filePath in Directory.GetDirectories(directoryPath).SelectMany(GetAllFilesRecursively))
+      foreach (string filePath in Directory.GetDirectories(directoryPath).SelectMany<string, string>(GetAllFilesRecursively))
         result.Add(filePath);
       return result;
     }

@@ -1,0 +1,612 @@
+Microsoft (R)-Buildmodul, Version 3.5.30729.5420
+[Microsoft .NET Framework, Version 2.0.50727.5444]
+Copyright (C) Microsoft Corporation 2007. Alle Rechte vorbehalten.
+
+Build started 30.04.2011 17:45:46.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" on node 0 (Rebuild target(s)).
+  Building solution configuration "Release|x86".
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Black Backdrop.csproj" (2) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\bin\x86\Release\Black Backdrop.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\bin\x86\Release\Black Backdrop.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\obj\x86\Release\Black Backdrop.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\obj\x86\Release\Black Backdrop.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\Black Backdrop.dll" in "bin\x86\Release\Black Backdrop.dll" kopiert.
+  Black Backdrop -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\bin\x86\Release\Black Backdrop.dll
+  Die Datei wird von "obj\x86\Release\Black Backdrop.pdb" in "bin\x86\Release\Black Backdrop.pdb" kopiert.
+PostBuildEvent:
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\plugin.xml
+  1 Datei(en) kopiert
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\Black Backdrop\Skin" existiert bereits.
+  
+  -------------------------------------------------------------------------------
+     ROBOCOPY     ::     Robustes Dateikopieren fÅr Windows                              
+  -------------------------------------------------------------------------------
+  
+    Gestartet: Sat Apr 30 17:45:46 2011
+  
+     Quelle : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\
+       Ziel : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Bin\MP2-Client\bin\x86\Release\Plugins\Black Backdrop\Skin\
+  
+      Dateien : *.*
+  	    
+   Ausf. Verzeichnisse : .svn
+  	    
+    Optionen: *.* /S /E /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30 
+  
+  ------------------------------------------------------------------------------
+  
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\
+  	                   6	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\images\
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\themes\
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\themes\Black Backdrop\
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\themes\Black Backdrop\images\
+  	                   3	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Skin\default\themes\Black Backdrop\styles\
+  
+  ------------------------------------------------------------------------------
+  
+             Insgesamt   KopiertöbersprungenKeine öbereinstimmung    FEHLER    Extras
+  Verzeich.:         7         0         7         0         0         0
+    Dateien:        11         0        11         0         0         0
+      Bytes:    3.16 m         0    3.16 m         0         0         0
+     Zeiten:   0:00:00   0:00:00                       0:00:00   0:00:00
+  
+    Beendet: Sat Apr 30 17:45:46 2011
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\Black Backdrop\Black Backdrop.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\NewSkin.csproj" (3) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\bin\x86\Release\NewSkin.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\bin\x86\Release\NewSkin.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\obj\x86\Release\NewSkin.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\obj\x86\Release\NewSkin.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\NewSkin.dll" in "bin\x86\Release\NewSkin.dll" kopiert.
+  NewSkin -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\bin\x86\Release\NewSkin.dll
+  Die Datei wird von "obj\x86\Release\NewSkin.pdb" in "bin\x86\Release\NewSkin.pdb" kopiert.
+PostBuildEvent:
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\plugin.xml
+  1 Datei(en) kopiert
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\NewSkin\Skin" existiert bereits.
+  
+  -------------------------------------------------------------------------------
+     ROBOCOPY     ::     Robustes Dateikopieren fÅr Windows                              
+  -------------------------------------------------------------------------------
+  
+    Gestartet: Sat Apr 30 17:45:47 2011
+  
+     Quelle : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\
+       Ziel : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Bin\MP2-Client\bin\x86\Release\Plugins\NewSkin\Skin\
+  
+      Dateien : *.*
+  	    
+   Ausf. Verzeichnisse : .svn
+  	    
+    Optionen: *.* /S /E /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30 
+  
+  ------------------------------------------------------------------------------
+  
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\backgrounds\
+  	                  14	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\fonts\
+  	                  19	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\images\
+  	                 364	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\images\channellogos\
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\images\Weather\
+  	                  52	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\images\Weather\128x128\
+  	                  52	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\images\Weather\64x64\
+  	                   5	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\screens\
+  	                   0	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\themes\
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\themes\Silver\
+  	                   6	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\themes\Silver\images\
+  	                   8	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\Skin\NewSkin\themes\Silver\styles\
+  
+  ------------------------------------------------------------------------------
+  
+             Insgesamt   KopiertöbersprungenKeine öbereinstimmung    FEHLER    Extras
+  Verzeich.:        14         0        14         0         0         0
+    Dateien:       523         0       523         0         0         0
+      Bytes:   31.90 m         0   31.90 m         0         0         0
+     Zeiten:   0:00:00   0:00:00                       0:00:00   0:00:00
+  
+    Beendet: Sat Apr 30 17:45:47 2011
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\NewSkin\NewSkin.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (4) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\bin\x86\Release\BassLibraries.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\bin\x86\Release\BassLibraries.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\obj\x86\Release\BassLibraries.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\obj\x86\Release\BassLibraries.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\BassLibraries.dll" in "bin\x86\Release\BassLibraries.dll" kopiert.
+  BassLibraries -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\bin\x86\Release\BassLibraries.dll
+  Die Datei wird von "obj\x86\Release\BassLibraries.pdb" in "bin\x86\Release\BassLibraries.pdb" kopiert.
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\BassLibraries" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\bin\x86\Release\BassLibraries.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\References\BassRegistration.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\References\Bass.Net.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\References\bass.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\References\bassmix.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (5) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\bin\x86\Release\TagLib.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\obj\x86\Release\TagLib.dll" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\TagLib.dll" in "bin\x86\Release\TagLib.dll" kopiert.
+  TagLib -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\bin\x86\Release\TagLib.dll
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\TagLib" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\bin\x86\Release\TagLib.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (6) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.XML" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\obj\x86\Release\HttpServer.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\obj\x86\Release\HttpServer.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+HttpRequest.cs(154,20): warning CS1574: Der XML-Kommentar fÅr "HttpServer.HttpRequest.Method" enthÑlt das cref-Attribut "HttpServer.Method", das nicht aufgelîst werden konnte.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\HttpServer.dll" in "bin\x86\Release\HttpServer.dll" kopiert.
+  HttpServer -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.dll
+  Die Datei wird von "obj\x86\Release\HttpServer.pdb" in "bin\x86\Release\HttpServer.pdb" kopiert.
+  Die Datei wird von "bin\Release\HttpServer.XML" in "bin\x86\Release\HttpServer.XML" kopiert.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (7) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.Properties.Resources.resources" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.Screens.BaseScreen.resources" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.Screens.DownloadScreen.resources" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.Screens.MPIScreen.resources" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.Screens.YesNoDialogScreen.resources" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\obj\x86\Release\MediaPortal.Utilities.csproj.GenerateResource.Cache" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CoreResGen:
+  Die Ressourcendatei Properties\Resources.resx wird zu obj\x86\Release\MediaPortal.Utilities.Properties.Resources.resources verarbeitet.
+  Die Ressourcendatei Screens\BaseScreen.resx wird zu obj\x86\Release\MediaPortal.Utilities.Screens.BaseScreen.resources verarbeitet.
+  Die Ressourcendatei Screens\DownloadScreen.resx wird zu obj\x86\Release\MediaPortal.Utilities.Screens.DownloadScreen.resources verarbeitet.
+  Die Ressourcendatei Screens\MPIScreen.resx wird zu obj\x86\Release\MediaPortal.Utilities.Screens.MPIScreen.resources verarbeitet.
+  Die Ressourcendatei Screens\YesNoDialogScreen.resx wird zu obj\x86\Release\MediaPortal.Utilities.Screens.YesNoDialogScreen.resources verarbeitet.
+CdUtils.cs(44,26): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+CdUtils.cs(67,7): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+FileSystem\DriveUtils.cs(125,21): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+FileSystem\DriveUtils.cs(217,9): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+SystemAPI\WindowsAPI.cs(89,15): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\MediaPortal.Utilities.dll" in "bin\x86\Release\MediaPortal.Utilities.dll" kopiert.
+  MediaPortal.Utilities -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.dll
+  Die Datei wird von "obj\x86\Release\MediaPortal.Utilities.pdb" in "bin\x86\Release\MediaPortal.Utilities.pdb" kopiert.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (Rebuild target(s)).
+Rebuild:
+  The project "CueProvider" is not selected for building in solution configuration "Release|x86".
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (8) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\bin\x86\Release\MediaInfoLib.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\bin\x86\Release\MediaInfoLib.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\obj\x86\Release\MediaInfoLib.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\obj\x86\Release\MediaInfoLib.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (8) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (7:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (8) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (7:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (GetNativeManifest target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\MediaInfoLib.dll" in "bin\x86\Release\MediaInfoLib.dll" kopiert.
+  MediaInfoLib -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\bin\x86\Release\MediaInfoLib.dll
+  Die Datei wird von "obj\x86\Release\MediaInfoLib.pdb" in "bin\x86\Release\MediaInfoLib.pdb" kopiert.
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\MediaInfoLib" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\bin\x86\Release\MediaInfoLib.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\References\MediaInfo.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\UPnP.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\UPnP.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\HttpServer.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\MediaPortal.Utilities.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\HttpServer.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\HttpServer.xml" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\MediaPortal.Utilities.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\obj\x86\Release\UPnP.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\obj\x86\Release\UPnP.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (6:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (6:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (GetNativeManifest target(s)).
+_CopyFilesMarkedCopyLocal:
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.dll" in "bin\x86\Release\HttpServer.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.dll" in "bin\x86\Release\MediaPortal.Utilities.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.pdb" in "bin\x86\Release\HttpServer.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.xml" in "bin\x86\Release\HttpServer.xml" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.pdb" in "bin\x86\Release\MediaPortal.Utilities.pdb" kopiert.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (6:4) on node 0 (GetCopyToOutputDirectoryItems target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (GetCopyToOutputDirectoryItems target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (7:6) on node 0 (GetCopyToOutputDirectoryItems target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (GetCopyToOutputDirectoryItems target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\UPnP.dll" in "bin\x86\Release\UPnP.dll" kopiert.
+  UPnP -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\UPnP.dll
+  Die Datei wird von "obj\x86\Release\UPnP.pdb" in "bin\x86\Release\UPnP.pdb" kopiert.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Core.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Core.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\log4net.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Utilities.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\UPnP.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.xml" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Utilities.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\UPnP.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\obj\x86\Release\MediaPortal.Core.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\obj\x86\Release\MediaPortal.Core.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (GetNativeManifest target(s)).
+_CopyFilesMarkedCopyLocal:
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.dll" in "bin\x86\Release\HttpServer.dll" kopiert.
+  Die Datei wird von "..\..\Base\Client\log4net.dll" in "bin\x86\Release\log4net.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.dll" in "bin\x86\Release\MediaPortal.Utilities.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\UPnP.dll" in "bin\x86\Release\UPnP.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.pdb" in "bin\x86\Release\HttpServer.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\bin\x86\Release\HttpServer.xml" in "bin\x86\Release\HttpServer.xml" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\bin\x86\Release\MediaPortal.Utilities.pdb" in "bin\x86\Release\MediaPortal.Utilities.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\bin\x86\Release\UPnP.pdb" in "bin\x86\Release\UPnP.pdb" kopiert.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (9:4) on node 0 (GetCopyToOutputDirectoryItems target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\UPnP\UPnP.csproj" (GetCopyToOutputDirectoryItems target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\MediaPortal.Core.dll" in "bin\x86\Release\MediaPortal.Core.dll" kopiert.
+  MediaPortal.Core -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Core.dll
+  Die Datei wird von "obj\x86\Release\MediaPortal.Core.pdb" in "bin\x86\Release\MediaPortal.Core.pdb" kopiert.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj" (11) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\SlimTvInterfaces.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\SlimTvInterfaces.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\MediaPortal.Core.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\UPnP.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\HttpServer.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\MediaPortal.Utilities.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\log4net.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\MediaPortal.Core.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\UPnP.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\HttpServer.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\HttpServer.xml" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\MediaPortal.Utilities.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\obj\x86\Release\SlimTvInterfaces.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\obj\x86\Release\SlimTvInterfaces.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj" (11) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj" (11) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (GetNativeManifest target(s)).
+_CopyFilesMarkedCopyLocal:
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Core.dll" in "bin\x86\Release\MediaPortal.Core.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.dll" in "bin\x86\Release\HttpServer.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\log4net.dll" in "bin\x86\Release\log4net.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Utilities.dll" in "bin\x86\Release\MediaPortal.Utilities.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\UPnP.dll" in "bin\x86\Release\UPnP.dll" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.pdb" in "bin\x86\Release\HttpServer.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\HttpServer.xml" in "bin\x86\Release\HttpServer.xml" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Core.pdb" in "bin\x86\Release\MediaPortal.Core.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\MediaPortal.Utilities.pdb" in "bin\x86\Release\MediaPortal.Utilities.pdb" kopiert.
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\bin\x86\Release\UPnP.pdb" in "bin\x86\Release\UPnP.pdb" kopiert.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj" (11) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (10:4) on node 0 (GetCopyToOutputDirectoryItems target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Core\MediaPortal.Core.csproj" (GetCopyToOutputDirectoryItems target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\SlimTvInterfaces.dll" in "bin\x86\Release\SlimTvInterfaces.dll" kopiert.
+  SlimTvInterfaces -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\bin\x86\Release\SlimTvInterfaces.dll
+  Die Datei wird von "obj\x86\Release\SlimTvInterfaces.pdb" in "bin\x86\Release\SlimTvInterfaces.pdb" kopiert.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\LocalFsMediaProvider.csproj" (12) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\bin\x86\Release\LocalFsMediaProvider.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\bin\x86\Release\LocalFsMediaProvider.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\obj\x86\Release\LocalFsMediaProvider.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\obj\x86\Release\LocalFsMediaProvider.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\LocalFsMediaProvider.dll" in "bin\x86\Release\LocalFsMediaProvider.dll" kopiert.
+  LocalFsMediaProvider -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\bin\x86\Release\LocalFsMediaProvider.dll
+  Die Datei wird von "obj\x86\Release\LocalFsMediaProvider.pdb" in "bin\x86\Release\LocalFsMediaProvider.pdb" kopiert.
+PostBuildEvent:
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\plugin.xml
+  1 Datei(en) kopiert
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\LocalFsMediaProvider\Language" existiert bereits.
+  
+  -------------------------------------------------------------------------------
+     ROBOCOPY     ::     Robustes Dateikopieren fÅr Windows                              
+  -------------------------------------------------------------------------------
+  
+    Gestartet: Sat Apr 30 17:45:53 2011
+  
+     Quelle : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\Language\
+       Ziel : C:\Projekte\MediaPortal\MP-Client\MediaPortal\Bin\MP2-Client\bin\x86\Release\Plugins\LocalFsMediaProvider\Language\
+  
+      Dateien : *.*
+  	    
+   Ausf. Verzeichnisse : .svn
+  	    
+    Optionen: *.* /S /E /COPY:DAT /PURGE /MIR /NP /R:1000000 /W:30 
+  
+  ------------------------------------------------------------------------------
+  
+  	                   1	C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\Language\
+  
+  ------------------------------------------------------------------------------
+  
+             Insgesamt   KopiertöbersprungenKeine öbereinstimmung    FEHLER    Extras
+  Verzeich.:         1         0         1         0         0         0
+    Dateien:         1         0         1         0         0         0
+      Bytes:       186         0       186         0         0         0
+     Zeiten:   0:00:00   0:00:00                       0:00:00   0:00:00
+  
+    Beendet: Sat Apr 30 17:45:53 2011
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\bin\x86\Release\LocalFsMediaProvider.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MediaProviders\LocalFsMediaProvider\LocalFsMediaProvider.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj" (13) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\bin\x86\Release\MovieMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\bin\x86\Release\MovieMetadataExtractor.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\obj\x86\Release\MovieMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\obj\x86\Release\MovieMetadataExtractor.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj" (13) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (8:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj" (13) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (8:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj" (GetNativeManifest target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\MovieMetadataExtractor.dll" in "bin\x86\Release\MovieMetadataExtractor.dll" kopiert.
+  MovieMetadataExtractor -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\bin\x86\Release\MovieMetadataExtractor.dll
+  Die Datei wird von "obj\x86\Release\MovieMetadataExtractor.pdb" in "bin\x86\Release\MovieMetadataExtractor.pdb" kopiert.
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\MovieMetadataExtractor" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\bin\x86\Release\MovieMetadataExtractor.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\References\MediaInfo.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\bin\x86\Release\MusicMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\bin\x86\Release\MusicMetadataExtractor.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\bin\x86\Release\TagLib.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\obj\x86\Release\ResolveAssemblyReference.cache" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\obj\x86\Release\MusicMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\obj\x86\Release\MusicMetadataExtractor.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (4:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (5:2) on node 0 (GetTargetPath target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (GetTargetPath target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (4:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" (GetNativeManifest target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (5:3) on node 0 (GetNativeManifest target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (GetNativeManifest target(s)).
+_CopyFilesMarkedCopyLocal:
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\bin\x86\Release\TagLib.dll" in "bin\x86\Release\TagLib.dll" kopiert.
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (14) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (5:4) on node 0 (GetCopyToOutputDirectoryItems target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\TagLib\TagLib.csproj" (GetCopyToOutputDirectoryItems target(s)).
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\MusicMetadataExtractor.dll" in "bin\x86\Release\MusicMetadataExtractor.dll" kopiert.
+  MusicMetadataExtractor -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\bin\x86\Release\MusicMetadataExtractor.dll
+  Die Datei wird von "obj\x86\Release\MusicMetadataExtractor.pdb" in "bin\x86\Release\MusicMetadataExtractor.pdb" kopiert.
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\MusicMetadataExtractor" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\bin\x86\Release\MusicMetadataExtractor.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\MusicMetadataExtractor\MusicMetadataExtractor.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\PictureMetadataExtractor.csproj" (15) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\bin\x86\Release\plugin.xml" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\bin\x86\Release\PictureMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\bin\x86\Release\PictureMetadataExtractor.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\obj\x86\Release\PictureMetadataExtractor.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\obj\x86\Release\PictureMetadataExtractor.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+_CopyOutOfDateSourceItemsToOutputDirectoryAlways:
+  Die Datei wird von "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\plugin.xml" in "bin\x86\Release\plugin.xml" kopiert.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\PictureMetadataExtractor.dll" in "bin\x86\Release\PictureMetadataExtractor.dll" kopiert.
+  PictureMetadataExtractor -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\bin\x86\Release\PictureMetadataExtractor.dll
+  Die Datei wird von "obj\x86\Release\PictureMetadataExtractor.pdb" in "bin\x86\Release\PictureMetadataExtractor.pdb" kopiert.
+PostBuildEvent:
+  Ein Unterverzeichnis oder eine Datei mit dem Namen "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\..\Bin\MP2-Client\bin\x86\Release\Plugins\PictureMetadataExtractor" existiert bereits.
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\bin\x86\Release\PictureMetadataExtractor.dll
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\Extensions\MetadataExtractors\PictureMetadataExtractor\PictureMetadataExtractor.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\ConfigurationManager.csproj" (16) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+CoreClean:
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\bin\x86\Release\ConfigurationManager.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\bin\x86\Release\ConfigurationManager.pdb" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\obj\x86\Release\ConfigurationManager.dll" wird gelîscht.
+  Die Datei "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\obj\x86\Release\ConfigurationManager.pdb" wird gelîscht.
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+CopyFilesToOutputDirectory:
+  Die Datei wird von "obj\x86\Release\ConfigurationManager.dll" in "bin\x86\Release\ConfigurationManager.dll" kopiert.
+  ConfigurationManager -> C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\bin\x86\Release\ConfigurationManager.dll
+  Die Datei wird von "obj\x86\Release\ConfigurationManager.pdb" in "bin\x86\Release\ConfigurationManager.pdb" kopiert.
+PostBuildEvent:
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\plugin.xml
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\bin\x86\Release\ConfigurationManager.dll
+  1 Datei(en) kopiert
+  C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\Language\strings_en.xml
+  1 Datei(en) kopiert
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\ConfigurationManager\ConfigurationManager.csproj" (Rebuild target(s)).
+Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (1) is building "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.UI\MediaPortal.UI.csproj" (17) on node 0 (Rebuild target(s)).
+Project file contains ToolsVersion="4.0", which is not supported by this version of MSBuild. Treating the project as if it had ToolsVersion="3.5".
+EntityClean:
+  Successfully cleaned the output for 0 EDMX files.
+EntityDeploy:
+  Processing 0 EDMX files.
+  Finished processing 0 EDMX files.
+Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs(184,14): error CS0411: Die Typargumente der System.Linq.Enumerable.Select<TSource,TResult>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource,TResult>)-Methode kînnen nicht per RÅckschluss aus der Syntax abgeleitet werden. Geben Sie die Typargumente explizit an.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.UI\MediaPortal.UI.csproj" (Rebuild target(s)) -- FAILED.
+Done Building Project "C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (Rebuild target) (1) ->
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\HttpServer\HttpServer.csproj" (Rebuild target) (6) ->
+(CoreCompile target) -> 
+  HttpRequest.cs(154,20): warning CS1574: Der XML-Kommentar fÅr "HttpServer.HttpRequest.Method" enthÑlt das cref-Attribut "HttpServer.Method", das nicht aufgelîst werden konnte.
+
+
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (Rebuild target) (1) ->
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj" (Rebuild target) (7) ->
+  CdUtils.cs(44,26): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+  CdUtils.cs(67,7): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+  FileSystem\DriveUtils.cs(125,21): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+  FileSystem\DriveUtils.cs(217,9): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+  SystemAPI\WindowsAPI.cs(89,15): warning CS0618: "MediaPortal.Utilities.Win32.Win32API" ist veraltet: "Direct usages in the code should be replaced by usages of more abstract classes"
+
+
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\MP2-Client.sln" (Rebuild target) (1) ->
+"C:\Projekte\MediaPortal\MP-Client\MediaPortal\Source\System\MediaPortal.UI\MediaPortal.UI.csproj" (Rebuild target) (17) ->
+(CoreCompile target) -> 
+  Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs(184,14): error CS0411: Die Typargumente der System.Linq.Enumerable.Select<TSource,TResult>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource,TResult>)-Methode kînnen nicht per RÅckschluss aus der Syntax abgeleitet werden. Geben Sie die Typargumente explizit an.
+
+    6 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:09.12
