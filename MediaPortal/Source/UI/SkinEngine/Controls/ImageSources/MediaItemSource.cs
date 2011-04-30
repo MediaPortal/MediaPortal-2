@@ -38,8 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     #region Variables
 
     protected byte[] _thumbBinary = null;
-    protected Guid _mediaItemId;
-    protected int _thumbnailDimension;
+    protected string _key;
+    protected int _thumbnailSize;
     #endregion
 
     #region Constructor
@@ -48,23 +48,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// Constructs a <see cref="MediaItemSource"/> for building thumbnails for MediaItems.
     /// </summary>
     /// <param name="mediaItem">MediaItem to create thumbnail.</param>
-    /// <param name="thumbnailDimension">Requested thumbnail dimension.</param>
-    public MediaItemSource(MediaItem mediaItem, int thumbnailDimension)
+    /// <param name="thumbnailSize">Requested thumbnail size.</param>
+    public MediaItemSource(MediaItem mediaItem, int thumbnailSize)
     {
-      _thumbnailDimension = thumbnailDimension;
-      _mediaItemId = mediaItem.MediaItemId;
-      //FIXME: why have local media items no Guid?
-      if (_mediaItemId == Guid.Empty)
-        _mediaItemId = Guid.NewGuid();
+      _thumbnailSize = thumbnailSize;
+      Guid id = mediaItem.MediaItemId;
+      // Local media items don't have an item id
+      _key = (id == Guid.Empty ? Guid.NewGuid() : id).ToString();
 
-      if (thumbnailDimension <= 32)
+      if (thumbnailSize <= 32)
         _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_SMALL);
-      else if (thumbnailDimension <= 96)
-        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_MEDIUM);
-      else if (thumbnailDimension <= 256)
-        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_LARGE);
+      else if (thumbnailSize <= 96)
+        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_MEDIUM);
+      else if (thumbnailSize <= 256)
+        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_LARGE);
       else
-        _thumbBinary = (byte[])mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_XLARGE);
+        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_XLARGE);
 
     }
 
@@ -74,12 +73,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
-      if (_thumbBinary != null)
-      {
-        string key = _mediaItemId == Guid.Empty ? Guid.NewGuid().ToString() : _mediaItemId.ToString();
-        if (_texture == null)
-          _texture = ContentManager.Instance.GetTexture(_thumbBinary, key);
-      }
+      if (_texture == null && _thumbBinary != null)
+        _texture = ContentManager.Instance.GetTexture(_thumbBinary, _key);
       if (_texture != null && !_texture.IsAllocated)
       {
         _texture.Allocate();
