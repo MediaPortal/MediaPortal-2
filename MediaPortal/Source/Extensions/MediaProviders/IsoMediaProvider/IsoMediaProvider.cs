@@ -93,7 +93,6 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
       
       string[] dirList = isoReader.GetDirectories(dosPath, SearchOption.TopDirectoryOnly);
       return dirList.Any(entry => entry.Equals(dosResource, StringComparison.OrdinalIgnoreCase));
-      
     }
 
     public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
