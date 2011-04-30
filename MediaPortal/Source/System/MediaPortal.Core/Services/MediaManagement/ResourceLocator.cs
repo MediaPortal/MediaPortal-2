@@ -74,18 +74,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
     {
       IResourceAccessor accessor = CreateAccessor();
-      //// Try to get an ILocalFsResourceAccessor
-      ILocalFsResourceAccessor result = accessor as ILocalFsResourceAccessor;
-      if (result != null)
-        // Simple case: The media item is located in the local file system or the media provider returns
-        // an ILocalFsResourceAccessor from elsewhere - simply return it
-        return result;
       try
       {
-        // Set up a resource bridge mapping the remote or complex resource to a local file
-        return new RemoteResourceToLocalFsAccessBridge(accessor);
+        return StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(accessor);
       }
-      catch (Exception)
+      catch
       {
         accessor.Dispose();
         throw;

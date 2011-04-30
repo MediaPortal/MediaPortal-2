@@ -199,7 +199,7 @@
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\RemoteResourceToLocalFsAccessBridge.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\StreamedResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceInformationService.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceAccessorBase.cs" />
