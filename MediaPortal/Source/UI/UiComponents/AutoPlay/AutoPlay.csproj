@@ -8,8 +8,8 @@
     <ProjectGuid>{4E73672B-B668-4153-A6F2-0F45B5C3724B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Components.Services.AutoPlay</RootNamespace>
-    <AssemblyName>Services.AutoPlay</AssemblyName>
+    <RootNamespace>MediaPortal.UiComponents.AutoPlay</RootNamespace>
+    <AssemblyName>AutoPlay</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -62,11 +62,12 @@
   <ItemGroup>
     <Compile Include="AutoPlay.cs" />
     <Compile Include="AutoPlayMediaItem.cs" />
-    <Compile Include="AutoPlaySettings.cs" />
+    <Compile Include="Settings\AutoPlaySettings.cs" />
     <Compile Include="DeviceVolumeMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +104,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -112,8 +114,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP /XD .svn
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

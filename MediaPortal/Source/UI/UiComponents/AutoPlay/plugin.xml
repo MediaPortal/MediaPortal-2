@@ -13,11 +13,11 @@
 
   <Runtime>
     <Assembly FileName="AutoPlay.dll"/>
-    <PluginStateTracker ClassName="Components.Services.AutoPlay.AutoPlay"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.AutoPlay.AutoPlay"/>
   </Runtime>
 
   <Register Location="/Services">
     <Service Id="AutoPlayService" RegistrationClassName="MediaPortal.Presentation.AutoPlay.IAutoPlay"
-        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="Components.Services.AutoPlay.AutoPlay"/>
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.AutoPlay.AutoPlay"/>
   </Register>
 </Plugin>

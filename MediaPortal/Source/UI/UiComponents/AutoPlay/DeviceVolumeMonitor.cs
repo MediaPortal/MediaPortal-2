@@ -26,10 +26,8 @@ using System;
 using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-#pragma warning disable 649
-#pragma warning disable 169
 
-namespace Components.Services.AutoPlay
+namespace MediaPortal.UiComponents.AutoPlay
 {
 
   /// <summary>
@@ -47,10 +45,11 @@ namespace Components.Services.AutoPlay
 
   internal class _DeviceVolumeMonitor : NativeWindow
   {
-    /// <summary>
-    /// Private fields
-    /// </summary>
-    DeviceVolumeMonitor fMonitor;
+    #region Protectded fields
+
+    protected DeviceVolumeMonitor _monitor;
+
+    #endregion
 
     #region API constants and structures
     /// <summary>
@@ -61,57 +60,57 @@ namespace Components.Services.AutoPlay
     /// <summary>
     /// Constants and structs defined in DBT.h
     /// </summary>
-    public enum DeviceEvent : int
+    public enum DeviceEvent
     {
-      Arrival = 0x8000,           //DBT_DEVICEARRIVAL
-      QueryRemove = 0x8001,       //DBT_DEVICEQUERYREMOVE
-      QueryRemoveFailed = 0x8002, //DBT_DEVICEQUERYREMOVEFAILED
-      RemovePending = 0x8003,     //DBT_DEVICEREMOVEPENDING
-      RemoveComplete = 0x8004,    //DBT_DEVICEREMOVECOMPLETE
-      Specific = 0x8005,          //DBT_DEVICEREMOVECOMPLETE
-      Custom = 0x8006             //DBT_CUSTOMEVENT
+      Arrival = 0x8000,           // DBT_DEVICEARRIVAL
+      QueryRemove = 0x8001,       // DBT_DEVICEQUERYREMOVE
+      QueryRemoveFailed = 0x8002, // DBT_DEVICEQUERYREMOVEFAILED
+      RemovePending = 0x8003,     // DBT_DEVICEREMOVEPENDING
+      RemoveComplete = 0x8004,    // DBT_DEVICEREMOVECOMPLETE
+      Specific = 0x8005,          // DBT_DEVICEREMOVECOMPLETE
+      Custom = 0x8006             // DBT_CUSTOMEVENT
     }
 
-    public enum DeviceType : int
+    public enum DeviceType
     {
-      OEM = 0x00000000,           //DBT_DEVTYP_OEM
-      DeviceNode = 0x00000001,    //DBT_DEVTYP_DEVNODE
-      Volume = 0x00000002,        //DBT_DEVTYP_VOLUME
-      Port = 0x00000003,          //DBT_DEVTYP_PORT
-      Net = 0x00000004            //DBT_DEVTYP_NET
+      OEM = 0x00000000,           // DBT_DEVTYP_OEM
+      DeviceNode = 0x00000001,    // DBT_DEVTYP_DEVNODE
+      Volume = 0x00000002,        // DBT_DEVTYP_VOLUME
+      Port = 0x00000003,          // DBT_DEVTYP_PORT
+      Net = 0x00000004            // DBT_DEVTYP_NET
     }
 
-    public enum VolumeFlags : int
+    public enum VolumeFlags
     {
-      Media = 0x0001,             //DBTF_MEDIA
-      Net = 0x0002                //DBTF_NET
+      Media = 0x0001,             // DBTF_MEDIA
+      Net = 0x0002                // DBTF_NET
     }
 
-    public struct BroadcastHeader   //_DEV_BROADCAST_HDR 
+    public struct BroadcastHeader   // _DEV_BROADCAST_HDR 
     {
-      public int Size;            //dbch_size
-      public DeviceType Type;     //dbch_devicetype
-      private int Reserved;       //dbch_reserved
+      public int Size;            // dbch_size
+      public DeviceType Type;     // dbch_devicetype
+      private int Reserved;       // dbch_reserved
     }
 
-    public struct Volume            //_DEV_BROADCAST_VOLUME 
+    public struct Volume            // _DEV_BROADCAST_VOLUME 
     {
-      public int Size;            //dbcv_size
-      public DeviceType Type;     //dbcv_devicetype
-      private int Reserved;       //dbcv_reserved
-      public int Mask;            //dbcv_unitmask
-      public int Flags;           //dbcv_flags
+      public int Size;            // dbcv_size
+      public DeviceType Type;     // dbcv_devicetype
+      private int Reserved;       // dbcv_reserved
+      public int Mask;            // dbcv_unitmask
+      public int Flags;           // dbcv_flags
     }
+
     #endregion
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="aMonitor">A DeviceVolumeMonitor instance that ownes the object</param>
-    /// <param name="aHandle">The Windows handle to be used</param>
     public _DeviceVolumeMonitor(DeviceVolumeMonitor aMonitor)
     {
-      fMonitor = aMonitor;
+      _monitor = aMonitor;
     }
 
     /// <summary>
@@ -122,22 +121,19 @@ namespace Components.Services.AutoPlay
     {
       BroadcastHeader lBroadcastHeader;
       Volume lVolume;
-      DeviceEvent lEvent;
 
       base.WndProc(ref aMessage);
-      if (aMessage.Msg == WM_DEVICECHANGE && fMonitor.Enabled)
+      if (aMessage.Msg == WM_DEVICECHANGE && _monitor.Enabled)
       {
-        lEvent = (DeviceEvent)aMessage.WParam.ToInt32();
+        DeviceEvent lEvent = (DeviceEvent) aMessage.WParam.ToInt32();
         if (lEvent == DeviceEvent.Arrival || lEvent == DeviceEvent.RemoveComplete)
         {
-          lBroadcastHeader = (BroadcastHeader)Marshal.PtrToStructure(aMessage.LParam, typeof(BroadcastHeader));
+          lBroadcastHeader = (BroadcastHeader) Marshal.PtrToStructure(aMessage.LParam, typeof(BroadcastHeader));
           if (lBroadcastHeader.Type == DeviceType.Volume)
           {
-            lVolume = (Volume)Marshal.PtrToStructure(aMessage.LParam, typeof(Volume));
-            if ((lVolume.Flags & (int)VolumeFlags.Media) != 0)
-            {
-              fMonitor.TriggerEvents(lEvent == DeviceEvent.Arrival, lVolume.Mask);
-            }
+            lVolume = (Volume) Marshal.PtrToStructure(aMessage.LParam, typeof(Volume));
+            if ((lVolume.Flags & (int) VolumeFlags.Media) != 0)
+              _monitor.TriggerEvents(lEvent == DeviceEvent.Arrival, lVolume.Mask);
           }
         }
       }
@@ -151,40 +147,43 @@ namespace Components.Services.AutoPlay
   /// </summary>
   public class DeviceVolumeMonitor : IDisposable
   {
+    #region Protected fields
+
+    internal _DeviceVolumeMonitor _internalMonitorWindow;
+    protected IntPtr _handle;
+    protected bool _disposed;
+    protected bool _enabled;
+    protected bool _async;
+
+    #endregion
 
     /// <summary>
-    /// Private fields
-    /// </summary>
-    _DeviceVolumeMonitor fInternal;
-    IntPtr fHandle;
-    bool fDisposed;
-    bool fEnabled;
-    bool fAsync;
-
-    /// <summary>
-    /// Events
-    /// These events are invoked on Volume insertion an removal
+    /// Invoked on Volume insertion.
     /// </summary>
     public event DeviceVolumeAction OnVolumeInserted;
+
+    /// <summary>
+    /// Invoked on Volume removal.
+    /// </summary>
     public event DeviceVolumeAction OnVolumeRemoved;
 
     /// <summary>
-    /// Enables or disables message trapping
+    /// Enables or disables message trapping.
     /// </summary>
     public bool Enabled
     {
-      get { return fEnabled; }
+      get { return _enabled; }
       set
       {
-        if (!fEnabled && value)
+        if (!_enabled && value)
         {
-          if (fInternal.Handle == IntPtr.Zero) { fInternal.AssignHandle(fHandle); }
-          fEnabled = true;
+          if (_internalMonitorWindow.Handle == IntPtr.Zero) { _internalMonitorWindow.AssignHandle(_handle); }
+          _enabled = true;
         }
-        if (fEnabled && !value)
+        if (_enabled && !value)
         {
-          if (fInternal.Handle != IntPtr.Zero) { fInternal.ReleaseHandle(); }
-          fEnabled = false;
+          if (_internalMonitorWindow.Handle != IntPtr.Zero) { _internalMonitorWindow.ReleaseHandle(); }
+          _enabled = false;
         }
       }
     }
@@ -194,20 +193,19 @@ namespace Components.Services.AutoPlay
     /// </summary>
     public bool AsynchronousEvents
     {
-      get { return fAsync; }
-      set { fAsync = value; }
+      get { return _async; }
+      set { _async = value; }
     }
 
     /// <summary>
-    /// Preferred constructor, accepts a Window Handle as single parameter
+    /// Creates and initializes a new <see cref="DeviceVolumeMonitor"/>.
     /// </summary>
-    /// <param name="aHandle">Window handle to be captured</param>
-    public DeviceVolumeMonitor(IntPtr aHandle)
+    /// <param name="handle">Window handle to be captured.</param>
+    public DeviceVolumeMonitor(IntPtr handle)
     {
-      if (aHandle == IntPtr.Zero)
+      if (handle == IntPtr.Zero)
         throw new DeviceVolumeMonitorException("Invalid handle!");
-      else
-        fHandle = aHandle;
+      _handle = handle;
       Initialize();
     }
 
@@ -217,106 +215,88 @@ namespace Components.Services.AutoPlay
     /// </summary>
     private void Initialize()
     {
-      fInternal = new _DeviceVolumeMonitor(this);
-      fDisposed = false;
-      fEnabled = false;
-      fAsync = false;
+      _internalMonitorWindow = new _DeviceVolumeMonitor(this);
+      _disposed = false;
+      _enabled = false;
+      _async = false;
       Enabled = true;
     }
 
     /// <summary>
-    /// Internal method used by _DeviceVolumeMonitor
+    /// Internal method used by _DeviceVolumeMonitor.
     /// </summary>
-    /// <param name="aInserted">Flag set if volume inserted</param>
-    /// <param name="aMask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure</param>
-    internal void TriggerEvents(bool aInserted, int aMask)
+    /// <param name="inserted">Flag set if volume inserted.</param>
+    /// <param name="mask">Bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure.</param>
+    internal void TriggerEvents(bool inserted, int mask)
     {
-      if (AsynchronousEvents)
+      if (_async)
       {
-        if (aInserted) { OnVolumeInserted.BeginInvoke(aMask, null, null); }
-        else { OnVolumeRemoved.BeginInvoke(aMask, null, null); }
+        if (inserted) { OnVolumeInserted.BeginInvoke(mask, null, null); }
+        else { OnVolumeRemoved.BeginInvoke(mask, null, null); }
       }
       else
       {
-        if (aInserted) { OnVolumeInserted(aMask); }
-        else { OnVolumeRemoved(aMask); }
+        if (inserted) { OnVolumeInserted(mask); }
+        else { OnVolumeRemoved(mask); }
       }
     }
 
     /// <summary>
-    /// Platform invoke the API function QueryDosDevice
-    /// Fills aPath with the device path mapped to a DOS drive letter or device name in aName
-    /// Returns the device path count (NOTE: used to retrieve a single device path)
+    /// Platform invoke the API function QueryDosDevice.
+    /// Fills <paramref name="aPath"/> with the device path mapped to a DOS drive letter or device name in <paramref name="aName"/>.
+    /// Returns the device path count. (NOTE: used to retrieve a single device path)
     /// </summary>
     [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
     private static extern int QueryDosDevice(string aName, [Out] StringBuilder aPath, int aCapacity);
 
     /// <summary>
-    /// Returns a comma delimited string with all the drive letters in the bit vector parameter
+    /// Returns a comma delimited string with all the drive letters in the bit vector parameter.
     /// </summary>
-    /// <param name="aMask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure</param>
+    /// <param name="mask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure.</param>
     /// <returns></returns>
-    public string MaskToLogicalPaths(int aMask)
+    public string MaskToLogicalPaths(int mask)
     {
-      int lMask = aMask;
+      int lMask = mask;
       int lValue = 0;
       StringBuilder lReturn = new StringBuilder(128);
 
-      try
+      if (mask > 0)
       {
-        lReturn = new StringBuilder(128);
-        if (aMask > 0)
+        for (; lMask != 0; lMask >>= 1)
         {
-          for (; lMask != 0; lMask >>= 1)
+          if ((lMask & 1) != 0)
           {
-            if ((lMask & 1) != 0)
-            {
-              lReturn.Append((char)(65 + lValue));
-              lReturn.Append(":,");
-            }
-            lValue++;
+            lReturn.Append((char)(65 + lValue));
+            lReturn.Append(":,");
           }
-          lReturn.Remove(lReturn.Length - 1, 1);
+          lValue++;
         }
-        return lReturn.ToString();
+        lReturn.Remove(lReturn.Length - 1, 1);
       }
-      finally
-      {
-        lReturn = null;
-      }
+      return lReturn.ToString();
     }
 
     /// <summary>
-    /// Returns a comma delimited string with all the device paths in the bit vector parameter
+    /// Returns a comma delimited string with all the device paths in the bit vector parameter.
     /// </summary>
-    /// <param name="aMask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure</param>
+    /// <param name="aMask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure.</param>
     /// <returns></returns>
     public string MaskToDevicePaths(int aMask)
     {
       string[] lLogical = MaskToLogicalPaths(aMask).Split(Convert.ToChar(","));
-      StringBuilder lBuffer;
-      StringBuilder lReturn;
 
-      try
+      StringBuilder lBuffer = new StringBuilder(256);
+      StringBuilder lReturn = new StringBuilder(256);
+      foreach (string lPath in lLogical)
       {
-        lBuffer = new StringBuilder(256);
-        lReturn = new StringBuilder(256);
-        foreach (string lPath in lLogical)
+        if (QueryDosDevice(lPath, lBuffer, lBuffer.Capacity) > 0)
         {
-          if (QueryDosDevice(lPath, lBuffer, lBuffer.Capacity) > 0)
-          {
-            lReturn.Append(lBuffer.ToString());
-            lReturn.Append(",");
-          }
+          lReturn.Append(lBuffer.ToString());
+          lReturn.Append(",");
         }
-        lReturn.Remove(lReturn.Length - 1, 1);
-        return lReturn.ToString();
       }
-      finally
-      {
-        lBuffer = null;
-        lReturn = null;
-      }
+      lReturn.Remove(lReturn.Length - 1, 1);
+      return lReturn.ToString();
     }
 
     /// <summary>
@@ -328,17 +308,17 @@ namespace Components.Services.AutoPlay
       GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool aDisposing)
+    protected virtual void Dispose(bool disposing)
     {
-      if (!this.fDisposed)
+      if (!_disposed)
       {
-        if (fInternal.Handle != IntPtr.Zero)
+        if (_internalMonitorWindow.Handle != IntPtr.Zero)
         {
-          fInternal.ReleaseHandle();
-          fInternal = null;
+          _internalMonitorWindow.ReleaseHandle();
+          _internalMonitorWindow = null;
         }
       }
-      fDisposed = true;
+      _disposed = true;
     }
 
     ~DeviceVolumeMonitor()

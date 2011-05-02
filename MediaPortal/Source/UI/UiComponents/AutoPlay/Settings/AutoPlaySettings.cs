@@ -24,30 +24,33 @@
 
 using MediaPortal.Core.Settings;
 
-namespace Components.Services.AutoPlay
+namespace MediaPortal.UiComponents.AutoPlay.Settings
 {
+  public enum AutoPlayType
+  {
+    NoAutoPlay,
+    Ask,
+    Auto
+  }
+
   public class AutoPlaySettings
   {
-    #region variables
-    private string _autoPlayDVD;
-    private string _autoPlayCD;
+    #region Protected fields
+
+    protected AutoPlayType _autoPlayDVD;
+    protected AutoPlayType _autoPlayCD;
+
     #endregion
 
-    /// <summary>
-    /// AutoPlayDVD
-    /// </summary>
-    [Setting(SettingScope.User, "Ask")]
-    public string AutoPlayDVD
+    [Setting(SettingScope.User, AutoPlayType.Ask)]
+    public AutoPlayType AutoPlayDVD
     {
       get { return _autoPlayDVD; }
       set { _autoPlayDVD = value; }
     }
 
-    /// <summary>
-    /// AutoPlayCD
-    /// </summary>
-    [Setting(SettingScope.User, "Ask")]
-    public string AutoPlayCD
+    [Setting(SettingScope.User, AutoPlayType.Ask)]
+    public AutoPlayType AutoPlayCD
     {
       get { return _autoPlayCD; }
       set { _autoPlayCD = value; }

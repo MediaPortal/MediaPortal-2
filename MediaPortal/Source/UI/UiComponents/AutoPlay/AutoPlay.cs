@@ -27,30 +27,26 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.AutoPlay;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Extensions.MediaManagement;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.AutoPlay;
 using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.Utilities;
-using MediaPortal.Extensions.BassLibraries;
+using MediaPortal.UiComponents.AutoPlay.Settings;
 
-namespace Components.Services.AutoPlay
+namespace MediaPortal.UiComponents.AutoPlay
 {
   public class AutoPlay : IAutoPlay, IPluginStateTracker
   {
     #region Variables
 
-    private ILogger Logger;
-    private DeviceVolumeMonitor _deviceMonitor;
-    private AutoPlaySettings _settings;
-    private IntPtr _windowHandle = IntPtr.Zero;
-    private AsynchronousMessageQueue _messageQueue = null;
+    protected DeviceVolumeMonitor _deviceMonitor;
+    protected AutoPlaySettings _settings;
+    protected IntPtr _windowHandle = IntPtr.Zero;
+    protected AsynchronousMessageQueue _messageQueue = null;
+    protected readonly object _syncObj = new object();
 
     enum MediaType
     {
@@ -61,9 +57,10 @@ namespace Components.Services.AutoPlay
       VIDEOS = 4,
       AUDIO = 5
     }
+
     #endregion
 
-    #region ctor / dtor
+    #region Ctor / Dtor
 
     public AutoPlay()
     {
@@ -72,7 +69,6 @@ namespace Components.Services.AutoPlay
       string decoderFolderPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<APPLICATION_ROOT>\musicplayer\plugins\audio decoders");
       int pluginHandle = Un4seen.Bass.Bass.BASS_PluginLoad(decoderFolderPath + "\\basscd.dll");
 
-      Logger = ServiceRegistration.Get<ILogger>();
       LoadSettings();
     }
 
@@ -92,17 +88,17 @@ namespace Components.Services.AutoPlay
       try
       {
         _deviceMonitor = new DeviceVolumeMonitor(_windowHandle);
-        _deviceMonitor.OnVolumeInserted += new DeviceVolumeAction(VolumeInserted);
-        _deviceMonitor.OnVolumeRemoved += new DeviceVolumeAction(VolumeRemoved);
+        _deviceMonitor.OnVolumeInserted += VolumeInserted;
+        _deviceMonitor.OnVolumeRemoved += VolumeRemoved;
         _deviceMonitor.AsynchronousEvents = true;
         _deviceMonitor.Enabled = true;
 
-        Logger.Info("AutoPlay: Monitoring System for Media Changes");
+        ServiceRegistration.Get<ILogger>().Info("AutoPlay: Monitoring system for removable media changes");
         return true;
       }
       catch (DeviceVolumeMonitorException ex)
       {
-        Logger.Error("AutoPlay: Error enabling AutoPlay Service. {0}", ex.Message);
+        ServiceRegistration.Get<ILogger>().Error("AutoPlay: Error enabling AutoPlay service", ex);
       }
       return false;
     }
@@ -123,11 +119,11 @@ namespace Components.Services.AutoPlay
       switch (DetectMediaType(strDrive))
       {
         case MediaType.DVD:
-          Logger.Info("AutoPlay: DVD inserted into {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: DVD inserted into {0}", strDrive);
           bool PlayDVD = false;
           if (_settings.AutoPlayDVD == "Yes")
           {
-            Logger.Info("Autoplay: DVD AutoPlay = ýes");
+            ServiceRegistration.Get<ILogger>().Info("Autoplay: DVD AutoPlay = ýes");
             PlayDVD = true;
           }
           else if ((_settings.AutoPlayDVD == "Ask") && (ShouldWeAutoPlay(MediaType.DVD)))
@@ -170,13 +166,13 @@ namespace Components.Services.AutoPlay
           break;
 
         case MediaType.AUDIO_CD:
-          Logger.Info("AutoPlay: Audio CD inserted into drive {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Audio CD inserted into drive {0}", strDrive);
           bool PlayAudioCd = false;
           if (_settings.AutoPlayCD == "Yes")
           {
             // Automaticaly play the CD
             PlayAudioCd = true;
-            Logger.Info("Autplay: CD Autoplay = yes");
+            ServiceRegistration.Get<ILogger>().Info("Autplay: CD Autoplay = yes");
           }
           else if ((_settings.AutoPlayCD == "Ask") && (ShouldWeAutoPlay(MediaType.AUDIO_CD)))
           {
@@ -214,41 +210,43 @@ namespace Components.Services.AutoPlay
           break;
 
         case MediaType.PHOTOS:
-          Logger.Info("AutoPlay: Photo volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Photo volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.PHOTOS))
           {
           }
           break;
 
         case MediaType.VIDEOS:
-          Logger.Info("AutoPlay: Video volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Video volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.VIDEOS))
           {
           }
           break;
 
         case MediaType.AUDIO:
-          Logger.Info("AutoPlay: Audio volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Audio volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.AUDIO))
           {
           }
           break;
 
         default:
-          Logger.Info("AutoPlay: Unknown media type inserted into drive {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Unknown media type inserted into drive {0}", strDrive);
           break;
       }
     }
+
     #endregion
 
     #region Events
+
     /// <summary>
     /// The event that gets triggered whenever a new volume is inserted.
     /// </summary>	
     private void VolumeInserted(int bitMask)
     {
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      Logger.Info("AutoPlay: Media inserted in drive {0}", driveLetter);
+      ServiceRegistration.Get<ILogger>().Info("AutoPlay: Media inserted in drive {0}", driveLetter);
 
       SystemMessage msg = new SystemMessage("Inserted");
       msg.MessageData["drive"] = driveLetter;
@@ -263,12 +261,13 @@ namespace Components.Services.AutoPlay
     private void VolumeRemoved(int bitMask)
     {
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      Logger.Info("AutoPlay: Media removed from drive {0}", driveLetter);
+      ServiceRegistration.Get<ILogger>().Info("AutoPlay: Media removed from drive {0}", driveLetter);
 
       SystemMessage msg = new SystemMessage("Removed");
       msg.MessageData["drive"] = driveLetter;
       ServiceRegistration.Get<IMessageBroker>().Send("autoplay", msg);
     }
+
     #endregion
 
     #region Private Methods
@@ -391,20 +390,26 @@ namespace Components.Services.AutoPlay
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           PluginManagerMessaging.CHANNEL
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
+      lock (_syncObj)
+      {
+        _messageQueue = new AsynchronousMessageQueue(this, new string[]
+          {
+             PluginManagerMessaging.CHANNEL
+          });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        _messageQueue.Start();
+      }
     }
 
     void UnsubscribeFromMessages()
     {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
+      lock (_syncObj)
+      {
+        if (_messageQueue == null)
+          return;
+        _messageQueue.Shutdown();
+        _messageQueue = null;
+      }
     }
 
     #region Event Handlers

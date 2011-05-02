@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using MediaPortal.Extensions.MediaManagement;
 using MediaPortal.Extensions.MetaData;
 
-namespace Components.Services.AutoPlay
+namespace MediaPortal.UiComponents.AutoPlay
 {
   public class AutoPlayMediaItem : IMediaItem
   {
