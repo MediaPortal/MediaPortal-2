@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
@@ -105,11 +106,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     protected ICollection<ChangeTrackerRegistrationKey> GetAllChangeTrackerRegistrationsByPath(string path)
     {
-      ICollection<ChangeTrackerRegistrationKey> result = new List<ChangeTrackerRegistrationKey>();
-      foreach (ChangeTrackerRegistrationKey key in _changeTrackers.Keys)
-        if (key.Path == path)
-          result.Add(key);
-      return result;
+      return _changeTrackers.Keys.Where(key => key.Path == path).ToList();
     }
 
     protected static MediaSourceChangeType TranslateChangeType(FileWatchChangeType changeType)

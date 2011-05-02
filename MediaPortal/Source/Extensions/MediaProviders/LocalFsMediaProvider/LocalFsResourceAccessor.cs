@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
@@ -48,10 +49,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
         IEnumerable<string> namesWithPathPrefix, bool isDirectory)
     {
       rootPath = StringUtils.CheckSuffix(rootPath, "/");
-      ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-      foreach (string file in namesWithPathPrefix)
-        result.Add(new LocalFsResourceAccessor(_provider, rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty)));
-      return result;
+      return namesWithPathPrefix.Select(file => new LocalFsResourceAccessor(_provider, rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     protected string ExpandPath(string path)
@@ -150,16 +148,8 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       if (string.IsNullOrEmpty(_path))
         return null;
       if (_path == "/")
-      {
-        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-        foreach (string drive in Directory.GetLogicalDrives())
-        {
-          if (!new DriveInfo(drive).IsReady)
-            continue;
-          result.Add(new LocalFsResourceAccessor(_provider, "/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/"));
-        }
-        return result;
-      }
+        return Directory.GetLogicalDrives().Where(drive => new DriveInfo(drive).IsReady).Select<string, IFileSystemResourceAccessor>(
+            drive => new LocalFsResourceAccessor(_provider, "/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/")).ToList();
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
       return !Directory.Exists(dosPath) ? null : ConcatPaths(_path, Directory.GetDirectories(dosPath), true);
     }
