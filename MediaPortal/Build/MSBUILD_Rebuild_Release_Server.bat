@@ -1,1 +1,1 @@
-@"%WINDIR%\Microsoft.NET\Framework\v3.5\MSBUILD.exe" ..\Source\MP2-Server.sln /target:Rebuild  /property:Configuration=Release;Platform=x86 >> build.log
+@"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" ..\Source\MP2-Server.sln /target:Rebuild  /property:Configuration=Release;Platform=x86 >> build.log

@@ -57,15 +57,17 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
 
     public static string ToDosPath(string providerPath)
     {
-      if (string.IsNullOrEmpty(providerPath) || providerPath == "/" || !providerPath.StartsWith("/"))
+      if (string.IsNullOrEmpty(providerPath) || providerPath == "/")
         return string.Empty;
-      providerPath = providerPath.Substring(1);
+      if (providerPath.StartsWith("/"))
+        providerPath = providerPath.Substring(1);
       return providerPath.Replace('/', Path.DirectorySeparatorChar);
     }
 
     public static string ToProviderPath(string dosPath)
     {
-      return "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/');
+      dosPath = dosPath.Replace(Path.DirectorySeparatorChar, '/');
+      return dosPath.StartsWith("/") ? dosPath : "/" + dosPath;
     }
 
     public static ResourcePath ToProviderResourcePath(string dosPath)

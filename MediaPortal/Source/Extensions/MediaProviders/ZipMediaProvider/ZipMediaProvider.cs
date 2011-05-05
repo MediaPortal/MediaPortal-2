@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     public ZipMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(ZIP_MEDIA_PROVIDER_ID, "[ZipMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(ZIP_MEDIA_PROVIDER_ID, "[ZipMediaProvider.Name]");
     }
 
     #endregion
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
         return false;
-      if (Path.GetExtension(potentialBaseResourceAccessor.ResourceName) == ".zip")
+      if (".zip".Equals(Path.GetExtension(potentialBaseResourceAccessor.ResourceName), StringComparison.CurrentCultureIgnoreCase))
       {
         try
         {
@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       {
         if (path.Equals("/") && zFile.Count > 0) 
           return true;
-        return zFile.Cast<ZipEntry>().Any(entry => (entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.CurrentCultureIgnoreCase)));
+        return zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == path);
       }
     }
 
