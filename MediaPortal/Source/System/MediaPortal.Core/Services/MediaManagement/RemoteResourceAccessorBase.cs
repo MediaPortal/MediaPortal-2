@@ -108,7 +108,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
-        _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
+      {
+        _underlayingStream = new HttpRangeStream(resourceURL, Size); //TODO: test new BufferedStream(....)
+      }
+      
     }
 
     public Stream OpenRead()
@@ -116,7 +119,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
       PrepareStreamAccess();
-      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
+      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);//_underlayingStream;// 
     }
 
     public Stream OpenWrite()

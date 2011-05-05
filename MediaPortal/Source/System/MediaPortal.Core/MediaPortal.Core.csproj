@@ -63,8 +63,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
-    <Reference Include="NTFS.Sparse">
-      <HintPath>..\..\..\..\..\..\MS\SparseFileTest\NTFS.Sparse\bin\Debug\NTFS.Sparse.dll</HintPath>
+    <Reference Include="NTFS.Sparse, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\NTFS.Sparse.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -194,6 +195,7 @@
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\Logging\log4netLogger.cs" />
     <Compile Include="Services\MediaManagement\BackgroundHttpDataTransfer.cs" />
+    <Compile Include="Services\MediaManagement\HttpRangeStream.cs" />
     <Compile Include="Services\MediaManagement\CachedHttpResourceStream.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
@@ -373,6 +375,7 @@
   <ItemGroup>
     <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
+    <Content Include="References\NTFS.Sparse.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

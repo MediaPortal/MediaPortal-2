@@ -243,14 +243,14 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       response.Status = HttpStatusCode.PartialContent;
       response.ContentLength = range.Length;
-      response.AddHeader("Content-Range", "bytes " + range.From + "-" + range.To + "/" + resourceStream.Length);
+      response.AddHeader("Content-Range", string.Format("bytes {0}-{1}/{2}", range.From, range.To, resourceStream.Length));
       response.SendHeaders();
 
       if (onlyHeaders)
         return;
 
       resourceStream.Seek(range.From, SeekOrigin.Begin);
-      Send(response, resourceStream, (int) range.Length);
+      Send(response, resourceStream, range.Length);
     }
 
     protected void SendWholeFile(IHttpResponse response, Stream resourceStream, bool onlyHeaders)
@@ -262,19 +262,21 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (onlyHeaders)
         return;
 
-      Send(response, resourceStream, (int) resourceStream.Length);
+      Send(response, resourceStream, resourceStream.Length);
     }
 
-    protected void Send(IHttpResponse response, Stream resourceStream, int length)
+    protected void Send(IHttpResponse response, Stream resourceStream, long length)
     {
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
-      int bytesRead = resourceStream.Read(buffer, 0, Math.Min(length, BUF_LEN));
+      int readCount = length > BUF_LEN ? BUF_LEN : (int)length; // Don't use Math.Min for (int)length > Int32.MaxValue, will be negative.
+      int bytesRead = resourceStream.Read(buffer, 0, readCount);
       while (bytesRead > 0)
       {
         length -= bytesRead;
         response.SendBody(buffer, 0, bytesRead);
-        bytesRead = resourceStream.Read(buffer, 0, Math.Min(length, BUF_LEN));
+        readCount = length > BUF_LEN ? BUF_LEN : (int)length;
+        bytesRead = resourceStream.Read(buffer, 0, readCount);
       }
     }
 
