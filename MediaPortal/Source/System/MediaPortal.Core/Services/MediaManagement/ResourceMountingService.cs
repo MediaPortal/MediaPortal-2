@@ -329,7 +329,16 @@ namespace MediaPortal.Core.Services.MediaManagement
         return;
       }
       _driveLetter = driveLetter;
-      DokanOptions opt = new DokanOptions {DriveLetter = driveLetter.Value, VolumeLabel = VOLUME_LABEL};
+      DokanOptions opt = new DokanOptions
+                           {
+                             MountPoint = driveLetter.Value + ":\\",
+                             VolumeLabel = VOLUME_LABEL,
+                             //UseKeepAlive = true,
+                             //DebugMode = true,
+                             //ThreadCount = 5,
+                             //UseAltStream = true,
+                             //UseStdErr = true
+                           };
       int result = DokanNet.DokanMain(opt, this);
       if (result == DokanNet.DOKAN_SUCCESS)
         logger.Info("ResourceMountingService: DokanMain returned successfully");
