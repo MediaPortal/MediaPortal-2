@@ -172,7 +172,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       ICollection<FileWatchChangeType> fwiChangeTypes = TranslateChangeTypes(changeTypes);
       ChangeTrackerRegistrationKey ctrk = new ChangeTrackerRegistrationKey(path, changeDelegate);
       _changeTrackers[ctrk] = ServiceRegistration.Get<IFileEventNotifier>().Subscribe(path, true, FileEventHandler,
-                                                                               fileNameFilters, fwiChangeTypes);
+          fileNameFilters, fwiChangeTypes);
     }
 
     public void UnregisterChangeTracker(PathChangeDelegate changeDelegate, string path)
@@ -187,8 +187,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public void UnregisterAll(PathChangeDelegate changeDelegate)
     {
-      IEnumerable<ChangeTrackerRegistrationKey> oldKeys = new List<ChangeTrackerRegistrationKey>(
-          _changeTrackers.Keys);
+      IEnumerable<ChangeTrackerRegistrationKey> oldKeys = new List<ChangeTrackerRegistrationKey>(_changeTrackers.Keys);
       foreach (ChangeTrackerRegistrationKey key in oldKeys)
         if (key.PathChangeDelegate.Equals(changeDelegate))
           _changeTrackers.Remove(key);
