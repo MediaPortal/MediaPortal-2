@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     public ZipMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(ZIP_MEDIA_PROVIDER_ID, "[ZipMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(ZIP_MEDIA_PROVIDER_ID, "[ZipMediaProvider.Name]");
     }
 
     #endregion

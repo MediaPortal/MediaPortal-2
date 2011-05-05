@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public SlimTvMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(SLIMTV_MEDIA_PROVIDER_ID, "[SlimTvMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(SLIMTV_MEDIA_PROVIDER_ID, "[SlimTvMediaProvider.Name]");
     }
 
     #endregion

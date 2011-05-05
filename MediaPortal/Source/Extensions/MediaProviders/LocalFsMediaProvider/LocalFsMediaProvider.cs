@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public LocalFsMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(LOCAL_FS_MEDIA_PROVIDER_ID, "[LocalFsMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(LOCAL_FS_MEDIA_PROVIDER_ID, "[LocalFsMediaProvider.Name]");
     }
 
     #endregion
