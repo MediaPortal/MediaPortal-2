@@ -78,7 +78,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
         ZipFile zFile = new ZipFile(_zipResourceAccessor.ResourcePathName);
         foreach (ZipEntry entry in zFile)
         {
-          if (entry.Name.Equals(path, StringComparison.OrdinalIgnoreCase))
+          if (entry.Name == path)
           {
             _isDirectory = entry.IsDirectory;
             _resourceName = Path.GetFileName(StringUtils.RemoveSuffixIfPresent(path, "/"));
@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
         {
           string dirName = Path.GetDirectoryName(entry.Name);
           dirName = dirName == null ? null : dirName.Replace('\\', '/');
-          if (path.Equals(dirName, StringComparison.OrdinalIgnoreCase))
+          if (path == dirName)
             _currentDirList.Add(entry);
         }
       }
@@ -217,7 +217,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       ZipFile zFile = new ZipFile(_zipResourceAccessor.ResourcePathName);
       foreach (ZipEntry entry in zFile)
       {
-        if ((entry.IsFile) && (entry.Name.Equals(path, StringComparison.OrdinalIgnoreCase)))
+        if (entry.IsFile && entry.Name == path)
         {
           if (string.IsNullOrEmpty(_tempPathFile))
           {
@@ -253,7 +253,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
     {
       if (path.Equals("/") && _currentDirList.Count > 0)
         return true;
-      return _currentDirList.Any(entry => (entry.IsDirectory) && (entry.Name.Equals(path, StringComparison.OrdinalIgnoreCase)));
+      return _currentDirList.Any(entry => entry.IsDirectory && entry.Name == path);
     }
 
     public IResourceAccessor GetResource(string path)
@@ -267,7 +267,8 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(fileEntry.Name))));
+      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
+          new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(fileEntry.Name))));
       return files;
     }
 
@@ -276,7 +277,8 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
       ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry => new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(directoryEntry.Name))));
+      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
+          new ZipResourceAccessor(_zipProvider, _zipResourceAccessor, LocalFsMediaProviderBase.ToProviderPath(directoryEntry.Name))));
       return directories;
     }
 
