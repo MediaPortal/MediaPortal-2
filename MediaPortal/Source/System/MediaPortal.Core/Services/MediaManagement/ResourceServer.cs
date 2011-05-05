@@ -23,6 +23,7 @@
 #endregion
 
 using System.Net;
+using System.Net.Sockets;
 using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.Core.Logging;
@@ -84,21 +85,45 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       if (settings.UseIPv4)
-      {
-        _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
-        ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv4) at port {0}", _httpServerV4.Port);
-      }
+        try
+        {
+          _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
+          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv4) at port {0}", _httpServerV4.Port);
+        }
+        catch (SocketException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server (IPv4)", e);
+        }
       if (settings.UseIPv6)
-      {
-        _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
-        ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv6) at port {0}", _httpServerV6.Port);
-      }
+        try
+        {
+          _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
+          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server (IPv6) at port {0}", _httpServerV6.Port);
+        }
+        catch (SocketException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server (IPv6)", e);
+        }
     }
 
     public void StopServers()
     {
-      _httpServerV4.Stop();
-      _httpServerV6.Stop();
+      try
+      {
+        _httpServerV4.Stop();
+      }
+      catch (SocketException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv4)", e);
+      }
+      try
+      {
+        _httpServerV6.Stop();
+      }
+      catch (SocketException e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server (IPv6)", e);
+      }
     }
 
     #region IResourceServer implementation
