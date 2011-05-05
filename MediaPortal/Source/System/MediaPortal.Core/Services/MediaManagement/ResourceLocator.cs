@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
@@ -59,8 +58,10 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       SystemName nativeSystem = systemResolver.GetSystemNameForSystemId(_nativeSystemId);
+      if (nativeSystem == null)
+        throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}': System is not available", _nativeResourcePath, _nativeSystemId);
       // Try to access resource locally. This might work if we have the correct media providers installed.
-      if (nativeSystem != null && nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
+      if (nativeSystem.IsLocalSystem() && _nativeResourcePath.IsValidLocalPath)
         return _nativeResourcePath.CreateLocalResourceAccessor();
       IFileSystemResourceAccessor fsra;
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
@@ -74,18 +75,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     public ILocalFsResourceAccessor CreateLocalFsAccessor()
     {
       IResourceAccessor accessor = CreateAccessor();
-      //// Try to get an ILocalFsResourceAccessor
-      ILocalFsResourceAccessor result = accessor as ILocalFsResourceAccessor;
-      if (result != null)
-        // Simple case: The media item is located in the local file system or the media provider returns
-        // an ILocalFsResourceAccessor from elsewhere - simply return it
-        return result;
       try
       {
-        // Set up a resource bridge mapping the remote or complex resource to a local file
-        return new RemoteResourceToLocalFsAccessBridge(accessor);
+        return StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(accessor);
       }
-      catch (Exception)
+      catch
       {
         accessor.Dispose();
         throw;

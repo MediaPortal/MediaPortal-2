@@ -330,7 +330,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         FinalizeAllocation(info.Width, info.Height);
       }
     }
-    
+
     protected void AllocateFromFileAsync(string path)
     {
       lock (_syncObj)
@@ -631,12 +631,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     }
   }
 
+  /// <summary>
+  /// A version of <see cref="TextureAssetCore"/> that gets its texture data from a byte buffer.
+  /// </summary>
   public class ThumbnailBinaryTextureAssetCore : TextureAssetCore
   {
-    private byte[] _binaryThumbdata = null;
+    private readonly byte[] _binaryThumbdata = null;
 
-    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName)
-      : base (textureName, 0, 0)
+    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base (textureName, 0, 0)
     {
       _binaryThumbdata = binaryThumbdata;
     }
@@ -648,7 +650,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   }
 
   /// <summary>
-  /// A version of TextureAssetCore that provides simple access to solid color textures for internal use.
+  /// A version of <see cref="TextureAssetCore"/> that provides simple access to solid color textures for internal use.
   /// </summary>
   public class ColorTextureAssetCore : TextureAssetCore
   {
