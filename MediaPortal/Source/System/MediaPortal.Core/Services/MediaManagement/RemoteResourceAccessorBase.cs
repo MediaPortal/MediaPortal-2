@@ -109,7 +109,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
       {
-        _underlayingStream = new HttpRangeStream(resourceURL, Size); //TODO: test new BufferedStream(....)
+        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size); //TODO: test new BufferedStream(....)
       }
       
     }
