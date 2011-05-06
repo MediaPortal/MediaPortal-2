@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\Includes.wxi ?>
+
+  <DirectoryRef Id="TeamMediaPortalFolder">
+    <Directory Id="ClientFolder" Name="MP2-Client" FileSource="$(var.OutDirClient)">
+
+      <Directory Id="Defaults" Name="Defaults">
+        <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
+          <File Id="Paths.xml" Name="Paths.xml" Checksum="yes" />
+        </Component>
+      </Directory>
+
+      <Directory Id="Docs" Name="Docs">
+        <Component Id="Docs" Guid="C0CF3D7A-3BE8-47EC-9198-59A9F0643EF3">
+          <File Id="BASSLicense.txt" Name="BASS License.txt" Checksum="yes" />
+          <File Id="MediaPortalLicense.rtf" Name="MediaPortal License.rtf" Checksum="yes" />
+        </Component>
+      </Directory>
+
+      <Directory Id="ClientPluginsFolder" Name="Plugins" />
+
+      <Component Id="MP2_Client" Guid="0EB0692F-2668-4075-A4D9-DF43A75D5AC0">
+        <File Id="MP2_Client.exe" Name="MP2-Client.exe" />
+        <File Id="MP2_Client.exe.config" Name="MP2-Client.exe.config" />
+        <File Id="MP2_Client_Splashscreen.jpg" Name="MP2 Client Splashscreen.jpg" />
+      </Component>
+      <Component Id="HttpServer" Guid="D26BF800-F936-4FD8-94A9-9A71CCB7AB3B">
+        <File Id="HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="MediaPortal.Core" Guid="60570A25-6C30-4CBB-8484-261C99C74B71">
+        <File Id="MediaPortal.Core.dll" Name="MediaPortal.Core.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="MediaPortal.UI" Guid="07414112-5955-4639-B425-25DE0D55684D">
+        <File Id="MediaPortal.UI.dll" Name="MediaPortal.UI.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="MediaPortal.Utilities" Guid="8BD9E84A-22B2-4C5D-9737-25526216F97B">
+        <File Id="MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="log4net" Guid="6AB68CEB-DABE-497E-887D-E4AACABE7016">
+        <File Id="log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="UPnP" Guid="DF7F4726-1AC0-4C8D-9222-850568F9E15C">
+        <File Id="UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="zlib1" Guid="1AFA13C5-506E-440A-A38C-8F519FB0EAD4">
+        <File Id="zlib1.dll" Name="zlib1.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+
+    </Directory>
+  </DirectoryRef>
+
+  </Fragment>
+</Wix>

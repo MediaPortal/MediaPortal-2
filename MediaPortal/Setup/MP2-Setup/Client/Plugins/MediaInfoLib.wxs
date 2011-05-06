@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="S__MediaInfoLib" Name="MediaInfoLib">
+
+        <Component Id="S__MediaInfoLib" Guid="24049586-27F9-4AD5-848B-6053E913BDD5">
+          <File Id="S__MediaInfoLib.dll" Name="MediaInfoLib.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__MediaInfoLib.plugin.xml" Name="plugin.xml" />
+
+          <File Id="S__MediaInfo.dll" Name="MediaInfo.dll" />
+        </Component>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__MediaInfoLib" Level="0">
+      <ComponentRef Id="S__MediaInfoLib" />
+    </Feature>
+
+  </Fragment>
+</Wix>

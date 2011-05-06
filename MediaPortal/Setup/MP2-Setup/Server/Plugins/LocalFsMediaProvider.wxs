@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="S__LocalFsMediaProvider" Name="LocalFsMediaProvider">
+
+        <Component Id="S__LocalFsMediaProvider" Guid="9533079E-E5F1-437E-B63E-3FEC318C9544">
+          <File Id="S__LocalFsMediaProvider.dll" Name="LocalFsMediaProvider.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__LocalFsMediaProvider.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="S__LocalFsMediaProvider.Language" Name="Language">
+          <Component Id="S__LocalFsMediaProvider.Language" Guid="15DA1C27-EB08-4133-8EA9-0444C19C1AEE">
+            <File Id="S__LocalFsMediaProvider.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__LocalFsMediaProvider" Level="0">
+      <ComponentRef Id="S__LocalFsMediaProvider" />
+      <ComponentRef Id="S__LocalFsMediaProvider.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

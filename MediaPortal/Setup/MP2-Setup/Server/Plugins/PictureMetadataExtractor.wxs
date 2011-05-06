@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="S__PictureMetadataExtractor" Name="PictureMetadataExtractor">
+
+        <Component Id="S__PictureMetadataExtractor" Guid="DC23810C-39B7-482B-B1C5-943B5EFE6E46">
+          <File Id="S__PictureMetadataExtractor.dll" Name="PictureMetadataExtractor.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__PictureMetadataExtractor.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__PictureMetadataExtractor" Level="0">
+      <ComponentRef Id="S__PictureMetadataExtractor" />
+    </Feature>
+
+  </Fragment>
+</Wix>

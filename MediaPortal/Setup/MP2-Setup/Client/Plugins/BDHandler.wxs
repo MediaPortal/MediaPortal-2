@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="BDHandler" Name="BDHandler">
+
+        <Component Id="BDHandler" Guid="0527E90F-ECA4-473D-9EE8-89C6A6EF052E">
+          <File Id="BDHandler.dll" Name="BDHandler.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="BDHandler.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="BDHandler.Language" Name="Language">
+          <Component Id="BDHandler.Language" Guid="A5B1061A-22D0-4AA0-8FB8-E88C2046B677">
+            <File Id="BDHandler.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="BDHandler" Level="0">
+      <ComponentRef Id="BDHandler" />
+      <ComponentRef Id="BDHandler.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

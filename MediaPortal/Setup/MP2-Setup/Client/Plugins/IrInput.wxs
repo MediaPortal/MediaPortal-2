@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="IrInput" Name="IrInput">
+
+        <Component Id="IrInput" Guid="95505E02-33A9-4F40-9AD3-9855AD09F91C">
+          <File Id="IrInput.dll" Name="IrInput.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="IrInput.plugin.xml" Name="plugin.xml" />
+
+          <File Id="DefaultRemoteMap.xml" Name="DefaultRemoteMap.xml" />
+          <File Id="IrssComms.dll" Name="IrssComms.dll" />
+          <File Id="IrssUtils.dll" Name="IrssUtils.dll" />
+        </Component>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="IrInput" Level="0">
+      <ComponentRef Id="IrInput" />
+    </Feature>
+
+  </Fragment>
+</Wix>

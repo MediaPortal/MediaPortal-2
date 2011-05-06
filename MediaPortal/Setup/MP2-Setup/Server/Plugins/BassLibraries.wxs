@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirServer)\Plugins">
+      <Directory Id="S__BassLibraries" Name="BassLibraries">
+
+        <Component Id="S__BassLibraries" Guid="F3B361F6-8636-420E-853F-62EB28630969">
+          <File Id="S__BassLibraries.dll" Name="BassLibraries.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__BassLibraries.plugin.xml" Name="plugin.xml" />
+
+          <File Id="S__bass.dll" Name="bass.dll" />
+          <File Id="S__Bass.Net.dll" Name="Bass.Net.dll" />
+          <!-- todo: do we need bassmix.dll here? it's also in bassplayer-plugin -->
+          <File Id="S__bassmix.dll" Name="bassmix.dll" />
+          <File Id="S__BassRegistration.dll" Name="BassRegistration.dll" />
+        </Component>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__BassLibraries" Level="0">
+      <ComponentRef Id="S__BassLibraries" />
+    </Feature>
+
+  </Fragment>
+</Wix>

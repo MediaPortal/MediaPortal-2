@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirServer)\Plugins">
+      <Directory Id="ServerBase" Name="ServerBase">
+
+        <Component Id="ServerBase" Guid="F69F7E57-B330-4AE5-913C-613F26F4F1D6">
+          <File Id="ServerBase.dll" Name="ServerBase.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="ServerBase.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="ServerBase.Language" Name="Language">
+          <Component Id="ServerBase.Language" Guid="B872607F-04B3-4CDE-A97C-A4E89593079F">
+            <File Id="ServerBase.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="ServerBase" Level="0">
+      <ComponentRef Id="ServerBase" />
+      <ComponentRef Id="ServerBase.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

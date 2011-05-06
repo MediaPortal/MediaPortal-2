@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirServer)\Plugins">
+      <Directory Id="S__ZipMediaProvider" Name="ZipMediaProvider">
+
+        <Component Id="S__ZipMediaProvider" Guid="27D8BCA8-37BF-46AB-AC29-C518D94B714B">
+          <File Id="S__ZipMediaProvider.dll" Name="ZipMediaProvider.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__ZipMediaProvider.plugin.xml" Name="plugin.xml" />
+
+          <File Id="S__ICSharpCode.SharpZipLib.dll" Name="ICSharpCode.SharpZipLib.dll" />
+        </Component>
+
+        <Directory Id="S__ZipMediaProvider.Language" Name="Language">
+          <Component Id="S__ZipMediaProvider.Language" Guid="0B91E5EE-47E2-47BB-8985-F380D1DBE98D">
+            <File Id="S__ZipMediaProvider.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__ZipMediaProvider" Level="0">
+      <ComponentRef Id="S__ZipMediaProvider" />
+      <ComponentRef Id="S__ZipMediaProvider.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

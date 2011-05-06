@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="NewSkin" Name="NewSkin">
+
+        <Component Id="NewSkin" Guid="1FB51885-1C0F-4F82-947A-7B18EE32A942">
+          <File Id="NewSkin.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="NewSkin.Skin" Name="Skin">
+          <!-- todo: add skin files -->
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="NewSkin" Level="0">
+      <ComponentRef Id="NewSkin" />
+    </Feature>
+
+  </Fragment>
+</Wix>

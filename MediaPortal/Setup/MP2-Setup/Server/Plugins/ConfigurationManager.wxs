@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ServerPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="S__ConfigurationManager" Name="ConfigurationManager">
+
+        <Component Id="S__ConfigurationManager" Guid="B1773FDA-7CD3-4E84-ABEA-C46E632D3EF2">
+          <File Id="S__ConfigurationManager.dll" Name="ConfigurationManager.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="S__ConfigurationManager.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="S__ConfigurationManager.Language" Name="Language">
+          <Component Id="S__ConfigurationManager.Language" Guid="AEFB7E02-7284-4E21-B71E-7F4721D29CBD">
+            <File Id="S__ConfigurationManager.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="S__ConfigurationManager" Level="0">
+      <ComponentRef Id="S__ConfigurationManager" />
+      <ComponentRef Id="S__ConfigurationManager.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

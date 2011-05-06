@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="TagLib" Name="TagLib">
+
+        <Component Id="TagLib" Guid="8BB28A8F-75C7-4F18-B1DD-F84C531E27B1">
+          <File Id="TagLib.dll" Name="TagLib.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="TagLib.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="TagLib" Level="0">
+      <ComponentRef Id="TagLib" />
+    </Feature>
+
+  </Fragment>
+</Wix>

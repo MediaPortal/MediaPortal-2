@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="PicturePlayer" Name="PicturePlayer">
+
+        <Component Id="PicturePlayer" Guid="BBDAA7F6-F723-4796-A686-E672BCEB95DB">
+          <File Id="PicturePlayer.dll" Name="PicturePlayer.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="PicturePlayer.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="PicturePlayer.Language" Name="Language">
+          <Component Id="PicturePlayer.Language" Guid="8F9A0EB5-12F5-41F6-BA6C-914BB49D68F0">
+            <File Id="PicturePlayer.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+        <Directory Id="PicturePlayer.Skin" Name="Skin"/>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="PicturePlayer" Level="0">
+      <ComponentRef Id="PicturePlayer" />
+      <ComponentRef Id="PicturePlayer.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="bcccb3b9-2ac9-4cef-81d7-c0b0520bc521"
+           Name="MediaPortal 2"
+           Version="2.0.0.0"
+           Language="1031"
+           Manufacturer="Team MediaPortal"
+           UpgradeCode="df866d75-870b-488a-835a-4edfdcd70c7b">
+
+    <Package Id='*'
+             Keywords='Installer'
+             Description='MediaPortal 2 Installer'
+             InstallerVersion='200'
+             Languages='1031'
+             Compressed='yes' />
+
+    <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" />
+    
+    <?Include Includes.wxi?>
+
+
+    <!-- Step 1: Define the directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
+
+          
+        </Directory>
+      </Directory>
+    </Directory>
+    
+    <!-- Step 2: Add files to your installer package -->
+
+    <Feature Id="MP2Client" Title="MP2Client" Level="1">
+      <!-- Directories -->
+      <ComponentRef Id="Defaults" />
+      <ComponentRef Id="Docs" />
+
+      <!-- Base -->
+      <ComponentRef Id="MP2_Client" />
+      <ComponentRef Id="HttpServer" />
+      <ComponentRef Id="log4net" />
+      <ComponentRef Id="MediaPortal.Core" />
+      <ComponentRef Id="MediaPortal.UI" />
+      <ComponentRef Id="MediaPortal.Utilities" />
+      <ComponentRef Id="UPnP" />
+      <ComponentRef Id="zlib1" />
+
+      <!-- Plugins -->
+      <FeatureRef Id="BackgroundManager"/>
+      <FeatureRef Id="BassLibraries"/>
+      <FeatureRef Id="BassPlayer"/>
+      <FeatureRef Id="BDHandler"/>
+      <FeatureRef Id="Black_Backdrop"/>
+      <FeatureRef Id="Configuration"/>
+      <FeatureRef Id="ConfigurationManager"/>
+      <FeatureRef Id="IrInput"/>
+      <FeatureRef Id="LocalFsMediaProvider"/>
+      <FeatureRef Id="Media"/>
+      <FeatureRef Id="MediaInfoLib"/>
+      <FeatureRef Id="MovieMetadataExtractor"/>
+      <FeatureRef Id="MusicMetadataExtractor"/>
+      <FeatureRef Id="NewSkin"/>
+      <FeatureRef Id="PictureMetadataExtractor"/>
+      <FeatureRef Id="PicturePlayer"/>
+      <FeatureRef Id="SkinBase"/>
+      <FeatureRef Id="SkinEngine"/>
+      <FeatureRef Id="SlimTv4HomeProvider"/>
+      <FeatureRef Id="SlimTvClient"/>
+      <FeatureRef Id="TagLib"/>
+      <FeatureRef Id="VideoPlayers"/>
+      <FeatureRef Id="Weather"/>
+      <FeatureRef Id="ZipMediaProvider"/>
+      
+    </Feature>
+    
+    
+    <Feature Id="MP2Server" Title="MP2Server" Level="1">
+      <!-- Directories -->
+      <ComponentRef Id="S__Defaults" />
+      <ComponentRef Id="Scripts" />
+
+      <!-- Base -->
+      <ComponentRef Id="MP2_Server" />
+      <ComponentRef Id="S__HttpServer" />
+      <ComponentRef Id="S__log4net" />
+      <ComponentRef Id="MediaPortal.Backend" />
+      <ComponentRef Id="S__MediaPortal.Core" />
+      <ComponentRef Id="S__MediaPortal.Utilities" />
+      <ComponentRef Id="S__UPnP" />
+
+      <!-- Plugins -->
+      <FeatureRef Id="S__BassLibraries"/>
+      <FeatureRef Id="S__ConfigurationManager"/>
+      <FeatureRef Id="S__LocalFsMediaProvider"/>
+      <FeatureRef Id="S__MediaInfoLib"/>
+      <FeatureRef Id="S__MovieMetadataExtractor"/>
+      <FeatureRef Id="S__MusicMetadataExtractor"/>
+      <FeatureRef Id="S__PictureMetadataExtractor"/>
+      <FeatureRef Id="ServerBase"/>
+      <FeatureRef Id="SQLCEDatabase"/>
+      <FeatureRef Id="S__TagLib"/>
+      <FeatureRef Id="S__ZipMediaProvider"/>
+    </Feature>
+
+    <UIRef Id="WixUI_FeatureTree"/>
+    
+  </Product>
+</Wix>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="Media" Name="Media">
+
+        <Component Id="Media" Guid="677E0575-3946-4180-868B-9DE843EA5F89">
+          <File Id="Media.dll" Name="Media.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="Media.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="Media.Language" Name="Language">
+          <Component Id="Media.Language" Guid="55678152-BA12-4071-BB99-A0B629AE4A5E">
+            <File Id="Media.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+        <Directory Id="Media.Skin" Name="Skin">
+          <Directory Id="Media.Skin.default" Name="default">
+
+            <Directory Id="Media.Skin.default.screens" Name="screens">
+              <Component Id="Media.Skin.default.screens" Guid="FBD891AE-09C3-4A95-9D09-12018167749A">
+                <File Id="BrowseMediaNavigation.xaml" Name="BrowseMediaNavigation.xaml" />
+                <!-- todo: add other skin files -->
+              </Component>
+            </Directory>
+
+            <Directory Id="Media.Skin.default.superlayers" Name="superlayers">
+              <Component Id="Media.Skin.default.superlayers" Guid="8FE3C499-01F6-49F9-A1D7-5DAE06290E98">
+                <File Id="SkipStepOSD.xaml" Name="SkipStepOSD.xaml" />
+              </Component>
+            </Directory>
+
+            <Directory Id="Media.Skin.default.themes" Name="themes">
+              <Directory Id="Media.Skin.default.themes.default" Name="default">
+                <Directory Id="Media.Skin.default.themes.default.styles" Name="styles">
+                  <Component Id="Media.Skin.default.themes.default.styles" Guid="0BBC7AB2-9D44-4F4F-8028-95E5B3799E60">
+                    <File Id="FullScreenContentConsts.xaml" Name="FullScreenContentConsts.xaml" />
+                    <File Id="MediaButtons.xaml" Name="MediaButtons.xaml" />
+                    <File Id="MediaColors.xaml" Name="MediaColors.xaml" />
+                    <File Id="MediaGraphics.xaml" Name="MediaGraphics.xaml" />
+                    <File Id="MediaStyles.xaml" Name="MediaStyles.xaml" />
+                  </Component>
+                </Directory>
+              </Directory>
+            </Directory>
+
+            <Directory Id="Media.Skin.default.workflow" Name="workflow">
+              <Component Id="Media.Skin.default.workflow" Guid="8B024ACA-3D58-4A76-A2F7-D0B200E55230">
+                <File Id="media_actions.xaml" Name="media-actions.xml" />
+                <File Id="media_states.xaml" Name="media-states.xml" />
+              </Component>
+            </Directory>
+
+          </Directory>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="Media" Level="0">
+      <ComponentRef Id="Media" />
+      <ComponentRef Id="Media.Language" />
+      <ComponentRef Id="Media.Skin.default.screens" />
+      <ComponentRef Id="Media.Skin.default.superlayers" />
+      <ComponentRef Id="Media.Skin.default.themes.default.styles" />
+      <ComponentRef Id="Media.Skin.default.workflow" />
+    </Feature>
+
+  </Fragment>
+</Wix>

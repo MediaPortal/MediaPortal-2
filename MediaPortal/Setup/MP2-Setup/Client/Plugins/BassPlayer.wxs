@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="BassPlayer" Name="BassPlayer">
+
+        <Component Id="BassPlayer" Guid="C4A37FCD-4D9D-487C-AD6C-55259372249D">
+          <File Id="BassPlayer.dll" Name="BassPlayer.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="BassPlayer.plugin.xml" Name="plugin.xml" />
+        </Component>
+
+        <Directory Id="BassPlayer.Language" Name="Language">
+          <Component Id="BassPlayer.Language" Guid="03599764-C5B4-4D8C-BB6D-04DECBDA1F7A">
+            <File Id="BassPlayer.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+        <Directory Id="BassPlayer.Plugins" Name="Plugins">
+          <Component Id="BassPlayer.Plugins" Guid="DCF3C413-7D57-4160-BEBD-B5FD69ABEE5D">
+            <File Id="bass_aac.dll" Name="bass_aac.dll" />
+            <File Id="bass_ac3.dll" Name="bass_ac3.dll" />
+            <File Id="bass_adx.dll" Name="bass_adx.dll" />
+            <File Id="bass_alac.dll" Name="bass_alac.dll" />
+            <File Id="bass_ape.dll" Name="bass_ape.dll" />
+            <File Id="bass_fx.dll" Name="bass_fx.dll" />
+            <File Id="bass_mpc.dll" Name="bass_mpc.dll" />
+            <File Id="bass_ofr.dll" Name="bass_ofr.dll" />
+            <File Id="bass_spx.dll" Name="bass_spx.dll" />
+            <File Id="bass_tta.dll" Name="bass_tta.dll" />
+            <File Id="basscd.dll" Name="basscd.dll" />
+            <File Id="bassflac.dll" Name="bassflac.dll" />
+            <File Id="bassmidi.dll" Name="bassmidi.dll" />
+            <!-- todo: do we need bassmix.dll here? it's also in basslib-plugin -->
+            <File Id="bassmix.dll2" Name="bassmix.dll" />
+            <File Id="basswma.dll" Name="basswma.dll" />
+            <File Id="basswv.dll" Name="basswv.dll" />
+            <File Id="OptimFROG.dll" Name="OptimFROG.dll" />
+            <File Id="tags.dll" Name="tags.dll" />
+          </Component>
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="BassPlayer" Level="0">
+      <ComponentRef Id="BassPlayer" />
+      <ComponentRef Id="BassPlayer.Language" />
+      <ComponentRef Id="BassPlayer.Plugins" />
+    </Feature>
+
+  </Fragment>
+</Wix>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <?include ..\..\Includes.wxi ?>
+
+    <DirectoryRef Id="ClientPluginsFolder" FileSource="$(var.OutDirClient)\Plugins">
+      <Directory Id="SkinEngine" Name="SkinEngine">
+
+        <Component Id="SkinEngine" Guid="768B6966-E9E3-46C4-9D4A-F1F046F7DC13">
+          <File Id="SkinEngine.dll" Name="SkinEngine.dll" KeyPath="yes" Checksum="yes" />
+          <File Id="SkinEngine.plugin.xml" Name="plugin.xml" />
+          
+          <File Id="freetype6.dll" Name="freetype6.dll" />
+          <File Id="SlimDX.dll" Name="SlimDX.dll" />
+        </Component>
+
+        <Directory Id="SkinEngine.Language" Name="Language">
+          <Component Id="SkinEngine.Language" Guid="E8767167-EBE5-4116-958F-31CE4180D53F">
+            <File Id="SkinEngine.strings_en.xml" Name="strings_en.xml" />
+          </Component>
+        </Directory>
+
+        <Directory Id="SkinEngine.Skin" Name="Skin">
+          <!-- todo: add skin files -->
+        </Directory>
+
+      </Directory>
+    </DirectoryRef>
+
+    <Feature Id="SkinEngine" Level="0">
+      <ComponentRef Id="SkinEngine" />
+      <ComponentRef Id="SkinEngine.Language" />
+    </Feature>
+
+  </Fragment>
+</Wix>
