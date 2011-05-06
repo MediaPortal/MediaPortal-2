@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.DeviceTree;
@@ -182,8 +183,17 @@ namespace UPnP.Infrastructure.CP
         {
           _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
           _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-          _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-          _cpData.HttpPortV4 = _httpListenerV4.LocalEndpoint.Port;
+          try
+          {
+            _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+            _cpData.HttpPortV4 = _httpListenerV4.LocalEndpoint.Port;
+          }
+          catch (SocketException e)
+          {
+            _httpListenerV4 = null;
+            _cpData.HttpPortV4 = 0;
+            UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv4)", e);
+          }
         }
         else
         {
@@ -194,8 +204,17 @@ namespace UPnP.Infrastructure.CP
         {
           _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
           _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-          _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
-          _cpData.HttpPortV6 = _httpListenerV6.LocalEndpoint.Port;
+          try
+          {
+            _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
+            _cpData.HttpPortV6 = _httpListenerV6.LocalEndpoint.Port;
+          }
+          catch (SocketException e)
+          {
+            _httpListenerV6 = null;
+            _cpData.HttpPortV6 = 0;
+            UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server (IPv6)", e);
+          }
         }
         else
         {
