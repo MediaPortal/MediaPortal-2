@@ -34,7 +34,7 @@ namespace MediaPortal.Tools.BuildReport
     {
       // Parse Command Line options
       CommandLineOptions brArgs = new CommandLineOptions();
-      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
+      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(false, Console.Error));
       if (!parser.ParseArguments(args, brArgs, Console.Out))
         Environment.Exit(1);
 
@@ -48,7 +48,7 @@ namespace MediaPortal.Tools.BuildReport
       string buildOutput = input.ReadToEnd();
       input.Close();
 
-      IAnalyseInput analyser = brArgs.VS2005 ? (IAnalyseInput) new AnalyseVS2005Input() : new AnalyseMsbuildInput();
+      IAnalyseInput analyser = brArgs.VS2010 ? (IAnalyseInput) new AnalyseVSInput() : new AnalyseMsbuildInput();
 
       analyser.Parse(buildOutput);
 

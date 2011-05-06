@@ -6,7 +6,7 @@
 float4x4  worldViewProj : WORLDVIEWPROJ; // Our world view projection matrix
 
 float4x4  g_transform;
-texture  g_texture; // Color texture 
+texture   g_texture; // Color texture 
 float     g_opacity;
 float2    g_startpoint = {0.0f, 0.0f};
 float2    g_endpoint = {1.0f, 1.0f};

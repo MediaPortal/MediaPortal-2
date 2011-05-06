@@ -25,6 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MediaPortal.Utilities.FileSystem
 {
@@ -33,6 +36,9 @@ namespace MediaPortal.Utilities.FileSystem
   /// </summary>
   public class FileUtils
   {
+    [ThreadStatic]
+    protected static SHA1 _sha1 = null;
+
     /// <summary>
     /// Combines two paths. This method differs from
     /// <see cref="System.IO.Path.Combine(string, string)"/> in that way that it
@@ -117,12 +123,9 @@ namespace MediaPortal.Utilities.FileSystem
     /// in the local file system.</returns>
     public static IList<string> GetAllFilesRecursively(string directoryPath)
     {
-      IList<string> result = new List<string>();
-      foreach (string filePath in Directory.GetFiles(directoryPath))
+      IList<string> result = Directory.GetFiles(directoryPath).ToList();
+      foreach (string filePath in Directory.GetDirectories(directoryPath).SelectMany(GetAllFilesRecursively))
         result.Add(filePath);
-      foreach (string subDirPath in Directory.GetDirectories(directoryPath))
-        foreach (string filePath in GetAllFilesRecursively(subDirPath))
-          result.Add(filePath);
       return result;
     }
 
@@ -159,6 +162,17 @@ namespace MediaPortal.Utilities.FileSystem
         else
           fileOrFolderPath = Path.GetDirectoryName(fileOrFolderPath);
       return false;
+    }
+
+    public static string CreateHumanReadableTempFilePath(string underlayingResourcePath)
+    {
+      if (_sha1 == null)
+        _sha1 = SHA1.Create();
+      string fileName = Path.GetFileName(underlayingResourcePath);
+      string directory = Path.GetTempPath() +
+          BitConverter.ToString(_sha1.ComputeHash(Encoding.UTF8.GetBytes(underlayingResourcePath))).Replace("-","");
+      Directory.CreateDirectory(directory);
+      return directory  + "\\" + fileName;
     }
   }
 }

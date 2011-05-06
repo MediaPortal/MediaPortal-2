@@ -201,6 +201,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       for (int i = 0; i < _dataStrings.Count; i++)
       {
         string dataString = _dataStrings[i];
+        if (dataString == null)
+          return false;
         if (dataString.StartsWith(startsWithStr))
         {
           if (index == 0)

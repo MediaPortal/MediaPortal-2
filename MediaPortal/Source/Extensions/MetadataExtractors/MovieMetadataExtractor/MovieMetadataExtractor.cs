@@ -107,7 +107,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasMovieExtension(string fileName)
     {
-      string ext = Path.GetExtension(fileName).ToLower();
+      string ext = Path.GetExtension(fileName);
+      if (ext != null)
+        ext = ext.ToLower();
       return MOVIE_EXTENSIONS.Contains(ext);
     }
 
@@ -285,14 +287,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           string filePath = mediaItemAccessor.ResourcePathName;
           if (!HasMovieExtension(filePath))
             return false;
-          using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
+          using (MediaInfoWrapper fileInfo = ReadMediaInfo(mediaItemAccessor))
           {
             // Before we start evaluating the file, check if it is a video at all
             if (fileInfo.IsValid && fileInfo.GetVideoCount() == 0)
               return false;
             result = MovieResult.CreateFileInfo(Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourceName), fileInfo);
           }
-          result.MimeType = MimeTypeDetector.GetMimeType(filePath);
+          using (Stream stream = mediaItemAccessor.OpenRead())
+            result.MimeType = MimeTypeDetector.GetMimeType(stream);
         }
         if (result != null)
         {

@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 {
   /// <summary>
   /// Like <see cref="BitmapImage"/>, <see cref="MultiImage"/> acts as a source for the <see cref="Visuals.Image"/> control
-  /// to access to convential image formats. The primary difference between these two classes is that
+  /// to access to conventional image formats. The primary difference between these two classes is that
   /// <see cref="MultiImage"/> is optimised for asyncronous image loading and frequent image changes,
   /// such as in a slide-show, and allows animated transitions between images.
   /// </summary>
@@ -213,7 +213,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             _imageContext.Update(endSize, end);
 
             _lastFrameData.Z = _frameData.Z;
-            if (_imageContext.StartRenderTransition(renderContext, (float)elapsed, _lastImageContext, BorderColor.ToArgb(), _lastFrameData, _frameData))
+            if (_imageContext.StartRenderTransition(renderContext, (float) elapsed, _lastImageContext, BorderColor.ToArgb(), _lastFrameData, _frameData))
             {
               _primitiveBuffer.Render(0);
               _imageContext.EndRenderTransition();

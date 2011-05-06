@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
@@ -88,7 +89,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public LocalFsMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(LOCAL_FS_MEDIA_PROVIDER_ID, "[LocalFsMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(LOCAL_FS_MEDIA_PROVIDER_ID, "[LocalFsMediaProvider.Name]");
     }
 
     #endregion
@@ -105,11 +106,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     protected ICollection<ChangeTrackerRegistrationKey> GetAllChangeTrackerRegistrationsByPath(string path)
     {
-      ICollection<ChangeTrackerRegistrationKey> result = new List<ChangeTrackerRegistrationKey>();
-      foreach (ChangeTrackerRegistrationKey key in _changeTrackers.Keys)
-        if (key.Path == path)
-          result.Add(key);
-      return result;
+      return _changeTrackers.Keys.Where(key => key.Path == path).ToList();
     }
 
     protected static MediaSourceChangeType TranslateChangeType(FileWatchChangeType changeType)
@@ -175,7 +172,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       ICollection<FileWatchChangeType> fwiChangeTypes = TranslateChangeTypes(changeTypes);
       ChangeTrackerRegistrationKey ctrk = new ChangeTrackerRegistrationKey(path, changeDelegate);
       _changeTrackers[ctrk] = ServiceRegistration.Get<IFileEventNotifier>().Subscribe(path, true, FileEventHandler,
-                                                                               fileNameFilters, fwiChangeTypes);
+          fileNameFilters, fwiChangeTypes);
     }
 
     public void UnregisterChangeTracker(PathChangeDelegate changeDelegate, string path)
@@ -190,8 +187,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public void UnregisterAll(PathChangeDelegate changeDelegate)
     {
-      IEnumerable<ChangeTrackerRegistrationKey> oldKeys = new List<ChangeTrackerRegistrationKey>(
-          _changeTrackers.Keys);
+      IEnumerable<ChangeTrackerRegistrationKey> oldKeys = new List<ChangeTrackerRegistrationKey>(_changeTrackers.Keys);
       foreach (ChangeTrackerRegistrationKey key in oldKeys)
         if (key.PathChangeDelegate.Equals(changeDelegate))
           _changeTrackers.Remove(key);

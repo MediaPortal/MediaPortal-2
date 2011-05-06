@@ -44,18 +44,16 @@ namespace MediaPortal.Core.MediaManagement
 
     protected Guid _mediaProviderId;
     protected string _name;
-    protected bool _isChainedProvider;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
-    public MediaProviderMetadata(Guid mediaProviderId, string name, bool isChainedProvider)
+    public MediaProviderMetadata(Guid mediaProviderId, string name)
     {
       _mediaProviderId = mediaProviderId;
       _name = name;
-      _isChainedProvider = isChainedProvider;
     }
 
     /// <summary>
@@ -74,15 +72,6 @@ namespace MediaPortal.Core.MediaManagement
     public string Name
     {
       get { return _name; }
-    }
-
-    /// <summary>
-    /// Returns the information if the media provider is chained to another provider, i.e. needs an input resource to work.
-    /// </summary>
-    [XmlIgnore]
-    public bool IsChainedProvider
-    {
-      get { return _isChainedProvider; }
     }
 
     public void Serialize(XmlWriter writer)
@@ -124,16 +113,6 @@ namespace MediaPortal.Core.MediaManagement
     {
       get { return _name; }
       set { _name = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("IsChainedProvider", IsNullable = false)]
-    public bool XML_IsChainedProvider
-    {
-      get { return _isChainedProvider; }
-      set { _isChainedProvider = value; }
     }
 
    #endregion

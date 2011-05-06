@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private const int DICTIONARY_CLEANUP_INTERVAL = 60 * 1000;
     #endregion
 
-    #region private variables
+    #region Private variables
 
     private static readonly ContentManager _instance = new ContentManager();
     private readonly Dictionary<string, AssetInstance>[] _assets = null;

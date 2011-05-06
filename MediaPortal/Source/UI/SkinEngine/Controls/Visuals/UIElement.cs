@@ -634,10 +634,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected internal void CleanupAndDispose()
     {
-      Dispose(); // First dispose bindings before we can reset our VisualParent
-      VisualParent = null;
       ResetScreen();
       Deallocate();
+
+      Dispose(); // First dispose bindings before we can reset our VisualParent
+      VisualParent = null;
     }
 
     public static void TryCleanupAndDispose(ref object maybeUIElementOrDisposable)

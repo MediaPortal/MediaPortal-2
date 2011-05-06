@@ -11,7 +11,7 @@ float2   g_radius = {0.5f, 0.5f};
 float2   g_center = {0.5f, 0.5f};
 float2   g_focus = {0.5f, 0.5f};
 float    g_opacity;
-texture g_texture; // Color texture 
+texture  g_texture; // Color texture 
 
 sampler TextureSampler = sampler_state
 {

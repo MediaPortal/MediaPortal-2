@@ -46,8 +46,8 @@ namespace MediaPortal.Tools.BuildReport
         HelpText = "Report title")]
     public string Title = null;
 
-    [Option("vs2005", null, Required = false,
-        HelpText = "Use Visual Studio 2005 solution file")]
-    public bool VS2005 = false;
+    [Option(null, "vs2010", Required = false,
+        HelpText = "Use Visual Studio 2010 solution file")]
+    public bool VS2010 = false;
   }
 }

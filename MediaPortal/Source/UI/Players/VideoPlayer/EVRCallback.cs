@@ -191,12 +191,6 @@ namespace MediaPortal.UI.Players.Video
           _aspectRatio.Width = arx;
           _aspectRatio.Height = ary;
 
-          VideoSizePresentDlgt vsp = VideoSizePresent;
-          if (vsp != null)
-          {
-            vsp(this);
-            VideoSizePresent = null;
-          }
           if (_texture == null)
           {
             int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
@@ -215,6 +209,12 @@ namespace MediaPortal.UI.Players.Video
                 _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
           }
         }
+      VideoSizePresentDlgt vsp = VideoSizePresent;
+      if (vsp != null)
+      {
+        vsp(this);
+        VideoSizePresent = null;
+      }
       if (_renderDlgt != null)
         _renderDlgt();
       return 0;
