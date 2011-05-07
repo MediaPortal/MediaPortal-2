@@ -46,5 +46,37 @@
 
     </DirectoryRef>
 
+    <Feature Id="MP2Server" Level="1" AllowAdvertise="no"
+               ConfigurableDirectory="INSTALLDIR_SERVER"
+               Title="Server"
+               Description="Server description" >
+
+      <!-- Directories -->
+      <ComponentRef Id="S__Defaults" />
+      <ComponentRef Id="Scripts" />
+
+      <!-- Base -->
+      <ComponentRef Id="MP2_Server" />
+      <ComponentRef Id="S__HttpServer" />
+      <ComponentRef Id="S__log4net" />
+      <ComponentRef Id="MediaPortal.Backend" />
+      <ComponentRef Id="S__MediaPortal.Core" />
+      <ComponentRef Id="S__MediaPortal.Utilities" />
+      <ComponentRef Id="S__UPnP" />
+
+      <!-- Plugins -->
+      <FeatureRef Id="S__BassLibraries"/>
+      <FeatureRef Id="S__ConfigurationManager"/>
+      <FeatureRef Id="S__LocalFsMediaProvider"/>
+      <FeatureRef Id="S__MediaInfoLib"/>
+      <FeatureRef Id="S__MovieMetadataExtractor"/>
+      <FeatureRef Id="S__MusicMetadataExtractor"/>
+      <FeatureRef Id="S__PictureMetadataExtractor"/>
+      <FeatureRef Id="ServerBase"/>
+      <FeatureRef Id="SQLCEDatabase"/>
+      <FeatureRef Id="S__TagLib"/>
+      <FeatureRef Id="S__ZipMediaProvider"/>
+    </Feature>
+    
   </Fragment>
 </Wix>

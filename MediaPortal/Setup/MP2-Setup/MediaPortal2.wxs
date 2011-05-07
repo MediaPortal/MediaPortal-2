@@ -31,87 +31,17 @@
     </Directory>
 
 
+    <Feature Id="MediaPortal_2" Level="1" AllowAdvertise="no" Display="expand"
+             Title="MediaPortal 2"
+             Description="MediaPortal 2 description" >
 
-    <!-- Step 2: Add files to your installer package -->
-
-    <Feature Id="MP2Client" Title="MP2Client" Level="1"
-             AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_CLIENT">
-      <!-- Directories -->
-      <ComponentRef Id="Defaults" />
-      <ComponentRef Id="Docs" />
-
-      <!-- Base -->
-      <ComponentRef Id="MP2_Client" />
-      <ComponentRef Id="HttpServer" />
-      <ComponentRef Id="log4net" />
-      <ComponentRef Id="MediaPortal.Core" />
-      <ComponentRef Id="MediaPortal.UI" />
-      <ComponentRef Id="MediaPortal.Utilities" />
-      <ComponentRef Id="UPnP" />
-      <ComponentRef Id="zlib1" />
-
-      <!-- Plugins -->
-      <FeatureRef Id="BackgroundManager"/>
-      <FeatureRef Id="BassLibraries"/>
-      <FeatureRef Id="BassPlayer"/>
-      <FeatureRef Id="BDHandler"/>
-      <FeatureRef Id="Black_Backdrop"/>
-      <FeatureRef Id="Configuration"/>
-      <FeatureRef Id="ConfigurationManager"/>
-      <FeatureRef Id="IrInput"/>
-      <FeatureRef Id="LocalFsMediaProvider"/>
-      <FeatureRef Id="Media"/>
-      <FeatureRef Id="MediaInfoLib"/>
-      <FeatureRef Id="MovieMetadataExtractor"/>
-      <FeatureRef Id="MusicMetadataExtractor"/>
-      <FeatureRef Id="NewSkin"/>
-      <FeatureRef Id="PictureMetadataExtractor"/>
-      <FeatureRef Id="PicturePlayer"/>
-      <FeatureRef Id="SkinBase"/>
-      <FeatureRef Id="SkinEngine"/>
-      <FeatureRef Id="SlimTv4HomeProvider"/>
-      <FeatureRef Id="SlimTvClient"/>
-      <FeatureRef Id="TagLib"/>
-      <FeatureRef Id="VideoPlayers"/>
-      <FeatureRef Id="Weather"/>
-      <FeatureRef Id="ZipMediaProvider"/>
+      <FeatureRef Id="MP2Client" />
+      <FeatureRef Id="MP2Server" />
 
     </Feature>
-
-
-    <Feature Id="MP2Server" Title="MP2Server" Level="1"
-             AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_SERVER">
-      <!-- Directories -->
-      <ComponentRef Id="S__Defaults" />
-      <ComponentRef Id="Scripts" />
-
-      <!-- Base -->
-      <ComponentRef Id="MP2_Server" />
-      <ComponentRef Id="S__HttpServer" />
-      <ComponentRef Id="S__log4net" />
-      <ComponentRef Id="MediaPortal.Backend" />
-      <ComponentRef Id="S__MediaPortal.Core" />
-      <ComponentRef Id="S__MediaPortal.Utilities" />
-      <ComponentRef Id="S__UPnP" />
-
-      <!-- Plugins -->
-      <FeatureRef Id="S__BassLibraries"/>
-      <FeatureRef Id="S__ConfigurationManager"/>
-      <FeatureRef Id="S__LocalFsMediaProvider"/>
-      <FeatureRef Id="S__MediaInfoLib"/>
-      <FeatureRef Id="S__MovieMetadataExtractor"/>
-      <FeatureRef Id="S__MusicMetadataExtractor"/>
-      <FeatureRef Id="S__PictureMetadataExtractor"/>
-      <FeatureRef Id="ServerBase"/>
-      <FeatureRef Id="SQLCEDatabase"/>
-      <FeatureRef Id="S__TagLib"/>
-      <FeatureRef Id="S__ZipMediaProvider"/>
-    </Feature>
-
-    <!-- Using WixUI -->
 
     <UIRef Id="WixUI_FeatureTree"/>
     <UIRef Id="WixUI_ErrorProgressText" />
-    
+
   </Product>
 </Wix>

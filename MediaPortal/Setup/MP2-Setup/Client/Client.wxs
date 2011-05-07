@@ -49,5 +49,52 @@
 
     </DirectoryRef>
 
+    <Feature Id="MP2Client" Level="1" AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_CLIENT"
+             Title="Client"
+             Description="Client description" >
+
+      <!-- Directories -->
+      <ComponentRef Id="Defaults" />
+      <ComponentRef Id="Docs" />
+
+      <!-- Base -->
+      <ComponentRef Id="MP2_Client" />
+      <ComponentRef Id="HttpServer" />
+      <ComponentRef Id="log4net" />
+      <ComponentRef Id="MediaPortal.Core" />
+      <ComponentRef Id="MediaPortal.UI" />
+      <ComponentRef Id="MediaPortal.Utilities" />
+      <ComponentRef Id="UPnP" />
+      <ComponentRef Id="zlib1" />
+
+      <!-- Plugins -->
+      <FeatureRef Id="BackgroundManager"/>
+      <FeatureRef Id="BassLibraries"/>
+      <FeatureRef Id="BassPlayer"/>
+      <FeatureRef Id="BDHandler"/>
+      <FeatureRef Id="Black_Backdrop"/>
+      <FeatureRef Id="Configuration"/>
+      <FeatureRef Id="ConfigurationManager"/>
+      <FeatureRef Id="IrInput"/>
+      <FeatureRef Id="LocalFsMediaProvider"/>
+      <FeatureRef Id="Media"/>
+      <FeatureRef Id="MediaInfoLib"/>
+      <FeatureRef Id="MovieMetadataExtractor"/>
+      <FeatureRef Id="MusicMetadataExtractor"/>
+      <FeatureRef Id="NewSkin"/>
+      <FeatureRef Id="PictureMetadataExtractor"/>
+      <FeatureRef Id="PicturePlayer"/>
+      <FeatureRef Id="SkinBase"/>
+      <FeatureRef Id="SkinEngine"/>
+      <FeatureRef Id="SlimTv4HomeProvider"/>
+      <FeatureRef Id="SlimTvClient"/>
+      <FeatureRef Id="TagLib"/>
+      <FeatureRef Id="VideoPlayers"/>
+      <FeatureRef Id="Weather"/>
+      <FeatureRef Id="ZipMediaProvider"/>
+
+    </Feature>
+    
   </Fragment>
 </Wix>
