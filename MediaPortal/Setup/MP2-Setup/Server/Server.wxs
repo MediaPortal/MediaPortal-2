@@ -3,49 +3,47 @@
   <Fragment>
     <?include ..\Includes.wxi ?>
 
-    <DirectoryRef Id="TeamMediaPortalFolder">
-      <Directory Id="ServerFolder" Name="MP2-Server" FileSource="$(var.OutDirServer)">
+    <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.OutDirServer)">
 
-        <Directory Id="S__Defaults" Name="Defaults">
-          <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
-            <File Id="S__Paths.xml" Name="Paths.xml" Checksum="yes" />
-          </Component>
-        </Directory>
-
-        <Directory Id="Scripts" Name="Scripts">
-          <Component Id="Scripts" Guid="502F6E53-EA39-43D0-9098-10B512D332A6">
-            <File Id="ClientManager_create_1.0.sql" Name="ClientManager-create-1.0.sql" Checksum="yes" />
-            <File Id="MediaLibrary_create_1.0.sql" Name="MediaLibrary-create-1.0.sql" Checksum="yes" />
-            <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" Checksum="yes" />
-          </Component>
-        </Directory>
-
-        <Directory Id="ServerPluginsFolder" Name="Plugins"/>
-
-        <Component Id="MP2_Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
-          <File Id="MP2_Server.exe" Name="MP2-Server.exe" />
-          <File Id="MP2_Server.exe.config" Name="MP2-Server.exe.config" />
+      <Directory Id="S__Defaults" Name="Defaults">
+        <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
+          <File Id="S__Paths.xml" Name="Paths.xml" Checksum="yes" />
         </Component>
-        <Component Id="S__HttpServer" Guid="85F6FE7A-B5C5-4934-BDE1-53EA8A166762">
-          <File Id="S__HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="S__log4net" Guid="B8B1CA85-3224-4287-86D0-06A391B0F43F">
-          <File Id="S__log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="MediaPortal.Backend" Guid="C6555D68-586C-45FF-9E5B-92C00F6E3A25">
-          <File Id="MediaPortal.Backend.dll" Name="MediaPortal.Backend.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="S__MediaPortal.Core" Guid="51EFED2C-A252-4EEF-9C72-4829DA11FC27">
-          <File Id="S__MediaPortal.Core.dll" Name="MediaPortal.Core.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="S__MediaPortal.Utilities" Guid="9726D595-7054-438A-9E77-39ECEE934769">
-          <File Id="S__MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-        <Component Id="S__UPnP" Guid="EC221FE7-04DC-4734-AC0F-0527B6B6BB01">
-          <File Id="S__UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
-        </Component>
-
       </Directory>
+
+      <Directory Id="Scripts" Name="Scripts">
+        <Component Id="Scripts" Guid="502F6E53-EA39-43D0-9098-10B512D332A6">
+          <File Id="ClientManager_create_1.0.sql" Name="ClientManager-create-1.0.sql" Checksum="yes" />
+          <File Id="MediaLibrary_create_1.0.sql" Name="MediaLibrary-create-1.0.sql" Checksum="yes" />
+          <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" Checksum="yes" />
+        </Component>
+      </Directory>
+
+      <Directory Id="ServerPluginsFolder" Name="Plugins"/>
+
+      <Component Id="MP2_Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
+        <File Id="MP2_Server.exe" Name="MP2-Server.exe" />
+        <File Id="MP2_Server.exe.config" Name="MP2-Server.exe.config" />
+      </Component>
+      <Component Id="S__HttpServer" Guid="85F6FE7A-B5C5-4934-BDE1-53EA8A166762">
+        <File Id="S__HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="S__log4net" Guid="B8B1CA85-3224-4287-86D0-06A391B0F43F">
+        <File Id="S__log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="MediaPortal.Backend" Guid="C6555D68-586C-45FF-9E5B-92C00F6E3A25">
+        <File Id="MediaPortal.Backend.dll" Name="MediaPortal.Backend.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="S__MediaPortal.Core" Guid="51EFED2C-A252-4EEF-9C72-4829DA11FC27">
+        <File Id="S__MediaPortal.Core.dll" Name="MediaPortal.Core.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="S__MediaPortal.Utilities" Guid="9726D595-7054-438A-9E77-39ECEE934769">
+        <File Id="S__MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="S__UPnP" Guid="EC221FE7-04DC-4734-AC0F-0527B6B6BB01">
+        <File Id="S__UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+
     </DirectoryRef>
 
   </Fragment>

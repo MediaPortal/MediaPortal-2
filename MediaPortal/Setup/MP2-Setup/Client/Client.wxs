@@ -3,8 +3,7 @@
   <Fragment>
     <?include ..\Includes.wxi ?>
 
-  <DirectoryRef Id="TeamMediaPortalFolder">
-    <Directory Id="ClientFolder" Name="MP2-Client" FileSource="$(var.OutDirClient)">
+    <DirectoryRef Id="INSTALLDIR_CLIENT" FileSource="$(var.OutDirClient)">
 
       <Directory Id="Defaults" Name="Defaults">
         <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
@@ -48,8 +47,7 @@
         <File Id="zlib1.dll" Name="zlib1.dll" KeyPath="yes" Checksum="yes" />
       </Component>
 
-    </Directory>
-  </DirectoryRef>
+    </DirectoryRef>
 
   </Fragment>
 </Wix>
