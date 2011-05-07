@@ -25,8 +25,8 @@
     | | Show the user if/which software has to be closed before continuing installation
     
     |X| Add icon to control panel - software
-    | | shortcuts on desktop
-    | | shortcuts in startmenu
+    |X| shortcuts on desktop
+    |X| shortcuts in startmenu
     | | autostart for server: service, autostart in startmenu or autostart in registry
 
   o Compiling the installation

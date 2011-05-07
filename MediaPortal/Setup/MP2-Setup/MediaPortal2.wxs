@@ -48,6 +48,8 @@
           <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server"/>
         </Directory>
       </Directory>
+      <Directory Id="ProgramMenuFolder" Name="Programs"/>
+      <Directory Id="DesktopFolder" Name="Programs" />
     </Directory>
 
     <Feature Id="MediaPortal_2" Level="1" AllowAdvertise="no" Display="expand" Title="MediaPortal 2" Description="MediaPortal 2 description">
