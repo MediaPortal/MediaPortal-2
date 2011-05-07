@@ -1,0 +1,33 @@
+﻿Todo list for MP2Setup:
+
+  o Directory / file structure
+    | | docs dir
+        | | in install dir: client-only, server-only, both or none
+        | | in git source: client, server, setup, all, only one doc dir in common place
+
+  o User Interface
+    |X| Add MP related graphics
+    | | allow to choose the language
+    | | keep all user visible texts localized
+
+  o Requirements
+    | | define OS requirements
+    | | define other software requirements
+        | | .NET Framework
+        | | VCredist 20xx
+        | | DirectX
+        | | Dokan
+    | | define which of them should be included in the installation, which of them have to be downloaded
+
+  o Installation
+    |X| Allow custom Installation paths for Client and Server
+    | | Allow installation without uninstalling previous version
+    | | Show the user if/which software has to be closed before continuing installation
+    
+    | | Add icon to control panel - software
+    | | shortcuts on desktop
+    | | shortcuts in startmenu
+    | | autostart for server: service, autostart in startmenu or autostart in registry
+
+  o Compiling the installation
+    | | define for which "features" / "components" the wxs-files should be auto-generated
