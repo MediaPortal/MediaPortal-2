@@ -233,6 +233,8 @@ namespace HttpServer
     /// <exception cref="SocketException"></exception>
     public void Stop()
     {
+      if (_listener == null)
+        return;
       _shutdown = true;
       _listener.Stop();
       if (!_shutdownEvent.WaitOne())
