@@ -24,7 +24,7 @@
     | | Allow installation without uninstalling previous version
     | | Show the user if/which software has to be closed before continuing installation
     
-    | | Add icon to control panel - software
+    |X| Add icon to control panel - software
     | | shortcuts on desktop
     | | shortcuts in startmenu
     | | autostart for server: service, autostart in startmenu or autostart in registry
