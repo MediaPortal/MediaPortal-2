@@ -31,7 +31,7 @@
     
     <!-- Step 2: Add files to your installer package -->
 
-    <Feature Id="MP2Client" Title="MP2Client" Level="1">
+    <Feature Id="MP2Client" Title="MP2Client" Level="1" AllowAdvertise="no">
       <!-- Directories -->
       <ComponentRef Id="Defaults" />
       <ComponentRef Id="Docs" />
@@ -75,7 +75,7 @@
     </Feature>
     
     
-    <Feature Id="MP2Server" Title="MP2Server" Level="1">
+    <Feature Id="MP2Server" Title="MP2Server" Level="1" AllowAdvertise="no">
       <!-- Directories -->
       <ComponentRef Id="S__Defaults" />
       <ComponentRef Id="Scripts" />
