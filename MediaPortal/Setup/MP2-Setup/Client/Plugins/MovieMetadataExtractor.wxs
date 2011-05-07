@@ -17,7 +17,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="MovieMetadataExtractor" Level="0">
+    <Feature Id="MovieMetadataExtractor" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="MovieMetadataExtractor" />
     </Feature>
 

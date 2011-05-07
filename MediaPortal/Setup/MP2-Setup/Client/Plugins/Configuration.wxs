@@ -47,7 +47,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="Configuration" Level="0">
+    <Feature Id="Configuration" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="Configuration" />
       <ComponentRef Id="Configuration.Language" />
       <ComponentRef Id="Configuration.Skin.default.screens" />

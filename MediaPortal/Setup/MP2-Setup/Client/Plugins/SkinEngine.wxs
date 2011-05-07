@@ -27,7 +27,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="SkinEngine" Level="0">
+    <Feature Id="SkinEngine" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="SkinEngine" />
       <ComponentRef Id="SkinEngine.Language" />
     </Feature>

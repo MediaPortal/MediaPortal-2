@@ -20,7 +20,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="S__BassLibraries" Level="0">
+    <Feature Id="S__BassLibraries" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="S__BassLibraries" />
     </Feature>
 

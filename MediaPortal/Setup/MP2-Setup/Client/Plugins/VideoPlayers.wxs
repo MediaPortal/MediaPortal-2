@@ -23,7 +23,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="VideoPlayers" Level="0">
+    <Feature Id="VideoPlayers" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="VideoPlayers" />
       <ComponentRef Id="VideoPlayers.Language" />
     </Feature>

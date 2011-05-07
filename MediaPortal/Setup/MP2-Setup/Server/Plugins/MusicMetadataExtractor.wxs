@@ -14,7 +14,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="S__MusicMetadataExtractor" Level="0">
+    <Feature Id="S__MusicMetadataExtractor" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="S__MusicMetadataExtractor" />
     </Feature>
 

@@ -60,7 +60,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="Media" Level="0">
+    <Feature Id="Media" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="Media" />
       <ComponentRef Id="Media.Language" />
       <ComponentRef Id="Media.Skin.default.screens" />

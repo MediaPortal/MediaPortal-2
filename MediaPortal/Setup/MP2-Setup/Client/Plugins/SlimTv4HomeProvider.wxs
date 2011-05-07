@@ -18,7 +18,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="SlimTv4HomeProvider" Level="0">
+    <Feature Id="SlimTv4HomeProvider" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="SlimTv4HomeProvider" />
     </Feature>
 

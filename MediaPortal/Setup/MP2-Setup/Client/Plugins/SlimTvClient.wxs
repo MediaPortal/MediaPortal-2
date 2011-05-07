@@ -27,7 +27,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="SlimTvClient" Level="0">
+    <Feature Id="SlimTvClient" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="SlimTvClient" />
       <ComponentRef Id="SlimTvClient.Language" />
     </Feature>

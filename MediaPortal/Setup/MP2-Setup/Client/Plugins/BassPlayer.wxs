@@ -44,7 +44,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="BassPlayer" Level="0">
+    <Feature Id="BassPlayer" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="BassPlayer" />
       <ComponentRef Id="BassPlayer.Language" />
       <ComponentRef Id="BassPlayer.Plugins" />

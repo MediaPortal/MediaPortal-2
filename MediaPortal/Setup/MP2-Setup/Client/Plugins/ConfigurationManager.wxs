@@ -20,7 +20,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="ConfigurationManager" Level="0">
+    <Feature Id="ConfigurationManager" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="ConfigurationManager" />
       <ComponentRef Id="ConfigurationManager.Language" />
     </Feature>

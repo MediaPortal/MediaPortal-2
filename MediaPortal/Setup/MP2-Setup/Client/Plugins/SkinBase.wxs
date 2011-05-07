@@ -28,7 +28,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="SkinBase" Level="0">
+    <Feature Id="SkinBase" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="SkinBase" />
       <ComponentRef Id="SkinBase.Language" />
     </Feature>

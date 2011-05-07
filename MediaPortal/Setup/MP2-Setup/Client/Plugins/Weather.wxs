@@ -25,7 +25,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="Weather" Level="0">
+    <Feature Id="Weather" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="Weather" />
       <ComponentRef Id="Weather.Language" />
     </Feature>

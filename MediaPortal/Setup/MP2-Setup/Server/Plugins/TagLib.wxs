@@ -14,7 +14,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="S__TagLib" Level="0">
+    <Feature Id="S__TagLib" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="S__TagLib" />
     </Feature>
 

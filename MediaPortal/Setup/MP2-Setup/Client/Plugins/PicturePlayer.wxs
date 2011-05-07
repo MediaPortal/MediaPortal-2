@@ -22,7 +22,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="PicturePlayer" Level="0">
+    <Feature Id="PicturePlayer" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="PicturePlayer" />
       <ComponentRef Id="PicturePlayer.Language" />
     </Feature>

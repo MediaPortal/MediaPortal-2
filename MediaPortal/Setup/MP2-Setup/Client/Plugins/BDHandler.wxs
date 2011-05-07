@@ -20,7 +20,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="BDHandler" Level="0">
+    <Feature Id="BDHandler" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="BDHandler" />
       <ComponentRef Id="BDHandler.Language" />
     </Feature>

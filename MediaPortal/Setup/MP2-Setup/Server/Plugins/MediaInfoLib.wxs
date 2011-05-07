@@ -16,7 +16,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="MediaInfoLib" Level="0">
+    <Feature Id="MediaInfoLib" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="MediaInfoLib" />
     </Feature>
 

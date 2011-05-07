@@ -14,7 +14,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="PictureMetadataExtractor" Level="0">
+    <Feature Id="PictureMetadataExtractor" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="PictureMetadataExtractor" />
     </Feature>
 

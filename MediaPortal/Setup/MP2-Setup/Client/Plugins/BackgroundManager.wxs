@@ -15,7 +15,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="BackgroundManager" Level="0">
+    <Feature Id="BackgroundManager" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="BackgroundManager" />
     </Feature>
 

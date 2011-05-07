@@ -22,7 +22,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="ZipMediaProvider" Level="0">
+    <Feature Id="ZipMediaProvider" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="ZipMediaProvider" />
       <ComponentRef Id="ZipMediaProvider.Language" />
     </Feature>

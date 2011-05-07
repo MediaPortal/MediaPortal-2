@@ -24,7 +24,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="SQLCEDatabase" Level="0">
+    <Feature Id="SQLCEDatabase" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="SQLCEDatabase" />
     </Feature>
 

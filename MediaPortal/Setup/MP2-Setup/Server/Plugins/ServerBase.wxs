@@ -20,7 +20,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="ServerBase" Level="0">
+    <Feature Id="ServerBase" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="ServerBase" />
       <ComponentRef Id="ServerBase.Language" />
     </Feature>

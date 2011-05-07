@@ -23,7 +23,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="Black_Backdrop" Level="0">
+    <Feature Id="Black_Backdrop" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="Black_Backdrop" />
     </Feature>
 

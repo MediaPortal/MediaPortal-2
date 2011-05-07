@@ -20,7 +20,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="LocalFsMediaProvider" Level="0">
+    <Feature Id="LocalFsMediaProvider" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="LocalFsMediaProvider" />
       <ComponentRef Id="LocalFsMediaProvider.Language" />
     </Feature>

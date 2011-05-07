@@ -18,7 +18,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="IrInput" Level="0">
+    <Feature Id="IrInput" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="IrInput" />
     </Feature>
 

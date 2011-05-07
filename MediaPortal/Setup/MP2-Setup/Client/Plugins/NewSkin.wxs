@@ -17,7 +17,8 @@
       </Directory>
     </DirectoryRef>
 
-    <Feature Id="NewSkin" Level="0">
+    <Feature Id="NewSkin" Level="1"
+             Absent="disallow" AllowAdvertise="no" Display="hidden">
       <ComponentRef Id="NewSkin" />
     </Feature>
 
