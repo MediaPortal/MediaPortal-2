@@ -3,7 +3,7 @@
   <Product Id="bcccb3b9-2ac9-4cef-81d7-c0b0520bc521"
            Name="MediaPortal 2"
            Version="2.0.0.0"
-           Language="1031"
+           Language="1033"
            Manufacturer="Team MediaPortal"
            UpgradeCode="df866d75-870b-488a-835a-4edfdcd70c7b">
 
@@ -11,7 +11,7 @@
              Keywords='Installer'
              Description='MediaPortal 2 Installer'
              InstallerVersion='200'
-             Languages='1031'
+             Languages='1033'
              Compressed='yes' />
 
     <!--
@@ -61,6 +61,27 @@
 
     <UIRef Id="WixUI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
+
+    <InstallExecuteSequence>
+      <!--
+      Removes the older version of SharpDevelop, if we are upgrading,
+      before installing the new version.
+      
+      Unfortunately the user is not informed of this upgrade. I think
+      we need a custom dialog showing the old installation located and
+      the fact that it is going to be upgraded.
+      
+      The best place to do this is after InstallFinalize however if we
+      do it then after we have removed a file from an addin, and changed
+      the Component Guid, the modified component is not installed. So
+      we make sure SharpDevelop is completely removed before installing
+      the newer version. This also covers us if we accidentally
+      modify a component but do not change its Guid.
+      
+      http://msdn.microsoft.com/library/en-us/msi/setup/removeexistingproducts_action.asp
+      -->
+      <RemoveExistingProducts Before="InstallInitialize" />
+    </InstallExecuteSequence>
 
   </Product>
 </Wix>

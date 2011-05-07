@@ -14,60 +14,26 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug</DefineConstants>
+    <DefineConstants>Debug;SourceClientPlugins=$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins;SourceServerPlugins=$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins</DefineConstants>
+    <SuppressValidation>False</SuppressValidation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Client\Plugins\BackgroundManager.wxs" />
-    <Compile Include="Client\Plugins\BassLibraries.wxs" />
-    <Compile Include="Client\Plugins\BassPlayer.wxs" />
-    <Compile Include="Client\Plugins\BDHandler.wxs" />
-    <Compile Include="Client\Plugins\Black Backdrop.wxs" />
-    <Compile Include="Client\Plugins\Configuration.wxs" />
-    <Compile Include="Client\Plugins\ZipMediaProvider.wxs" />
-    <Compile Include="Client\Plugins\Weather.wxs" />
-    <Compile Include="Client\Plugins\VideoPlayers.wxs" />
-    <Compile Include="Client\Plugins\TagLib.wxs" />
-    <Compile Include="Client\Plugins\SlimTvClient.wxs" />
-    <Compile Include="Client\Plugins\SlimTv4HomeProvider.wxs" />
-    <Compile Include="Client\Plugins\SkinEngine.wxs" />
-    <Compile Include="Client\Plugins\NewSkin.wxs" />
-    <Compile Include="Client\Plugins\SkinBase.wxs" />
-    <Compile Include="Client\Plugins\PicturePlayer.wxs" />
-    <Compile Include="Client\Plugins\PictureMetadataExtractor.wxs" />
-    <Compile Include="Client\Plugins\Media.wxs" />
-    <Compile Include="Client\Plugins\MediaInfoLib.wxs" />
-    <Compile Include="Client\Plugins\MovieMetadataExtractor.wxs" />
-    <Compile Include="Client\Plugins\MusicMetadataExtractor.wxs" />
-    <Compile Include="Client\Plugins\LocalFsMediaProvider.wxs" />
-    <Compile Include="Client\Plugins\IrInput.wxs" />
+    <Compile Include="Client\ClientPlugins.wxs" />
     <Compile Include="MediaPortal2.wxs" />
     <Content Include="Includes.wxi" />
-    <Compile Include="Server\Plugins\BassLibraries.wxs" />
-    <Compile Include="Server\Plugins\ConfigurationManager.wxs" />
-    <Compile Include="Server\Plugins\LocalFsMediaProvider.wxs" />
-    <Compile Include="Server\Plugins\MediaInfoLib.wxs" />
-    <Compile Include="Server\Plugins\MovieMetadataExtractor.wxs" />
-    <Compile Include="Server\Plugins\MusicMetadataExtractor.wxs" />
-    <Compile Include="Server\Plugins\PictureMetadataExtractor.wxs" />
-    <Compile Include="Server\Plugins\ServerBase.wxs" />
-    <Compile Include="Server\Plugins\SQLCEDatabase.wxs" />
-    <Compile Include="Server\Plugins\TagLib.wxs" />
-    <Compile Include="Server\Plugins\ZipMediaProvider.wxs" />
+    <Compile Include="Server\ServerPlugins.wxs" />
     <Compile Include="Server\Server.wxs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\Client.wxs" />
-    <Compile Include="Client\Plugins\ConfigurationManager.wxs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Client" />
-    <Folder Include="Client\Plugins" />
     <Folder Include="Server" />
-    <Folder Include="Server\Plugins" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUIExtension">
@@ -76,6 +42,10 @@
     </WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -dr INSTALLDIR_CLIENT -var var.SourceClientPlugins -template fragment -out "$(ProjectDir)Client\ClientPlugins.wxs"
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -dr INSTALLDIR_SERVER -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
+  </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
 	Other similar extension points exist, see Wix.targets.

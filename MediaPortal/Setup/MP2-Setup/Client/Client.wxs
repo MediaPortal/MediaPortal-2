@@ -19,8 +19,6 @@
         </Component>
       </Directory>
 
-      <Directory Id="ClientPluginsFolder" Name="Plugins" />
-
       <Component Id="MP2Client" Guid="0EB0692F-2668-4075-A4D9-DF43A75D5AC0">
         <File Id="MP2Client.exe" Name="MP2-Client.exe" />
         <File Id="MP2Client.exe.config" Name="MP2-Client.exe.config" />
@@ -100,30 +98,7 @@
       <ComponentRef Id="zlib1" />
 
       <!-- Plugins -->
-      <FeatureRef Id="BackgroundManager" />
-      <FeatureRef Id="BassLibraries" />
-      <FeatureRef Id="BassPlayer" />
-      <FeatureRef Id="BDHandler" />
-      <FeatureRef Id="Black_Backdrop" />
-      <FeatureRef Id="Configuration" />
-      <FeatureRef Id="ConfigurationManager" />
-      <FeatureRef Id="IrInput" />
-      <FeatureRef Id="LocalFsMediaProvider" />
-      <FeatureRef Id="Media" />
-      <FeatureRef Id="MediaInfoLib" />
-      <FeatureRef Id="MovieMetadataExtractor" />
-      <FeatureRef Id="MusicMetadataExtractor" />
-      <FeatureRef Id="NewSkin" />
-      <FeatureRef Id="PictureMetadataExtractor" />
-      <FeatureRef Id="PicturePlayer" />
-      <FeatureRef Id="SkinBase" />
-      <FeatureRef Id="SkinEngine" />
-      <FeatureRef Id="SlimTv4HomeProvider" />
-      <FeatureRef Id="SlimTvClient" />
-      <FeatureRef Id="TagLib" />
-      <FeatureRef Id="VideoPlayers" />
-      <FeatureRef Id="Weather" />
-      <FeatureRef Id="ZipMediaProvider" />
+      <ComponentGroupRef Id="ClientPlugins"/>
 
     </Feature>
 

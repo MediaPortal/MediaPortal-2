@@ -95,17 +95,7 @@
       <ComponentRef Id="S__UPnP" />
 
       <!-- Plugins -->
-      <FeatureRef Id="S__BassLibraries" />
-      <FeatureRef Id="S__ConfigurationManager" />
-      <FeatureRef Id="S__LocalFsMediaProvider" />
-      <FeatureRef Id="S__MediaInfoLib" />
-      <FeatureRef Id="S__MovieMetadataExtractor" />
-      <FeatureRef Id="S__MusicMetadataExtractor" />
-      <FeatureRef Id="S__PictureMetadataExtractor" />
-      <FeatureRef Id="ServerBase" />
-      <FeatureRef Id="SQLCEDatabase" />
-      <FeatureRef Id="S__TagLib" />
-      <FeatureRef Id="S__ZipMediaProvider" />
+      <ComponentGroupRef Id="ServerPlugins"/>
     </Feature>
 
   </Fragment>
