@@ -10,23 +10,29 @@
 
       <Directory Id="S__Defaults" Name="Defaults">
         <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
-          <File Id="S__Paths.xml" Name="Paths.xml" Checksum="yes" />
+          <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
       </Directory>
 
       <Directory Id="Scripts" Name="Scripts">
-        <Component Id="Scripts" Guid="502F6E53-EA39-43D0-9098-10B512D332A6">
-          <File Id="ClientManager_create_1.0.sql" Name="ClientManager-create-1.0.sql" Checksum="yes" />
-          <File Id="MediaLibrary_create_1.0.sql" Name="MediaLibrary-create-1.0.sql" Checksum="yes" />
-          <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" Checksum="yes" />
+        <Component Id="ClientManager_create_1_0" Guid="C8345C2F-AC4F-44B7-8FC8-FC31CDB782B2">
+          <File Id="ClientManager_create_1.0.sql" Name="ClientManager-create-1.0.sql" KeyPath="yes" Checksum="yes" />
+        </Component>
+        <Component Id="MediaLibrary_create_1_0" Guid="FA84842F-A7F2-4DD4-B859-DBFB3931AF3D">
+          <File Id="MediaLibrary_create_1.0.sql" Name="MediaLibrary-create-1.0.sql" KeyPath="yes" Checksum="yes" />
+        </Component>
+        <Component Id="MediaPortal_Basis_create_1_0" Guid="87AEE59F-516D-463A-9221-5C82D0A5246D">
+          <File Id="MediaPortal_Basis_create_1.0.sql" Name="MediaPortal-Basis-create-1.0.sql" KeyPath="yes" Checksum="yes" />
         </Component>
       </Directory>
 
       <Directory Id="ServerPluginsFolder" Name="Plugins" />
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
-        <File Id="MP2Server.exe" Name="MP2-Server.exe" />
-        <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" />
+        <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
+        <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" KeyPath="yes" Checksum="yes" />
       </Component>
       <Component Id="S__HttpServer" Guid="85F6FE7A-B5C5-4934-BDE1-53EA8A166762">
         <File Id="S__HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
@@ -93,9 +99,13 @@
     <Feature Id="MP2Server" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_SERVER" Title="Server" Description="Server description">
 
       <ComponentRef Id="S__Defaults" />
-      <ComponentRef Id="Scripts" />
+
+      <ComponentRef Id="ClientManager_create_1_0" />
+      <ComponentRef Id="MediaLibrary_create_1_0" />
+      <ComponentRef Id="MediaPortal_Basis_create_1_0" />
 
       <ComponentRef Id="MP2Server" />
+      <ComponentRef Id="MP2Server.config" />
       <ComponentRef Id="MP2Server.Desktop.Shortcut" />
       <ComponentRef Id="MP2Server.StartMenu.Shortcut" />
 

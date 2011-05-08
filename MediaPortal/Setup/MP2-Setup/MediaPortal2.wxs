@@ -65,7 +65,7 @@
                   Name="Uninstall MediaPortal 2"
                   Description="Uninstalls MediaPortal 2 description"
                   Target="[System64Folder]msiexec.exe"
-                  Arguments="/x [ProductCode]"/>
+                  Arguments="/x [ProductCode]" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
