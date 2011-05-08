@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="bcccb3b9-2ac9-4cef-81d7-c0b0520bc521"
            Name="MediaPortal 2"
@@ -14,74 +15,68 @@
              Languages='1033'
              Compressed='yes' />
 
-    <!--
-    Support entries shown when clicking "Click here for support information"
-    in Control Panel's Add/Remove Programs
-    
-    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/configuration_properties.asp
-    -->
-    <Property Id="ARPCONTACT">http://www.team-mediaportal.com/contact-us-at-mediaportal</Property>
-    <Property Id="ARPHELPLINK">http://wiki.team-mediaportal.com/</Property>
-    <Property Id="ARPURLINFOABOUT">http://www.team-mediaportal.com/about-the-project/behind-the-project</Property>
-    <Property Id="ARPURLUPDATEINFO">http://www.team-mediaportal.com/</Property>
-
-    <!-- Puts MediaPortal icon in Control Panel's Add/Remove Programs -->
-    <Property Id="ARPPRODUCTICON">MediaPortalIcon</Property>
-    <Icon Id="MediaPortalIcon" SourceFile="Ressources\MediaPortal.ico"/>
+    <?Include Includes.wxi?>
 
     <!--
     Source media for the installation.
     Specifies a single cab file to be embedded in the installer's .msi.
     -->
-    <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" CompressionLevel="high"/>
+    <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" CompressionLevel="high" />
 
-    <?Include Includes.wxi?>
+    <!--
+    Support entries shown when clicking "Click here for support information"
+    in Control Panel's Add/Remove Programs
+    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/configuration_properties.asp
+    -->
+    <Property Id="ARPCONTACT">
+      http://www.team-mediaportal.com/contact-us-at-mediaportal
+    </Property>
+    <Property Id="ARPHELPLINK">
+      http://wiki.team-mediaportal.com/
+    </Property>
+    <Property Id="ARPURLINFOABOUT">
+      http://www.team-mediaportal.com/about-the-project/behind-the-project
+    </Property>
+    <Property Id="ARPURLUPDATEINFO">
+      http://www.team-mediaportal.com/
+    </Property>
+    <!-- Puts MediaPortal icon in Control Panel's Add/Remove Programs -->
+    <Property Id="ARPPRODUCTICON">MediaPortalIcon</Property>
+    <Icon Id="MediaPortalIcon" SourceFile="Ressources\MediaPortal.ico" />
 
-    <WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\Docs\MediaPortal License.rtf" />
-    <WixVariable Id="WixUIBannerBmp" Value="Ressources\MPBanner.jpg" />
-    <WixVariable Id="WixUIDialogBmp" Value="Ressources\MPDialog.jpg" />
-
+    <!-- Directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
-          <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client"/>
-          <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server"/>
+          <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client" />
+          <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
         </Directory>
       </Directory>
-      <Directory Id="ProgramMenuFolder" Name="Programs"/>
-      <Directory Id="DesktopFolder" Name="Programs" />
+      <Directory Id="ProgramMenuFolder" />
+      <Directory Id="DesktopFolder" />
     </Directory>
 
-    <Feature Id="MediaPortal_2" Level="1" AllowAdvertise="no" Display="expand" Title="MediaPortal 2" Description="MediaPortal 2 description">
-
+    <!-- Features -->
+    <Feature Id="MediaPortal_2"
+             Level="1"
+             AllowAdvertise="no"
+             Display="expand"
+             Title="MediaPortal 2"
+             Description="MediaPortal 2 description">
       <FeatureRef Id="MP2Client" />
       <FeatureRef Id="MP2Server" />
-
     </Feature>
+
+    <!-- User Interface -->
+    <WixVariable Id="WixUILicenseRtf"
+                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\Docs\MediaPortal License.rtf" />
+    <WixVariable Id="WixUIBannerBmp"
+                 Value="Ressources\MPBanner.jpg" />
+    <WixVariable Id="WixUIDialogBmp"
+                 Value="Ressources\MPDialog.jpg" />
 
     <UIRef Id="WixUI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
-
-    <InstallExecuteSequence>
-      <!--
-      Removes the older version of SharpDevelop, if we are upgrading,
-      before installing the new version.
-      
-      Unfortunately the user is not informed of this upgrade. I think
-      we need a custom dialog showing the old installation located and
-      the fact that it is going to be upgraded.
-      
-      The best place to do this is after InstallFinalize however if we
-      do it then after we have removed a file from an addin, and changed
-      the Component Guid, the modified component is not installed. So
-      we make sure SharpDevelop is completely removed before installing
-      the newer version. This also covers us if we accidentally
-      modify a component but do not change its Guid.
-      
-      http://msdn.microsoft.com/library/en-us/msi/setup/removeexistingproducts_action.asp
-      -->
-      <RemoveExistingProducts Before="InstallInitialize" />
-    </InstallExecuteSequence>
 
   </Product>
 </Wix>

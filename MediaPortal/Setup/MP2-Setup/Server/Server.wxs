@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
+    
     <?include ..\Includes.wxi ?>
 
+    <!-- Directories -->
     <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.OutDirServer)">
 
       <Directory Id="S__Defaults" Name="Defaults">
@@ -19,7 +22,7 @@
         </Component>
       </Directory>
 
-      <Directory Id="ServerPluginsFolder" Name="Plugins"/>
+      <Directory Id="ServerPluginsFolder" Name="Plugins" />
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
         <File Id="MP2Server.exe" Name="MP2-Server.exe" />
@@ -46,7 +49,7 @@
 
     </DirectoryRef>
 
-    <!-- StartMenu shortcuts -->
+    <!-- Shortcuts -->
     <DirectoryRef Id="ProgramMenuFolder">
       <Directory Id="MP2Server.MP2ProgramMenu" Name="MediaPortal 2">
         <Component Id="MP2Server.ProgramMenuItems" Guid="90A5BA29-FEF2-4BB6-85AE-929ABA5F42EF">
@@ -57,12 +60,11 @@
           <RegistryValue Id="MP2Server.StartMenuShortcutRegistryKey" Root="HKCU" Type="string" KeyPath="yes" Key="Software\Team MediaPortal\MediaPortal 2" Name="MP2Server.ProgramFilesShortcut" Value="1" />
           <Shortcut Id="MP2Server.StartMenuShortcut" Name="MediaPortal 2 Server" Target="[!MP2Server.exe]" WorkingDirectory="INSTALLDIR_CLIENT" Icon="MediaPortalIcon" Directory="MP2Server.MP2ProgramMenu" />
 
-          <RemoveFolder Id="MP2Server.RemoveFolder_MP2ProgramMenu" Directory="MP2Server.MP2ProgramMenu" On="uninstall"/>
+          <RemoveFolder Id="MP2Server.RemoveFolder_MP2ProgramMenu" Directory="MP2Server.MP2ProgramMenu" On="uninstall" />
         </Component>
       </Directory>
     </DirectoryRef>
 
-    <!-- Desktop shortcuts -->
     <DirectoryRef Id="DesktopFolder">
       <Component Id="MP2Server.DesktopFolderItems" Guid="751AD25F-D690-4C01-8915-CD5DA4029F8E">
         <!--
@@ -74,19 +76,16 @@
       </Component>
     </DirectoryRef>
 
-    <!-- feature definition -->
+    <!-- Features -->
     <Feature Id="MP2Server" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_SERVER" Title="Server" Description="Server description">
 
-      <!-- Directories -->
       <ComponentRef Id="S__Defaults" />
       <ComponentRef Id="Scripts" />
 
-      <!-- MP2 Server -->
       <ComponentRef Id="MP2Server" />
       <ComponentRef Id="MP2Server.DesktopFolderItems" />
       <ComponentRef Id="MP2Server.ProgramMenuItems" />
 
-      <!-- Base -->
       <ComponentRef Id="S__HttpServer" />
       <ComponentRef Id="S__log4net" />
       <ComponentRef Id="MediaPortal.Backend" />
@@ -94,8 +93,8 @@
       <ComponentRef Id="S__MediaPortal.Utilities" />
       <ComponentRef Id="S__UPnP" />
 
-      <!-- Plugins -->
-      <ComponentGroupRef Id="ServerPlugins"/>
+      <ComponentGroupRef Id="ServerPlugins" />
+
     </Feature>
 
   </Fragment>

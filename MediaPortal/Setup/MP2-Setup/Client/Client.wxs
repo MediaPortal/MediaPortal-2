@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
+    
     <?include ..\Includes.wxi ?>
 
-    <!-- ProgramFiles -->
+    <!-- Directories -->
     <DirectoryRef Id="INSTALLDIR_CLIENT" FileSource="$(var.OutDirClient)">
 
       <Directory Id="Defaults" Name="Defaults">
@@ -48,7 +50,7 @@
 
     </DirectoryRef>
 
-    <!-- StartMenu shortcuts -->
+    <!-- Shortcuts -->
     <DirectoryRef Id="ProgramMenuFolder">
       <Directory Id="MP2Client.MP2ProgramMenu" Name="MediaPortal 2">
         <Component Id="MP2Client.ProgramMenuItems" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
@@ -59,12 +61,11 @@
           <RegistryValue Id="MP2Client.StartMenuShortcutRegistryKey" Root="HKCU" Type="string" KeyPath="yes" Key="Software\Team MediaPortal\MediaPortal 2" Name="MP2Client.ProgramFilesShortcut" Value="1" />
           <Shortcut Id="MP2Client.StartMenuShortcut" Name="MediaPortal 2" Target="[!MP2Client.exe]" WorkingDirectory="INSTALLDIR_CLIENT" Icon="MediaPortalIcon" Directory="MP2Client.MP2ProgramMenu" />
 
-          <RemoveFolder Id="MP2Client.RemoveFolder_MP2ProgramMenu" Directory="MP2Client.MP2ProgramMenu" On="uninstall"/>
+          <RemoveFolder Id="MP2Client.RemoveFolder_MP2ProgramMenu" Directory="MP2Client.MP2ProgramMenu" On="uninstall" />
         </Component>
       </Directory>
     </DirectoryRef>
 
-    <!-- Desktop shortcuts -->
     <DirectoryRef Id="DesktopFolder">
       <Component Id="MP2Client.DesktopFolderItems" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
         <!--
@@ -76,19 +77,16 @@
       </Component>
     </DirectoryRef>
 
-    <!-- feature definition -->
+    <!-- Features -->
     <Feature Id="MP2Client" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_CLIENT" Title="Client" Description="Client description">
-      
-      <!-- Directories -->
+
       <ComponentRef Id="Defaults" />
       <ComponentRef Id="Docs" />
 
-      <!-- MP2 Client -->
       <ComponentRef Id="MP2Client" />
       <ComponentRef Id="MP2Client.DesktopFolderItems" />
       <ComponentRef Id="MP2Client.ProgramMenuItems" />
 
-      <!-- Base -->
       <ComponentRef Id="HttpServer" />
       <ComponentRef Id="log4net" />
       <ComponentRef Id="MediaPortal.Core" />
@@ -97,8 +95,7 @@
       <ComponentRef Id="UPnP" />
       <ComponentRef Id="zlib1" />
 
-      <!-- Plugins -->
-      <ComponentGroupRef Id="ClientPlugins"/>
+      <ComponentGroupRef Id="ClientPlugins" />
 
     </Feature>
 
