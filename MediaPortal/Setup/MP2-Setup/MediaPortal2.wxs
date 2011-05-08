@@ -23,16 +23,25 @@
     -->
     <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" CompressionLevel="high" />
 
+    <!-- setting the context to per-machine -->
+    <Property Id="ALLUSERS">1</Property>
+    
     <!--
     Support entries shown when clicking "Click here for support information"
     in Control Panel's Add/Remove Programs
     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/configuration_properties.asp
     -->
+    <Property Id="ARPCOMMENTS">
+      MediaPortal2 comment
+    </Property>
     <Property Id="ARPCONTACT">
       http://www.team-mediaportal.com/contact-us-at-mediaportal
     </Property>
     <Property Id="ARPHELPLINK">
       http://wiki.team-mediaportal.com/
+    </Property>
+    <Property Id="ARPREADME">
+      http://www.team-mediaportal.com/readme
     </Property>
     <Property Id="ARPURLINFOABOUT">
       http://www.team-mediaportal.com/about-the-project/behind-the-project
