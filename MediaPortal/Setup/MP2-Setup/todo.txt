@@ -46,3 +46,6 @@
     | | define for which "features" / "components" the wxs-files should be auto-generated
         |X| Plugins are auto-generated
         | | rework the pre build commands
+        
+    | | add batch files for building the setup easily
+    
