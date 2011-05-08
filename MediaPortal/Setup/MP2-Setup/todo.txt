@@ -34,6 +34,13 @@
         | | yes
         | | seperat feature
         | | not included at all
+    
+    | | Windows Firewall configuration
+        | | define what has to be configured
+            | | application: server, client, others?
+            | | protocols: ... ???
+            | | ports: ... ???
+        | | implement what has been defined
 
   o Compiling the installation
     | | define for which "features" / "components" the wxs-files should be auto-generated
