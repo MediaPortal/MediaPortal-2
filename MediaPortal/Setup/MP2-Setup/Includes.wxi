@@ -5,5 +5,8 @@
   <?define OutDirRoot="$(var.SolutionDir)..\Bin" ?>
   <?define OutDirClient="$(var.OutDirRoot)\MP2-Client\bin\x86\Release" ?>
   <?define OutDirServer="$(var.OutDirRoot)\MP2-Server\bin\x86\Release" ?>
+
+  <?define RegKeyRoot="Software\Team MediaPortal\MediaPortal 2" ?>
+  <?define RegKeyInstall="$(var.RegKeyRoot)\Install" ?>
   
 </Include>

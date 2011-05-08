@@ -51,29 +51,42 @@
     </DirectoryRef>
 
     <!-- Shortcuts -->
-    <DirectoryRef Id="ProgramMenuFolder">
-      <Directory Id="MP2Client.MP2ProgramMenu" Name="MediaPortal 2">
-        <Component Id="MP2Client.ProgramMenuItems" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
-          <!--
-          Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-          http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-          -->
-          <RegistryValue Id="MP2Client.StartMenuShortcutRegistryKey" Root="HKCU" Type="string" KeyPath="yes" Key="Software\Team MediaPortal\MediaPortal 2" Name="MP2Client.ProgramFilesShortcut" Value="1" />
-          <Shortcut Id="MP2Client.StartMenuShortcut" Name="MediaPortal 2" Target="[!MP2Client.exe]" WorkingDirectory="INSTALLDIR_CLIENT" Icon="MediaPortalIcon" Directory="MP2Client.MP2ProgramMenu" />
-
-          <RemoveFolder Id="MP2Client.RemoveFolder_MP2ProgramMenu" Directory="MP2Client.MP2ProgramMenu" On="uninstall" />
-        </Component>
-      </Directory>
-    </DirectoryRef>
-
-    <DirectoryRef Id="DesktopFolder">
-      <Component Id="MP2Client.DesktopFolderItems" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
+    <DirectoryRef Id="MP2StartMenu">
+      <Component Id="MP2Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
+        <Shortcut Id="MP2Client.StartMenu.Shortcut"
+                  Name="MediaPortal 2"
+                  Description="MediaPortal 2 description"
+                  Target="[!MP2Client.exe]"
+                  Icon="MediaPortalIcon" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
         -->
-        <RegistryValue Id="MP2Client.DesktopShortcutRegistryKey" Root="HKCU" Type="string" KeyPath="yes" Key="Software\Team MediaPortal\MediaPortal 2" Name="MP2Client.DesktopShortcut" Value="1" />
-        <Shortcut Id="MP2Client.DesktopShortcut" Name="MediaPortal 2" Target="[!MP2Client.exe]" WorkingDirectory="INSTALLDIR_CLIENT" Icon="MediaPortalIcon" Directory="DesktopFolder" />
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="MP2Client.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="MP2Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
+        <Shortcut Id="MP2Client.Desktop.Shortcut"
+                  Name="MediaPortal 2"
+                  Description="MediaPortal 2 description"
+                  Target="[!MP2Client.exe]"
+                  Icon="MediaPortalIcon" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="MP2Client.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -84,8 +97,8 @@
       <ComponentRef Id="Docs" />
 
       <ComponentRef Id="MP2Client" />
-      <ComponentRef Id="MP2Client.DesktopFolderItems" />
-      <ComponentRef Id="MP2Client.ProgramMenuItems" />
+      <ComponentRef Id="MP2Client.Desktop.Shortcut" />
+      <ComponentRef Id="MP2Client.StartMenu.Shortcut" />
 
       <ComponentRef Id="HttpServer" />
       <ComponentRef Id="log4net" />

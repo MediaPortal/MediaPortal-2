@@ -15,7 +15,7 @@
              Languages='1033'
              Compressed='yes' />
 
-    <?Include Includes.wxi?>
+    <?Include .\Includes.wxi?>
 
     <!--
     Source media for the installation.
@@ -52,9 +52,35 @@
           <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
         </Directory>
       </Directory>
-      <Directory Id="ProgramMenuFolder" />
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="MP2StartMenu" Name="MediaPortal 2" />
+      </Directory>
       <Directory Id="DesktopFolder" />
     </Directory>
+    
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2StartMenu">
+      <Component Id="MP2StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
+        <Shortcut Id="MP2Uninstall.StartMenu.Shortcut"
+                  Name="Uninstall MediaPortal 2"
+                  Description="Uninstalls MediaPortal 2 description"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]"/>
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <!-- todo: why is $(var.RegKeyInstall) not working here? -->
+        <RegistryValue Root="HKCU"
+                       Key="Software\Team MediaPortal\MediaPortal 2\Install"
+                       Name="MP2StartMenu"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+        <RemoveFolder Id="Remove.MP2StartMenu"
+                      On="uninstall" />
+      </Component>
+    </DirectoryRef>
 
     <!-- Features -->
     <Feature Id="MediaPortal_2"
@@ -65,6 +91,7 @@
              Description="MediaPortal 2 description">
       <FeatureRef Id="MP2Client" />
       <FeatureRef Id="MP2Server" />
+      <ComponentRef Id="MP2StartMenu" />
     </Feature>
 
     <!-- User Interface -->
