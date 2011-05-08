@@ -28,6 +28,14 @@
     |X| shortcuts on desktop
     |X| shortcuts in startmenu
     | | autostart for server: service, autostart in startmenu or autostart in registry
+    
+    | | TsReader.ax: if not registered, yet by MP1, we need to do deploy and register one with MP2 --> videoplayer
+    | | slimtvplugin: should it be in mp2 alpha?
+        | | yes
+        | | seperat feature
+        | | not included at all
 
   o Compiling the installation
     | | define for which "features" / "components" the wxs-files should be auto-generated
+        |X| Plugins are auto-generated
+        | | rework the pre build commands
