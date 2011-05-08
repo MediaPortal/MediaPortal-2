@@ -17,7 +17,14 @@
         | | VCredist 20xx
         | | DirectX
         | | Dokan
-    | | define which of them should be included in the installation, which of them have to be downloaded
+        
+    | | What needs to be defined?
+        | | How can these be detected?
+            | | Inbuilt WiX property
+            | | custom RegistrySearch
+            | | custom Files/DirectorySearch
+        | | Which should be included (carried) by our installation?
+        | | Which should be references to be downloaded during installation?
 
   o Installation
     |X| Allow custom Installation paths for Client and Server
