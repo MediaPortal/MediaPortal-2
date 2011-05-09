@@ -157,6 +157,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
+    private object _syncObj = new object();
 
     #endregion
 
@@ -190,11 +191,7 @@ namespace MediaPortal.UI.Players.Video
 
     public object SyncObj
     {
-      get
-      {
-        IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-        return playerManager.SyncObj;
-      }
+      get { return _syncObj; }
     }
 
     void InitMediaSubTypes()
