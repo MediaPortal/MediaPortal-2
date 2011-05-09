@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<WixLocalization Culture="de-de"
+                 Codepage="1252"
+                 xmlns="http://schemas.microsoft.com/wix/2006/localization">
+
+  <String Id="SummaryCodepage">1252</String>
+  <String Id="ProductLanguage">1031</String>
+
+  <!-- AddRemove -->
+  <String Id="AR_Comment">MediaPortal 2 Beschreibung</String>
+
+  <!-- Shortcuts -->
+  <String Id="SC_MP_Client">MediaPortal 2</String>
+  <String Id="SC_MP_Client_Desc">MediaPortal 2 starten</String>
+  <String Id="SC_MP_Server">MediaPortal 2 Server</String>
+  <String Id="SC_MP_Server_Desc">MediaPortal 2 Server starten</String>
+  <String Id="SC_Uninstall">MediaPortal 2 deinstallieren</String>
+  <String Id="SC_Uninstall_Desc">MediaPortal komplett oder teilweise deinstallieren</String>
+  
+  <!-- Features -->
+  <String Id="F_MP">MediaPortal 2</String>
+  <String Id="F_MP_Desc">MediaPortal 2 Beschreibung</String>
+  <String Id="F_MP_Client">Client</String>
+  <String Id="F_MP_Client_Desc">Client Beschreibung</String>
+  <String Id="F_MP_Server">Server</String>
+  <String Id="F_MP_Server_Desc">Server Beschreibung</String>
+
+</WixLocalization>

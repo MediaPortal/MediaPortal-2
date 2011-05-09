@@ -4,15 +4,16 @@
   <Product Id="*"
            Name="MediaPortal 2"
            Version="2.0.0.0"
-           Language="1033"
            Manufacturer="Team MediaPortal"
+           Language="!(loc.ProductLanguage)"
+           Codepage="0"
            UpgradeCode="9743129C-FED3-404A-A66E-3C1557BE0178">
 
     <Package Id='*'
              Keywords='Installer'
              Description='MediaPortal 2 Installer'
              InstallerVersion='200'
-             Languages='1033'
+             SummaryCodepage="!(loc.SummaryCodepage)"
              Compressed='yes' />
 
     <PropertyRef Id="UpgradesFile" />
@@ -52,8 +53,8 @@
     <DirectoryRef Id="MP2StartMenu">
       <Component Id="MP2StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
         <Shortcut Id="MP2Uninstall.StartMenu.Shortcut"
-                  Name="Uninstall MediaPortal 2"
-                  Description="Uninstalls MediaPortal 2 description"
+                  Name="!(loc.SC_Uninstall)"
+                  Description="!(loc.SC_Uninstall_Desc)"
                   Target="[System64Folder]msiexec.exe"
                   Arguments="/x [ProductCode]" />
         <!--
@@ -77,8 +78,8 @@
              Level="1"
              AllowAdvertise="no"
              Display="expand"
-             Title="MediaPortal 2"
-             Description="MediaPortal 2 description">
+             Title="!(loc.F_MP)"
+             Description="!(loc.F_MP_Desc)">
       <FeatureRef Id="MP2Client" />
       <FeatureRef Id="MP2Server" />
       <ComponentRef Id="MP2StartMenu" />

@@ -11,7 +11,7 @@
     http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/configuration_properties.asp
     -->
     <Property Id="ARPCOMMENTS">
-      MediaPortal2 comment
+      !(loc.AR_Comment)
     </Property>
     <Property Id="ARPCONTACT">
       http://www.team-mediaportal.com/contact-us-at-mediaportal
