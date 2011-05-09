@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+
+    <Property Id="UpgradesFile">1</Property>
+
+    <Upgrade Id="9743129C-FED3-404A-A66E-3C1557BE0178">
+      <UpgradeVersion Property="OLD_VERSION_FOUND"
+                      Minimum="2.0.0.0"
+                      Maximum="2.0.0.0"
+                      IncludeMinimum="yes"
+                      IncludeMaximum="yes"
+                      OnlyDetect="no"
+                      IgnoreRemoveFailure="yes"
+                      MigrateFeatures="yes"
+                      Language="1033" />
+    </Upgrade>
+
+  </Fragment>
+</Wix>

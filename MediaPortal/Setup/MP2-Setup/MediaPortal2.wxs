@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="bcccb3b9-2ac9-4cef-81d7-c0b0520bc521"
+  <Product Id="*"
            Name="MediaPortal 2"
            Version="2.0.0.0"
            Language="1033"
            Manufacturer="Team MediaPortal"
-           UpgradeCode="df866d75-870b-488a-835a-4edfdcd70c7b">
+           UpgradeCode="9743129C-FED3-404A-A66E-3C1557BE0178">
 
     <Package Id='*'
              Keywords='Installer'
@@ -15,7 +15,13 @@
              Languages='1033'
              Compressed='yes' />
 
+    <PropertyRef Id="UpgradesFile" />
+    
     <?Include .\Includes.wxi?>
+
+    <PropertyRef Id="PropertiesFile" />
+    <PropertyRef Id="AddRemovePropertiesFile" />
+    <PropertyRef Id="LaunchConditionsFile" />
 
     <!--
     Source media for the installation.
@@ -25,32 +31,7 @@
 
     <!-- setting the context to per-machine -->
     <Property Id="ALLUSERS">1</Property>
-    
-    <!--
-    Support entries shown when clicking "Click here for support information"
-    in Control Panel's Add/Remove Programs
-    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/configuration_properties.asp
-    -->
-    <Property Id="ARPCOMMENTS">
-      MediaPortal2 comment
-    </Property>
-    <Property Id="ARPCONTACT">
-      http://www.team-mediaportal.com/contact-us-at-mediaportal
-    </Property>
-    <Property Id="ARPHELPLINK">
-      http://wiki.team-mediaportal.com/
-    </Property>
-    <Property Id="ARPREADME">
-      http://www.team-mediaportal.com/readme
-    </Property>
-    <Property Id="ARPURLINFOABOUT">
-      http://www.team-mediaportal.com/about-the-project/behind-the-project
-    </Property>
-    <Property Id="ARPURLUPDATEINFO">
-      http://www.team-mediaportal.com/
-    </Property>
-    <!-- Puts MediaPortal icon in Control Panel's Add/Remove Programs -->
-    <Property Id="ARPPRODUCTICON">MediaPortalIcon</Property>
+
     <Icon Id="MediaPortalIcon" SourceFile="Ressources\MediaPortal.ico" />
 
     <!-- Directories -->
@@ -113,6 +94,10 @@
 
     <UIRef Id="WixUI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallFinalize" />
+    </InstallExecuteSequence>
 
   </Product>
 </Wix>

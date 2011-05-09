@@ -23,6 +23,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Client\ClientPlugins.wxs" />
+    <Compile Include="Fragments\AddRemoveProperties.wxs" />
+    <Compile Include="Fragments\Upgrades.wxs" />
+    <Compile Include="Fragments\LaunchConditions.wxs" />
+    <Compile Include="Fragments\Properties.wxs" />
     <Compile Include="MediaPortal2.wxs" />
     <Content Include="Includes.wxi" />
     <Compile Include="Server\ServerPlugins.wxs" />
@@ -33,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Client" />
+    <Folder Include="Fragments" />
     <Folder Include="Server" />
   </ItemGroup>
   <ItemGroup>

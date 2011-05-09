@@ -12,11 +12,14 @@
 
   o Requirements
     | | define OS requirements
+        | | Windows 7
+        | | other? don't allow installation? only warn the user?
+        
     | | define other software requirements
         | | .NET Framework
         | | VCredist 20xx
         | | DirectX
-        | | Dokan
+        | | Dokan --> see dokan's nsis source code
         
     | | What needs to be defined?
         | | How can these be detected?
@@ -28,7 +31,7 @@
 
   o Installation
     |X| Allow custom Installation paths for Client and Server
-    | | Allow installation without uninstalling previous version
+    |X| Allow installation without uninstalling previous version
     | | Show the user if/which software has to be closed before continuing installation
     
     |X| Add icon to control panel - software
