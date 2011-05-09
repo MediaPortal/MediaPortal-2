@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
     public override void Load()
     {
       // Load settings
-      BDInfoSettings settings = SettingsManager.Load<BDInfoSettings>();
+      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
       if (settings != null && settings.AVCCodec!= null)
         _currentSelection = settings.AVCCodec.GetCLSID();
       base.Load();
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.BDHandler.Settings.Configuration
     public override void Save()
     {
       // Load settings
-      BDInfoSettings settings = SettingsManager.Load<BDInfoSettings>();
+      BDPlayerSettings settings = SettingsManager.Load<BDPlayerSettings>();
       settings.AVCCodec = _codecList[Selected];
       SettingsManager.Save(settings);
     }
