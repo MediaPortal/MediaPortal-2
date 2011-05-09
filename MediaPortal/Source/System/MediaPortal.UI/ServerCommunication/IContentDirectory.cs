@@ -148,8 +148,28 @@ namespace MediaPortal.UI.ServerCommunication
 
     #region Media import
 
+    // TODO: We don't have a way to remove media item aspects from media items yet. This function has to be added.
+
+    /// <summary>
+    /// Adds the media item with the given path or updates it if it already exists.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the parent directory media item.</param>
+    /// <param name="systemId">Id of the system where the given <paramref name="path"/> is located.</param>
+    /// <param name="path">Path of the media item to be added or updated.</param>
+    /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
+    /// <returns>Id of the added or updated media item.</returns>
     Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
+    /// Deletes all media items in the content directory whose resource path starts with the given <paramref name="path"/>.
+    /// If <paramref name="inclusive"/> is set to <c>true</c>, the media item with exactly the given path will be deleted too.
+    /// The complicated contract is necessary because we also have media items for directories which are tracked too.
+    /// </summary>
+    /// <param name="systemId">Id of the system where the given media item <paramref name="path"/> is located.</param>
+    /// <param name="path">Path to be deleted. All items whose path starts with this path are deleted.</param>
+    /// <param name="inclusive">If set to <c>true</c>, the media item with the given <paramref name="path"/> is deleted too, else,
+    /// only the children of the <paramref name="path"/> are deleted.</param>
     void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
 
     #endregion
