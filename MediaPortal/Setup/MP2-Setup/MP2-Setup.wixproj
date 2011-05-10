@@ -64,7 +64,7 @@
 "$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -dr INSTALLDIR_SERVER -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)BuildHelper\$(OutDir)BuildHelper.exe" --f="$(TargetFileName)" --t="$(TargetDir)\"</PostBuildEvent>
+    <PostBuildEvent />
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
