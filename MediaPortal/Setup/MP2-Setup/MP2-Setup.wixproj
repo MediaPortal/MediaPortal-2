@@ -16,7 +16,8 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Debug;SourceClientPlugins=$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins;SourceServerPlugins=$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
-    <Cultures>en-us;de-de</Cultures>
+    <Cultures>
+    </Cultures>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -57,6 +58,9 @@
   <PropertyGroup>
     <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -dr INSTALLDIR_CLIENT -var var.SourceClientPlugins -template fragment -out "$(ProjectDir)Client\ClientPlugins.wxs"
 "$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -dr INSTALLDIR_SERVER -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir)BuildHelper\$(OutDir)BuildHelper.exe" --f="$(TargetFileName)" --t="$(TargetDir)\"</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
