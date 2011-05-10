@@ -26,4 +26,13 @@
   <String Id="F_MP_Server">Server</String>
   <String Id="F_MP_Server_Desc">Server Beschreibung</String>
 
+  <!-- Firewall Exeptions -->
+  <String Id="WixSchedFirewallExceptionsInstall"></String>
+  <String Id="WixSchedFirewallExceptionsUninstall"></String>
+  <String Id="WixRollbackFirewallExceptionsInstall"></String>
+  <String Id="WixExecFirewallExceptionsInstall"></String>
+  <String Id="WixRollbackFirewallExceptionsUninstall"></String>
+  <String Id="WixExecFirewallExceptionsUninstall"></String>
+  <String Id="msierrFirewallCannotConnect"></String>
+
 </WixLocalization>

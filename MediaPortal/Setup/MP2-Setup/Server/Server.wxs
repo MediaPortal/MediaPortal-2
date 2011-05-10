@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"  xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
   <Fragment>
     
     <?include ..\Includes.wxi ?>
@@ -29,7 +29,12 @@
       <Directory Id="ServerPluginsFolder" Name="Plugins" />
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
-        <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes" />
+        <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
+          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any"/>
+          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any"/>
+          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any"/>
+          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any"/>
+        </File>
       </Component>
       <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
         <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" KeyPath="yes" Checksum="yes" />
