@@ -26,8 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace MediaPortal.Utilities.FileSystem
 {
@@ -36,9 +34,6 @@ namespace MediaPortal.Utilities.FileSystem
   /// </summary>
   public class FileUtils
   {
-    [ThreadStatic]
-    protected static SHA1 _sha1 = null;
-
     /// <summary>
     /// Combines two paths. This method differs from
     /// <see cref="System.IO.Path.Combine(string, string)"/> in that way that it
@@ -166,11 +161,8 @@ namespace MediaPortal.Utilities.FileSystem
 
     public static string CreateHumanReadableTempFilePath(string underlayingResourcePath)
     {
-      if (_sha1 == null)
-        _sha1 = SHA1.Create();
       string fileName = Path.GetFileName(underlayingResourcePath);
-      string directory = Path.GetTempPath() +
-          BitConverter.ToString(_sha1.ComputeHash(Encoding.UTF8.GetBytes(underlayingResourcePath))).Replace("-","");
+      string directory = Path.GetTempPath() + Guid.NewGuid().ToString("D");
       Directory.CreateDirectory(directory);
       return directory  + "\\" + fileName;
     }
