@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using BuildHelper.Properties;
 using CommandLine;
 
 namespace BuildHelper
@@ -43,20 +44,20 @@ namespace BuildHelper
         foreach (string file in Directory.GetFiles(mpArgs.TargetDir))
           File.Delete(file);
 
-        foreach (string file in Directory.GetFiles(Path.Combine(mpArgs.TargetDir, "\\en-us")))
-          File.Copy(file, Path.Combine(mpArgs.TargetDir, "\\" + Path.GetFileName(file)), true);
+        foreach (string file in Directory.GetFiles(Path.Combine(mpArgs.TargetDir, "en-us")))
+          File.Copy(file, Path.Combine(mpArgs.TargetDir, Path.GetFileName(file)), true);
 
         foreach (DirectoryInfo dirInfo in new DirectoryInfo(mpArgs.TargetDir).GetDirectories())
         {
           if (dirInfo.Name.Equals("en-us")) continue;
           
           ProcessStartInfo processStartInfo = new ProcessStartInfo();
-          processStartInfo.FileName = Path.Combine(Environment.GetEnvironmentVariable("wix") + "\\bin\\torch.exe");
+          processStartInfo.FileName = Path.Combine(Environment.GetEnvironmentVariable("wix") + "bin\\torch.exe");
           processStartInfo.Arguments = String.Format(
             " -t language \"{0}\" \"{1}\" -out \"{2}\"",
-            Path.Combine(mpArgs.TargetDir, "\\en-us\\", mpArgs.TargetFileName),
-            Path.Combine(mpArgs.TargetDir, "\\" + dirInfo.Name + "\\", mpArgs.TargetFileName),
-            Path.Combine(mpArgs.TargetDir, "\\" + dirInfo.Name + ".mst"));
+            Path.Combine(mpArgs.TargetDir, "en-us\\", mpArgs.TargetFileName),
+            Path.Combine(mpArgs.TargetDir, dirInfo.Name + "\\", mpArgs.TargetFileName),
+            Path.Combine(mpArgs.TargetDir, dirInfo.Name + ".mst"));
 
           Process process = Process.Start(processStartInfo);
           process.WaitForExit();
@@ -82,17 +83,22 @@ namespace BuildHelper
         ProcessStartInfo processStartInfo;
         Process process;
 
+        string pathWiSubStg = Path.Combine(Path.GetTempPath(), "WiSubStg.vbs");
+        string pathWiLangId = Path.Combine(Path.GetTempPath(), "WiLangId.vbs");
+        File.WriteAllText(pathWiSubStg, Resources.WiSubStg);
+        File.WriteAllText(pathWiLangId, Resources.WiLangId);
+
         foreach (string file in Directory.GetFiles(mpArgs.TargetDir, "*.mst"))
         {
           // merging the transforms back into the msi
           CultureInfo ci = new CultureInfo(Path.GetFileNameWithoutExtension(file));
-
+          
           processStartInfo = new ProcessStartInfo();
           processStartInfo.UseShellExecute = true;
-          processStartInfo.FileName = Directory.GetParent(Assembly.GetCallingAssembly().FullName) + "\\WiSubStg.vbs";
+          processStartInfo.FileName = pathWiSubStg;
           processStartInfo.Arguments = String.Format(
-            "\"{0}\" \"{1}\" {2}",
-            Path.Combine(mpArgs.TargetDir, "\\" + mpArgs.TargetFileName),
+            " \"{0}\" \"{1}\" {2}",
+            Path.Combine(mpArgs.TargetDir, mpArgs.TargetFileName),
             file, ci.LCID);
 
           process = Process.Start(processStartInfo);
@@ -106,10 +112,10 @@ namespace BuildHelper
         // setting the msi-available language ids
         processStartInfo = new ProcessStartInfo();
         processStartInfo.UseShellExecute = true;
-        processStartInfo.FileName = Directory.GetParent(Assembly.GetCallingAssembly().FullName) + "\\WiLangId.vbs";
+        processStartInfo.FileName = pathWiLangId;
         processStartInfo.Arguments = String.Format(
-          "\"{0}\" Package {1}",
-            Path.Combine(mpArgs.TargetDir, "\\" + mpArgs.TargetFileName),
+          " \"{0}\" Package {1}",
+            Path.Combine(mpArgs.TargetDir, mpArgs.TargetFileName),
             availableLCIDs);
 
         process = Process.Start(processStartInfo);

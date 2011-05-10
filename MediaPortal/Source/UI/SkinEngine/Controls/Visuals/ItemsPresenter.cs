@@ -193,14 +193,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <paramref name="startsWith"/>.</param>
     public bool FocusItemWhichStartsWith(char startsWith, int index)
     {
-      if (_dataStrings == null || _itemsHostPanel == null)
+      IList<string> dataStrings = _dataStrings;
+      if (dataStrings == null || _itemsHostPanel == null)
         return false;
       string startsWithStr = char.ToLower(startsWith).ToString();
       FrameworkElement element = null;
       int elementIndex = -1;
-      for (int i = 0; i < _dataStrings.Count; i++)
+      for (int i = 0; i < dataStrings.Count; i++)
       {
-        string dataString = _dataStrings[i];
+        string dataString = dataStrings[i];
         if (dataString == null)
           return false;
         if (dataString.StartsWith(startsWithStr))
