@@ -45,17 +45,17 @@
         | | seperat feature
         | | not included at all
     
-    | | Windows Firewall configuration
+    |X| Windows Firewall configuration
         | | define what has to be configured
-            | | application: server, client, others?
-            | | protocols: ... ???
-            | | ports: ... ???
-        | | implement what has been defined
+            |X| application: server, client, others?
+            |X| protocols: ... ???
+            |X| ports: ... ???
+        |X| implement what has been defined
 
   o Compiling the installation
     | | define for which "features" / "components" the wxs-files should be auto-generated
         |X| Plugins are auto-generated
         | | rework the pre build commands
         
-    | | add batch files for building the setup easily
+    |X| add batch files for building the setup easily
     
