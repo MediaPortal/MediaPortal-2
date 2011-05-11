@@ -57,6 +57,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Language\de-de.wxl" />
     <EmbeddedResource Include="Language\en-us.wxl" />
+    <EmbeddedResource Include="Language\fr-fr.wxl" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
