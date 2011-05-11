@@ -33,7 +33,7 @@
     <!-- setting the context to per-machine -->
     <Property Id="ALLUSERS">1</Property>
 
-    <Icon Id="MediaPortalIcon" SourceFile="Ressources\MediaPortal.ico" />
+    <Icon Id="MediaPortalIcon" SourceFile="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\Release\MP2-Client.exe" />
 
     <!-- Directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
