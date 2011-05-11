@@ -443,6 +443,7 @@
     <Content Include="Skin\NewSkin\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\NewSkin\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\NewSkin\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\NewSkin\images\preview.png" />
     <Content Include="Skin\NewSkin\images\Weather\128x128\0.png" />
     <Content Include="Skin\NewSkin\images\Weather\128x128\1.png" />
     <Content Include="Skin\NewSkin\images\Weather\128x128\10.png" />
