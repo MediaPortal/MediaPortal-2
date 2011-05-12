@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Skin Name="NewSkin" Version="1.0">
-  <ShortDescription>New skin for MP 2</ShortDescription>
-  <UsageNote>Test skin for new ideas.</UsageNote>
+<Skin Name="RisingSkin" Version="1.0">
+  <ShortDescription>MP2 Rising Skin</ShortDescription>
+  <UsageNote></UsageNote>
   <Preview>images\preview.png</Preview>
   <Author>Morpheus_xx</Author>
   <SkinVersion>1.0</SkinVersion>

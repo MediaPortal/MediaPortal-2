@@ -1,6 +1,6 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="NewSkin"
+    Name="MP2 Rising Skin"
     PluginId="{77D2381E-2591-43d6-85B5-9EF77E95E9DB}"
     Author="Morpheus_xx"
     Copyright="GPL"
@@ -13,6 +13,6 @@
   </DependsOn>
 
   <Register Location="/Resources/Skin">
-    <Resource Id="NewSkinSkin" Directory="Skin" Type="Skin"/>
+    <Resource Id="RisingSkin" Directory="Skin" Type="Skin"/>
   </Register>
 </Plugin>
