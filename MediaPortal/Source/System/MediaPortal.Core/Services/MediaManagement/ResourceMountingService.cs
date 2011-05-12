@@ -30,10 +30,7 @@ using System.Threading;
 using Dokan;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Services.MediaManagement.Settings;
-using MediaPortal.Core.Services.SystemResolver;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.SystemResolver;
+using MediaPortal.Core.PathManager;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -94,7 +91,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
       public IResourceAccessor ResourceAccessor
       {
-        get { return _resourceAccessor;  }
+        get { return _resourceAccessor; }
       }
 
       public DateTime CreationTime
@@ -119,7 +116,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected class VirtualFile : VirtualFileSystemResource
     {
       public VirtualFile(string name, IResourceAccessor resourceAccessor) :
-          base(name, resourceAccessor) { }
+        base(name, resourceAccessor) { }
 
       public override string ToString()
       {
@@ -179,9 +176,9 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       protected IDictionary<string, VirtualFileSystemResource> _children = null; // Lazily initialized
 
-// ReSharper disable SuggestBaseTypeForParameter
-      public VirtualDirectory(string name, IFileSystemResourceAccessor resourceAccessor) :  base(name, resourceAccessor) { }
-// ReSharper restore SuggestBaseTypeForParameter
+      // ReSharper disable SuggestBaseTypeForParameter
+      public VirtualDirectory(string name, IFileSystemResourceAccessor resourceAccessor) : base(name, resourceAccessor) { }
+      // ReSharper restore SuggestBaseTypeForParameter
 
       public override void Dispose()
       {
@@ -281,57 +278,29 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected char? _driveLetter = null;
+    protected string _mountPoint = null;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
-
-    // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
-    // write a sensible destructor in this class which removes the Dokan drive
-
-    protected bool DriveInUse(char driveLetter)
-    {
-      return Directory.Exists(driveLetter + ":\\");
-    }
-
-    /// <summary>
-    /// Checks if a mounted drive exists and the filesystem type is DOKAN.
-    /// </summary>
-    /// <param name="driveLetter">Drive letter.</param>
-    /// <returns>True if mounted Dokan drive.</returns>
-    protected bool IsDokanDrive(char driveLetter)
-    {
-      DriveInfo driveInfo = new DriveInfo(driveLetter+":");
-      // check the IsReady property to avoid DriveNotFoundException on other Properties
-      return (driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN");
-    }
 
     protected void Run()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
 
-      char? driveLetter = ReadDriveLetterFromSettings();
-      if (!driveLetter.HasValue)
+      try
       {
-        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-        driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
-            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
+        _mountPoint = pathManager.GetPath("<REMOTERESOURCES>");
+        if (!Directory.Exists(_mountPoint))
+          Directory.CreateDirectory(_mountPoint);
       }
-
-      // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
-      // lost Dokan mount from a formerly crashed MediaPortal
-      if (IsDokanDrive(driveLetter.Value))
-        DokanNet.DokanUnmount(driveLetter.Value);
-
-      if (DriveInUse(driveLetter.Value))
+      catch (Exception exception)
       {
-        logger.Warn(
-            "ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.",
-            driveLetter.Value);
+        logger.Warn("ResourceMountingService: unable to access or create remote resource directory: {0}", exception);
         return;
       }
-      _driveLetter = driveLetter;
+
       DokanOptions opt = new DokanOptions
                            {
-                             MountPoint = driveLetter.Value + ":\\",
+                             MountPoint = _mountPoint,
                              VolumeLabel = VOLUME_LABEL,
                              //UseKeepAlive = true,
                              //DebugMode = true,
@@ -352,7 +321,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         return _root;
       if (!fileName.StartsWith("\\"))
         return null;
-      string[] pathSegments = fileName.Split(new char[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+      string[] pathSegments = fileName.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
       VirtualFileSystemResource resource = _root;
       lock (_syncObj)
         foreach (string pathSegment in pathSegments)
@@ -368,29 +337,22 @@ namespace MediaPortal.Core.Services.MediaManagement
       return resource;
     }
 
-    protected char? ReadDriveLetterFromSettings()
-    {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();
-      return settings.DriveLetter;
-    }
-
     protected VirtualRootDirectory GetRootDirectory(string rootDirectoryName)
     {
-        VirtualFileSystemResource directoryResource;
-        if (!_root.ChildResources.TryGetValue(rootDirectoryName, out directoryResource))
-          return null;
-        return (VirtualRootDirectory) directoryResource;
+      VirtualFileSystemResource directoryResource;
+      if (!_root.ChildResources.TryGetValue(rootDirectoryName, out directoryResource))
+        return null;
+      return (VirtualRootDirectory) directoryResource;
     }
 
     #region IResourceMountingService implementation
 
-    public char? DriveLetter
+    public string MountPoint
     {
       get
       {
         lock (_syncObj)
-          return _driveLetter;
+          return _mountPoint;
       }
     }
 
@@ -415,26 +377,26 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void Shutdown()
     {
-      char? driveLetter;
+      string mountPoint;
       lock (_syncObj)
       {
         _root.Dispose();
         if (!_started)
           return;
-        driveLetter = _driveLetter;
+        mountPoint = _mountPoint;
       }
-      if (driveLetter.HasValue)
-        DokanNet.DokanUnmount(driveLetter.Value);
+      if (!String.IsNullOrEmpty(mountPoint))
+        DokanNet.DokanRemoveMountPoint(mountPoint);
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
     {
       lock (_syncObj)
       {
-        if (!_driveLetter.HasValue)
+        if (String.IsNullOrEmpty(_mountPoint))
           return null;
         _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
-        return _driveLetter.Value + ":\\" + rootDirectoryName;
+        return Path.Combine(_mountPoint, rootDirectoryName);
       }
     }
 
@@ -468,7 +430,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        if (!_driveLetter.HasValue)
+        if (String.IsNullOrEmpty(_mountPoint))
           return null;
         VirtualRootDirectory rootDirectory = GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
@@ -478,7 +440,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         rootDirectory.AddResource(resourceName, fsra != null && fsra.IsDirectory ?
             (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
             new VirtualFile(resourceName, resourceAccessor));
-        return _driveLetter + ":\\" + rootDirectoryName + "\\" + resourceName;
+        return Path.Combine(_mountPoint, rootDirectoryName + "\\" + resourceName);
       }
     }
 
@@ -653,12 +615,12 @@ namespace MediaPortal.Core.Services.MediaManagement
           IResourceAccessor resourceAccessor = resource.ResourceAccessor;
           FileInformation fi = new FileInformation
             {
-                Attributes = resource is VirtualFile ? FILE_ATTRIBUTES : DIRECTORY_ATTRIBUTES,
-                CreationTime = resource.CreationTime,
-                LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged,
-                LastWriteTime = directory.CreationTime, // When using DateTime.MinValue, the resource is not recognized
-                Length = resourceAccessor == null ? 0 : resourceAccessor.Size,
-                FileName = entry.Key
+              Attributes = resource is VirtualFile ? FILE_ATTRIBUTES : DIRECTORY_ATTRIBUTES,
+              CreationTime = resource.CreationTime,
+              LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged,
+              LastWriteTime = directory.CreationTime, // When using DateTime.MinValue, the resource is not recognized
+              Length = resourceAccessor == null ? 0 : resourceAccessor.Size,
+              FileName = entry.Key
             };
           files.Add(fi);
         }

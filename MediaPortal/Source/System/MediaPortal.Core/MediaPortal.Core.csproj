@@ -239,7 +239,6 @@
     <Compile Include="Services\Logging\FileLogger.cs" />
     <Compile Include="Services\MediaManagement\ResourceMountingService.cs" />
     <Compile Include="Services\MediaManagement\ResourceServer.cs" />
-    <Compile Include="Services\MediaManagement\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\MediaManagement\Settings\ServerSettings.cs" />
     <Compile Include="Services\MediaManagement\SynchronizedMasterStreamClient.cs" />
     <Compile Include="Services\MediaManagement\UPnPResourceInformationServiceProxy.cs" />
