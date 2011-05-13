@@ -67,7 +67,7 @@ namespace MediaPortal.Backend.Services.Database
 
     protected static string PreprocessScript(string scriptFilePath)
     {
-      StreamReader reader = new StreamReader(new FileStream(scriptFilePath, FileMode.Open));
+      using (StreamReader reader = new StreamReader(new FileStream(scriptFilePath, FileMode.Open, FileAccess.Read)))
       return PreprocessScript(reader);
     }
 
