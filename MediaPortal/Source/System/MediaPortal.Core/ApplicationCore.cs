@@ -56,7 +56,7 @@ namespace MediaPortal.Core
       IPathManager pathManager = new Services.PathManager.PathManager();
       ServiceRegistration.Set<IPathManager>(pathManager);
 
-      ILogger logger = new log4netLogger(pathManager.GetPath(@"<LOG>")); 
+      ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>")); 
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
       logger.Debug("ApplicationCore: Registering ILogger service");
