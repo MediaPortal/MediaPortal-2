@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
@@ -67,8 +68,8 @@ namespace MediaPortal.Backend.Services.Database
 
     protected static string PreprocessScript(string scriptFilePath)
     {
-      StreamReader reader = new StreamReader(new FileStream(scriptFilePath, FileMode.Open));
-      return PreprocessScript(reader);
+      using (StreamReader reader = new StreamReader(new FileStream(scriptFilePath, FileMode.Open, FileAccess.Read)))
+        return PreprocessScript(reader);
     }
 
     protected static string PreprocessScript(TextReader reader)
@@ -146,8 +147,7 @@ namespace MediaPortal.Backend.Services.Database
       }
 
       // ... then do the actual replacements
-      foreach (KeyValuePair<string, string> replacement in replacements)
-        result = result.Replace(replacement.Key, replacement.Value);
+      result = replacements.Aggregate(result, (current, replacement) => current.Replace(replacement.Key, replacement.Value));
       return result.ToString();
     }
   }

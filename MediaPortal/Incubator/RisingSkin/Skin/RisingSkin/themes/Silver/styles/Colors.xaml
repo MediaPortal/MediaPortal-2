@@ -250,7 +250,7 @@
 
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="White"/>
-  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="#A04C4C4C"/>
+  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="#60203040"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="#A05E5E5E"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarFontColor" Resource="LightGray"/>
 
@@ -319,4 +319,13 @@
     <GradientStop Color="#60006DB1" Offset="1"/>
   </LinearGradientBrush>
 
+  <!-- busy screen colors -->
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance1" Resource="#F2599EFF"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance1Transparent" Resource="#7F599EFF"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance2" Resource="#FFC0C0C0"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance3" Resource="#F2BCBCBC"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance4" Resource="#F2BFCCBF"/>
+  <ResourceWrapper x:Key="BusyCursorColor1Nuance5" Resource="#F2D2DEF2"/>
+  <ResourceWrapper x:Key="BusyCursorColor2Nuance1" Resource="#E0404040"/>
+  <ResourceWrapper x:Key="BusyCursorColor2Nuance1Transparent" Resource="#60404040"/>
 </ResourceDictionary>

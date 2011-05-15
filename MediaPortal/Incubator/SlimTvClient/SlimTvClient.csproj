@@ -219,7 +219,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\NewSkin\themes\Silver\styles\SlimTvStyles.xaml">
+    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2010 Team MediaPortal
+﻿#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2010 Team MediaPortal
+    Copyright (C) 2007-2011 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,47 +30,43 @@ using System.Xml;
 using MediaPortal.Core.Logging;
 using log4net;
 
-
 namespace MediaPortal.Core.Services.Logging
 {
-  public class log4netLogger : ILogger
+  public class Log4NetLogger : ILogger
   {
-     /// <summary>
-    /// Creates a new <see cref="log4netLogger"/> instance and initializes it with the given parameters.
+    /// <summary>
+    /// Creates a new <see cref="Log4NetLogger"/> instance and initializes it with the given parameters.
     /// </summary>
     /// <param name="logPath">Path where the logfiles should be written to.</param>
-    public log4netLogger(string logPath)
+    public Log4NetLogger(string logPath)
     {
       string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+
       XmlDocument xmlDoc = new XmlDocument();
-      
-      xmlDoc.Load(new FileStream(Path.Combine(appPath, "app.config"),FileMode.Open));
+      xmlDoc.Load(new FileStream(Path.Combine(appPath, "app.config"), FileMode.Open, FileAccess.Read));
       XmlNodeList nodeList = xmlDoc.SelectNodes("configuration/log4net/appender/file");
       foreach (XmlNode node in nodeList)
-      {
         if (node.Attributes != null)
-        {
           foreach (XmlAttribute attribute in node.Attributes)
-          {
             if (attribute.Name.Equals("value"))
             {
               attribute.Value = Path.Combine(logPath, Path.GetFileName(attribute.Value));
               break;
             }
-          }
-        }
+
+      using (MemoryStream mStream = new MemoryStream())
+      {
+        xmlDoc.Save(mStream);
+        mStream.Seek(0, SeekOrigin.Begin);
+        log4net.Config.XmlConfigurator.Configure(mStream);
       }
-      MemoryStream mStream = new MemoryStream();
-      xmlDoc.Save(mStream);
-      mStream.Seek(0, SeekOrigin.Begin);
-      log4net.Config.XmlConfigurator.Configure(mStream);
     }
 
     protected ILog GetLogger
     {
       get { return LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType); }
     }
-    
+
     #region ILogger implementation
 
     public void Debug(string format, params object[] args)

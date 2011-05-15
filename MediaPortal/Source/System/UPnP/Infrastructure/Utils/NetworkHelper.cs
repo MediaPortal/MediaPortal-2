@@ -268,24 +268,34 @@ namespace UPnP.Infrastructure.Utils
       // Albert: Which meaning does the IP address have?
       socket.Bind(new IPEndPoint(address, UPnPConsts.SSDP_MULTICAST_PORT));
       if (family == AddressFamily.InterNetwork)
-      {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-            new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-      }
+        try
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+              new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+        }
       else if (family == AddressFamily.InterNetworkV6)
-      {
-        // We only receive in those multicast groups where we joined
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-      }
+        try
+        {
+          // We only receive in those multicast groups where we joined
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not add socket to IPv6 multicast groups", e);
+        }
     }
 
     public static void BindAndConfigureGENAMulticastSocket(Socket socket, IPAddress address)
@@ -295,24 +305,34 @@ namespace UPnP.Infrastructure.Utils
       // Albert: Which meaning does the IP address have?
       socket.Bind(new IPEndPoint(address, UPnPConsts.GENA_MULTICAST_PORT));
       if (family == AddressFamily.InterNetwork)
-      {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-            new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-      }
+        try
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+              new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+        }
       else if (family == AddressFamily.InterNetworkV6)
-      {
-        // We only receive in those multicast groups where we joined
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-      }
+        try
+        {
+          // We only receive in those multicast groups where we joined
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not add socket to IPv6 multicast groups", e);
+        }
     }
 
     public static void DisposeSSDPMulticastSocket(Socket socket)
@@ -320,19 +340,31 @@ namespace UPnP.Infrastructure.Utils
       try
       {
         if (socket.AddressFamily == AddressFamily.InterNetwork)
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-              new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
+          try
+          {
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
+                new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+          }
         else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
-        }
+          try
+          {
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not remove socket from IPv6 multicast groups", e);
+          }
       }
       catch (ObjectDisposedException)
       { }
@@ -346,19 +378,31 @@ namespace UPnP.Infrastructure.Utils
       try
       {
         if (socket.AddressFamily == AddressFamily.InterNetwork)
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-              new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
+          try
+          {
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
+                new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+          }
         else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
-        }
+          try
+          {
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not remove socket from IPv6 multicast groups", e);
+          }
       }
       catch (ObjectDisposedException)
       { }

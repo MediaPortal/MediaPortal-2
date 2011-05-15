@@ -24,6 +24,9 @@
 
   <ResourceWrapper x:Key="HeaderFooterSeparatorLineStrokeColor" Resource="#FF7E7E7E"/>
 
+  <!-- Semi transparent black used to darken the background when showing a dialog -->
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>
+  
   <!-- Light blue, little bit darker than BackgroundGradient1Color and a bit transparent -->
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EF105EB8"/>
 

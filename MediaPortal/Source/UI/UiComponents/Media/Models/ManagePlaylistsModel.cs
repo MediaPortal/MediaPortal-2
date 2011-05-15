@@ -241,7 +241,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       try
       {
-       Models.ServerPlaylists.RemovePlaylists(GetSelectedPlaylists());
+       ServerPlaylists.RemovePlaylists(GetSelectedPlaylists());
         UpdatePlaylists(false);
         NavigateBackToOverview();
       }
@@ -257,11 +257,11 @@ namespace MediaPortal.UiComponents.Media.Models
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       try
       {
-        if (Models.ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
+        if (ServerPlaylists.GetPlaylists().Any(p => p.Name == _playlist.Name))
           SaveFailed(LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_FAILED_PLAYLIST_ALREADY_EXISTS, _playlist.Name));
         else
         {
-          Models.ServerPlaylists.SavePlaylist(playlistData);
+          ServerPlaylists.SavePlaylist(playlistData);
           _message = LocalizationHelper.Translate(Consts.RES_SAVE_PLAYLIST_SUCCESSFUL_TEXT);
           workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYLIST_SAVE_SUCCESSFUL);
         }
@@ -449,7 +449,7 @@ namespace MediaPortal.UiComponents.Media.Models
         try
         {
           if (IsHomeServerConnected)
-            CollectionUtils.AddAll(playlists, Models.ServerPlaylists.GetPlaylists());
+            CollectionUtils.AddAll(playlists, ServerPlaylists.GetPlaylists());
         }
         catch (NotConnectedException) { }
         int numPlaylists = playlists.Count;
