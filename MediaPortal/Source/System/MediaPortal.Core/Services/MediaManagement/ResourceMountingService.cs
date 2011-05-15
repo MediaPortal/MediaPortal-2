@@ -299,15 +299,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
 
       DokanOptions opt = new DokanOptions
-                           {
-                             MountPoint = _mountPoint,
-                             VolumeLabel = VOLUME_LABEL,
-                             //UseKeepAlive = true,
-                             //DebugMode = true,
-                             //ThreadCount = 5,
-                             //UseAltStream = true,
-                             //UseStdErr = true
-                           };
+        {
+          MountPoint = _mountPoint,
+          VolumeLabel = VOLUME_LABEL,
+        };
       int result = DokanNet.DokanMain(opt, this);
       if (result == DokanNet.DOKAN_SUCCESS)
         logger.Info("ResourceMountingService: DokanMain returned successfully");
@@ -386,7 +381,14 @@ namespace MediaPortal.Core.Services.MediaManagement
         mountPoint = _mountPoint;
       }
       if (!String.IsNullOrEmpty(mountPoint))
-        DokanNet.DokanRemoveMountPoint(mountPoint);
+        try
+        {
+          DokanNet.DokanRemoveMountPoint(mountPoint);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point", e);
+        }
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
