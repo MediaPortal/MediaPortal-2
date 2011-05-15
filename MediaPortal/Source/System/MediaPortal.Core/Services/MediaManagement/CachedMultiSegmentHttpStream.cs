@@ -27,6 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Threading;
+using MediaPortal.Core.Logging;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
@@ -34,79 +37,198 @@ namespace MediaPortal.Core.Services.MediaManagement
   /// <see cref="CachedMultiSegmentHttpStream"/> implements a read-only Stream for accessing HTTP sources that support Range requests.
   /// Multiple MemoryStream caches are created internally to buffer access to different stream positions.
   /// </summary>
+  /// <remarks>
+  /// This stream is not multithreading-safe.
+  /// </remarks>
   public class CachedMultiSegmentHttpStream : Stream
   {
     #region Constants
 
-    //TODO find good cache size/count combinations
-    private const int CACHE_SIZE = 512 * 1024; // 512 kB Cache
-    private const int CACHE_COUNT = 10; // max. 10 * 512 kB
+    public const int CHUNK_SIZE = 512 * 1024; // 512 kB chunk size
+    public const int NUM_READAHEAD_CHUNKS = 4;
+    public const int MAX_NUM_CACHES = 20;
 
     #endregion
 
-    #region Variables
+    #region Private & protected fields
 
-    private readonly string _url;
-    private readonly long _length;
-    private long _position;
-    private long _totalBytesRead;
-    private int _totalReads;
-    readonly List<HttpStreamCache> _cache = new List<HttpStreamCache>(CACHE_COUNT);
+    // The stream-implementation isn't multithreading-safe
+    protected readonly string _url;
+    protected readonly long _length;
+    protected long _position = 0;
+
+    // The cache management is multithreading-safe
+    private readonly IList<HttpRangeChunk> _chunkCache = new List<HttpRangeChunk>();
+    protected object _syncObj = new object();
 
     #endregion
 
     #region Internal classes
 
-    internal class HttpStreamCache: IDisposable
+    /// <summary>
+    /// Represents one single chunk of a complete file which is requested via an HTTP URL.
+    /// This chunk is multithreading-safe and can asynchronously collect its data.
+    /// </summary>
+    protected class HttpRangeChunk : IDisposable
     {
-      public MemoryStream CacheStream = new MemoryStream(CACHE_SIZE);
-      public long StartIndex;
-      public long EndIndex;
-      public bool Filled;
-      public long StreamLength;
-      public String Url;
-
-      // FIXME: This method is only a workaround for missing long support in AddRange.
-      //        It should be removed when the project is switched to .Net 4.
-      protected void SetRequestLongRange(HttpWebRequest request, long start, long end)
-      {
-        MethodInfo method = typeof(WebHeaderCollection).GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
-        const string key = "Range";
-        long safeEnd = Math.Min(StreamLength - 1, end);
-        string val = string.Format("bytes={0}-{1}", start, safeEnd);
-        method.Invoke(request.Headers, new object[] { key, val });
-      }
-
       /// <summary>
-      /// Initializes the cache and retrieves the data from HTTP request.
+      /// Timeout for HTTP Range request in ms.
       /// </summary>
-      public void InitCache()
+      public const int HTTP_RANGE_REQUEST_TIMEOUT = 2000;
+
+      // Stream data
+      protected readonly MemoryStream _cacheStream = new MemoryStream(CHUNK_SIZE);
+      protected readonly long _startIndex; // Inclusive
+      protected readonly long _endIndex; // Exclusive
+      protected readonly string _url;
+
+      // Data for async request control
+      protected readonly ManualResetEvent _readyEvent = new ManualResetEvent(false);
+      protected volatile bool _filled = false;
+      protected volatile Exception _exception = null;
+      protected volatile HttpWebRequest _pendingRequest = null;
+
+      public HttpRangeChunk(long start, long end, long wholeStreamLength, string url)
       {
-        byte[] buffer = new byte[64000];
-        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(Url);
-        SetRequestLongRange(request, StartIndex, EndIndex);
-        HttpWebResponse result = (HttpWebResponse)request.GetResponse();
-        using (Stream stream = result.GetResponseStream())
-        {
-          using (BinaryReader sr = new BinaryReader(stream))
-          {
-            BinaryWriter sw = new BinaryWriter(CacheStream);
-            int readBytes = sr.Read(buffer, 0, buffer.Length);
-            while (readBytes > 0)
-            {
-              sw.Write(buffer, 0, readBytes);
-              readBytes = sr.Read(buffer, 0, buffer.Length);
-            }
-          }
-          Filled = true;
-        }
+        _startIndex = start;
+        _endIndex = end;
+        _url = url;
+        Load_Async(wholeStreamLength);
       }
 
       #region IDisposable Member
 
       public void Dispose()
       {
-        CacheStream.Dispose();
+        HttpWebRequest request = _pendingRequest;
+        _pendingRequest = null;
+        if (request != null)
+          request.Abort();
+        _cacheStream.Dispose();
+      }
+
+      #endregion
+
+      // FIXME: This method is only a workaround for missing long support in AddRange.
+      //        It should be removed when the project is switched to .Net 4.
+      protected void SetRequestLongRange(HttpWebRequest request, long start, long end, long streamLength)
+      {
+        MethodInfo method = typeof(WebHeaderCollection).GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+        const string key = "Range";
+        long safeEnd = Math.Min(streamLength - 1, end);
+        string val = string.Format("bytes={0}-{1}", start, safeEnd);
+        method.Invoke(request.Headers, new object[] { key, val });
+      }
+
+      /// <summary>
+      /// Initializes the HTTP range request asynchronously.
+      /// </summary>
+      protected void Load_Async(long wholeStreamLength)
+      {
+        HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
+        SetRequestLongRange(request, _startIndex, _endIndex, wholeStreamLength);
+
+        IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
+        NetworkHelper.AddTimeout(request, result, HTTP_RANGE_REQUEST_TIMEOUT);
+      }
+
+      private void OnResponseReceived(IAsyncResult ar)
+      {
+        HttpWebResponse response = null;
+        try
+        {
+          try
+          {
+            response = (HttpWebResponse) ((HttpWebRequest) ar.AsyncState).EndGetResponse(ar);
+            using (Stream source = response.GetResponseStream())
+            {
+              const int MAX_BUF_SIZE = 64535;
+              int numRead = (int) (_endIndex - _startIndex);
+              byte[] buffer = new byte[Math.Min(numRead, MAX_BUF_SIZE)];
+              int readBytes;
+              while (numRead > 0 && (readBytes = source.Read(buffer, 0, Math.Min(buffer.Length, numRead))) > 0)
+              {
+                _cacheStream.Write(buffer, 0, readBytes);
+                numRead -= readBytes;
+              }
+              _filled = true;
+            }
+          }
+          catch (WebException e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
+            _exception = e;
+          }
+        }
+        finally
+        {
+          _pendingRequest = null;
+          _readyEvent.Set();
+          if (response != null)
+            response.Close();
+        }
+      }
+
+      #region Public members
+
+      /// <summary>
+      /// Start index of this chunk. Inclusive.
+      /// </summary>
+      public long StartIndex
+      {
+        get { return _startIndex; }
+      }
+
+      /// <summary>
+      /// End index of this chunk. Exclusive.
+      /// </summary>
+      public long EndIndex
+      {
+        get { return _endIndex; }
+      }
+
+      /// <summary>
+      /// Event which is signalled when this chunk finished collecting its data.
+      /// When this event is signalled, either <see cref="IsFilled"/> is <c>true</c> or <see cref="IsErroneous"/> is <c>true</c>.
+      /// </summary>
+      public ManualResetEvent ReadyEvent
+      {
+        get { return _readyEvent; }
+      }
+
+      /// <summary>
+      /// Returns <c>true</c> when this chunk is filled. The <see cref="ReadyEvent"/> will be set when this property is set.
+      /// </summary>
+      public bool IsFilled
+      {
+        get { return _filled; }
+      }
+
+      /// <summary>
+      /// Returns <c>true</c> when this chunk is filled. The <see cref="ReadyEvent"/> will be set when this property is set.
+      /// </summary>
+      public bool IsErroneous
+      {
+        get { return _exception != null; }
+      }
+
+      /// <summary>
+      /// Reads data from this data chunk. If the chunk's data have not been collected yet, this method blocks until
+      /// the data is availab.e
+      /// </summary>
+      /// <param name="position">Absolute position in the whole data, has to be bigger or equal to <see cref="StartIndex"/> and
+      /// lower than <see cref="EndIndex"/>.</param>
+      /// <param name="buffer">Buffer to write the data to.</param>
+      /// <param name="offset">Offset in the buffer to begin writing.</param>
+      /// <param name="count">Desired number of bytes to be read. The actual number of bytes read might be lower than this parameter.</param>
+      /// <returns>Number of bytes actually read from this data chunk.</returns>
+      public int Read(long position, byte[] buffer, int offset, int count)
+      {
+        _readyEvent.WaitOne();
+        if (_exception != null)
+          throw new IOException("Error receiving HTTP range", _exception);
+        _cacheStream.Position = position - _startIndex;
+        return _cacheStream.Read(buffer, offset, count);
       }
 
       #endregion
@@ -130,16 +252,6 @@ namespace MediaPortal.Core.Services.MediaManagement
     #region Properties
 
     /// <summary>
-    /// Gets the total number of bytes read from the stream.
-    /// </summary>
-    public long TotalBytesRead { get { return _totalBytesRead; } }
-
-    /// <summary>
-    /// Gets the total number of Reads() performed over the stream.
-    /// </summary>
-    public long TotalReads { get { return _totalReads; } }
-
-    /// <summary>
     /// Always returns true.
     /// </summary>
     public override bool CanRead { get { return true; } }
@@ -159,10 +271,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     public override long Length
     {
-      get
-      {
-        return _length;
-      }
+      get { return _length; }
     }
 
     /// <summary>
@@ -170,25 +279,19 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     public override long Position
     {
-      get
-      {
-        return _position;
-      }
+      get { return _position; }
       set
       {
         if (value < 0) throw new ArgumentException();
-        if (value == _position) return; // already there
+        if (value == _position) return; // Already there
         _position = value;
       }
     }
 
     #endregion
 
-    #region Overrides
+    #region Base overrides
 
-    /// <summary>
-    ///   Sets the Position in the stream.
-    /// </summary>
     public override long Seek(long offset, SeekOrigin origin)
     {
       switch (origin)
@@ -208,31 +311,22 @@ namespace MediaPortal.Core.Services.MediaManagement
       return Position;
     }
 
-    /// <summary>
-    /// Reads data from the stream. Requests to this method will be buffered using a MemoryStream.
-    /// </summary>
-    /// <param name='buffer'>the buffer into which to insert the data that is read.</param>
-    /// <param name='offset'>the offset into the buffer, at which to begin to insert the data that is read.</param>
-    /// <param name='count'>the number of bytes to read.</param>
-    /// <returns>The number of bytes actually read.</returns>
     public override int Read(byte[] buffer, int offset, int count)
     {
-      int n = 0;
-      HttpStreamCache cache;
-      if (!GetMatchingCache(_position, _position + count, out cache))
-        if (!AddCache(_position, out cache))
+      ProvideReadAhead_Async(_position, NUM_READAHEAD_CHUNKS);
+
+      lock (_syncObj)
+      {
+        HttpRangeChunk chunk;
+        if (!GetMatchingChunk(_position, false, out chunk))
           return 0;
 
-      if (cache.Filled)
-      {
-        cache.CacheStream.Position = _position - cache.StartIndex;
-        n = cache.CacheStream.Read(buffer, offset, count);
+
+        int numRead = chunk.Read(_position, buffer, offset, count);
+
+        _position += numRead;
+        return numRead;
       }
-      
-      _totalBytesRead += n;
-      _totalReads++;
-      _position += n;
-      return n;
     }
 
 
@@ -262,46 +356,88 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #endregion
 
-    #region Members
+    #region Protected members
 
     /// <summary>
-    /// Tries to find a matching cache stream in the cache list.
+    /// Tries to find a chunk in the chunk list which covers the given <paramref name="start"/> position.
     /// </summary>
     /// <param name="start">Start position.</param>
-    /// <param name="end">End position.</param>
-    /// <param name="cache">Returns the cache or null.</param>
-    /// <returns>True if cache was found.</returns>
-    private bool GetMatchingCache(long start, long end, out HttpStreamCache cache)
+    /// <param name="addChunkIfNotExists">If set to <c>true</c>, the requested chunk will be added to the cache if it doesn't exist yet.</param>
+    /// <param name="result">Returns the chunk or <c>null</c>, if no chunk was found for the given <paramref name="start"/> position.
+    /// The returned chunk might not be filled yet.</param>
+    /// <returns><c>true</c> if chunk was found.</returns>
+    protected bool GetMatchingChunk(long start, bool addChunkIfNotExists, out HttpRangeChunk result)
     {
-      cache = null;
-      foreach (HttpStreamCache httpStreamCache in _cache)
+      lock (_syncObj)
       {
-        if (httpStreamCache.StartIndex <= start && httpStreamCache.EndIndex > end)
+        for (int i = 0; i < _chunkCache.Count; i++)
         {
-          cache = httpStreamCache;
+          HttpRangeChunk chunk = _chunkCache[i];
+          if (chunk.StartIndex <= start && chunk.EndIndex > start + 1)
+          {
+            // Reorder LRU cache
+            _chunkCache.RemoveAt(i);
+            _chunkCache.Add(chunk);
+            result = chunk;
+            return true;
+          }
+        }
+        if (addChunkIfNotExists)
+        {
+          AddChunk(start, out result);
           return true;
         }
+        result = null;
+        return false;
       }
-      return false;
     }
 
     /// <summary>
-    /// Adds a new stream to the cache and returns it.
+    /// Adds a new chunk to the cache and returns it.
     /// </summary>
     /// <param name="start">Start position.</param>
-    /// <param name="cache">Returns the cache.</param>
-    /// <returns>True if successful.</returns>
-    private bool AddCache(long start, out HttpStreamCache cache)
+    /// <param name="chunk">Returns the cache.</param>
+    /// <returns><c>true</c> if successful.</returns>
+    private void AddChunk(long start, out HttpRangeChunk chunk)
     {
-      if (_cache.Count == CACHE_COUNT)
+      lock (_syncObj)
       {
-        _cache[0].Dispose();
-        _cache.RemoveAt(0);
+        if (_chunkCache.Count == MAX_NUM_CACHES)
+        {
+          // Remove chunk which hasn't been used the longest time
+          _chunkCache[0].Dispose();
+          _chunkCache.RemoveAt(0);
+        }
+        _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE - 1, Length, _url));
       }
-      cache = new HttpStreamCache { StartIndex = start, EndIndex = start + CACHE_SIZE - 1, StreamLength = Length, Url = _url };
-      cache.InitCache();
-      _cache.Add(cache);
-      return true;
+    }
+
+    class ReadaheadData
+    {
+      public HttpRangeChunk Chunk;
+      public int NumReadaheadToFetch;
+    }
+
+    delegate void RequestChunkDlgt(HttpRangeChunk chunk);
+
+    protected void ProvideReadAhead_Async(long position, int numReadaheadChunks)
+    {
+      HttpRangeChunk currentChunk;
+      if (!GetMatchingChunk(position, true, out currentChunk))
+        return;
+      RequestChunkDlgt rcd = chunk => chunk.ReadyEvent.WaitOne();
+      rcd.BeginInvoke(currentChunk, ar =>
+        {
+          ReadaheadData rd = (ReadaheadData) ar.AsyncState;
+          if (rd.Chunk.IsErroneous)
+            // Break readahead if request is erroneous
+            return;
+          long endIndex = rd.Chunk.EndIndex;
+          if (rd.NumReadaheadToFetch == 0 || endIndex >= _length)
+            // Finished fetching readahead
+            return;
+          ProvideReadAhead_Async(endIndex, numReadaheadChunks - 1);
+        }, new ReadaheadData {Chunk = currentChunk, NumReadaheadToFetch = numReadaheadChunks});
     }
 
     #endregion

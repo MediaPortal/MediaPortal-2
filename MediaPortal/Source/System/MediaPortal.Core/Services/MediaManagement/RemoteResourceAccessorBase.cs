@@ -111,7 +111,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size); //TODO: test new BufferedStream(....)
       }
-      
     }
 
     public Stream OpenRead()
