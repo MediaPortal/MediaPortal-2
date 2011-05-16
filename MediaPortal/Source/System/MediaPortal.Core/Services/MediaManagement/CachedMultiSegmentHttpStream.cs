@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Reflection;
+using MediaPortal.Utilities.Network;
 using System.Threading;
 using MediaPortal.Core.Logging;
 using UPnP.Infrastructure.Utils;
@@ -91,7 +91,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       public HttpRangeChunk(long start, long end, long wholeStreamLength, string url)
       {
         _startIndex = start;
-        _endIndex = end;
+        _endIndex = Math.Min(wholeStreamLength, end);
         _url = url;
         Load_Async(wholeStreamLength);
       }
@@ -109,24 +109,13 @@ namespace MediaPortal.Core.Services.MediaManagement
 
       #endregion
 
-      // FIXME: This method is only a workaround for missing long support in AddRange.
-      //        It should be removed when the project is switched to .Net 4.
-      protected void SetRequestLongRange(HttpWebRequest request, long start, long end, long streamLength)
-      {
-        MethodInfo method = typeof(WebHeaderCollection).GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
-        const string key = "Range";
-        long safeEnd = Math.Min(streamLength - 1, end);
-        string val = string.Format("bytes={0}-{1}", start, safeEnd);
-        method.Invoke(request.Headers, new object[] { key, val });
-      }
-
       /// <summary>
       /// Initializes the HTTP range request asynchronously.
       /// </summary>
       protected void Load_Async(long wholeStreamLength)
       {
         HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
-        SetRequestLongRange(request, _startIndex, _endIndex, wholeStreamLength);
+        request.AddRange(_startIndex, _endIndex - 1);
 
         IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
         NetworkHelper.AddTimeout(request, result, HTTP_RANGE_REQUEST_TIMEOUT);
