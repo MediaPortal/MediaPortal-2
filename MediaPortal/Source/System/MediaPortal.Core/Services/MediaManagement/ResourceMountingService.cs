@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Dokan;
 using MediaPortal.Core.Logging;
@@ -41,6 +42,9 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
     #region Consts
 
+    /// <summary>
+    /// Volume label for the virtual drive if our mount point is a drive letter.
+    /// </summary>
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
 
     protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.ReadOnly;
@@ -421,10 +425,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         VirtualRootDirectory rootDirectory = GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return null;
-        ICollection<IResourceAccessor> result = new List<IResourceAccessor>();
-        foreach (VirtualFileSystemResource resource in rootDirectory.ChildResources.Values)
-          result.Add(resource.ResourceAccessor);
-        return result;
+        return rootDirectory.ChildResources.Values.Select(resource => resource.ResourceAccessor).ToList();
       }
     }
 

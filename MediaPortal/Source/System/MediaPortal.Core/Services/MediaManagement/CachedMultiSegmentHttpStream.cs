@@ -29,6 +29,7 @@ using System.Net;
 using MediaPortal.Utilities.Network;
 using System.Threading;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.SystemAPI;
 using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -71,6 +72,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     protected class HttpRangeChunk : IDisposable
     {
+      protected const string PRODUCT_VERSION = "MediaPortal/2.0";
+
       /// <summary>
       /// Timeout for HTTP Range request in ms.
       /// </summary>
@@ -87,6 +90,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       protected volatile bool _filled = false;
       protected volatile Exception _exception = null;
       protected volatile HttpWebRequest _pendingRequest = null;
+
+      protected static string _userAgent;
+
+      static HttpRangeChunk()
+      {
+        _userAgent = WindowsAPI.GetOsVersionString() + " HTTP/1.1 " + PRODUCT_VERSION;
+      }
 
       public HttpRangeChunk(long start, long end, long wholeStreamLength, string url)
       {
@@ -115,6 +125,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       protected void Load_Async(long wholeStreamLength)
       {
         HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
+        request.Method = "GET";
+        request.KeepAlive = true;
+        request.AllowAutoRedirect = true;
+        request.UserAgent = _userAgent;
         request.AddRange(_startIndex, _endIndex - 1);
 
         IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
@@ -292,7 +306,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           _position += offset;
           break;
         case SeekOrigin.End:
-          _position = Length + offset;
+          _position = _length + offset;
           break;
         default:
           break;
@@ -357,28 +371,29 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <returns><c>true</c> if chunk was found.</returns>
     protected bool GetMatchingChunk(long start, bool addChunkIfNotExists, out HttpRangeChunk result)
     {
-      lock (_syncObj)
-      {
-        for (int i = 0; i < _chunkCache.Count; i++)
+      if (start >= 0 && start < _length)
+        lock (_syncObj)
         {
-          HttpRangeChunk chunk = _chunkCache[i];
-          if (chunk.StartIndex <= start && chunk.EndIndex > start + 1)
+          for (int i = 0; i < _chunkCache.Count; i++)
           {
-            // Reorder LRU cache
-            _chunkCache.RemoveAt(i);
-            _chunkCache.Add(chunk);
-            result = chunk;
+            HttpRangeChunk chunk = _chunkCache[i];
+            if (chunk.StartIndex <= start && chunk.EndIndex > start)
+            {
+              // Reorder LRU cache
+              _chunkCache.RemoveAt(i);
+              _chunkCache.Add(chunk);
+              result = chunk;
+              return true;
+            }
+          }
+          if (addChunkIfNotExists)
+          {
+            AddChunk(start, out result);
             return true;
           }
         }
-        if (addChunkIfNotExists)
-        {
-          AddChunk(start, out result);
-          return true;
-        }
-        result = null;
-        return false;
-      }
+      result = null;
+      return false;
     }
 
     /// <summary>
