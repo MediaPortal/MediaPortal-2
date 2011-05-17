@@ -285,7 +285,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _position; }
       set
       {
-        if (value < 0) throw new ArgumentException();
+        if (value < 0 || value > _length) throw new IOException();
         if (value == _position) return; // Already there
         _position = value;
       }
@@ -297,33 +297,39 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override long Seek(long offset, SeekOrigin origin)
     {
+      long newPos = _position;
       switch (origin)
       {
         case SeekOrigin.Begin:
-          _position = offset;
+          newPos = offset;
           break;
         case SeekOrigin.Current:
-          _position += offset;
+          newPos += offset;
           break;
         case SeekOrigin.End:
-          _position = _length + offset;
+          newPos = _length + offset;
           break;
         default:
           break;
       }
-      return Position;
+      if (newPos < 0 || newPos > _length)
+        throw new IOException();
+      return _position = newPos;
     }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-      ProvideReadAhead_Async(_position, NUM_READAHEAD_CHUNKS);
-
+      if (buffer == null)
+        throw new ArgumentNullException();
+      if (offset + count > buffer.Length)
+        throw new ArgumentException();
+      if (offset < 0 || count < 0)
+        throw new ArgumentOutOfRangeException();
       lock (_syncObj)
       {
-        HttpRangeChunk chunk;
-        if (!GetMatchingChunk(_position, false, out chunk))
-          return 0;
-
+        HttpRangeChunk chunk = ProvideReadAhead_Async(_position, NUM_READAHEAD_CHUNKS);
+        if (chunk == null)
+          throw new IOException();
 
         int numRead = chunk.Read(_position, buffer, offset, count);
 
@@ -424,11 +430,11 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     delegate void RequestChunkDlgt(HttpRangeChunk chunk);
 
-    protected void ProvideReadAhead_Async(long position, int numReadaheadChunks)
+    protected HttpRangeChunk ProvideReadAhead_Async(long position, int numReadaheadChunks)
     {
       HttpRangeChunk currentChunk;
       if (!GetMatchingChunk(position, true, out currentChunk))
-        return;
+        return null;
       RequestChunkDlgt rcd = chunk => chunk.ReadyEvent.WaitOne();
       rcd.BeginInvoke(currentChunk, ar =>
         {
@@ -442,6 +448,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             return;
           ProvideReadAhead_Async(endIndex, numReadaheadChunks - 1);
         }, new ReadaheadData {Chunk = currentChunk, NumReadaheadToFetch = numReadaheadChunks});
+      return currentChunk;
     }
 
     #endregion
