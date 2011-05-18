@@ -422,33 +422,16 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    class ReadaheadData
-    {
-      public HttpRangeChunk Chunk;
-      public int NumReadaheadToFetch;
-    }
-
-    delegate void RequestChunkDlgt(HttpRangeChunk chunk);
-
     protected HttpRangeChunk ProvideReadAhead_Async(long position, int numReadaheadChunks)
     {
-      HttpRangeChunk currentChunk;
-      if (!GetMatchingChunk(position, true, out currentChunk))
+      HttpRangeChunk result;
+      if (!GetMatchingChunk(position, true, out result))
         return null;
-      RequestChunkDlgt rcd = chunk => chunk.ReadyEvent.WaitOne();
-      rcd.BeginInvoke(currentChunk, ar =>
-        {
-          ReadaheadData rd = (ReadaheadData) ar.AsyncState;
-          if (rd.Chunk.IsErroneous)
-            // Break readahead if request is erroneous
-            return;
-          long endIndex = rd.Chunk.EndIndex;
-          if (rd.NumReadaheadToFetch == 0 || endIndex >= _length)
-            // Finished fetching readahead
-            return;
-          ProvideReadAhead_Async(endIndex, numReadaheadChunks - 1);
-        }, new ReadaheadData {Chunk = currentChunk, NumReadaheadToFetch = numReadaheadChunks});
-      return currentChunk;
+      HttpRangeChunk currentChunk = result;
+      for (int i = numReadaheadChunks - 1; i > 0; i--)
+        if (!GetMatchingChunk(currentChunk.EndIndex, true, out currentChunk))
+          break;
+      return result;
     }
 
     #endregion
