@@ -338,7 +338,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-
     /// <summary>
     /// Always throws <see cref="NotSupportedException"/>.
     /// </summary>
