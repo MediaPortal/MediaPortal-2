@@ -38,9 +38,6 @@ namespace MediaPortal.Core.Services.MediaManagement
   /// <see cref="CachedMultiSegmentHttpStream"/> implements a read-only Stream for accessing HTTP sources that support Range requests.
   /// Multiple MemoryStream caches are created internally to buffer access to different stream positions.
   /// </summary>
-  /// <remarks>
-  /// This stream is not multithreading-safe.
-  /// </remarks>
   public class CachedMultiSegmentHttpStream : Stream
   {
     #region Constants
