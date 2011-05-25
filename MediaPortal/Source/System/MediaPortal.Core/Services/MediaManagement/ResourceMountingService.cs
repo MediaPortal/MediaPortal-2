@@ -283,6 +283,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected object _syncObj = new object();
     protected bool _started = false;
     protected string _mountPoint = null;
+    protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
     protected void Run()
@@ -301,6 +302,9 @@ namespace MediaPortal.Core.Services.MediaManagement
         logger.Warn("ResourceMountingService: unable to access or create remote resource directory: {0}", exception);
         return;
       }
+
+      if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
+        logger.Info("ResourceMountingService: successfully unmounted remote resource directory '{0}' from unclean shutdown.", _mountPoint);
 
       DokanOptions opt = new DokanOptions
         {
@@ -368,8 +372,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        Thread thread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
-        thread.Start();
+        _mountThread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
+        _mountThread.Start();
         _started = true;
       }
     }
@@ -387,11 +391,12 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!String.IsNullOrEmpty(mountPoint))
         try
         {
-          DokanNet.DokanRemoveMountPoint(mountPoint);
+          if (DokanNet.DokanRemoveMountPoint(mountPoint) == 0)
+            ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount {0}", mountPoint);
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point", e);
+          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point: {0}", e.ToString());
         }
     }
 
