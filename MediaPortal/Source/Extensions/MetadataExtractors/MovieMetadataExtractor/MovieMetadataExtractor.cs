@@ -248,8 +248,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
           if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
             mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
-          if (generator.GetThumbnail(localFsResourcePath, 1024, 1024, out thumbData, out imageType))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
         }
       }
 

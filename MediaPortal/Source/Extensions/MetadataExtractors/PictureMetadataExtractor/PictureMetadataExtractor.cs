@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
           mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.DTOrig != DateTime.MinValue ? exif.DTOrig : mediaItemAccessor.LastChanged);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
           pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (Int32) exif.PixXDim);
@@ -172,8 +172,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
               mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
             if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
               mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 1024, 1024, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
           }
         }
         return true;

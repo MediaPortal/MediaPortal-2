@@ -91,12 +91,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_LARGE =
         MediaItemAspectMetadata.CreateAttributeSpecification("Thumb256", typeof(byte[]), Cardinality.Inline, false);
 
-    /// <summary>
-    /// Contains an extra large sized (max. 1024x1024) thumbnail.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_XLARGE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Thumb1024", typeof(byte[]), Cardinality.Inline, false);
-
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
@@ -109,7 +103,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_THUMB_SMALL,
             ATTR_THUMB_MEDIUM,
             ATTR_THUMB_LARGE,
-            ATTR_THUMB_XLARGE,
         });
   }
 }
