@@ -77,7 +77,7 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Registering ISettingsManager service");
       ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
-      logger.Debug("UiExtension: Registering ILocalization service");
+      logger.Debug("ApplicationCore: Registering ILocalization service");
       ServiceRegistration.Set<ILocalization>(new StringManager());
 
       logger.Debug("ApplicationCore: Registering ITaskScheduler service");
@@ -153,7 +153,7 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Removing ITaskScheduler service");
       ServiceRegistration.RemoveAndDispose<ITaskScheduler>();
 
-      logger.Debug("UiExtension: Removing ILocalization service");
+      logger.Debug("ApplicationCore: Removing ILocalization service");
       ServiceRegistration.RemoveAndDispose<ILocalization>();
 
       logger.Debug("ApplicationCore: Removing ISettingsManager service");
