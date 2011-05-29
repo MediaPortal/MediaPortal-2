@@ -364,7 +364,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source, true, out resourceBundle);
         if (sourceFilePath == null)
           throw new XamlLoadException("Could not open ResourceDictionary source file '{0}' (evaluated path is '{1}')", _source, sourceFilePath);
-        object obj = XamlLoader.Load(sourceFilePath, resourceBundle, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
+        bool? isTheme = (bool?) context.GetContextVariable(XamlLoader.KEY_IS_THEME);
+        object obj = XamlLoader.Load(sourceFilePath, resourceBundle,
+            (IModelLoader) context.GetContextVariable(typeof(IModelLoader)), isTheme.HasValue && isTheme.Value);
         ResourceDictionary mergeDict = obj as ResourceDictionary;
         if (mergeDict == null)
         {
