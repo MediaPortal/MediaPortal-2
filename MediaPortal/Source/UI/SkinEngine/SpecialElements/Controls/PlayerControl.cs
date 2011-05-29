@@ -286,6 +286,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void SubscribeToMessages()
     {
+      if (_messageQueue != null)
+        return;
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            PlayerManagerMessaging.CHANNEL,
