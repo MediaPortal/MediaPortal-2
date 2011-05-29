@@ -225,6 +225,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
+      _isMutedProperty.Detach(OnMuteChanged);
 
       VisibilityProperty.Detach(OnVisibilityChanged);
     }
