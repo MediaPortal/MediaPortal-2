@@ -299,12 +299,12 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       catch (Exception exception)
       {
-        logger.Warn("ResourceMountingService: unable to access or create remote resource directory: {0}", exception);
+        logger.Warn("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem", exception);
         return;
       }
 
       if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
-        logger.Info("ResourceMountingService: successfully unmounted remote resource directory '{0}' from unclean shutdown.", _mountPoint);
+        logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
 
       DokanOptions opt = new DokanOptions
         {
@@ -313,7 +313,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         };
       int result = DokanNet.DokanMain(opt, this);
       if (result == DokanNet.DOKAN_SUCCESS)
-        logger.Info("ResourceMountingService: DokanMain returned successfully");
+        logger.Debug("ResourceMountingService: DokanMain returned successfully");
       else
         logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
     }
@@ -392,11 +392,13 @@ namespace MediaPortal.Core.Services.MediaManagement
         try
         {
           if (DokanNet.DokanRemoveMountPoint(mountPoint) == 0)
-            ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount {0}", mountPoint);
+            ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount remote resource directory '{0}'", mountPoint);
+          else
+            ServiceRegistration.Get<ILogger>().Error("Successfully unmounted remote resource directory '{0}'", mountPoint);
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point: {0}", e.ToString());
+          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point", e);
         }
     }
 
