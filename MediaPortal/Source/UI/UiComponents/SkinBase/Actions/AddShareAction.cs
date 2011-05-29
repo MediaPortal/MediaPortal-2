@@ -82,6 +82,8 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public bool IsActionEnabled(NavigationContext context)
     {
+      // We could listen for the home server's attachment and connection state and change this return value according to those states.
+      // But I think that makes too much work for a function which will only be used very rarely.
       return true;
     }
 

@@ -239,7 +239,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     // Used by the skin to determine in state "choose mediaprovider" if the back button should be
-    // enabled to go back to state "choose system", so this property must only be set once at the beginning of
+    // enabled to go back to state "choose system", so the underlaying properties must only be set once at the beginning of
     // the shares add workflow
     public bool IsShowSystemsChoice
     {
@@ -266,6 +266,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _isHomeServerConnectedProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if a home server is attached and it is currently connected.
+    /// </summary>
     public bool IsHomeServerConnected
     {
       get { return (bool) _isHomeServerConnectedProperty.GetValue(); }
@@ -277,6 +280,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _isLocalHomeServerProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if the home server is located at this machine.
+    /// </summary>
     public bool IsLocalHomeServer
     {
       get { return (bool) _isLocalHomeServerProperty.GetValue(); }
@@ -288,6 +294,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _showLocalSharesProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if the home server is located at another machine and thus local shares can be used. Also <c>true</c> if
+    /// there are already local shares configured.
+    /// </summary>
     public bool ShowLocalShares
     {
       get { return (bool) _showLocalSharesProperty.GetValue(); }
@@ -338,7 +348,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// <c>true</c> if at least one share is present to be shown/edited/removed.
+    /// <c>true</c> if at least one local share or server share is present to be shown/edited/removed.
     /// </summary>
     public bool AnyShareAvailable
     {
