@@ -634,6 +634,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected internal void CleanupAndDispose()
     {
+      Screen screen = Screen;
+      if (screen != null)
+        screen.Animator.StopAll(this);
       ResetScreen();
       Deallocate();
 
