@@ -360,7 +360,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) BorderThickness, isClosed,
                     out subPathVerts[i], null);
               }
             }
