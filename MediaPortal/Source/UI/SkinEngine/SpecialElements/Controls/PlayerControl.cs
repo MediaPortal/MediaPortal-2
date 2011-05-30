@@ -287,24 +287,34 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void SubscribeToMessages()
     {
-      if (_messageQueue != null)
-        return;
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           PlayerManagerMessaging.CHANNEL,
-           PlayerContextManagerMessaging.CHANNEL,
-           SystemMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
+      AsynchronousMessageQueue messageQueue;
+      lock (_syncObj)
+      {
+        if (_messageQueue != null)
+          return;
+        _messageQueue = new AsynchronousMessageQueue(this, new string[]
+          {
+             PlayerManagerMessaging.CHANNEL,
+             PlayerContextManagerMessaging.CHANNEL,
+             SystemMessaging.CHANNEL,
+          });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        messageQueue = _messageQueue;
+      }
+      messageQueue.Start();
     }
 
     void UnsubscribeFromMessages()
     {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
+      AsynchronousMessageQueue messageQueue;
+      lock (_syncObj)
+      {
+        if (_messageQueue == null)
+          return;
+        messageQueue = _messageQueue;
+        _messageQueue = null;
+      }
+      messageQueue.Shutdown();
     }
 
     protected void StartTimer()
@@ -1640,6 +1650,5 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     #endregion
-
   }
 }
