@@ -43,7 +43,8 @@ namespace MediaPortal.Core.Services.Logging
       string appPath = Path.GetDirectoryName(Application.ExecutablePath);
 
       XmlDocument xmlDoc = new XmlDocument();
-      xmlDoc.Load(new FileStream(Path.Combine(appPath, "app.config"), FileMode.Open, FileAccess.Read));
+      using (Stream stream = new FileStream(Path.Combine(appPath, "app.config"), FileMode.Open, FileAccess.Read))
+        xmlDoc.Load(stream);
       XmlNodeList nodeList = xmlDoc.SelectNodes("configuration/log4net/appender/file");
       foreach (XmlNode node in nodeList)
         if (node.Attributes != null)
@@ -54,11 +55,11 @@ namespace MediaPortal.Core.Services.Logging
               break;
             }
 
-      using (MemoryStream mStream = new MemoryStream())
+      using (MemoryStream stream = new MemoryStream())
       {
-        xmlDoc.Save(mStream);
-        mStream.Seek(0, SeekOrigin.Begin);
-        log4net.Config.XmlConfigurator.Configure(mStream);
+        xmlDoc.Save(stream);
+        stream.Seek(0, SeekOrigin.Begin);
+        log4net.Config.XmlConfigurator.Configure(stream);
       }
     }
 
