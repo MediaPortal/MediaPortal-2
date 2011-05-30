@@ -33,8 +33,8 @@ namespace MediaPortal.Core.Messaging
 
     protected ICollection<string> _registeredChannels;
     protected string _queueName = null;
-    protected Queue<SystemMessage> _messages = new Queue<SystemMessage>();
-    protected object _syncObj = new object();
+    protected readonly Queue<SystemMessage> _messages = new Queue<SystemMessage>();
+    protected readonly object _syncObj = new object();
 
     #endregion
 
