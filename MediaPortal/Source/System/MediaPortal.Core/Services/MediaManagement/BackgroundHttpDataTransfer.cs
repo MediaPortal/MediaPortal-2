@@ -217,15 +217,15 @@ namespace MediaPortal.Core.Services.MediaManagement
         HttpWebRequest request = _pendingRequest;
         if (request != null)
         {
-          lock (_syncObj)
-          {
-            if (_state == TransferState.Terminated || _state == TransferState.Erroneous)
-              // Simply ignore the response
-              return;
-          }
           HttpWebResponse response = (HttpWebResponse) request.EndGetResponse(asyncResult);
           try
           {
+            lock (_syncObj)
+            {
+              if (_state == TransferState.Terminated || _state == TransferState.Erroneous)
+                // Simply ignore the response
+                return;
+            }
             long from;
             long to;
             long length;
