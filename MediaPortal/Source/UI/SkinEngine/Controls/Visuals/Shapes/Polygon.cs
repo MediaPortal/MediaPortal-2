@@ -85,7 +85,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.DoPerformLayout(context);
 
       // Setup brushes
-      PositionColoredTextured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (GraphicsPath path = GetPolygon())
@@ -93,6 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           float centerX;
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+          PositionColoredTextured[] verts;
           if (Fill != null)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);

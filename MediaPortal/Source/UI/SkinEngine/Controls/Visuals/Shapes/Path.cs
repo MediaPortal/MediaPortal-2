@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                   bool isClosed;
                   gpi.NextSubpath(subPath, out isClosed);
                   TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
-                                                                   out subPathVerts[i], null);
+                      out subPathVerts[i], null);
                 }
               }
               PositionColoredTextured[] verts;
