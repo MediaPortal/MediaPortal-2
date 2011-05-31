@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       if (!HasImageExtension(mediaItemAccessor.ResourcePathName))
         return false;
@@ -163,18 +163,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-        
+
           ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
           string localFsResourcePath = lfsra.LocalFileSystemPath;
           if (localFsResourcePath != null)
           {
+            // In quick mode only allow thumbs taken from cache.
+            bool cachedOnly = forceQuickMode;
+
             // Thumbnail extraction
             IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
             byte[] thumbData;
             ImageType imageType;
-            if (generator.GetThumbnail(localFsResourcePath, 96, 96, out thumbData, out imageType))
+            if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
               thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
+            if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
               thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
           }
         }

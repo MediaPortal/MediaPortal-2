@@ -86,11 +86,11 @@ namespace MediaPortal.Media.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       try
       {
-        IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+        ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
         if (fsra != null && fsra.IsDirectory && fsra.Exists("BDMV"))
         {
           IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV") as IFileSystemResourceAccessor;

@@ -185,7 +185,8 @@ namespace MediaPortal.UI.Views
     protected static MediaItem GetMetadata(IMediaAccessor mediaAccessor, ISystemResolver systemResolver,
         IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractorIds);
+      const bool forceQuickMode = true; // Allow only quick extractions of metadata.
+      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)
         return null;
       MediaItemAspect providerResourceAspect;

@@ -121,12 +121,12 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
 
     #region IThumbnailGenerator implementation
 
-    public bool GetThumbnail(string fileOrFolderPath, out byte[] imageData, out ImageType imageType)
+    public bool GetThumbnail(string fileOrFolderPath, bool cacheOnly, out byte[] imageData, out ImageType imageType)
     {
-      return GetThumbnail(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, out imageData, out imageType);
+      return GetThumbnail(fileOrFolderPath, DEFAULT_THUMB_WIDTH, DEFAULT_THUMB_HEIGHT, cacheOnly, out imageData, out imageType);
     }
 
-    public bool GetThumbnail(string fileOrFolderPath, int width, int height, out byte[] imageData, out ImageType imageType)
+    public bool GetThumbnail(string fileOrFolderPath, int width, int height, bool cacheOnly, out byte[] imageData, out ImageType imageType)
     {
       return GetThumbnailInternal(fileOrFolderPath, width, height, true, out imageData, out imageType);
     }
@@ -150,7 +150,7 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
         _workToDo.Enqueue(newItem);
         if (_workerThread != null)
           return;
-        _workerThread = new Thread(Worker) {IsBackground = true, Name = "ThumbGen"};
+        _workerThread = new Thread(Worker) { IsBackground = true, Name = "ThumbGen" };
         _workerThread.Start();
       }
     }
