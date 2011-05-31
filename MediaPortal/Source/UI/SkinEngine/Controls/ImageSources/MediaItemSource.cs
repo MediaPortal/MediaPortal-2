@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
   /// <see cref="MediaItemSource"/> acts as a source provider / renderer for the <see cref="Visuals.Image"/> control.
   /// It's extends the <see cref="BitmapImage"/> to support thumbnail building for MediaItems.
   /// </summary>
-  public class MediaItemSource: BitmapImage
+  public class MediaItemSource : BitmapImage
   {
     #region Variables
 
@@ -56,12 +56,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       // Local media items don't have an item id
       _key = (id == Guid.Empty ? Guid.NewGuid() : id).ToString();
 
-      if (thumbnailSize <= 32)
-        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_SMALL);
-      else if (thumbnailSize <= 96)
-        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_MEDIUM);
-      else 
-        _thumbBinary = (byte[]) mediaItem.Aspects[MediaAspect.ASPECT_ID].GetAttributeValue(MediaAspect.ATTR_THUMB_LARGE);
+      // Each resolution is cached separately. If we read cache only and our favourite resolution is not yet in cache,
+      // we try to find any other existing.
+      if (thumbnailSize <= 96)
+        _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL)
+          ?? (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+      else
+        _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL)
+          ?? (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
     }
 
     #endregion
