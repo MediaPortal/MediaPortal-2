@@ -73,24 +73,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
         MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
-    /// <summary>
-    /// Contains a small sized (max. 32x32) thumbnail.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_SMALL =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Thumb32", typeof(byte[]), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains a medium sized (max. 96x96) thumbnail.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_MEDIUM =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Thumb96", typeof(byte[]), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains a large sized (max. 256x256) thumbnail.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_THUMB_LARGE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Thumb256", typeof(byte[]), Cardinality.Inline, false);
-
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
@@ -100,9 +82,6 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_RATING,
             ATTR_COMMENT,
             ATTR_LASTPLAYED,
-            ATTR_THUMB_SMALL,
-            ATTR_THUMB_MEDIUM,
-            ATTR_THUMB_LARGE,
         });
   }
 }

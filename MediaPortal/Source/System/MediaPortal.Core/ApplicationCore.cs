@@ -133,6 +133,8 @@ namespace MediaPortal.Core
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(PictureAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailSmallAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
     }
 
     public static void DisposeCoreServices()

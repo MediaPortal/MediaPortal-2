@@ -133,6 +133,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       MediaItemAspect pictureAspect;
       if (!extractedAspectData.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
         extractedAspectData[PictureAspect.ASPECT_ID] = pictureAspect = new MediaItemAspect(PictureAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect;
+      if (!extractedAspectData.TryGetValue(ThumbnailSmallAspect.ASPECT_ID, out thumbnailSmallAspect))
+        extractedAspectData[ThumbnailSmallAspect.ASPECT_ID] = thumbnailSmallAspect = new MediaItemAspect(ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect;
+      if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
+        extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
 
       try
       {
@@ -166,12 +172,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
             IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
             byte[] thumbData;
             ImageType imageType;
-            if (generator.GetThumbnail(localFsResourcePath, 32, 32, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_SMALL, thumbData);
             if (generator.GetThumbnail(localFsResourcePath, 96, 96, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
+              thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
             if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
+              thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
           }
         }
         return true;
