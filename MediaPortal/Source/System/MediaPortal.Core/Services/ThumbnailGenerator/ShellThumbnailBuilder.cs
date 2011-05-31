@@ -31,33 +31,51 @@ using Microsoft.WindowsAPICodePack.Shell;
 
 namespace MediaPortal.Core.Services.ThumbnailGenerator
 {
+  /// <summary>
+  /// ShellThumnbnailBuilder extracts thumbnails for picture and video files using the Windows provided thumbnail creation and
+  /// caching feature.
+  /// </summary>
   public class ShellThumbnailBuilder
   {
-    public bool GetThumbnail(string fileName, int width, int height, out byte[] thumbnailBinary)
+    /// <summary>
+    /// Extracts a thumbnail for a given <paramref name="fileName"/> and returns the best matching resolution from the windows thumbs cache.
+    /// This method can be used to return only already cached thumbnails by setting <paramref name="cachedOnly"/> to true.
+    /// </summary>
+    /// <param name="fileName">File name to extract thumb for.</param>
+    /// <param name="width">Thumbnail width.</param>
+    /// <param name="height">Thumbnail height.</param>
+    /// <param name="cachedOnly">True to return only cached thumbs.</param>
+    /// <param name="imageFormat">ImageFormat of thumb.</param>
+    /// <param name="thumbnailBinary">Returns the thumb binary data.</param>
+    /// <returns>True if thumbnail could be extracted.</returns>
+    public bool GetThumbnail(string fileName, int width, int height, bool cachedOnly, ImageFormat imageFormat, out byte[] thumbnailBinary)
     {
       try
       {
-        MemoryStream memoryStream = new MemoryStream();
-
-        using (memoryStream)
+        using (MemoryStream memoryStream = new MemoryStream())
         using (ShellObject item = ShellObject.FromParsingName(fileName))
         {
+          item.Thumbnail.RetrievalOption = cachedOnly
+                                             ? ShellThumbnailRetrievalOption.CacheOnly
+                                             : ShellThumbnailRetrievalOption.Default;
           Bitmap bestMatchingBmp;
-          if (width > 256 || height > 256)
-            bestMatchingBmp = item.Thumbnail.ExtraLargeBitmap;
-          else if (width > 96 || height > 96)
+          // Try to use the best matching resolution, 2 different are enough.
+          if (width > 96 || height > 96)
             bestMatchingBmp = item.Thumbnail.LargeBitmap;
-          else if (width > 32 || height > 32)
+          else 
             bestMatchingBmp = item.Thumbnail.MediumBitmap;
-          else
-            bestMatchingBmp = item.Thumbnail.SmallBitmap;
 
-          using (bestMatchingBmp)
-            bestMatchingBmp.Save(memoryStream, ImageFormat.Jpeg);
+          if (bestMatchingBmp != null)
+            using (bestMatchingBmp)
+            {
+              bestMatchingBmp.Save(memoryStream, imageFormat);
+              thumbnailBinary = memoryStream.ToArray();
+              return true;
+            }
 
-          thumbnailBinary = memoryStream.ToArray();
+          thumbnailBinary = null;
+          return false;
         }
-        return true;
       }
       catch (Exception e)
       {
