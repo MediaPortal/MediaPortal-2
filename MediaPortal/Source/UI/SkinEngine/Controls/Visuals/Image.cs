@@ -127,6 +127,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Attach(OnArrangeGetsInvalid);
       _thumbnailProperty.Attach(OnArrangeGetsInvalid);
       _skinNeutralProperty.Attach(OnArrangeGetsInvalid);
+      _widthProperty.Attach(OnImageSizeChanged);
+      _heightProperty.Attach(OnImageSizeChanged);
     }
 
     void Detach()
@@ -137,6 +139,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Detach(OnArrangeGetsInvalid);
       _thumbnailProperty.Detach(OnArrangeGetsInvalid);
       _skinNeutralProperty.Detach(OnArrangeGetsInvalid);
+      _widthProperty.Detach(OnImageSizeChanged);
+      _heightProperty.Detach(OnImageSizeChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -297,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _lastImageSourceSize = SizeF.Empty;
         return new SizeF(10, 10);
       }
-
+ 
       SizeF imageSize = allocatedSource.ImageSource.SourceSize;
       float sourceFrameRatio = imageSize.Width / imageSize.Height;
       // Adaptions when available size is not specified in any direction(s)
@@ -377,6 +381,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return true;
 
       return false;
+    }
+
+    protected void OnImageSizeChanged(AbstractProperty prop, object oldValue)
+    {
+      // Invalidate the loaded sources for MediaItems to allow use of different thumb resolutions.
+      if (_sourceState.ImageSource is MediaItemSource)
+        InvalidateImageSources();
     }
 
     protected ImageSource LoadImageSource(object source)
