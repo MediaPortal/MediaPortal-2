@@ -55,9 +55,7 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
         using (MemoryStream memoryStream = new MemoryStream())
         using (ShellObject item = ShellObject.FromParsingName(fileName))
         {
-          item.Thumbnail.RetrievalOption = cachedOnly
-                                             ? ShellThumbnailRetrievalOption.CacheOnly
-                                             : ShellThumbnailRetrievalOption.Default;
+          item.Thumbnail.RetrievalOption = cachedOnly ? ShellThumbnailRetrievalOption.CacheOnly : ShellThumbnailRetrievalOption.Default;
           Bitmap bestMatchingBmp;
           // Try to use the best matching resolution, 2 different are enough.
           if (width > 96 || height > 96)

@@ -32,7 +32,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
   public static class ThumbnailLargeAspect
   {
     /// <summary>
-    /// Thumb small item aspect id of the media aspect.
+    /// Media item aspect id of the large thumbnail aspect.
     /// </summary>
     public static Guid ASPECT_ID = new Guid("1FDA5774-9AC5-4873-926C-E84E3C36A966");
 
