@@ -53,6 +53,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     protected AbstractProperty _effectProperty;
     protected AbstractProperty _effectTimerProperty;
 
+    protected AbstractProperty _thumbnailDimensionProperty;
+
     protected bool _thumbnail = false;
     protected TextureAsset _texture = null;
     protected PrimitiveBuffer _primitiveBuffer = new PrimitiveBuffer();
@@ -84,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _borderColorProperty = new SProperty(typeof(Color), Color.FromArgb(0, Color.Black));
       _effectProperty = new SProperty(typeof(string), null);
       _effectTimerProperty = new SProperty(typeof(double), 0.0);
+      _thumbnailDimensionProperty = new SProperty(typeof(int), 0);
     }
 
     void Attach()
@@ -107,6 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       DecodePixelWidth = b.DecodePixelWidth;
       DecodePixelHeight = b.DecodePixelHeight;
       Thumbnail = b.Thumbnail;
+      ThumbnailDimension = b.ThumbnailDimension;
       BorderColor = b.BorderColor;
       Effect = b.Effect;
       EffectTimer = b.EffectTimer;
@@ -222,6 +226,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         _thumbnail = value; 
       }
     }
+    /// <summary>
+    /// Gets or sets a value that determines dimension of a thumbnail.
+    /// This property is only used in combination with <see cref="Thumbnail"/>=true, to force a specific dimension
+    /// for thumnbnails (Windows thumbnail cache offers 32, 96, 256 and 1024 size, the minimum matching size is used).
+    /// </summary>
+    public int ThumbnailDimension
+    {
+      get { return (int)_thumbnailDimensionProperty.GetValue(); }
+      set { _thumbnailDimensionProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ThumbnailDimensionProperty
+    {
+      get { return _thumbnailDimensionProperty; }
+    }
 
     #endregion
 
@@ -253,6 +272,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         _texture = ServiceRegistration.Get<ContentManager>().GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
       if (_texture != null && !_texture.IsAllocated)
       {
+        if (Thumbnail)
+          _texture.ThumbnailDimension = ThumbnailDimension;
         _texture.Allocate();
         if (_texture.IsAllocated)
         {

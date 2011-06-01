@@ -23,24 +23,19 @@
 #endregion
 
 using MediaPortal.Core.Settings;
+using MediaPortal.UI.Players.Video.Tools;
 
-namespace MediaPortal.Core.Services.MediaManagement.Settings
+namespace MediaPortal.Plugins.BDHandler.Settings
 {
-  public class ResourceMountingSettings
+  /// <summary>
+  /// Settings needed for BluRayPlayer and the BDInfo library.
+  /// </summary>
+  public class BDPlayerSettings
   {
-    protected char? _driveLetter = null;
-
-    public const char DEFAULT_DRIVE_LETTER_CLIENT = 'R';
-    public const char DEFAULT_DRIVE_LETTER_SERVER = 'S';
-
     /// <summary>
-    /// Drive where non-filesystem resources are mounted in the local filesystem.
+    /// Gets or Sets the preferred AVC codec.
     /// </summary>
     [Setting(SettingScope.User)]
-    public char? DriveLetter
-    {
-      get { return _driveLetter; }
-      set { _driveLetter = value; }
-    }
+    public CodecInfo AVCCodec { get; set; }
   }
 }

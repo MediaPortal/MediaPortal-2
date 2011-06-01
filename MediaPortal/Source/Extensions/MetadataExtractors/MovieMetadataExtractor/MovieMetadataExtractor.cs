@@ -32,6 +32,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 using MediaPortal.Core.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 using MediaPortal.Utilities;
@@ -210,7 +211,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect)
+      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, string localFsResourcePath)
       {
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, _title);
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, _mimeType);
@@ -234,7 +235,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOBITRATE, _audBitRate.Value);
         videoAspect.SetAttribute(VideoAspect.ATTR_AUDIOENCODING, StringUtils.Join(", ", _audCodecs));
         // TODO: extract cover art (see Mantis #1977)
-    }
+
+        if (localFsResourcePath != null)
+        {
+          // Thumbnail extraction
+          IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+          byte[] thumbData;
+          ImageType imageType;
+          if (generator.GetThumbnail(localFsResourcePath, 32, 32, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_SMALL, thumbData);
+          if (generator.GetThumbnail(localFsResourcePath, 96, 96, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
+          if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
+          if (generator.GetThumbnail(localFsResourcePath, 1024, 1024, out thumbData, out imageType))
+            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
+        }
+      }
 
       public bool IsDVD
       {
@@ -307,7 +324,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
             extractedAspectData[VideoAspect.ASPECT_ID] = videoAspect = new MediaItemAspect(VideoAspect.Metadata);
 
-          result.UpdateMetadata(mediaAspect, videoAspect);
+          ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
+          result.UpdateMetadata(mediaAspect, videoAspect, lfsra.LocalFileSystemPath);
           return true;
         }
       }

@@ -55,10 +55,19 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Base\Client\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
@@ -181,13 +190,12 @@
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\Logging\log4netLogger.cs" />
-    <Compile Include="Services\MediaManagement\BackgroundHttpDataTransfer.cs" />
-    <Compile Include="Services\MediaManagement\CachedHttpResourceStream.cs" />
+    <Compile Include="Services\MediaManagement\CachedMultiSegmentHttpStream.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\RemoteResourceToLocalFsAccessBridge.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\StreamedResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceInformationService.cs" />
     <Compile Include="Services\MediaManagement\RemoteResourceAccessorBase.cs" />
@@ -226,7 +234,6 @@
     <Compile Include="Services\Logging\FileLogger.cs" />
     <Compile Include="Services\MediaManagement\ResourceMountingService.cs" />
     <Compile Include="Services\MediaManagement\ResourceServer.cs" />
-    <Compile Include="Services\MediaManagement\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\MediaManagement\Settings\ServerSettings.cs" />
     <Compile Include="Services\MediaManagement\SynchronizedMasterStreamClient.cs" />
     <Compile Include="Services\MediaManagement\UPnPResourceInformationServiceProxy.cs" />
@@ -254,6 +261,11 @@
     <Compile Include="Services\Settings\SettingsManager.cs" />
     <Compile Include="Services\SystemResolver\Settings\SystemResolverSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolverBase.cs" />
+    <Compile Include="Services\ThumbnailGenerator\IThumbnailGenerator.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ShellThumbnailBuilder.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
+    <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\NoSettingsManager.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
@@ -352,6 +364,10 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
+    <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -99,7 +99,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddPreferredCodecs()
     {
-      BDInfoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BDInfoSettings>();
+      BDPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BDPlayerSettings>();
       if (settings == null)
         return;
 

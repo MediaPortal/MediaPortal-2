@@ -24,10 +24,11 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 
 namespace MediaPortal.Utilities.Network
 {
-  public class NetworkUtils
+  public static class NetworkUtils
   {
     /// <summary>
     /// Returns a string representation of an <see cref="IPAddress"/> in the form <c>123.123.123.123</c> (for IPv4 addresses)
@@ -43,6 +44,15 @@ namespace MediaPortal.Utilities.Network
       int i = result.IndexOf('%');
       if (i >= 0) result = result.Substring(0, i);
       return result;
+    }
+
+    // FIXME: This is only needed as long as we don't use .net 4.0, since that function will be added in .net 4.0
+    public static void AddRange(this HttpWebRequest request, long start, long end)
+    {
+      MethodInfo method = typeof(WebHeaderCollection).GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+      const string key = "Range";
+      string val = string.Format("bytes={0}-{1}", start, end);
+      method.Invoke(request.Headers, new object[] { key, val });
     }
   }
 }

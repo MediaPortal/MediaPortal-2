@@ -22,10 +22,12 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
@@ -365,19 +367,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return allocatedSource;
     }
 
+    protected bool IsValidSource(string uriSource)
+    {
+      string lower = uriSource.ToLower();
+      if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+        return true;
+
+      if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv")))
+        return true;
+
+      return false;
+    }
+
     protected ImageSource LoadImageSource(object source)
     {
-      ImageSource result = source as ImageSource;
+      ImageSource result;
+      MediaItem mi = source as MediaItem;
+      if (mi != null)
+        result = new MediaItemSource(mi, (int) Math.Max(Width, Height));
+      else
+        result = source as ImageSource;
       if (result == null)
       {
         string uriSource = source as string;
         if (!string.IsNullOrEmpty(uriSource))
         {
-          string lower = uriSource.ToLower();
           // Remember to adapt list of supported extensions for picture player plugin...
-          if (lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+          if (IsValidSource(uriSource))
           {
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
+            if (Thumbnail)
+              // Set the requested thumbnail dimension, to use the best matching format.
+              bmi.ThumbnailDimension = (int)Math.Max(Width, Height);
             result = bmi;
           }
           // TODO: More image types

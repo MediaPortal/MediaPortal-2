@@ -36,6 +36,7 @@ using MediaPortal.Core.Services.Localization;
 using MediaPortal.Core.Services.Logging;
 using MediaPortal.Core.Services.Messaging;
 using MediaPortal.Core.Services.Settings;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
 
@@ -97,6 +98,9 @@ namespace MediaPortal.Core
 
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
       ServiceRegistration.Set<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
+
+      logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
+      ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
     }
 
     public static void StartCoreServices()
@@ -134,6 +138,9 @@ namespace MediaPortal.Core
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Removing IThumbnailGenerator service");
+      ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
 
       logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();

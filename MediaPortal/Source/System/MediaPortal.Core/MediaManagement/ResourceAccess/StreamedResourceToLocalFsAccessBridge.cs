@@ -35,7 +35,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
   /// <remarks>
   /// Typically, this class is instantiated by class <see cref="ResourceLocator"/> but it also can be used directly.
   /// </remarks>
-  public class RemoteResourceToLocalFsAccessBridge : ILocalFsResourceAccessor
+  public class StreamedResourceToLocalFsAccessBridge : ILocalFsResourceAccessor
   {
     #region Protected fields
 
@@ -53,7 +53,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <param name="baseAccessor">Resource accessor denoting a file.</param>
     /// <exception cref="ArgumentException">If the given <paramref name="baseAccessor"/> doesn't denote a file
     /// resource (i.e. <c><see cref="IResourceAccessor.IsFile"/> == false</c>.</exception>
-    public RemoteResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
+    public StreamedResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
     {
       _baseAccessor = baseAccessor;
       MountResource();
@@ -62,6 +62,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     public void Dispose()
     {
       UnmountResource();
+      if (_baseAccessor != null)
+      {
+        _baseAccessor.Dispose();
+        _baseAccessor = null;
+      }
     }
 
     #endregion
@@ -79,6 +84,18 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
       resourceMountingService.RemoveResource(_rootDirectoryName, _baseAccessor);
       resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
+    }
+
+    public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IResourceAccessor baseResourceAccessor)
+    {
+      // Try to get an ILocalFsResourceAccessor
+      ILocalFsResourceAccessor result = baseResourceAccessor as ILocalFsResourceAccessor;
+      if (result != null)
+        // Simple case: The media item is located in the local file system or the media provider returns
+        // an ILocalFsResourceAccessor from elsewhere - simply return it
+        return result;
+      // Set up a resource bridge mapping the remote or complex resource to a local file
+      return new StreamedResourceToLocalFsAccessBridge(baseResourceAccessor);
     }
 
     #region IResourceAccessor implementation

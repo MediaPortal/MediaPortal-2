@@ -79,9 +79,12 @@ namespace MediaPortal.UI.Players.Video
     protected override void FreeCodecs()
     {
       base.FreeCodecs();
-      _renderer.Clear();
-      _renderer.ReleaseResources();
-      _renderer = null;
+      if (_renderer != null)
+      {
+        _renderer.Clear();
+        _renderer.ReleaseResources();
+        _renderer = null;
+      }
       FilterGraphTools.TryRelease(ref _subtitleFilter);
       FilterGraphTools.TryRelease(ref _fileSource);
     }
@@ -106,8 +109,8 @@ namespace MediaPortal.UI.Players.Video
       if (_subtitleFilter != null)
       {
         _renderer.RenderSubtitles = true;
+        _renderer.SetPlayer(this);
       }
-      _renderer.SetPlayer(this);
 
       IFileSourceFilter f = (IFileSourceFilter) _fileSource;
       f.Load(_resourceAccessor.LocalFileSystemPath, null);
