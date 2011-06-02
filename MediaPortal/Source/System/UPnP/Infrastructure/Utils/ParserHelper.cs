@@ -42,6 +42,11 @@ namespace UPnP.Infrastructure.Utils
     /// <exception cref="MediaPortal.Utilities.Exceptions.InvalidDataException">If the specified header value is malformed.</exception>
     public static bool ParseUserAgentUPnP1MinorVersion(string userAgentStr, out int minorVersion)
     {
+      if (userAgentStr == null)
+      {
+        minorVersion = 0;
+        return false;
+      }
       string[] tokens = userAgentStr.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
       if (tokens.Length != 3)
         throw new InvalidDataException("Invalid USER-AGENT header entry");
