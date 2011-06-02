@@ -53,7 +53,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
-    <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
       <DockPanel LastChildFill="True" Margin="10">
         <DockPanel.Resources>
@@ -83,7 +82,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Style="{ThemeResource ContentGroupBoxStyle}"/>
           <ContentPresenter x:Name="AlternativeContentViewer" Grid.Row="0" Grid.Column="0"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Content="{DynamicResource ResourceKey=Alternative_Contents_Element,TreeSearchMode=Hybrid}"
+             Content="{Binding Source={DynamicResource ResourceKey=Alternative_Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Converter={StaticResource ReferenceToBoolConverter},Path=Content}"/>
         </Grid>
       </DockPanel>
