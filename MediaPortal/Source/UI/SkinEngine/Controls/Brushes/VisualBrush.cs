@@ -67,8 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Dispose()
     {
       FrameworkElement visual = Visual;
-      if (visual != null)
-        Registration.TryCleanupAndDispose(visual);
+      Registration.TryCleanupAndDispose(visual);
       base.Dispose();
     }
 
@@ -105,6 +104,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
+    void UpdateRenderTarget()
+    {
+      _preparedVisual.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
+          new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+    }
+
     protected void PrepareVisual()
     {
       FrameworkElement visual = Visual;
@@ -124,6 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         visual.SetScreen(_screen);
         if (visual.ElementState == ElementState.Available)
           visual.SetElementState(ElementState.Running);
+        // Here is _screen != null, which means we are allocated
+        visual.Allocate();
         SizeF size = _vertsBounds.Size;
         visual.Measure(ref size);
         visual.Arrange(new RectangleF(new PointF(0, 0), _vertsBounds.Size));
@@ -155,6 +162,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _autoLayoutContentProperty.SetValue(value); }
     }
 
+    public override Texture Texture
+    {
+      get { return _textureVisual.Texture; }
+    }
+
+    protected override Vector2 BrushDimensions
+    {
+      get { return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f); }
+    }
+
+    protected override Vector2 TextureMaxUV
+    {
+      get { return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f); }
+    }
+
     #endregion
 
     public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
@@ -170,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_preparedVisual == null) return false;
       _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
-      UpdateRenderTarget(renderContext);
+      UpdateRenderTarget();
       base.BeginRenderBrush(primitiveContext, renderContext);
 
       return true;
@@ -180,28 +202,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_preparedVisual == null) return;
 
-      UpdateRenderTarget(renderContext);
+      UpdateRenderTarget();
       base.BeginRenderOpacityBrush(tex, renderContext);
     }
 
-    void UpdateRenderTarget(RenderContext renderContext)
+    public override void Allocate()
     {
-      _preparedVisual.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity, new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+      base.Allocate();
+      FrameworkElement visual = _preparedVisual;
+      if (visual != null)
+        visual.Allocate();
     }
 
-    public override Texture Texture
+    public override void Deallocate()
     {
-      get { return _textureVisual.Texture; }
-    }
-
-    protected override Vector2 BrushDimensions
-    {
-      get { return (_textureVisual != null) ? new Vector2(_textureVisual.Width, _textureVisual.Height) : new Vector2(1.0f, 1.0f); }
-    }
-
-    protected override Vector2 TextureMaxUV
-    {
-      get { return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f); }
+      base.Allocate();
+      FrameworkElement visual = _preparedVisual;
+      if (visual != null)
+        visual.Deallocate();
     }
   }
 }

@@ -168,6 +168,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         content.SetScreen(Screen);
         content.SetElementState(ElementState.Running);
         content.VisualParent = this;
+        if (IsAllocated)
+          content.Allocate();
       }
       _initializedContent = content;
       InvalidateLayout(true, true);
@@ -409,6 +411,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    // Allocation/Deallocation of _initializedContent not necessary because UIElement handles all direct children
 
     public override void Deallocate()
     {

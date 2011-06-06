@@ -152,8 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
-      if (oldTemplateControl != null)
-        oldTemplateControl.CleanupAndDispose();
+      Registration.TryCleanupAndDispose(oldTemplateControl);
 
       FrameworkElement element = TemplateControl;
       if (element != null)
@@ -165,6 +164,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
           // which normally sets the TemplateNameScope.
           element.TemplateNameScope = new NameScope();
+        if (IsAllocated)
+          element.Allocate();
       }
       _initializedTemplateControl = element;
       InvalidateLayout(true, true);
@@ -336,6 +337,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    // Allocation/Deallocation of TemplateControl not necessary because UIElement handles all direct children
 
     public override void Deallocate()
     {
