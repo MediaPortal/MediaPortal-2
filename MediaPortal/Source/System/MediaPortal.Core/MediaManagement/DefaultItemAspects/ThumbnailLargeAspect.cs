@@ -44,7 +44,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
-        ASPECT_ID, "ThumbnailSmall", new[] {
+        ASPECT_ID, "ThumbnailLarge", new[] {
             ATTR_THUMBNAIL,
         });
   }
