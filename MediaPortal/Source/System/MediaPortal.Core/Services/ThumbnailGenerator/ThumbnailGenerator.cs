@@ -128,7 +128,7 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
 
     public bool GetThumbnail(string fileOrFolderPath, int width, int height, bool cacheOnly, out byte[] imageData, out ImageType imageType)
     {
-      return GetThumbnailInternal(fileOrFolderPath, width, height, true, out imageData, out imageType);
+      return GetThumbnailInternal(fileOrFolderPath, width, height, cacheOnly, out imageData, out imageType);
     }
 
     public void GetThumbnail_Async(string fileOrFolderPath, CreatedDelegate createdDelegate)
