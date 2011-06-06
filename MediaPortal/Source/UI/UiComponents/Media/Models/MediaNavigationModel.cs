@@ -317,6 +317,8 @@ namespace MediaPortal.UiComponents.Media.Models
                 AudioAspect.ASPECT_ID,
                 VideoAspect.ASPECT_ID,
                 PictureAspect.ASPECT_ID,
+                ThumbnailSmallAspect.ASPECT_ID,
+                ThumbnailLargeAspect.ASPECT_ID,
             };
         string viewName = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
