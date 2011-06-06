@@ -707,7 +707,17 @@
       <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
-  
+
+  <ResourceWrapper x:Key="THUMB_WIDTH_S" Resource="48"/>
+  <ResourceWrapper x:Key="THUMB_WIDTH_M" Resource="96"/>
+  <ResourceWrapper x:Key="THUMB_WIDTH_L" Resource="178"/>
+
+  <ResourceWrapper x:Key="THUMB_HEIGHT_S" Resource="27"/>
+  <ResourceWrapper x:Key="THUMB_HEIGHT_M" Resource="56"/>
+  <ResourceWrapper x:Key="THUMB_HEIGHT_L" Resource="100"/>
+
+  <ResourceWrapper x:Key="MediaDetailsColor" Resource="#FF9CB9D5"/>
+
   <!-- Specific media navigation data templates -->
   <DataTemplate DataType="{x:Type navitems:FilterItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
@@ -716,9 +726,33 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0" Source="Filter.png" />
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.Resources>
+        <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
+      </Grid.Resources>
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0" Source="Filter.png">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
+          </MultiBinding>
+        </Image.Height>
+      </Image>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 
@@ -729,7 +763,27 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0" Source="Navigation.png" />
+      <Grid.Resources>
+        <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
+      </Grid.Resources>
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="Navigation.png">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
+          </MultiBinding>
+        </Image.Height>
+      </Image>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
@@ -742,12 +796,52 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" 
-             Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" 
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.Resources>
+        <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
+      </Grid.Resources>
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" 
              FallbackSource="Movie.png"
-             Thumbnail="True" />
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+             Thumbnail="True">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
+          </MultiBinding>
+        </Image.Height>
+      </Image>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 1">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="200"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="VideoEncodingTitle" Grid.Column="0" Content="Video:" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+        <Label x:Name="VideoEncoding" Grid.Column="1" Content="{Binding VideoEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+        <Label x:Name="AudioEncodingTitle" Grid.Column="2" Content="Audio:" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+        <Label x:Name="AudioEncoding" Grid.Column="3" Content="{Binding AudioEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
+      </Grid>
     </Grid>
   </DataTemplate>
 
@@ -758,9 +852,29 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" Stretch="Uniform" Margin="0,0,4,0" Source="Music.png" />
+      <Grid.Resources>
+        <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
+      </Grid.Resources>
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="Music.png">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
+          </MultiBinding>
+        </Image.Height>
+      </Image>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 
@@ -771,22 +885,37 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Width="48" Height="48" 
-             Stretch="Uniform" Margin="0,0,4,0" 
-             Source="{Binding MediaItem}" 
-             FallbackSource="Picture.png"
-             Thumbnail="True" />
+      <Grid.Resources>
+        <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
+      </Grid.Resources>
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" FallbackSource="Picture.png"
+             Thumbnail="True">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_S}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_M}"/>
+            <Binding Source="{StaticResource THUMB_WIDTH_L}"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_S}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_M}"/>
+            <Binding Source="{StaticResource THUMB_HEIGHT_L}"/>
+          </MultiBinding>
+        </Image.Height>
+      </Image>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
-
-  <!-- TODO: Data templates for navitems:ContainerItem, navitems:MovieItem, navitems:MusicItem, navitems:PictureItem -->
 
   <DataStringProvider x:Key="MediaItemDataStringProvider" Path="Title"/>
 
   <Style x:Key="MediaItemsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
-    <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
