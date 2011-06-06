@@ -59,11 +59,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       // Each resolution is cached separately. If we read cache only and our favourite resolution is not yet in cache,
       // we try to find any other existing.
       if (thumbnailSize <= 96)
-        _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL)
-          ?? (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+      {
+        if (mediaItem.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
+          _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
+
+        if (_thumbBinary == null && mediaItem.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
+          _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+      }
       else
-        _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL)
-          ?? (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
+      {
+        if (mediaItem.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
+          _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+        
+        if (_thumbBinary == null && mediaItem.Aspects.ContainsKey(ThumbnailSmallAspect.ASPECT_ID))
+          _thumbBinary = (byte[]) mediaItem.Aspects[ThumbnailSmallAspect.ASPECT_ID].GetAttributeValue(ThumbnailSmallAspect.ATTR_THUMBNAIL);
+      }
     }
 
     #endregion
