@@ -1049,6 +1049,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Activate()
     {
+      if (_active)
+        return;
       base.Activate();
       UpdateBinding();
     }
