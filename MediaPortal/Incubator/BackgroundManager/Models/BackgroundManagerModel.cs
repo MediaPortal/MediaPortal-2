@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
