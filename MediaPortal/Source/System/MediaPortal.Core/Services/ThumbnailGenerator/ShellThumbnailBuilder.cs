@@ -55,14 +55,15 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
         using (MemoryStream memoryStream = new MemoryStream())
         using (ShellObject item = ShellObject.FromParsingName(fileName))
         {
-          item.Thumbnail.RetrievalOption = cachedOnly
-                                             ? ShellThumbnailRetrievalOption.CacheOnly
-                                             : ShellThumbnailRetrievalOption.Default;
+          item.Thumbnail.RetrievalOption = cachedOnly ? ShellThumbnailRetrievalOption.CacheOnly : ShellThumbnailRetrievalOption.Default;
+          // If no thumbnail is available, we don't want to use an icon (will be black). 
+          // Shell library throws an error then, we catch this below.
+          item.Thumbnail.FormatOption = ShellThumbnailFormatOption.ThumbnailOnly;
           Bitmap bestMatchingBmp;
           // Try to use the best matching resolution, 2 different are enough.
           if (width > 96 || height > 96)
             bestMatchingBmp = item.Thumbnail.LargeBitmap;
-          else 
+          else
             bestMatchingBmp = item.Thumbnail.MediumBitmap;
 
           if (bestMatchingBmp != null)
@@ -72,17 +73,18 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
               thumbnailBinary = memoryStream.ToArray();
               return true;
             }
-
-          thumbnailBinary = null;
-          return false;
         }
+      }
+      catch (ShellException)
+      {
+        // Ignore all internal exception that can occure inside shell library.
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("ShellThumbnailBuilder: Could not create thumbnail for file '{0}'", e, fileName);
-        thumbnailBinary = null;
-        return false;
       }
+      thumbnailBinary = null;
+      return false;
     }
   }
 }
