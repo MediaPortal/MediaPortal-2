@@ -108,7 +108,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
-        _underlayingStream = new CachedHttpResourceStream(resourceURL, Size);
+      {
+        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size);
+      }
     }
 
     public Stream OpenRead()

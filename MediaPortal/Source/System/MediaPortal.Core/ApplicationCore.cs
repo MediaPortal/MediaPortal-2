@@ -36,6 +36,7 @@ using MediaPortal.Core.Services.Localization;
 using MediaPortal.Core.Services.Logging;
 using MediaPortal.Core.Services.Messaging;
 using MediaPortal.Core.Services.Settings;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
 
@@ -56,7 +57,7 @@ namespace MediaPortal.Core
       IPathManager pathManager = new Services.PathManager.PathManager();
       ServiceRegistration.Set<IPathManager>(pathManager);
 
-      ILogger logger = new log4netLogger(pathManager.GetPath(@"<LOG>")); 
+      ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>")); 
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
       logger.Debug("ApplicationCore: Registering ILogger service");
@@ -77,7 +78,7 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Registering ISettingsManager service");
       ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
-      logger.Debug("UiExtension: Registering ILocalization service");
+      logger.Debug("ApplicationCore: Registering ILocalization service");
       ServiceRegistration.Set<ILocalization>(new StringManager());
 
       logger.Debug("ApplicationCore: Registering ITaskScheduler service");
@@ -97,6 +98,9 @@ namespace MediaPortal.Core
 
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
       ServiceRegistration.Set<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
+
+      logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
+      ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
     }
 
     public static void StartCoreServices()
@@ -135,6 +139,9 @@ namespace MediaPortal.Core
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
+      logger.Debug("ApplicationCore: Removing IThumbnailGenerator service");
+      ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
+
       logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();
 
@@ -153,7 +160,7 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Removing ITaskScheduler service");
       ServiceRegistration.RemoveAndDispose<ITaskScheduler>();
 
-      logger.Debug("UiExtension: Removing ILocalization service");
+      logger.Debug("ApplicationCore: Removing ILocalization service");
       ServiceRegistration.RemoveAndDispose<ILocalization>();
 
       logger.Debug("ApplicationCore: Removing ISettingsManager service");

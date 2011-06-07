@@ -27,13 +27,6 @@
     <Resource Id="BDHandlerLanguage" Directory="Language" Type="Language"/>
   </Register>
 
-  <!-- The Metadata extractor. -->
-  <Register Location="/Media/MetadataExtractors">
-    <Instance
-        Id="BluRayMetadataExtractor"
-        ClassName="MediaPortal.Media.MetadataExtractors.BluRayMetadataExtractor"/>
-  </Register>
-
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection

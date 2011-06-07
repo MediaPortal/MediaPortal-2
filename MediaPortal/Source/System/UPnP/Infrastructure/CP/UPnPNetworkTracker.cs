@@ -301,12 +301,12 @@ namespace UPnP.Infrastructure.CP
     {
       DescriptionRequestState state = (DescriptionRequestState) asyncResult.AsyncState;
       RootDescriptor rd = state.RootDescriptor;
-      if (rd.State != RootDescriptorState.AwaitingDeviceDescription)
-        return;
       HttpWebRequest request = state.Request;
       try
       {
         WebResponse response = request.EndGetResponse(asyncResult);
+        if (rd.State != RootDescriptorState.AwaitingDeviceDescription)
+          return;
         try
         {
           using (Stream body = response.GetResponseStream())
@@ -393,13 +393,13 @@ namespace UPnP.Infrastructure.CP
       RootDescriptor rd = state.RootDescriptor;
       lock (_cpData.SyncObj)
       {
-        if (rd.State != RootDescriptorState.AwaitingServiceDescriptions)
-          return;
         HttpWebRequest request = state.Request;
         try
         {
           using (WebResponse response = request.EndGetResponse(asyncResult))
           {
+            if (rd.State != RootDescriptorState.AwaitingServiceDescriptions)
+              return;
             try
             {
               using (Stream body = response.GetResponseStream())

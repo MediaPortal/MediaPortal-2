@@ -98,10 +98,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Metadata\BluRayMetadataExtractor.cs" />
+    <Compile Include="Settings\BDPlayerSettings.cs" />
     <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Resources\revision.txt" />
   </ItemGroup>
   <ItemGroup>

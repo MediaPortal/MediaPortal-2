@@ -48,7 +48,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public static string GetResourceURL(string baseURL, ResourcePath nativeResourcePath)
     {
-      return string.Format("{0}?{1}={2}", baseURL, RESOURCE_PATH_ARGUMENT_NAME, HttpUtility.UrlPathEncode(nativeResourcePath.Serialize()));
+      // Use UrlEncode to encode also # sign, UrlPathEncode doesn't do this.
+      return string.Format("{0}?{1}={2}", baseURL, RESOURCE_PATH_ARGUMENT_NAME, HttpUtility.UrlEncode(nativeResourcePath.Serialize()));
     }
 
     public static bool ParseResourceURI(Uri resourceURI, out ResourcePath relativeResourcePath)

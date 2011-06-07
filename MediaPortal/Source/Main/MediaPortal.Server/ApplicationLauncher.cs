@@ -64,6 +64,10 @@ namespace MediaPortal.Server
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Server\Log");
 #endif
 
+      Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+      AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
+
       SystemStateService systemStateService = new SystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
       systemStateService.SwitchSystemState(SystemState.Initializing, false);
@@ -157,6 +161,18 @@ namespace MediaPortal.Server
         systemStateService.SwitchSystemState(SystemState.Ending, false);
         Application.Exit();
       }
+    }
+
+    static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+    {
+      MessageBox.Show(e.Exception.ToString(), "Unhandled Thread Exception");
+      // here you can log the exception ...
+    }
+
+    static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+      MessageBox.Show((e.ExceptionObject as Exception).ToString(), "Unhandled UI Exception");
+      // here you can log the exception ...
     }
   }
 }

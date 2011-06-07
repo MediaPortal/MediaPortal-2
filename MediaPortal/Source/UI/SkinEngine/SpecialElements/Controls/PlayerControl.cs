@@ -225,6 +225,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       _playerContextProperty.Detach(OnPropertyChanged);
       _autoVisibilityProperty.Detach(OnPropertyChanged);
+      _isMutedProperty.Detach(OnMuteChanged);
 
       VisibilityProperty.Detach(OnVisibilityChanged);
     }
@@ -286,22 +287,34 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           PlayerManagerMessaging.CHANNEL,
-           PlayerContextManagerMessaging.CHANNEL,
-           SystemMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
+      AsynchronousMessageQueue messageQueue;
+      lock (_syncObj)
+      {
+        if (_messageQueue != null)
+          return;
+        _messageQueue = new AsynchronousMessageQueue(this, new string[]
+          {
+             PlayerManagerMessaging.CHANNEL,
+             PlayerContextManagerMessaging.CHANNEL,
+             SystemMessaging.CHANNEL,
+          });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        messageQueue = _messageQueue;
+      }
+      messageQueue.Start();
     }
 
     void UnsubscribeFromMessages()
     {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
+      AsynchronousMessageQueue messageQueue;
+      lock (_syncObj)
+      {
+        if (_messageQueue == null)
+          return;
+        messageQueue = _messageQueue;
+        _messageQueue = null;
+      }
+      messageQueue.Shutdown();
     }
 
     protected void StartTimer()
@@ -1637,6 +1650,5 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     #endregion
-
   }
 }

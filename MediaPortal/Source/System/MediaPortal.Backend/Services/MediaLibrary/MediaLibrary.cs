@@ -249,20 +249,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           commandStr += " AND (";
           if (inclusive)
-            commandStr += pathAttribute + " = @PATH1 OR ";
+            commandStr += pathAttribute + " = @EXACT_PATH OR ";
           commandStr +=
-              pathAttribute + " LIKE @PATH2 ESCAPE '\\' OR " +
-              pathAttribute + " LIKE @PATH3 ESCAPE '\\'" +
+              pathAttribute + " LIKE @LIKE_PATH1 ESCAPE '\\' OR " +
+              pathAttribute + " LIKE @LIKE_PATH2 ESCAPE '\\'" +
               ")";
           string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
           string escapedPath = SqlUtils.LikeEscape(path, '\\');
           if (inclusive)
+          {
             // The path itself
-            database.AddParameter(command, "PATH1", path, typeof(string));
-          // Normal children
-          database.AddParameter(command, "PATH2", escapedPath + "/%", typeof(string));
+            database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+            // Normal children and, if escapedPath ends with "/", the directory itself
+            database.AddParameter(command, "LIKE_PATH1", escapedPath + "/%", typeof(string));
+          }
+          else
+          {
+            // Normal children, in any case excluding the escaped path, even if it is a directory which ends with "/"
+            database.AddParameter(command, "LIKE_PATH1", escapedPath + "/_%", typeof(string));
+          }
           // Chained children
-          database.AddParameter(command, "PATH3", escapedPath + ">_%", typeof(string));
+          database.AddParameter(command, "LIKE_PATH2", escapedPath + ">_%", typeof(string));
         }
 
         commandStr = commandStr + ")";

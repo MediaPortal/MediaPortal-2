@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -142,13 +143,7 @@ namespace UPnP.Infrastructure.Dv
     /// wasn't found in any of the root device trees.</returns>
     public DvDevice FindDeviceByUDN(string deviceUDN)
     {
-      foreach (DvDevice rootDevice in _rootDevices)
-      {
-        DvDevice result = rootDevice.FindDeviceByUDN(deviceUDN);
-        if (result != null)
-          return result;
-      }
-      return null;
+      return _rootDevices.Select(rootDevice => rootDevice.FindDeviceByUDN(deviceUDN)).FirstOrDefault(result => result != null);
     }
 
     /// <summary>
@@ -161,9 +156,7 @@ namespace UPnP.Infrastructure.Dv
     /// i.e. devices with a higher version number than requested.</param>
     public IEnumerable<DvDevice> FindDevicesByDeviceTypeAndVersion(string type, int version, bool searchCompatible)
     {
-      foreach (DvDevice rootDevice in _rootDevices)
-        foreach (DvDevice matchingDevice in rootDevice.FindDevicesByDeviceTypeAndVersion(type, version, searchCompatible))
-          yield return matchingDevice;
+      return _rootDevices.SelectMany(rootDevice => rootDevice.FindDevicesByDeviceTypeAndVersion(type, version, searchCompatible));
     }
 
     /// <summary>
@@ -183,9 +176,18 @@ namespace UPnP.Infrastructure.Dv
         {
           _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
           _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-          _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-          _serverData.HTTP_PORTv4 = _serverData.HTTPListenerV4.LocalEndpoint.Port;
-          UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
+          try
+          {
+            _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+            _serverData.HTTP_PORTv4 = _serverData.HTTPListenerV4.LocalEndpoint.Port;
+            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
+          }
+          catch (SocketException e)
+          {
+            _serverData.HTTPListenerV4 = null;
+            _serverData.HTTP_PORTv4 = 0;
+            UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv4)", e);
+          }
         }
         else
         {
@@ -198,9 +200,18 @@ namespace UPnP.Infrastructure.Dv
         {
           _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0); // Might fail if IPv6 isn't installed
           _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-          _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-          _serverData.HTTP_PORTv6 = _serverData.HTTPListenerV6.LocalEndpoint.Port;
-          UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
+          try
+          {
+            _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+            _serverData.HTTP_PORTv6 = _serverData.HTTPListenerV6.LocalEndpoint.Port;
+            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
+          }
+          catch (SocketException e)
+          {
+            _serverData.HTTPListenerV6 = null;
+            _serverData.HTTP_PORTv6 = 0;
+            UPnPConfiguration.LOGGER.Warn("UPnPServer: Error starting HTTP server (IPv6)", e);
+          }
         }
         else
         {
@@ -337,7 +348,9 @@ namespace UPnP.Infrastructure.Dv
               string userAgentStr = request.Headers.Get("USER-AGENT");
               IHttpResponse response = request.CreateResponse(context);
               int minorVersion;
-              if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
+              if (string.IsNullOrEmpty(userAgentStr))
+                minorVersion = 0;
+              else if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
               {
                 response.Status = HttpStatusCode.BadRequest;
                 SafeSendResponse(response);

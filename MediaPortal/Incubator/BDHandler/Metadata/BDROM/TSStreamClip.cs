@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;

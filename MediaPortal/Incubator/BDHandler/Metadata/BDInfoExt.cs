@@ -27,6 +27,8 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using BDInfo;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -60,9 +62,9 @@ namespace MediaPortal.UI.Players.Video
       // get the bd title from the meta xml
       Title = GetTitle();
       if (!String.IsNullOrEmpty(Title))
-        BDPlayerBuilder.LogDebug("Bluray Title= '{0}'", Title);
+        ServiceRegistration.Get<ILogger>().Debug("BDMEx: Bluray Title= '{0}'", Title);
       else
-        BDPlayerBuilder.LogDebug("Bluray: No Title Found.");
+        ServiceRegistration.Get<ILogger>().Debug("BDMEx: Bluray: No Title Found.");
 
     }
 
@@ -93,7 +95,7 @@ namespace MediaPortal.UI.Players.Video
       }
       catch (Exception e)
       {
-        BDPlayerBuilder.LogError("Meta File Error: ", e);
+        ServiceRegistration.Get<ILogger>().Error("BDMEx: Meta File Error: ", e);
       }
       return null;
     }

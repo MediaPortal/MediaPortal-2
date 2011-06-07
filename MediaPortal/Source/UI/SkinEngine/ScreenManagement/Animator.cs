@@ -177,6 +177,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Stops all storyboards of the given <paramref name="element"/>.
+    /// </summary>
+    public void StopAll(UIElement element)
+    {
+      lock (_syncObject)
+      {
+        IList<AnimationContext> removeContexts = new List<AnimationContext>(_scheduledAnimations.Count);
+        foreach (AnimationContext ac in _scheduledAnimations)
+          if (ac.TimelineContext.VisualParent == element)
+            removeContexts.Add(ac);
+        foreach (AnimationContext ac in removeContexts)
+        {
+          _scheduledAnimations.Remove(ac);
+          ResetAllValues(ac);
+        }
+      }
+    }
+
+    /// <summary>
     /// Schedules the specified <paramref name="value"/> to be set at the specified
     /// <paramref name="dataDescriptor"/> the next time the <see cref="Animate"/> method runs.
     /// If the specified <paramref name="dataDescriptor"/> is already scheduled to be set to another

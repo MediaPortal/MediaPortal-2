@@ -75,6 +75,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     }
 
     /// <summary>
+    /// Gets or sets a value that determines dimension of a thumbnail.
+    /// This property is only used in combination with <see cref="UseThumbnail"/>=true, to force a specific dimension
+    /// for thumnbnails (Windows thumbnail cache offers 32, 96, 256 and 1024 size, the minimum matching size is used).
+    /// </summary>
+    public int ThumbnailDimension
+    {
+      get { return _assetCore.ThumbnailDimension; }
+      set { _assetCore.ThumbnailDimension = value; }
+    }
+
+    /// <summary>
     /// Get the Uri associated with this resource.
     /// </summary>
     public string Name

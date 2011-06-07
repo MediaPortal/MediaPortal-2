@@ -284,21 +284,31 @@ namespace UPnP.Infrastructure.Dv.SSDP
             NetworkHelper.IPAddrToString(address), config.SSDPSearchPort);
         // The following is necessary to retrieve the remote IP address when we receive SSDP packets
         if (family == AddressFamily.InterNetwork)
-        {
-          // Receiving options
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-          // Sending options
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive,
-              UPnPConfiguration.SSDP_UDP_TTL_V4);
-        }
+          try
+          {
+            // Receiving options
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+            // Sending options
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive,
+                UPnPConfiguration.SSDP_UDP_TTL_V4);
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+          }
         else
-        {
-          // Receiving options
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-          // Sending options
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit,
-              UPnPConfiguration.SSDP_UDP_HOP_LIMIT_V6);
-        }
+          try
+          {
+            // Receiving options
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+            // Sending options
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit,
+                UPnPConfiguration.SSDP_UDP_HOP_LIMIT_V6);
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv6 options", e);
+          }
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
       }
       catch (Exception) // SocketException, SecurityException

@@ -108,7 +108,8 @@ namespace UPnP.Infrastructure
     public static XmlReaderSettings DEFAULT_XML_READER_SETTINGS = new XmlReaderSettings
       {
           CheckCharacters = false,
-          IgnoreComments = true
+          IgnoreComments = true,
+          IgnoreWhitespace = true
       };
 
     #endregion

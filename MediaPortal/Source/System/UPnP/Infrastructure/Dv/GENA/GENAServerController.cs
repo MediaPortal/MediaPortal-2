@@ -252,11 +252,25 @@ namespace UPnP.Infrastructure.Dv.GENA
       config.GENA_UDP_Socket = socket;
       if (config.AddressFamily == AddressFamily.InterNetwork)
       {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, UPnPConfiguration.GENA_UDP_TTL_V4);
+        try
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, UPnPConfiguration.GENA_UDP_TTL_V4);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set MulticastTimeToLive", e);
+        }
       }
       else if (config.AddressFamily == AddressFamily.InterNetworkV6)
       {
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit, UPnPConfiguration.GENA_UDP_HOP_LIMIT_V6);
+        try
+        {
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit, UPnPConfiguration.GENA_UDP_HOP_LIMIT_V6);
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set HopLimit", e);
+        }
       }
       config.GENAMulticastAddress = NetworkHelper.GetGENAMulticastAddressForInterface(config.EndPointIPAddress);
     }

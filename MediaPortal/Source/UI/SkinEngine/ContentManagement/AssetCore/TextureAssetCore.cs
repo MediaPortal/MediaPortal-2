@@ -31,11 +31,11 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.Thumbnails;
 using SlimDX;
 using SlimDX.Direct3D9;
+using MediaPortal.Core.Services.ThumbnailGenerator;
 
-// TODO: Add support for web thumbnails? Requires changing IAsyncThumbnailGenerator
+// TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 {
@@ -88,6 +88,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected readonly string _textureName;
     protected Texture _texture = null;
     protected bool _useThumbnail = true;
+    protected int _thumbnailDimension = 0;
     protected int _width = 0;
     protected int _height = 0;
     protected int _decodeWidth = 0;
@@ -146,6 +147,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       get { return _useThumbnail; }
       set { _useThumbnail = value; }
+    }
+
+    public int ThumbnailDimension
+    {
+      get { return _thumbnailDimension; }
+      set { _thumbnailDimension = value; }
     }
 
     public string Name
@@ -362,25 +369,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected void AllocateThumbAsync_NoLock(string path)
     {
-      IAsyncThumbnailGenerator generator = ServiceRegistration.Get<IAsyncThumbnailGenerator>();
-      ImageType imageType;
-      byte[] thumbData;
-
-      // Start asyncronous thumb generation (if not started already)
-      generator.CreateThumbnail(path);
-      // Has thumb generation been completed yet (or failed/timed out)?
-      if (generator.GetThumbnail(path, out thumbData, out imageType))
-      {
-        lock (_syncObj)
-          if (thumbData != null)
-            AllocateFromBuffer(thumbData);
-          else
-            _state = State.Failed;
-      }
-      else
-        lock (_syncObj)
-          _state = State.LoadingThumb;
+      IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+      _state = State.LoadingThumb;
+      generator.GetThumbnail_Async(path, _thumbnailDimension, _thumbnailDimension, ThumbnailCreated);
     }
+
 
     protected void AllocateFromWeb(Uri uri)
     {
@@ -579,6 +572,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
+    public void ThumbnailCreated(string sourcePath, bool success, byte[] imageData, ImageType imageType)
+    {
+      lock (_syncObj)
+      {
+        if (success)
+          AllocateFromBuffer(imageData);
+        else
+          _state = State.Failed;
+      }
+    }
+
     #endregion
 
     #region IAssetCore implementation
@@ -628,7 +632,25 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
   }
 
   /// <summary>
-  /// A version of TextureAssetCore that provides simple access to solid color textures for internal use.
+  /// A version of <see cref="TextureAssetCore"/> that gets its texture data from a byte buffer.
+  /// </summary>
+  public class ThumbnailBinaryTextureAssetCore : TextureAssetCore
+  {
+    private readonly byte[] _binaryThumbdata = null;
+
+    public ThumbnailBinaryTextureAssetCore(byte[] binaryThumbdata, string textureName) : base (textureName, 0, 0)
+    {
+      _binaryThumbdata = binaryThumbdata;
+    }
+
+    public override void Allocate()
+    {
+      AllocateFromBuffer(_binaryThumbdata);
+    }
+  }
+
+  /// <summary>
+  /// A version of <see cref="TextureAssetCore"/> that provides simple access to solid color textures for internal use.
   /// </summary>
   public class ColorTextureAssetCore : TextureAssetCore
   {
