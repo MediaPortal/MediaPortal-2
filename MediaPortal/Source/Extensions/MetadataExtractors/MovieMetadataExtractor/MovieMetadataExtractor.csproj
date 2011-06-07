@@ -77,7 +77,6 @@
     <ProjectReference Include="..\MediaInfoLib\MediaInfoLib.csproj">
       <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
       <Name>MediaInfoLib</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

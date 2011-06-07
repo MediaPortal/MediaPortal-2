@@ -187,7 +187,8 @@ namespace MediaInfoLib
     /// stream doesn't exist.</returns>
     public string GetVidCodec(int stream)
     {
-      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Codec"));
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "CodecID/Hint")) ??
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Codec/String"));
     }
 
     /// <summary>
@@ -274,7 +275,8 @@ namespace MediaInfoLib
     /// <returns>Name of the audio codec or <c>null</c>, if the specified audio stream doesn't exist.</returns>
     public string GetAudioCodec(int stream)
     {
-      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec"));
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "CodecID/Hint")) ??
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec/String"));
     }
 
     /// <summary>
