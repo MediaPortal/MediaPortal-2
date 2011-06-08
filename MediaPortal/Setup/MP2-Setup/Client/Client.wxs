@@ -50,6 +50,12 @@
       <Component Id="MediaPortal.Utilities" Guid="8BD9E84A-22B2-4C5D-9737-25526216F97B">
         <File Id="MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
       </Component>
+      <Component Id="Microsoft.WindowsAPICodePack" Guid="942E24F8-58C8-4341-9AD8-DA92632D388E">
+        <File Id="Microsoft.WindowsAPICodePack.dll" Name="Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="Microsoft.WindowsAPICodePack.Shell" Guid="46F0DB0B-0B87-4C1D-8B36-1F16E7FF7E87">
+        <File Id="Microsoft.WindowsAPICodePack.Shell.dll" Name="Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
       <Component Id="log4net" Guid="6AB68CEB-DABE-497E-887D-E4AACABE7016">
         <File Id="log4net.dll" Name="log4net.dll" KeyPath="yes" Checksum="yes" />
       </Component>
@@ -126,6 +132,8 @@
       <ComponentRef Id="MediaPortal.Core" />
       <ComponentRef Id="MediaPortal.UI" />
       <ComponentRef Id="MediaPortal.Utilities" />
+      <ComponentRef Id="Microsoft.WindowsAPICodePack"/>
+      <ComponentRef Id="Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="UPnP" />
       <ComponentRef Id="zlib1" />
 

@@ -54,6 +54,12 @@
       <Component Id="S__MediaPortal.Utilities" Guid="9726D595-7054-438A-9E77-39ECEE934769">
         <File Id="S__MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />
       </Component>
+      <Component Id="S_Microsoft.WindowsAPICodePack" Guid="BF43A8A4-47F1-43B4-9DC5-E4E883ADCE2C">
+        <File Id="S_Microsoft.WindowsAPICodePack.dll" Name="Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="S_Microsoft.WindowsAPICodePack.Shell" Guid="F574F216-D789-4E41-B7E7-6CCFE16B55C6">
+        <File Id="S_Microsoft.WindowsAPICodePack.Shell.dll" Name="Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
+      </Component>
       <Component Id="S__UPnP" Guid="EC221FE7-04DC-4734-AC0F-0527B6B6BB01">
         <File Id="S__UPnP.dll" Name="UPnP.dll" KeyPath="yes" Checksum="yes" />
       </Component>
@@ -124,6 +130,8 @@
       <ComponentRef Id="MediaPortal.Backend" />
       <ComponentRef Id="S__MediaPortal.Core" />
       <ComponentRef Id="S__MediaPortal.Utilities" />
+      <ComponentRef Id="S_Microsoft.WindowsAPICodePack"/>
+      <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="S__UPnP" />
 
       <ComponentGroupRef Id="ServerPlugins" />
