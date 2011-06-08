@@ -7,10 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using BuildHelper.Properties;
+using MergeMSI.Properties;
 using CommandLine;
 
-namespace BuildHelper
+namespace MergeMSI
 {
   class Program
   {

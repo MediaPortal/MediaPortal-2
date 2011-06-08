@@ -24,7 +24,7 @@
 
 using CommandLine;
 
-namespace BuildHelper
+namespace MergeMSI
 {
   public class CommandLineOptions
   {

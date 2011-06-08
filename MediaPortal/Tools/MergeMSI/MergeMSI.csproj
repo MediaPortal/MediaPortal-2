@@ -8,8 +8,8 @@
     <ProjectGuid>{B4B547B6-F11D-4366-B423-605B687CE1C8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BuildHelper</RootNamespace>
-    <AssemblyName>BuildHelper</AssemblyName>
+    <RootNamespace>MergeMSI</RootNamespace>
+    <AssemblyName>MergeMSI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
