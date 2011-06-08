@@ -30,10 +30,10 @@
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
         <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
-          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any"/>
-          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any"/>
-          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any"/>
-          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any"/>
+          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
+          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
+          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
+          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
         </File>
       </Component>
       <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
