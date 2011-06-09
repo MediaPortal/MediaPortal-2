@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Settings;
+using MediaPortal.UiComponents.BackgroundManager.Settings;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models
 {
@@ -41,7 +44,8 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public LayoutManagerModel()
     {
-      _thumbnailSizeMode = new WProperty(typeof(int), 1);
+      LayoutManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LayoutManagerSettings>();
+      _thumbnailSizeMode = new WProperty(typeof(int), settings.SelectedLayoutIndex);
     }
 
     public Guid ModelId
@@ -68,6 +72,10 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
         ThumbnailSizeMode++;
       else
         ThumbnailSizeMode = 1;
+
+      LayoutManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<LayoutManagerSettings>();
+      settings.SelectedLayoutIndex = ThumbnailSizeMode;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     #endregion
