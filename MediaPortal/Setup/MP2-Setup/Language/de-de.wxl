@@ -26,6 +26,13 @@
   <String Id="F_MP_Server">Server</String>
   <String Id="F_MP_Server_Desc">Server Beschreibung</String>
 
+  <!-- Launch Conditions -->
+  <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>
+  <String Id="LC_Dokan">[ProductName] requires Dokan v0.6.0.</String>
+  <String Id="LC_DokanError">Dokan.sys Driver Is Not Installed in the SYSTEM\CurrentControlSet\services registry correctly!</String>
+  <String Id="LC_NET">[ProductName] requires .NET Framework 4.0 Main profile to be installed</String>
+  <String Id="LC_ADMIN">You need to be an administrator to install [ProductName].</String>
+
   <!-- Firewall Exeptions -->
   <String Id="WixSchedFirewallExceptionsInstall"></String>
   <String Id="WixSchedFirewallExceptionsUninstall"></String>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+
+    <Property Id="DokanFile">1</Property>
+
+    <Property Id="DOKANINSTALLED">
+      <RegistrySearch Id="IsDokanServiceInstalled"
+                      Root="HKLM"
+                      Key="SYSTEM\CurrentControlSet\services\Dokan"
+                      Name="DisplayName"
+                      Type="raw" />
+    </Property>
+
+    <Property Id="DOKANVERCHECK32">
+      <DirectorySearch Id="Dokan.sys.version" Path="[SystemFolder]\Drivers">
+        <FileSearch Name="Dokan.sys" MinSize="91903" MaxSize="95745" />
+      </DirectorySearch>
+    </Property>
+
+    <Property Id="DOKANVERCHECK64">
+      <DirectorySearch Id="Dokan.sys64.version" Path="[System64Folder]\Drivers">
+        <FileSearch Name="Dokan.sys" MinSize="120407" MaxSize="120409" />
+      </DirectorySearch>
+    </Property>
+
+  </Fragment>
+</Wix>

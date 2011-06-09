@@ -27,6 +27,7 @@
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
+    <PropertyRef Id="DokanFile" />
 
     <!--
     Source media for the installation.

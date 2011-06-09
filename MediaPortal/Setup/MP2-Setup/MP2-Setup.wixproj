@@ -27,6 +27,7 @@
   <ItemGroup>
     <Compile Include="Client\ClientPlugins.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
+    <Compile Include="Fragments\Dokan.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
     <Compile Include="Fragments\Properties.wxs" />
