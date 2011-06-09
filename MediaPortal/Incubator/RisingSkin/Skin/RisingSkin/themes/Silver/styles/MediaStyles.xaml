@@ -733,7 +733,14 @@
       <Grid.Resources>
         <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
       </Grid.Resources>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0" Source="Filter.png">
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="Filter.png"/>
+            <Binding Source="Filter_l.png"/>
+          </MultiBinding>
+        </Image.Source>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
             <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
@@ -766,7 +773,14 @@
       <Grid.Resources>
         <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
       </Grid.Resources>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="Navigation.png">
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="Navigation.png"/>
+            <Binding Source="Navigation_l.png"/>
+          </MultiBinding>
+        </Image.Source>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
             <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
@@ -804,8 +818,14 @@
         <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
       </Grid.Resources>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" 
-             FallbackSource="Movie.png"
              Thumbnail="True">
+        <Image.FallbackSource>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="Movie.png"/>
+            <Binding Source="Movie_l.png"/>
+          </MultiBinding>
+        </Image.FallbackSource>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
             <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
@@ -855,7 +875,14 @@
       <Grid.Resources>
         <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
       </Grid.Resources>
-      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="Music.png">
+      <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="Music.png"/>
+            <Binding Source="Music_l.png"/>
+          </MultiBinding>
+        </Image.Source>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
             <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
@@ -890,6 +917,13 @@
       </Grid.Resources>
       <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0" Source="{Binding MediaItem}" FallbackSource="Picture.png"
              Thumbnail="True">
+        <Image.FallbackSource>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
+            <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+            <Binding Source="Picture.png"/>
+            <Binding Source="Picture_l.png"/>
+          </MultiBinding>
+        </Image.FallbackSource>        
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
             <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
