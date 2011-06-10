@@ -28,9 +28,10 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Windows.Forms;
-using Timer=System.Windows.Forms.Timer;
+using Timer = System.Windows.Forms.Timer;
 
 namespace MediaPortal.Utilities.Screens
 {
@@ -103,19 +104,18 @@ namespace MediaPortal.Utilities.Screens
     }
 
     /// <summary>
+    /// Gets or Sets a flag if the <see cref="SplashBackgroundImage"/> should be scaled to fullscreen.
+    /// To enable resizing, set this property to true before you set the image.
+    /// </summary>
+    public bool ScaleToFullscreen { get; set; }
+
+    /// <summary>
     /// Sets the background image and automatically sets the size to match the image size.
     /// </summary>
     public Image SplashBackgroundImage
     {
       get { return BackgroundImage; }
-      set
-      {
-        if (value != null)
-        {
-          BackgroundImage = value;
-          ClientSize = value.Size;
-        }
-      }
+      set { ResizeImageFullscreen(value); }
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ namespace MediaPortal.Utilities.Screens
         }
         else
         {
-          _opacityIncrement = FADE_TIMER_INTERVAL/_fadeInDuration.TotalMilliseconds;
+          _opacityIncrement = FADE_TIMER_INTERVAL / _fadeInDuration.TotalMilliseconds;
           Opacity = 0;
         }
       }
@@ -168,7 +168,7 @@ namespace MediaPortal.Utilities.Screens
         if (_fadeOutDuration == TimeSpan.Zero)
           _opacityDecrement = 0;
         else
-          _opacityDecrement = FADE_TIMER_INTERVAL/_fadeOutDuration.TotalMilliseconds;
+          _opacityDecrement = FADE_TIMER_INTERVAL / _fadeOutDuration.TotalMilliseconds;
       }
     }
 
@@ -223,7 +223,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void ShowSplashScreen()
     {
-      _splashScreenThread = new Thread(ShowForm) {IsBackground = true, Name = "SplashScr"};
+      _splashScreenThread = new Thread(ShowForm) { IsBackground = true, Name = "SplashScr" };
       _splashScreenThread.Start();
     }
 
@@ -243,6 +243,25 @@ namespace MediaPortal.Utilities.Screens
     public SplashScreen()
     {
       InitializeComponent();
+    }
+
+    private void ResizeImageFullscreen(Image backgroundImage)
+    {
+      if (backgroundImage == null)
+        return;
+      Size screen = Screen.PrimaryScreen.Bounds.Size;
+      if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
+      {
+        Bitmap scaledImage = new Bitmap(screen.Width, screen.Height);
+        using (Graphics g = Graphics.FromImage(scaledImage))
+        {
+          g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+          g.DrawImage(backgroundImage, 0, 0, screen.Width, screen.Height);
+        }
+        backgroundImage = scaledImage;
+      }
+      BackgroundImage = backgroundImage;
+      ClientSize = backgroundImage.Size;
     }
 
     private void ShowForm()
