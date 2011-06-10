@@ -269,6 +269,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     protected void CheckTopMost()
     {
+      BringToFront();
+      Activate();
 #if DEBUG
       TopMost = false;
 #else
