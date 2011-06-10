@@ -53,6 +53,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.SuspendLayout();
       // 
@@ -67,16 +68,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Black;
       this.ClientSize = new System.Drawing.Size(292, 266);
+      this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
       this.Name = "MainForm";
       this.Text = "MediaPortal 2";
-      this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
-      this.MouseClick += new System.Windows.Forms.MouseEventHandler(MainForm_MouseClick);
       this.Activated += new System.EventHandler(this.MainForm_Activated);
-      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(MainForm_KeyPress);
+      this.Deactivate += new System.EventHandler(this.MainForm_Deactivate);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+      this.KeyDown += new System.Windows.Forms.KeyEventHandler(MainForm_KeyDown);
+      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(MainForm_KeyPress);
+      this.MouseClick += new System.Windows.Forms.MouseEventHandler(MainForm_MouseClick);
       this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseMove);
       this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseWheel);
-      this.KeyDown += new System.Windows.Forms.KeyEventHandler(MainForm_KeyDown);
       this.ResumeLayout(false);
 
     }
