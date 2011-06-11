@@ -42,7 +42,7 @@ namespace MediaPortal.Server
       // 
       this.serverTrayIcon.BalloonTipText = "MediaPortal 2 Server";
       this.serverTrayIcon.BalloonTipTitle = "MediaPortal 2";
-      this.serverTrayIcon.Icon = ((System.Drawing.Icon) (resources.GetObject("serverTrayIcon.Icon")));
+      this.serverTrayIcon.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
       this.serverTrayIcon.Text = "MediaPortal 2";
       this.serverTrayIcon.Visible = true;
       // 
