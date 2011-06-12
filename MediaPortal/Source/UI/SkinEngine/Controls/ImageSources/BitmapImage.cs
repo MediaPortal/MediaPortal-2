@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     protected bool _thumbnail = false;
     protected TextureAsset _texture = null;
-    protected PrimitiveBuffer _primitiveBuffer;
+    protected PrimitiveBuffer _primitiveBuffer = new PrimitiveBuffer();
     protected ImageContext _imageContext = new ImageContext();
     protected Vector4 _frameData;
 
@@ -258,9 +258,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Allocate()
     {
-      if (_primitiveBuffer != null)
-        return;
-      _primitiveBuffer = new PrimitiveBuffer();
       string uri = UriSource;
       if (String.IsNullOrEmpty(uri))
       {
