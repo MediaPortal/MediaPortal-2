@@ -86,5 +86,11 @@ namespace MediaPortal.Core.PathManager
     /// </summary>
     /// <param name="label">The label of the path registration to be removed.</param>
     void RemovePath(string label);
+
+    /// <summary>
+    /// Loads path values from a paths file.
+    /// </summary>
+    /// <param name="pathsFile">File with paths. See <c>[App-Root]/Defaults/Paths.xml</c> as example.</param>
+    void LoadPaths(string pathsFile);
   }
 }

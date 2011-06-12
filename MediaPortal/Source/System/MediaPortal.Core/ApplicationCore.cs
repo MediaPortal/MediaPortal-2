@@ -54,7 +54,8 @@ namespace MediaPortal.Core
       // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
       ServiceRegistration.Set<ILogger>(new NoLogger());
 
-      IPathManager pathManager = new Services.PathManager.PathManager();
+      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
+      pathManager.InitializeDefaults();
       ServiceRegistration.Set<IPathManager>(pathManager);
 
       ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>")); 
