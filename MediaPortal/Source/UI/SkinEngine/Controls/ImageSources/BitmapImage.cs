@@ -290,8 +290,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     public override void Deallocate()
     {
-      _primitiveBuffer.Dispose();
-      _primitiveBuffer = null;
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _primitiveBuffer);
       FreeTextures();
     }
 

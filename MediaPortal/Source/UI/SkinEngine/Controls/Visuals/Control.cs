@@ -297,10 +297,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
         verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+        PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
       }
       else
-        DisposePrimitiveContext(ref _backgroundContext);
+        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     #endregion
@@ -343,7 +343,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      DisposePrimitiveContext(ref _backgroundContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

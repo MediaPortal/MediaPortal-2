@@ -338,11 +338,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
 
           Background.SetupBrush(this, ref verts, context.ZOrder, true);
-          SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+          PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
         }
       }
       else
-        DisposePrimitiveContext(ref _backgroundContext);
+        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     protected void PerformLayoutBorder(RectangleF rect, RenderContext context)
@@ -370,12 +370,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             GraphicsPathHelper.Flatten(subPathVerts, out verts);
             BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
 
-            SetPrimitiveContext(ref _borderContext, ref verts, PrimitiveType.TriangleList);
+            PrimitiveBuffer.SetPrimitiveBuffer(ref _borderContext, ref verts, PrimitiveType.TriangleList);
           }
         }
       }
       else
-        DisposePrimitiveContext(ref _borderContext);
+        PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
     protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
@@ -422,8 +422,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Background != null)
         Background.Deallocate();
       _performLayout = true;
-      DisposePrimitiveContext(ref _backgroundContext);
-      DisposePrimitiveContext(ref _borderContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _borderContext);
     }
 
     public override void Allocate()

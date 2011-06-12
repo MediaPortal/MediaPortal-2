@@ -106,12 +106,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               if (verts != null)
               {
                 Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-                SetPrimitiveContext(ref _fillContext, ref verts, PrimitiveType.TriangleList);
+                PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
               }
             }
           }
           else
-            DisposePrimitiveContext(ref _fillContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
 
           if (Stroke != null && StrokeThickness > 0)
           {
@@ -133,12 +133,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               if (verts != null)
               {
                 Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-                SetPrimitiveContext(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
+                PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
               }
             }
           }
           else
-            DisposePrimitiveContext(ref _strokeContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
         }
       }
     }
@@ -205,10 +205,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             break;
           case 'L':
             //Absolute Line
-            for (int i = 0; i < points.Length; ++i)
+            foreach (PointF t in points)
             {
-              result.AddLine(lastPoint, points[i]);
-              lastPoint = points[i];
+              result.AddLine(lastPoint, t);
+              lastPoint = t;
             }
             break;
           case 'l':

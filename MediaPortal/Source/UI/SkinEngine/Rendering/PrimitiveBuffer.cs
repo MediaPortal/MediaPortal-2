@@ -128,6 +128,24 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
+    #region Buffer maintainance
+
+    public static void SetPrimitiveBuffer(ref PrimitiveBuffer _buffer, ref PositionColoredTextured[] verts, PrimitiveType type)
+    {
+      if (_buffer == null)
+        _buffer = new PrimitiveBuffer();
+      _buffer.Set(ref verts, type);
+    }
+
+    public static void DisposePrimitiveBuffer(ref PrimitiveBuffer _buffer)
+    {
+      if (_buffer != null)
+        _buffer.Dispose();
+      _buffer = null;
+    }
+
+    #endregion
+
     #region Rendering
 
     /// <summary>
