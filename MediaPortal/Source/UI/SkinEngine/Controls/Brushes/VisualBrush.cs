@@ -104,9 +104,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
-    void UpdateRenderTarget()
+    void UpdateRenderTarget(FrameworkElement fe)
     {
-      _preparedVisual.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
+      fe.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
           new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
     }
 
@@ -189,10 +189,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
     {
-      if (_preparedVisual == null) return false;
+      FrameworkElement fe = _preparedVisual;
+      if (fe == null) return false;
       _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
 
-      UpdateRenderTarget();
+      UpdateRenderTarget(fe);
       base.BeginRenderBrush(primitiveContext, renderContext);
 
       return true;
@@ -200,26 +201,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
-      if (_preparedVisual == null) return;
+      FrameworkElement fe = _preparedVisual;
+      if (fe == null) return;
 
-      UpdateRenderTarget();
+      UpdateRenderTarget(fe);
       base.BeginRenderOpacityBrush(tex, renderContext);
     }
 
     public override void Allocate()
     {
       base.Allocate();
-      FrameworkElement visual = _preparedVisual;
-      if (visual != null)
-        visual.Allocate();
+      FrameworkElement fe = _preparedVisual;
+      if (fe != null)
+        fe.Allocate();
     }
 
     public override void Deallocate()
     {
       base.Allocate();
-      FrameworkElement visual = _preparedVisual;
-      if (visual != null)
-        visual.Deallocate();
+      FrameworkElement fe = _preparedVisual;
+      if (fe != null)
+        fe.Deallocate();
     }
   }
 }
