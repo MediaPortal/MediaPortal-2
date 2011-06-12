@@ -29,7 +29,7 @@ namespace MediaPortal.Core.Logging
   /// <summary>
   /// Default <see cref="ILogger"/> implementation that does absolutely nothing.
   /// </summary>
-  internal class NoLogger : ILogger
+  public class NoLogger : ILogger
   {
     #region ILogger Members
 
