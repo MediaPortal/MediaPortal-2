@@ -29,7 +29,7 @@
       http://www.team-mediaportal.com/
     </Property>
     <!-- Puts MediaPortal icon in Control Panel's Add/Remove Programs -->
-    <Property Id="ARPPRODUCTICON">MediaPortalIcon</Property>
+    <Property Id="ARPPRODUCTICON">MediaPortal2Icon</Property>
 
   </Fragment>
 </Wix>
