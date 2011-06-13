@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <Fragment>
 
     <Property Id="PropertiesFile">1</Property>
+
+    <!-- .NET Framework -->
+    <PropertyRef Id="NETFRAMEWORK40FULL"/>
 
   </Fragment>
 </Wix>

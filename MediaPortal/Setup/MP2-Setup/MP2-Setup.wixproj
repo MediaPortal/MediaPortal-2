@@ -46,6 +46,10 @@
     <Folder Include="Server" />
   </ItemGroup>
   <ItemGroup>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
     <WixExtension Include="WixFirewallExtension">
       <HintPath>$(WixExtDir)\WixFirewallExtension.dll</HintPath>
       <Name>WixFirewallExtension</Name>
