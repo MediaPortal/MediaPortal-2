@@ -44,8 +44,12 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
-          <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client" />
-          <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
+          <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
+            <Directory Id="INSTALLDIR_CLIENT_PLUGINS" Name="Plugins"/>
+          </Directory>
+          <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
+            <Directory Id="INSTALLDIR_SERVER_PLUGINS" Name="Plugins"/>
+          </Directory>
         </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">
