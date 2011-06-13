@@ -34,8 +34,6 @@
         </Component>
       </Directory>
 
-      <Directory Id="ServerPluginsFolder" Name="Plugins" />
-
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
         <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
           <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
