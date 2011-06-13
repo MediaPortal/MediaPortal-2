@@ -29,7 +29,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Core.Services.Logging;
-using MediaPortal.Core.Services.PathManager;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Backend.Services.Database
