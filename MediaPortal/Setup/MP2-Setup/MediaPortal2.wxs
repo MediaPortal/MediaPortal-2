@@ -106,6 +106,10 @@
     <UIRef Id="WixUI_ErrorProgressText" />
 
     <InstallExecuteSequence>
+      <Custom Action ="SetStandardServerDirPluginProperties" Before="FileCost" />
+      <Custom Action ="SetPropertiesForAdvancedServerInstall" Before="FileCost" />
+      <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost" />
+      <Custom Action ="SetPropertiesForAdvancedClientInstall" Before="FileCost" />
       <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
 

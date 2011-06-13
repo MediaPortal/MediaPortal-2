@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"  xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
   <Fragment>
-    
+
     <?include ..\Includes.wxi ?>
 
     <!-- Directories -->
@@ -11,6 +14,11 @@
       <Directory Id="S__Defaults" Name="Defaults">
         <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
           <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
+        </Component>
+        <Component Id="ComponentModifyDefaultServerPluginsPath" Guid="8C47764F-5308-4A14-A0CF-D04696247F18">
+          <Condition><![CDATA[NOT INSTALLDIR_SERVER_PLUGINS = STANDARD_SERVERDIR_PLUGINS]]></Condition>
+          <util:XmlFile Id="ModifyDefaultServerPluginsPath" Action="setValue" File="[S__Defaults]\Paths.xml" ElementPath="//Paths/Path[\[]@name='PLUGINS'[\]]" Value="[XML_SERVER_PLUGINS]" Name="value" SelectionLanguage="XPath"></util:XmlFile>
+          <CreateFolder />
         </Component>
       </Directory>
 
@@ -115,6 +123,7 @@
              Description="!(loc.F_MP_Server_Desc)">
 
       <ComponentRef Id="S__Defaults" />
+      <ComponentRef Id="ComponentModifyDefaultServerPluginsPath" />
 
       <ComponentRef Id="ClientManager_create_1_0" />
       <ComponentRef Id="MediaLibrary_create_1_0" />
@@ -134,7 +143,16 @@
       <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="S__UPnP" />
 
-      <ComponentGroupRef Id="ServerPlugins" />
+      <Feature Id="MP2Server_Plugins"
+               Level="2"
+               Absent="disallow"
+               AllowAdvertise="no"
+               ConfigurableDirectory="INSTALLDIR_SERVER_PLUGINS"
+               Title="!(loc.F_MP_Server_Plugin)"
+               Description="!(loc.F_MP_Server_Plugin_Desc)">
+
+        <ComponentGroupRef Id="ServerPlugins" />
+      </Feature>
 
     </Feature>
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <CustomAction Id="SetStandardServerDirPluginProperties" Property="STANDARD_SERVERDIR_PLUGINS" Value="[INSTALLDIR_SERVER]Plugins\"/>
+    <CustomAction Id="SetPropertiesForAdvancedServerInstall" Script="vbscript" Execute="immediate">
+      <![CDATA[
+        INSTALLDIR_SERVER_PLUGINS=Session.Property("INSTALLDIR_SERVER_PLUGINS")
+        INSTALLDIR_SERVER=Session.Property("INSTALLDIR_SERVER")
+        XML_SERVER_PLUGINS=replace(INSTALLDIR_SERVER_PLUGINS,INSTALLDIR_SERVER,"<APPLICATION_ROOT>\")
+        if right(XML_SERVER_PLUGINS,1) = "\" then
+          Session.Property("XML_SERVER_PLUGINS")=left(XML_SERVER_PLUGINS,len(XML_SERVER_PLUGINS)-1)
+        else
+          Session.Property("XML_SERVER_PLUGINS")=XML_SERVER_PLUGINS
+        end if
+      ]]>
+    </CustomAction>
+
+    <CustomAction Id="SetStandardClientDirPluginProperties" Property="STANDARD_CLIENTDIR_PLUGINS" Value="[INSTALLDIR_CLIENT]Plugins\"/>
+    <CustomAction Id="SetPropertiesForAdvancedClientInstall" Script="vbscript" Execute="immediate">
+      <![CDATA[
+        INSTALLDIR_CLIENT_PLUGINS=Session.Property("INSTALLDIR_CLIENT_PLUGINS")
+        INSTALLDIR_CLIENT=Session.Property("INSTALLDIR_CLIENT")
+        XML_CLIENT_PLUGINS=replace(INSTALLDIR_CLIENT_PLUGINS,INSTALLDIR_CLIENT,"<APPLICATION_ROOT>\")
+        if right(XML_CLIENT_PLUGINS,1) = "\" then
+          Session.Property("XML_CLIENT_PLUGINS")=left(XML_CLIENT_PLUGINS,len(XML_CLIENT_PLUGINS)-1)
+        else
+          Session.Property("XML_CLIENT_PLUGINS")=XML_CLIENT_PLUGINS
+        end if
+      ]]>
+    </CustomAction>
+  </Fragment>
+</Wix>

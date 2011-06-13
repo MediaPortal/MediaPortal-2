@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"  xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
   <Fragment>
-    
+
     <?include ..\Includes.wxi ?>
 
     <!-- Directories -->
@@ -11,6 +14,11 @@
       <Directory Id="Defaults" Name="Defaults">
         <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
           <File Id="Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
+        </Component>
+        <Component Id="ComponentModifyDefaultClientPluginsPath" Guid="37ED037A-E692-4698-90D1-EDFFD2CF37F0">
+          <Condition><![CDATA[NOT INSTALLDIR_CLIENT_PLUGINS = STANDARD_CLIENT_PLUGINS]]></Condition>
+          <util:XmlFile Id="ModifyDefaultClientPluginsPath" Action="setValue" File="[Defaults]\Paths.xml" ElementPath="//Paths/Path[\[]@name='PLUGINS'[\]]" Value="[XML_CLIENT_PLUGINS]" Name="value" SelectionLanguage="XPath"></util:XmlFile>
+          <CreateFolder />
         </Component>
       </Directory>
 
@@ -117,6 +125,7 @@
              Description="!(loc.F_MP_Client_Desc)">
 
       <ComponentRef Id="Defaults" />
+      <ComponentRef Id="ComponentModifyDefaultClientPluginsPath" />
 
       <ComponentRef Id="BASSLicense" />
       <ComponentRef Id="MediaPortalLicense" />
@@ -137,7 +146,16 @@
       <ComponentRef Id="UPnP" />
       <ComponentRef Id="zlib1" />
 
-      <ComponentGroupRef Id="ClientPlugins" />
+      <Feature Id="MP2Client_Plugins"
+               Level="2"
+               Absent="disallow"
+               AllowAdvertise="no"
+               ConfigurableDirectory="INSTALLDIR_CLIENT_PLUGINS"
+               Title="!(loc.F_MP_Client_Plugin)"
+               Description="!(loc.F_MP_Client_Plugin_Desc)">
+
+        <ComponentGroupRef Id="ClientPlugins" />
+      </Feature>
 
     </Feature>
 

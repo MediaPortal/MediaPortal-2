@@ -25,6 +25,10 @@
   <String Id="F_MP_Client_Desc">Client description</String>
   <String Id="F_MP_Server">Server</String>
   <String Id="F_MP_Server_Desc">Server description</String>
+  <String Id="F_MP_Client_Plugin">Plugins</String>
+  <String Id="F_MP_Client_Plugin_Desc">Plugins description</String>
+  <String Id="F_MP_Server_Plugin">Plugins</String>
+  <String Id="F_MP_Server_Plugin_Desc">Plugins description</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>

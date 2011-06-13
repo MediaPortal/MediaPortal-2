@@ -25,6 +25,10 @@
   <String Id="F_MP_Client_Desc">Client Beschreibung</String>
   <String Id="F_MP_Server">Server</String>
   <String Id="F_MP_Server_Desc">Server Beschreibung</String>
+  <String Id="F_MP_Client_Plugin">Plugins</String>
+  <String Id="F_MP_Client_Plugin_Desc">Client Plugins Beschreibung</String>
+  <String Id="F_MP_Server_Plugin">Plugins</String>
+  <String Id="F_MP_Server_Plugin_Desc">Server Plugins Beschreibung</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] benötigt mindestens das Betriebssystem Windows 7 oder Windows 2008 R2.</String>
@@ -41,5 +45,11 @@
   <String Id="WixRollbackFirewallExceptionsUninstall"></String>
   <String Id="WixExecFirewallExceptionsUninstall"></String>
   <String Id="msierrFirewallCannotConnect"></String>
+
+  <!-- Util Extension Needs Translation Here-->
+  <String Id="msierrXmlFileFailedRead">Fehler beim Lesen der XML-Datei.</String>
+  <String Id="msierrXmlFileFailedOpen">Fehler beim Öffnen der XML-Datei.</String>
+  <String Id="msierrXmlFileFailedSelect">Fehler beim Arbeiten mit der XML-Datei.</String>
+  <String Id="msierrXmlFileFailedSave">Fehler beim Schreiben der XML-Datei.</String>
 
 </WixLocalization>
