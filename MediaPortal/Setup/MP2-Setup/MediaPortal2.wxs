@@ -109,10 +109,9 @@
     <UIRef Id="WixUI_ErrorProgressText" />
 
     <InstallExecuteSequence>
-      <Custom Action ="SetStandardServerDirPluginProperties" Before="FileCost" />
-      <Custom Action ="SetPropertiesForAdvancedServerInstall" Before="FileCost" />
-      <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost" />
-      <Custom Action ="SetPropertiesForAdvancedClientInstall" Before="FileCost" />
+      <Custom Action ="SetStandardServerDirPluginProperties" Before="FileCost">NOT Installed</Custom>
+      <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
+      <Custom Action="SetVarsForCustomSetup" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
       <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
