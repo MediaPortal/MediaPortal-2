@@ -32,9 +32,9 @@ namespace MediaPortal.Server
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
       this.serverTrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
       this.lvClients = new System.Windows.Forms.ListView();
-      this.colClient = new System.Windows.Forms.ColumnHeader();
-      this.colSystem = new System.Windows.Forms.ColumnHeader();
-      this.colConnectionState = new System.Windows.Forms.ColumnHeader();
+      this.colClient = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
+      this.colSystem = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
+      this.colConnectionState = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
       this.lbAttachedClients = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
@@ -42,20 +42,20 @@ namespace MediaPortal.Server
       // 
       this.serverTrayIcon.BalloonTipText = "MediaPortal 2 Server";
       this.serverTrayIcon.BalloonTipTitle = "MediaPortal 2";
-      this.serverTrayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("serverTrayIcon.Icon")));
+      this.serverTrayIcon.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
       this.serverTrayIcon.Text = "MediaPortal 2";
       this.serverTrayIcon.Visible = true;
       // 
       // lvClients
       // 
       this.lvClients.Alignment = System.Windows.Forms.ListViewAlignment.Default;
-      this.lvClients.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-          | System.Windows.Forms.AnchorStyles.Left)
-              | System.Windows.Forms.AnchorStyles.Right)));
+      this.lvClients.Anchor = ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                  | System.Windows.Forms.AnchorStyles.Left)
+                  | System.Windows.Forms.AnchorStyles.Right)));
       this.lvClients.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-          this.colClient,
-          this.colSystem,
-          this.colConnectionState});
+            this.colClient,
+            this.colSystem,
+            this.colConnectionState});
       this.lvClients.FullRowSelect = true;
       this.lvClients.HideSelection = false;
       this.lvClients.Location = new System.Drawing.Point(0, 28);
@@ -96,7 +96,7 @@ namespace MediaPortal.Server
       this.ClientSize = new System.Drawing.Size(538, 204);
       this.Controls.Add(this.lbAttachedClients);
       this.Controls.Add(this.lvClients);
-      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+      this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
       this.Name = "MainForm";
       this.Text = "MediaPortal 2 Server Application";
       this.Shown += new System.EventHandler(this.OnMainFormShown);

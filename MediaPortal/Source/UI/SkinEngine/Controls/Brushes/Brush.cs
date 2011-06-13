@@ -35,15 +35,6 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  /// <summary>
-  /// todo:
-  ///   - transforms
-  ///   - stretchmode
-  ///   - tilemode
-  ///   - alignmentx/alignmenty
-  ///   - viewbox
-  ///   - resource cleanup (textures & vertexbuffers)
-  /// </summary>
   public abstract class Brush : DependencyObject, IObservable
   {
     #region Protected fields

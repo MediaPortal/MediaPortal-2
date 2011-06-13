@@ -249,6 +249,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     #region Protected fields
 
     protected readonly object _syncObj = new object(); // Synchronize field access
+    protected bool _terminated = false;
     protected readonly SkinManager _skinManager;
 
     protected readonly BackgroundData _backgroundData;
@@ -383,8 +384,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             screen.Close();
         }
         lock (_syncObj)
-          Monitor.Wait(_syncObj);
+          if (_terminated)
+          {
+            if (_garbageScreens.Count == 0)
+              break;
+            // else: run another loop to clean up the rest of the screens
+          }
+          else
+            Monitor.Wait(_syncObj);
       }
+    }
+
+    protected void FinishGarbageCollection()
+    {
+      lock (_syncObj)
+      {
+        _garbageCollectorThread.Priority = ThreadPriority.AboveNormal;
+        _terminated = true;
+        Monitor.PulseAll(_syncObj);
+      }
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Waiting for screen garbage collection...");
+      _garbageCollectorThread.Join();
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Screen garbage collection finished");
     }
 
     protected void ScheduleDisposeScreen(Screen screen)
@@ -879,6 +900,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       UnsubscribeFromMessages();
       // Close all screens to make sure all SlimDX objects are correctly cleaned up
       DoCloseCurrentScreenAndDialogs(true, true, false);
+      FinishGarbageCollection();
+
       _skinManager.Dispose();
       Fonts.FontManager.Unload();
     }

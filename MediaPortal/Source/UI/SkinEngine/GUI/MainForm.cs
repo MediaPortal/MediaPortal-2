@@ -352,6 +352,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Start()
     {
+      Activate();
       CheckTopMost();
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Running");

@@ -44,7 +44,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       FrontendServerSettings settings = SettingsManager.Load<FrontendServerSettings>();
       settings.UPnPServerDeviceFriendlyName = _value;
       SettingsManager.Save(settings);
-      ServiceRegistration.Get<IFrontendServer>().RestartUPnPDevice();
+      ServiceRegistration.Get<IFrontendServer>().UpdateUPnPConfiguration();
     }
 
     public override int DisplayLength

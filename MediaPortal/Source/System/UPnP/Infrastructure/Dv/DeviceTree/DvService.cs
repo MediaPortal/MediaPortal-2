@@ -216,16 +216,18 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
-        // Default namespaces
-        writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
         // Datatype schema namespaces
         uint ct = 0;
+        HashSet<string> schemaURIs = new HashSet<string>();
         foreach (DvStateVariable stateVariable in _stateVariables.Values)
         {
           DvDataType dataType = stateVariable.DataType;
           if (dataType is DvExtendedDataType)
           {
             string schemaURI = ((DvExtendedDataType) dataType).SchemaURI;
+            if (schemaURIs.Contains(schemaURI))
+              continue;
+            schemaURIs.Add(schemaURI);
             writer.WriteAttributeString("xmlns", "dt" + ct++, null, schemaURI);
           }
         }

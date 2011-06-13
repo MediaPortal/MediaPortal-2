@@ -73,6 +73,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           element.SetScreen(_parent.Screen);
           element.SetElementState(_parent.ElementState);
+          if (_parent.IsAllocated && !element.IsAllocated)
+            element.Allocate();
         }
         else
           element.SetElementState(ElementState.Available);
@@ -94,6 +96,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           {
             element.SetScreen(_parent.Screen);
             element.SetElementState(_parent.ElementState);
+            if (_parent.IsAllocated)
+              element.Allocate();
           }
           else
             element.SetElementState(ElementState.Available);
@@ -168,6 +172,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             {
               value.SetScreen(_parent.Screen);
               value.SetElementState(_parent.ElementState);
+              if (_parent.IsAllocated && !value.IsAllocated)
+                value.Allocate();
             }
             else
               value.SetElementState(ElementState.Available);

@@ -88,7 +88,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
         <ContentPresenter x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}"/>
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            Content="{Binding Source={DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"/>
       </Grid>
     </Border>
   </Grid>

@@ -152,8 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
-      if (oldTemplateControl != null)
-        oldTemplateControl.CleanupAndDispose();
+      Registration.TryCleanupAndDispose(oldTemplateControl);
 
       FrameworkElement element = TemplateControl;
       if (element != null)
@@ -165,6 +164,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
           // which normally sets the TemplateNameScope.
           element.TemplateNameScope = new NameScope();
+        if (IsAllocated)
+          element.Allocate();
       }
       _initializedTemplateControl = element;
       InvalidateLayout(true, true);
@@ -296,10 +297,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
         verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
-        SetPrimitiveContext(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
+        PrimitiveBuffer.SetPrimitiveBuffer(ref _backgroundContext, ref verts, PrimitiveType.TriangleList);
       }
       else
-        DisposePrimitiveContext(ref _backgroundContext);
+        PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     #endregion
@@ -337,10 +338,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    // Allocation/Deallocation of TemplateControl not necessary because UIElement handles all direct children
+
     public override void Deallocate()
     {
       base.Deallocate();
-      DisposePrimitiveContext(ref _backgroundContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _backgroundContext);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

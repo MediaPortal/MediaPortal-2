@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Dokan;
 using MediaPortal.Core.Logging;
@@ -41,6 +42,9 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
     #region Consts
 
+    /// <summary>
+    /// Volume label for the virtual drive if our mount point is a drive letter.
+    /// </summary>
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
 
     protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.ReadOnly;
@@ -279,6 +283,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected object _syncObj = new object();
     protected bool _started = false;
     protected string _mountPoint = null;
+    protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
     protected void Run()
@@ -294,9 +299,12 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       catch (Exception exception)
       {
-        logger.Warn("ResourceMountingService: unable to access or create remote resource directory: {0}", exception);
+        logger.Warn("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem", exception);
         return;
       }
+
+      if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
+        logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
 
       DokanOptions opt = new DokanOptions
         {
@@ -305,7 +313,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         };
       int result = DokanNet.DokanMain(opt, this);
       if (result == DokanNet.DOKAN_SUCCESS)
-        logger.Info("ResourceMountingService: DokanMain returned successfully");
+        logger.Debug("ResourceMountingService: DokanMain returned successfully");
       else
         logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
     }
@@ -364,8 +372,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        Thread thread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
-        thread.Start();
+        _mountThread = new Thread(Run) { Name = "ResMount" }; // Resource mounting service
+        _mountThread.Start();
         _started = true;
       }
     }
@@ -383,7 +391,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!String.IsNullOrEmpty(mountPoint))
         try
         {
-          DokanNet.DokanRemoveMountPoint(mountPoint);
+          if (DokanNet.DokanRemoveMountPoint(mountPoint) == 0)
+            ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount remote resource directory '{0}'", mountPoint);
+          else
+            ServiceRegistration.Get<ILogger>().Error("Successfully unmounted remote resource directory '{0}'", mountPoint);
         }
         catch (Exception e)
         {
@@ -421,10 +432,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         VirtualRootDirectory rootDirectory = GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return null;
-        ICollection<IResourceAccessor> result = new List<IResourceAccessor>();
-        foreach (VirtualFileSystemResource resource in rootDirectory.ChildResources.Values)
-          result.Add(resource.ResourceAccessor);
-        return result;
+        return rootDirectory.ChildResources.Values.Select(resource => resource.ResourceAccessor).ToList();
       }
     }
 

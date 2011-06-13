@@ -50,19 +50,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-            SetPrimitiveContext(ref _fillContext, ref verts, PrimitiveType.TriangleList);
+            PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
           else
-            DisposePrimitiveContext(ref _fillContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
 
           if (Stroke != null && StrokeThickness > 0)
           {
             TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-            SetPrimitiveContext(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
+            PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }
           else
-            DisposePrimitiveContext(ref _strokeContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
         }
       }
     }

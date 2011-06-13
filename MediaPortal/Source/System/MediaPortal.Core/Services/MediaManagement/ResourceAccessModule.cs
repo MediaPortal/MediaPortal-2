@@ -269,14 +269,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
-      int readCount = length > BUF_LEN ? BUF_LEN : (int)length; // Don't use Math.Min for (int)length > Int32.MaxValue, will be negative.
-      int bytesRead = resourceStream.Read(buffer, 0, readCount);
-      while (bytesRead > 0)
+      int bytesRead;
+      while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int) length)) > 0) // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
       {
         length -= bytesRead;
         response.SendBody(buffer, 0, bytesRead);
-        readCount = length > BUF_LEN ? BUF_LEN : (int)length;
-        bytesRead = resourceStream.Read(buffer, 0, readCount);
       }
     }
 

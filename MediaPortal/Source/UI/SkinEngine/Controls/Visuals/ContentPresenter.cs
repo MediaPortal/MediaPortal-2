@@ -98,6 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       Registration.TryCleanupAndDispose(_content);
+      Registration.TryCleanupAndDispose(_templateControl);
       Registration.TryCleanupAndDispose(Content);
       Registration.TryCleanupAndDispose(ContentTemplate);
       base.Dispose();
@@ -199,6 +200,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       templateControl.VisualParent = this;
       templateControl.SetScreen(Screen);
       templateControl.SetElementState(ElementState.Running);
+      if (IsAllocated)
+        templateControl.Allocate();
       _templateControl = templateControl;
       InvalidateLayout(true, true);
     }
@@ -292,5 +295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_templateControl != null)
         childrenOut.Add(_templateControl);
     }
+
+    // Allocation/Deallocation of _templateControl not necessary because UIElement handles all direct children
   }
 }

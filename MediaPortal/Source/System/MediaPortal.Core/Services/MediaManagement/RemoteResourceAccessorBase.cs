@@ -109,7 +109,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       lock (_syncObj)
       {
-        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size); //TODO: test new BufferedStream(....)
+        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size);
       }
     }
 
@@ -118,7 +118,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
       PrepareStreamAccess();
-      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);//_underlayingStream;// 
+      return new SynchronizedMasterStreamClient(_underlayingStream, _syncObj);
     }
 
     public Stream OpenWrite()

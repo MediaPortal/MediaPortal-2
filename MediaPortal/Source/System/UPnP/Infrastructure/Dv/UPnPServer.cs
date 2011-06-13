@@ -348,7 +348,9 @@ namespace UPnP.Infrastructure.Dv
               string userAgentStr = request.Headers.Get("USER-AGENT");
               IHttpResponse response = request.CreateResponse(context);
               int minorVersion;
-              if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
+              if (string.IsNullOrEmpty(userAgentStr))
+                minorVersion = 0;
+              else if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
               {
                 response.Status = HttpStatusCode.BadRequest;
                 SafeSendResponse(response);

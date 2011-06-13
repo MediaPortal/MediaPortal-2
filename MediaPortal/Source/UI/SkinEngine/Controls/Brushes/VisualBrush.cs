@@ -67,8 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Dispose()
     {
       FrameworkElement visual = Visual;
-      if (visual != null)
-        Registration.TryCleanupAndDispose(visual);
+      Registration.TryCleanupAndDispose(visual);
       base.Dispose();
     }
 
@@ -105,6 +104,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       PrepareVisual();
     }
 
+    void UpdateRenderTarget(FrameworkElement fe)
+    {
+      fe.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity,
+          new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
+    }
+
     protected void PrepareVisual()
     {
       FrameworkElement visual = Visual;
@@ -124,6 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         visual.SetScreen(_screen);
         if (visual.ElementState == ElementState.Available)
           visual.SetElementState(ElementState.Running);
+        // Here is _screen != null, which means we are allocated
+        visual.Allocate();
         SizeF size = _vertsBounds.Size;
         visual.Measure(ref size);
         visual.Arrange(new RectangleF(new PointF(0, 0), _vertsBounds.Size));
@@ -155,40 +162,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _autoLayoutContentProperty.SetValue(value); }
     }
 
-    #endregion
-
-    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
-    {
-      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
-      _textureVisual = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_renderTextureKey);
-      _screen = parent.Screen;
-      PrepareVisual();
-    }
-
-    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
-    {
-      if (_preparedVisual == null) return false;
-      _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-
-      UpdateRenderTarget(renderContext);
-      base.BeginRenderBrush(primitiveContext, renderContext);
-
-      return true;
-    }
-
-    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
-    {
-      if (_preparedVisual == null) return;
-
-      UpdateRenderTarget(renderContext);
-      base.BeginRenderOpacityBrush(tex, renderContext);
-    }
-
-    void UpdateRenderTarget(RenderContext renderContext)
-    {
-      _preparedVisual.RenderToTexture(_textureVisual, new RenderContext(Matrix.Identity, Matrix.Identity, Opacity, new RectangleF(new PointF(0.0f, 0.0f), _vertsBounds.Size), 1.0f));
-    }
-
     public override Texture Texture
     {
       get { return _textureVisual.Texture; }
@@ -202,6 +175,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected override Vector2 TextureMaxUV
     {
       get { return (_textureVisual != null) ? new Vector2(_textureVisual.MaxU, _textureVisual.MaxV) : new Vector2(1.0f, 1.0f); }
+    }
+
+    #endregion
+
+    public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
+    {
+      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
+      _textureVisual = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_renderTextureKey);
+      _screen = parent.Screen;
+      PrepareVisual();
+    }
+
+    public override bool BeginRenderBrush(PrimitiveBuffer primitiveContext, RenderContext renderContext)
+    {
+      FrameworkElement fe = _preparedVisual;
+      if (fe == null) return false;
+      _textureVisual.AllocateRenderTarget((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+
+      UpdateRenderTarget(fe);
+      base.BeginRenderBrush(primitiveContext, renderContext);
+
+      return true;
+    }
+
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
+    {
+      FrameworkElement fe = _preparedVisual;
+      if (fe == null) return;
+
+      UpdateRenderTarget(fe);
+      base.BeginRenderOpacityBrush(tex, renderContext);
+    }
+
+    public override void Allocate()
+    {
+      base.Allocate();
+      FrameworkElement fe = _preparedVisual;
+      if (fe != null)
+        fe.Allocate();
+    }
+
+    public override void Deallocate()
+    {
+      base.Allocate();
+      FrameworkElement fe = _preparedVisual;
+      if (fe != null)
+        fe.Deallocate();
     }
   }
 }

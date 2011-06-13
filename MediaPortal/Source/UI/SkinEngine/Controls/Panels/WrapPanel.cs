@@ -216,8 +216,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               if (desiredChildSize.Height > totalHeight)
                 totalHeight = desiredChildSize.Height;
             }
-            if (startIndex < children.Count - 1)
-              LayoutChildren(children, startIndex, children.Count - 1, new PointF(actualPosition.X, actualPosition.Y + offsetY), totalHeight);
+            if (startIndex < children.Count)
+              LayoutChildren(children, startIndex, children.Count, new PointF(actualPosition.X, actualPosition.Y + offsetY), totalHeight);
           }
           break;
 
@@ -240,8 +240,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               if (desiredChildSize.Width > totalWidth)
                 totalWidth = desiredChildSize.Width;
             }
-            if (startIndex < children.Count - 1)
-              LayoutChildren(children, startIndex, children.Count - 1, new PointF(actualPosition.X + offsetX, actualPosition.Y), totalWidth);
+            if (startIndex < children.Count)
+              LayoutChildren(children, startIndex, children.Count, new PointF(actualPosition.X + offsetX, actualPosition.Y), totalWidth);
           }
           break;
       }

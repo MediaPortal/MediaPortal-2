@@ -63,9 +63,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
-    <Reference Include="NTFS.Sparse">
-      <HintPath>References\NTFS.Sparse.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -195,8 +192,6 @@
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\Logging\log4netLogger.cs" />
-    <Compile Include="Services\MediaManagement\BackgroundHttpDataTransfer.cs" />
-    <Compile Include="Services\MediaManagement\CachedHttpResourceStream.cs" />
     <Compile Include="Services\MediaManagement\CachedMultiSegmentHttpStream.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />

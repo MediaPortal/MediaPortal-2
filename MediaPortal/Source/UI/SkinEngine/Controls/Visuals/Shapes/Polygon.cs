@@ -85,7 +85,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.DoPerformLayout(context);
 
       // Setup brushes
-      PositionColoredTextured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         using (GraphicsPath path = GetPolygon())
@@ -93,23 +92,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           float centerX;
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+          PositionColoredTextured[] verts;
           if (Fill != null)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             Fill.SetupBrush(this, ref verts, context.ZOrder, true);
-            SetPrimitiveContext(ref _fillContext, ref verts, PrimitiveType.TriangleList);
+            PrimitiveBuffer.SetPrimitiveBuffer(ref _fillContext, ref verts, PrimitiveType.TriangleList);
           }
           else
-            DisposePrimitiveContext(ref _fillContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
 
           if (Stroke != null && StrokeThickness > 0)
           {
             TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
             Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
-            SetPrimitiveContext(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
+            PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
           }
           else
-            DisposePrimitiveContext(ref _strokeContext);
+            PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
         }
       }
     }

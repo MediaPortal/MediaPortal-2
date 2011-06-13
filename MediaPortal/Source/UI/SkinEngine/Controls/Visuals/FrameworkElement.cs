@@ -571,23 +571,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _fontSizeProperty.SetValue(value); }
     }
 
-    /// <summary>
-    /// The element state reflects the state flow from prepared over running to disposing.
-    /// </summary>
-    /// <remarks>
-    /// The element state is used to determine the threading model for UI elements. In the <see cref="Visuals.ElementState.Available"/>
-    /// state, the UI element is not yet rendered and thus it is safe to change values of the rendering system directly.
-    /// In state <see cref="Visuals.ElementState.Running"/>, the UI element is being rendered and thus all values affecting the
-    /// rendering system must be set via the render thread (see <see cref="UIElement.SetValueInRenderThread"/>).
-    /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
-    /// other time-consuming tasks need to be executed.
-    /// </remarks>
-    public ElementState ElementState
-    {
-      get { return _elementState; }
-      set { _elementState = value; }
-    }
-
     public bool IsMeasureInvalid
     {
       get { return _isMeasureInvalid; }
@@ -1660,7 +1643,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           zPos, color);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
-      SetPrimitiveContext(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
+      PrimitiveBuffer.SetPrimitiveBuffer(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
     }
 
     #endregion
@@ -1668,25 +1651,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      DisposePrimitiveContext(ref _opacityMaskContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
     }
-
-    #region Helpers
-
-    protected void SetPrimitiveContext(ref PrimitiveBuffer _buffer, ref PositionColoredTextured[] verts, PrimitiveType type)
-    {
-      if (_buffer == null)
-        _buffer = new PrimitiveBuffer();
-      _buffer.Set(ref verts, type);
-    }
-
-    protected void DisposePrimitiveContext(ref PrimitiveBuffer _buffer)
-    {
-      if (_buffer != null)
-        _buffer.Dispose();
-      _buffer = null;
-    }
-
-    #endregion
   }
 }

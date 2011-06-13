@@ -391,6 +391,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
     }
 
+    public bool IsAllocated
+    {
+      get { return _allocated; }
+    }
+
     public AbstractProperty TriggersProperty
     {
       get { return _triggerProperty; }
@@ -496,6 +501,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (INameScope) _templateNameScopeProperty.GetValue(); }
       set { _templateNameScopeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// The element state reflects the state flow from prepared over running to disposing.
+    /// </summary>
+    /// <remarks>
+    /// The element state is used to determine the threading model for UI elements. In the <see cref="Visuals.ElementState.Available"/>
+    /// state, the UI element is not yet rendered and thus it is safe to change values of the rendering system directly.
+    /// In state <see cref="Visuals.ElementState.Running"/>, the UI element is being rendered and thus all values affecting the
+    /// rendering system must be set via the render thread (see <see cref="UIElement.SetValueInRenderThread"/>).
+    /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
+    /// other time-consuming tasks need to be executed.
+    /// </remarks>
+    public ElementState ElementState
+    {
+      get { return _elementState; }
+      set { _elementState = value; }
     }
 
     #endregion
@@ -634,6 +656,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected internal void CleanupAndDispose()
     {
+      Screen screen = Screen;
+      if (screen != null)
+        screen.Animator.StopAll(this);
       ResetScreen();
       Deallocate();
 

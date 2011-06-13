@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -54,7 +55,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         result = source;
         return true;
       }
+      UIElement element = source as UIElement;
       result = default(T);
+      if (element != null && element.ElementState == ElementState.Disposing)
+        return true;
+
       object res;
       if (Registration.CopyMpfObject(source, out res))
       {

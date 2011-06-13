@@ -29,6 +29,7 @@ using System.Net;
 using MediaPortal.Utilities.Network;
 using System.Threading;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.SystemAPI;
 using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -37,9 +38,6 @@ namespace MediaPortal.Core.Services.MediaManagement
   /// <see cref="CachedMultiSegmentHttpStream"/> implements a read-only Stream for accessing HTTP sources that support Range requests.
   /// Multiple MemoryStream caches are created internally to buffer access to different stream positions.
   /// </summary>
-  /// <remarks>
-  /// This stream is not multithreading-safe.
-  /// </remarks>
   public class CachedMultiSegmentHttpStream : Stream
   {
     #region Constants
@@ -52,14 +50,10 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #region Private & protected fields
 
-    // The stream-implementation isn't multithreading-safe
     protected readonly string _url;
     protected readonly long _length;
     protected long _position = 0;
-
-    // The cache management is multithreading-safe
-    private readonly IList<HttpRangeChunk> _chunkCache = new List<HttpRangeChunk>();
-    protected object _syncObj = new object();
+    private IList<HttpRangeChunk> _chunkCache = new List<HttpRangeChunk>();
 
     #endregion
 
@@ -71,40 +65,58 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     protected class HttpRangeChunk : IDisposable
     {
+      protected const string PRODUCT_VERSION = "MediaPortal/2.0";
+
       /// <summary>
       /// Timeout for HTTP Range request in ms.
       /// </summary>
       public const int HTTP_RANGE_REQUEST_TIMEOUT = 2000;
 
       // Stream data
-      protected readonly MemoryStream _cacheStream = new MemoryStream(CHUNK_SIZE);
+      protected MemoryStream _cacheStream = new MemoryStream(CHUNK_SIZE); // null if disposed
       protected readonly long _startIndex; // Inclusive
       protected readonly long _endIndex; // Exclusive
       protected readonly string _url;
 
       // Data for async request control
+      protected readonly object _syncObject = new object();
       protected readonly ManualResetEvent _readyEvent = new ManualResetEvent(false);
       protected volatile bool _filled = false;
       protected volatile Exception _exception = null;
       protected volatile HttpWebRequest _pendingRequest = null;
+
+      protected static string _userAgent;
+
+      static HttpRangeChunk()
+      {
+        _userAgent = WindowsAPI.GetOsVersionString() + " HTTP/1.1 " + PRODUCT_VERSION;
+      }
 
       public HttpRangeChunk(long start, long end, long wholeStreamLength, string url)
       {
         _startIndex = start;
         _endIndex = Math.Min(wholeStreamLength, end);
         _url = url;
-        Load_Async(wholeStreamLength);
+        Load_Async();
       }
 
       #region IDisposable Member
 
       public void Dispose()
       {
+        lock (_syncObject) // Lock to avoid interference with async response retrieval
+        {
+          _cacheStream.Dispose();
+          _cacheStream = null;
+        }
         HttpWebRequest request = _pendingRequest;
         _pendingRequest = null;
         if (request != null)
           request.Abort();
-        _cacheStream.Dispose();
+        _filled = false;
+        _exception = new ObjectDisposedException("HttpRangeChunk");
+        _readyEvent.Set();
+        _readyEvent.Close();
       }
 
       #endregion
@@ -112,9 +124,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       /// <summary>
       /// Initializes the HTTP range request asynchronously.
       /// </summary>
-      protected void Load_Async(long wholeStreamLength)
+      protected void Load_Async()
       {
         HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
+        request.Method = "GET";
+        request.KeepAlive = true;
+        request.AllowAutoRedirect = true;
+        request.UserAgent = _userAgent;
         request.AddRange(_startIndex, _endIndex - 1);
 
         IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
@@ -124,38 +140,43 @@ namespace MediaPortal.Core.Services.MediaManagement
       private void OnResponseReceived(IAsyncResult ar)
       {
         HttpWebResponse response = null;
-        try
-        {
+        lock (_syncObject) // Lock to avoid interference with disposal
           try
           {
-            response = (HttpWebResponse) ((HttpWebRequest) ar.AsyncState).EndGetResponse(ar);
-            using (Stream source = response.GetResponseStream())
+            try
             {
-              const int MAX_BUF_SIZE = 64535;
-              int numRead = (int) (_endIndex - _startIndex);
-              byte[] buffer = new byte[Math.Min(numRead, MAX_BUF_SIZE)];
-              int readBytes;
-              while (numRead > 0 && (readBytes = source.Read(buffer, 0, Math.Min(buffer.Length, numRead))) > 0)
+              response = (HttpWebResponse) ((HttpWebRequest) ar.AsyncState).EndGetResponse(ar);
+              if (_cacheStream != null) // If disposed, the stream is null
               {
-                _cacheStream.Write(buffer, 0, readBytes);
-                numRead -= readBytes;
+                using (Stream source = response.GetResponseStream())
+                {
+                  const int MAX_BUF_SIZE = 64535;
+                  int numRead = (int) (_endIndex - _startIndex);
+                  byte[] buffer = new byte[Math.Min(numRead, MAX_BUF_SIZE)];
+                  int readBytes;
+                  while (numRead > 0 && (readBytes = source.Read(buffer, 0, Math.Min(buffer.Length, numRead))) > 0)
+                  {
+                    _cacheStream.Write(buffer, 0, readBytes);
+                    numRead -= readBytes;
+                  }
+                  _filled = true;
+                }
               }
-              _filled = true;
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
+              _exception = e;
             }
           }
-          catch (WebException e)
+          finally
           {
-            ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
-            _exception = e;
+            _pendingRequest = null;
+            if (_cacheStream != null)
+              _readyEvent.Set();
+            if (response != null)
+              response.Close();
           }
-        }
-        finally
-        {
-          _pendingRequest = null;
-          _readyEvent.Set();
-          if (response != null)
-            response.Close();
-        }
       }
 
       #region Public members
@@ -213,9 +234,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       /// <returns>Number of bytes actually read from this data chunk.</returns>
       public int Read(long position, byte[] buffer, int offset, int count)
       {
-        _readyEvent.WaitOne();
+        if (_cacheStream == null)
+          return 0;
+        _readyEvent.WaitOne(HTTP_RANGE_REQUEST_TIMEOUT);
         if (_exception != null)
-          throw new IOException("Error receiving HTTP range", _exception);
+          throw new IOException(string.Format("Error receiving HTTP range {0}-{1}", _startIndex, _endIndex - 1), _exception);
         _cacheStream.Position = position - _startIndex;
         return _cacheStream.Read(buffer, offset, count);
       }
@@ -225,7 +248,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     
     #endregion
 
-    #region Constructor
+    #region Construction & destruction
 
     /// <summary>
     /// Creates a <see cref="CachedMultiSegmentHttpStream"/> that can read data over HTTP.
@@ -234,6 +257,19 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       _length = streamLength;
       _url = url;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      base.Dispose(disposing);
+      if (_chunkCache == null)
+        return;
+      if (disposing)
+      {
+        foreach (HttpRangeChunk chunk in _chunkCache)
+          chunk.Dispose();
+      }
+      _chunkCache = null;
     }
 
     #endregion
@@ -271,7 +307,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return _position; }
       set
       {
-        if (value < 0) throw new ArgumentException();
+        if (value < 0 || value > _length) throw new IOException();
         if (value == _position) return; // Already there
         _position = value;
       }
@@ -283,41 +319,47 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public override long Seek(long offset, SeekOrigin origin)
     {
+      if (_chunkCache == null)
+        throw new ObjectDisposedException("CachedMultiSegmentHttpStream");
+      long newPos = _position;
       switch (origin)
       {
         case SeekOrigin.Begin:
-          _position = offset;
+          newPos = offset;
           break;
         case SeekOrigin.Current:
-          _position += offset;
+          newPos += offset;
           break;
         case SeekOrigin.End:
-          _position = Length + offset;
+          newPos = _length + offset;
           break;
         default:
           break;
       }
-      return Position;
+      if (newPos < 0 || newPos > _length)
+        throw new IOException();
+      return _position = newPos;
     }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-      ProvideReadAhead_Async(_position, NUM_READAHEAD_CHUNKS);
+      if (buffer == null)
+        throw new ArgumentNullException();
+      if (offset + count > buffer.Length)
+        throw new ArgumentException();
+      if (offset < 0 || count < 0)
+        throw new ArgumentOutOfRangeException();
+      if (_chunkCache == null)
+        throw new ObjectDisposedException("CachedMultiSegmentHttpStream");
+      HttpRangeChunk chunk = ProvideReadAhead(_position, NUM_READAHEAD_CHUNKS);
+      if (chunk == null)
+        throw new IOException();
 
-      lock (_syncObj)
-      {
-        HttpRangeChunk chunk;
-        if (!GetMatchingChunk(_position, false, out chunk))
-          return 0;
+      int numRead = chunk.Read(_position, buffer, offset, count);
 
-
-        int numRead = chunk.Read(_position, buffer, offset, count);
-
-        _position += numRead;
-        return numRead;
-      }
+      _position += numRead;
+      return numRead;
     }
-
 
     /// <summary>
     /// Always throws <see cref="NotSupportedException"/>.
@@ -357,12 +399,12 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <returns><c>true</c> if chunk was found.</returns>
     protected bool GetMatchingChunk(long start, bool addChunkIfNotExists, out HttpRangeChunk result)
     {
-      lock (_syncObj)
+      if (start >= 0 && start < _length)
       {
         for (int i = 0; i < _chunkCache.Count; i++)
         {
           HttpRangeChunk chunk = _chunkCache[i];
-          if (chunk.StartIndex <= start && chunk.EndIndex > start + 1)
+          if (chunk.StartIndex <= start && chunk.EndIndex > start)
           {
             // Reorder LRU cache
             _chunkCache.RemoveAt(i);
@@ -376,9 +418,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           AddChunk(start, out result);
           return true;
         }
-        result = null;
-        return false;
       }
+      result = null;
+      return false;
     }
 
     /// <summary>
@@ -389,44 +431,25 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <returns><c>true</c> if successful.</returns>
     private void AddChunk(long start, out HttpRangeChunk chunk)
     {
-      lock (_syncObj)
+      if (_chunkCache.Count == MAX_NUM_CACHES)
       {
-        if (_chunkCache.Count == MAX_NUM_CACHES)
-        {
-          // Remove chunk which hasn't been used the longest time
-          _chunkCache[0].Dispose();
-          _chunkCache.RemoveAt(0);
-        }
-        _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE - 1, Length, _url));
+        // Remove chunk which hasn't been used the longest time
+        _chunkCache[0].Dispose();
+        _chunkCache.RemoveAt(0);
       }
+      _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE, Length, _url));
     }
 
-    class ReadaheadData
+    protected HttpRangeChunk ProvideReadAhead(long position, int numReadaheadChunks)
     {
-      public HttpRangeChunk Chunk;
-      public int NumReadaheadToFetch;
-    }
-
-    delegate void RequestChunkDlgt(HttpRangeChunk chunk);
-
-    protected void ProvideReadAhead_Async(long position, int numReadaheadChunks)
-    {
-      HttpRangeChunk currentChunk;
-      if (!GetMatchingChunk(position, true, out currentChunk))
-        return;
-      RequestChunkDlgt rcd = chunk => chunk.ReadyEvent.WaitOne();
-      rcd.BeginInvoke(currentChunk, ar =>
-        {
-          ReadaheadData rd = (ReadaheadData) ar.AsyncState;
-          if (rd.Chunk.IsErroneous)
-            // Break readahead if request is erroneous
-            return;
-          long endIndex = rd.Chunk.EndIndex;
-          if (rd.NumReadaheadToFetch == 0 || endIndex >= _length)
-            // Finished fetching readahead
-            return;
-          ProvideReadAhead_Async(endIndex, numReadaheadChunks - 1);
-        }, new ReadaheadData {Chunk = currentChunk, NumReadaheadToFetch = numReadaheadChunks});
+      HttpRangeChunk result;
+      if (!GetMatchingChunk(position, true, out result))
+        return null;
+      HttpRangeChunk currentChunk = result;
+      for (int i = numReadaheadChunks - 1; i > 0; i--)
+        if (!GetMatchingChunk(currentChunk.EndIndex, true, out currentChunk))
+          break;
+      return result;
     }
 
     #endregion
