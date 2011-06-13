@@ -22,6 +22,8 @@
 
 #endregion
 
+using UPnP.Infrastructure.Dv;
+
 namespace MediaPortal.Backend.BackendServer
 {
   /// <summary>
@@ -29,7 +31,25 @@ namespace MediaPortal.Backend.BackendServer
   /// </summary>
   public interface IBackendServer
   {
+    /// <summary>
+    /// Returns the instance of the UPnP backend server instance. Plugins may change that instance.
+    /// </summary>
+    UPnPServer UPnPFrontendServer { get; }
+
+    /// <summary>
+    /// Starts the backend server.
+    /// </summary>
     void Startup();
+
+    /// <summary>
+    /// Shuts the backend server down.
+    /// </summary>
     void Shutdown();
+
+    /// <summary>
+    /// Updates the UPnP device configuration. That re-advertises the UPnP device in the network
+    /// with the changed configuration. That must be done if any description value was changed.
+    /// </summary>
+    void UpdateUPnPConfiguration();
   }
 }

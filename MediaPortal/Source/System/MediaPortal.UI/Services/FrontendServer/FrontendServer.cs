@@ -29,6 +29,7 @@ using MediaPortal.UI.FrontendServer;
 using MediaPortal.Core;
 using MediaPortal.UI.Services.ServerCommunication;
 using UPnP.Infrastructure;
+using UPnP.Infrastructure.Dv;
 using ILogger=MediaPortal.Core.Logging.ILogger;
 using UPnPLogger = UPnP.Infrastructure.ILogger;
 
@@ -145,20 +146,24 @@ namespace MediaPortal.UI.Services.FrontendServer
 
     #region IFrontendServer implementation
 
-    public void Startup()
+    public UPnPServer UPnPFrontendServer
     {
-      _upnpServer.Start();
+      get { return _upnpServer; }
     }
 
-    public void RestartUPnPDevice()
+    public void Startup()
     {
-      _upnpServer.Stop();
       _upnpServer.Start();
     }
 
     public void Shutdown()
     {
       _upnpServer.Stop();
+    }
+
+    public void UpdateUPnPConfiguration()
+    {
+      _upnpServer.UpdateConfiguration();
     }
 
     #endregion
