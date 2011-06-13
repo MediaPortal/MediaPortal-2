@@ -46,4 +46,18 @@
   <String Id="WixExecFirewallExceptionsUninstall"></String>
   <String Id="msierrFirewallCannotConnect"></String>
 
+  <!-- User Interfaces -->
+  <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
+  <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
+  <String Id="SelectInstallTypeDlg_DlgDescription">Choose the way you want to install MediaPortal 2</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
+  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Install both Client and Server. For single seat</String>
+  <String Id="SelectInstallTypeDlg_Client_only">Client only</String>
+  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install client only. For a supplementary computer</String>
+  <String Id="SelectInstallTypeDlg_Server_only">Server only</String>
+  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install server only. For a dedicated server</String>
+  <String Id="SelectInstallTypeDlg_Custom">Custom</String>
+  <String Id="SelectInstallTypeDlg_Custom_Advertize">Experienced users only, use it at your own risk!</String>
+  <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure path for programs, plugins, database and many more</String>
+
 </WixLocalization>

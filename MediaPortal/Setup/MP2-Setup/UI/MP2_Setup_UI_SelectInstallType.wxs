@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) Microsoft Corporation.  All rights reserved.
+    
+    The use and distribution terms for this software are covered by the
+    Common Public License 1.0 (http://opensource.org/licenses/cpl1.0.php)
+    which can be found in the file CPL.TXT at the root of this distribution.
+    By using this software in any fashion, you are agreeing to be bound by
+    the terms of this license.
+    
+    You must not remove this notice, or any other, from this software.
+-->
+<!--
+Adapted by Team-MediaPortal from a WIX dialog
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <UI>
+      <Dialog Id="MP2_Setup_UI_SelectInstallType" Width="370" Height="270" Title="!(loc.SelectInstallTypeDlg_Title)">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.SelectInstallTypeDlg_BannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="340" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.SelectInstallTypeDlg_DlgDescription)" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}!(loc.SelectInstallTypeDlg_Title)" />
+
+        <Control Id="Client_and_Server" Type="PushButton" X="30" Y="60" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_and_Server)">
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
+          <Publish Event="AddLocal" Value="ALL">1</Publish>
+        </Control>
+        <Control Id="Client_and_Server_Desc" Type="Text" X="115" Y="63" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_and_Server_Desc)" />
+
+        <Control Id="Client_only" Type="PushButton" X="30" Y="100" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_only)">
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
+          <Publish Event="AddLocal" Value="MP2Client">1</Publish>
+          <Publish Event="Remove" Value="MP2Server">1</Publish>
+        </Control>
+        <Control Id="Client_only_Desc" Type="Text" X="115" Y="103" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_only_Desc)" />
+
+        <Control Id="Server_only" Type="PushButton" X="30" Y="140" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only)">
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
+          <Publish Event="AddLocal" Value="MP2Server">1</Publish>
+          <Publish Event="Remove" Value="MP2Client">1</Publish>
+        </Control>
+        <Control Id="Server_only_Desc"  Type="Text" X="115" Y="143" Width="230" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
+
+        <Control Id="Custom" Type="PushButton" X="30" Y="190" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Custom)">
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="1">1</Publish>
+          <Publish Event="AddLocal" Value="ALL">1</Publish>
+        </Control>
+        <Control Id="Custom_advertise" Type="Text" X="115" Y="183" Width="230" Height="14" Text="{\Normal_Red}!(loc.SelectInstallTypeDlg_Custom_Advertize)"/>
+        <Control Id="Custom_Desc" Type="Text" X="115" Y="194" Width="220" Height="35" Text="!(loc.SelectInstallTypeDlg_Custom_Desc)" />
+
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>

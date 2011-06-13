@@ -21,7 +21,7 @@
              Compressed='yes' />
 
     <PropertyRef Id="UpgradesFile" />
-    
+
     <?Include .\Includes.wxi?>
 
     <PropertyRef Id="PropertiesFile" />
@@ -57,7 +57,7 @@
       </Directory>
       <Directory Id="DesktopFolder" />
     </Directory>
-    
+
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2StartMenu">
       <Component Id="MP2StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
@@ -102,7 +102,7 @@
     <WixVariable Id="WixUIDialogBmp"
                  Value="Ressources\MPDialog.jpg" />
 
-    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="MP2_Setup_UI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
 
     <InstallExecuteSequence>
