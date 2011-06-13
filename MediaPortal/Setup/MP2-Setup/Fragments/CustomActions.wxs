@@ -28,5 +28,6 @@
         end if
       ]]>
     </CustomAction>
+    <CustomAction Id="AttachClientAndServer" BinaryKey="Custom_Action_Dll" DllEntry="AttachClientAndServer" Execute="immediate" Return="check" />
   </Fragment>
 </Wix>

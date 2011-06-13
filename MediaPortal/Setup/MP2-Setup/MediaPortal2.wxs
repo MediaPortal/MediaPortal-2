@@ -23,6 +23,7 @@
     <PropertyRef Id="UpgradesFile" />
 
     <?Include .\Includes.wxi?>
+    <Binary Id="Custom_Action_Dll" SourceFile="..\CustomActions\bin\Release\CustomActions.CA.dll"/>
 
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
@@ -112,6 +113,7 @@
       <Custom Action ="SetPropertiesForAdvancedServerInstall" Before="FileCost" />
       <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost" />
       <Custom Action ="SetPropertiesForAdvancedClientInstall" Before="FileCost" />
+      <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
       <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
 
