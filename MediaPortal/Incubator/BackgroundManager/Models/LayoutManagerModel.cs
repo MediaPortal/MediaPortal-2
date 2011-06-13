@@ -36,6 +36,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public const string LM_MODEL_ID_STR = "35C31826-4159-4CF9-B4F5-98DEBE04E93C";
     public static Guid LM_MODEL_ID = new Guid(LM_MODEL_ID_STR);
+    private const int NUMBER_SUPPORTED_LAYOUTS = 4;
 
     #endregion
 
@@ -68,7 +69,7 @@ namespace MediaPortal.UiComponents.BackgroundManager.Models
 
     public void ChangeLayout()
     {
-      if (ThumbnailSizeMode < 3)
+      if (ThumbnailSizeMode < NUMBER_SUPPORTED_LAYOUTS)
         ThumbnailSizeMode++;
       else
         ThumbnailSizeMode = 1;
