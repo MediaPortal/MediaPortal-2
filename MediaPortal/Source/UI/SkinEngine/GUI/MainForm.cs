@@ -269,8 +269,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     protected void CheckTopMost()
     {
-      BringToFront();
-      Activate();
 #if DEBUG
       TopMost = false;
 #else
@@ -354,6 +352,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void Start()
     {
+      Activate();
       CheckTopMost();
       StartUI();
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Running");
