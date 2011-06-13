@@ -317,6 +317,7 @@ namespace MediaPortal.UiComponents.Media.Models
                 AudioAspect.ASPECT_ID,
                 VideoAspect.ASPECT_ID,
                 PictureAspect.ASPECT_ID,
+                // TODO: Lazy load thumbnail aspects when they are needed in the skin
                 ThumbnailSmallAspect.ASPECT_ID,
                 ThumbnailLargeAspect.ASPECT_ID,
             };

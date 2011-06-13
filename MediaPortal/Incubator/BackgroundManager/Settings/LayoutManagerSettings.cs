@@ -8,6 +8,6 @@ namespace MediaPortal.UiComponents.BackgroundManager.Settings
     /// Remembers the selected layout for user.
     /// </summary>
     [Setting(SettingScope.User, 1)]
-    public int SelectedLayoutIndex {get; set; }
+    public int SelectedLayoutIndex { get; set; }
   }
 }

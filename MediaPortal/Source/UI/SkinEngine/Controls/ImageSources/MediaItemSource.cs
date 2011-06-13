@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
 
     #endregion
 
-    #region Overrides
+    #region Base overrides
 
     public override void Allocate()
     {

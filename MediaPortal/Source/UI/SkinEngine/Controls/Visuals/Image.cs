@@ -199,7 +199,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public Stretch Stretch
     {
-      get { return (Stretch)_stretchProperty.GetValue(); }
+      get { return (Stretch) _stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -213,7 +213,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public StretchDirection StretchDirection
     {
-      get { return (StretchDirection)_stretchDirectionProperty.GetValue(); }
+      get { return (StretchDirection) _stretchDirectionProperty.GetValue(); }
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
@@ -270,7 +270,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public bool SkinNeutralAR
     {
-      get { return (bool)_skinNeutralProperty.GetValue(); }
+      get { return (bool) _skinNeutralProperty.GetValue(); }
       set { _skinNeutralProperty.SetValue(value); }
     }
 
@@ -301,7 +301,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _lastImageSourceSize = SizeF.Empty;
         return new SizeF(10, 10);
       }
- 
+
       SizeF imageSize = allocatedSource.ImageSource.SourceSize;
       float sourceFrameRatio = imageSize.Width / imageSize.Height;
       // Adaptions when available size is not specified in any direction(s)
@@ -383,6 +383,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return false;
     }
 
+    // FIXME: Remove this ugly hack and find a general solution to make image sources react to size changes
     protected void OnImageSizeChanged(AbstractProperty prop, object oldValue)
     {
       // Invalidate the loaded sources for MediaItems to allow use of different thumb resolutions.
