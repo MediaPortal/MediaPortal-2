@@ -22,11 +22,9 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using MediaPortal.Core.Logging;
 using Microsoft.WindowsAPICodePack.Shell;
 
 namespace MediaPortal.Core.Services.ThumbnailGenerator
@@ -75,14 +73,7 @@ namespace MediaPortal.Core.Services.ThumbnailGenerator
             }
         }
       }
-      catch (ShellException)
-      {
-        // Ignore all internal exception that can occure inside shell library.
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ShellThumbnailBuilder: Could not create thumbnail for file '{0}'", e, fileName);
-      }
+      catch { } // Ignore all internal exception that can occure inside shell library.
       thumbnailBinary = null;
       return false;
     }
