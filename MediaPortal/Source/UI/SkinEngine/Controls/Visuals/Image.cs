@@ -451,9 +451,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       if (_sourceState.ImageSource != null)
+      {
         _sourceState.ImageSource.Deallocate();
+        _sourceState.ImageSource = null;
+      }
       if (_fallbackSourceState.ImageSource != null)
+      {
         _fallbackSourceState.ImageSource.Deallocate();
+        _fallbackSourceState.ImageSource = null;
+      }
     }
   }
 }

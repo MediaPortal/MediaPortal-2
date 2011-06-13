@@ -54,13 +54,15 @@ namespace MediaPortal.Client
   {
     private static SplashScreen CreateSplashScreen()
     {
-      SplashScreen result = new SplashScreen();
-
-      result.FadeInDuration = TimeSpan.FromMilliseconds(300);
-      result.FadeOutDuration = TimeSpan.FromMilliseconds(200);
-      result.SplashBackgroundImage = Image.FromFile(Path.Combine(
-          Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]),
-          "MP2 Client Splashscreen.jpg"));
+      SplashScreen result = new SplashScreen
+                              {
+                                ScaleToFullscreen = true,
+                                FadeInDuration = TimeSpan.FromMilliseconds(300),
+                                FadeOutDuration = TimeSpan.FromMilliseconds(200),
+                                SplashBackgroundImage = Image.FromFile(Path.Combine(
+                                  Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]),
+                                  "MP2 Client Splashscreen.jpg"))
+                              };
       return result;
     }
 

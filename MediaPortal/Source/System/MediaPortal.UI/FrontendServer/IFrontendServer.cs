@@ -22,6 +22,8 @@
 
 #endregion
 
+using UPnP.Infrastructure.Dv;
+
 namespace MediaPortal.UI.FrontendServer
 {
   /// <summary>
@@ -29,8 +31,26 @@ namespace MediaPortal.UI.FrontendServer
   /// </summary>
   public interface IFrontendServer
   {
+    /// <summary>
+    /// Returns the instance of the UPnP frontend server instance. Plugins may change that instance.
+    /// </summary>
+    UPnPServer UPnPFrontendServer { get; }
+
+    /// <summary>
+    /// Starts the frontend server.
+    /// </summary>
     void Startup();
-    void RestartUPnPDevice();
+
+    /// <summary>
+    /// Shuts the frontend server down.
+    /// </summary>
     void Shutdown();
+
+    /// <summary>
+    /// Updates the UPnP device configuration. That re-advertises the UPnP device in the network
+    /// with the changed configuration. That must be done if the name of the client's UPnP service
+    /// was changed, for example.
+    /// </summary>
+    void UpdateUPnPConfiguration();
   }
 }

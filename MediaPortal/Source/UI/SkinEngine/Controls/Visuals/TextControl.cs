@@ -108,6 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Text = tc.Text;
       Color = tc.Color;
       CaretIndex = tc.CaretIndex;
+      InternalText = Text;
       Attach();
     }
 

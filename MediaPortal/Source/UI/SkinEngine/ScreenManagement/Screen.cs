@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -448,7 +449,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _root.OnKeyPreview(ref key);
+      try
+      {
+        _root.OnKeyPreview(ref key);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key '{0}'", e, _resourceName, key);
+      }
       // Try key bindings...
       KeyAction keyAction;
       if (_keyBindings != null && _keyBindings.TryGetValue(key, out keyAction))

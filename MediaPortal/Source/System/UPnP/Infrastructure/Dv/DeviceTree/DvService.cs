@@ -216,8 +216,6 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
-        // Default namespaces
-        writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
         // Datatype schema namespaces
         uint ct = 0;
         HashSet<string> schemaURIs = new HashSet<string>();

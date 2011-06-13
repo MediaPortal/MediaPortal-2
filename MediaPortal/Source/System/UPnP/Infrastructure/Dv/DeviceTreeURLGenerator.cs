@@ -46,10 +46,16 @@ namespace UPnP.Infrastructure.Dv
     /// Generates all URLs that are needed for the device tree(s) starting at all root devices of the specified
     /// <paramref name="server"/>.
     /// </summary>
+    /// <remarks>
+    /// All description-relevant information will be cleared first, if necessary.
+    /// </remarks>
     /// <param name="server">UPnP server to generate URLs for.</param>
     /// <param name="config">UPnP endpoint to generate the URLs for.</param>
     public static void GenerateObjectURLs(UPnPServer server, EndpointConfiguration config)
     {
+      config.RootDeviceDescriptionPaths.Clear();
+      config.RootDeviceDescriptionPathsToRootDevices.Clear();
+      config.ServicePaths.Clear();
       config.SCPDPathsToServices.Clear();
       config.ControlPathsToServices.Clear();
       config.EventSubPathsToServices.Clear();

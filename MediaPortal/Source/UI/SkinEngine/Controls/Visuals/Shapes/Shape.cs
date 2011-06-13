@@ -255,8 +255,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         Fill.Deallocate();
       if (Stroke != null)
         Stroke.Deallocate();
-      DisposePrimitiveContext(ref _fillContext);
-      DisposePrimitiveContext(ref _strokeContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _fillContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _strokeContext);
     }
 
     public override void Allocate()

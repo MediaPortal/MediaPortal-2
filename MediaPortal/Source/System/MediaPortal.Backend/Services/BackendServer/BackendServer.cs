@@ -31,6 +31,7 @@ using MediaPortal.Core.Services.MediaManagement.Settings;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using UPnP.Infrastructure;
+using UPnP.Infrastructure.Dv;
 using ILogger=MediaPortal.Core.Logging.ILogger;
 using UPnPLogger = UPnP.Infrastructure.ILogger;
 
@@ -150,6 +151,11 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     #region IBackendServer implementation
 
+    public UPnPServer UPnPFrontendServer
+    {
+      get { return _upnpServer; }
+    }
+
     public void Startup()
     {
       _upnpServer.Start();
@@ -158,6 +164,11 @@ namespace MediaPortal.Backend.Services.BackendServer
     public void Shutdown()
     {
       _upnpServer.Stop();
+    }
+
+    public void UpdateUPnPConfiguration()
+    {
+      _upnpServer.UpdateConfiguration();
     }
 
     #endregion

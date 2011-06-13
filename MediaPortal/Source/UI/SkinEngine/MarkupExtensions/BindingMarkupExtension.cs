@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// source value for the target property bound with this binding. Be careful
   /// with the term <i>source value</i> (or <i>evaluated source value</i>). There
   /// are three terms which sound similar but have a different meaning:
-  /// The term <i>binding source property</i> refers diretly to the property
+  /// The term <i>binding source property</i> refers directly to the property
   /// <see cref="BindingMarkupExtension.Source"/>.
   /// The term <i>binding source</i> refers to the object which is derived from
   /// the binding's properties and context; depending on the values of
@@ -1049,6 +1049,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Activate()
     {
+      if (_active)
+        return;
       base.Activate();
       UpdateBinding();
     }

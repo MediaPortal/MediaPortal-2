@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using MediaPortal.Core.Logging;
@@ -53,6 +54,14 @@ namespace MediaPortal.Core.Services.PathManager
     public PathManager()
     {
       _paths = new Dictionary<string, string>();
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void InitializeDefaults()
+    {
       string applicationPath = Environment.GetCommandLineArgs()[0];
 
       SetPath("APPLICATION_PATH", applicationPath);
@@ -61,7 +70,7 @@ namespace MediaPortal.Core.Services.PathManager
       SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
       SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
       SetPath("DEFAULTS", @"<APPLICATION_ROOT>\Defaults");
-      LoadDefaults();
+      LoadPaths(GetPath(@"<DEFAULTS>\Paths.xml"));
     }
 
     #endregion
@@ -115,32 +124,12 @@ namespace MediaPortal.Core.Services.PathManager
           _paths.Remove(label);
     }
 
-    #endregion
-
-		#region IStatus implementation
-
-		public IList<string> GetStatus()
-		{
-			List<string> status = new List<string> {"=== PathManager"};
-		  lock (_syncObj)
-  			foreach (KeyValuePair<string, string> pair in _paths)
-	  			status.Add(String.Format("     {0} => {1}", pair.Key, pair.Value));
-			return status;
-		}
-
-		#endregion
-
-    #region Private methods
-
-    /// <summary>
-    /// Loads default path values from the defaults Path.xml file.
-    /// </summary>
-    private void LoadDefaults()
+    public void LoadPaths(string pathsFile)
     {
       try
       {
         XmlSerializer s = new XmlSerializer(typeof(PathListFile));
-        using (TextReader r = new StreamReader(GetPath(@"<DEFAULTS>\Paths.xml")))
+        using (TextReader r = new StreamReader(pathsFile))
         {
           PathListFile defaults = (PathListFile) s.Deserialize(r);
 
@@ -153,6 +142,22 @@ namespace MediaPortal.Core.Services.PathManager
         ServiceRegistration.Get<ILogger>().Error("Error reading default paths file", e);
       }
     }
+
+    #endregion
+
+		#region IStatus implementation
+
+		public IList<string> GetStatus()
+		{
+			List<string> status = new List<string> {"=== PathManager"};
+		  lock (_syncObj)
+		    status.AddRange(_paths.Select(pair => String.Format("     {0} => {1}", pair.Key, pair.Value)));
+		  return status;
+		}
+
+		#endregion
+
+    #region Private methods
 
     /// <summary>
     /// Brings the specified label in the correct form to be used as lookup value in our

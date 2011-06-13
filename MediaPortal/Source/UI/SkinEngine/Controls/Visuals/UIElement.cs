@@ -391,6 +391,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
     }
 
+    public bool IsAllocated
+    {
+      get { return _allocated; }
+    }
+
     public AbstractProperty TriggersProperty
     {
       get { return _triggerProperty; }

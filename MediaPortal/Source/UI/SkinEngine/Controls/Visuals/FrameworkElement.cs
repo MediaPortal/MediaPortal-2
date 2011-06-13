@@ -1643,7 +1643,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           zPos, color);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
-      SetPrimitiveContext(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
+      PrimitiveBuffer.SetPrimitiveBuffer(ref _opacityMaskContext, ref verts, PrimitiveType.TriangleFan);
     }
 
     #endregion
@@ -1651,25 +1651,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      DisposePrimitiveContext(ref _opacityMaskContext);
+      PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
     }
-
-    #region Helpers
-
-    protected void SetPrimitiveContext(ref PrimitiveBuffer _buffer, ref PositionColoredTextured[] verts, PrimitiveType type)
-    {
-      if (_buffer == null)
-        _buffer = new PrimitiveBuffer();
-      _buffer.Set(ref verts, type);
-    }
-
-    protected void DisposePrimitiveContext(ref PrimitiveBuffer _buffer)
-    {
-      if (_buffer != null)
-        _buffer.Dispose();
-      _buffer = null;
-    }
-
-    #endregion
   }
 }
