@@ -25,6 +25,8 @@
 using System;
 using System.Data;
 using System.Text;
+using MediaPortal.Core;
+using MediaPortal.Core.PathManager;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Core.Services.Logging;
 using MediaPortal.Core.Services.PathManager;
@@ -39,7 +41,8 @@ namespace MediaPortal.Backend.Services.Database
   {
     #region Private variables
 
-    private static readonly FileLogger sqlDebugLog = FileLogger.CreateFileLogger(new PathManager().GetPath(@"<LOG>\SQLDebug.log"), Core.Logging.LogLevel.Debug, false, true);
+    private static readonly FileLogger sqlDebugLog = FileLogger.CreateFileLogger(
+        ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\SQLDebug.log"), Core.Logging.LogLevel.Debug, false, true);
     private readonly IDbCommand _command = null;
 
     #endregion
