@@ -78,6 +78,7 @@ namespace UPnP.Infrastructure.Dv
     protected IDictionary<string, DvService> _controlPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<string, DvService> _eventSubPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<DvService, ServicePaths> _servicePaths = new Dictionary<DvService, ServicePaths>();
+    
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
     protected Int32 _configId = 0;
 
