@@ -37,21 +37,6 @@
   <String Id="LC_NET">[ProductName] nécessite que soit installé le Framework .NET 4.0 Main profile</String>
   <String Id="LC_ADMIN">Vous devez être administrateur pour installer [ProductName].</String>
 
-  <!-- Firewall Exeptions -->
-  <String Id="WixSchedFirewallExceptionsInstall"></String>
-  <String Id="WixSchedFirewallExceptionsUninstall"></String>
-  <String Id="WixRollbackFirewallExceptionsInstall"></String>
-  <String Id="WixExecFirewallExceptionsInstall"></String>
-  <String Id="WixRollbackFirewallExceptionsUninstall"></String>
-  <String Id="WixExecFirewallExceptionsUninstall"></String>
-  <String Id="msierrFirewallCannotConnect"></String>
-
-  <!-- Util Extension -->
-  <String Id="msierrXmlFileFailedRead">Erreur de lecture de fichier XML</String>
-  <String Id="msierrXmlFileFailedOpen">Erreur d'ouverture de fichier XML</String>
-  <String Id="msierrXmlFileFailedSelect">Erreur de sélection de fichier XML</String>
-  <String Id="msierrXmlFileFailedSave">Erreur de sauvegarde de fichier XML</String>
-
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Sélectionnez le type d'installation</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>

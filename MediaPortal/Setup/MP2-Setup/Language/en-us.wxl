@@ -37,15 +37,6 @@
   <String Id="LC_NET">[ProductName] requires .NET Framework 4.0 Main profile to be installed</String>
   <String Id="LC_ADMIN">You need to be an administrator to install [ProductName].</String>
 
-  <!-- Firewall Exeptions -->
-  <String Id="WixSchedFirewallExceptionsInstall"></String>
-  <String Id="WixSchedFirewallExceptionsUninstall"></String>
-  <String Id="WixRollbackFirewallExceptionsInstall"></String>
-  <String Id="WixExecFirewallExceptionsInstall"></String>
-  <String Id="WixRollbackFirewallExceptionsUninstall"></String>
-  <String Id="WixExecFirewallExceptionsUninstall"></String>
-  <String Id="msierrFirewallCannotConnect"></String>
-
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>

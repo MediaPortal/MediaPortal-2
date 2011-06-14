@@ -37,21 +37,6 @@
   <String Id="LC_NET">[ProductName] benötigt mindestens .NET Framework 4.0 Full.</String>
   <String Id="LC_ADMIN">Um [ProductName] zu installieren, werden Administrator-Rechte benötigt.</String>
 
-  <!-- Firewall Exeptions -->
-  <String Id="WixSchedFirewallExceptionsInstall"></String>
-  <String Id="WixSchedFirewallExceptionsUninstall"></String>
-  <String Id="WixRollbackFirewallExceptionsInstall"></String>
-  <String Id="WixExecFirewallExceptionsInstall"></String>
-  <String Id="WixRollbackFirewallExceptionsUninstall"></String>
-  <String Id="WixExecFirewallExceptionsUninstall"></String>
-  <String Id="msierrFirewallCannotConnect"></String>
-
-  <!-- Util Extension Needs Translation Here-->
-  <String Id="msierrXmlFileFailedRead">Fehler beim Lesen der XML-Datei.</String>
-  <String Id="msierrXmlFileFailedOpen">Fehler beim Öffnen der XML-Datei.</String>
-  <String Id="msierrXmlFileFailedSelect">Fehler beim Arbeiten mit der XML-Datei.</String>
-  <String Id="msierrXmlFileFailedSave">Fehler beim Schreiben der XML-Datei.</String>
-
   <!-- User Interfaces -->
   <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
   <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>

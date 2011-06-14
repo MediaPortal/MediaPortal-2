@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (c) Microsoft Corporation.  All rights reserved.
+   
+   The use and distribution terms for this software are covered by the
+   Common Public License 1.0 (http://opensource.org/licenses/cpl1.0.php)
+   which can be found in the file CPL.TXT at the root of this distribution.
+   By using this software in any fashion, you are agreeing to be bound by
+   the terms of this license.
+   
+   You must not remove this notice, or any other, from this software.
+-->
+<!--
+Adapted by Team-MediaPortal for Custom Dialogs insertions
+-->
+<WixLocalization Culture="de-de" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+
+  <!-- Firewall Extension needs translation here -->
+  <!-- todo: translate into de -->
+  <String Id="msierrFirewallCannotConnect" Overridable="yes">Cannot connect to Windows Firewall.  ([2]   [3]   [4]   [5])</String>
+
+  <String Id="WixSchedFirewallExceptionsInstall" Overridable="yes">Configuring Windows Firewall</String>
+  <String Id="WixSchedFirewallExceptionsUninstall" Overridable="yes">Configuring Windows Firewall</String>
+  <String Id="WixRollbackFirewallExceptionsInstall" Overridable="yes">Rolling back Windows Firewall configuration</String>
+  <String Id="WixExecFirewallExceptionsInstall" Overridable="yes">Installing Windows Firewall configuration</String>
+  <String Id="WixRollbackFirewallExceptionsUninstall" Overridable="yes">Rolling back Windows Firewall configuration</String>
+  <String Id="WixExecFirewallExceptionsUninstall" Overridable="yes">Uninstalling Windows Firewall configuration</String>
+
+  <!-- Util Extension does not need translation here, because it is already in official WiX Toolkit -->
+</WixLocalization>
