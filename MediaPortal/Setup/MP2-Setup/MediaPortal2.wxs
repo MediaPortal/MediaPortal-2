@@ -113,7 +113,9 @@
       <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
       <Custom Action="SetVarsForCustomSetup" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
-      <RemoveExistingProducts After="InstallFinalize" />
+
+      <RemoveExistingProducts After="InstallInitialize" />
+      <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
 
   </Product>
