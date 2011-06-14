@@ -9,17 +9,22 @@
     |X| Add MP related graphics
     | | allow to choose the language
     | | keep all user visible texts localized
+        | | check translations for possible improvements using parameters
 
   o Requirements
     | | define OS requirements
-        | | Windows 7
+        |X| Windows 7
         | | other? don't allow installation? only warn the user?
         
     | | define other software requirements
-        | | .NET Framework
+        |X| .NET Framework
         | | VCredist 20xx
         | | DirectX
-        | | Dokan --> see dokan's nsis source code
+        |X| Dokan: Check if $SYSDIR\drivers\dokan.sys exists
+            | | no --> install it
+            | | yes --> check version
+                |X| 0.6 -> is installed, do nothin dokan related
+                | | older -> warn the user to uninstall dokan and to reboot the pc
         
     | | What needs to be defined?
         | | How can these be detected?
