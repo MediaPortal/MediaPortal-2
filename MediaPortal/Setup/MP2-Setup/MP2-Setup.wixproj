@@ -18,6 +18,7 @@
     <SuppressValidation>False</SuppressValidation>
     <Cultures>
     </Cultures>
+    <SuppressIces>ICE60</SuppressIces>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
