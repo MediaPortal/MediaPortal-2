@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -642,15 +643,15 @@ namespace UPnP.Infrastructure.CP.SSDP
           return;
         DateTime d;
         if (!DateTime.TryParse(date, out d))
-          // Invalid message
-          return;
+          d = DateTime.Now;
         DateTime expirationTime = d.AddSeconds(maxAge);
         string[] versionInfos = server.Split(' ');
-        if (versionInfos.Length != 3)
+        string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
+        if (upnpVersionInfo == null)
           // Invalid message
           return;
         UPnPVersion upnpVersion;
-        if (!UPnPVersion.TryParse(versionInfos[1], out upnpVersion))
+        if (!UPnPVersion.TryParse(upnpVersionInfo, out upnpVersion))
           // Invalid message
           return;
         if (upnpVersion.VerMax != 1)
