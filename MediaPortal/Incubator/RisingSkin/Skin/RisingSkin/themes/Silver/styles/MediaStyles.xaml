@@ -1015,14 +1015,15 @@
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0">
-          <Image.Source>
+        <Image x:Name="ItemTypeImage" Grid.Column="0" Stretch="Uniform" Margin="0,0,4,0"
+            Source="{Binding MediaItem}">
+          <Image.FallbackSource>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
               <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
               <Binding Source="Picture.png"/>
               <Binding Source="Picture_l.png"/>
             </MultiBinding>
-          </Image.Source>
+          </Image.FallbackSource>
           <Image.Width>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == 1 ? {1} : ({0} == 2 ? {2} : {3}))">
               <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
@@ -1137,7 +1138,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}"
+          <Button Style="{ThemeResource ButtonWideStyle}" Margin="2"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
