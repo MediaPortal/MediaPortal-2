@@ -21,7 +21,7 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <ListView Style="{ThemeResource MediaItemsListViewStyle}" ItemsSource="{Binding Items}"
+    <ListView ItemsSource="{Binding Items}"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
       <ListView.Resources>
         <Model x:Key="LayoutManagerModel" Id="35C31826-4159-4CF9-B4F5-98DEBE04E93C"/>
