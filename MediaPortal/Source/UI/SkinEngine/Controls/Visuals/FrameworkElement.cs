@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Execute(UIElement element)
     {
-      ((FrameworkElement) element).ElementState = _state;
+      element.ElementState = _state;
     }
   }
 
