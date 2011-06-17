@@ -151,7 +151,7 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     #region IBackendServer implementation
 
-    public UPnPServer UPnPFrontendServer
+    public UPnPServer UPnPBackendServer
     {
       get { return _upnpServer; }
     }
