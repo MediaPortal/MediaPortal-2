@@ -116,6 +116,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("VisualBrush", typeof(SkinEngine.Controls.Brushes.VisualBrush));
       _objectClassRegistrations.Add("VideoBrush", typeof(SkinEngine.Controls.Brushes.VideoBrush));
       _objectClassRegistrations.Add("GradientBrush", typeof(SkinEngine.Controls.Brushes.GradientBrush));
+      _objectClassRegistrations.Add("GradientStopCollection", typeof(SkinEngine.Controls.Brushes.GradientStopCollection));
       _objectClassRegistrations.Add("GradientStop", typeof(SkinEngine.Controls.Brushes.GradientStop));
 
       // Shapes
