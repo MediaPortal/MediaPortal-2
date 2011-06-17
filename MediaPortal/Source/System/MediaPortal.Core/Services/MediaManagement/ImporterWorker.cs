@@ -581,7 +581,7 @@ namespace MediaPortal.Core.Services.MediaManagement
                   // Enqueue subdirectories to work queue
                   lock (importJob.SyncObj)
                     foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
-                      importJob.PendingResources.Add(new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                      importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
               }
               else
                 ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
@@ -703,11 +703,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       ICollection<ImportJob> importJobs;
       lock (_syncObj)
         importJobs = new List<ImportJob>(_importJobs);
-      foreach (ImportJob checkJob in importJobs)
-        if (checkJob.JobType == ImportJobType.Import && checkJob.BasePath.IsSameOrParentOf(path))
-          // Path is already being scheduled as Import job
-          // => the new job is already included in an already existing job
-          return;
+      if (importJobs.Any(checkJob => checkJob.JobType == ImportJobType.Import && checkJob.BasePath.IsSameOrParentOf(path)))
+        // Path is already being scheduled as Import job
+        // => the new job is already included in an already existing job
+        return;
       CancelJobsForPath(path);
       ICollection<Guid> metadataExtractorIds = GetMetadataExtractorIdsForMediaCategories(mediaCategories);
       ImportJob job = new ImportJob(ImportJobType.Import, path, metadataExtractorIds, includeSubDirectories);

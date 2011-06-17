@@ -125,7 +125,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <see cref="ImportJobState.Started"/>.
     /// </summary>
     [XmlIgnore]
-    public ICollection<PendingImportResource> PendingResources
+    public IList<PendingImportResource> PendingResources
     {
       get { return _pendingResources; }
     }
@@ -147,7 +147,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// We don't store the media categories from whose the metadata extractors were derived to avoid
     /// that MEs change during the (potential very long) job runtime. Remember a job can be suspended
     /// for an undefined time while the MediaPortal server is down.
-    /// <(remarks>
+    /// </remarks>
     [XmlIgnore]
     public ICollection<Guid> MetadataExtractorIds
     {
