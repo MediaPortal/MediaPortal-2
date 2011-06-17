@@ -175,13 +175,15 @@ namespace MediaPortal.UiComponents.Media.Models
       return null;
     }
 
-    protected void UpdateScreen(bool force)
+    protected bool UpdateScreen(bool force)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (_screenName != null && (_lastScreenName != _screenName || force))
-        screenManager.ShowScreen(_screenName);
+        if (!screenManager.ShowScreen(_screenName).HasValue)
+          return false;
       screenManager.BackgroundDisabled = _backgroundDisabled;
       _lastScreenName = _screenName;
+      return true;
     }
 
     protected void RestoreBackground()
@@ -241,8 +243,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      UpdateScreen(true);
-      return ScreenUpdateMode.ManualWorkflowModel;
+      return UpdateScreen(true) ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
     }
   }
 }
