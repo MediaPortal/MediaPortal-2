@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -38,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected Guid _currentlyPlayingWorkflowStateId;
     protected Guid _fullscreenContentWorkflowStateId;
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
-    protected IPlayerUIContributor _playerUIContributor = null;
+    protected AbstractProperty _playerUIContributorProperty = null;
     protected bool _inactive = false;
     protected string _screenName = null;
     protected string _lastScreenName = null;
@@ -46,6 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
     {
+      _playerUIContributorProperty = new WProperty(typeof(IPlayerUIContributor));
       _currentlyPlayingWorkflowStateId = currentlyPlayingWorkflowStateId;
       _fullscreenContentWorkflowStateId = fullscreenContentWorkflowStateId;
       _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
@@ -97,16 +99,22 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <returns>Type of the player UI contributor to use.</returns>
     protected abstract Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType);
 
+    public AbstractProperty PlayerUIContributorProperty
+    {
+      get { return _playerUIContributorProperty; }
+    }
+
     public IPlayerUIContributor PlayerUIContributor
     {
-      get { return _playerUIContributor; }
+      get { return (IPlayerUIContributor) _playerUIContributorProperty.GetValue(); }
+      internal set { _playerUIContributorProperty.SetValue(value); }
     }
 
     protected void SetPlayerUIContributor(Type playerUIContributorType, MediaWorkflowStateType stateType, IPlayer player, bool doUpdateScreen)
     {
       IPlayerUIContributor oldPlayerUIContributor;
       lock (_syncObj)
-        oldPlayerUIContributor = _playerUIContributor;
+        oldPlayerUIContributor = PlayerUIContributor;
       try
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
@@ -130,7 +138,7 @@ namespace MediaPortal.UiComponents.Media.Models
           _screenName = null;
         }
         lock (_syncObj)
-          _playerUIContributor = playerUIContributor;
+          PlayerUIContributor = playerUIContributor;
         if (oldPlayerUIContributor != null)
           oldPlayerUIContributor.Dispose();
       }
