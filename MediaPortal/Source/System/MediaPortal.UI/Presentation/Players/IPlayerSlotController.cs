@@ -147,6 +147,12 @@ namespace MediaPortal.UI.Presentation.Players
     bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime);
 
     /// <summary>
+    /// Sets the given <paramref name="player"/> as current player and starts it.
+    /// </summary>
+    /// <param name="player">The player to be set as current player.</param>
+    void Play(IPlayer player);
+
+    /// <summary>
     /// Stops the player of this player slot. This won't deactivate this slot, but the current player
     /// will be released, if it is active.
     /// Calling this method will set the <see cref="PlayerSlotState"/> to <see cref="Players.PlayerSlotState.Stopped"/>.

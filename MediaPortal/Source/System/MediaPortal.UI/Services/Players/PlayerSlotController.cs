@@ -89,7 +89,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error stopping player '{0}'", e, _player);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error stopping player '{1}'", e, _slotIndex, _player);
         }
       if (disposePlayer != null)
         try
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error disposing player '{0}'", e, disposePlayer);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error disposing player '{1}'", e, _slotIndex, disposePlayer);
         }
     }
 
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.Services.Players
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error checking the audio state in player '{1}'", e, _slotIndex, _player);
       }
     }
 
@@ -151,7 +151,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error initializing player events in player '{1}'", e, _slotIndex, pe);
         }
       if (rp != null)
         try
@@ -160,7 +160,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error initializing player NextItemRequest event in player '{1}'", e, _slotIndex, rp);
         }
     }
 
@@ -175,7 +175,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error resetting player events in player '{1}'", e, _slotIndex, pe);
         }
       if (rp != null)
         try
@@ -184,7 +184,7 @@ namespace MediaPortal.UI.Services.Players
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
+          ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error resetting player NextItemRequest event in player '{1}'", e, _slotIndex, rp);
         }
     }
 
@@ -448,7 +448,7 @@ namespace MediaPortal.UI.Services.Players
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error playing '{1}'", e, _slotIndex, locator);
         player = null;
         return false;
       }
@@ -459,6 +459,37 @@ namespace MediaPortal.UI.Services.Players
           SetSlotState(PlayerSlotState.Playing);
           player.SetMediaItemTitleHint(mediaItemTitle);
         }
+      }
+    }
+
+    public void Play(IPlayer player)
+    {
+      try
+      {
+        lock (SyncObj)
+          CheckActive();
+        ReleasePlayer_NoLock();
+        IMediaPlaybackControl mpc;
+        lock (SyncObj)
+        {
+          _player = player;
+          mpc = player as IMediaPlaybackControl;
+        }
+        RegisterPlayerEvents_NoLock(player);
+        CheckAudio_NoLock();
+        OnPlayerStarted(player);
+        if (mpc != null)
+          mpc.Resume();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error preparing '{1}'", e, _slotIndex, player);
+        player = null;
+      }
+      finally
+      {
+        if (player != null)
+          SetSlotState(PlayerSlotState.Playing);
       }
     }
 
