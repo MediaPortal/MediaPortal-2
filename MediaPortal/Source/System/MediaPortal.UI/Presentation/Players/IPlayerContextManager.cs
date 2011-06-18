@@ -274,11 +274,8 @@ namespace MediaPortal.UI.Presentation.Players
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
 
     /// <summary>
-    /// Opens a video player context. If there are already active players, the parameter
-    /// 
-    /// 
-    /// If there is already an active player, it depends on the parameter <paramref name="concurrencyMode"/> determines
-    /// if and which of the open player contexts will be left open.
+    /// Opens a video player context. If there are already active players, the parameter <paramref name="concurrencyMode"/>
+    /// determines if and which of the open player contexts will be left open.
     /// </summary>
     /// <remarks>
     /// <para>
