@@ -72,6 +72,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       /// </summary>
       public const int HTTP_RANGE_REQUEST_TIMEOUT = 2000;
 
+      /// <summary>
+      /// Sometimes, the HTTP request is broken, so try multiple times.
+      /// </summary>
+      public const int MAX_NUM_TRIES = 4;
+
       // Stream data
       protected MemoryStream _cacheStream = new MemoryStream(CHUNK_SIZE); // null if disposed
       protected readonly long _startIndex; // Inclusive
@@ -84,6 +89,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       protected volatile bool _filled = false;
       protected volatile Exception _exception = null;
       protected volatile HttpWebRequest _pendingRequest = null;
+      protected int _numTries = 0;
 
       protected static string _userAgent;
 
@@ -136,11 +142,13 @@ namespace MediaPortal.Core.Services.MediaManagement
         IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
         NetworkHelper.AddTimeout(request, result, HTTP_RANGE_REQUEST_TIMEOUT);
         _pendingRequest = request;
+        _numTries++;
       }
 
       private void OnResponseReceived(IAsyncResult ar)
       {
         HttpWebResponse response = null;
+        bool finished = false;
         lock (_syncObject) // Lock to avoid interference with disposal
           try
           {
@@ -163,18 +171,29 @@ namespace MediaPortal.Core.Services.MediaManagement
                   _filled = true;
                 }
               }
+              finished = true;
             }
             catch (Exception e)
             {
-              ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
-              _exception = e;
+              if (_numTries >= MAX_NUM_TRIES)
+              {
+                ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
+                _exception = e;
+                finished = true;
+              }
+              else if (_cacheStream != null) // If disposed, the stream is null
+                Load_Async();
+              return;
             }
           }
           finally
           {
-            _pendingRequest = null;
-            if (_cacheStream != null)
-              _readyEvent.Set();
+            if (finished)
+            {
+              _pendingRequest = null;
+              if (_cacheStream != null) // If disposed, the stream is null
+                _readyEvent.Set();
+            }
             if (response != null)
               response.Close();
           }
