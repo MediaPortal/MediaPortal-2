@@ -859,7 +859,7 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Navigation_l.png" 
-             Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
+             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
         <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
                HorizontalAlignment="Center"/>
       </Grid>
