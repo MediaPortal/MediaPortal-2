@@ -402,6 +402,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
               result.Add(para.Substring(lineIndex, nextIndex - lineIndex));
               lineIndex = nextIndex;
             }
+            if (nextIndex == wordIndex)
+              break;
           }
         }
         // If no words found add an empty line to preserve text formatting
