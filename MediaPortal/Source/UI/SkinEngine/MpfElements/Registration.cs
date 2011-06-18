@@ -154,6 +154,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("SkewTransform", typeof(SkinEngine.Controls.Transforms.SkewTransform));
       _objectClassRegistrations.Add("RotateTransform", typeof(SkinEngine.Controls.Transforms.RotateTransform));
       _objectClassRegistrations.Add("TranslateTransform", typeof(SkinEngine.Controls.Transforms.TranslateTransform));
+      _objectClassRegistrations.Add("MatrixTransform", typeof(SkinEngine.Controls.Transforms.MatrixTransform));
 
       // Styles
       _objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
