@@ -135,6 +135,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
         IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
         NetworkHelper.AddTimeout(request, result, HTTP_RANGE_REQUEST_TIMEOUT);
+        _pendingRequest = request;
       }
 
       private void OnResponseReceived(IAsyncResult ar)
