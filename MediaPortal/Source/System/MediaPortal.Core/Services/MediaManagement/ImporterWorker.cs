@@ -578,7 +578,7 @@ namespace MediaPortal.Core.Services.MediaManagement
                     mediaBrowsing, resultHandler, mediaAccessor);
                 CheckImportStillRunning(importJob.State);
                 if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
-                  // Enqueue subdirectories to work queue
+                  // Add subdirectories in front of work queue
                   lock (importJob.SyncObj)
                     foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
                       importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
