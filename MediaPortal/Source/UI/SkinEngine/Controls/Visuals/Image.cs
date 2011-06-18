@@ -195,7 +195,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public Stretch Stretch
     {
-      get { return (Stretch)_stretchProperty.GetValue(); }
+      get { return (Stretch) _stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -209,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public StretchDirection StretchDirection
     {
-      get { return (StretchDirection)_stretchDirectionProperty.GetValue(); }
+      get { return (StretchDirection) _stretchDirectionProperty.GetValue(); }
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public bool SkinNeutralAR
     {
-      get { return (bool)_skinNeutralProperty.GetValue(); }
+      get { return (bool) _skinNeutralProperty.GetValue(); }
       set { _skinNeutralProperty.SetValue(value); }
     }
 
@@ -398,7 +398,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             BitmapImage bmi = new BitmapImage {UriSource = uriSource, Thumbnail = Thumbnail};
             if (Thumbnail)
               // Set the requested thumbnail dimension, to use the best matching format.
-              bmi.ThumbnailDimension = (int)Math.Max(Width, Height);
+              bmi.ThumbnailDimension = (int) Math.Max(Width, Height);
             result = bmi;
           }
           // TODO: More image types
@@ -406,7 +406,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           {
             if (_warnURI != uriSource)
             {
-              ServiceRegistration.Get<ILogger>().Warn("Image source '{0}' is not supported", uriSource);
+              ServiceRegistration.Get<ILogger>().Warn("Image: Image source '{0}' is not supported", uriSource);
               // Remember if we already wrote a warning to the log to avoid log flooding
               _warnURI = uriSource;
             }
