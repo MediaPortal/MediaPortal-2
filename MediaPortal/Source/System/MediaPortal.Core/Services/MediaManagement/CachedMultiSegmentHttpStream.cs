@@ -428,6 +428,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           {
             // Reorder LRU cache
             _chunkCache.RemoveAt(i);
+            if (chunk.IsErroneous)
+              // Retry if a chunk was erroneous
+              break;
             _chunkCache.Add(chunk);
             result = chunk;
             return true;
