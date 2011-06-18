@@ -421,7 +421,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       if (start >= 0 && start < _length)
       {
-        for (int i = 0; i < _chunkCache.Count; i++)
+        for (int i = _chunkCache.Count - 1; i >= 0; i--)
         {
           HttpRangeChunk chunk = _chunkCache[i];
           if (chunk.StartIndex <= start && chunk.EndIndex > start)
