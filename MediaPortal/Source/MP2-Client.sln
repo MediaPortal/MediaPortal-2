@@ -68,8 +68,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "Extensions\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "Extensions\MetadataExtractors\TagLib\TagLib.csproj", "{4CC18776-125E-4318-9D24-D60110AD9697}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPlay", "UI\UiComponents\AutoPlay\AutoPlay.csproj", "{4E73672B-B668-4153-A6F2-0F45B5C3724B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTvClient", "..\Incubator\SlimTvClient\SlimTvClient.csproj", "{6EB21E54-9984-41A4-922C-7AF27CFE56BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTvInterfaces", "..\Incubator\SlimTvInterfaces\SlimTvInterfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
@@ -93,6 +91,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BDHandler\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RisingSkin", "..\Incubator\RisingSkin\RisingSkin.csproj", "{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemovableMediaManager", "UI\UiComponents\RemovableMediaManager\RemovableMediaManager.csproj", "{4E73672B-B668-4153-A6F2-0F45B5C3724B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -195,8 +195,6 @@ Global
 		{4CC18776-125E-4318-9D24-D60110AD9697}.Debug|x86.Build.0 = Debug|x86
 		{4CC18776-125E-4318-9D24-D60110AD9697}.Release|x86.ActiveCfg = Release|x86
 		{4CC18776-125E-4318-9D24-D60110AD9697}.Release|x86.Build.0 = Release|x86
-		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Debug|x86.ActiveCfg = Debug|x86
-		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Release|x86.ActiveCfg = Release|x86
 		{6EB21E54-9984-41A4-922C-7AF27CFE56BA}.Debug|x86.ActiveCfg = Debug|x86
 		{6EB21E54-9984-41A4-922C-7AF27CFE56BA}.Debug|x86.Build.0 = Debug|x86
 		{6EB21E54-9984-41A4-922C-7AF27CFE56BA}.Release|x86.ActiveCfg = Release|x86
@@ -233,6 +231,10 @@ Global
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Debug|x86.Build.0 = Debug|x86
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Release|x86.ActiveCfg = Release|x86
 		{D2F9E3AD-D2BB-45F9-9B1A-93C52F76FA19}.Release|x86.Build.0 = Release|x86
+		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Debug|x86.ActiveCfg = Debug|x86
+		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Debug|x86.Build.0 = Debug|x86
+		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Release|x86.ActiveCfg = Release|x86
+		{4E73672B-B668-4153-A6F2-0F45B5C3724B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

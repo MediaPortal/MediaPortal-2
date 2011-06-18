@@ -32,13 +32,14 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.UI.Presentation.AutoPlay;
+using MediaPortal.Extensions.BassLibraries;
+using MediaPortal.UI.Presentation.RemovableMedia;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.AutoPlay.Settings;
 
-namespace MediaPortal.UiComponents.AutoPlay
+namespace MediaPortal.UiComponents.RemovableMediaManager
 {
-  public class AutoPlay : IAutoPlay, IPluginStateTracker
+  public class RemovableMediaManager : IRemovableMediaManager, IPluginStateTracker
   {
     #region Variables
 
@@ -60,9 +61,9 @@ namespace MediaPortal.UiComponents.AutoPlay
 
     #endregion
 
-    #region Ctor / Dtor
+    #region Ctor
 
-    public AutoPlay()
+    public RemovableMediaManager()
     {
       // We need BASS CD Support, so we need to load the plugin
       BassRegistration.BassRegistration.Register();
@@ -72,14 +73,14 @@ namespace MediaPortal.UiComponents.AutoPlay
       LoadSettings();
     }
 
-    ~AutoPlay()
+    ~RemovableMediaManager()
     {
       StopListening();
     }
 
     #endregion
 
-    #region IAutoPlay implementation
+    #region IRemovableMediaManager implementation
 
     public bool StartListening()
     {
@@ -93,12 +94,12 @@ namespace MediaPortal.UiComponents.AutoPlay
         _deviceMonitor.AsynchronousEvents = true;
         _deviceMonitor.Enabled = true;
 
-        ServiceRegistration.Get<ILogger>().Info("AutoPlay: Monitoring system for removable media changes");
+        ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Monitoring system for removable media changes");
         return true;
       }
       catch (DeviceVolumeMonitorException ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("AutoPlay: Error enabling AutoPlay service", ex);
+        ServiceRegistration.Get<ILogger>().Error("RemovableMediaManager: Error enabling RemovableMediaManager service", ex);
       }
       return false;
     }
@@ -119,7 +120,7 @@ namespace MediaPortal.UiComponents.AutoPlay
       switch (DetectMediaType(strDrive))
       {
         case MediaType.DVD:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: DVD inserted into {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: DVD inserted into {0}", strDrive);
           bool PlayDVD = false;
           if (_settings.AutoPlayDVD == "Yes")
           {
@@ -166,7 +167,7 @@ namespace MediaPortal.UiComponents.AutoPlay
           break;
 
         case MediaType.AUDIO_CD:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Audio CD inserted into drive {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Audio CD inserted into drive {0}", strDrive);
           bool PlayAudioCd = false;
           if (_settings.AutoPlayCD == "Yes")
           {
@@ -210,28 +211,28 @@ namespace MediaPortal.UiComponents.AutoPlay
           break;
 
         case MediaType.PHOTOS:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Photo volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Photo volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.PHOTOS))
           {
           }
           break;
 
         case MediaType.VIDEOS:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Video volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Video volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.VIDEOS))
           {
           }
           break;
 
         case MediaType.AUDIO:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Audio volume inserted {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Audio volume inserted {0}", strDrive);
           if (ShouldWeAutoPlay(MediaType.AUDIO))
           {
           }
           break;
 
         default:
-          ServiceRegistration.Get<ILogger>().Info("AutoPlay: Unknown media type inserted into drive {0}", strDrive);
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Unknown media type inserted into drive {0}", strDrive);
           break;
       }
     }
@@ -246,7 +247,7 @@ namespace MediaPortal.UiComponents.AutoPlay
     private void VolumeInserted(int bitMask)
     {
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      ServiceRegistration.Get<ILogger>().Info("AutoPlay: Media inserted in drive {0}", driveLetter);
+      ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Media inserted in drive {0}", driveLetter);
 
       SystemMessage msg = new SystemMessage("Inserted");
       msg.MessageData["drive"] = driveLetter;
@@ -261,7 +262,7 @@ namespace MediaPortal.UiComponents.AutoPlay
     private void VolumeRemoved(int bitMask)
     {
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      ServiceRegistration.Get<ILogger>().Info("AutoPlay: Media removed from drive {0}", driveLetter);
+      ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Media removed from drive {0}", driveLetter);
 
       SystemMessage msg = new SystemMessage("Removed");
       msg.MessageData["drive"] = driveLetter;

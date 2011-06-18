@@ -27,7 +27,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace MediaPortal.UiComponents.AutoPlay
+namespace MediaPortal.UiComponents.RemovableMediaManager
 {
 
   /// <summary>
@@ -114,9 +114,9 @@ namespace MediaPortal.UiComponents.AutoPlay
     }
 
     /// <summary>
-    /// WndProc method that traps all messages sent to the Handle
+    /// WndProc method that traps all messages sent to the Handle.
     /// </summary>
-    /// <param name="aMessage">A Windows message</param>
+    /// <param name="aMessage">A Windows message.</param>
     protected override void WndProc(ref Message aMessage)
     {
       BroadcastHeader lBroadcastHeader;
@@ -189,7 +189,7 @@ namespace MediaPortal.UiComponents.AutoPlay
     }
 
     /// <summary>
-    /// Enables or disables asynchronous event calls
+    /// Enables or disables asynchronous event calls.
     /// </summary>
     public bool AsynchronousEvents
     {
@@ -204,14 +204,14 @@ namespace MediaPortal.UiComponents.AutoPlay
     public DeviceVolumeMonitor(IntPtr handle)
     {
       if (handle == IntPtr.Zero)
-        throw new DeviceVolumeMonitorException("Invalid handle!");
+        throw new DeviceVolumeMonitorException("Invalid handle");
       _handle = handle;
       Initialize();
     }
 
     /// <summary>
-    /// Internal initialize method
-    /// Sets all the private fields initial values and enables message trapping
+    /// Internal initialize method.
+    /// Sets all the private fields initial values and enables message trapping.
     /// </summary>
     private void Initialize()
     {
@@ -250,10 +250,10 @@ namespace MediaPortal.UiComponents.AutoPlay
     private static extern int QueryDosDevice(string aName, [Out] StringBuilder aPath, int aCapacity);
 
     /// <summary>
-    /// Returns a comma delimited string with all the drive letters in the bit vector parameter.
+    /// Returns a comma separated string with all the drive letters in the bit vector parameter.
     /// </summary>
     /// <param name="mask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure.</param>
-    /// <returns></returns>
+    /// <returns>Comma separated string in the form <c>C:,E:,F:</c>.</returns>
     public string MaskToLogicalPaths(int mask)
     {
       int lMask = mask;
@@ -266,7 +266,7 @@ namespace MediaPortal.UiComponents.AutoPlay
         {
           if ((lMask & 1) != 0)
           {
-            lReturn.Append((char)(65 + lValue));
+            lReturn.Append((char) (65 + lValue));
             lReturn.Append(":,");
           }
           lValue++;
@@ -277,7 +277,7 @@ namespace MediaPortal.UiComponents.AutoPlay
     }
 
     /// <summary>
-    /// Returns a comma delimited string with all the device paths in the bit vector parameter.
+    /// Returns a comma separated string with all the device paths in the bit vector parameter.
     /// </summary>
     /// <param name="aMask">bit vector returned by the field dbcv_unitmask in the _DEV_BROADCAST_VOLUME structure.</param>
     /// <returns></returns>

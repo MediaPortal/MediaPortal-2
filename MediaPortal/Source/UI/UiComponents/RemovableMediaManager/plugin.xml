@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="RemovableMediaManager Service"
+    PluginId="{79D9E378-D4B2-46e3-8DD2-F95DD5E93418}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Service that detects media changes and starts playback"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"/> <!-- BassLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="RemovableMediaManager.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.RemovableMediaManager.RemovableMediaManager"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="RemovableMediaManagerService" RegistrationClassName="MediaPortal.Presentation.RemovableMedia.IRemovableMediaManager"
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.RemovableMediaManager.RemovableMediaManager"/>
+  </Register>
+</Plugin>

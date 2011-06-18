@@ -72,7 +72,7 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
-    <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
+    <Compile Include="Presentation\RemovableMedia\IRemovableMediaManager.cs" />
     <Compile Include="Presentation\DataObjects\ItemsList.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Geometries\CropSettings.cs" />

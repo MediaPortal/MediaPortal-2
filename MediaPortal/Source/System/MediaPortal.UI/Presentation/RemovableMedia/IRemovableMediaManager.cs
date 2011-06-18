@@ -23,17 +23,17 @@
 #endregion
 
 
-namespace MediaPortal.UI.Presentation.AutoPlay
+namespace MediaPortal.UI.Presentation.RemovableMedia
 {
-  public interface IAutoPlay
+  public interface IRemovableMediaManager
   {
     /// <summary>
-    /// Starts Listening for Volume Change Events
+    /// Starts Listening for Volume Change Events.
     /// </summary>
     bool StartListening();
 
     /// <summary>
-    /// Stops Listening for Volume Change Events
+    /// Stops Listening for Volume Change Events.
     /// </summary>
     void StopListening();
 
