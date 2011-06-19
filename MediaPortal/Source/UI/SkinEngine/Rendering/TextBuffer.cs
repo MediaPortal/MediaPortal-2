@@ -351,6 +351,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           // Iterate over leading spaces
           while (nextIndex < paraLength && char.IsWhiteSpace(para[nextIndex]))
             ++nextIndex;
+          int lastIndex = nextIndex; // Remember index to avoid busy loops if not a single character fits
           if (nextIndex < paraLength)
           {
             // Find length of next word
@@ -402,9 +403,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
               result.Add(para.Substring(lineIndex, nextIndex - lineIndex));
               lineIndex = nextIndex;
             }
-            if (nextIndex == wordIndex)
-              break;
           }
+          if (nextIndex == lastIndex)
+            break;
         }
         // If no words found add an empty line to preserve text formatting
         if (lineIndex == 0)
