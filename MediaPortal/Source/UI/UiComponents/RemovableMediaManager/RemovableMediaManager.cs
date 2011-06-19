@@ -27,10 +27,8 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Presentation.Screens;
@@ -48,35 +46,72 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     enum MediaType
     {
-      UNKNOWN = 0,
-      DVD = 1,
-      AUDIO_CD = 2,
-      PHOTOS = 3,
-      VIDEOS = 4,
-      AUDIO = 5
+      Unknown,
+      Media,
+      AudioCd,
+      Dvd,
+      Bd,
     }
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
-    public RemovableMediaManager()
+    void SubscribeToMessages()
     {
-      // We need BASS CD Support, so we need to load the plugin
-      BassRegistration.BassRegistration.Register();
-      string decoderFolderPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<APPLICATION_ROOT>\musicplayer\plugins\audio decoders");
-      int pluginHandle = Un4seen.Bass.Bass.BASS_PluginLoad(decoderFolderPath + "\\basscd.dll");
-
-      LoadSettings();
+      lock (_syncObj)
+      {
+        _messageQueue = new AsynchronousMessageQueue(this, new string[]
+          {
+             RemovableMediaMessaging.CHANNEL
+          });
+        _messageQueue.MessageReceived += OnMessageReceived;
+        _messageQueue.Start();
+      }
     }
 
-    ~RemovableMediaManager()
+    void UnsubscribeFromMessages()
     {
-      StopListening();
+      lock (_syncObj)
+      {
+        if (_messageQueue == null)
+          return;
+        _messageQueue.Shutdown();
+        _messageQueue = null;
+      }
+    }
+
+    #region Event Handlers
+
+    /// <summary>
+    /// Called when the plugin manager notifies the system about its events.
+    /// Requests the main window handle from the main screen.
+    /// </summary>
+    /// <param name="queue">Queue which sent the message.</param>
+    /// <param name="message">Message containing the notification data.</param>
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == RemovableMediaMessaging.CHANNEL)
+      {
+        RemovableMediaMessaging.MessageType messageType = (RemovableMediaMessaging.MessageType) message.MessageType;
+        if (messageType == RemovableMediaMessaging.MessageType.MediaInserted ||
+            messageType == RemovableMediaMessaging.MessageType.MediaRemoved)
+        {
+          RemovableMediaManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaManagerSettings>();
+          if (settings.AutoPlay == AutoPlayType.AutoPlay)
+          {
+            weiter:
+              - Checken, ob wir in einem FSC-State sind. Wenn nicht: AutoPlay!
+          }
+        }
+      }
     }
 
     #endregion
 
+    #endregion
+
+    weiter
     public void ExamineVolume(string strDrive)
     {
       if (strDrive == null) return;
@@ -202,47 +237,9 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       }
     }
 
-    #region Events
-
+    weiter
     /// <summary>
-    /// The event that gets triggered whenever a new volume is inserted.
-    /// </summary>	
-    private void VolumeInserted(int bitMask)
-    {
-      string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Media inserted in drive {0}", driveLetter);
-
-      SystemMessage msg = new SystemMessage("Inserted");
-      msg.MessageData["drive"] = driveLetter;
-      ServiceRegistration.Get<IMessageBroker>().Send("autoplay", msg);
-
-      ExamineVolume(driveLetter);
-    }
-
-    /// <summary>
-    /// The event that gets triggered whenever a volume is removed.
-    /// </summary>	
-    private void VolumeRemoved(int bitMask)
-    {
-      string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
-      ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Media removed from drive {0}", driveLetter);
-
-      SystemMessage msg = new SystemMessage("Removed");
-      msg.MessageData["drive"] = driveLetter;
-      ServiceRegistration.Get<IMessageBroker>().Send("autoplay", msg);
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    private void LoadSettings()
-    {
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaManagerSettings>();
-    }
-
-    /// <summary>
-    /// Detects the media type of the CD/DVD inserted into a drive.
+    /// Detects the media type of the CD/DVD/BD inserted into a drive.
     /// </summary>
     /// <param name="strDrive">The drive that contains the data.</param>
     /// <returns>The media type of the drive.</returns>
@@ -291,41 +288,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       return MediaType.UNKNOWN;
     }
 
-    private bool ShouldWeAutoPlay(MediaType iMedia)
-    {
-      string line;
-
-      ServiceRegistration.Get<IScreenManager>().DialogTitle = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Autoplay]");
-
-      switch (iMedia)
-      {
-        case MediaType.AUDIO:
-        case MediaType.AUDIO_CD:
-          line = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Audio]");
-          break;
-
-        case MediaType.DVD:
-          line = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Dvd]");
-          break;
-
-        case MediaType.PHOTOS:
-          line = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Photo]");
-          break;
-
-        case MediaType.VIDEOS:
-          line = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Video]");
-          break;
-
-        default:
-          line = ServiceRegistration.Get<ILocalization>().ToString("[Autoplay.Disc]");
-          break;
-      }
-      ServiceRegistration.Get<IScreenManager>().DialogLine1 = line;
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogYesNo");
-      return ServiceRegistration.Get<IScreenManager>().GetDialogResponse();
-    }
-
-
+    weiter
     private void GetAllFiles(string strFolder, ref List<string> allfiles)
     {
       if (strFolder == null) return;
@@ -350,57 +313,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       }
     }
 
-    #endregion
-
-    void SubscribeToMessages()
-    {
-      lock (_syncObj)
-      {
-        _messageQueue = new AsynchronousMessageQueue(this, new string[]
-          {
-             PluginManagerMessaging.CHANNEL
-          });
-        _messageQueue.MessageReceived += OnMessageReceived;
-        _messageQueue.Start();
-      }
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      lock (_syncObj)
-      {
-        if (_messageQueue == null)
-          return;
-        _messageQueue.Shutdown();
-        _messageQueue = null;
-      }
-    }
-
-    #region Event Handlers
-
-    /// <summary>
-    /// Called when the plugin manager notifies the system about its events.
-    /// Requests the main window handle from the main screen.
-    /// </summary>
-    /// <param name="queue">Queue which sent the message.</param>
-    /// <param name="message">Message containing the notification data.</param>
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == PluginManagerMessaging.CHANNEL)
-      {
-        if (((PluginManagerMessaging.MessageType) message.MessageType) == PluginManagerMessaging.MessageType.PluginsInitialized)
-        {
-          IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-          _windowHandle = sc.MainWindowHandle;
-          StartListening();
-
-          UnsubscribeFromMessages();
-        }
-      }
-    }
-
-    #endregion
-
     #region IPluginStateTracker implementation
 
     public void Activated(PluginRuntime pluginRuntime)
@@ -415,7 +327,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     public void Stop()
     {
-      StopListening();
       UnsubscribeFromMessages();
     }
 
@@ -423,7 +334,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     public void Shutdown()
     {
-      StopListening();
       UnsubscribeFromMessages();
     }
 
