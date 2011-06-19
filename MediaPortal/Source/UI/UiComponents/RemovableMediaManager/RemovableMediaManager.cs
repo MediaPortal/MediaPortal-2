@@ -33,19 +33,16 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.UI.Presentation.RemovableMedia;
 using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UiComponents.AutoPlay.Settings;
+using MediaPortal.UI.RemovableMedia;
+using MediaPortal.UiComponents.RemovableMediaManager.Settings;
 
 namespace MediaPortal.UiComponents.RemovableMediaManager
 {
-  public class RemovableMediaManager : IRemovableMediaManager, IPluginStateTracker
+  public class RemovableMediaManagerService : IPluginStateTracker
   {
-    #region Variables
+    #region Protected fields
 
-    protected DeviceVolumeMonitor _deviceMonitor;
-    protected AutoPlaySettings _settings;
-    protected IntPtr _windowHandle = IntPtr.Zero;
     protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
 
@@ -79,38 +76,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
     }
 
     #endregion
-
-    #region IRemovableMediaManager implementation
-
-    public bool StartListening()
-    {
-      if (_windowHandle == IntPtr.Zero)
-        return false;
-      try
-      {
-        _deviceMonitor = new DeviceVolumeMonitor(_windowHandle);
-        _deviceMonitor.OnVolumeInserted += VolumeInserted;
-        _deviceMonitor.OnVolumeRemoved += VolumeRemoved;
-        _deviceMonitor.AsynchronousEvents = true;
-        _deviceMonitor.Enabled = true;
-
-        ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Monitoring system for removable media changes");
-        return true;
-      }
-      catch (DeviceVolumeMonitorException ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("RemovableMediaManager: Error enabling RemovableMediaManager service", ex);
-      }
-      return false;
-    }
-
-    public void StopListening()
-    {
-      if (_deviceMonitor != null)
-        _deviceMonitor.Dispose();
-
-      _deviceMonitor = null;
-    }
 
     public void ExamineVolume(string strDrive)
     {
@@ -237,8 +202,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       }
     }
 
-    #endregion
-
     #region Events
 
     /// <summary>
@@ -275,7 +238,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     private void LoadSettings()
     {
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<AutoPlaySettings>();
+      _settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaManagerSettings>();
     }
 
     /// <summary>

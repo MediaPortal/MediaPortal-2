@@ -17,7 +17,6 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Service Id="RemovableMediaManagerService" RegistrationClassName="MediaPortal.Presentation.RemovableMedia.IRemovableMediaManager"
-        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UiComponents.RemovableMediaManager.RemovableMediaManager"/>
+    <Service Id="RemovableMediaManagerService" ServiceClassName="MediaPortal.UiComponents.RemovableMediaManager.RemovableMediaManagerService"/>
   </Register>
 </Plugin>

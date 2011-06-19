@@ -22,25 +22,32 @@
 
 #endregion
 
+using MediaPortal.Core.Settings;
 
-namespace MediaPortal.UI.Presentation.RemovableMedia
+namespace MediaPortal.UI.Services.RemovableMedia.Settings
 {
-  public interface IRemovableMediaManager
+  public class RemovableMediaTrackerSettings
   {
-    /// <summary>
-    /// Starts Listening for Volume Change Events.
-    /// </summary>
-    bool StartListening();
+    #region Consts
+
+    public const bool DEFAULT_TRACK_REMOVABLE_MEDIA = true;
+
+    #endregion
+
+    #region Protected fields
+
+    protected bool _trackRemovableMedia = DEFAULT_TRACK_REMOVABLE_MEDIA;
+
+    #endregion
 
     /// <summary>
-    /// Stops Listening for Volume Change Events.
+    /// Configures if the removable media manager should track removable media in general.
     /// </summary>
-    void StopListening();
-
-    /// <summary>
-    /// Examine the inserted Volume
-    /// </summary>
-    /// <param name="strDrive"></param>
-    void ExamineVolume(string strDrive);
+    [Setting(SettingScope.User, DEFAULT_TRACK_REMOVABLE_MEDIA)]
+    public bool TrackRemovableMedia
+    {
+      get { return _trackRemovableMedia; }
+      set { _trackRemovableMedia = value; }
+    }
   }
 }

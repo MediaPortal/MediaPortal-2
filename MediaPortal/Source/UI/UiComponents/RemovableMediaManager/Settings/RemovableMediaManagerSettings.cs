@@ -24,36 +24,34 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.UiComponents.AutoPlay.Settings
+namespace MediaPortal.UiComponents.RemovableMediaManager.Settings
 {
   public enum AutoPlayType
   {
+    /// <summary>
+    /// If media is inserted, the autoplay function will ignore that event.
+    /// </summary>
     NoAutoPlay,
-    Ask,
-    Auto
+
+    /// <summary>
+    /// If media is inserted, the autoplay function will automatically play the media.
+    /// </summary>
+    AutoPlay
   }
 
-  public class AutoPlaySettings
+  public class RemovableMediaManagerSettings
   {
     #region Protected fields
 
-    protected AutoPlayType _autoPlayDVD;
-    protected AutoPlayType _autoPlayCD;
+    protected AutoPlayType _autoPlay;
 
     #endregion
 
-    [Setting(SettingScope.User, AutoPlayType.Ask)]
-    public AutoPlayType AutoPlayDVD
+    [Setting(SettingScope.User, AutoPlayType.AutoPlay)]
+    public AutoPlayType AutoPlay
     {
-      get { return _autoPlayDVD; }
-      set { _autoPlayDVD = value; }
-    }
-
-    [Setting(SettingScope.User, AutoPlayType.Ask)]
-    public AutoPlayType AutoPlayCD
-    {
-      get { return _autoPlayCD; }
-      set { _autoPlayCD = value; }
+      get { return _autoPlay; }
+      set { _autoPlay = value; }
     }
   }
 }

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.RemovableMediaManager
 {
+  // TODO: Rework
   public class AutoPlayMediaItem : IMediaItem
   {
     #region Variables
