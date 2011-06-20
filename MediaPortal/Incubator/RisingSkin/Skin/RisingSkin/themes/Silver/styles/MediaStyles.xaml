@@ -738,7 +738,7 @@
   We provide different control styles for thumbnail list and grid views for each navigation item (filter,audio,video,...).
   -->
   <!-- Filter -->
-  <ResourceWrapper x:Key="FilterItemListView">
+  <ResourceWrapper x:Key="ListViewFilterItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -784,7 +784,7 @@
     </ControlTemplate>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="FilterItemGridView">
+  <ResourceWrapper x:Key="GridViewFilterItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -802,7 +802,7 @@
   </ResourceWrapper>
 
   <!-- Container -->
-  <ResourceWrapper x:Key="ContainerItemListView">
+  <ResourceWrapper x:Key="ListViewContainerItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -848,7 +848,7 @@
     </ControlTemplate>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ContainerItemGridView">
+  <ResourceWrapper x:Key="GridViewContainerItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -867,7 +867,7 @@
   </ResourceWrapper>
 
   <!-- Movie -->
-  <ResourceWrapper x:Key="MovieItemListView">
+  <ResourceWrapper x:Key="ListViewMovieItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -928,7 +928,7 @@
     </ControlTemplate>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="MovieItemGridView">
+  <ResourceWrapper x:Key="GridViewMovieItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -948,7 +948,7 @@
   </ResourceWrapper>
 
   <!-- Music -->
-  <ResourceWrapper x:Key="MusicItemListView">
+  <ResourceWrapper x:Key="ListViewMusicItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -987,7 +987,7 @@
     </ControlTemplate>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="MusicItemGridView">
+  <ResourceWrapper x:Key="GridViewMusicItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -1006,7 +1006,7 @@
   </ResourceWrapper>
 
   <!-- Picture -->
-  <ResourceWrapper x:Key="PictureItemListView">
+  <ResourceWrapper x:Key="ListViewPictureItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -1046,7 +1046,7 @@
     </ControlTemplate>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="PictureItemGridView">
+  <ResourceWrapper x:Key="GridViewPictureItemTemplate">
     <ControlTemplate>
       <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -1072,8 +1072,8 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource ContainerItemListView}"/>
-          <Binding Source="{StaticResource ContainerItemGridView}"/>
+          <Binding Source="{StaticResource ListViewContainerItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewContainerItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1084,8 +1084,8 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource FilterItemListView}"/>
-          <Binding Source="{StaticResource FilterItemGridView}"/>
+          <Binding Source="{StaticResource ListViewFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1096,8 +1096,8 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource MovieItemListView}"/>
-          <Binding Source="{StaticResource MovieItemGridView}"/>
+          <Binding Source="{StaticResource ListViewMovieItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewMovieItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1108,8 +1108,8 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource MusicItemListView}"/>
-          <Binding Source="{StaticResource MusicItemGridView}"/>
+          <Binding Source="{StaticResource ListViewMusicItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewMusicItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1120,8 +1120,8 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{StaticResource PictureItemListView}"/>
-          <Binding Source="{StaticResource PictureItemGridView}"/>
+          <Binding Source="{StaticResource ListViewPictureItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewPictureItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
