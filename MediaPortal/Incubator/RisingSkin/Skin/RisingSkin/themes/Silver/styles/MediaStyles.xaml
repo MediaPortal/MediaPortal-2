@@ -795,7 +795,7 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="Filter_l.png" 
-             Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
+             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
         <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
@@ -997,9 +997,8 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" 
-             Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"
-             FallbackSource="Music_l.png"/>
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Music_l.png" 
+             Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
         <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
              HorizontalAlignment="Center"/>
       </Grid>
