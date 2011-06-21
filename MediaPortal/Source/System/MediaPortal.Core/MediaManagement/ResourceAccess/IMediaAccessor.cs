@@ -85,15 +85,21 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     IResourceLocator GetResourceLocator(MediaItem item);
 
     /// <summary>
-    /// Returns an enumeration of local metadata extractors which are classified into the specified
+    /// Returns the ids of all local metadata extractors which are classified into the specified
     /// <paramref name="mediaCategory"/>.
     /// </summary>
     /// <param name="mediaCategory">The category to find all local metadata extractors for. If
     /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
     /// independent of their category.</param>
-    /// <returns>Enumeration of ids of metadata extractors which can handle the
-    /// specified <paramref name="mediaCategory"/>.</returns>
+    /// <returns>Ids of metadata extractors which can handle the specified <paramref name="mediaCategory"/>.</returns>
     IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory);
+
+    /// <summary>
+    /// Returns the ids of all local metadata extractors which fill the given media item aspect types.
+    /// </summary>
+    /// <param name="miaTypeIDs">IDs of media item aspects which should be filled.</param>
+    /// <returns>Ids of metadata extractors which fill the specified media item aspects.</returns>
+    IEnumerable<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.
@@ -124,12 +130,25 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// Returns a media item with metadata extracted by the metadata extractors specified by the
     /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
     /// </summary>
+    /// <remarks>
+    /// This is a convenience method for <see cref="CreateMediaItem(ISystemResolver,IResourceAccessor,IEnumerable{System.Guid})"/>.
+    /// For iterated calls of this method use the other method instead.
+    /// </remarks>
+    /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
+    /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
+    /// <returns>Media item with the specified metadata </returns>
+    MediaItem CreateMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
+
+    /// <summary>
+    /// Returns a media item with metadata extracted by the metadata extractors specified by the
+    /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
+    /// </summary>
     /// <param name="systemResolver">System resolver instance. This parameter is for performance to avoid
     /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
     /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>
-    MediaItem GetMetadata(ISystemResolver systemResolver,
+    MediaItem CreateMediaItem(ISystemResolver systemResolver,
         IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
   }
 }

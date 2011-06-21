@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.SystemResolver;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -314,13 +315,20 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      foreach (IMetadataExtractor metadataExtractor in mediaAccessor.LocalMetadataExtractors.Values)
+      foreach (IMetadataExtractor metadataExtractor in LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
         if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
           yield return metadataExtractor.Metadata.MetadataExtractorId;
       }
+    }
+
+    public IEnumerable<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs)
+    {
+      // Return all metadata extractors which fill our desired media item aspects
+      return LocalMetadataExtractors.Where(
+          extractor => extractor.Value.Metadata.ExtractedAspectTypes.Keys.Intersect(miaTypeIDs).Count() > 0).Select(
+          kvp => kvp.Key);
     }
 
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
@@ -349,7 +357,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       return success ? result : null;
     }
 
-    public MediaItem GetMetadata(ISystemResolver systemResolver,
+    public MediaItem CreateMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      return CreateMediaItem(systemResolver, mediaItemAccessor, metadataExtractorIds);
+    }
+
+    public MediaItem CreateMediaItem(ISystemResolver systemResolver,
         IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds);

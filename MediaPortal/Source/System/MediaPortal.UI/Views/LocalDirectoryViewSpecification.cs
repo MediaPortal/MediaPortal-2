@@ -24,11 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Views
 {
@@ -132,20 +132,14 @@ namespace MediaPortal.UI.Views
       subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      ICollection<Guid> metadataExtractorIds = new List<Guid>();
-      ICollection<Guid> miaTypeIDs = new HashSet<Guid>(_necessaryMIATypeIds);
-      CollectionUtils.AddAll(miaTypeIDs, _optionalMIATypeIds);
-      foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
-        // Collect all metadata extractors which fill our desired media item aspects
-        if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, miaTypeIDs))
-          metadataExtractorIds.Add(extractor.Key);
+      IEnumerable<Guid> metadataExtractorIds = mediaAccessor.GetMetadataExtractorsForMIATypes(_necessaryMIATypeIds.Union(_optionalMIATypeIds));
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor();
       // Add all items at the specified path
       ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
       if (files != null)
         foreach (IFileSystemResourceAccessor childAccessor in files)
         {
-          MediaItem result = mediaAccessor.GetMetadata(systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
           if (result != null)
             mediaItems.Add(result);
         }
@@ -153,7 +147,7 @@ namespace MediaPortal.UI.Views
       if (directories != null)
         foreach (IFileSystemResourceAccessor childAccessor in directories)
         {
-          MediaItem result = mediaAccessor.GetMetadata(systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
           if (result == null)
             subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.LocalResourcePath,
               _necessaryMIATypeIds, _optionalMIATypeIds));
