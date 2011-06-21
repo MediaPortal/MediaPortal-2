@@ -86,20 +86,22 @@ namespace MediaPortal.UI.Services.RemovableMedia
       Net = 0x0002                // DBTF_NET
     }
 
-    public struct BroadcastHeader   // _DEV_BROADCAST_HDR 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BroadcastHeader     // _DEV_BROADCAST_HDR 
     {
-      public int Size;            // dbch_size
-      public DeviceType Type;     // dbch_devicetype
-      private int Reserved;       // dbch_reserved
+      public int Size;                // dbch_size
+      public DeviceType Type;         // dbch_devicetype
+      private readonly int Reserved;  // dbch_reserved
     }
 
-    public struct Volume            // _DEV_BROADCAST_VOLUME 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Volume              // _DEV_BROADCAST_VOLUME 
     {
-      public int Size;            // dbcv_size
-      public DeviceType Type;     // dbcv_devicetype
-      private int Reserved;       // dbcv_reserved
-      public int Mask;            // dbcv_unitmask
-      public int Flags;           // dbcv_flags
+      public int Size;                // dbcv_size
+      public DeviceType Type;         // dbcv_devicetype
+      private readonly int Reserved;  // dbcv_reserved
+      public int Mask;                // dbcv_unitmask
+      public int Flags;               // dbcv_flags
     }
 
     #endregion
