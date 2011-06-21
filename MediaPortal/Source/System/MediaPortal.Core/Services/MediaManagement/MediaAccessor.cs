@@ -24,10 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -300,6 +302,16 @@ namespace MediaPortal.Core.Services.MediaManagement
       return result;
     }
 
+    public IResourceLocator GetResourceLocator(MediaItem item)
+    {
+      if (item == null || !item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        return null;
+      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
+      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+    }
+
     public IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
@@ -337,14 +349,21 @@ namespace MediaPortal.Core.Services.MediaManagement
       return success ? result : null;
     }
 
-    public IResourceLocator GetResourceLocator(MediaItem item)
+    public MediaItem GetMetadata(ISystemResolver systemResolver,
+        IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
-      if (item == null || !item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+      IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds);
+      if (aspects == null)
         return null;
-      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
-      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+      MediaItemAspect providerResourceAspect;
+      if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
+      else
+        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
+            ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
+      return new MediaItem(Guid.Empty, aspects);
     }
 
     #endregion
@@ -354,11 +373,9 @@ namespace MediaPortal.Core.Services.MediaManagement
     public IList<string> GetStatus()
     {
       List<string> status = new List<string> {"=== MediaManager - MediaProviders"};
-      foreach (IMediaProvider provider in _providers.Values)
-        status.Add(string.Format("     Provider '{0}'", provider.Metadata.Name));
+      status.AddRange(_providers.Values.Select(provider => string.Format("     Provider '{0}'", provider.Metadata.Name)));
       status.Add("=== MediaManager - MetadataExtractors");
-      foreach (IMetadataExtractor metadataExtractor in _metadataExtractors.Values)
-        status.Add(string.Format("     MetadataExtractor '{0}'", metadataExtractor.Metadata.Name));
+      status.AddRange(_metadataExtractors.Values.Select(metadataExtractor => string.Format("     MetadataExtractor '{0}'", metadataExtractor.Metadata.Name)));
       return status;
     }
 
