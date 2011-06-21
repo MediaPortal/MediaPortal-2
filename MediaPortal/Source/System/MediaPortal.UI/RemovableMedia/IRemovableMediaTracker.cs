@@ -26,6 +26,9 @@ using System;
 
 namespace MediaPortal.UI.RemovableMedia
 {
+  /// <summary>
+  /// Service which sends media drive change events.
+  /// </summary>
   public interface IRemovableMediaTracker : IDisposable
   {
     /// <summary>
