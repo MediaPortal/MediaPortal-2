@@ -243,7 +243,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       if (!mediaItemAccessor.IsFile)
         return false;

@@ -288,9 +288,10 @@ namespace MediaPortal.Core.Services.MediaManagement
         ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
         IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
+      const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.LocalResourcePath;
       ImporterWorkerMessaging.SendImportStatusMessage(path);
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors);
+      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;

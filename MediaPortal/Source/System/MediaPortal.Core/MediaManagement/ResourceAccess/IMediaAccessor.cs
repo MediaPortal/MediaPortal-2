@@ -107,24 +107,26 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
     /// specified media file.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
     /// The result might not contain all media item aspects which can be extracted by the specified media provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds);
+        IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.
     /// </summary>
     /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractors">Enumeration of metadata extractors to apply to the specified media file.</param>
+    /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified media provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors);
+        IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode);
 
     /// <summary>
     /// Returns a media item with metadata extracted by the metadata extractors specified by the

@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       if (!HasImageExtension(mediaItemAccessor.ResourcePathName))
         return false;
@@ -133,6 +133,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       MediaItemAspect pictureAspect;
       if (!extractedAspectData.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
         extractedAspectData[PictureAspect.ASPECT_ID] = pictureAspect = new MediaItemAspect(PictureAspect.Metadata);
+      MediaItemAspect thumbnailSmallAspect;
+      if (!extractedAspectData.TryGetValue(ThumbnailSmallAspect.ASPECT_ID, out thumbnailSmallAspect))
+        extractedAspectData[ThumbnailSmallAspect.ASPECT_ID] = thumbnailSmallAspect = new MediaItemAspect(ThumbnailSmallAspect.Metadata);
+      MediaItemAspect thumbnailLargeAspect;
+      if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
+        extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
 
       try
       {
@@ -143,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
           mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.DTOrig != DateTime.MinValue ? exif.DTOrig : mediaItemAccessor.LastChanged);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
           pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (Int32) exif.PixXDim);
@@ -157,23 +163,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           pictureAspect.SetAttribute(PictureAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
           pictureAspect.SetAttribute(PictureAspect.ATTR_ORIENTATION, (Int32) exif.Orientation);
           pictureAspect.SetAttribute(PictureAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-        
+
           ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
           string localFsResourcePath = lfsra.LocalFileSystemPath;
           if (localFsResourcePath != null)
           {
+            // In quick mode only allow thumbs taken from cache.
+            bool cachedOnly = forceQuickMode;
+
             // Thumbnail extraction
             IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
             byte[] thumbData;
             ImageType imageType;
-            if (generator.GetThumbnail(localFsResourcePath, 32, 32, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_SMALL, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 96, 96, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
-            if (generator.GetThumbnail(localFsResourcePath, 1024, 1024, out thumbData, out imageType))
-              mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
+            if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
+              thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+            if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+              thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
           }
         }
         return true;

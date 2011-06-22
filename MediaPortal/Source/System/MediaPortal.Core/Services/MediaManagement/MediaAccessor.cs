@@ -331,7 +331,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     }
 
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds)
+        IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
@@ -340,17 +340,17 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors);
+      return ExtractMetadata(mediaItemAccessor, extractors, forceQuickMode);
     }
 
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors)
+        IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
       IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
       bool success = false;
       foreach (IMetadataExtractor extractor in metadataExtractors)
       {
-        if (extractor.TryExtractMetadata(mediaItemAccessor, result))
+        if (extractor.TryExtractMetadata(mediaItemAccessor, result, forceQuickMode))
           success = true;
       }
       return success ? result : null;
@@ -365,7 +365,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     public MediaItem CreateMediaItem(ISystemResolver systemResolver,
         IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
-      IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds);
+      const bool forceQuickMode = true;
+      IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)
         return null;
       MediaItemAspect providerResourceAspect;

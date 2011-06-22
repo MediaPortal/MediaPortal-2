@@ -266,6 +266,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_NUM_ITEMS = "NumItems";
     public const string KEY_DURATION = "Duration";
+    public const string KEY_AUDIO_ENCODING = "AudioEncoding";
+    public const string KEY_VIDEO_ENCODING = "VideoEncoding";
 
     public const string KEY_IS_CURRENT_ITEM = "IsCurrentItem";
 

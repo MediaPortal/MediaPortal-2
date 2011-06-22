@@ -211,7 +211,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, string localFsResourcePath)
+      public void UpdateMetadata(MediaItemAspect mediaAspect, MediaItemAspect videoAspect, MediaItemAspect thumbnailSmallAspect, MediaItemAspect thumbnailLargeAspect, string localFsResourcePath, bool forceQuickMode)
       {
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, _title);
         mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, _mimeType);
@@ -238,18 +238,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         if (localFsResourcePath != null)
         {
+          // In quick mode only allow thumbs taken from cache.
+          bool cachedOnly = forceQuickMode;
+
           // Thumbnail extraction
           IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
           byte[] thumbData;
           ImageType imageType;
-          if (generator.GetThumbnail(localFsResourcePath, 32, 32, out thumbData, out imageType))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_SMALL, thumbData);
-          if (generator.GetThumbnail(localFsResourcePath, 96, 96, out thumbData, out imageType))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_MEDIUM, thumbData);
-          if (generator.GetThumbnail(localFsResourcePath, 256, 256, out thumbData, out imageType))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_LARGE, thumbData);
-          if (generator.GetThumbnail(localFsResourcePath, 1024, 1024, out thumbData, out imageType))
-            mediaAspect.SetAttribute(MediaAspect.ATTR_THUMB_XLARGE, thumbData);
+          if (generator.GetThumbnail(localFsResourcePath, 96, 96, cachedOnly, out thumbData, out imageType))
+            thumbnailSmallAspect.SetAttribute(ThumbnailSmallAspect.ATTR_THUMBNAIL, thumbData);
+          if (generator.GetThumbnail(localFsResourcePath, 256, 256, cachedOnly, out thumbData, out imageType))
+            thumbnailLargeAspect.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
         }
       }
 
@@ -266,7 +265,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -323,9 +322,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MediaItemAspect videoAspect;
           if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
             extractedAspectData[VideoAspect.ASPECT_ID] = videoAspect = new MediaItemAspect(VideoAspect.Metadata);
+          MediaItemAspect thumbnailSmallAspect;
+          if (!extractedAspectData.TryGetValue(ThumbnailSmallAspect.ASPECT_ID, out thumbnailSmallAspect))
+            extractedAspectData[ThumbnailSmallAspect.ASPECT_ID] = thumbnailSmallAspect = new MediaItemAspect(ThumbnailSmallAspect.Metadata);
+          MediaItemAspect thumbnailLargeAspect;
+          if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
+            extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
 
           ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-          result.UpdateMetadata(mediaAspect, videoAspect, lfsra.LocalFileSystemPath);
+          result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
           return true;
         }
       }
