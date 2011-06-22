@@ -364,12 +364,10 @@
                       VerticalAlignment="Center"/>
                   <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
                       VerticalAlignment="Center"/>
-                </Grid>
-                <!-- PlayerStatePanel -->
+                </Grid> <!-- PlayerStatePanel -->
                 <Label x:Name="PictureName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                     HorizontalAlignment="Left" VerticalAlignment="Center"/>
-              </DockPanel>
-              <!-- HeadLine -->
+              </DockPanel> <!-- HeadLine -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="10,10,10,0"
                   IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -382,12 +380,9 @@
                     Command="{Command Stop}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
-              </StackPanel>
-              <!-- PlayControlsPanel -->
-            </Grid>
-            <!-- PlayerGrid -->
-          </Border>
-          <!-- OSD_Background -->
+              </StackPanel> <!-- PlayControlsPanel -->
+            </Grid> <!-- PlayerGrid -->
+          </Border> <!-- OSD_Background -->
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
@@ -449,8 +444,7 @@
                 <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0"
                     IsVisible="{Binding HasAudio}">
                   <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <!-- Must be located the same as Audio_Mouse -->
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                       <Control.IsVisible>
@@ -462,16 +456,14 @@
                     </Control>
                   </Grid>
                   <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <!-- Must be located the same as Audio_NoMouse -->
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
                         Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
                         Command="{Command AudioButtonPressed}"/>
                   </Grid>
                 </Grid>
-                <Grid DockPanel.Dock="Center">
-                  <!-- Has to be last control in DockPanel, LastChildFill! -->
+                <Grid DockPanel.Dock="Center"> <!-- Has to be last control in DockPanel, LastChildFill! -->
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
@@ -482,8 +474,7 @@
                       HorizontalAlignment="Left" VerticalAlignment="Center"
                       MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
-              </DockPanel>
-              <!-- PiPHeaderPanel -->
+              </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
                   Style="{ThemeResource PipControlStyle}" RenderTransformOrigin="0.5,0.5"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -503,8 +494,7 @@
                     </Trigger.ExitActions>
                   </Trigger>
                 </Button.Triggers>
-              </Button>
-              <!-- PiPButton -->
+              </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
                   Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
@@ -523,12 +513,9 @@
                     Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
-              </StackPanel>
-              <!-- PlayControlsPanel -->
-            </Grid>
-            <!-- PlayerGrid -->
-          </Border>
-          <!-- OSD_Background -->
+              </StackPanel> <!-- PlayControlsPanel -->
+            </Grid> <!-- PlayerGrid -->
+          </Border> <!-- OSD_Background -->
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Trigger.EnterActions>
@@ -1127,9 +1114,8 @@
     </Control>
   </DataTemplate>
 
-  
   <DataStringProvider x:Key="MediaItemDataStringProvider" Path="Title"/>
-  
+
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused 
        It's used only for "Grid Layout" (WrapPanel) to enable changing if ZIndex.
   -->
@@ -1155,7 +1141,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- Different styles for list and grid views -->
   <Style x:Key="MediaItemsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
