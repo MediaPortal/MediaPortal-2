@@ -30,7 +30,6 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.SystemResolver;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
