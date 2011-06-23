@@ -181,6 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void SetTemplateControl(FrameworkElement templateControl, IList<TriggerBase> triggers)
     {
       SetTemplateControl(templateControl);
+      UninitializeTriggers();
       CollectionUtils.AddAll(Triggers, triggers);
     }
 

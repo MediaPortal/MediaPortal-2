@@ -264,6 +264,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
+      Style oldStyle = oldValue as Style;
+      if (oldStyle != null)
+        oldStyle.Reset();
       Style.Set(this);
       InvalidateLayout(true, true);
     }

@@ -37,8 +37,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region Ctor
 
-    protected SetterBase() { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
@@ -78,5 +76,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The UI element which is used as starting point for this setter
     /// to earch the target element.</param>
     public abstract void Set(UIElement element);
+
+    /// <summary>
+    /// Restore the target element's original value.
+    /// </summary>
+    /// <param name="element">The UI element which is used as starting point for this setter
+    /// to reach the target element.</param>
+    public abstract void Restore(UIElement element);
   }
 }

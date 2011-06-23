@@ -143,6 +143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         FrameworkElement templateControl = Template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
         TemplateControl = templateControl;
         finishDlgt.Invoke();
+        UninitializeTriggers();
         CollectionUtils.AddAll(Triggers, newTriggers);
       }
       else

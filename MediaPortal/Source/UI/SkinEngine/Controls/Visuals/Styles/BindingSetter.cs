@@ -21,6 +21,10 @@
 */
 #endregion
 
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
@@ -30,6 +34,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 {
   public class BindingSetter : SetterBase
   {
+    #region Consts
+
+    protected const string BINDING_SETTER_BINDINGS = "BindingSetter.Bindings";
+
+    #endregion
+
     #region Protected fields
 
     protected BindingWrapper _bindingWrapper;
@@ -63,19 +73,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
+    protected DependencyObject FindTarget(UIElement startElement)
+    {
+      DependencyObject target = null;
+      if (!string.IsNullOrEmpty(TargetName))
+      {
+        target = startElement.FindElement(new NameMatcher(TargetName));
+        if (target == null)
+          return null;
+      }
+      return target ?? startElement;
+    }
+
     public override void Set(UIElement element)
     {
       if (_bindingWrapper == null || _bindingWrapper.Binding == null)
         return;
-      DependencyObject target = null;
-      if (!string.IsNullOrEmpty(TargetName))
-      {
-        target = element.FindElement(new NameMatcher(TargetName));
-        if (target == null)
-          return;
-      }
+      DependencyObject target = FindTarget(element);
       if (target == null)
-        target = element;
+        return;
+      AbstractProperty bindingsProperty = target.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS, (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
+      IDictionary<BindingSetter, IBinding> bindings = (IDictionary<BindingSetter, IBinding>) bindingsProperty.GetValue();
+      if (bindings.ContainsKey(this))
+        return;
       int index = Property.IndexOf('.');
       if (index != -1)
       {
@@ -84,15 +104,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         MpfAttachedPropertyDataDescriptor targetDd;
         if (MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
             element, propertyProvider, propertyName, out targetDd))
-        _bindingWrapper.Binding.CopyAndRetarget(targetDd);
+        bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
       }
       else
       {
         string propertyName = Property;
         IDataDescriptor targetDd;
         if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out targetDd))
-          _bindingWrapper.Binding.CopyAndRetarget(targetDd);
+          bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
       }
+    }
+
+    public override void Restore(UIElement element)
+    {
+      DependencyObject target = FindTarget(element);
+      if (target == null)
+        return;
+      AbstractProperty bindingsProperty = target.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS, (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
+      IDictionary<BindingSetter, IBinding> bindings = (IDictionary<BindingSetter, IBinding>) bindingsProperty.GetValue();
+      IBinding binding;
+      if (!bindings.TryGetValue(this, out binding))
+        return;
+      IDisposable d = binding as IDisposable;
+      if (d != null)
+        d.Dispose(); // Also removes the binding from the binding collection in its context object
+      bindings.Remove(this);
     }
   }
 }
