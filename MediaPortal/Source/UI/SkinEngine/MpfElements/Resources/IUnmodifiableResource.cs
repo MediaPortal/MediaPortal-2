@@ -30,8 +30,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// have an owner, they are not copied at all and they are only disposed by their owner, for example an enclosing
   /// <see cref="ResourceDictionary"/>. If they don't have an owner, they will be copied and disposed normally as any other object.
   /// </summary>
+  /// <remarks>
+  /// This interface provides a similar function as the WPF <c>Freezable</c> class, but a bit more lightweight. We can only
+  /// differentiate between modifiable (=normal) and unmodifiable (corresponds to a WPF "frozen" object) objects.
+  /// </remarks>
   public interface IUnmodifiableResource
   {
+    /// <summary>
+    /// Gets the owner object of this resource. Implementors should simply provide a trivial implementation with
+    /// a variable to set and get the owner.
+    /// </summary>
     object Owner { get; set; }
   }
 }
