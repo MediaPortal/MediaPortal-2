@@ -1119,11 +1119,11 @@
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused 
        It's used only for "Grid Layout" (WrapPanel) to enable changing if ZIndex.
   -->
-  <Style x:Key="GridViewItemContainerStyle" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="GridViewItemContainerStyle" BasedOn="{ThemeResource ListViewBaseStyle}" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}" Margin="2"
+          <Button Style="{ThemeResource ButtonStyle}" Margin="2"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
@@ -1132,11 +1132,6 @@
               </Trigger>
             </Button.Triggers>
           </Button>
-          <ControlTemplate.Triggers>
-            <Trigger Property="Selected" Value="True">
-              <Setter Property="WrapPanel.ZIndex" Value="100.0"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>        
       </Setter.Value>
     </Setter>
@@ -1173,8 +1168,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false" HorizontalScrollBarVisibility="Disabled"
-                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false"
+              HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>

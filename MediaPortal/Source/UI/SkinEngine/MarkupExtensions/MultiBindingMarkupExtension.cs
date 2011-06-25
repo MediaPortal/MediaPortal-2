@@ -35,6 +35,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <summary>
   /// Implements the MPF MultiBinding markup extension.
   /// </summary>
+
+  // Implementation hint about multithreading/locking:
+  // Actually, all bindings suffer from the potential to be called from multiple threads because we cannot avoid that multiple threads
+  // update model properties we're bound to. But currently, we only synchronize the MultiBinding against multithreading problems
+  // because the probability that a MultiBinding is updated by multiple threads is much higher than the probability for a normal Binding.
+  // This comment can also be found in BindingMarkupExtension.
   public class MultiBindingMarkupExtension: BindingBase, IAddChild<BindingMarkupExtension>
   {
     #region Protected fields
@@ -46,6 +52,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
 
     // State variables
+    protected object _syncObj = new object();
     protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
     protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
@@ -70,16 +77,19 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
-      Detach();
-      if (_bindingDependency != null)
+      lock (_syncObj)
       {
-        _bindingDependency.Detach();
-        _bindingDependency = null;
+        Detach();
+        if (_bindingDependency != null)
+        {
+          _bindingDependency.Detach();
+          _bindingDependency = null;
+        }
+        // Child bindings will be disposed automatically by DependencyObject.Dispose, because they are
+        // added to our binding collection (was done by method AddChild)
+        ResetBindingAttachments();
+        base.Dispose();
       }
-      // Child bindings will be disposed automatically by DependencyObject.Dispose, because they are
-      // added to our binding collection (was done by method AddChild)
-      ResetBindingAttachments();
-      base.Dispose();
     }
 
     protected void Attach()
@@ -311,17 +321,21 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       bool sourceValueValid = false;
       try
       {
-        IDataDescriptor[] values;
-        if (!GetSourceValues(out values))
-            // Do nothing if not all necessary child bindings can be resolved at the current time
-          return false;
-        if (_converter == null)
-          throw new XamlBindingException("MultiBindingMarkupExtension: Converter must be set");
         object result;
-        Type targetType = _targetDataDescriptor == null ? typeof(object) : _targetDataDescriptor.DataType;
-        if (!_converter.Convert(values, targetType, ConverterParameter, out result))
-          return false;
-        IsSourceValueValid = sourceValueValid = true;
+        lock (_syncObj)
+        {
+          IDataDescriptor[] values;
+          if (!GetSourceValues(out values))
+              // Do nothing if not all necessary child bindings can be resolved at the current time
+            return false;
+          if (_converter == null)
+            throw new XamlBindingException("MultiBindingMarkupExtension: Converter must be set");
+          Type targetType = _targetDataDescriptor == null ? typeof(object) : _targetDataDescriptor.DataType;
+          if (!_converter.Convert(values, targetType, ConverterParameter, out result))
+            return false;
+          IsSourceValueValid = sourceValueValid = true;
+        }
+        // Set the binding's value outside the lock to comply with the MP2 threading policy
         _evaluatedSourceValue.SourceValue = new ValueDataDescriptor(result);
         return true;
       }
@@ -349,12 +363,18 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           return true;
         }
         IDataDescriptor sourceDd;
-        if (!Evaluate(out sourceDd))
-        {
-          _retryBinding = true;
-          return false;
-        }
+        lock (_syncObj)
+          if (!Evaluate(out sourceDd))
+          {
+            _retryBinding = true;
+            return false;
+          }
+        // Don't lock the following lines because the binding dependency object updates source or target objects.
+        // Holding a lock during that process would offend against the MP2 threading policy.
 
+        if (_bindingDependency != null)
+          _bindingDependency.Detach();
+        _bindingDependency = null;
         switch (Mode)
         {
           case BindingMode.TwoWay:
@@ -367,13 +387,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             Dispose();
             return true; // In this case, we have finished with only assigning the value
           default: // Mode == BindingMode.OneWay || Mode == BindingMode.Default
-            if (_bindingDependency != null)
-              _bindingDependency.Detach();
             _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
                 UpdateSourceTrigger.Explicit, null, null, null);
             _retryBinding = false;
-            return true;
+            break;
         }
+        return true;
       }
       finally
       {

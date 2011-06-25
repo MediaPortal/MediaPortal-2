@@ -92,8 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     /// <summary>
     /// Gets or sets the value to be set on our target. This value will be
-    /// later converted to the right target type and stored in the attached property "OriginalValue"
-    /// (see <see cref="SetOriginalValue"/>).
+    /// later converted to the correct target type.
     /// </summary>
     public object Value
     {
@@ -146,37 +145,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       }
     }
 
-    protected string GetAttachedPropertyName_OriginalValue()
+    /// <summary>
+    /// Wrapper class for storing the original value of a property
+    /// </summary>
+    protected internal class SetterData
     {
-      return "Setter." + Property + ".OriginalValue";
+      protected object _origValue;
+
+      public SetterData(object origValue)
+      {
+        _origValue = origValue;
+      }
+
+      public object OrigValue
+      {
+        get { return _origValue; }
+      }
     }
 
-    protected string GetAttachedPropertyName_CurrentSetter()
+    protected string GetAttachedPropertyName()
     {
-      return "Setter." + Property + ".CurrentSetter";
+      return "Setter." + "." + Property + ".Data"; // The attached property will be attached to the target object so we don't need the TargetName here
     }
 
-    protected object GetOriginalValue(DependencyObject targetObject)
+    protected SetterData GetSetterData(DependencyObject targetObject)
     {
-      return targetObject.GetAttachedPropertyValue<object>(GetAttachedPropertyName_OriginalValue(), null);
+      return targetObject.GetAttachedPropertyValue<SetterData>(GetAttachedPropertyName(), null);
     }
 
-    protected void SetOriginalValue(DependencyObject targetObject, object value)
+    protected void SetSetterData(DependencyObject targetObject, SetterData setterData)
     {
-      targetObject.SetAttachedPropertyValue<object>(GetAttachedPropertyName_OriginalValue(), value);
-      targetObject.SetAttachedPropertyValue<object>(GetAttachedPropertyName_CurrentSetter(), this);
-    }
-
-    protected bool WasApplied(DependencyObject targetObject)
-    {
-      return ReferenceEquals(targetObject.GetAttachedPropertyValue<object>(
-          GetAttachedPropertyName_CurrentSetter(), null), this);
+      targetObject.SetAttachedPropertyValue(GetAttachedPropertyName(), setterData);
     }
 
     protected void ClearSetterData(DependencyObject targetObject)
     {
-      targetObject.RemoveAttachedProperty(GetAttachedPropertyName_OriginalValue());
-      targetObject.RemoveAttachedProperty(GetAttachedPropertyName_CurrentSetter());
+      targetObject.RemoveAttachedProperty(GetAttachedPropertyName());
     }
 
     #endregion
@@ -189,16 +193,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
+      SetterData setterData = GetSetterData(targetObject);
+      if (setterData != null)
+        // If any setter is currently setting our property, we don't want to interfere
+        return;
       object obj;
-      if (!WasApplied(targetObject))
-      { // We have to initialize the original property value the first time for this target object
 
-        // The next lines are necessary because the render thread is setting our values.
-        // If there's still a value pending to be set by the render thread, we would get an old, obsolete value if
-        // we just copied dd.Value to _originalValue.
-        element.GetPendingOrCurrentValue(dd, out obj);
-        SetOriginalValue(targetObject, obj);
-      }
+      // The next lines are necessary because the render thread is setting our values.
+      // If there's still a value pending to be set by the render thread, we would get an old, obsolete value if
+      // we just copied dd.Value to _originalValue.
+      element.GetPendingOrCurrentValue(dd, out obj);
+      SetSetterData(targetObject, new SetterData(obj));
+
       if (TypeConverter.Convert(Value, dd.DataType, out obj))
         if (ReferenceEquals(Value, obj))
           element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
@@ -211,22 +217,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         return;
     }
 
-    /// <summary>
-    /// Restore the target element's original value which was set to the <see cref="Value"/> before.
-    /// </summary>
-    /// <param name="element">The UI element which is used as starting point for this setter
-    /// to reach the target element.</param>
-    public void Restore(UIElement element)
+    public override void Restore(UIElement element)
     {
       IDataDescriptor dd;
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (WasApplied(targetObject))
-      {
-        element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
-        ClearSetterData(targetObject);
-      }
+      SetterData setterData = GetSetterData(targetObject);
+      if (setterData == null)
+        return;
+      element.SetValueInRenderThread(dd, setterData.OrigValue);
+      ClearSetterData(targetObject);
     }
 
     #endregion

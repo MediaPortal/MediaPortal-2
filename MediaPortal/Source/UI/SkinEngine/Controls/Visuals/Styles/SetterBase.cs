@@ -37,8 +37,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region Ctor
 
-    protected SetterBase() { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
@@ -70,6 +68,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       set { _targetName = value; }
     }
 
+    /// <summary>
+    /// Unique name for this setter in a parent style's name scope for a given target element.
+    /// </summary>
+    internal string UnambiguousPropertyName
+    {
+      get { return _targetName + "." + _propertyName; }
+    }
+
     #endregion
 
     /// <summary>
@@ -78,5 +84,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The UI element which is used as starting point for this setter
     /// to earch the target element.</param>
     public abstract void Set(UIElement element);
+
+    /// <summary>
+    /// Restore the target element's original value.
+    /// </summary>
+    /// <param name="element">The UI element which is used as starting point for this setter
+    /// to reach the target element.</param>
+    public abstract void Restore(UIElement element);
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return "Setter: Property='" + Property + "', TargetName='" + TargetName + "'";
+    }
+
+    #endregion
   }
 }

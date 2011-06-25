@@ -38,7 +38,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public virtual void Setup(UIElement element)
     {
-      GetOrCreateDataContext().Source = element;
+    }
+
+    public virtual void Reset(UIElement element)
+    {
     }
   }
 }

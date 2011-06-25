@@ -286,7 +286,7 @@
 
   
   <!-- ProgramGuideViewStyle defines the horizontal layout for the MultiChannelGuide program rows. -->
-  <Style x:Key="ProgramGuideViewStyle" TargetType="{x:Type ListView}">
+  <Style x:Key="ProgramGuideViewStyle" BasedOn="{ThemeResource ListViewBaseStyle}" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">

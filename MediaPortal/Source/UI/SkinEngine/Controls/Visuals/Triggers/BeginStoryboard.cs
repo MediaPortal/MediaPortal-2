@@ -136,6 +136,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       RegisterName();
     }
 
+    public override void Reset(UIElement element)
+    {
+      base.Reset(element);
+      if (Storyboard != null && element != null)
+        element.StopStoryboard(Storyboard);
+    }
+
     #region IAddChild<Storyboard> implementation
 
     public void AddChild(Storyboard s)

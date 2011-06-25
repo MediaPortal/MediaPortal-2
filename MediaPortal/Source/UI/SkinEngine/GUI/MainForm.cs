@@ -187,6 +187,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       System.Windows.Forms.Screen screen = screenNum < 0 || screenNum >= screens.Length ?
           System.Windows.Forms.Screen.PrimaryScreen :
           System.Windows.Forms.Screen.AllScreens[screenNum];
+      WindowState = FormWindowState.Normal;
       Rectangle rect = screen.Bounds;
       Location = rect.Location;
       ClientSize = rect.Size;
@@ -423,9 +424,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       SkinContext.WindowSize = ClientSize;
 
-      CheckTopMost();
       Update();
       Activate();
+      CheckTopMost();
 
       StartUI();
     }

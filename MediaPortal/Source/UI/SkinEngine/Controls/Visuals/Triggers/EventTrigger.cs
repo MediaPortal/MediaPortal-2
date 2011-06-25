@@ -93,12 +93,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #region Protected members
 
-    protected void AttachToUIElement(UIElement element)
+    protected void AttachToUIElement()
     {
+      if (_element == null)
+        return;
       if (_registeredUIElement != null)
         _registeredUIElement.EventOccured -= OnUIEvent;
-      element.EventOccured += OnUIEvent;
-      _registeredUIElement = element;
+      _element.EventOccured += OnUIEvent;
+      _registeredUIElement = _element;
+    }
+
+    protected void DetachFromUIElement()
+    {
+      if (_element == null)
+        return;
+      if (_registeredUIElement != null)
+        _registeredUIElement.EventOccured -= OnUIEvent;
+      _registeredUIElement = null;
     }
 
     void OnUIEvent(string eventName)
@@ -114,8 +125,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Setup(UIElement element)
     {
+      DetachFromUIElement();
       base.Setup(element);
-      AttachToUIElement(element);
+      AttachToUIElement();
+    }
+
+    public override void Reset()
+    {
+      base.Reset();
+      DetachFromUIElement();
     }
 
     #endregion

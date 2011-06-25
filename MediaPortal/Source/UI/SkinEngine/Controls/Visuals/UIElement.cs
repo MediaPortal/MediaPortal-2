@@ -222,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ResourceDictionary _resources;
     protected ElementState _elementState = ElementState.Available;
     protected IExecutableCommand _loaded;
-    protected bool _initializeTriggers = true;
+    protected bool _triggersInitialized = false;
     protected bool _fireLoaded = true;
     protected bool _allocated = false;
     protected readonly object _renderLock = new object(); // Can be used to synchronize several accesses between render thread and other threads
@@ -279,7 +279,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
-      _initializeTriggers = true;
+      _triggersInitialized = false;
 
       copyManager.CopyCompleted += (cm =>
         {
@@ -401,6 +401,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _triggerProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets the list of triggers of this UI element.
+    /// </summary>
+    /// <remarks>
+    /// Before triggers are modified, <see cref="UninitializeTriggers"/> must be called to make the old triggers be reset and the new triggers
+    /// be initialized correctly.
+    /// </remarks>
     public IList<TriggerBase> Triggers
     {
       get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
@@ -959,13 +966,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fireLoaded = false;
     }
 
+    public void UninitializeTriggers()
+    {
+      if (!_triggersInitialized)
+        return;
+      foreach (TriggerBase trigger in Triggers)
+        trigger.Reset();
+      _triggersInitialized = false;
+    }
+
     public void InitializeTriggers()
     {
-      if (!_initializeTriggers)
+      if (_triggersInitialized)
         return;
-      _initializeTriggers = false;
       foreach (TriggerBase trigger in Triggers)
         trigger.Setup(this);
+      _triggersInitialized = true;
     }
 
     public virtual void Allocate()
