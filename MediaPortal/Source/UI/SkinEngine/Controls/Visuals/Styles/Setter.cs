@@ -218,11 +218,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (WasApplied(targetObject, true))
-      {
-        element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
-        ClearSetterData(targetObject);
-      }
+      if (!WasApplied(targetObject, true))
+        return;
+      element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
+      ClearSetterData(targetObject);
     }
 
     #endregion
