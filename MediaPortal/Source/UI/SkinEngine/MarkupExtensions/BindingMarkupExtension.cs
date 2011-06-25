@@ -94,6 +94,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <see cref="BindingMarkupExtension.UpdateSourceTrigger"/>.
   /// </para>
   /// </remarks>
+
+  // Implementation hint about multithreading/locking:
+  // Actually, all bindings suffer from the potential to be called from multiple threads because we cannot avoid that multiple threads
+  // update model properties we're bound to. But currently, we only synchronize the MultiBinding against multithreading problems
+  // because the probability that a MultiBinding is updated by multiple threads is much higher than the probability for a normal Binding.
+  // This comment can also be found in MultiBindingMarkupExtension.
   public class BindingMarkupExtension : BindingBase
   {
     #region Enums
@@ -990,6 +996,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         DebugOutput("UpdateBinding: Binding evaluated to '{0}'", sourceDd.Value);
 #endif
 
+        if (_bindingDependency != null)
+          _bindingDependency.Detach();
+
         bool attachToSource = false;
         bool attachToTarget = false;
         switch (Mode)
@@ -1018,8 +1027,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             Dispose();
             return true; // In this case, we have finished with only assigning the value
         }
-        if (_bindingDependency != null)
-          _bindingDependency.Detach();
         DependencyObject parent;
         if (UpdateSourceTrigger != UpdateSourceTrigger.LostFocus ||
             !FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
