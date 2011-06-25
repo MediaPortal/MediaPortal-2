@@ -33,7 +33,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
   {
     #region Protected fields
 
-    protected UIElement _element = null;
     protected AbstractProperty _valueProperty;
 
     #endregion
@@ -73,10 +72,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     public override void Dispose()
     {
       Registration.CleanupAndDisposeResourceIfOwner(Value, this);
-      DependencyObject targetObject;
-      IDataDescriptor dd;
-      if (_element != null && FindPropertyDescriptor(_element, out dd, out targetObject))
-        Registration.TryCleanupAndDispose(GetOriginalValue(targetObject));
       base.Dispose();
     }
 
@@ -190,7 +185,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Set(UIElement element)
     {
-      _element = element;
       IDataDescriptor dd;
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
@@ -228,7 +222,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
         ClearSetterData(targetObject);
-        _element = null;
       }
     }
 

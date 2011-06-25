@@ -51,7 +51,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     protected AbstractProperty _triggerProperty;
     protected ResourceDictionary _resources;
     protected object _owner = null;
-    protected UIElement _element = null;
 
     #endregion
 
@@ -133,22 +132,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The element to apply this <see cref="Style"/> to.</param>
     public void Set(UIElement element)
     {
-      _element = element;
       MergeResources(element);
       ICollection<TriggerBase> triggers = new List<TriggerBase>();
       UpdateSettersAndCollectTriggers(element, new HashSet<string>(), triggers);
       SetTriggers(element, triggers);
     }
 
-    public void Reset()
+    public void Reset(UIElement element)
     {
-      if (_element == null)
-        return;
-      _element.UninitializeTriggers();
-      ResetTriggers(_element);
-      ResetSetters(_element, new HashSet<string>());
-      ResetResources(_element);
-      _element = null;
+      ResetTriggers(element);
+      ResetSetters(element, new HashSet<string>());
+      ResetResources(element);
     }
 
     protected void MergeResources(UIElement element)
@@ -179,7 +173,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     protected void UpdateSettersAndCollectTriggers(UIElement element,
         ICollection<string> finishedProperties, ICollection<TriggerBase> triggers)
     {
-      _element = element;
       foreach (SetterBase sb in _setters)
       {
         string propertyKey = sb.UnambiguousPropertyName;
@@ -198,9 +191,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     {
       foreach (SetterBase sb in _setters)
       {
-        if (finishedProperties.Contains(sb.Property))
+        string propertyKey = sb.UnambiguousPropertyName;
+        if (finishedProperties.Contains(propertyKey))
           continue;
-        finishedProperties.Add(sb.Property);
+        finishedProperties.Add(propertyKey);
         sb.Restore(element);
       }
       if (_basedOn != null)
@@ -216,6 +210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     protected void ResetTriggers(UIElement element)
     {
+      element.UninitializeTriggers();
       ICollection<TriggerBase> triggers = element.GetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
       if (triggers != null)
       {

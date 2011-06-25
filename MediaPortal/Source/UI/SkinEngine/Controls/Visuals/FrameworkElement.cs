@@ -267,7 +267,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Style oldStyle = oldValue as Style;
       if (oldStyle != null)
       {
-        oldStyle.Reset();
+        oldStyle.Reset(this);
         Registration.TryCleanupAndDispose(oldStyle);
       }
       Style.Set(this);

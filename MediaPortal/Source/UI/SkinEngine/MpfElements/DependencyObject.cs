@@ -85,6 +85,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (_bindings != null)
         foreach (BindingBase _binding in new List<BindingBase>(_bindings))
           _binding.Dispose();
+      if (_attachedProperties != null)
+        foreach (AbstractProperty property in _attachedProperties.Values)
+          Registration.CleanupAndDisposeResourceIfOwner(property.GetValue(), this);
     }
 
     #endregion
