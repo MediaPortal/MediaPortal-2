@@ -133,6 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The element to apply this <see cref="Style"/> to.</param>
     public void Set(UIElement element)
     {
+      _element = element;
       element.UninitializeTriggers();
       MergeResources(element);
       IList<TriggerBase> triggers = new List<TriggerBase>();
@@ -155,13 +156,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
             trigger.Dispose();
         _element.SetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, (IList<TriggerBase>) null);
       }
-      ResetResources();
       ResetSetters(new HashSet<string>());
+      ResetResources();
       _element = null;
     }
 
     protected void MergeResources(UIElement element)
     {
+      _element = element;
       if (_basedOn != null)
         _basedOn.MergeResources(element);
       // Merge resources with those from the target element
@@ -170,7 +172,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     protected void ResetResources()
     {
+      // Remove resources from the target element
       _element.Resources.RemoveResources(Resources);
+      if (_basedOn != null)
+        _basedOn.ResetResources();
     }
 
     /// <summary>

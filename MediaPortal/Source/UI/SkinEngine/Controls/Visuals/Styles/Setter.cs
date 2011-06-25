@@ -33,6 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
   {
     #region Protected fields
 
+    protected UIElement _element = null;
     protected AbstractProperty _valueProperty;
 
     #endregion
@@ -72,6 +73,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     public override void Dispose()
     {
       Registration.CleanupAndDisposeResourceIfOwner(Value, this);
+      DependencyObject targetObject;
+      IDataDescriptor dd;
+      if (_element != null && FindPropertyDescriptor(_element, out dd, out targetObject))
+      {
+        IDisposable d = GetOriginalValue(targetObject) as IDisposable;
+        if (d != null)
+          d.Dispose();
+      }
       base.Dispose();
     }
 
@@ -167,10 +176,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       targetObject.SetAttachedPropertyValue<object>(GetAttachedPropertyName_CurrentSetter(), this);
     }
 
-    protected bool WasApplied(DependencyObject targetObject)
+    protected bool WasApplied(DependencyObject targetObject, bool checkSelf)
     {
-      return ReferenceEquals(targetObject.GetAttachedPropertyValue<object>(
-          GetAttachedPropertyName_CurrentSetter(), null), this);
+      object currentSetter = targetObject.GetAttachedPropertyValue<object>(GetAttachedPropertyName_CurrentSetter(), null);
+      return checkSelf ? ReferenceEquals(currentSetter, this) : (currentSetter != null);
     }
 
     protected void ClearSetterData(DependencyObject targetObject)
@@ -185,11 +194,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Set(UIElement element)
     {
+      _element = element;
       IDataDescriptor dd;
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (WasApplied(targetObject))
+      if (WasApplied(targetObject, false))
+        // If any setter is currently setting our property, we don't want to interfere
         return;
       object obj;
 
@@ -217,11 +228,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       DependencyObject targetObject;
       if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (WasApplied(targetObject))
+      if (WasApplied(targetObject, true))
       {
         element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
         ClearSetterData(targetObject);
       }
+      _element = null;
     }
 
     #endregion
