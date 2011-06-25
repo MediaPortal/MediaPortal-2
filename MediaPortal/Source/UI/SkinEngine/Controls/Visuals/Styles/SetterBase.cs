@@ -83,5 +83,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The UI element which is used as starting point for this setter
     /// to reach the target element.</param>
     public abstract void Restore(UIElement element);
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return "Setter: Property='" + Property + "', TargetName='" + TargetName + "'";
+    }
+
+    #endregion
   }
 }
