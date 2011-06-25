@@ -68,6 +68,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       set { _targetName = value; }
     }
 
+    /// <summary>
+    /// Unique name for this setter for a given target element.
+    /// </summary>
+    internal string UnambiguousPropertyName
+    {
+      get { return _targetName + "." + _propertyName; }
+    }
+
     #endregion
 
     /// <summary>

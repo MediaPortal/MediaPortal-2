@@ -171,9 +171,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       }
       finally
       {
-        IDisposable d = obj as IDisposable;
-        if (d != null && !ReferenceEquals(d, checkValue))
-          d.Dispose();
+        if (!ReferenceEquals(obj, checkValue))
+          // If the conversion created a copy of the object, dispose it
+          Registration.TryCleanupAndDispose(obj);
       }
     }
   }

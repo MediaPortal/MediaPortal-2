@@ -228,8 +228,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
         ClearSetterData(targetObject);
+        _element = null;
       }
-      _element = null;
     }
 
     #endregion

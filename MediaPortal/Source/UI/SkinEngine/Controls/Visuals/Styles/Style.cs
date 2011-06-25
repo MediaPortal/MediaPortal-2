@@ -134,13 +134,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     public void Set(UIElement element)
     {
       _element = element;
-      element.UninitializeTriggers();
       MergeResources(element);
-      IList<TriggerBase> triggers = new List<TriggerBase>();
-      Update(element, new HashSet<string>(), triggers);
-      element.SetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, triggers);
-      // Triggers will automatically be set-up (_initializeTriggers is initially set to true in result)
-      CollectionUtils.AddAll(element.Triggers, triggers);
+      ICollection<TriggerBase> triggers = new List<TriggerBase>();
+      UpdateSettersAndCollectTriggers(element, new HashSet<string>(), triggers);
+      SetTriggers(element, triggers);
     }
 
     public void Reset()
@@ -148,34 +145,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       if (_element == null)
         return;
       _element.UninitializeTriggers();
-      IList<TriggerBase> triggers = _element.GetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, (IList<TriggerBase>) null);
-      if (triggers != null)
-      {
-        foreach (TriggerBase trigger in triggers)
-          if (_element.Triggers.Remove(trigger))
-            trigger.Dispose();
-        _element.SetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, (IList<TriggerBase>) null);
-      }
-      ResetSetters(new HashSet<string>());
-      ResetResources();
+      ResetTriggers(_element);
+      ResetSetters(_element, new HashSet<string>());
+      ResetResources(_element);
       _element = null;
     }
 
     protected void MergeResources(UIElement element)
     {
-      _element = element;
       if (_basedOn != null)
         _basedOn.MergeResources(element);
       // Merge resources with those from the target element
       element.Resources.Merge(Resources);
     }
 
-    protected void ResetResources()
+    protected void ResetResources(UIElement element)
     {
       // Remove resources from the target element
-      _element.Resources.RemoveResources(Resources);
+      element.Resources.RemoveResources(Resources);
       if (_basedOn != null)
-        _basedOn.ResetResources();
+        _basedOn.ResetResources(element);
     }
 
     /// <summary>
@@ -187,33 +176,54 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// <param name="element">The UI element this style will be applied on.</param>
     /// <param name="finishedProperties">Set of property names which should be skipped.</param>
     /// <param name="triggers">Returns a collection of triggers which should be added to the <paramref name="element"/>.</param>
-    protected void Update(UIElement element, ICollection<string> finishedProperties, ICollection<TriggerBase> triggers)
+    protected void UpdateSettersAndCollectTriggers(UIElement element,
+        ICollection<string> finishedProperties, ICollection<TriggerBase> triggers)
     {
       _element = element;
       foreach (SetterBase sb in _setters)
       {
-        if (finishedProperties.Contains(sb.Property))
+        string propertyKey = sb.UnambiguousPropertyName;
+        if (finishedProperties.Contains(propertyKey))
           continue;
-        finishedProperties.Add(sb.Property);
+        finishedProperties.Add(propertyKey);
         sb.Set(element);
       }
       if (_basedOn != null)
-        _basedOn.Update(element, finishedProperties, triggers);
+        _basedOn.UpdateSettersAndCollectTriggers(element, finishedProperties, triggers);
       foreach (TriggerBase trigger in Triggers)
         triggers.Add(MpfCopyManager.DeepCopyCutLP(trigger));
     }
 
-    protected void ResetSetters(ICollection<string> finishedProperties)
+    protected void ResetSetters(UIElement element, ICollection<string> finishedProperties)
     {
       foreach (SetterBase sb in _setters)
       {
         if (finishedProperties.Contains(sb.Property))
           continue;
         finishedProperties.Add(sb.Property);
-        sb.Restore(_element);
+        sb.Restore(element);
       }
       if (_basedOn != null)
-        _basedOn.ResetSetters(finishedProperties);
+        _basedOn.ResetSetters(element, finishedProperties);
+    }
+
+    protected void SetTriggers(UIElement element, ICollection<TriggerBase> triggers)
+    {
+      element.UninitializeTriggers();
+      element.SetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, triggers);
+      CollectionUtils.AddAll(element.Triggers, triggers);
+    }
+
+    protected void ResetTriggers(UIElement element)
+    {
+      ICollection<TriggerBase> triggers = element.GetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
+      if (triggers != null)
+      {
+        foreach (TriggerBase trigger in triggers)
+          if (element.Triggers.Remove(trigger))
+            Registration.TryCleanupAndDispose(trigger);
+        element.SetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
+      }
     }
 
     #region INamescope implementation
