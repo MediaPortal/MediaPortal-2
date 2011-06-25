@@ -78,7 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       try
       {
         _tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(
-          new NetNamedPipeBinding {MaxReceivedMessageSize = 10000000},
+          new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 },
           new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService")
           );
         _tvServer.TestConnectionToTVService();
@@ -86,7 +86,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("SlimTv4HomeProvider Error: "+ex.Message);
+        ServiceRegistration.Get<ILogger>().Error("SlimTv4HomeProvider Error: " + ex.Message);
         return false;
       }
     }
@@ -101,7 +101,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
         _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
       }
-      catch(Exception) {}
+      catch (Exception) { }
 
       _tvServer = null;
       return true;
@@ -155,6 +155,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    #endregion
+
+    #region IChannelAndGroupInfo members
+
+    public int SelectedChannelId { get; set; }
+
+    public int SelectedChannelGroupId { get; set; }
+
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
       groups = new List<IChannelGroup>();
@@ -165,7 +173,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         List<WebChannelGroup> tvGroups = _tvServer.GetGroups();
         foreach (WebChannelGroup webChannelGroup in tvGroups)
         {
-          groups.Add(new ChannelGroup {ChannelGroupId = webChannelGroup.IdGroup, Name = webChannelGroup.GroupName});
+          groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = webChannelGroup.GroupName });
         }
         return true;
       }
@@ -188,7 +196,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
         foreach (WebChannelBasic webChannel in tvChannels)
         {
-          channels.Add(new Channel {ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName});
+          channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName });
         }
         return true;
       }
@@ -209,7 +217,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
         if (tvChannel != null)
         {
-          channel = new Channel {ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName};
+          channel = new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName };
           return true;
         }
       }
@@ -343,11 +351,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
       return true;
     }
-
-    #endregion
-
-    #region IProgramInfo Member
-
 
     public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
     {

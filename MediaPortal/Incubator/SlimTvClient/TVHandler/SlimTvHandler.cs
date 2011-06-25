@@ -259,7 +259,6 @@ namespace MediaPortal.Plugins.SlimTvClient
       }
     }
 
-
     public bool StopTimeshift(int slotIndex)
     {
       if (TimeshiftControl == null)

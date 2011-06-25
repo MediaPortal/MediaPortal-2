@@ -23,27 +23,23 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
   /// <summary>
-  /// Model which holds the GUI state for the GUI test state.
+  /// <see cref="SlimTvGuideModelBase"/> acts as base class for all TvGuide models (single channel, multi channel).
   /// </summary>
-  public abstract class SlimTvGuideModelBase : IDisposable
+  public abstract class SlimTvGuideModelBase : SlimTvModelBase
   {
     #region Protected fields
 
@@ -54,15 +50,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Variables
 
-    protected ITvHandler _tvHandler;
-    protected IList<IChannelGroup> _channelGroups;
-    protected IList<IChannel> _channels;
-    protected int _webChannelGroupIndex;
-    protected int _webChannelIndex;
-
-    protected IList<IProgram> _programs;
     protected ItemsList _programActions;
-    protected bool _isInitialized;
     protected string _programActionsDialogName = "DialogProgramActions";
 
     #endregion
@@ -74,7 +62,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string GroupName
     {
-      get { return (string)_groupNameProperty.GetValue(); }
+      get { return (string) _groupNameProperty.GetValue(); }
       set { _groupNameProperty.SetValue(value); }
     }
 
@@ -99,7 +87,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public ProgramProperties CurrentProgram
     {
-      get { return (ProgramProperties)_currentProgramProperty.GetValue(); }
+      get { return (ProgramProperties) _currentProgramProperty.GetValue(); }
       set { _currentProgramProperty.SetValue(value); }
     }
 
@@ -111,90 +99,29 @@ namespace MediaPortal.Plugins.SlimTvClient
       get { return _currentProgramProperty; }
     }
 
-    /// <summary>
-    /// Skips group index to next one.
-    /// </summary>
-    public void NextGroup()
-    {
-      if (_channelGroups == null)
-        return;
-
-      _webChannelGroupIndex++;
-      if (_webChannelGroupIndex >= _channelGroups.Count)
-        _webChannelGroupIndex = 0;
-
-      UpdateChannels();
-    }
-
-    /// <summary>
-    /// Skips group index to previous one.
-    /// </summary>
-    public void PrevGroup()
-    {
-      if (_channelGroups == null)
-        return;
-
-      _webChannelGroupIndex--;
-      if (_webChannelGroupIndex < 0)
-        _webChannelGroupIndex = _channelGroups.Count - 1;
-
-      UpdateChannels();
-    }
-
-    /// <summary>
-    /// Skips group index to next one.
-    /// </summary>
-    public void NextChannel()
-    {
-      if (_channels == null)
-        return;
-
-      _webChannelIndex++;
-      if (_webChannelIndex >= _channels.Count)
-        _webChannelIndex = 0;
-
-      UpdateCurrentChannel();
-      UpdatePrograms();
-    }
-
-    /// <summary>
-    /// Skips group index to previous one.
-    /// </summary>
-    public void PrevChannel()
-    {
-      if (_channelGroups == null)
-        return;
-
-      _webChannelIndex--;
-      if (_webChannelIndex < 0)
-        _webChannelIndex = _channels.Count - 1;
-
-      UpdateCurrentChannel();
-      UpdatePrograms();
-    }
-
     public void UpdateProgram(ListItem selectedItem)
     {
       if (selectedItem != null)
       {
-        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
+        IProgram program = (IProgram) selectedItem.AdditionalProperties["PROGRAM"];
         UpdateSingleProgramInfo(program);
       }
     }
 
-    public void ExecProgramAction(ListItem item)
+    protected void SetGroupName()
     {
-      if (item == null)
-        return;
-      if (item.Command != null)
-        item.Command.Execute();
+      if (_webChannelGroupIndex < _channelGroups.Count)
+      {
+        IChannelGroup group = _channelGroups[_webChannelGroupIndex];
+        GroupName = group.Name;
+      }
     }
 
     protected void ShowProgramActions(IProgram program)
     {
       if (program == null)
         return;
-      
+
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
 
       _programActions = new ItemsList();
@@ -249,49 +176,21 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Inits and Updates
 
-    protected virtual void InitModel()
+    protected override void InitModel()
     {
       if (!_isInitialized)
       {
         _groupNameProperty = new WProperty(typeof(string), string.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
 
-        if (!ServiceRegistration.IsRegistered<ITvHandler>())
-          ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
-
-        _tvHandler = ServiceRegistration.Get<ITvHandler>();
-
-        _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
-
-        _webChannelGroupIndex = 0;
         _isInitialized = true;
-
-        UpdateChannels();
-        UpdatePrograms();
       }
+      base.InitModel();
     }
 
     #endregion
 
     #region Channel, groups and programs
-
-    protected abstract void UpdateCurrentChannel();
-    protected abstract void UpdatePrograms();
-
-    protected virtual void UpdateChannels()
-    {
-      if (_webChannelGroupIndex < _channelGroups.Count)
-      {
-        IChannelGroup group = _channelGroups[_webChannelGroupIndex];
-        _tvHandler.ChannelAndGroupInfo.GetChannels(group, out _channels);
-        GroupName = group.Name;
-
-        _webChannelIndex = 0;
-        UpdateCurrentChannel();
-        UpdatePrograms();
-      }
-    }
-
 
     private void UpdateSingleProgramInfo(IProgram program)
     {
@@ -299,64 +198,6 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
     #endregion
-
-    #endregion
-    
-    #region IWorkflowModel implementation
-
-    public virtual Guid ModelId
-    {
-      get { return Guid.Empty; }
-    }
-
-    public virtual bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
-    {
-      return true;
-    }
-
-    public virtual void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      InitModel();
-
-      // We could initialize some data here when entering the media navigation state
-    }
-
-    public virtual void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      // We could dispose some data here when exiting media navigation context
-    }
-
-    public virtual void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
-    {
-      // We could initialize some data here when changing the media navigation state
-    }
-
-    public virtual void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-    }
-
-    public virtual void Reactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-    }
-
-    public virtual void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      return ScreenUpdateMode.AutoWorkflowManager;
-    }
-
-    #endregion
-
-    #region IDisposable Member
-
-    public void Dispose()
-    {
-      if (_tvHandler != null)
-        _tvHandler.Dispose();
-    }
 
     #endregion
   }

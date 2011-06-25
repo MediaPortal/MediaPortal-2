@@ -52,10 +52,12 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
     {
       return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0);
     }
+
     public static DateTime Today
     {
       get { return GetDay(DateTime.Now); }
     }
+
     public static String FormatProgramTime(DateTime dateTime)
     {
       if (GetDay(dateTime) != Today)
@@ -65,6 +67,5 @@ namespace MediaPortal.Plugins.SlimTvClient.Helpers
 
       return dateTime.ToString("t");
     }
-
   }
 }

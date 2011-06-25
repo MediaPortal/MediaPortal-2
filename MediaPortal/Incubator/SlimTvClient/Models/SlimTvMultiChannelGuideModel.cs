@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
@@ -31,14 +30,13 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
   /// <summary>
   /// Model which holds the GUI state for the GUI test state.
   /// </summary>
-  public class SlimTvMultiChannelGuideModel : SlimTvGuideModelBase, IWorkflowModel
+  public class SlimTvMultiChannelGuideModel : SlimTvGuideModelBase
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
     
@@ -66,7 +64,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Variables
 
-    private ItemsList _channelList = new ItemsList();
+    private readonly ItemsList _channelList = new ItemsList();
 
     #endregion
 
@@ -115,9 +113,8 @@ namespace MediaPortal.Plugins.SlimTvClient
       {
         DateTime startDate = FormatHelper.RoundDateTime(DateTime.Now, 15, FormatHelper.RoundingDirection.Down);
         _guideStartTimeProperty = new WProperty(typeof (DateTime), startDate);
-
-        base.InitModel();
       }
+      base.InitModel();
     }
 
     #endregion
@@ -126,6 +123,8 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     protected override void UpdateChannels()
     {
+      SetGroupName();
+
       //ThreadPool.QueueUserWorkItem(BackgroundUpdateChannels);
       BackgroundUpdateChannels(null);
     }
@@ -187,9 +186,12 @@ namespace MediaPortal.Plugins.SlimTvClient
       return new ProgramListItem(programProperties);
     }
 
+
+    protected override void Update()
+    { }
+
     protected override void UpdateCurrentChannel()
-    {
-    }
+    { }
 
     protected override void UpdatePrograms()
     {
@@ -224,7 +226,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       channel.Programs.FireChange();
     }
 
-    private void RemoveZeroDurations(ItemsList programs)
+    private static void RemoveZeroDurations(ItemsList programs)
     {
       for (int i = programs.Count - 1; i >= 0; i--)
       {
@@ -286,6 +288,5 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
     #endregion
-
   }
 }
