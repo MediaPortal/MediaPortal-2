@@ -76,11 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       DependencyObject targetObject;
       IDataDescriptor dd;
       if (_element != null && FindPropertyDescriptor(_element, out dd, out targetObject))
-      {
-        IDisposable d = GetOriginalValue(targetObject) as IDisposable;
-        if (d != null)
-          d.Dispose();
-      }
+        Registration.TryCleanupAndDispose(GetOriginalValue(targetObject));
       base.Dispose();
     }
 

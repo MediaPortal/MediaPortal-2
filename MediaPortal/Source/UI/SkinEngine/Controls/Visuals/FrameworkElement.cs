@@ -266,7 +266,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Style oldStyle = oldValue as Style;
       if (oldStyle != null)
+      {
         oldStyle.Reset();
+        Registration.TryCleanupAndDispose(oldStyle);
+      }
       Style.Set(this);
       InvalidateLayout(true, true);
     }
