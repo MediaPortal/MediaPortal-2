@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     }
 
     /// <summary>
-    /// Unique name for this setter for a given target element.
+    /// Unique name for this setter in a parent style's name scope for a given target element.
     /// </summary>
     internal string UnambiguousPropertyName
     {
