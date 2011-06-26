@@ -31,8 +31,8 @@
       <ListView.Style>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
           <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
-          <Binding Source="{ThemeResource MediaItemsListViewStyle}"/>
-          <Binding Source="{ThemeResource MediaItemsGridViewStyle}"/>
+          <Binding Source="{ThemeResource MediaItemsListListViewStyle}"/>
+          <Binding Source="{ThemeResource MediaItemsGridListViewStyle}"/>
         </MultiBinding>
       </ListView.Style>
     </ListView>

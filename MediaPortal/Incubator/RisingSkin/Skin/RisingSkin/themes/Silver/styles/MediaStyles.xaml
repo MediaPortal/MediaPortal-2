@@ -585,7 +585,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="PlaylistItemContainerStyle" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="PlaylistItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -608,7 +608,7 @@
 
   <Style x:Key="PlaylistMoveDownButtonStyle" TargetType="{x:Type Button}" BasedOn="{ThemeResource ArrowButtonDownStyle}"/>
 
-  <Style x:Key="EditPlaylistItemContainerStyle" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="EditPlaylistItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -1119,7 +1119,7 @@
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused 
        It's used only for "Grid Layout" (WrapPanel) to enable changing if ZIndex.
   -->
-  <Style x:Key="GridViewItemContainerStyle" BasedOn="{ThemeResource ListViewBaseStyle}" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="GridViewItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -1138,7 +1138,7 @@
   </Style>
 
   <!-- Different styles for list and grid views -->
-  <Style x:Key="MediaItemsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
@@ -1161,7 +1161,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MediaItemsGridViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MediaItemsGridListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource GridViewItemContainerStyle}"/>
