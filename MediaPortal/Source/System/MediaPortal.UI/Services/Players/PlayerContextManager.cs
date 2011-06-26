@@ -685,6 +685,8 @@ namespace MediaPortal.UI.Services.Players
         workflowManager.NavigatePushAsync(currentlyPlayingStateId);
       else
         workflowManager.NavigatePush(currentlyPlayingStateId);
+      // TODO: Would be good if we could wait for the CP screen to be shown. But to achieve that, we need the ScreenManager to send
+      // a message when a screen change has completed.
     }
 
     public void ShowFullscreenContent(bool asynchronously)
@@ -704,6 +706,8 @@ namespace MediaPortal.UI.Services.Players
         workflowManager.NavigatePushAsync(fullscreenContentStateId);
       else
         workflowManager.NavigatePush(fullscreenContentStateId);
+      // TODO: Would be good if we could wait for the FSC screen to be shown. But to achieve that, we need the ScreenManager to send
+      // a message when a screen change has completed.
     }
 
     public AVType GetTypeOfMediaItem(MediaItem item)
