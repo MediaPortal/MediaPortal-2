@@ -32,6 +32,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -237,7 +238,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // Always add items to playlist. This allows audio playlists as well as video playlists.
       pc.Playlist.Add(item);
 
-      CompletePlayOrEnqueue(pc, play);
+      ServiceRegistration.Get<IThreadPool>().Add(() => CompletePlayOrEnqueue(pc, play));
     }
 
     /// <summary>
@@ -289,9 +290,9 @@ namespace MediaPortal.UiComponents.Media.Models
       pc.CloseWhenFinished = settings.ClosePlayerWhenFinished; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       if (play)
       {
-        pc.Play();
         if (pc.AVType == AVType.Video)
-          pcm.ShowFullscreenContent(true);
+          pcm.ShowFullscreenContent(false);
+        pc.Play();
       }
     }
 
@@ -635,9 +636,6 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       // Must be done after the dialog is closed
       CompletePlayOrEnqueue(pc, play);
-      if (!play)
-        return;
-      pc.Play();
     }
 
     protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
@@ -658,18 +656,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction,
         ICollection<Guid> consideredMediaItemAspectTypes)
     {
-      foreach (MediaItem mediaItem in getMediaItemsFunction())
-      {
-        bool matches = false;
-        foreach (Guid aspectType in consideredMediaItemAspectTypes)
-          if (mediaItem.Aspects.ContainsKey(aspectType))
-          {
-            matches = true;
-            break;
-          }
-        if (matches)
-          yield return mediaItem;
-      }
+      return getMediaItemsFunction().Where(mediaItem => consideredMediaItemAspectTypes.Any(aspectType => mediaItem.Aspects.ContainsKey(aspectType)));
     }
 
     protected void CheckQueryPlayAction_Continue(GetMediaItemsDlgt getMediaItemsFunction,

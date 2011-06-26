@@ -197,10 +197,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      MediaWorkflowStateType stateType = GetMediaWorkflowStateType(newContext);
-      IPlayerContext pc = GetPlayerContext(stateType);
-      Type playerUIContributorType = pc == null ? null : GetPlayerUIContributorType(pc.CurrentPlayer, stateType);
-      return playerUIContributorType != null;
+      return true;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

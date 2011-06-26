@@ -338,6 +338,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the CP state, the player context manager will automatically track changes of the current player and adapt the
     /// "currently playing" state to match the new current player.
     /// </remarks>
+    /// <param name="asynchronously">If set to <c>true</c>, the workflow change will happen asynchronously.</param>
     void ShowCurrentlyPlaying(bool asynchronously);
 
     /// <summary>
@@ -348,6 +349,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the FSC state, the player context manager will automatically track changes of the primary player and adapt the
     /// "fullscreen content" state to match the new primary player.
     /// </remarks>
+    /// <param name="asynchronously">If set to <c>true</c>, the workflow change will happen asynchronously.</param>
     void ShowFullscreenContent(bool asynchronously);
 
     /// <summary>
