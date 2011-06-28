@@ -21,7 +21,7 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <ListView Style="{ThemeResource MediaItemsListViewStyle}" ItemsSource="{Binding Items}"
+    <ListView Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
       <ListView.Resources>
         <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
