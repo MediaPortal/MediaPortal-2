@@ -91,6 +91,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
         action.Setup(element);
     }
 
+    public virtual void Reset()
+    {
+      if (_element == null)
+        return;
+      foreach (TriggerAction action in EnterActions)
+        action.Reset(_element);
+      foreach (TriggerAction action in ExitActions)
+        action.Reset(_element);
+      foreach (Setter s in Setters)
+        s.Restore(_element);
+    }
+
     #region Public properties
 
     public bool IsInitialized
@@ -130,25 +142,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    protected void Initialize(object triggerValue, object checkValue)
+    protected void ExecuteTriggerStartActions()
     {
-      object obj = null;
-      try
-      {
-        if (triggerValue == null || !TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) ||
-            !Equals(triggerValue, obj)) return;
-      }
-      finally
-      {
-        IDisposable d = obj as IDisposable;
-        if (d != null && !ReferenceEquals(d, checkValue))
-          d.Dispose();
-      }
-      // Execute start actions
       foreach (TriggerAction action in EnterActions)
         action.Execute(_element);
       foreach (Setter s in Setters)
         s.Set(_element);
+    }
+
+    protected void ExecuteTriggerEndActions()
+    {
+      foreach (TriggerAction action in ExitActions)
+        action.Execute(_element);
+      foreach (Setter s in Setters)
+        s.Restore(_element);
     }
 
     protected void TriggerIfValuesEqual(object triggerValue, object checkValue)
@@ -158,27 +165,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       {
         if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
             Equals(triggerValue, obj))
-        {
-          // Execute start actions
-          foreach (TriggerAction action in EnterActions)
-            action.Execute(_element);
-          foreach (Setter s in Setters)
-            s.Set(_element);
-        }
+          ExecuteTriggerStartActions();
         else
-        {
-          // Execute stop actions
-          foreach (TriggerAction action in ExitActions)
-            action.Execute(_element);
-          foreach (Setter s in Setters)
-            s.Restore(_element);
-        }
+          ExecuteTriggerEndActions();
       }
       finally
       {
-        IDisposable d = obj as IDisposable;
-        if (d != null && !ReferenceEquals(d, checkValue))
-          d.Dispose();
+        if (!ReferenceEquals(obj, checkValue))
+          // If the conversion created a copy of the object, dispose it
+          Registration.TryCleanupAndDispose(obj);
       }
     }
   }

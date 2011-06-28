@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Init()
     {
       _streamProperty = new SProperty(typeof(int), 0);
-      _geometryProperty = new SProperty(typeof(string), "");
+      _geometryProperty = new SProperty(typeof(string), null);
       _borderColorProperty = new SProperty(typeof(Color), Color.Black);
 
       _imageContext = new ImageContext
@@ -120,15 +120,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void OnGeometryChange(AbstractProperty prop, object oldVal)
     {
+      string geometryName = Geometry;
+      if (String.IsNullOrEmpty(geometryName))
+      {
+        _currentGeometry = null;
+        return;
+      }
       IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
       IGeometry geometry;
-      string name = Geometry;
-      if (String.IsNullOrEmpty(name))
-        _currentGeometry = null;
-      else if (geometryManager.AvailableGeometries.TryGetValue(name, out geometry))
+      if (geometryManager.AvailableGeometries.TryGetValue(geometryName, out geometry))
         _currentGeometry = geometry;
       else {
-        ServiceRegistration.Get<ILogger>().Debug(@"VideoBrush: Geometry '{0}' does not exist", name);
+        ServiceRegistration.Get<ILogger>().Debug("VideoBrush: Geometry '{0}' does not exist", geometryName);
         _currentGeometry = null;
       }
     }
@@ -143,8 +146,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
+    public AbstractProperty StreamProperty
+    {
+      get { return _streamProperty; }
+    }
+
     /// <summary>
-    /// Gets or sets the player stream number.
+    /// Gets or sets the number of the player stream to be shown.
     /// </summary>
     public int Stream
     {
@@ -152,9 +160,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _streamProperty.SetValue(value); }
     }
 
-    public AbstractProperty StreamProperty
+    public AbstractProperty GeometryProperty
     {
-      get { return _streamProperty; }
+      get { return _geometryProperty; }
     }
 
     /// <summary>
@@ -166,9 +174,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _geometryProperty.SetValue(value); }
     }
 
-    public AbstractProperty GeometryProperty
+    public AbstractProperty BorderColorProperty
     {
-      get { return _geometryProperty; }
+      get { return _borderColorProperty; }
     }
 
     /// <summary>
@@ -178,11 +186,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       get { return (Color) _borderColorProperty.GetValue(); }
       set { _borderColorProperty.SetValue(value); }
-    }
-
-    public AbstractProperty BorderColorProperty
-    {
-      get { return _borderColorProperty; }
     }
 
     #endregion

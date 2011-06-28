@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -38,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected Guid _currentlyPlayingWorkflowStateId;
     protected Guid _fullscreenContentWorkflowStateId;
     protected MediaWorkflowStateType _mediaWorkflowStateType = MediaWorkflowStateType.None;
-    protected IPlayerUIContributor _playerUIContributor = null;
+    protected AbstractProperty _playerUIContributorProperty = null;
     protected bool _inactive = false;
     protected string _screenName = null;
     protected string _lastScreenName = null;
@@ -46,6 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected BasePlayerModel(Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId) : base(300)
     {
+      _playerUIContributorProperty = new WProperty(typeof(IPlayerUIContributor));
       _currentlyPlayingWorkflowStateId = currentlyPlayingWorkflowStateId;
       _fullscreenContentWorkflowStateId = fullscreenContentWorkflowStateId;
       _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
@@ -97,16 +99,22 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <returns>Type of the player UI contributor to use.</returns>
     protected abstract Type GetPlayerUIContributorType(IPlayer player, MediaWorkflowStateType stateType);
 
+    public AbstractProperty PlayerUIContributorProperty
+    {
+      get { return _playerUIContributorProperty; }
+    }
+
     public IPlayerUIContributor PlayerUIContributor
     {
-      get { return _playerUIContributor; }
+      get { return (IPlayerUIContributor) _playerUIContributorProperty.GetValue(); }
+      internal set { _playerUIContributorProperty.SetValue(value); }
     }
 
     protected void SetPlayerUIContributor(Type playerUIContributorType, MediaWorkflowStateType stateType, IPlayer player, bool doUpdateScreen)
     {
       IPlayerUIContributor oldPlayerUIContributor;
       lock (_syncObj)
-        oldPlayerUIContributor = _playerUIContributor;
+        oldPlayerUIContributor = PlayerUIContributor;
       try
       {
         if (oldPlayerUIContributor != null && playerUIContributorType == oldPlayerUIContributor.GetType())
@@ -130,7 +138,7 @@ namespace MediaPortal.UiComponents.Media.Models
           _screenName = null;
         }
         lock (_syncObj)
-          _playerUIContributor = playerUIContributor;
+          PlayerUIContributor = playerUIContributor;
         if (oldPlayerUIContributor != null)
           oldPlayerUIContributor.Dispose();
       }
@@ -167,13 +175,16 @@ namespace MediaPortal.UiComponents.Media.Models
       return null;
     }
 
-    protected void UpdateScreen(bool force)
+    protected bool UpdateScreen(bool force)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (_screenName != null && (_lastScreenName != _screenName || force))
-        screenManager.ShowScreen(_screenName);
+        if (!screenManager.ShowScreen(_screenName).HasValue)
+          // If the opened screen is not present or erroneous, we cannot update the screen
+          return false;
       screenManager.BackgroundDisabled = _backgroundDisabled;
       _lastScreenName = _screenName;
+      return true;
     }
 
     protected void RestoreBackground()
@@ -186,10 +197,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      MediaWorkflowStateType stateType = GetMediaWorkflowStateType(newContext);
-      IPlayerContext pc = GetPlayerContext(stateType);
-      Type playerUIContributorType = pc == null ? null : GetPlayerUIContributorType(pc.CurrentPlayer, stateType);
-      return playerUIContributorType != null;
+      return true;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -233,8 +241,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      UpdateScreen(true);
-      return ScreenUpdateMode.ManualWorkflowModel;
+      return UpdateScreen(true) ? ScreenUpdateMode.ManualWorkflowModel : ScreenUpdateMode.AutoWorkflowManager;
     }
   }
 }

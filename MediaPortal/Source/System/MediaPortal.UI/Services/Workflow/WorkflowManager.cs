@@ -214,10 +214,8 @@ namespace MediaPortal.UI.Services.Workflow
     /// </summary>
     protected void ReloadWorkflowResources()
     {
-      if (_states.Count == 0)
-        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Loading workflow resources");
-      else
-        ServiceRegistration.Get<ILogger>().Debug("WorkflowManager: Reloading workflow resources");
+      ServiceRegistration.Get<ILogger>().Debug(_states.Count == 0 ? "WorkflowManager: Loading workflow resources" :
+          "WorkflowManager: Reloading workflow resources");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
       EnterWriteLock("ReloadWorkflowResources");
@@ -294,9 +292,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     protected static IEnumerable<WorkflowAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowAction> actions)
     {
-      foreach (WorkflowAction action in actions)
-        if (!action.SourceStateId.HasValue || action.SourceStateId.Value == sourceState)
-          yield return action;
+      return actions.Where(action => !action.SourceStateId.HasValue || action.SourceStateId.Value == sourceState);
     }
 
     protected WorkflowState FindLastNonTransientState()
@@ -532,7 +528,7 @@ namespace MediaPortal.UI.Services.Workflow
             // removed here (see method UpdateScreen_NeedsLock)
             Guid? dialogInstanceId = oldContext.DialogInstanceId;
             if (dialogInstanceId.HasValue)
-              screenManager.CloseDialogs(oldContext.DialogInstanceId.Value, true);
+              screenManager.CloseDialogs(dialogInstanceId.Value, true);
           }
           
           // Store model exceptions
@@ -713,7 +709,7 @@ namespace MediaPortal.UI.Services.Workflow
         { // When states were popped, remove all screens on top of our workflow state dialog screen
           Guid? dialogInstanceId = currentContext.DialogInstanceId;
           if (dialogInstanceId.HasValue)
-            screenManager.CloseDialogs(currentContext.DialogInstanceId.Value, false);
+            screenManager.CloseDialogs(dialogInstanceId.Value, false);
           result = true;
         }
       }
@@ -1072,10 +1068,7 @@ namespace MediaPortal.UI.Services.Workflow
       EnterReadLock("IsStateContainedInNavigationStack");
       try
       {
-        foreach (NavigationContext context in _navigationContextStack)
-          if (context.WorkflowState.StateId == workflowStateId)
-            return true;
-        return false;
+        return _navigationContextStack.Any(context => context.WorkflowState.StateId == workflowStateId);
       }
       finally
       {

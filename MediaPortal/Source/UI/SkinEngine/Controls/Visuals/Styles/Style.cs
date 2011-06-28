@@ -24,20 +24,31 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles      
 {
+  // We implement <see cref="INameScope"/> to break the namescope search and not escalate the search to our logical parent.
+  // Named elements in a style must not interfere with other elements contained in our logical parent.
   public class Style: DependencyObject, INameScope, IAddChild<SetterBase>, IImplicitKey, IUnmodifiableResource
   {
+    #region Consts
+
+    protected const string STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME = "Style.Triggers";
+
+    #endregion
+
     #region Protected fields
 
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
     protected AbstractProperty _targetTypeProperty;
+    protected AbstractProperty _triggerProperty;
     protected ResourceDictionary _resources;
     protected object _owner = null;
 
@@ -53,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     void Init()
     {
       _targetTypeProperty = new SProperty(typeof(Type), null);
+      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _resources = new ResourceDictionary();
     }
 
@@ -71,6 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     {
       foreach (SetterBase setterBase in _setters)
         setterBase.Dispose();
+      foreach (TriggerBase triggerBase in Triggers)
+        triggerBase.Dispose();
       Registration.TryCleanupAndDispose(_resources);
       base.Dispose();
     }
@@ -97,6 +111,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       set { _targetTypeProperty.SetValue(value); }
     }
 
+    public AbstractProperty TriggersProperty
+    {
+      get { return _triggerProperty; }
+    }
+
+    public IList<TriggerBase> Triggers
+    {
+      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
+    }
+
     public ResourceDictionary Resources
     {
       get { return _resources; }
@@ -109,7 +133,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     public void Set(UIElement element)
     {
       MergeResources(element);
-      Update(element, new HashSet<string>());
+      ICollection<TriggerBase> triggers = new List<TriggerBase>();
+      UpdateSettersAndCollectTriggers(element, new HashSet<string>(), triggers);
+      SetTriggers(element, triggers);
+    }
+
+    public void Reset(UIElement element)
+    {
+      ResetTriggers(element);
+      ResetSetters(element, new HashSet<string>());
+      ResetResources(element);
     }
 
     protected void MergeResources(UIElement element)
@@ -120,6 +153,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       element.Resources.Merge(Resources);
     }
 
+    protected void ResetResources(UIElement element)
+    {
+      // Remove resources from the target element
+      element.Resources.RemoveResources(Resources);
+      if (_basedOn != null)
+        _basedOn.ResetResources(element);
+    }
+
     /// <summary>
     /// Worker method to apply all setters on the specified <paramref name="element"/> which
     /// have not been set yet. The set of properties already assigned will be given in parameter
@@ -128,17 +169,56 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     /// </summary>
     /// <param name="element">The UI element this style will be applied on.</param>
     /// <param name="finishedProperties">Set of property names which should be skipped.</param>
-    protected void Update(UIElement element, ICollection<string> finishedProperties)
+    /// <param name="triggers">Returns a collection of triggers which should be added to the <paramref name="element"/>.</param>
+    protected void UpdateSettersAndCollectTriggers(UIElement element,
+        ICollection<string> finishedProperties, ICollection<TriggerBase> triggers)
     {
       foreach (SetterBase sb in _setters)
       {
-        if (finishedProperties.Contains(sb.Property))
+        string propertyKey = sb.UnambiguousPropertyName;
+        if (finishedProperties.Contains(propertyKey))
           continue;
-        finishedProperties.Add(sb.Property);
+        finishedProperties.Add(propertyKey);
         sb.Set(element);
       }
       if (_basedOn != null)
-        _basedOn.Update(element, finishedProperties);
+        _basedOn.UpdateSettersAndCollectTriggers(element, finishedProperties, triggers);
+      foreach (TriggerBase trigger in Triggers)
+        triggers.Add(MpfCopyManager.DeepCopyCutLP(trigger));
+    }
+
+    protected void ResetSetters(UIElement element, ICollection<string> finishedProperties)
+    {
+      foreach (SetterBase sb in _setters)
+      {
+        string propertyKey = sb.UnambiguousPropertyName;
+        if (finishedProperties.Contains(propertyKey))
+          continue;
+        finishedProperties.Add(propertyKey);
+        sb.Restore(element);
+      }
+      if (_basedOn != null)
+        _basedOn.ResetSetters(element, finishedProperties);
+    }
+
+    protected void SetTriggers(UIElement element, ICollection<TriggerBase> triggers)
+    {
+      element.UninitializeTriggers();
+      element.SetAttachedPropertyValue(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, triggers);
+      CollectionUtils.AddAll(element.Triggers, triggers);
+    }
+
+    protected void ResetTriggers(UIElement element)
+    {
+      element.UninitializeTriggers();
+      ICollection<TriggerBase> triggers = element.GetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
+      if (triggers != null)
+      {
+        foreach (TriggerBase trigger in triggers)
+          if (element.Triggers.Remove(trigger))
+            Registration.TryCleanupAndDispose(trigger);
+        element.SetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
+      }
     }
 
     #region INamescope implementation

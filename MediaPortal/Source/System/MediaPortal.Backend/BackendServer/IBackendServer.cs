@@ -34,7 +34,7 @@ namespace MediaPortal.Backend.BackendServer
     /// <summary>
     /// Returns the instance of the UPnP backend server instance. Plugins may change that instance.
     /// </summary>
-    UPnPServer UPnPFrontendServer { get; }
+    UPnPServer UPnPBackendServer { get; }
 
     /// <summary>
     /// Starts the backend server.

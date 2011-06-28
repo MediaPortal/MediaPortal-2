@@ -316,7 +316,7 @@
   </Style>
     
   <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
-  <Style x:Key="ProgramGuideItemContainerStyle" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="ProgramGuideItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">

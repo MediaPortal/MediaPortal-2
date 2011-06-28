@@ -245,7 +245,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// instance.
     /// </summary>
     /// <param name="dict">Resource dictionary whose contents should be taken over.</param>
-    public void TakeOver(ResourceDictionary dict)
+    /// <param name="takeoverDictInstance">If set to <c>true</c>, the given <paramref name="dict"/> instance will be
+    /// disposed by this method. Else, the <paramref name="dict"/> will be left untouched.</param>
+    public void TakeOver(ResourceDictionary dict, bool takeoverDictInstance)
     {
       IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) dict).GetEnumerator();
       bool wasChanged = false;
@@ -263,6 +265,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
           depObj.LogicalParent = this;
         wasChanged = true;
       }
+      if (takeoverDictInstance)
+      {
+        if (dict._resources != null)
+          dict._resources.Clear();
+        dict.Dispose();
+      }
       if (wasChanged)
         FireChanged();
     }
@@ -275,7 +283,26 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// <param name="dict">Resource dictionary whose contents should be merged.</param>
     public void Merge(ResourceDictionary dict)
     {
-      TakeOver(MpfCopyManager.DeepCopyCutLP(dict));
+      TakeOver(MpfCopyManager.DeepCopyCutLP(dict), true);
+    }
+
+    public void RemoveResources(ResourceDictionary dict)
+    {
+      if (_resources == null)
+        return;
+      bool wasChanged = false;
+      foreach (object key in dict.Keys)
+      {
+        object oldObj;
+        if (_resources.TryGetValue(key, out oldObj))
+        {
+          Registration.CleanupAndDisposeResourceIfOwner(oldObj, this);
+          _resources.Remove(key);
+          wasChanged = true;
+        }
+      }
+      if (wasChanged)
+        FireChanged();
     }
 
     public void FireChanged()
@@ -305,12 +332,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
             TryDispose(ref obj);
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         }
-        TakeOver(mergeDict);
+        TakeOver(mergeDict, true);
       }
       if (_mergedDictionaries != null && _mergedDictionaries.Count > 0)
       {
         foreach (ResourceDictionary dictionary in _mergedDictionaries)
-          TakeOver(dictionary);
+          TakeOver(dictionary, true);
+        _mergedDictionaries.Clear();
       }
       FireChanged();
     }
@@ -369,7 +397,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return false;
       object oldRes;
       if (_resources.TryGetValue(key, out oldRes))
-        Registration.SetOwner(oldRes, null);
+        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
       bool result = _resources.Remove(key);
       FireChanged();
       return result;
@@ -396,7 +424,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
         object oldRes;
         if (resources.TryGetValue(key, out oldRes))
-          Registration.SetOwner(oldRes, null);
+          Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
         resources[key] = value;
         Registration.SetOwner(value, this);
         FireChanged();
@@ -427,6 +455,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void Clear()
     {
+      if (_resources == null)
+        return;
+      foreach (KeyValuePair<object, object> kvp in _resources)
+        Registration.CleanupAndDisposeResourceIfOwner(kvp.Value, this);
       _resources = null;
       FireChanged();
     }
@@ -449,7 +481,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return false;
       object oldRes;
       if (_resources.TryGetValue(item.Key, out oldRes))
-        Registration.SetOwner(oldRes, null);
+        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
       bool result = _resources.Remove(item);
       FireChanged();
       return result;

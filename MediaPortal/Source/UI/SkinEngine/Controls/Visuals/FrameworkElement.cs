@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Execute(UIElement element)
     {
-      ((FrameworkElement) element).ElementState = _state;
+      element.ElementState = _state;
     }
   }
 
@@ -264,6 +264,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
+      Style oldStyle = oldValue as Style;
+      if (oldStyle != null)
+      {
+        oldStyle.Reset(this);
+        Registration.TryCleanupAndDispose(oldStyle);
+      }
       Style.Set(this);
       InvalidateLayout(true, true);
     }

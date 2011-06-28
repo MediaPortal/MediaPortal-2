@@ -181,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _targetDataDescriptor = null; // We have to detach temporarily, else the copy won't work
         result.DeepCopy(this, copyManager);
         // 3) Exchange the target data descriptor by the new one
-        result._targetDataDescriptor = newDd;
+        result.SetTargetDataDescriptor(newDd);
       }
       finally
       {
@@ -213,8 +213,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return default(T);
       if (_exceptionalIdentities.ContainsKey(source))
         return (T) _exceptionalIdentities[source];
-      else
-        return source;
+      return source;
     }
 
     public void CompleteCopying()

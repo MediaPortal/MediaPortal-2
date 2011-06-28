@@ -36,7 +36,7 @@ namespace MediaPortal.Utilities
     /// </summary>
     /// <typeparam name="S">Source object to transform.</typeparam>
     /// <typeparam name="T">Target object of the transformation.</typeparam>
-    public interface ITransformer<S, T>
+    public interface ITransformer<in S, out T>
     {
       /// <summary>
       /// Transforms <paramref name="source"/> into a result object.

@@ -394,7 +394,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           if (DokanNet.DokanRemoveMountPoint(mountPoint) == 0)
             ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount remote resource directory '{0}'", mountPoint);
           else
-            ServiceRegistration.Get<ILogger>().Error("Successfully unmounted remote resource directory '{0}'", mountPoint);
+            ServiceRegistration.Get<ILogger>().Info("Successfully unmounted remote resource directory '{0}'", mountPoint);
         }
         catch (Exception e)
         {

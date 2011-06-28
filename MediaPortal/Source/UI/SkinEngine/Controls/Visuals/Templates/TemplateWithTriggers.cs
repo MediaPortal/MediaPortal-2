@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     public IList<TriggerBase> Triggers
     {
-      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
+      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
     }
 
     #endregion

@@ -198,6 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (gsc != null)
       {
         GradientStops.Dispose();
+        gsc.SetParent(this);
         GradientStopsProperty.SetValue(gsc);
       }
       else if (gs != null)

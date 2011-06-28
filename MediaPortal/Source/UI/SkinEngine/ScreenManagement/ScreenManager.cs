@@ -67,7 +67,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    public const string RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES = "[ScreenManager.ErrorLoadingSkinResource]";
+    public const string RES_ERROR_LOADING_SKIN_TEXT = "[ScreenManager.ErrorLoadingSkin]";
+    public const string RES_ERROR_LOADING_SKIN_RESOURCE_TEXT = "[ScreenManager.ErrorLoadingSkinResource]";
     public const string RES_SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
     public const string RES_SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
     public const string RES_BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
@@ -495,9 +496,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         catch (ArgumentException ex)
         {
+          // Fall back to current skin/theme
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', fallback to previous skin/theme",
               ex, skinName, themeName);
-          // Fall back to current skin/theme
+          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
+              RES_ERROR_LOADING_SKIN_TEXT, ex.Message, true);
           skin = _skin;
           theme = _theme;
         }
@@ -1086,7 +1089,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
           ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
-              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
           return null;
         }
@@ -1113,7 +1116,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
           ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
-              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
         }
         catch (Exception)

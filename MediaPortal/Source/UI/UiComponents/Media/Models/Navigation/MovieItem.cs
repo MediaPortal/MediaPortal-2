@@ -40,6 +40,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         long? duration = (long?) videoAspect[VideoAspect.ATTR_DURATION];
         SimpleTitle = Title;
         Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty;
+        AudioEncoding = (string) videoAspect[VideoAspect.ATTR_AUDIOENCODING];
+        VideoEncoding = (string) videoAspect[VideoAspect.ATTR_VIDEOENCODING];
       }
     }
 
@@ -47,6 +49,18 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_DURATION]; }
       set { SetLabel(Consts.KEY_DURATION, value); }
+    }
+
+    public string AudioEncoding
+    {
+      get { return this[Consts.KEY_AUDIO_ENCODING]; }
+      set { SetLabel(Consts.KEY_AUDIO_ENCODING, value); }
+    }
+
+    public string VideoEncoding
+    {
+      get { return this[Consts.KEY_VIDEO_ENCODING]; }
+      set { SetLabel(Consts.KEY_VIDEO_ENCODING, value); }
     }
   }
 }

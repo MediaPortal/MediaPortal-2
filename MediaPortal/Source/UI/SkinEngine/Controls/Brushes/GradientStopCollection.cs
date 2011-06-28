@@ -36,7 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Protected fields
 
-    protected GradientBrush _parent;
+    protected GradientBrush _parent = null;
     protected IList<GradientStop> _elements;
     protected IList<GradientStop> _orderedGradientStopList = null; // Caches gradient stops in a list ordered by offset
 
@@ -44,16 +44,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Ctor
 
-    public GradientStopCollection(GradientBrush parent)
+    public GradientStopCollection()
     {
-      _parent = parent;
       Init();
     }
 
-    public GradientStopCollection(IEnumerable<GradientStop> source, GradientBrush parent)
+    public GradientStopCollection(GradientBrush parent) : this()
     {
-      _parent = null;
-      Init();
+      _parent = parent;
+    }
+
+    public GradientStopCollection(IEnumerable<GradientStop> source, GradientBrush parent) : this()
+    {
       foreach (GradientStop s in source)
         Add(new GradientStop(s.Offset, s.Color));
       _parent = parent;
@@ -83,6 +85,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected static int CompareByOffset(GradientStop x, GradientStop y)
     {
       return x.Offset.CompareTo(y.Offset);
+    }
+
+    internal void SetParent(GradientBrush parent)
+    {
+      _parent = parent;
     }
 
     public void Add(GradientStop element)

@@ -58,8 +58,8 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
-  /// High-level descriptor, describing a typed "place" where a player can run. A player context belongs to a specified
-  /// media module, defined by its <see cref="MediaModuleId"/>.
+  /// High-level facade to a <see cref="IPlayerSlotController"/>, describing a typed "place" where a player can run.
+  /// A player context belongs to a specified media module, defined by its <see cref="MediaModuleId"/>.
   /// The player context can contain a typed playlist (A/V/AV) which will automatically be advanced.
   /// </summary>
   /// <remarks>

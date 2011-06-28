@@ -288,9 +288,10 @@ namespace MediaPortal.Core.Services.MediaManagement
         ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
         IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
+      const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.LocalResourcePath;
       ImporterWorkerMessaging.SendImportStatusMessage(path);
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors);
+      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;
@@ -578,10 +579,10 @@ namespace MediaPortal.Core.Services.MediaManagement
                     mediaBrowsing, resultHandler, mediaAccessor);
                 CheckImportStillRunning(importJob.State);
                 if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
-                  // Enqueue subdirectories to work queue
+                  // Add subdirectories in front of work queue
                   lock (importJob.SyncObj)
                     foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
-                      importJob.PendingResources.Add(new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                      importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
               }
               else
                 ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
@@ -703,11 +704,10 @@ namespace MediaPortal.Core.Services.MediaManagement
       ICollection<ImportJob> importJobs;
       lock (_syncObj)
         importJobs = new List<ImportJob>(_importJobs);
-      foreach (ImportJob checkJob in importJobs)
-        if (checkJob.JobType == ImportJobType.Import && checkJob.BasePath.IsSameOrParentOf(path))
-          // Path is already being scheduled as Import job
-          // => the new job is already included in an already existing job
-          return;
+      if (importJobs.Any(checkJob => checkJob.JobType == ImportJobType.Import && checkJob.BasePath.IsSameOrParentOf(path)))
+        // Path is already being scheduled as Import job
+        // => the new job is already included in an already existing job
+        return;
       CancelJobsForPath(path);
       ICollection<Guid> metadataExtractorIds = GetMetadataExtractorIdsForMediaCategories(mediaCategories);
       ImportJob job = new ImportJob(ImportJobType.Import, path, metadataExtractorIds, includeSubDirectories);

@@ -402,6 +402,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FinishBindingsDlgt finishDlgt;
       IList<TriggerBase> triggers;
       FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
+      UninitializeTriggers();
       CollectionUtils.AddAll(Triggers, triggers);
       presenter.SetKeyboardLayoutControl(this, keyboardControl);
       finishDlgt();

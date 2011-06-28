@@ -30,32 +30,29 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid.Resources>
-              <ResourceWrapper x:Key="UIContributor" Resource="{Binding Source={StaticResource Model},Path=PlayerUIContributor}"/>
-            </Grid.Resources>
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" Content="[Media.PictureTitleLabel]"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" Content="{Binding MediaItemTitle}"/>
     
             <Label x:Name="PictureDimensionsLabel" Grid.Row="1" Grid.Column="0" Content="[Media.PictureDimensions]"/>
-            <Label x:Name="PictureDimensions" Grid.Row="1" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureDimensions}"/>
+            <Label x:Name="PictureDimensions" Grid.Row="1" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureDimensions}"/>
     
             <Label x:Name="PictureMakeLabel" Grid.Row="2" Grid.Column="0" Content="[Media.PictureMake]"/>
-            <Label x:Name="PictureMake" Grid.Row="2" Grid.Column="1" Scroll="Auto" Content="{Binding Source={StaticResource UIContributor},Path=PictureMake}"/>
+            <Label x:Name="PictureMake" Grid.Row="2" Grid.Column="1" Scroll="Auto" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMake}"/>
     
             <Label x:Name="PictureModelLabel" Grid.Row="3" Grid.Column="0" Content="[Media.PictureModel]"/>
-            <Label x:Name="PictureModel" Grid.Row="3" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureModel}"/>
+            <Label x:Name="PictureModel" Grid.Row="3" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureModel}"/>
     
             <Label x:Name="PictureISOSpeedLabel" Grid.Row="4" Grid.Column="0" Content="[Media.PictureISOSpeedLabel]"/>
-            <Label x:Name="PictureISOSpeed" Grid.Row="4" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureISOSpeed}"/>
+            <Label x:Name="PictureISOSpeed" Grid.Row="4" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureISOSpeed}"/>
     
             <Label x:Name="PictureExposureTimeLabel" Grid.Row="5" Grid.Column="0" Content="[Media.PictureExposureTimeLabel]"/>
-            <Label x:Name="PictureExposureTime" Grid.Row="5" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureExposureTime}"/>
+            <Label x:Name="PictureExposureTime" Grid.Row="5" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureExposureTime}"/>
     
             <Label x:Name="PictureFNumberLabel" Grid.Row="6" Grid.Column="0" Content="[Media.PictureFNumberLabel]"/>
-            <Label x:Name="PictureFNumber" Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureFNumber}"/>
+            <Label x:Name="PictureFNumber" Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureFNumber}"/>
     
             <Label x:Name="PictureMeteringModeLabel" Grid.Row="7" Grid.Column="0" Content="[Media.PictureMeteringModeLabel]"/>
-            <Label x:Name="PictureMeteringMode" Grid.Row="7" Grid.Column="1" Content="{Binding Source={StaticResource UIContributor},Path=PictureMeteringMode}"/>
+            <Label x:Name="PictureMeteringMode" Grid.Row="7" Grid.Column="1" Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.PictureMeteringMode}"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>

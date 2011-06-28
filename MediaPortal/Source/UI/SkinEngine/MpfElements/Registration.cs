@@ -116,6 +116,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("VisualBrush", typeof(SkinEngine.Controls.Brushes.VisualBrush));
       _objectClassRegistrations.Add("VideoBrush", typeof(SkinEngine.Controls.Brushes.VideoBrush));
       _objectClassRegistrations.Add("GradientBrush", typeof(SkinEngine.Controls.Brushes.GradientBrush));
+      _objectClassRegistrations.Add("GradientStopCollection", typeof(SkinEngine.Controls.Brushes.GradientStopCollection));
       _objectClassRegistrations.Add("GradientStop", typeof(SkinEngine.Controls.Brushes.GradientStop));
 
       // Shapes
@@ -153,6 +154,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("SkewTransform", typeof(SkinEngine.Controls.Transforms.SkewTransform));
       _objectClassRegistrations.Add("RotateTransform", typeof(SkinEngine.Controls.Transforms.RotateTransform));
       _objectClassRegistrations.Add("TranslateTransform", typeof(SkinEngine.Controls.Transforms.TranslateTransform));
+      _objectClassRegistrations.Add("MatrixTransform", typeof(SkinEngine.Controls.Transforms.MatrixTransform));
 
       // Styles
       _objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));

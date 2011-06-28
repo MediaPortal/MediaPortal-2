@@ -343,7 +343,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         int paraLength = para.Length;
         int nextIndex = 0;
         float lineWidth = 0;
-        int lineIndex = 0;
+        int lineStartIndex = 0; // Start index of the current line to be examined
+
         // Split paragraphs into lines that will fit into maxWidth
         while (nextIndex < paraLength)
         {
@@ -351,6 +352,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           // Iterate over leading spaces
           while (nextIndex < paraLength && char.IsWhiteSpace(para[nextIndex]))
             ++nextIndex;
+          int lastIndex = nextIndex; // Remember index to avoid busy loops if not a single character fits
           if (nextIndex < paraLength)
           {
             // Find length of next word
@@ -389,23 +391,25 @@ namespace MediaPortal.UI.SkinEngine.Rendering
                 }
               }
               // Start new line						
-              if (sectionIndex != lineIndex)
-                result.Add(para.Substring(lineIndex, sectionIndex - lineIndex));
-              lineIndex = wordIndex;
-              lineWidth = _font.TextWidth(para.Substring(wordIndex, nextIndex - wordIndex), _fontSize, Kerning);
+              if (sectionIndex != lineStartIndex)
+                result.Add(para.Substring(lineStartIndex, sectionIndex - lineStartIndex));
+              lineStartIndex = wordIndex;
+              lineWidth = _font.TextWidth(para, wordIndex, nextIndex - 1, _fontSize, Kerning);
             }
             else
               lineWidth += cx;
             if (nextIndex >= paraLength)
             {
               // End of paragraphs
-              result.Add(para.Substring(lineIndex, nextIndex - lineIndex));
-              lineIndex = nextIndex;
+              result.Add(para.Substring(lineStartIndex, nextIndex - lineStartIndex));
+              lineStartIndex = nextIndex;
             }
           }
+          if (nextIndex == lastIndex)
+            break;
         }
         // If no words found add an empty line to preserve text formatting
-        if (lineIndex == 0)
+        if (lineStartIndex == 0)
           result.Add("");
       }
       return result.ToArray();

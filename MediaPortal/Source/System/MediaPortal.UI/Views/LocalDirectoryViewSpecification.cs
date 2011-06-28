@@ -24,12 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Views
 {
@@ -133,20 +132,14 @@ namespace MediaPortal.UI.Views
       subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      ICollection<Guid> metadataExtractorIds = new List<Guid>();
-      ICollection<Guid> miaTypeIDs = new HashSet<Guid>(_necessaryMIATypeIds);
-      CollectionUtils.AddAll(miaTypeIDs, _optionalMIATypeIds);
-      foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
-        // Collect all metadata extractors which fill our desired media item aspects
-        if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, miaTypeIDs))
-          metadataExtractorIds.Add(extractor.Key);
+      IEnumerable<Guid> metadataExtractorIds = mediaAccessor.GetMetadataExtractorsForMIATypes(_necessaryMIATypeIds.Union(_optionalMIATypeIds));
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor();
       // Add all items at the specified path
       ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
       if (files != null)
         foreach (IFileSystemResourceAccessor childAccessor in files)
         {
-          MediaItem result = GetMetadata(mediaAccessor, systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
           if (result != null)
             mediaItems.Add(result);
         }
@@ -154,7 +147,7 @@ namespace MediaPortal.UI.Views
       if (directories != null)
         foreach (IFileSystemResourceAccessor childAccessor in directories)
         {
-          MediaItem result = GetMetadata(mediaAccessor, systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
           if (result == null)
             subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.LocalResourcePath,
               _necessaryMIATypeIds, _optionalMIATypeIds));
@@ -169,34 +162,6 @@ namespace MediaPortal.UI.Views
     {
       _viewDisplayName = string.IsNullOrEmpty(_overrideName) ?
           _viewPath.CreateLocalResourceAccessor().ResourceName : _overrideName;
-    }
-
-    /// <summary>
-    /// Returns a media item with metadata extracted by the metadata extractors specified by the
-    /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
-    /// </summary>
-    /// <param name="mediaAccessor">Media manager instance. This parameter is for performance to avoid
-    /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
-    /// <param name="systemResolver">System resolver instance. This parameter is for performance to avoid
-    /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
-    /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
-    /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
-    /// <returns>Media item with the specified metadata </returns>
-    protected static MediaItem GetMetadata(IMediaAccessor mediaAccessor, ISystemResolver systemResolver,
-        IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
-    {
-      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractorIds);
-      if (aspects == null)
-        return null;
-      MediaItemAspect providerResourceAspect;
-      if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
-      else
-        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
-            ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
-      return new MediaItem(Guid.Empty, aspects);
     }
   }
 }

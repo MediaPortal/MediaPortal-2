@@ -274,11 +274,8 @@ namespace MediaPortal.UI.Presentation.Players
         Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
 
     /// <summary>
-    /// Opens a video player context. If there are already active players, the parameter
-    /// 
-    /// 
-    /// If there is already an active player, it depends on the parameter <paramref name="concurrencyMode"/> determines
-    /// if and which of the open player contexts will be left open.
+    /// Opens a video player context. If there are already active players, the parameter <paramref name="concurrencyMode"/>
+    /// determines if and which of the open player contexts will be left open.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -341,6 +338,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the CP state, the player context manager will automatically track changes of the current player and adapt the
     /// "currently playing" state to match the new current player.
     /// </remarks>
+    /// <param name="asynchronously">If set to <c>true</c>, the workflow change will happen asynchronously.</param>
     void ShowCurrentlyPlaying(bool asynchronously);
 
     /// <summary>
@@ -351,6 +349,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// in the FSC state, the player context manager will automatically track changes of the primary player and adapt the
     /// "fullscreen content" state to match the new primary player.
     /// </remarks>
+    /// <param name="asynchronously">If set to <c>true</c>, the workflow change will happen asynchronously.</param>
     void ShowFullscreenContent(bool asynchronously);
 
     /// <summary>

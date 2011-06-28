@@ -32,18 +32,17 @@ using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
   /// <summary>
-  /// Model which holds the GUI state for the GUI test state.
+  /// <see cref="SlimTvClientModel"/> is the main entry model for SlimTV. It provides channel group and channel selection and 
+  /// acts as backing model for the Live-TV OSD to provide program information.
   /// </summary>
-  public class SlimTvClientModel : BaseTimerControlledModel, IWorkflowModel
+  public class SlimTvClientModel : SlimTvModelBase
   {
     public const string MODEL_ID_STR = "8BEC1372-1C76-484c-8A69-C7F3103708EC";
 
@@ -77,15 +76,8 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Variables
 
-    private ITvHandler _tvHandler;
-    private IList<IChannelGroup> _channelGroups;
-    private int _channelGroupIndex;
-
     private readonly ItemsList _channelList = new ItemsList();
-
-    private IList<IChannel> _channels;
     private bool _active;
-    private bool _isInitialized;
 
     #endregion
 
@@ -263,8 +255,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     {
       get { return _piPEnabledProperty; }
     }
-
-
+    
     public bool IsOSDVisible
     {
       get { return (bool)_isOSDVisibleProperty.GetValue(); }
@@ -307,35 +298,6 @@ namespace MediaPortal.Plugins.SlimTvClient
     public AbstractProperty IsOSDLevel2Property
     {
       get { return _isOSDLevel2Property; }
-    }
-    /// <summary>
-    /// Skips group index to next one.
-    /// </summary>
-    public void NextGroup()
-    {
-      if (_channelGroups == null)
-        return;
-
-      _channelGroupIndex++;
-      if (_channelGroupIndex >= _channelGroups.Count)
-        _channelGroupIndex = 0;
-
-      UpdateGroupAndChannels();
-    }
-
-    /// <summary>
-    /// Skips group index to previous one.
-    /// </summary>
-    public void PrevGroup()
-    {
-      if (_channelGroups == null)
-        return;
-
-      _channelGroupIndex--;
-      if (_channelGroupIndex < 0)
-        _channelGroupIndex = _channelGroups.Count - 1;
-
-      UpdateGroupAndChannels();
     }
 
     public void UpdateProgram(ListItem selectedItem)
@@ -437,7 +399,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Inits and Updates
 
-    private void InitModel()
+    protected override void InitModel()
     {
       if (!_isInitialized)
       {
@@ -454,22 +416,14 @@ namespace MediaPortal.Plugins.SlimTvClient
         _piPAvailableProperty = new WProperty(typeof (bool), false);
         _piPEnabledProperty = new WProperty(typeof (bool), false);
 
-        _isOSDVisibleProperty = new WProperty(typeof(bool), false);
-        _isOSDLevel0Property = new WProperty(typeof(bool), false);
-        _isOSDLevel1Property = new WProperty(typeof(bool), false);
-        _isOSDLevel2Property = new WProperty(typeof(bool), false);
+        _isOSDVisibleProperty = new WProperty(typeof (bool), false);
+        _isOSDLevel0Property = new WProperty(typeof (bool), false);
+        _isOSDLevel1Property = new WProperty(typeof (bool), false);
+        _isOSDLevel2Property = new WProperty(typeof (bool), false);
 
-
-        _tvHandler = ServiceRegistration.Get<ITvHandler>();
-        _tvHandler.Initialize();
-        _tvHandler.ChannelAndGroupInfo.GetChannelGroups(out _channelGroups);
-        
-        // TODO: remember last user selection for group and channel
-        _channelGroupIndex = 0;
-
-        UpdateGroupAndChannels();
         _isInitialized = true;
       }
+      base.InitModel();
     }
 
     protected int SlotIndex
@@ -530,37 +484,37 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Channel, groups and programs
 
-    private void UpdateGroupAndChannels()
+    protected override void UpdateCurrentChannel()
+    { }
+
+    protected override void UpdatePrograms()
+    { }
+
+    protected override void UpdateChannels()
     {
-      if (_channelGroupIndex < _channelGroups.Count)
+      base.UpdateChannels();
+      if (_webChannelGroupIndex < _channelGroups.Count)
       {
-        IChannelGroup currentGroup = _channelGroups[_channelGroupIndex];
+        IChannelGroup currentGroup = _channelGroups[_webChannelGroupIndex];
         CurrentGroupName = currentGroup.Name;
-
-        _tvHandler.ChannelAndGroupInfo.GetChannels(currentGroup, out _channels);
-
-        _channelList.Clear();
-        foreach (IChannel channel in _channels)
-        {
-          // Use local variable, otherwise delegate argument is not fixed
-          IChannel currentChannel = channel;
-
-          ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, GetNowAndNextProgramsList(currentChannel))
-          {
-            Command = new MethodDelegateCommand(() => Tune(currentChannel))
-          };
-          item.AdditionalProperties["CHANNEL"] = channel;
-
-          _channelList.Add(item);
-        }
-        CurrentGroupChannels.FireChange();
       }
-      else
+      _channelList.Clear();
+      if (_channels == null)
+        return;
+
+      foreach (IChannel channel in _channels)
       {
-        CurrentGroupName = "No Connection";
-        _channels = null;
-        _channelList.Clear();
+        // Use local variable, otherwise delegate argument is not fixed
+        IChannel currentChannel = channel;
+
+        ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, GetNowAndNextProgramsList(currentChannel))
+        {
+          Command = new MethodDelegateCommand(() => Tune(currentChannel))
+        };
+        item.AdditionalProperties["CHANNEL"] = channel;
+        _channelList.Add(item);
       }
+      CurrentGroupChannels.FireChange();
     }
 
     private void UpdateProgramForChannel(IChannel channel)
@@ -586,11 +540,11 @@ namespace MediaPortal.Plugins.SlimTvClient
       return channelPrograms;
     }
 
-    private void CreateProgramListItem(IProgram program, ItemsList channelPrograms)
+    private static void CreateProgramListItem(IProgram program, ItemsList channelPrograms)
     {
       ProgramListItem item;
       if (program == null)
-        item = NoProgramPlaceholder();
+        item = GetNoProgramPlaceholder();
       else
       {
         ProgramProperties programProperties = new ProgramProperties();
@@ -601,7 +555,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       channelPrograms.Add(item);
     }
 
-    private ProgramListItem NoProgramPlaceholder()
+    private static ProgramListItem GetNoProgramPlaceholder()
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime today = FormatHelper.GetDay(DateTime.Now);
@@ -615,7 +569,7 @@ namespace MediaPortal.Plugins.SlimTvClient
       return new ProgramListItem(programProperties);
     }
 
-    private string FormatProgram(IProgram program)
+    private static string FormatProgram(IProgram program)
     {
       if (program == null)
         return ServiceRegistration.Get<ILocalization>().ToString("[SlimTvClient.NoProgram]");
@@ -632,64 +586,28 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region IWorkflowModel implementation
 
-    public Guid ModelId
+    public override Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
     }
 
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      return true;
-    }
-
-    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      InitModel();
+      base.EnterModelContext(oldContext, newContext);
       _active = true;
-
-      // We could initialize some data here when entering the media navigation state
     }
 
-    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    public override void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      base.ExitModelContext(oldContext, newContext);
       _active = false;
-      // We could dispose some data here when exiting media navigation context
     }
 
-    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // We could initialize some data here when changing the media navigation state
+      GetCurrentChannelGroup();
+      UpdateChannels();
     }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-    }
-
-    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      return ScreenUpdateMode.AutoWorkflowManager;
-    }
-
-    #endregion
-
-    #region IDisposable Member
-
-    public override void Dispose()
-    {
-      if (_tvHandler != null)
-        _tvHandler.Dispose();
-      
-      base.Dispose();
-    }
-
     #endregion
   }
 }

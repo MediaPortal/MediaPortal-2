@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _preparingItems = false; // Flag to prevent recursive call of PrepareItems method
     protected bool _prepareItems = false; // Flag to synchronize different threads; Tells render thread to update the items host panel
     protected ICollection<object> _preparedItems = null; // Items to be updated in items host panel
-    protected bool _templateApplied = false; // Set to true as soon as the ItemsPanel style is applied on the items presenter
+    protected bool _panelTemplateApplied = false; // Set to true as soon as the ItemsPanel style is applied on the items presenter
     protected Panel _itemsHostPanel = null; // Our instanciated items host panel
     protected FrameworkElement _lastFocusedElement = null; // Needed for focus tracking/update of current item
     protected ISelectableItemContainer _lastSelectedItem = null; // Needed for updating of the selected item
@@ -216,7 +216,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
     {
-      _templateApplied = false;
+      _panelTemplateApplied = false;
       PrepareItems();
     }
 
@@ -500,9 +500,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (presenter == null)
           return;
 
-        if (!_templateApplied)
+        if (!_panelTemplateApplied)
         {
-          _templateApplied = true;
+          _panelTemplateApplied = true;
           presenter.ApplyTemplate(ItemsPanel);
           _itemsHostPanel = null;
         }

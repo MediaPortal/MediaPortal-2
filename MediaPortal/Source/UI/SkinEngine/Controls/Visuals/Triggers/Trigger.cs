@@ -99,22 +99,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public override void Setup(UIElement element)
+    protected void DetachFromDataDescriptor()
     {
-      base.Setup(element);
       if (_dataDescriptor != null)
       {
         _dataDescriptor.Detach(OnPropertyChanged);
         _dataDescriptor = null;
       }
+    }
+
+    protected void AttachToDataDescriptor()
+    {
+      if (_element == null)
+        return;
       if (!String.IsNullOrEmpty(Property))
       {
-        if (ReflectionHelper.FindMemberDescriptor(element, Property, out _dataDescriptor))
+        if (ReflectionHelper.FindMemberDescriptor(_element, Property, out _dataDescriptor))
           _dataDescriptor.Attach(OnPropertyChanged);
       }
+    }
+
+    public override void Setup(UIElement element)
+    {
+      DetachFromDataDescriptor();
+      base.Setup(element);
+      AttachToDataDescriptor();
       if (_dataDescriptor == null)
         return;
-      Initialize(_dataDescriptor.Value, Value);
+      TriggerIfValuesEqual(_dataDescriptor.Value, Value);
+    }
+
+    public override void Reset()
+    {
+      DetachFromDataDescriptor();
+      base.Reset();
     }
 
     /// <summary>

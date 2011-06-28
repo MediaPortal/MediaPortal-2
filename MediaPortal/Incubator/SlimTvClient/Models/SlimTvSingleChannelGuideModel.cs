@@ -28,14 +28,13 @@ using MediaPortal.Core.General;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.Plugins.SlimTvClient
 {
   /// <summary>
   /// Model which holds the GUI state for the GUI test state.
   /// </summary>
-  public class SlimTvSingleChannelGuideModel : SlimTvGuideModelBase, IWorkflowModel
+  public class SlimTvSingleChannelGuideModel : SlimTvGuideModelBase
   {
     public const string MODEL_ID_STR = "74F50A53-BEF7-415c-A240-2EC718DA8C0F";
 
@@ -47,7 +46,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     #region Variables
 
-    private ItemsList _programsList = new ItemsList();
+    private readonly ItemsList _programsList = new ItemsList();
     private IChannel _channel;
 
     #endregion
@@ -59,7 +58,7 @@ namespace MediaPortal.Plugins.SlimTvClient
     /// </summary>
     public string ChannelName
     {
-      get { return (string)_channelNameProperty.GetValue(); }
+      get { return (string) _channelNameProperty.GetValue(); }
       set { _channelNameProperty.SetValue(value); }
     }
 
@@ -88,23 +87,28 @@ namespace MediaPortal.Plugins.SlimTvClient
     protected override void InitModel()
     {
       if (!_isInitialized)
-      {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
-        base.InitModel();
-      }
+
+      base.InitModel();
     }
 
     #endregion
 
     #region Channel, groups and programs
 
+    protected override void Update()
+    { }
+
     protected override void UpdateCurrentChannel()
     {
+      SetGroupName();
+
       if (_webChannelIndex < _channels.Count)
       {
         IChannel channel = _channels[_webChannelIndex];
         _channel = channel;
         ChannelName = channel.Name;
+        SetCurrentChannel();
       }
       else
       {
@@ -158,6 +162,5 @@ namespace MediaPortal.Plugins.SlimTvClient
     }
 
     #endregion
-
   }
 }

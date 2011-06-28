@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
@@ -140,13 +141,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     {
       get
       {
-        foreach (DvStateVariable stateVariable in _stateVariables.Values)
-        {
-          DvExtendedDataType edt = stateVariable.DataType as DvExtendedDataType;
-          if (edt != null && !edt.SupportsStringEquivalent)
-            return true;
-        }
-        return false;
+        return _stateVariables.Values.Any(
+            stateVariable =>
+              {
+                DvExtendedDataType edt = stateVariable.DataType as DvExtendedDataType;
+                return edt != null && !edt.SupportsStringEquivalent;
+              });
       }
     }
 
