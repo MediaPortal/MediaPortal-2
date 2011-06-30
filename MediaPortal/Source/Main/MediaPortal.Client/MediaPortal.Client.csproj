@@ -71,9 +71,7 @@
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ApplicationLauncher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="app.config" />
     <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>

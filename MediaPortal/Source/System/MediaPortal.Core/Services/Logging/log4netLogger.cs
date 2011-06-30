@@ -40,10 +40,8 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="logPath">Path where the logfiles should be written to.</param>
     public Log4NetLogger(string logPath)
     {
-      string appPath = Path.GetDirectoryName(Application.ExecutablePath);
-
       XmlDocument xmlDoc = new XmlDocument();
-      using (Stream stream = new FileStream(Path.Combine(appPath, "app.config"), FileMode.Open, FileAccess.Read))
+      using (Stream stream = new FileStream(Application.ExecutablePath + ".config", FileMode.Open, FileAccess.Read))
         xmlDoc.Load(stream);
       XmlNodeList nodeList = xmlDoc.SelectNodes("configuration/log4net/appender/file");
       foreach (XmlNode node in nodeList)
