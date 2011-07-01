@@ -112,7 +112,7 @@ namespace MediaPortal.UI.Players.Video.Tools
 
     #region Properties
 
-    public List<CodecInfo> CodecList 
+    public List<CodecInfo> CodecList
     {
       get
       {
@@ -129,6 +129,14 @@ namespace MediaPortal.UI.Players.Video.Tools
     #endregion
 
     /// <summary>
+    /// Constructor
+    /// </summary>
+    public CodecHandler()
+    {
+      _codecList = new List<CodecInfo>();
+    }
+
+    /// <summary>
     /// Checks if all capabilities are supported
     /// </summary>
     /// <param name="capabilities">Capabilities to check in</param>
@@ -139,14 +147,13 @@ namespace MediaPortal.UI.Players.Video.Tools
       return (capabilities & checkCapability) == checkCapability;
     }
 
-
     /// <summary>
     /// Check if codec exists and add it to list
     /// </summary>
     /// <param name="newCodec">Codec to add</param>
     public void TryAdd(CodecInfo newCodec)
     {
-      if (DoesComObjectExists(newCodec.CLSID.ToString()))
+      if (DoesComObjectExists(newCodec.CLSID))
       {
         _codecList.Add(newCodec);
       }
@@ -169,9 +176,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           using (RegistryKey subKey = myRegKey.OpenSubKey(@"SOFTWARE\Classes\CLSID\" + clsid + @"\InprocServer32"))
           {
             if (subKey == null)
-            {
               return false;
-            }
             val = subKey.GetValue(null); // the null gets default
           }
         }
@@ -204,18 +209,11 @@ namespace MediaPortal.UI.Players.Video.Tools
       {
         // Does codec support this capability ?
         if ((currentCodec.Capabilities & capability) != 0)
-        {
           currentCodec.Preferred = currentCodec.Name == codecName;
-        }
       }
       // sort list by "preferred" property
-      _codecList.Sort(); 
+      _codecList.Sort();
     }
-    public CodecHandler()
-    {
-      _codecList = new List<CodecInfo>();
-    }
-
 
     /// <summary>
     /// Gets a list of DirectShow filter names that accept the passed MediaType/MediaSubType.
@@ -225,7 +223,7 @@ namespace MediaPortal.UI.Players.Video.Tools
     /// <returns>List of names</returns>
     public static List<CodecInfo> GetFilters(Guid mediaType, Guid mediaSubType)
     {
-      return GetFilters(mediaType, mediaSubType, (Merit)0x080001);
+      return GetFilters(mediaType, mediaSubType, (Merit) 0x080001);
     }
 
     /// <summary>
@@ -266,25 +264,25 @@ namespace MediaPortal.UI.Players.Video.Tools
       IFilterMapper2 mapper = (IFilterMapper2) new FilterMapper2();
       try
       {
-        int hResult = mapper.EnumMatchingFilters(
-            out enumMoniker,
-            0,
-            true,
-            merit,
-            true,
-            inputMediaAndSubTypes.Length,
-            inputMediaAndSubTypes,
-            null,
-            null,
-            false,
-            true,
-            outputMediaAndSubTypes.Length,
-            outputMediaAndSubTypes,
-            null,
-            null);
+        mapper.EnumMatchingFilters(
+          out enumMoniker,
+          0,
+          true,
+          merit,
+          true,
+          inputMediaAndSubTypes.Length,
+          inputMediaAndSubTypes,
+          null,
+          null,
+          false,
+          true,
+          outputMediaAndSubTypes.Length,
+          outputMediaAndSubTypes,
+          null,
+          null);
         do
         {
-          hResult = enumMoniker.Next(1, moniker, IntPtr.Zero);
+          enumMoniker.Next(1, moniker, IntPtr.Zero);
           if ((moniker[0] == null))
             break;
 
@@ -297,9 +295,56 @@ namespace MediaPortal.UI.Players.Video.Tools
         } while (true);
         filters.Sort();
         return filters;
-      }finally
+      }
+      finally
       {
         FilterGraphTools.TryRelease(ref enumMoniker);
+      }
+    }
+
+    /// <summary>
+    /// Gets a list of DirectShow audio renderers.
+    /// </summary>
+    /// <returns>List of names</returns>
+    public static List<CodecInfo> GetAudioRenderers()
+    {
+      return GetFiltersForCategory(FilterCategory.AudioRendererCategory);
+    }
+
+    /// <summary>
+    /// Enumerates available filters and returns a list of <see cref="CodecInfo"/>.
+    /// </summary>
+    /// <param name="filterCategory">GUID of filter category (<see cref="DirectShowLib.FilterCategory"/> members)></param>
+    /// <returns></returns>
+    public static List<CodecInfo> GetFiltersForCategory(Guid filterCategory)
+    {
+      List<CodecInfo> codecInfos = new List<CodecInfo>();
+      ICreateDevEnum devEnum = null;
+      IEnumMoniker enumMoniker = null;
+      try
+      {
+        devEnum = (ICreateDevEnum) new CreateDevEnum();
+        int catResult = devEnum.CreateClassEnumerator(filterCategory, out enumMoniker, CDef.None);
+        if (catResult == 0)
+        {
+          IMoniker[] moniker = new IMoniker[1];
+          while (enumMoniker.Next(1, moniker, IntPtr.Zero) == 0)
+          {
+            string filterName = FilterGraphTools.GetFriendlyName(moniker[0]);
+            Guid filterClassId = FilterGraphTools.GetCLSID(moniker[0]);
+            CodecInfo codecInfo = new CodecInfo(filterName, CodecCapabilities.None, filterClassId);
+            codecInfos.Add(codecInfo);
+
+            FilterGraphTools.TryRelease(ref moniker[0]);
+          }
+        }
+        codecInfos.Sort();
+        return codecInfos;
+      }
+      finally
+      {
+        FilterGraphTools.TryRelease(ref enumMoniker);
+        FilterGraphTools.TryRelease(ref devEnum);
       }
     }
   }
