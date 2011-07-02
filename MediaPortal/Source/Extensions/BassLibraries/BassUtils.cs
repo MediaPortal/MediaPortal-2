@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using Un4seen.Bass.AddOn.Cd;
 
 namespace MediaPortal.Extensions.BassLibraries
@@ -30,34 +32,36 @@ namespace MediaPortal.Extensions.BassLibraries
   public class BassUtils
   {
     /// <summary>
-    /// Checks, if the given Drive Letter is a Red Book (Audio) CD
+    /// Checks, if the media in the given drive Letter is a Red Book (Audio) CD.
     /// </summary>
-    /// <param name="drive"></param>
-    /// <returns></returns>
+    /// <param name="drive">Drive path or drive letter (<c>"F:"</c> or <c>"F"</c>).</param>
+    /// <returns><c>true</c>, if the media in the given <paramref name="drive"/> is a Red Book CD.</returns>
     public static bool isARedBookCD(string drive)
+    {
+      return GetNumTracks(drive) > 0;
+    }
+
+    public static int GetNumTracks(string drive)
     {
       try
       {
-        if (drive.Length < 1) return false;
+        if (string.IsNullOrEmpty(drive))
+          return 0;
         char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
-        int cddaTracks = BassCd.BASS_CD_GetTracks(Drive2BassID(driveLetter));
-
-        if (cddaTracks > 0)
-          return true;
-        else
-          return false;
+        return BassCd.BASS_CD_GetTracks(Drive2BassID(driveLetter));
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        return false;
+        ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
+        return 0;
       }
     }
 
     /// <summary>
-    /// Converts the given CD/DVD Drive Letter to a number suiteable for BASS
+    /// Converts the given CD/DVD/BD drive letter to a number suiteable for BASS.
     /// </summary>
-    /// <param name="driveLetter"></param>
-    /// <returns></returns>
+    /// <param name="driveLetter">Drive letter to convert.</param>
+    /// <returns>Bass id of the given <paramref name="driveLetter"/>.</returns>
     public static int Drive2BassID(char driveLetter)
     {
       BASS_CD_INFO cdinfo = new BASS_CD_INFO();
