@@ -47,11 +47,20 @@ namespace MediaPortal.Core.MediaManagement
 
     #endregion
 
+    /// <summary>
+    /// Creates a new media item.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
     public MediaItem(Guid mediaItemId) : this()
     {
       _id = mediaItemId;
     }
 
+    /// <summary>
+    /// Creates a new media item.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
+    /// <param name="aspects">Dictionary of media item aspects for the new media item instance.</param>
     public MediaItem(Guid mediaItemId, IDictionary<Guid, MediaItemAspect> aspects)
     {
       _id = mediaItemId;

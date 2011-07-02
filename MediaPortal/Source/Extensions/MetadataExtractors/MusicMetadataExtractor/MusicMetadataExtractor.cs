@@ -255,9 +255,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       MediaItemAspect mediaAspect;
       if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
         extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-      MediaItemAspect musicAspect;
-      if (!extractedAspectData.TryGetValue(AudioAspect.ASPECT_ID, out musicAspect))
-        extractedAspectData[AudioAspect.ASPECT_ID] = musicAspect = new MediaItemAspect(AudioAspect.Metadata);
+      MediaItemAspect audioAspect;
+      if (!extractedAspectData.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+        extractedAspectData[AudioAspect.ASPECT_ID] = audioAspect = new MediaItemAspect(AudioAspect.Metadata);
 
       try
       {
@@ -293,12 +293,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, PatchID3v2Enumeration(artists));
-        musicAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, PatchID3v2Enumeration(tag.Tag.AlbumArtists));
-        musicAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, PatchID3v2Enumeration(artists));
+        audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, StringUtils.TrimToNull(tag.Tag.Album));
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, PatchID3v2Enumeration(tag.Tag.AlbumArtists));
+        audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
         mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
-        musicAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, tag.Tag.Composers);
+        audioAspect.SetCollectionAttribute(AudioAspect.ATTR_COMPOSERS, tag.Tag.Composers);
         // The following code gets cover art images - and there is no cover art attribute in any media item aspect
         // defined yet. (Albert, 2008-11-19)
         //IPicture[] pics = new IPicture[] { };
@@ -307,13 +307,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         //{
         //  musictag.CoverArtImageBytes = pics[0].Data.Data;
         //}
-        musicAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
+        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
-          musicAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
+          audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
         if (tag.Tag.Track != 0)
-          musicAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
+          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
         if (tag.Tag.TrackCount != 0)
-          musicAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
+          audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
         int year = (int) tag.Tag.Year;
         if (year >= 30 && year <= 99)
           year += 1900;
