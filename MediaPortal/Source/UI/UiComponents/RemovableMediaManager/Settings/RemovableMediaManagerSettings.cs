@@ -29,12 +29,12 @@ namespace MediaPortal.UiComponents.RemovableMediaManager.Settings
   public enum AutoPlayType
   {
     /// <summary>
-    /// If media is inserted, the autoplay function will ignore that event.
+    /// If a media volume is inserted, the autoplay function will ignore that event.
     /// </summary>
     NoAutoPlay,
 
     /// <summary>
-    /// If media is inserted, the autoplay function will automatically play the media.
+    /// If a media volume is inserted, the autoplay function will automatically try to play the media.
     /// </summary>
     AutoPlay
   }

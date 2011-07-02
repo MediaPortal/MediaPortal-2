@@ -25,8 +25,6 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Runtime;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.RemovableMedia;
@@ -40,26 +38,11 @@ namespace MediaPortal.UI.Services.RemovableMedia
 
     protected DeviceVolumeMonitor _deviceMonitor;
     protected IntPtr _windowHandle = IntPtr.Zero;
-    protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
 
     #endregion
 
     #region Ctor & maintainance
-
-    public RemovableMediaTracker()
-    {
-      ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
-      switch (sss.CurrentState)
-      {
-        case SystemState.Initializing:
-          SubscribeToMessages();
-          break;
-        case SystemState.Running:
-          StartListening();
-          break;
-      }
-    }
 
     ~RemovableMediaTracker()
     {
@@ -68,56 +51,7 @@ namespace MediaPortal.UI.Services.RemovableMedia
 
     public void Dispose()
     {
-      UnsubscribeFromMessages();
       StopListening();
-    }
-
-    void SubscribeToMessages()
-    {
-      lock (_syncObj)
-      {
-        _messageQueue = new AsynchronousMessageQueue(this, new string[]
-          {
-             SystemMessaging.CHANNEL
-          });
-        _messageQueue.MessageReceived += OnMessageReceived;
-        _messageQueue.Start();
-      }
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      lock (_syncObj)
-      {
-        if (_messageQueue == null)
-          return;
-        _messageQueue.Shutdown();
-        _messageQueue = null;
-      }
-    }
-
-    /// <summary>
-    /// Called when the plugin manager notifies the system about its events.
-    /// Requests the main window handle from the main screen.
-    /// </summary>
-    /// <param name="queue">Queue which sent the message.</param>
-    /// <param name="message">Message containing the notification data.</param>
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        if (((SystemMessaging.MessageType) message.MessageType) == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          SystemState state = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
-          if (state == SystemState.Running)
-          {
-            IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-            _windowHandle = sc.MainWindowHandle;
-            StartListening();
-            UnsubscribeFromMessages();
-          }
-        }
-      }
     }
 
     /// <summary>
@@ -144,6 +78,8 @@ namespace MediaPortal.UI.Services.RemovableMedia
 
     public bool StartListening()
     {
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      _windowHandle = screenControl.MainWindowHandle;
       if (_windowHandle == IntPtr.Zero)
         return false;
       RemovableMediaTrackerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaTrackerSettings>();
@@ -184,6 +120,16 @@ namespace MediaPortal.UI.Services.RemovableMedia
         ServiceRegistration.Get<ISettingsManager>().Save(settings);
         _deviceMonitor.Enabled = value;
       }
+    }
+
+    public void Startup()
+    {
+      StartListening();
+    }
+
+    public void Shutdown()
+    {
+      StopListening();
     }
 
     #endregion

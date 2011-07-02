@@ -36,5 +36,8 @@ namespace MediaPortal.UI.RemovableMedia
     /// setting is persisted and valid during all MediaPortal 2 sessions.
     /// </summary>
     bool TrackRemovableMedia { get; set; }
+
+    void Startup();
+    void Shutdown();
   }
 }

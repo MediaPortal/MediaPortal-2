@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -56,12 +56,11 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\RemovableMediaAction.cs" />
     <Compile Include="RemovableMediaManager.cs" />
-    <Compile Include="AutoPlayMediaItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\RemovableMediaManagerSettings.cs" />
   </ItemGroup>
@@ -88,6 +87,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

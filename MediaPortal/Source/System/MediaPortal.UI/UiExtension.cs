@@ -31,6 +31,7 @@ using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.RemovableMedia;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.SystemResolver;
 using MediaPortal.UI.Services.UiNotifications;
@@ -81,11 +82,17 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Registering IFrontendServer service");
       ServiceRegistration.Set<IFrontendServer>(new Services.FrontendServer.FrontendServer());
 
+      logger.Debug("UiExtension: Registering IRemovableMediaTracker service");
+      ServiceRegistration.Set<IRemovableMediaTracker>(new Services.RemovableMedia.RemovableMediaTracker());
+
       AdditionalUiBuilders.Register();
     }
 
     public static void StopUiServices()
     {
+      IRemovableMediaTracker removableMediaTracker = ServiceRegistration.Get<IRemovableMediaTracker>();
+      removableMediaTracker.Shutdown();
+
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       serverConnectionManager.Shutdown();
 
@@ -101,6 +108,9 @@ namespace MediaPortal.UI
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
       // Reverse order than method RegisterUiServices()
+
+      logger.Debug("UiExtension: Removing IRemovableMediaTracker service");
+      ServiceRegistration.RemoveAndDispose<IRemovableMediaTracker>();
 
       logger.Debug("UiExtension: Removing IFrontendServer service");
       ServiceRegistration.RemoveAndDispose<IFrontendServer>();
@@ -146,6 +156,7 @@ namespace MediaPortal.UI
       RegisterDefaultCommandShortcuts();
       ServiceRegistration.Get<IServerConnectionManager>().Startup();
       ServiceRegistration.Get<IFrontendServer>().Startup();
+      ServiceRegistration.Get<IRemovableMediaTracker>().Startup();
     }
   }
 }
