@@ -65,6 +65,8 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #endregion
 
+    #region Internal classes
+
     protected class MetadataExtractorPluginItemChangeListener : IItemRegistrationChangeListener
     {
       protected MediaAccessor _parent;
@@ -116,6 +118,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         // TODO: Make MediaProviders removable?
       }
     }
+
+    #endregion
 
     #region Protected fields
 
