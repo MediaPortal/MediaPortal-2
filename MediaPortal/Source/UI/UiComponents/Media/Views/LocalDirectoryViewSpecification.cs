@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View implementation which is based on a local provider path.

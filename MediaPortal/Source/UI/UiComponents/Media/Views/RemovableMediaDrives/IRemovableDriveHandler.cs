@@ -22,23 +22,22 @@
 
 #endregion
 
-using MediaPortal.UiComponents.Media.Views;
+using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
   /// <summary>
-  /// Holds a GUI item which represents a view to navigate to.
+  /// Handler for a specific removable media which is currently present in a removable media drive.
   /// </summary>
   /// <remarks>
-  /// Instances of this class represent view items to be displayed in a GUI view's items list.
-  /// View's items lists contain view items (<see cref="ViewItem"/>s) as well as
-  /// playable items (<see cref="PlayableMediaItem"/>).
+  /// This interface provides a generic, abstract interface which can be implemented for each type of media inserted into a removable media drive.
   /// </remarks>
-  public class ViewItem : ContainerItem
+  public interface IRemovableDriveHandler
   {
-    public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
-    {
-      SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
-    }
+    string VolumeLabel { get; }
+    IList<MediaItem> MediaItems { get; }
+    IList<ViewSpecification> SubViewSpecifications { get; }
+    IEnumerable<MediaItem> GetAllMediaItems();
   }
 }

@@ -34,7 +34,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View which is based on a media library query.

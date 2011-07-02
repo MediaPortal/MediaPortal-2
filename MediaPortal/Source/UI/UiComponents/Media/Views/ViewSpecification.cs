@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// Holds the building instructions for creating a collection of media items and sub views.

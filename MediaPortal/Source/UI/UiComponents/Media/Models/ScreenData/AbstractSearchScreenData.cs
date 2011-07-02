@@ -28,7 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData

@@ -31,7 +31,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;

@@ -22,23 +22,34 @@
 
 #endregion
 
-using MediaPortal.UiComponents.Media.Views;
+using System.Collections.Generic;
+using System.IO;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
-  /// <summary>
-  /// Holds a GUI item which represents a view to navigate to.
-  /// </summary>
-  /// <remarks>
-  /// Instances of this class represent view items to be displayed in a GUI view's items list.
-  /// View's items lists contain view items (<see cref="ViewItem"/>s) as well as
-  /// playable items (<see cref="PlayableMediaItem"/>).
-  /// </remarks>
-  public class ViewItem : ContainerItem
+  public class UnknownRemovableDriveHandler : BaseDriveHandler
   {
-    public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
+    public UnknownRemovableDriveHandler(DriveInfo driveInfo) : base(driveInfo) { }
+
+    public override string VolumeLabel
     {
-      SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
+      get { return _driveInfo.VolumeLabel; }
+    }
+
+    public override IList<MediaItem> MediaItems
+    {
+      get { return new List<MediaItem>(0); }
+    }
+
+    public override IList<ViewSpecification> SubViewSpecifications
+    {
+      get { return new List<ViewSpecification>(0); }
+    }
+
+    public override IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      yield break;
     }
   }
 }

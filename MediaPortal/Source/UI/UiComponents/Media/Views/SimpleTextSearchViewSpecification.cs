@@ -31,7 +31,7 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View which is represents the results of a simple text search at the media library.

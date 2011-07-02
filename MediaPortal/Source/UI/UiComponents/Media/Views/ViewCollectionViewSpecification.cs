@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 using System;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View specification defining a view which contains a configurable list of subviews and no media items.

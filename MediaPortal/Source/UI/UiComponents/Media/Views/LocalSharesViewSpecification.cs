@@ -24,11 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Shares;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View implementation which presents a list of of all local shares, one sub view for each share.
@@ -55,9 +56,7 @@ namespace MediaPortal.UI.Views
       IList<MediaItem> mis;
       IList<ViewSpecification> vss;
       ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      foreach (ViewSpecification subViewSpecification in vss)
-        foreach (MediaItem mediaItem in subViewSpecification.GetAllMediaItems())
-          yield return mediaItem;
+      return vss.SelectMany(subViewSpecification => subViewSpecification.GetAllMediaItems());
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

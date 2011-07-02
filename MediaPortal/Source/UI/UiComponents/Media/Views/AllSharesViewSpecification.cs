@@ -30,7 +30,7 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.ServerCommunication;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UiComponents.Media.Views
 {
   /// <summary>
   /// View implementation which presents a list of of all shares registered at the media library, one sub view for each share.
