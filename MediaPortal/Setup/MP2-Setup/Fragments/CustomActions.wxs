@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
+    <Binary Id="Custom_Action_Dll" SourceFile="..\CustomActions\bin\Release\CustomActions.CA.dll"/>
+
     <CustomAction Id="SetStandardServerDirPluginProperties" Property="STANDARD_SERVERDIR_PLUGINS" Value="[INSTALLDIR_SERVER]Plugins\"/>
     <CustomAction Id="SetStandardClientDirPluginProperties" Property="STANDARD_CLIENTDIR_PLUGINS" Value="[INSTALLDIR_CLIENT]Plugins\"/>
     <CustomAction Id="SetVarsForCustomSetup" BinaryKey="Custom_Action_Dll" DllEntry="SetVarsForCustomSetup" Execute="immediate" Return="check" />

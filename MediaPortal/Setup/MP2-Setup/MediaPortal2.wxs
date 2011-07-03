@@ -23,7 +23,6 @@
     <PropertyRef Id="UpgradesFile" />
 
     <?Include .\Includes.wxi?>
-    <Binary Id="Custom_Action_Dll" SourceFile="..\CustomActions\bin\Release\CustomActions.CA.dll"/>
 
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
