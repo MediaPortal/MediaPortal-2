@@ -25,7 +25,7 @@ namespace CustomActions
 
     [CustomAction]
     public static ActionResult AttachClientAndServer(Session session)
-    {  
+    {
       session.Log("Begin AttachClientAndServer");
 
       session.Log("ClientRequestState : {0}", session.Features["Client"].RequestState);
@@ -46,23 +46,36 @@ namespace CustomActions
         pathManager.SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
         pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
-        pathManager.SetPath("DEFAULTS", session["INSTALLDIR_SERVER"] + "\\Defaults");
-        pathManager.LoadPaths(session["INSTALLDIR_SERVER"] + "\\Defaults\\Paths.xml");
-
-        ISystemResolver systemResolver = new SystemResolver();
-        ServiceRegistration.Set<ISystemResolver>(systemResolver);
-
-        String _localSystemId = systemResolver.LocalSystemId;
-        session.Log("Local systemid = " + systemResolver.LocalSystemId);
 
         pathManager.SetPath("DEFAULTS", session["INSTALLDIR_CLIENT"] + "\\Defaults");
         pathManager.LoadPaths(session["INSTALLDIR_CLIENT"] + "\\Defaults\\Paths.xml");
 
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
-        settings.HomeServerSystemId = _localSystemId;
-        settings.LastHomeServerName = "MediaPortal 2 server";
-        settingsManager.Save(settings);
+
+        if (settings.HomeServerSystemId == null)
+        {
+          session.Log("Client is not attached, will be auto attached with the local server");
+          pathManager.SetPath("DEFAULTS", session["INSTALLDIR_SERVER"] + "\\Defaults");
+          pathManager.LoadPaths(session["INSTALLDIR_SERVER"] + "\\Defaults\\Paths.xml");
+
+          ISystemResolver systemResolver = new SystemResolver();
+          ServiceRegistration.Set<ISystemResolver>(systemResolver);
+
+          String _localSystemId = systemResolver.LocalSystemId;
+          session.Log("Local systemid = " + systemResolver.LocalSystemId);
+
+          pathManager.SetPath("DEFAULTS", session["INSTALLDIR_CLIENT"] + "\\Defaults");
+          pathManager.LoadPaths(session["INSTALLDIR_CLIENT"] + "\\Defaults\\Paths.xml");
+
+          settings.HomeServerSystemId = _localSystemId;
+          settings.LastHomeServerName = "MediaPortal 2 server";
+          settingsManager.Save(settings);
+        }
+        else
+        {
+          session.Log("Client is already attached with server with ID {0}", settings.HomeServerSystemId);
+        }
 
         session.Log("End AttachClientAndServer");
       }
