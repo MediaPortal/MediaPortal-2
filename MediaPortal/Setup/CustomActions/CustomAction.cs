@@ -32,6 +32,7 @@ namespace CustomActions
       if (session.Features["Client"].RequestState == InstallState.Local
         & session.Features["Server"].RequestState == InstallState.Local)
       {
+        // todo: check which code is really needed: serviceregistration? pathmanager?
         ServiceRegistration.Set<ILogger>(new NoLogger());
 
         IPathManager pathManager = new PathManager();
@@ -95,9 +96,15 @@ namespace CustomActions
       return ActionResult.Success;
     }
 
-    private static void SetCustomPaths(Session session, string cs, IEnumerable<string> pathVariables)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="cs">String which can be CLIENT or SERVER to access the properties of sessions.</param>
+    /// <param name="pathLabels">List of path labels which are available for Client or Server.</param>
+    private static void SetCustomPaths(Session session, string cs, IEnumerable<string> pathLabels)
     {
-      foreach (string label in pathVariables)
+      foreach (string label in pathLabels)
       {
         string property = cs + "." + label + ".FOLDER";
 
