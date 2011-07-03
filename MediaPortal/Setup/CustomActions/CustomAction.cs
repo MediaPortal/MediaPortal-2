@@ -89,33 +89,56 @@ namespace CustomActions
     [CustomAction]
     public static ActionResult SetCustomPaths(Session session)
     {
-      string path;
-      string property;
-
-      foreach (string label in ClientPathLabels)
-      {
-        property = "CLIENT." + label + ".FOLDER";
-
-        path = session[property];
-        path = path.Replace(session["INSTALLDIR_CLIENT"], "<APPLICATION_ROOT>\\");
-        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
-
-        session["XML." + property] = path;
-        session.Log("XML.{1}={0}", path, property);
-      }
-      foreach (string label in ServerPathLabels)
-      {
-        property = "SERVER." + label + ".FOLDER";
-
-        path = session[property];
-        path = path.Replace(session["INSTALLDIR_SERVER"], "<APPLICATION_ROOT>\\");
-        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
-
-        session["XML." + property] = path;
-        session.Log("XML.{1}={0}", path, property);
-      }
+      SetCustomPaths(session, "CLIENT", ClientPathLabels);
+      SetCustomPaths(session, "SERVER", ServerPathLabels);
 
       return ActionResult.Success;
+    }
+
+    private static void SetCustomPaths(Session session, string cs, IEnumerable<string> pathVariables)
+    {
+      foreach (string label in pathVariables)
+      {
+        string property = cs + "." + label + ".FOLDER";
+
+        string path = session[property];
+
+        string tmpPath = session["INSTALLDIR_" + cs];
+        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
+          "<APPLICATION_ROOT>");
+
+        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
+          "<LOCAL_APPLICATION_DATA>");
+
+        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
+          "<COMMON_APPLICATION_DATA>");
+
+        tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
+          "<MY_DOCUMENTS>");
+
+        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
+
+        foreach (string l in ClientPathLabels)
+        {
+          // only check if parts of string equals if we have a different labels
+          if (l.Equals(label)) continue;
+
+          // only replace if p is not empty
+          string p = session["XML." + cs + "." + l + ".FOLDER"];
+          if (String.IsNullOrEmpty(p)) continue;
+
+          p = p.Replace(path, "<" + label + ">");
+          path = path.Replace(p, "<" + l + ">");
+
+          session["XML." + cs + "." + l + ".FOLDER"] = p;
+        }
+
+        session["XML." + property] = path;
+        session.Log("XML.{1}={0}", path, property);
+      }
     }
   }
 }
