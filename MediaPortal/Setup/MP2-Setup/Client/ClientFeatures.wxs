@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Fragment>
+
+    <?include ..\Includes.wxi ?>
+
+    <Feature Id="MP2Client"
+             Level="1"
+             AllowAdvertise="no"
+             ConfigurableDirectory="INSTALLDIR_CLIENT"
+             Title="!(loc.F_MP_Client)"
+             Description="!(loc.F_MP_Client_Desc)">
+
+      <ComponentRef Id="Defaults" />
+      <ComponentRef Id="ComponentModifyDefaultClientPluginsPath" />
+
+      <ComponentRef Id="BASSLicense" />
+      <ComponentRef Id="MediaPortalLicense" />
+
+      <ComponentRef Id="MP2Client" />
+      <ComponentRef Id="MP2Client.config" />
+      <ComponentRef Id="MP2ClientSplashscreen" />
+      <ComponentRef Id="MP2Client.Desktop.Shortcut" />
+      <ComponentRef Id="MP2Client.StartMenu.Shortcut" />
+
+      <ComponentRef Id="HttpServer" />
+      <ComponentRef Id="log4net" />
+      <ComponentRef Id="MediaPortal.Core" />
+      <ComponentRef Id="MediaPortal.UI" />
+      <ComponentRef Id="MediaPortal.Utilities" />
+      <ComponentRef Id="Microsoft.WindowsAPICodePack"/>
+      <ComponentRef Id="Microsoft.WindowsAPICodePack.Shell"/>
+      <ComponentRef Id="UPnP" />
+      <ComponentRef Id="zlib1" />
+
+      <Feature Id="MP2Client_Plugins"
+               Level="2"
+               Absent="disallow"
+               AllowAdvertise="no"
+               ConfigurableDirectory="INSTALLDIR_CLIENT_PLUGINS"
+               Title="!(loc.F_MP_Client_Plugin)"
+               Description="!(loc.F_MP_Client_Plugin_Desc)">
+
+        <ComponentGroupRef Id="ClientPlugins" />
+      </Feature>
+
+    </Feature>
+
+  </Fragment>
+</Wix>

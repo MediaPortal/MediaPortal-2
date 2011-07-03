@@ -27,6 +27,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Client\ClientPlugins.wxs" />
+    <Compile Include="Client\ClientFeatures.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\Dokan.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
@@ -34,6 +35,7 @@
     <Compile Include="Fragments\Properties.wxs" />
     <Compile Include="Fragments\CustomActions.wxs" />
     <Compile Include="MediaPortal2.wxs" />
+    <Compile Include="Server\ServerFeatures.wxs" />
     <Compile Include="UI\MP2_Setup_UI_FeatureTree.wxs" />
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
     <Content Include="Includes.wxi" />

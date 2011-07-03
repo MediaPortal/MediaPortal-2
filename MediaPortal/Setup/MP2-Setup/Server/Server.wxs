@@ -112,47 +112,5 @@
       </Component>
     </DirectoryRef>
 
-    <!-- Features -->
-    <Feature Id="MP2Server"
-             Level="1"
-             AllowAdvertise="no"
-             ConfigurableDirectory="INSTALLDIR_SERVER"
-             Title="!(loc.F_MP_Server)"
-             Description="!(loc.F_MP_Server_Desc)">
-
-      <ComponentRef Id="S__Defaults" />
-      <ComponentRef Id="ComponentModifyDefaultServerPluginsPath" />
-
-      <ComponentRef Id="ClientManager_create_1_0" />
-      <ComponentRef Id="MediaLibrary_create_1_0" />
-      <ComponentRef Id="MediaPortal_Basis_create_1_0" />
-
-      <ComponentRef Id="MP2Server" />
-      <ComponentRef Id="MP2Server.config" />
-      <ComponentRef Id="MP2Server.Desktop.Shortcut" />
-      <ComponentRef Id="MP2Server.StartMenu.Shortcut" />
-
-      <ComponentRef Id="S__HttpServer" />
-      <ComponentRef Id="S__log4net" />
-      <ComponentRef Id="MediaPortal.Backend" />
-      <ComponentRef Id="S__MediaPortal.Core" />
-      <ComponentRef Id="S__MediaPortal.Utilities" />
-      <ComponentRef Id="S_Microsoft.WindowsAPICodePack"/>
-      <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>
-      <ComponentRef Id="S__UPnP" />
-
-      <Feature Id="MP2Server_Plugins"
-               Level="2"
-               Absent="disallow"
-               AllowAdvertise="no"
-               ConfigurableDirectory="INSTALLDIR_SERVER_PLUGINS"
-               Title="!(loc.F_MP_Server_Plugin)"
-               Description="!(loc.F_MP_Server_Plugin_Desc)">
-
-        <ComponentGroupRef Id="ServerPlugins" />
-      </Feature>
-
-    </Feature>
-
   </Fragment>
 </Wix>
