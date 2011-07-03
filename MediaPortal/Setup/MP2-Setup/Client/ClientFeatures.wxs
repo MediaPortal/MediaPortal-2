@@ -6,12 +6,12 @@
 
     <?include ..\Includes.wxi ?>
 
-    <Feature Id="MP2Client"
+    <Feature Id="Client"
              Level="1"
              AllowAdvertise="no"
              ConfigurableDirectory="INSTALLDIR_CLIENT"
-             Title="!(loc.F_MP_Client)"
-             Description="!(loc.F_MP_Client_Desc)">
+             Title="!(loc.F_Client)"
+             Description="!(loc.F_Client_Desc)">
 
       <ComponentRef Id="Defaults" />
       <ComponentRef Id="ComponentModifyDefaultClientPluginsPath" />
@@ -35,14 +35,13 @@
       <ComponentRef Id="UPnP" />
       <ComponentRef Id="zlib1" />
 
-      <Feature Id="MP2Client_Plugins"
+      <Feature Id="Client.Plugins"
                Level="2"
                Absent="disallow"
                AllowAdvertise="no"
-               ConfigurableDirectory="INSTALLDIR_CLIENT_PLUGINS"
-               Title="!(loc.F_MP_Client_Plugin)"
-               Description="!(loc.F_MP_Client_Plugin_Desc)">
-
+               ConfigurableDirectory="CLIENT.PLUGINS.FOLDER"
+               Title="!(loc.F_Client_Plugins)"
+               Description="!(loc.F_Client_Plugins_Desc)">
         <ComponentGroupRef Id="ClientPlugins" />
       </Feature>
 

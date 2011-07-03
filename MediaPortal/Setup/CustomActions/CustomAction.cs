@@ -19,15 +19,16 @@ namespace CustomActions
 {
   public class CustomActions
   {//Can publish up to 16 custom actions per DLL
+
     [CustomAction]
     public static ActionResult AttachClientAndServer(Session session)
     {  
       session.Log("Begin AttachClientAndServer");
 
-      session.Log("MP2ClientRequestState : {0}", session.Features["MP2Client"].RequestState);
-      session.Log("MP2ServerRequestState : {0}", session.Features["MP2Server"].RequestState);
+      session.Log("ClientRequestState : {0}", session.Features["Client"].RequestState);
+      session.Log("ServerRequestState : {0}", session.Features["Server"].RequestState);
 
-      if ((session.Features["MP2Client"].RequestState == InstallState.Local) & (session.Features["MP2Server"].RequestState == InstallState.Local))
+      if ((session.Features["Client"].RequestState == InstallState.Local) & (session.Features["Server"].RequestState == InstallState.Local))
       {
         ServiceRegistration.Set<ILogger>(new NoLogger());
 
@@ -70,13 +71,13 @@ namespace CustomActions
     {
       session.Log("Begin SetupVarsForCustomSetup");
 
-      String _xml_client_plugins=session["INSTALLDIR_CLIENT_PLUGINS"];
+      String _xml_client_plugins=session["CLIENT.PLUGINS.FOLDER"];
       _xml_client_plugins = _xml_client_plugins.Replace(session["INSTALLDIR_CLIENT"], "<APPLICATION_ROOT>\\");
       _xml_client_plugins = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(_xml_client_plugins,"\\");
       session["XML_CLIENT_PLUGINS"]=_xml_client_plugins;
       session.Log("_xml_client_plugins={0}",_xml_client_plugins);
 
-      String _xml_server_plugins=session["INSTALLDIR_SERVER_PLUGINS"];
+      String _xml_server_plugins=session["SERVER.PLUGINS.FOLDER"];
       _xml_server_plugins = _xml_server_plugins.Replace(session["INSTALLDIR_SERVER"], "<APPLICATION_ROOT>\\");
       _xml_server_plugins = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(_xml_server_plugins, "\\");
       session["XML_SERVER_PLUGINS"]=_xml_server_plugins;

@@ -11,24 +11,26 @@
   <String Id="AR_Comment">MediaPortal 2 Commentaire</String>
 
   <!-- Shortcuts -->
-  <String Id="SC_MP_Client">MediaPortal 2</String>
-  <String Id="SC_MP_Client_Desc">Démarrer MediaPortal 2</String>
-  <String Id="SC_MP_Server">MediaPortal 2 Server</String>
-  <String Id="SC_MP_Server_Desc">Démarrer MediaPortal 2 Server</String>
+  <String Id="SC_Client">MediaPortal 2</String>
+  <String Id="SC_Client_Desc">Démarrer MediaPortal 2</String>
+  <String Id="SC_Server">MediaPortal 2 Server</String>
+  <String Id="SC_Server_Desc">Démarrer MediaPortal 2 Server</String>
   <String Id="SC_Uninstall">Désinstaller MediaPortal 2</String>
   <String Id="SC_Uninstall_Desc">Cela désinstallera complètement MediaPortal 2.</String>
 
   <!-- Features -->
-  <String Id="F_MP">MediaPortal 2</String>
-  <String Id="F_MP_Desc">MediaPortal 2 description</String>
-  <String Id="F_MP_Client">Client</String>
-  <String Id="F_MP_Client_Desc">Client description</String>
-  <String Id="F_MP_Server">Server</String>
-  <String Id="F_MP_Server_Desc">Server description</String>
-  <String Id="F_MP_Client_Plugin">Plugins</String>
-  <String Id="F_MP_Client_Plugin_Desc">Plugins description</String>
-  <String Id="F_MP_Server_Plugin">Plugins</String>
-  <String Id="F_MP_Server_Plugin_Desc">Plugins description</String>
+  <String Id="F_MediaPortal">MediaPortal 2</String>
+  <String Id="F_MediaPortal_Desc">MediaPortal 2 description</String>
+
+  <String Id="F_Client">Client</String>
+  <String Id="F_Client_Desc">Client description</String>
+  <String Id="F_Client_Plugins">Plugins</String>
+  <String Id="F_Client_Plugins_Desc">Plugins description</String>
+
+  <String Id="F_Server">Server</String>
+  <String Id="F_Server_Desc">Server description</String>
+  <String Id="F_Server_Plugins">Plugins</String>
+  <String Id="F_Server_Plugins_Desc">Plugins description</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] nécessite au minimum Windows 7 / 2008 R2 comme système d'exploitation.</String>

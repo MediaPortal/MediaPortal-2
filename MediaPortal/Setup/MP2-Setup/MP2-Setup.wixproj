@@ -24,6 +24,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>SourceClientPlugins=$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins;SourceServerPlugins=$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins</DefineConstants>
+    <SuppressIces>ICE60</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Client\ClientPlugins.wxs" />
@@ -79,11 +80,11 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_CLIENT_PLUGINS -var var.SourceClientPlugins -template fragment -out "$(ProjectDir)Client\ClientPlugins.wxs"
-"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr INSTALLDIR_SERVER_PLUGINS -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
+    <PostBuildEvent />
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent />
+    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins" -cg ClientPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr CLIENT.PLUGINS.FOLDER -var var.SourceClientPlugins -template fragment -out "$(ProjectDir)Client\ClientPlugins.wxs"
+"$(WIX)bin\heat.exe" dir "$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins" -cg ServerPlugins -gg -scom -sreg -sfrag -svb6 -srd -dr SERVER.PLUGINS.FOLDER -var var.SourceServerPlugins -template fragment -out "$(ProjectDir)Server\ServerPlugins.wxs"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

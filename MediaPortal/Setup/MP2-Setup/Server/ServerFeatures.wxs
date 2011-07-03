@@ -6,12 +6,12 @@
 
     <?include ..\Includes.wxi ?>
 
-    <Feature Id="MP2Server"
+    <Feature Id="Server"
              Level="1"
              AllowAdvertise="no"
              ConfigurableDirectory="INSTALLDIR_SERVER"
-             Title="!(loc.F_MP_Server)"
-             Description="!(loc.F_MP_Server_Desc)">
+             Title="!(loc.F_Server)"
+             Description="!(loc.F_Server_Desc)">
 
       <ComponentRef Id="S__Defaults" />
       <ComponentRef Id="ComponentModifyDefaultServerPluginsPath" />
@@ -34,14 +34,13 @@
       <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="S__UPnP" />
 
-      <Feature Id="MP2Server_Plugins"
+      <Feature Id="Server_Plugins"
                Level="2"
                Absent="disallow"
                AllowAdvertise="no"
-               ConfigurableDirectory="INSTALLDIR_SERVER_PLUGINS"
-               Title="!(loc.F_MP_Server_Plugin)"
-               Description="!(loc.F_MP_Server_Plugin_Desc)">
-
+               ConfigurableDirectory="SERVER.PLUGINS.FOLDER"
+               Title="!(loc.F_Server_Plugins)"
+               Description="!(loc.F_Server_Plugins_Desc)">
         <ComponentGroupRef Id="ServerPlugins" />
       </Feature>
 

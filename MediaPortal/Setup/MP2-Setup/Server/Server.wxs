@@ -76,8 +76,8 @@
     <DirectoryRef Id="MP2StartMenu">
       <Component Id="MP2Server.StartMenu.Shortcut" Guid="6A4D291B-5143-48F5-A277-65DAAE31623F">
         <Shortcut Id="MP2Server.StartMenu.Shortcut"
-                  Name="!(loc.SC_MP_Server)"
-                  Description="!(loc.SC_MP_Server_Desc)"
+                  Name="!(loc.SC_Server)"
+                  Description="!(loc.SC_Server_Desc)"
                   Target="[!MP2Server.exe]"
                   Icon="MediaPortal2ServerIcon" />
         <!--
@@ -95,8 +95,8 @@
     <DirectoryRef Id="DesktopFolder">
       <Component Id="MP2Server.Desktop.Shortcut" Guid="751AD25F-D690-4C01-8915-CD5DA4029F8E">
         <Shortcut Id="MP2Server.Desktop.Shortcut"
-                  Name="!(loc.SC_MP_Server)"
-                  Description="!(loc.SC_MP_Server_Desc)"
+                  Name="!(loc.SC_Server)"
+                  Description="!(loc.SC_Server_Desc)"
                   Target="[!MP2Server.exe]"
                   Icon="MediaPortal2ServerIcon" />
         <!--

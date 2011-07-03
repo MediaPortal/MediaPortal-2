@@ -47,10 +47,10 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
           <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
-            <Directory Id="INSTALLDIR_CLIENT_PLUGINS" Name="Plugins"/>
+            <Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
           <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
-            <Directory Id="INSTALLDIR_SERVER_PLUGINS" Name="Plugins"/>
+            <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
         </Directory>
       </Directory>
@@ -89,10 +89,10 @@
              Level="1"
              AllowAdvertise="no"
              Display="expand"
-             Title="!(loc.F_MP)"
-             Description="!(loc.F_MP_Desc)">
-      <FeatureRef Id="MP2Client" />
-      <FeatureRef Id="MP2Server" />
+             Title="!(loc.F_MediaPortal)"
+             Description="!(loc.F_MediaPortal_Desc)">
+      <FeatureRef Id="Client" />
+      <FeatureRef Id="Server" />
       <ComponentRef Id="MP2StartMenu" />
     </Feature>
 
@@ -108,8 +108,8 @@
     <UIRef Id="WixUI_ErrorProgressText" />
 
     <InstallExecuteSequence>
-      <Custom Action ="SetStandardServerDirPluginProperties" Before="FileCost">NOT Installed</Custom>
-      <Custom Action ="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
+      <Custom Action="SetStandardServerDirPluginProperties" Before="FileCost">NOT Installed</Custom>
+      <Custom Action="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
       <Custom Action="SetVarsForCustomSetup" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
 
