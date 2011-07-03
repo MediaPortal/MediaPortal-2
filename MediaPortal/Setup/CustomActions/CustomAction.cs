@@ -14,6 +14,7 @@ using MediaPortal.Core.Services.PathManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.UI.ServerCommunication.Settings;
+using Microsoft.Win32;
 
 namespace CustomActions
 {
@@ -88,6 +89,84 @@ namespace CustomActions
     }
 
     [CustomAction]
+    public static ActionResult ReadCustomPaths(Session session)
+    {
+      ReadCustomPaths(session, "CLIENT", ClientPathLabels);
+      ReadCustomPaths(session, "SERVER", ServerPathLabels);
+
+      return ActionResult.Success;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="cs">String which can be CLIENT or SERVER to access the properties of sessions.</param>
+    /// <param name="pathLabels">List of path labels which are available for Client or Server.</param>
+    private static void ReadCustomPaths(Session session, string cs, IEnumerable<string> pathLabels)
+    {
+      string regKey = String.Format("SOFTWARE\\{0}\\{1}", session["Manufacturer"], session["ProductName"]);
+      string regValue = "INSTALLDIR_" + cs;
+
+      // reading install dir from registry
+      RegistryKey masterKey = Registry.LocalMachine.OpenSubKey(regKey);
+      if (masterKey == null)
+      {
+        session.Log("RegKey HKLM\\{0} not opened/found.", regKey);
+        return;
+      }
+
+      string installDir = masterKey.GetValue(regValue, string.Empty) as string;
+      if (String.IsNullOrEmpty(installDir))
+      {
+        session.Log("RegValue {1} in HKLM\\{0} not opened/found.", regKey, regValue);
+        return;
+      }
+
+      session.Log("{0} read from registry: {1}", regValue, installDir);
+
+      // reading other dirs from paths.xml
+      installDir = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(installDir, "\\");
+
+      string pathsFile = installDir + "\\Defaults\\Paths.xml";
+      if (!File.Exists(pathsFile)) return;
+
+      session.Log("Paths file found, reading it: {0}", pathsFile);
+      IPathManager pathManager = new PathManager();
+      pathManager.SetPath("APPLICATION_ROOT", installDir);
+      pathManager.SetPath("LOCAL_APPLICATION_DATA",
+                          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+      pathManager.SetPath("COMMON_APPLICATION_DATA",
+                          Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+      pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+      pathManager.SetPath("DEFAULTS", installDir + "\\Defaults");
+      pathManager.LoadPaths(pathsFile);
+
+      foreach (string label in pathLabels)
+      {
+        session[cs + "." + label + ".FOLDER"] = pathManager.GetPath("<" + label + ">");
+      }
+    }
+
+    private static ActionResult SetInstallState(Session session)
+    {
+      if (!string.IsNullOrEmpty(session["UPGRADINGPRODUCTCODE"]))
+      {
+        string feature = string.Empty;
+        //string feature = cs.ToUpper()[0] + cs.ToLower().Remove(0, 1);
+        session.Log("Product is already installed. UPGRADINGPRODUCTCODE is {0}", session["UPGRADINGPRODUCTCODE"]);
+        session.Log("Setting RequestState from {1} to {2} (previous installation state) for feature {0}.",
+          feature,
+          session.Features[feature].RequestState,
+          session.Features[feature].CurrentState);
+
+        session.Features[feature].RequestState = session.Features[feature].CurrentState;
+      }
+
+      return ActionResult.Success;
+    }
+
+    [CustomAction]
     public static ActionResult SetCustomPaths(Session session)
     {
       SetCustomPaths(session, "CLIENT", ClientPathLabels);
@@ -106,9 +185,7 @@ namespace CustomActions
     {
       foreach (string label in pathLabels)
       {
-        string property = cs + "." + label + ".FOLDER";
-
-        string path = session[property];
+        string path = session[cs + "." + label + ".FOLDER"];
 
         string tmpPath = session["INSTALLDIR_" + cs];
         path = path.Replace(MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(tmpPath, "\\"),
@@ -143,8 +220,8 @@ namespace CustomActions
           session["XML." + cs + "." + l + ".FOLDER"] = p;
         }
 
-        session["XML." + property] = path;
-        session.Log("XML.{1}={0}", path, property);
+        session["XML." + cs + "." + label + ".FOLDER"] = path;
+        session.Log("XML.{1}={0}", path, cs + "." + label + ".FOLDER");
       }
     }
   }

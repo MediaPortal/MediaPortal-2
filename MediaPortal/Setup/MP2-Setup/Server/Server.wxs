@@ -23,6 +23,15 @@
                         ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
                         Value="[XML.SERVER.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
           <?endforeach?>
+
+          <RegistryKey Root="HKLM"
+                       Key="Software\[Manufacturer]\[ProductName]"
+                       Action="createAndRemoveOnUninstall">
+            <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
+            <?foreach LABEL in $(var.ServerPathLabels)?>
+            <RegistryValue Type="string" Name="SERVER.$(var.LABEL).FOLDER" Value="[SERVER.$(var.LABEL).FOLDER]"/>
+            <?endforeach?>
+          </RegistryKey>
           <CreateFolder />
         </Component>
       </Directory>

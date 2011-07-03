@@ -129,10 +129,16 @@
     <UIRef Id="MP2_Setup_UI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" />
 
-    <InstallExecuteSequence>
-      <Custom Action="SetStandardServerDirPluginProperties" Before="FileCost">NOT Installed</Custom>
-      <Custom Action="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
+    <InstallUISequence>
 
+      <Custom Action="ReadCustomPaths" Before="CostFinalize">NOT Installed</Custom>
+      
+    </InstallUISequence>
+    
+    <InstallExecuteSequence>
+      
+      <Custom Action="ReadCustomPathsForSimpleMode" Before="SetCustomPaths">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
+      
       <Custom Action="SetCustomPaths" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
 
