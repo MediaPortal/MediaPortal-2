@@ -83,6 +83,12 @@ namespace MediaPortal.UI.Players.Video.Settings
     public CodecInfo DivXCodec { get; set; }
 
     /// <summary>
+    /// Gets or sets the preferred audio renderer.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo AudioRenderer { get; set; }
+
+    /// <summary>
     /// Gets or sets a flag if closed captions should be enabled by default.
     /// </summary>
     [Setting(SettingScope.User, false)]

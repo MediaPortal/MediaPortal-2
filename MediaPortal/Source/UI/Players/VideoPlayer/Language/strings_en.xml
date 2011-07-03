@@ -9,6 +9,8 @@
     <String Name="Players.Codecs.VideoCodecs.MPEG4.Help" Text="Set the codec used for MPEG4 video (HDTV)"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodec" Text="Audio Codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodec.Help" Text="Set the audio codec"/>
+    <String Name="Players.Codecs.AudioCodecs.AudioRenderer" Text="Audio Renderer"/>
+    <String Name="Players.Codecs.AudioCodecs.AudioRenderer.Help" Text="Set the audio renderer"/>
     <String Name="Players.DVDPlayer" Text="DVD Player"/>
     <String Name="Players.DVDPlayer.EnableClosedCaption" Text="Closed Captions"/>
     <String Name="Players.DVDPlayer.EnableClosedCaption.Help" Text="Select if Closed Captions should be enabled by default"/>

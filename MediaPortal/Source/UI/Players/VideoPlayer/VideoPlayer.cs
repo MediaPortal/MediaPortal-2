@@ -321,9 +321,7 @@ namespace MediaPortal.UI.Players.Video
         _instancePtr = Marshal.AllocCoTaskMem(4);
         IMediaEventEx mee = _graphBuilder as IMediaEventEx;
         if (mee != null)
-        {
-          hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
-        }
+          mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
@@ -331,6 +329,9 @@ namespace MediaPortal.UI.Players.Video
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding audio renderer", PlayerTitle);
+        AddAudioRenderer();
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding preferred codecs", PlayerTitle);
         AddPreferredCodecs();
@@ -467,8 +468,6 @@ namespace MediaPortal.UI.Players.Video
 
       int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
-      // Albert: TODO: Remove
-//      IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
       int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);//(uint) hMonitor.ToInt32());
       if (hr != 0)
@@ -488,9 +487,20 @@ namespace MediaPortal.UI.Players.Video
     /// <returns>true if successful</returns>
     protected bool TryAdd(CodecInfo codecInfo)
     {
+      return TryAdd(codecInfo, FilterCategory.LegacyAmFilterCategory);
+    }
+
+    /// <summary>
+    /// Try to add filter by name to graph.
+    /// </summary>
+    /// <param name="codecInfo">Filter name to add</param>
+    /// <param name="filterCategory">GUID of filter category (<see cref="DirectShowLib.FilterCategory"/> members)></param>
+    /// <returns>true if successful</returns>
+    protected bool TryAdd(CodecInfo codecInfo, Guid filterCategory)
+    {
       if (codecInfo == null)
         return false;
-      IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, codecInfo.Name);
+      IBaseFilter tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, filterCategory, codecInfo.Name);
       return tempFilter != null;
     }
 
@@ -515,6 +525,17 @@ namespace MediaPortal.UI.Players.Video
       // Render the file
       int hr = _graphBuilder.RenderFile(_resourceAccessor.LocalFileSystemPath, null);
       DsError.ThrowExceptionForHR(hr);
+    }
+    
+    /// <summary>
+    /// Adds preferred audio renderer.
+    /// </summary>
+    protected virtual void AddAudioRenderer()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      if (settings == null)
+        return;
+      TryAdd(settings.AudioRenderer, FilterCategory.AudioRendererCategory);
     }
 
     /// <summary>

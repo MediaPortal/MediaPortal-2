@@ -80,6 +80,21 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodec"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Players/Codecs">
+    <ConfigGroup
+        Id="AudioRenderer"
+        Redundant="true"
+        Text="[Settings.Players.Codecs.AudioRenderer]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Codecs/AudioRenderer">
+    <ConfigSetting
+        Id="AudioRenderer"
+        Text="[Settings.Players.Codecs.AudioCodecs.AudioRenderer]"
+        HelpText="[Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioRenderer"/>
+  </Register>
+
   <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
         Id="DVDPlayer"

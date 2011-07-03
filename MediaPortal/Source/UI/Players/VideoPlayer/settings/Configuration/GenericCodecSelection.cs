@@ -31,23 +31,28 @@ using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public class GenericCodecSelection : SingleSelectionList
+  public abstract class GenericCodecSelection : SingleSelectionList
   {
     private readonly Guid[] _inputMediaTypes;
     private readonly Guid[] _outputMediaTypes;
     protected DsGuid _currentSelection;
     protected List<CodecInfo> _codecList;
 
-    public GenericCodecSelection(Guid[] inputMediaTypes, Guid[] outputMediaTypes)
+    protected GenericCodecSelection(Guid[] inputMediaTypes, Guid[] outputMediaTypes)
     {
       _inputMediaTypes = inputMediaTypes;
       _outputMediaTypes = outputMediaTypes;
     }
 
+    protected virtual void GetAvailableFilters()
+    {
+      _codecList = CodecHandler.GetFilters(_inputMediaTypes, _outputMediaTypes);
+    }
+
     public override void Load()
     {
       // Fill items
-      _codecList = CodecHandler.GetFilters(_inputMediaTypes, _outputMediaTypes);
+      GetAvailableFilters();
       _items = new List<IResourceString>(_codecList.Count);
 
       int idx = 0;
