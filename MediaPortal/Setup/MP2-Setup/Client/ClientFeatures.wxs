@@ -14,7 +14,7 @@
              Description="!(loc.F_Client_Desc)">
 
       <ComponentRef Id="Defaults" />
-      <ComponentRef Id="ComponentModifyDefaultClientPluginsPath" />
+      <ComponentRef Id="WriteCustomClientPaths" />
 
       <ComponentRef Id="BASSLicense" />
       <ComponentRef Id="MediaPortalLicense" />
@@ -45,6 +45,33 @@
         <ComponentGroupRef Id="ClientPlugins" />
       </Feature>
 
+      <Feature Id="Client.Data" Level="2" Absent="disallow" AllowAdvertise="no"
+               ConfigurableDirectory="CLIENT.DATA.FOLDER"
+               Title="!(loc.F_Client_Data)"
+               Description="!(loc.F_Client_Data_Desc)">
+
+        <Feature Id="Client.Config" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="CLIENT.CONFIG.FOLDER"
+                 Title="!(loc.F_Client_Config)"
+                 Description="!(loc.F_Client_Config_Desc)">
+        </Feature>
+        <Feature Id="Client.Log" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="CLIENT.LOG.FOLDER"
+                 Title="!(loc.F_Client_Log)"
+                 Description="!(loc.F_Client_Log_Desc)">
+        </Feature>
+        <Feature Id="Client.Playlists" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="CLIENT.PLAYLISTS.FOLDER"
+                 Title="!(loc.F_Client_Playlist)"
+                 Description="!(loc.F_Client_Playlist_Desc)">
+        </Feature>
+        <Feature Id="Client.RemoteResources" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="CLIENT.REMOTERESOURCES.FOLDER"
+                 Title="!(loc.F_Client_RemoteResources)"
+                 Description="!(loc.F_Client_RemoteResources_Desc)">
+        </Feature>
+
+      </Feature>
     </Feature>
 
   </Fragment>

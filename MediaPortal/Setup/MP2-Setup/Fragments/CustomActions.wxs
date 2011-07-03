@@ -5,7 +5,8 @@
 
     <CustomAction Id="SetStandardServerDirPluginProperties" Property="STANDARD_SERVERDIR_PLUGINS" Value="[INSTALLDIR_SERVER]Plugins\"/>
     <CustomAction Id="SetStandardClientDirPluginProperties" Property="STANDARD_CLIENTDIR_PLUGINS" Value="[INSTALLDIR_CLIENT]Plugins\"/>
-    <CustomAction Id="SetVarsForCustomSetup" BinaryKey="Custom_Action_Dll" DllEntry="SetVarsForCustomSetup" Execute="immediate" Return="check" />
+
+    <CustomAction Id="SetCustomPaths" BinaryKey="Custom_Action_Dll" DllEntry="SetCustomPaths" Execute="immediate" Return="check" />
     <CustomAction Id="AttachClientAndServer" BinaryKey="Custom_Action_Dll" DllEntry="AttachClientAndServer" Execute="immediate" Return="check" />
   </Fragment>
 </Wix>

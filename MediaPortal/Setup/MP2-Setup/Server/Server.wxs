@@ -15,9 +15,14 @@
         <Component Id="S__Defaults" Guid="9894844B-C89B-4F8D-A905-751B836A5DF3">
           <File Id="S__Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
-        <Component Id="ComponentModifyDefaultServerPluginsPath" Guid="8C47764F-5308-4A14-A0CF-D04696247F18">
-          <Condition><![CDATA[NOT INSTALLDIR_SERVER_PLUGINS = STANDARD_SERVERDIR_PLUGINS]]></Condition>
-          <util:XmlFile Id="ModifyDefaultServerPluginsPath" Action="setValue" File="[S__Defaults]\Paths.xml" ElementPath="//Paths/Path[\[]@name='PLUGINS'[\]]" Value="[XML_SERVER_PLUGINS]" Name="value" SelectionLanguage="XPath"></util:XmlFile>
+
+        <Component Id="WriteCustomServerPaths" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
+          <?foreach LABEL in $(var.ServerPathLabels)?>
+          <util:XmlFile Id="WriteCustomServerPaths_$(var.LABEL)"
+                        Action="setValue" File="[S__Defaults]\Paths.xml"
+                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
+                        Value="[XML.SERVER.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
+          <?endforeach?>
           <CreateFolder />
         </Component>
       </Directory>
@@ -36,10 +41,10 @@
 
       <Component Id="MP2Server" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
         <File Id="MP2Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
-          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
+          <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
       </Component>
       <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">

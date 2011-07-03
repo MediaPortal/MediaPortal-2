@@ -44,19 +44,41 @@
 
     <!-- Directories -->
     <Directory Id="TARGETDIR" Name="SourceDir">
+
       <Directory Id="ProgramFilesFolder">
         <Directory Id="TeamMediaPortalFolder" Name="Team MediaPortal">
           <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client">
             <Directory Id="CLIENT.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
+
           <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server">
             <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
         </Directory>
       </Directory>
+
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="TeamMediaPortal.DATA.FOLDER" Name="Team MediaPortal">
+          <Directory Id="CLIENT.DATA.FOLDER" Name="MP2-Client">
+            <Directory Id="CLIENT.CONFIG.FOLDER" Name="Config"/>
+            <Directory Id="CLIENT.LOG.FOLDER" Name="Log"/>
+            <Directory Id="CLIENT.PLAYLISTS.FOLDER" Name="Playlists"/>
+            <Directory Id="CLIENT.REMOTERESOURCES.FOLDER" Name="RemoteResources"/>
+          </Directory>
+
+          <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
+            <Directory Id="SERVER.CONFIG.FOLDER" Name="Config"/>
+            <Directory Id="SERVER.LOG.FOLDER" Name="Log"/>
+            <Directory Id="SERVER.DATABASE.FOLDER" Name="Database"/>
+            <Directory Id="SERVER.REMOTERESOURCES.FOLDER" Name="RemoteResources"/>
+          </Directory>
+        </Directory>
+      </Directory>
+
       <Directory Id="ProgramMenuFolder">
         <Directory Id="MP2StartMenu" Name="MediaPortal 2" />
       </Directory>
+
       <Directory Id="DesktopFolder" />
     </Directory>
 
@@ -110,7 +132,8 @@
     <InstallExecuteSequence>
       <Custom Action="SetStandardServerDirPluginProperties" Before="FileCost">NOT Installed</Custom>
       <Custom Action="SetStandardClientDirPluginProperties" Before="FileCost">NOT Installed</Custom>
-      <Custom Action="SetVarsForCustomSetup" Before="FileCost">NOT Installed</Custom>
+
+      <Custom Action="SetCustomPaths" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
 
       <RemoveExistingProducts After="InstallInitialize" />

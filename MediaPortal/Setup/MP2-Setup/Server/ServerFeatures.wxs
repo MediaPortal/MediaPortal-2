@@ -14,7 +14,7 @@
              Description="!(loc.F_Server_Desc)">
 
       <ComponentRef Id="S__Defaults" />
-      <ComponentRef Id="ComponentModifyDefaultServerPluginsPath" />
+      <ComponentRef Id="WriteCustomServerPaths" />
 
       <ComponentRef Id="ClientManager_create_1_0" />
       <ComponentRef Id="MediaLibrary_create_1_0" />
@@ -34,7 +34,7 @@
       <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>
       <ComponentRef Id="S__UPnP" />
 
-      <Feature Id="Server_Plugins"
+      <Feature Id="Server.Plugins"
                Level="2"
                Absent="disallow"
                AllowAdvertise="no"
@@ -44,6 +44,33 @@
         <ComponentGroupRef Id="ServerPlugins" />
       </Feature>
 
+      <Feature Id="Server.Data" Level="2" Absent="disallow" AllowAdvertise="no"
+               ConfigurableDirectory="SERVER.DATA.FOLDER"
+               Title="!(loc.F_Server_Data)"
+               Description="!(loc.F_Server_Data_Desc)">
+
+        <Feature Id="Server.Config" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="SERVER.CONFIG.FOLDER"
+                 Title="!(loc.F_Server_Config)"
+                 Description="!(loc.F_Server_Config_Desc)">
+        </Feature>
+        <Feature Id="Server.Log" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="SERVER.LOG.FOLDER"
+                 Title="!(loc.F_Server_Log)"
+                 Description="!(loc.F_Server_Log_Desc)">
+        </Feature>
+        <Feature Id="Server.Database" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="SERVER.DATABASE.FOLDER"
+                 Title="!(loc.F_Server_Database)"
+                 Description="!(loc.F_Server_Database_Desc)">
+        </Feature>
+        <Feature Id="Server.RemoteResources" Level="2" Absent="disallow" AllowAdvertise="no"
+                 ConfigurableDirectory="SERVER.REMOTERESOURCES.FOLDER"
+                 Title="!(loc.F_Server_RemoteResources)"
+                 Description="!(loc.F_Server_RemoteResources_Desc)">
+        </Feature>
+
+      </Feature>
     </Feature>
 
   </Fragment>

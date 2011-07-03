@@ -20,6 +20,9 @@ namespace CustomActions
   public class CustomActions
   {//Can publish up to 16 custom actions per DLL
 
+    private static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "REMOTERESOURCES", "PLAYLISTS" };
+    private static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "REMOTERESOURCES", "DATABASE" };
+
     [CustomAction]
     public static ActionResult AttachClientAndServer(Session session)
     {  
@@ -67,23 +70,34 @@ namespace CustomActions
     }
 
     [CustomAction]
-    public static ActionResult SetVarsForCustomSetup(Session session)
+    public static ActionResult SetCustomPaths(Session session)
     {
-      session.Log("Begin SetupVarsForCustomSetup");
+      string path;
+      string property;
 
-      String _xml_client_plugins=session["CLIENT.PLUGINS.FOLDER"];
-      _xml_client_plugins = _xml_client_plugins.Replace(session["INSTALLDIR_CLIENT"], "<APPLICATION_ROOT>\\");
-      _xml_client_plugins = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(_xml_client_plugins,"\\");
-      session["XML_CLIENT_PLUGINS"]=_xml_client_plugins;
-      session.Log("_xml_client_plugins={0}",_xml_client_plugins);
+      foreach (string label in ClientPathLabels)
+      {
+        property = "CLIENT." + label + ".FOLDER";
 
-      String _xml_server_plugins=session["SERVER.PLUGINS.FOLDER"];
-      _xml_server_plugins = _xml_server_plugins.Replace(session["INSTALLDIR_SERVER"], "<APPLICATION_ROOT>\\");
-      _xml_server_plugins = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(_xml_server_plugins, "\\");
-      session["XML_SERVER_PLUGINS"]=_xml_server_plugins;
-      session.Log("_xml_server_plugins={0}", _xml_server_plugins);
+        path = session[property];
+        path = path.Replace(session["INSTALLDIR_CLIENT"], "<APPLICATION_ROOT>\\");
+        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
 
-      session.Log("End SetupVarsForCustomSetup");
+        session["XML." + property] = path;
+        session.Log("XML.{1}={0}", path, property);
+      }
+      foreach (string label in ServerPathLabels)
+      {
+        property = "SERVER." + label + ".FOLDER";
+
+        path = session[property];
+        path = path.Replace(session["INSTALLDIR_SERVER"], "<APPLICATION_ROOT>\\");
+        path = MediaPortal.Utilities.StringUtils.RemoveSuffixIfPresent(path, "\\");
+
+        session["XML." + property] = path;
+        session.Log("XML.{1}={0}", path, property);
+      }
+
       return ActionResult.Success;
     }
   }

@@ -15,9 +15,14 @@
         <Component Id="Defaults" Guid="8B5A0635-DF72-4668-96BC-3F9CDDDFA5FF">
           <File Id="Paths.xml" Name="Paths.xml" KeyPath="yes" Checksum="yes" />
         </Component>
-        <Component Id="ComponentModifyDefaultClientPluginsPath" Guid="37ED037A-E692-4698-90D1-EDFFD2CF37F0">
-          <Condition><![CDATA[NOT INSTALLDIR_CLIENT_PLUGINS = STANDARD_CLIENT_PLUGINS]]></Condition>
-          <util:XmlFile Id="ModifyDefaultClientPluginsPath" Action="setValue" File="[Defaults]\Paths.xml" ElementPath="//Paths/Path[\[]@name='PLUGINS'[\]]" Value="[XML_CLIENT_PLUGINS]" Name="value" SelectionLanguage="XPath"></util:XmlFile>
+
+        <Component Id="WriteCustomClientPaths" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
+          <?foreach LABEL in $(var.ClientPathLabels)?>
+          <util:XmlFile Id="WriteCustomClientPaths_$(var.LABEL)"
+                        Action="setValue" File="[Defaults]\Paths.xml"
+                        ElementPath="//Paths/Path[\[]@name='$(var.LABEL)'[\]]"
+                        Value="[XML.CLIENT.$(var.LABEL).FOLDER]" Name="value" SelectionLanguage="XPath" />
+          <?endforeach?>
           <CreateFolder />
         </Component>
       </Directory>
@@ -33,10 +38,10 @@
 
       <Component Id="MP2Client" Guid="15EAC789-4F3A-4F65-B758-92562DB7C5AA">
         <File Id="MP2Client.exe" Name="MP2-Client.exe" KeyPath="yes" Checksum="yes">
-          <fire:FirewallException Id="MP2ClientExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ClientExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
-          <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes"/>
+          <fire:FirewallException Id="MP2ClientExTCPDom" Name="MP2-Client TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExTCPPriv" Name="MP2-Client TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPDom" Name="MP2-Client UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
       </Component>
       <Component Id="MP2Client.config" Guid="D3FFB65D-0A46-4F34-8472-85466CD1067C">

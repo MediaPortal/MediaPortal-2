@@ -25,12 +25,32 @@
   <String Id="F_Client">Client</String>
   <String Id="F_Client_Desc">Client description</String>
   <String Id="F_Client_Plugins">Plugins</String>
-  <String Id="F_Client_Plugins_Desc">Plugins description</String>
+  <String Id="F_Client_Plugins_Desc">Client Plugins description</String>
+  <String Id="F_Client_Data">Data</String>
+  <String Id="F_Client_Data_Desc">Client Data description</String>
+  <String Id="F_Client_Config">Config</String>
+  <String Id="F_Client_Config_Desc">Client Config description</String>
+  <String Id="F_Client_Log">Log</String>
+  <String Id="F_Client_Log_Desc">Client Log description</String>
+  <String Id="F_Client_Playlist">Playlist</String>
+  <String Id="F_Client_Playlist_Desc">Client Playlist description</String>
+  <String Id="F_Client_RemoteResources">RemoteResources</String>
+  <String Id="F_Client_RemoteResources_Desc">Client RemoteResources description</String>
 
   <String Id="F_Server">Server</String>
   <String Id="F_Server_Desc">Server description</String>
   <String Id="F_Server_Plugins">Plugins</String>
-  <String Id="F_Server_Plugins_Desc">Plugins description</String>
+  <String Id="F_Server_Plugins_Desc">Server Plugins description</String>
+  <String Id="F_Server_Data">Data</String>
+  <String Id="F_Server_Data_Desc">Server Data description</String>
+  <String Id="F_Server_Config">Config</String>
+  <String Id="F_Server_Config_Desc">Server Config description</String>
+  <String Id="F_Server_Log">Log</String>
+  <String Id="F_Server_Log_Desc">Server Log description</String>
+  <String Id="F_Server_Database">Database</String>
+  <String Id="F_Server_Database_Desc">Server Database description</String>
+  <String Id="F_Server_RemoteResources">RemoteResources</String>
+  <String Id="F_Server_RemoteResources_Desc">Server RemoteResources description</String>
 
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] nécessite au minimum Windows 7 / 2008 R2 comme système d'exploitation.</String>
