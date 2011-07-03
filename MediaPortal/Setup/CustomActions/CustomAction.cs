@@ -26,12 +26,11 @@ namespace CustomActions
     [CustomAction]
     public static ActionResult AttachClientAndServer(Session session)
     {
-      session.Log("Begin AttachClientAndServer");
-
       session.Log("ClientRequestState : {0}", session.Features["Client"].RequestState);
       session.Log("ServerRequestState : {0}", session.Features["Server"].RequestState);
 
-      if ((session.Features["Client"].RequestState == InstallState.Local) & (session.Features["Server"].RequestState == InstallState.Local))
+      if (session.Features["Client"].RequestState == InstallState.Local
+        & session.Features["Server"].RequestState == InstallState.Local)
       {
         ServiceRegistration.Set<ILogger>(new NoLogger());
 
@@ -42,8 +41,10 @@ namespace CustomActions
         string applicationPath = Environment.GetCommandLineArgs()[0];
         pathManager.SetPath("APPLICATION_PATH", applicationPath);
         pathManager.SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
-        pathManager.SetPath("LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-        pathManager.SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
+        pathManager.SetPath("LOCAL_APPLICATION_DATA",
+                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+        pathManager.SetPath("COMMON_APPLICATION_DATA",
+                            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
         pathManager.SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
 
@@ -76,9 +77,12 @@ namespace CustomActions
         {
           session.Log("Client is already attached with server with ID {0}", settings.HomeServerSystemId);
         }
-
-        session.Log("End AttachClientAndServer");
       }
+      else
+      {
+        session.Log("Installation mode is not SingleSeat. No auto-attaching possible.");
+      }
+
       return ActionResult.Success;
     }
 
