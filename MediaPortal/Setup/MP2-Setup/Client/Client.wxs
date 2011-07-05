@@ -97,7 +97,8 @@
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
                   Target="[!MP2Client.exe]"
-                  Icon="MediaPortal2ClientIcon" />
+                  Icon="MediaPortal2ClientIcon" 
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
@@ -116,7 +117,8 @@
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
                   Target="[!MP2Client.exe]"
-                  Icon="MediaPortal2ClientIcon" />
+                  Icon="MediaPortal2ClientIcon"
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
