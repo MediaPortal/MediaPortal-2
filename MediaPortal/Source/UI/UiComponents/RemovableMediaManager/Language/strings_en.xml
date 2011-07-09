@@ -1,11 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="RemovableMediaManager">
-    <String Name="PlayVideoCD" Text="Play video CD"/>
-    <String Name="PlayVideoDVD" Text="Play video DVD"/>
-    <String Name="PlayVideoBD" Text="Play video BD"/>
-    <String Name="PlayAudioCD" Text="Play audio CD"/>
-    <String Name="PlayAudioDVD" Text="Play audio CD"/>
-    <String Name="PlayMedia" Text="Play media files in drive {0}"/>
   </Section>
 </Language>
