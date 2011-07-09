@@ -31,21 +31,32 @@ namespace MediaPortal.UiComponents.Media.Views
   /// <summary>
   /// View specification defining a view which contains a configurable list of subviews and no media items.
   /// </summary>
-  public class ViewCollectionViewSpecification : ViewSpecification
+  public class StaticViewSpecification : ViewSpecification
   {
     #region Protected fields
 
+    protected IList<MediaItem> _mediaItems = new List<MediaItem>();
     protected IList<ViewSpecification> _subViewSpecifications = new List<ViewSpecification>();
 
     #endregion
 
     #region Ctor
 
-    public ViewCollectionViewSpecification(string viewDisplayName,
+    public StaticViewSpecification(string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
         base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
 
     #endregion
+
+    public void AddMediaItem(MediaItem item)
+    {
+      _mediaItems.Add(item);
+    }
+
+    public void RemoveMediaItem(MediaItem item)
+    {
+      _mediaItems.Remove(item);
+    }
 
     public void AddSubView(ViewSpecification subView)
     {
@@ -64,19 +75,9 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return true; }
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      IList<MediaItem> mis;
-      IList<ViewSpecification> vss;
-      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      foreach (ViewSpecification subViewSpecification in vss)
-        foreach (MediaItem mediaItem in subViewSpecification.GetAllMediaItems())
-          yield return mediaItem;
-    }
-
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
-      mediaItems = new List<MediaItem>();
+      mediaItems = _mediaItems;
       subViewSpecifications = _subViewSpecifications;
     }
 

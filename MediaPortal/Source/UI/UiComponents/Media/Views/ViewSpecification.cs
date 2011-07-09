@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
@@ -108,7 +109,17 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return null; }
     }
 
-    public abstract IEnumerable<MediaItem> GetAllMediaItems();
+    /// <summary>
+    /// Returns all media items of this view and all sub views. Can be overridden to provide a more efficient implementation.
+    /// </summary>
+    /// <returns>Enumeration of all media items of this and all sub views.</returns>
+    public virtual IEnumerable<MediaItem> GetAllMediaItems()
+    {
+      IList<MediaItem> mis;
+      IList<ViewSpecification> vss;
+      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
+      return vss.SelectMany(subViewSpecification => subViewSpecification.GetAllMediaItems()).Union(mis);
+    }
 
     /// <summary>
     /// Loads or reloads the items and sub view specifications for a view to this specification.

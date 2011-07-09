@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Shares;
@@ -49,14 +48,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public override bool CanBeBuilt
     {
       get { return true; }
-    }
-
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      IList<MediaItem> mis;
-      IList<ViewSpecification> vss;
-      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      return vss.SelectMany(subViewSpecification => subViewSpecification.GetAllMediaItems());
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

@@ -31,27 +31,39 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Extensions.BassLibraries;
+using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
   public class AudioCDDriveHandler : BaseDriveHandler
   {
-    #region Protected fields
+    #region Consts
 
-    protected IList<MediaItem> _tracks;
+    protected static IList<MediaItem> EMPTY_MEDIA_ITEM_LIST = new List<MediaItem>(0);
 
     #endregion
 
-    protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks) : base(driveInfo)
+    #region Protected fields
+
+    protected StaticViewSpecification _audioCDSubViewSpecification;
+
+    #endregion
+
+    protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) : base(driveInfo)
     {
-      _tracks = new List<MediaItem>(tracks);
+      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, necessaryMIATypeIds, optionalMIATypeIds);
+      foreach (MediaItem track in tracks)
+        _audioCDSubViewSpecification.AddMediaItem(track);
     }
 
-    public static AudioCDDriveHandler TryCreateAudioDriveHandler(DriveInfo driveInfo)
+    public static AudioCDDriveHandler TryCreateAudioDriveHandler(DriveInfo driveInfo,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
     {
       IEnumerable<MediaItem> tracks;
       if (DetectAudioCD(driveInfo.Name, out tracks))
-        return new AudioCDDriveHandler(driveInfo, tracks);
+        return new AudioCDDriveHandler(driveInfo, tracks, necessaryMIATypeIds, optionalMIATypeIds);
       return null;
     }
 
@@ -84,6 +96,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
       MediaItemAspect audioAspect;
       aspects[AudioAspect.ASPECT_ID] = audioAspect = new MediaItemAspect(AudioAspect.Metadata);
+      MediaItemAspect specialSortAspect;
+      aspects[SpecialSortAspect.ASPECT_ID] = specialSortAspect = new MediaItemAspect(SpecialSortAspect.Metadata);
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
@@ -92,6 +106,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track);
       audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, track);
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);
+      specialSortAspect.SetAttribute(SpecialSortAspect.ATTR_SORT_STRING, StringUtils.Pad(track.ToString(), 5, '0', true));
 
       return new MediaItem(Guid.Empty, aspects);
     }
@@ -100,17 +115,17 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IList<MediaItem> MediaItems
     {
-      get { return _tracks; }
+      get { return EMPTY_MEDIA_ITEM_LIST; }
     }
 
     public override IList<ViewSpecification> SubViewSpecifications
     {
-      get { return new List<ViewSpecification>(0); }
+      get { return new List<ViewSpecification> {_audioCDSubViewSpecification}; }
     }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      return _tracks;
+      return _audioCDSubViewSpecification.GetAllMediaItems();
     }
 
     #endregion

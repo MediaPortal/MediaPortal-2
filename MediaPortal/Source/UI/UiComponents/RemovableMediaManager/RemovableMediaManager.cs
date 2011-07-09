@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
@@ -29,6 +30,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.RemovableMedia;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.RemovableMediaManager.Settings;
@@ -98,7 +100,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
 
       AudioCDDriveHandler acddh;
-      if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo)) != null)
+      if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS, new Guid[] {})) != null)
         PlayItemsModel.CheckQueryPlayAction(() => acddh.MediaItems, AVType.Audio);
 
       // TODO: Other types

@@ -68,16 +68,6 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      IList<MediaItem> mis;
-      IList<ViewSpecification> vss;
-      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      foreach (ViewSpecification subViewSpecification in vss)
-        foreach (MediaItem mediaItem in subViewSpecification.GetAllMediaItems())
-          yield return mediaItem;
-    }
-
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = new List<MediaItem>();

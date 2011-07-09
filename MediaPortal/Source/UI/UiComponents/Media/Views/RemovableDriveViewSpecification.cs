@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
 
@@ -53,12 +54,23 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #endregion
 
+    #region Public methods
+
+    public static IEnumerable<RemovableDriveViewSpecification> GetViewSpecificationsForRemovableDrives(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
+    {
+      return DriveInfo.GetDrives().Where(
+          driveInfo => driveInfo.IsReady && (driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable)).Select(
+          driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString(), necessaryMIATypeIds, optionalMIATypeIds));
+    }
+
+    #endregion
+
     #region Protected methods
 
     protected void UpdateRemovableDriveHandler()
     {
       _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo) ??
-          AudioCDDriveHandler.TryCreateAudioDriveHandler(_driveInfo) ??
+          AudioCDDriveHandler.TryCreateAudioDriveHandler(_driveInfo, _necessaryMIATypeIds, _optionalMIATypeIds) ??
           (IRemovableDriveHandler) new UnknownRemovableDriveHandler(_driveInfo);
     }
 

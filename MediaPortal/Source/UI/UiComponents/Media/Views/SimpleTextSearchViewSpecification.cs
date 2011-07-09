@@ -90,18 +90,10 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
-    {
-      IList<MediaItem> mis;
-      IList<ViewSpecification> vss;
-      ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      return mis;
-    }
-
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = null;
-      subViewSpecifications = null;
+      subViewSpecifications = new List<ViewSpecification>();
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
@@ -109,13 +101,11 @@ namespace MediaPortal.UiComponents.Media.Views
       {
         mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
             _filter, _excludeCLOBs, _onlyOnline, false);
-        subViewSpecifications = new List<ViewSpecification>();
       }
       catch (UPnPRemoteException e)
       {
         ServiceRegistration.Get<ILogger>().Error("SimpleTextSearchViewSpecification.ReLoadItemsAndSubViewSpecifications: Error requesting server", e);
-        mediaItems = null;
-        subViewSpecifications = null;
+        mediaItems = new List<MediaItem>();
       }
     }
   }
