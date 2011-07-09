@@ -179,7 +179,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               {
                 int totalNumItems = 0;
 
-                List<ListItem> viewsList = new List<ListItem>();
+                List<NavigationItem> viewsList = new List<NavigationItem>();
                 foreach (View sv in subViews)
                 {
                   ViewItem item = new ViewItem(sv, null, sv.AbsNumItems);
@@ -189,7 +189,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   if (sv.AbsNumItems.HasValue)
                     totalNumItems += sv.AbsNumItems.Value;
                 }
-                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.KEY_SIMPLE_TITLE], v2[Consts.KEY_SIMPLE_TITLE]));
+                viewsList.Sort((v1, v2) => string.Compare(v1.SortString, v2.SortString));
                 CollectionUtils.AddAll(items, viewsList);
 
                 lock (_syncObj)
@@ -197,8 +197,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                     goto RebuildView;
 
                 PlayableItemCreatorDelegate picd = PlayableItemCreator;
-                List<ListItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<ListItem>().ToList();
-                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_SIMPLE_TITLE], i2[Consts.KEY_SIMPLE_TITLE]));
+                List<NavigationItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<NavigationItem>().ToList();
+                itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
 
                 Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
