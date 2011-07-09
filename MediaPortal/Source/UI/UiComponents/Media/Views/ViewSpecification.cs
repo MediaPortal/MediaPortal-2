@@ -35,11 +35,11 @@ namespace MediaPortal.UiComponents.Media.Views
   /// </summary>
   /// <remarks>
   /// <para>
-  /// A view specification is an abstract construct which will be implemented concrete in subclasses.
+  /// A view specification is an abstract construct which will be implemented in subclasses in a more special way.
   /// It specifies a list of media items, for example by a database query, or by a hard disc location.
   /// A view specification can be instantiated to a concrete view, which then will reference to its view specification.
   /// This view specification itself doesn't hold any references to its created views.
-  /// The view contents may be ordered or not.<br/>
+  /// The view's contents may be ordered or not.<br/>
   /// </para>
   /// <para>
   /// Views are built on demand from a <see cref="ViewSpecification"/> which comes from a media module. Some media
@@ -102,7 +102,7 @@ namespace MediaPortal.UiComponents.Media.Views
     public abstract bool CanBeBuilt { get; }
 
     /// <summary>
-    /// Returns the absolute number of items and child items to this view specification.
+    /// Returns the absolute number of items and child items of this view specification. If this value cannot easily be evaluated, returns <c>null</c>.
     /// </summary>
     public virtual int? AbsNumItems
     {

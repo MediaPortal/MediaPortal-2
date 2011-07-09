@@ -133,7 +133,7 @@ namespace MediaPortal.UiComponents.Media.Views
     }
 
     /// <summary>
-    /// Returns the number of items and child items of this view, if present.
+    /// Returns the number of items and child items of this view, if present. If this value cannot easily be evaluated, returns <c>null</c>.
     /// </summary>
     public int? AbsNumItems
     {
