@@ -41,6 +41,12 @@ namespace MediaPortal.Extensions.BassLibraries
       return GetNumTracks(drive) > 0;
     }
 
+    /// <summary>
+    /// Returns the number of tracks of the audio CD in the given <paramref name="drive"/>.
+    /// </summary>
+    /// <param name="drive">Drive letter (<c>d:</c>) or drive root path (<c>d:\</c>).</param>
+    /// <returns>Number of tracks of the current audio CD or <c>-1</c>, if an error occurs (for example: No audio CD present in
+    /// the given <paramref name="drive"/>).</returns>
     public static int GetNumTracks(string drive)
     {
       try
