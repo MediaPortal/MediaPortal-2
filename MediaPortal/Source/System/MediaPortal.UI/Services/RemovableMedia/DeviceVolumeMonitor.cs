@@ -118,26 +118,23 @@ namespace MediaPortal.UI.Services.RemovableMedia
     /// <summary>
     /// WndProc method that traps all messages sent to the Handle.
     /// </summary>
-    /// <param name="aMessage">A Windows message.</param>
-    protected override void WndProc(ref Message aMessage)
+    /// <param name="msg">A Windows message.</param>
+    protected override void WndProc(ref Message msg)
     {
-      BroadcastHeader lBroadcastHeader;
-      Volume lVolume;
-
-      base.WndProc(ref aMessage);
+      base.WndProc(ref msg);
       if (!_monitor.Enabled)
         return;
-      if (aMessage.Msg == WM_DEVICECHANGE)
+      if (msg.Msg == WM_DEVICECHANGE)
       {
-        DeviceEvent lEvent = (DeviceEvent) aMessage.WParam.ToInt32();
-        if (lEvent == DeviceEvent.Arrival || lEvent == DeviceEvent.RemoveComplete)
+        DeviceEvent evt = (DeviceEvent) msg.WParam.ToInt32();
+        if (evt == DeviceEvent.Arrival || evt == DeviceEvent.RemoveComplete)
         {
-          lBroadcastHeader = (BroadcastHeader) Marshal.PtrToStructure(aMessage.LParam, typeof(BroadcastHeader));
-          if (lBroadcastHeader.Type == DeviceType.Volume)
+          BroadcastHeader broadcastHeader = (BroadcastHeader) Marshal.PtrToStructure(msg.LParam, typeof(BroadcastHeader));
+          if (broadcastHeader.Type == DeviceType.Volume)
           {
-            lVolume = (Volume) Marshal.PtrToStructure(aMessage.LParam, typeof(Volume));
-            if ((lVolume.Flags & (int) VolumeFlags.Media) != 0)
-              _monitor.TriggerEvents(lEvent == DeviceEvent.Arrival, lVolume.Mask);
+            Volume volume = (Volume) Marshal.PtrToStructure(msg.LParam, typeof(Volume));
+            if ((volume.Flags & (int) VolumeFlags.Media) != 0)
+              _monitor.TriggerEvents(evt == DeviceEvent.Arrival, volume.Mask);
           }
         }
       }
@@ -278,14 +275,13 @@ namespace MediaPortal.UI.Services.RemovableMedia
     /// form like <c>"D:"</c>.</returns>
     public static IEnumerable<string> MaskToDrives(int mask)
     {
-      int lMask = mask;
-      int lValue = 0;
+      int value = 0;
 
       if (mask > 0)
       {
-        for (; lMask != 0; lMask >>= 1, lValue++)
-          if ((lMask & 1) != 0)
-            yield return ((char) (65 + lValue)) + ":";
+        for (; mask != 0; mask >>= 1, value++)
+          if ((mask & 1) != 0)
+            yield return ((char) (65 + value)) + ":";
       }
       yield break;
     }
