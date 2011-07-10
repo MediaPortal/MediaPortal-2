@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     public static bool DetectAudioCD(string drive, out IEnumerable<MediaItem> tracks)
     {
       int numTracks = BassUtils.GetNumTracks(drive);
-      if (numTracks == 0)
+      if (numTracks <= 0)
       {
         tracks = null;
         return false;

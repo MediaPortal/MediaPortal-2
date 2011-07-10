@@ -172,10 +172,13 @@
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="Views\AllSharesViewSpecification.cs" />
     <Compile Include="Views\AddedRemovableMediaViewSpecificationFacade.cs" />
+    <Compile Include="Views\CombinedViewChangeNotificator.cs" />
+    <Compile Include="Views\IViewChangeNotificator.cs" />
     <Compile Include="Views\LocalDirectoryViewSpecification.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryBrowseViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryQueryViewSpecification.cs" />
+    <Compile Include="Views\RemovableDriveChangeNotificator.cs" />
     <Compile Include="Views\RemovableDriveViewSpecification.cs" />
     <Compile Include="Views\RemovableMediaDrives\AudioCDDriveHandler.cs" />
     <Compile Include="Views\RemovableMediaDrives\BaseDriveHandler.cs" />

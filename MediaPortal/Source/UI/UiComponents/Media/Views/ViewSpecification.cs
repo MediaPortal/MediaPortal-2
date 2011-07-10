@@ -138,5 +138,10 @@ namespace MediaPortal.UiComponents.Media.Views
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
     protected internal abstract void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications);
+
+    public virtual IViewChangeNotificator GetChangeNotificator()
+    {
+      return null;
+    }
   }
 }

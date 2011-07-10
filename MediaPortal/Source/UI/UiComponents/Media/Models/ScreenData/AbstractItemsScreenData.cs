@@ -47,11 +47,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected PlayableItemCreatorDelegate _playableItemCreator;
 
     protected object _syncObj = new object();
-
     // Variables to be synchronized for multithreading access
     protected View _view = null;
     protected bool _buildingList = false;
     protected bool _listDirty = false;
+    protected IViewChangeNotificator _viewChangeNotificator = null;
 
     /// <summary>
     /// Creates a new instance of <see cref="AbstractItemsScreenData"/>.
@@ -125,6 +125,31 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ReloadMediaItems(createNewList);
     }
 
+    private void ViewChanged()
+    {
+      Reload();
+    }
+
+    protected void InstallViewChangeNotificator(IViewChangeNotificator viewChangeNotificator)
+    {
+      if (_viewChangeNotificator != null)
+        UninstallViewChangeNotificator();
+      _viewChangeNotificator = viewChangeNotificator;
+      if (_viewChangeNotificator == null)
+        return;
+      _viewChangeNotificator.Changed += ViewChanged;
+      _viewChangeNotificator.install();
+    }
+
+    protected void UninstallViewChangeNotificator()
+    {
+      if (_viewChangeNotificator == null)
+        return;
+      _viewChangeNotificator.Changed -= ViewChanged;
+      _viewChangeNotificator.Dispose();
+      _viewChangeNotificator = null;
+    }
+
     /// <summary>
     /// Updates the GUI data for a media items view screen which reflects the data of the <see cref="CurrentView"/>.
     /// </summary>
@@ -146,6 +171,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _buildingList = true;
         _listDirty = false;
         view = _view;
+        InstallViewChangeNotificator(_view.GetViewChangeNotificator());
       }
       try
       {

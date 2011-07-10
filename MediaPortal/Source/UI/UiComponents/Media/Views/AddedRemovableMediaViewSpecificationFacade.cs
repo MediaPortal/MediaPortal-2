@@ -44,16 +44,14 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Ctor
 
     public AddedRemovableMediaViewSpecificationFacade(ViewSpecification dlgt) :
-        base(dlgt.ViewDisplayName, dlgt.NecessaryMIATypeIds, dlgt.OptionalMIATypeIds)
-    {
-      _delegate = dlgt;
-    }
+        this(dlgt, dlgt.ViewDisplayName, dlgt.NecessaryMIATypeIds, dlgt.OptionalMIATypeIds) { }
 
     public AddedRemovableMediaViewSpecificationFacade(ViewSpecification dlgt, string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
         base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
       _delegate = dlgt;
+      _removableDriveVS = RemovableDriveViewSpecification.CreateViewSpecificationsForRemovableDrives(_necessaryMIATypeIds, _optionalMIATypeIds);
     }
 
     #endregion
@@ -65,12 +63,18 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return _delegate.CanBeBuilt; }
     }
 
+    public override IViewChangeNotificator GetChangeNotificator()
+    {
+      return CombinedViewChangeNotificator.CombineViewChangeNotificators(_removableDriveVS);
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       _delegate.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
-      _removableDriveVS = RemovableDriveViewSpecification.GetViewSpecificationsForRemovableDrives(_necessaryMIATypeIds, _optionalMIATypeIds);
       foreach (RemovableDriveViewSpecification rdvs in _removableDriveVS)
       {
+        if (!rdvs.IsDriveReady)
+          continue;
         IList<MediaItem> rdvsItems;
         IList<ViewSpecification> rdvsViewSpecs;
         rdvs.ReLoadItemsAndSubViewSpecifications(out rdvsItems, out rdvsViewSpecs);

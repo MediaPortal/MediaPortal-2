@@ -56,10 +56,10 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Public methods
 
-    public static IEnumerable<RemovableDriveViewSpecification> GetViewSpecificationsForRemovableDrives(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
+    public static IEnumerable<RemovableDriveViewSpecification> CreateViewSpecificationsForRemovableDrives(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
     {
       return DriveInfo.GetDrives().Where(
-          driveInfo => driveInfo.IsReady && (driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable)).Select(
+          driveInfo => driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable).Select(
           driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString(), necessaryMIATypeIds, optionalMIATypeIds));
     }
 
@@ -90,6 +90,16 @@ namespace MediaPortal.UiComponents.Media.Views
         string volumeLabel = _removableDriveHandler.VolumeLabel;
         return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : ("(" + volumeLabel + ")"));
       }
+    }
+
+    public bool IsDriveReady
+    {
+      get { return _driveInfo.IsReady; }
+    }
+
+    public override IViewChangeNotificator GetChangeNotificator()
+    {
+      return new RemovableDriveChangeNotificator(_driveInfo.Name);
     }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
