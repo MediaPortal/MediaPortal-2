@@ -177,7 +177,7 @@
     
     <InstallExecuteSequence>
       
-      <Custom Action="ReadCustomPathsForSimpleMode" Before="SetCustomPaths">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
+      <Custom Action="ReadCustomPaths" Before="SetCustomPaths">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
       
       <Custom Action="SetCustomPaths" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientAndServer" After="InstallFinalize">NOT Installed</Custom>
