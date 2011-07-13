@@ -60,17 +60,57 @@
       <Directory Id="CommonAppDataFolder">
         <Directory Id="TeamMediaPortal.DATA.FOLDER" Name="Team MediaPortal">
           <Directory Id="CLIENT.DATA.FOLDER" Name="MP2-Client">
-            <Directory Id="CLIENT.CONFIG.FOLDER" Name="Config"/>
-            <Directory Id="CLIENT.LOG.FOLDER" Name="Log"/>
-            <Directory Id="CLIENT.PLAYLISTS.FOLDER" Name="Playlists"/>
-            <Directory Id="CLIENT.REMOTERESOURCES.FOLDER" Name="RemoteResources"/>
+            <Component Id="CLIENT.DATA.FOLDER" Guid="3DF62027-81C3-4047-815C-4C530E0328EB">
+              <CreateFolder/>
+            </Component>
+
+            <Directory Id="CLIENT.CONFIG.FOLDER" Name="Config">
+              <Component Id="CLIENT.CONFIG.FOLDER" Guid="0165F58A-FCC9-460E-A88D-F32B5E0DE112">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="CLIENT.LOG.FOLDER" Name="Log">
+              <Component Id="CLIENT.LOG.FOLDER" Guid="98590791-BDC0-44FD-B348-DF66A110EE70">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="CLIENT.PLAYLISTS.FOLDER" Name="Playlists">
+              <Component Id="CLIENT.PLAYLISTS.FOLDER" Guid="CB5D1CDB-E3D2-4464-8078-25546C2C6B38">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="CLIENT.REMOTERESOURCES.FOLDER" Name="RemoteResources">
+              <Component Id="CLIENT.REMOTERESOURCES.FOLDER" Guid="BC77FD55-512B-4669-8BBE-D69318234DAA">
+                <CreateFolder/>
+              </Component>
+            </Directory>
           </Directory>
 
           <Directory Id="SERVER.DATA.FOLDER" Name="MP2-Server">
-            <Directory Id="SERVER.CONFIG.FOLDER" Name="Config"/>
-            <Directory Id="SERVER.LOG.FOLDER" Name="Log"/>
-            <Directory Id="SERVER.DATABASE.FOLDER" Name="Database"/>
-            <Directory Id="SERVER.REMOTERESOURCES.FOLDER" Name="RemoteResources"/>
+            <Component Id="SERVER.DATA.FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
+              <CreateFolder/>
+            </Component>
+
+            <Directory Id="SERVER.CONFIG.FOLDER" Name="Config">
+              <Component Id="SERVER.CONFIG.FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="SERVER.LOG.FOLDER" Name="Log">
+              <Component Id="SERVER.LOG.FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="SERVER.DATABASE.FOLDER" Name="Database">
+              <Component Id="SERVER.DATABASE.FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
+                <CreateFolder/>
+              </Component>
+            </Directory>
+            <Directory Id="SERVER.REMOTERESOURCES.FOLDER" Name="RemoteResources">
+              <Component Id="SERVER.REMOTERESOURCES.FOLDER" Guid="68CD2A89-9018-4F6E-BF34-EE55EA388BA6">
+                <CreateFolder/>
+              </Component>
+            </Directory>
           </Directory>
         </Directory>
       </Directory>
