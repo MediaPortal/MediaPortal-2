@@ -15,17 +15,22 @@
     | | define OS requirements
         |X| Windows 7
         | | other? don't allow installation? only warn the user?
-        
+
     | | define other software requirements
         |X| .NET Framework
-        | | VCredist 20xx
+        |X| VCredist 2010 is included
+            | | check which merge modules are missing/ not needed
+                Microsoft_VC100_ATL_x86.msm
+                Microsoft_VC100_CRT_x86.msm
+                Microsoft_VC100_MFC_x86.msm
+
         | | DirectX
         |X| Dokan: Check if $SYSDIR\drivers\dokan.sys exists
             | | no --> install it
             | | yes --> check version
                 |X| 0.6 -> is installed, do nothin dokan related
                 | | older -> warn the user to uninstall dokan and to reboot the pc
-        
+
     | | What needs to be defined?
         | | How can these be detected?
             | | Inbuilt WiX property
@@ -38,24 +43,37 @@
     |X| Allow custom Installation paths for Client and Server
     |X| Allow installation without uninstalling previous version
     | | Show the user if/which software has to be closed before continuing installation
-    
+
     |X| Add icon to control panel - software
     |X| shortcuts on desktop
     |X| shortcuts in startmenu
     | | autostart for server: service, autostart in startmenu or autostart in registry
-    
+
     | | TsReader.ax: if not registered, yet by MP1, we need to do deploy and register one with MP2 --> videoplayer
     | | slimtvplugin: should it be in mp2 alpha?
         | | yes
         | | seperat feature
         | | not included at all
-    
+
     |X| Windows Firewall configuration
-        | | define what has to be configured
+        |X| define what has to be configured
             |X| application: server, client, others?
             |X| protocols: ... ???
             |X| ports: ... ???
         |X| implement what has been defined
+
+  o Attach client to server
+    |X| only on new install
+    |X| if installed, read it and check if it is still the case after installation
+
+  o let user modify the install paths of components (plugins, logs, ....)
+    | | possible for 
+        |X| plugins
+        | | skins
+        | | logs
+        | | ...
+    | | check for reading the values also on upgrade and reuse them
+    | | check for correct uninstallation
 
   o Compiling the installation
     | | define for which "features" / "components" the wxs-files should be auto-generated
@@ -63,4 +81,20 @@
         | | rework the pre build commands
         
     |X| add batch files for building the setup easily
-    
+
+
+On a fresh install, going to custom, changing a path and returning in
+a "simple" installation mode uses the customized paths... is it wanted ? Maybe a point to check
+
+
+-----   DONE     ----- why can I see a "install from network" for the others "paths" than plugins ? Is it relly needed ?
+
+- Remains to make a check on the "remote rerrources" paths to be certain it's on a NTFS drive or MP2 will faill, it's a prerequisite
+
+-----   DONE     ----- On the "modify" screen, we can see the components used for custom paths are not
+-----   DONE     ----- installed. Maybe they should include at least a dummy registry key or something to be seen as installed.
+
+- In the TODO, is there a "on uninstall, give the choise to remove all directories created by MP2, like logs, database, etc..." ?
+
+- Last comment is : there is still bugs in MP2 lol. I just found in some case,
+- when customizing the database path, the server part crash... But it's not your fault, it's Daniel one lol. I'll bug report it sooner.
