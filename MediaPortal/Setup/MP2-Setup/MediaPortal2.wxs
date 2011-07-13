@@ -28,6 +28,7 @@
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
     <PropertyRef Id="DokanFile" />
+    <PropertyRef Id="VCRedistFile" />
 
     <!--
     Source media for the installation.

@@ -39,9 +39,13 @@
     <Compile Include="Server\ServerFeatures.wxs" />
     <Compile Include="UI\MP2_Setup_UI_FeatureTree.wxs" />
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
+    <Compile Include="VCRedist\VCRedist.wxs" />
     <Content Include="Includes.wxi" />
     <Compile Include="Server\ServerPlugins.wxs" />
     <Compile Include="Server\Server.wxs" />
+    <Content Include="VCRedist\Microsoft_VC100_ATL_x86.msm" />
+    <Content Include="VCRedist\Microsoft_VC100_CRT_x86.msm" />
+    <Content Include="VCRedist\Microsoft_VC100_MFC_x86.msm" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\Client.wxs" />
@@ -50,6 +54,7 @@
     <Folder Include="Client" />
     <Folder Include="Fragments" />
     <Folder Include="Language" />
+    <Folder Include="VCRedist" />
     <Folder Include="UI" />
     <Folder Include="Server" />
   </ItemGroup>
