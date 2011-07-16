@@ -60,7 +60,8 @@ namespace MediaPortal.UiComponents.Media.Views
       if (message.ChannelName == RemovableMediaMessaging.CHANNEL)
       {
         RemovableMediaMessaging.MessageType messageType = (RemovableMediaMessaging.MessageType) message.MessageType;
-        if (messageType == RemovableMediaMessaging.MessageType.MediaInserted)
+        if (messageType == RemovableMediaMessaging.MessageType.MediaInserted ||
+            messageType == RemovableMediaMessaging.MessageType.MediaRemoved)
         {
           string drive = (string) message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
           if (drive == _drive)

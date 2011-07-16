@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -78,9 +79,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       string systemId = systemResolver.LocalSystemId;
       IList<MediaItem> resultTracks = new List<MediaItem>(numTracks);
-      string[] files = Directory.GetFiles(drive);
       int track = 1;
-      foreach (string file in files)
+      // Albert, 2011-07-16: Don't use Directory.GetFiles here because it crashes (.net 3.5). I don't know why.
+      foreach (string file in new DirectoryInfo(drive).GetFiles().Select(fileInfo => fileInfo.FullName))
         resultTracks.Add(CreateMediaItem(file, track++, numTracks, systemId));
       tracks = resultTracks;
       return true;

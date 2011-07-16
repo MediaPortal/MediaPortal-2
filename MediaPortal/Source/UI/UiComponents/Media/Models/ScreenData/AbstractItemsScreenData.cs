@@ -80,6 +80,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ReloadMediaItems(navigationData.BaseViewSpecification.BuildView(), true);
     }
 
+    public override void ReleaseScreenData()
+    {
+      base.ReleaseScreenData();
+      UninstallViewChangeNotificator();
+    }
+
     public View CurrentView
     {
       get
