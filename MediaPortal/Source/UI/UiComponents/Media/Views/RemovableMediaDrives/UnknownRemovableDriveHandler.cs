@@ -28,6 +28,10 @@ using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
+  /// <summary>
+  /// Removable drive handler which doesn't produce any media items or sub view specifications. It can be used as
+  /// "no op" drive handler for unknown drive contents.
+  /// </summary>
   public class UnknownRemovableDriveHandler : BaseDriveHandler
   {
     public UnknownRemovableDriveHandler(DriveInfo driveInfo) : base(driveInfo) { }

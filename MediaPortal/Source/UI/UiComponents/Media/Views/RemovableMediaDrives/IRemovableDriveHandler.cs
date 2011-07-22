@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
   /// Handler for a specific removable media which is currently present in a removable media drive.
   /// </summary>
   /// <remarks>
-  /// This interface provides a generic, abstract interface which can be implemented for each type of media inserted into a removable media drive.
+  /// This is a generic, abstract interface which can be implemented for each type of media inserted into a removable media drive.
   /// </remarks>
   public interface IRemovableDriveHandler
   {

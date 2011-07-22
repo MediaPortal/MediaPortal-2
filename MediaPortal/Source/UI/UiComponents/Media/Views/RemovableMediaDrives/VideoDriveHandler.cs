@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     VideoCD,
   }
 
+  /// <summary>
+  /// Drive handler for video BDs, DVDs and CDs. Creates one single media item for the video on the drive.
+  /// </summary>
   public class VideoDriveHandler : BaseDriveHandler
   {
     #region Protected fields
