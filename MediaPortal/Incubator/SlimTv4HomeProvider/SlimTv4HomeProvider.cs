@@ -25,23 +25,27 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTvClient.Providers.Items;
+using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
 using TV4Home.Server.TVEInteractionLibrary.Interfaces;
-using MediaPortal.Core.Logging;
+using IChannel = MediaPortal.Plugins.SlimTvClient.Interfaces.Items.IChannel;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {
   public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo
   {
     private ITVEInteraction _tvServer;
-    private IChannel[] _channels = new IChannel[2];
+    private readonly IChannel[] _channels = new IChannel[2];
 
     #region ITvProvider Member
 
@@ -59,28 +63,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region ITimeshiftControl Member
 
-    private bool CheckConnection()
-    {
-      try
-      {
-        if (_tvServer != null)
-          _tvServer.TestConnectionToTVService();
-        return true;
-      }
-      catch (Exception)
-      {
-        return Init();
-      }
-    }
-
     public bool Init()
     {
       try
       {
-        _tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(
-          new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 },
-          new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService")
-          );
+        EndpointAddress endPoint;
+        Binding binding;
+        GetBindingAndEndpoint(out binding, out endPoint);
+        _tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(binding, endPoint);
         _tvServer.TestConnectionToTVService();
         return true;
       }
@@ -120,8 +110,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex),
-                                                                               channel.ChannelId);
+        String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
         if (String.IsNullOrEmpty(streamUrl))
           return false;
 
@@ -152,6 +141,43 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
         return false;
+      }
+    }
+
+    private bool CheckConnection()
+    {
+      try
+      {
+        if (_tvServer != null)
+          _tvServer.TestConnectionToTVService();
+        return true;
+      }
+      catch (Exception)
+      {
+        return Init();
+      }
+    }
+
+    private static bool IsLocal(string host)
+    {
+      if (string.IsNullOrEmpty(host))
+        return true;
+
+      return host.ToLowerInvariant() == "localhost" || host == "127.0.0.1" || host == "::1";
+    }
+
+    private static void GetBindingAndEndpoint(out Binding binding, out EndpointAddress endpointAddress)
+    {
+      TV4HomeProviderSettings setting = ServiceRegistration.Get<ISettingsManager>().Load<TV4HomeProviderSettings>();
+      if (IsLocal(setting.TvServerHost))
+      {
+        endpointAddress = new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService");
+        binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
+      }
+      else
+      {
+        endpointAddress = new EndpointAddress(string.Format("http://{0}:4321/TV4Home.Server.CoreService/TVEInteractionService", setting.TvServerHost));
+        binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
       }
     }
 

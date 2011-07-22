@@ -78,6 +78,8 @@
     <Compile Include="MediaProvider\SlimTvMediaProvider.cs" />
     <Compile Include="MediaProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\TV4HomeServerAddress.cs" />
+    <Compile Include="Settings\TV4HomeProviderSettings.cs" />
     <Compile Include="SlimTv4HomeProvider.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +93,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="References\TV4Home.Server.TVEInteractionLibrary.Interfaces.dll" />
   </ItemGroup>
@@ -122,6 +125,8 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(ProjectDir)\References\TV4Home.Server.TVEInteractionLibrary.Interfaces.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP
 xcopy /Y "$(ProjectDir)$(OutDir)SlimTvInterfaces.dll" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 </PostBuildEvent>
