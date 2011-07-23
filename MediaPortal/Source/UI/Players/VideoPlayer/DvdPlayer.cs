@@ -85,9 +85,8 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected List<String> _chapters = null;
 
-    protected object _guiPropertiesLock = new object();
-
     protected DvdHMSFTimeCode _currTime; // copy of current playback states, see OnDvdEvent()
+    protected string[] _titles;
     protected int _currTitle = 0;
     protected int _currChapter = 0;
     protected int _buttonCount = 0;
@@ -136,11 +135,9 @@ namespace MediaPortal.UI.Players.Video
     {
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.AddFileSource");
       _pendingCmd = true;
-      if (DVD_NAVIGATOR == "DVD Navigator")
-      {
-        _dvdbasefilter = (IBaseFilter) new DVDNavigator();
-        _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
-      }
+      
+      _dvdbasefilter = (IBaseFilter) new DVDNavigator();
+      _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
 
       if (_dvdbasefilter == null)
         throw new Exception("Failed to add DVD Navigator!");
@@ -159,6 +156,9 @@ namespace MediaPortal.UI.Players.Video
         path = Path.Combine(path, "VIDEO_TS");
 
       int hr = _dvdCtrl.SetDVDDirectory(path);
+      if (hr != 0)
+        throw new Exception("Failed to set DVD directory!");
+
       _dvdCtrl.SetOption(DvdOptionFlag.HMSFTimeCodeEvents, true); // use new HMSF timecode format
       _dvdCtrl.SetOption(DvdOptionFlag.ResetOnStop, false);
 
@@ -191,7 +191,12 @@ namespace MediaPortal.UI.Players.Video
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
 
       int hr = _dvdCtrl.SelectVideoModePreference(_videoPref);
+      if (hr != 0)
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: Unable to set DVD video mode preference 0x{0:X}", hr);
+
       hr = _dvdInfo.GetCurrentVideoAttributes(out _videoAttr);
+      if (hr != 0)
+        ServiceRegistration.Get<ILogger>().Error("DVDPlayer: Unable to get DVD video attributes 0x{0:X}", hr);
 
       DvdDiscSide side;
       int titles, numOfVolumes, volume;
@@ -420,7 +425,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_guiPropertiesLock)
+        lock (SyncObj)
           return _handlesInput;
       }
     }
@@ -433,7 +438,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnMouseMove(float x, float y)
     {
-      lock (_guiPropertiesLock)
+      lock (SyncObj)
         if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
           return;
 
@@ -449,7 +454,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnMouseClick(float x, float y)
     {
-      lock (_guiPropertiesLock)
+      lock (SyncObj)
         if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
           return;
 
@@ -465,7 +470,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnKeyPress(Key key)
     {
-      lock (_guiPropertiesLock)
+      lock (SyncObj)
         if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
           return;
 
@@ -580,8 +585,7 @@ namespace MediaPortal.UI.Players.Video
             case EventCode.DvdNoFpPgc:
               {
                 ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdNoFpPgc: {0}", p1.ToInt32());
-                if (_dvdCtrl != null)
-                  hr = _dvdCtrl.PlayTitle(1, DvdCmdFlags.None, out _cmdOption);
+                hr = _dvdCtrl.PlayTitle(1, DvdCmdFlags.None, out _cmdOption);
                 break;
               }
 
@@ -692,13 +696,13 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio stream handling
 
-    protected override void EnumerateStreams()
+    protected override bool EnumerateStreams()
     {
-      _streamInfoAudio = new StreamInfoHandler();
-      _streamInfoSubtitles = new StreamInfoHandler();
-
-      if (_initialized && _dvdInfo != null)
+      if (_initialized && _dvdInfo != null && (_streamInfoAudio == null || _streamInfoSubtitles == null))
       {
+        _streamInfoAudio = new StreamInfoHandler();
+        _streamInfoSubtitles = new StreamInfoHandler();
+
         int streamsAvailable, currentStream;
         _dvdInfo.GetCurrentAudio(out streamsAvailable, out currentStream);
         for (int i = 0; i < streamsAvailable; ++i)
@@ -749,7 +753,9 @@ namespace MediaPortal.UI.Players.Video
                                                  localizationTag);
           _streamInfoSubtitles.AddUnique(new StreamInfo(null, i, currentSubtitle, currentLCID));
         }
+        return true; // refreshed
       }
+      return false;
     }
 
     /// <summary>
@@ -759,10 +765,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        if (_streamInfoAudio == null)
-          EnumerateStreams();
-
-        return _streamInfoAudio.GetStreamNames();
+        EnumerateStreams();
+        return _streamInfoAudio == null ? EMPTY_STRING_ARRAY : _streamInfoAudio.GetStreamNames();
       }
     }
 
@@ -810,12 +814,10 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         // Accessing the list and count information can occure concurrently, this has to be avoided.
-        lock (_guiPropertiesLock)
+        lock (SyncObj)
         {
-          if (_streamInfoSubtitles == null)
-            EnumerateStreams();
-
-          return _streamInfoSubtitles.GetStreamNames();
+          EnumerateStreams();
+          return _streamInfoSubtitles == null ? EMPTY_STRING_ARRAY : _streamInfoSubtitles.GetStreamNames();
         }
       }
     }
@@ -892,14 +894,17 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        if (_titles != null)
+          return _titles;
+
         // Attention: some DVDs are reporting the maximum of 99 titles, although having only one.
         DvdDiscSide side;
         int titleCount, numOfVolumes, volume;
         _dvdInfo.GetDVDVolumeInfo(out numOfVolumes, out volume, out side, out titleCount);
-        string[] titles = new string[titleCount];
+        _titles = new string[titleCount];
         for (int i = 0; i < titleCount; ++i)
-          titles[i] = ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_TITLE, i+1);
-        return titles;
+          _titles[i] = ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_TITLE, i + 1);
+        return _titles;
       }
     }
 
@@ -955,7 +960,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_guiPropertiesLock)
+        lock (SyncObj)
         {
           if (_chapters != null)
             return _chapters.ToArray();
@@ -1012,7 +1017,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_guiPropertiesLock)
+        //lock (_guiPropertiesLock)
           return Chapters.Length != 0;
       }
     }
@@ -1089,7 +1094,7 @@ namespace MediaPortal.UI.Players.Video
     private void SetCurrentTime(IntPtr p1)
     {
       byte[] ati = BitConverter.GetBytes(p1.ToInt32());
-      lock (_guiPropertiesLock)
+      lock (SyncObj)
       {
         _currTime.bHours = ati[0];
         _currTime.bMinutes = ati[1];
@@ -1107,7 +1112,7 @@ namespace MediaPortal.UI.Players.Video
       DvdHMSFTimeCode totaltime = new DvdHMSFTimeCode();
       DvdTimeCodeFlags ulTimeCodeFlags;
       _dvdInfo.GetTotalTitleTime(totaltime, out ulTimeCodeFlags);
-      lock (_guiPropertiesLock)
+      lock (SyncObj)
         _duration = ToDouble(totaltime);
     }
 
@@ -1120,7 +1125,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_guiPropertiesLock)
+        lock (SyncObj)
           return ToTimeSpan(_currentTime);
       }
       set
@@ -1150,7 +1155,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (_guiPropertiesLock)
+        lock (SyncObj)
           return ToTimeSpan(_duration);
       }
     }
