@@ -62,11 +62,6 @@ namespace MediaPortal.UiComponents.Media.Models
       StartTimer();
     }
 
-    public override void Dispose()
-    {
-      StopTimer();
-    }
-
     #endregion
 
     #region Properties
