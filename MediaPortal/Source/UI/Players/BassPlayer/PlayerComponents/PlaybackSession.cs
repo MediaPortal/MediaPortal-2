@@ -212,8 +212,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void End(bool waitForFadeOut)
     {
       lock (_syncObj)
+      {
         if (_state == SessionState.Reset)
           return;
+        _state = SessionState.Reset;
+      }
       _controller.OutputDeviceManager.StopDevice(waitForFadeOut);
 
       _controller.OutputDeviceManager.ResetInputStream();
@@ -228,7 +231,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _outputStream = null;
         _controller.ScheduleDisposeObject_Async(_currentInputSource);
         _currentInputSource = null;
-        _state = SessionState.Reset;
       }
     }
 

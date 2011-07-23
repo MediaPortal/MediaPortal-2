@@ -50,11 +50,12 @@ namespace Ui.Players.BassPlayer.OutputDevices
     private readonly STREAMPROC _StreamWriteProcDelegate;
     private readonly int _DeviceNo;
     private readonly Silence _Silence;
-    private BassStream _InputStream;
-    private BassStream _OutputStream;
-    private DeviceState _DeviceState;
-    private BassStreamFader _Fader;
-    private bool _OutputStreamEnded;
+    private volatile DeviceState _DeviceState;
+
+    private BassStream _InputStream = null;
+    private BassStream _OutputStream = null;
+    private BassStreamFader _Fader = null;
+    private bool _OutputStreamEnded = false;
 
     #endregion
 
@@ -232,28 +233,26 @@ namespace Ui.Players.BassPlayer.OutputDevices
 
     public void Start()
     {
-      if (_DeviceState != DeviceState.Started)
-      {
-        Log.Debug("Starting output");
+      if (_DeviceState == DeviceState.Started)
+        return;
+      
+      Log.Debug("Starting output");
+      _DeviceState = DeviceState.Started;
 
-        if (!Bass.BASS_ChannelPlay(_OutputStream.Handle, false))
-          throw new BassLibraryException("BASS_ChannelPlay");
-
-        _DeviceState = DeviceState.Started;
-      }
+      if (!Bass.BASS_ChannelPlay(_OutputStream.Handle, false))
+        throw new BassLibraryException("BASS_ChannelPlay");
     }
 
     public void Stop()
     {
-      if (_DeviceState != DeviceState.Stopped)
-      {
-        Log.Debug("Stopping output");
+      if (_DeviceState == DeviceState.Stopped)
+        return;
 
-        _DeviceState = DeviceState.Stopped;
+      Log.Debug("Stopping output");
+      _DeviceState = DeviceState.Stopped;
 
-        if (!Bass.BASS_ChannelStop(_OutputStream.Handle))
-          throw new BassLibraryException("BASS_ChannelStop");
-      }
+      if (!Bass.BASS_ChannelStop(_OutputStream.Handle))
+        throw new BassLibraryException("BASS_ChannelStop");
     }
 
     public void ClearBuffers()
@@ -279,8 +278,7 @@ namespace Ui.Players.BassPlayer.OutputDevices
     #region Private members
 
     /// <summary>
-    /// Retrieves information on a device and adds it to the 
-    /// static deviceinfo dictionary do it can be reused later. 
+    /// Retrieves information on a device and adds it to the static deviceinfo dictionary do it can be reused later. 
     /// </summary>
     /// <param name="deviceNo">Device number to retrieve information on.</param>
     private void CollectDeviceInfo(int deviceNo)
@@ -380,10 +378,12 @@ namespace Ui.Players.BassPlayer.OutputDevices
     /// <returns>Number of bytes read.</returns>
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
+      if (_DeviceState == DeviceState.Stopped)
+        return (int) BASSStreamProc.BASS_STREAMPROC_END;
       if (_OutputStreamEnded)
         return (int) BASSStreamProc.BASS_STREAMPROC_END;
       int read = _InputStream.Read(buffer, requestedBytes);
-      if (read <= 0)
+      if (read == -1)
       {
         // We're done!
 
@@ -391,13 +391,10 @@ namespace Ui.Players.BassPlayer.OutputDevices
         read = _Silence.Write(buffer, requestedBytes);
 
         // Set a flag so we call HandleOutputStreamEnded() only once.
-        if (!_OutputStreamEnded)
-        {
-          _OutputStreamEnded = true;
+        _OutputStreamEnded = true;
 
-          // Our input stream is finished, wait for device to end playback
-          HandleOutputStreamAboutToEnd();
-        }
+        // Our input stream is finished, wait for device to end playback
+        HandleOutputStreamAboutToEnd();
       }
       return read;
     }
