@@ -36,11 +36,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
   {
     public UnknownRemovableDriveHandler(DriveInfo driveInfo) : base(driveInfo) { }
 
-    public override string VolumeLabel
-    {
-      get { return _driveInfo.VolumeLabel; }
-    }
-
     public override IList<MediaItem> MediaItems
     {
       get { return new List<MediaItem>(0); }

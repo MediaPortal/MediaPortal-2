@@ -22,32 +22,46 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
+  /// <summary>
+  /// Base class for an <see cref="IRemovableDriveHandler"/>. Provides a default handling for the <see cref="VolumeLabel"/> property.
+  /// </summary>
   public abstract class BaseDriveHandler : IRemovableDriveHandler
   {
     #region Protected fields
 
     protected DriveInfo _driveInfo;
+    protected string _volumeLabel;
 
     #endregion
 
     protected BaseDriveHandler(DriveInfo driveInfo)
     {
       _driveInfo = driveInfo;
+      _volumeLabel = null;
+      if (_driveInfo.IsReady)
+        try
+        {
+          _volumeLabel = _driveInfo.VolumeLabel;
+        }
+        catch (IOException)
+        {
+        }
+      _volumeLabel = _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(_volumeLabel) ? string.Empty : ("(" + _volumeLabel + ")"));
     }
 
+    /// <summary>
+    /// Returns a string of the form <c>"D: (Videos)"</c> or <c>"D:"</c>.
+    /// </summary>
     public virtual string VolumeLabel
     {
-      get
-      {
-        string volumeLabel = _driveInfo.VolumeLabel;
-        return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : ("(" + volumeLabel + ")"));
-      }
+      get { return _volumeLabel; }
     }
 
     public abstract IList<MediaItem> MediaItems { get; }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
@@ -50,20 +51,27 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     #endregion
 
-    protected VideoDriveHandler(DriveInfo driveInfo) : base(driveInfo)
+    protected VideoDriveHandler(DriveInfo driveInfo, IEnumerable<Guid> extractedMIATypeIds) : base(driveInfo)
     {
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         ResourcePath rp = LocalFsMediaProviderBase.ToProviderResourcePath(driveInfo.Name);
         using (IResourceAccessor ra = rp.CreateLocalResourceAccessor())
-          _mediaItem = mediaAccessor.CreateMediaItem(ra, mediaAccessor.GetMetadataExtractorsForCategory(DefaultMediaCategory.Video.ToString()));
+          _mediaItem = mediaAccessor.CreateMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
     }
 
-    public static VideoDriveHandler TryCreateVideoDriveHandler(DriveInfo driveInfo)
+    /// <summary>
+    /// Creates a <see cref="VideoDriveHandler"/> if the drive of the given <paramref name="driveInfo"/> contains a video CD/DVD/BD.
+    /// </summary>
+    /// <param name="driveInfo">Drive info object for the drive to examine.</param>
+    /// <param name="extractedMIATypeIds">Media item aspect types to be extracted from the video item. The given MIAs will be present
+    /// in the created instance's <see cref="VideoItem"/>.</param>
+    /// <returns><see cref="VideoDriveHandler"/> instance for the video CD/DVD/BD or <c>null</c>, if the given drive doesn't contain
+    /// a video media.</returns>
+    public static VideoDriveHandler TryCreateVideoDriveHandler(DriveInfo driveInfo,
+        IEnumerable<Guid> extractedMIATypeIds)
     {
       VideoMediaType vmt;
-      if (DetectVideoMedia(driveInfo.Name, out vmt))
-        return new VideoDriveHandler(driveInfo);
-      return null;
+      return DetectVideoMedia(driveInfo.Name, out vmt) ? new VideoDriveHandler(driveInfo, extractedMIATypeIds) : null;
     }
 
     /// <summary>
@@ -76,8 +84,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     public static bool DetectVideoMedia(string drive, out VideoMediaType videoMediaType)
     {
       videoMediaType = VideoMediaType.Unknown;
-      if (string.IsNullOrEmpty(drive))
+      if (string.IsNullOrEmpty(drive) || drive.Length < 2)
         return false;
+      drive = drive.Substring(0, 2); // Clip potential '\\' at the end
 
       if (Directory.Exists(drive + "\\BDMV"))
       {

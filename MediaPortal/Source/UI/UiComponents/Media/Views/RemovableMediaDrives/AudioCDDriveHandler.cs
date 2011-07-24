@@ -52,35 +52,50 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     #endregion
 
     protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) : base(driveInfo)
+        IEnumerable<Guid> extractedMIATypeIds) : base(driveInfo)
     {
-      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, necessaryMIATypeIds, optionalMIATypeIds);
+      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, extractedMIATypeIds, new Guid[] {});
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
 
+    /// <summary>
+    /// Creates an <see cref="AudioCDDriveHandler"/> if the drive of the given <paramref name="driveInfo"/> contains an audio CD/DVD/BD.
+    /// </summary>
+    /// <param name="driveInfo">Drive info object for the drive to examine.</param>
+    /// <param name="extractedMIATypeIds">Media item aspect types to be extracted from the audio items. The given MIAs will be present
+    /// in the created instance's media items.</param>
+    /// <returns><see cref="AudioCDDriveHandler"/> instance for the audio CD/DVD/BD or <c>null</c>, if the given drive doesn't contain
+    /// an audio media.</returns>
     public static AudioCDDriveHandler TryCreateAudioDriveHandler(DriveInfo driveInfo,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
+        IEnumerable<Guid> extractedMIATypeIds)
     {
-      IEnumerable<MediaItem> tracks;
-      if (DetectAudioCD(driveInfo.Name, out tracks))
-        return new AudioCDDriveHandler(driveInfo, tracks, necessaryMIATypeIds, optionalMIATypeIds);
-      return null;
+      ICollection<MediaItem> tracks;
+      return DetectAudioCD(driveInfo.Name, out tracks) ? new AudioCDDriveHandler(driveInfo, tracks, extractedMIATypeIds) : null;
     }
 
-    public static bool DetectAudioCD(string drive, out IEnumerable<MediaItem> tracks)
+    /// <summary>
+    /// Detects if an audio CD/DVD/BD is contained in the given <paramref name="drive"/>.
+    /// </summary>
+    /// <param name="drive">The drive to be examined.</param>
+    /// <param name="tracks">Returns a collection of audio tracks for the audio CD in the given <paramref name="drive"/>.</param>
+    /// <returns><c>true</c>, if an audio CD was identified, else <c>false</c>.</returns>
+    public static bool DetectAudioCD(string drive, out ICollection<MediaItem> tracks)
     {
+      tracks = null;
+      if (string.IsNullOrEmpty(drive) || drive.Length < 2)
+        return false;
+      drive = drive.Substring(0, 2); // Clip potential '\\' at the end
+
       int numTracks = BassUtils.GetNumTracks(drive);
       if (numTracks <= 0)
-      {
-        tracks = null;
         return false;
-      }
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       string systemId = systemResolver.LocalSystemId;
       IList<MediaItem> resultTracks = new List<MediaItem>(numTracks);
       int track = 1;
-      // Albert, 2011-07-16: Don't use Directory.GetFiles here because it crashes (.net 3.5). I don't know why.
+      // FIXME Albert, 2011-07-24:
+      // Directory.GetFiles and DirectoryInfo.GetFiles() crash sometimes (using .net 3.5). I don't know why. -> To be fixed.
       foreach (string file in new DirectoryInfo(drive).GetFiles().Select(fileInfo => fileInfo.FullName))
         resultTracks.Add(CreateMediaItem(file, track++, numTracks, systemId));
       tracks = resultTracks;

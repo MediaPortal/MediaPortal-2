@@ -89,6 +89,12 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       }
     }
 
+    /// <summary>
+    /// Examines the media in the given <paramref name="drive"/> and auto-plays the inserted media. Depending on the type of the
+    /// inserted media, different play modes are choosen.
+    /// </summary>
+    /// <param name="drive">Drive to be examined. Format: <c>D:</c>.</param>
+    /// <returns></returns>
     protected bool ExamineVolume(string drive)
     {
       if (string.IsNullOrEmpty(drive))
@@ -96,12 +102,12 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
       DriveInfo driveInfo = new DriveInfo(drive);
       VideoDriveHandler vdh;
-      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo)) != null)
-        PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
-
       AudioCDDriveHandler acddh;
-      if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS, new Guid[] {})) != null)
+      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
+        PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
+      else if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
         PlayItemsModel.CheckQueryPlayAction(() => acddh.MediaItems, AVType.Audio);
+
 
       // TODO: Other types
 
