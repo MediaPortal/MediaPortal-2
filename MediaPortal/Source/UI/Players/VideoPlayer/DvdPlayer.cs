@@ -1017,6 +1017,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
+        // 2011-07-24 morpheus_xx: test remove of lock to fix some issues with dead locking
         //lock (_guiPropertiesLock)
           return Chapters.Length != 0;
       }
