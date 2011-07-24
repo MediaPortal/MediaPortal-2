@@ -638,8 +638,6 @@ namespace MediaPortal.UiComponents.Media.Models
       CompletePlayOrEnqueue(pc, play);
     }
 
-    protected delegate void AsyncAddToPlaylistDelegate(IPlayerContext pc, GetMediaItemsDlgt getMediaItemsFunction, bool play);
-
     protected void PlayOrEnqueueItemsInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType,
         bool play, PlayerContextConcurrencyMode concurrencyMode)
     {
@@ -649,8 +647,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
-      AsyncAddToPlaylistDelegate dlgt = AsyncAddToPlaylist;
-      dlgt.BeginInvoke(pc, getMediaItemsFunction, play, null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => AsyncAddToPlaylist(pc, getMediaItemsFunction, play));
     }
 
     protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction,
