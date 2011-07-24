@@ -1360,7 +1360,7 @@ namespace MediaPortal.UI.Players.Video
 
     public override string ToString()
     {
-      return string.Format("{0}: {1}", GetType().Name, _resourceAccessor.ResourceName);
+      return string.Format("{0}: {1}", GetType().Name, _resourceAccessor != null ? _resourceAccessor.ResourceName : "no resource");
     }
 
     #endregion
