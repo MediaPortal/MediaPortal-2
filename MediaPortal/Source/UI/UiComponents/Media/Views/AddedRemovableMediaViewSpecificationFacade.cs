@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Views
   {
     #region Protected fields
 
-    protected IEnumerable<RemovableDriveViewSpecification> _removableDriveVS = new List<RemovableDriveViewSpecification>();
+    protected ICollection<RemovableDriveViewSpecification> _removableDriveVS = new List<RemovableDriveViewSpecification>();
     protected ViewSpecification _delegate;
 
     #endregion

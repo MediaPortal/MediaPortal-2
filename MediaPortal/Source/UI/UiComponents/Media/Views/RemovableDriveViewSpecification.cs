@@ -56,11 +56,11 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Public methods
 
-    public static IEnumerable<RemovableDriveViewSpecification> CreateViewSpecificationsForRemovableDrives(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
+    public static ICollection<RemovableDriveViewSpecification> CreateViewSpecificationsForRemovableDrives(IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
     {
       return DriveInfo.GetDrives().Where(
           driveInfo => driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable).Select(
-          driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString(), necessaryMIATypeIds, optionalMIATypeIds));
+          driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString(), necessaryMIATypeIds, optionalMIATypeIds)).ToList();
     }
 
     #endregion
