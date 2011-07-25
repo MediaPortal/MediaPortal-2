@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
@@ -87,18 +88,27 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         return false;
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
 
-      int numTracks = BassUtils.GetNumTracks(drive);
-      if (numTracks <= 0)
+      try
+      {
+        int numTracks = BassUtils.GetNumTracks(drive);
+        if (numTracks <= 0)
+          return false;
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+        string systemId = systemResolver.LocalSystemId;
+        IList<MediaItem> resultTracks = new List<MediaItem>(numTracks);
+        int track = 1;
+        // FIXME Albert, 2011-07-25:
+        // Both Directory.GetFiles and DirectoryInfo.GetFiles() crash sometimes (using .net 3.5). I don't know why. -> To be fixed.
+        // DirectoryInfo.GetFiles() seems to work more stable.
+        foreach (string file in new DirectoryInfo(drive + '\\').GetFiles().Select(fileInfo => fileInfo.FullName))
+          resultTracks.Add(CreateMediaItem(file, track++, numTracks, systemId));
+        tracks = resultTracks;
+      }
+      catch (IOException)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error enumerating tracks of audio CD in drive {0}", drive);
         return false;
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      string systemId = systemResolver.LocalSystemId;
-      IList<MediaItem> resultTracks = new List<MediaItem>(numTracks);
-      int track = 1;
-      // FIXME Albert, 2011-07-24:
-      // Directory.GetFiles and DirectoryInfo.GetFiles() crash sometimes (using .net 3.5). I don't know why. -> To be fixed.
-      foreach (string file in new DirectoryInfo(drive).GetFiles().Select(fileInfo => fileInfo.FullName))
-        resultTracks.Add(CreateMediaItem(file, track++, numTracks, systemId));
-      tracks = resultTracks;
+      }
       return true;
     }
 

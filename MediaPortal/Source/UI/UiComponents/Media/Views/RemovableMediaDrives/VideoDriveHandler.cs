@@ -88,25 +88,33 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         return false;
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
 
-      if (Directory.Exists(drive + "\\BDMV"))
+      try
       {
-        ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: BD inserted into drive {0}", drive);
-        videoMediaType = VideoMediaType.VideoBD;
-        return true;
-      }
+        if (Directory.Exists(drive + "\\BDMV"))
+        {
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: BD inserted into drive {0}", drive);
+          videoMediaType = VideoMediaType.VideoBD;
+          return true;
+        }
 
-      if (Directory.Exists(drive + "\\VIDEO_TS"))
-      {
-        ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: DVD inserted into drive {0}", drive);
-        videoMediaType = VideoMediaType.VideoDVD;
-        return true;
-      }
+        if (Directory.Exists(drive + "\\VIDEO_TS"))
+        {
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: DVD inserted into drive {0}", drive);
+          videoMediaType = VideoMediaType.VideoDVD;
+          return true;
+        }
 
-      if (Directory.Exists(drive + "\\MPEGAV"))
+        if (Directory.Exists(drive + "\\MPEGAV"))
+        {
+          ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Video CD inserted into drive {0}", drive);
+          videoMediaType = VideoMediaType.VideoCD;
+          return true;
+        }
+      }
+      catch (IOException)
       {
-        ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Video CD inserted into drive {0}", drive);
-        videoMediaType = VideoMediaType.VideoCD;
-        return true;
+        ServiceRegistration.Get<ILogger>().Warn("VideoDriveHandler: Error checking for video CD in drive {0}", drive);
+        return false;
       }
       return false;
     }
