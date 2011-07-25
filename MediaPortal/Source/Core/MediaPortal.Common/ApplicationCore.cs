@@ -137,7 +137,7 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IResourceServer>().Shutdown();
       ServiceRegistration.Get<IImporterWorker>().Shutdown();
       ServiceRegistration.Get<ITaskScheduler>().Shutdown();
-      ServiceRegistration.Get<IThreadPool>().Stop();
+      ServiceRegistration.Get<IThreadPool>().Shutdown();
     }
 
     public static void RegisterDefaultMediaItemAspectTypes()

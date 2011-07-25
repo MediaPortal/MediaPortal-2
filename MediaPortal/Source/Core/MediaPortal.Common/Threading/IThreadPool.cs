@@ -169,6 +169,7 @@ namespace MediaPortal.Common.Threading
     /// will be shutdown and queue will not accept new work anymore.
     /// </summary>
     void Stop();
+    void Shutdown();
 
     #endregion
 

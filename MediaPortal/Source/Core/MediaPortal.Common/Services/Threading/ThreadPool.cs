@@ -23,8 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Threading;
@@ -44,7 +45,18 @@ namespace MediaPortal.Common.Services.Threading
 
   public class ThreadPool : IThreadPool
   {
+    #region Consts
+
+    protected int THREAD_JOIN_TIMEOUT = 2000;
+
+    #endregion
+
     #region Variables
+
+    /// <summary>
+    /// Synchronization object for our internal data.
+    /// </summary>
+    private readonly object _syncObj = new object();
 
     /// <summary>
     /// Holds all the necessary parameters for this ThreadPool.
@@ -52,9 +64,9 @@ namespace MediaPortal.Common.Services.Threading
     private readonly ThreadPoolStartInfo _startInfo;
 
     /// <summary>
-    /// List of threads from this pool, with the Thread object being the key and the last activity time as value.
+    /// Dictionary of threads from this pool, with the Thread object being the key and the last activity time as value.
     /// </summary>
-    private readonly Hashtable _threads = Hashtable.Synchronized(new Hashtable());
+    private readonly ConcurrentDictionary<Thread, DateTime> _threads = new ConcurrentDictionary<Thread, DateTime>();
 
     /// <summary>
     /// List of objects that want to perform work in a fixed interval, with IIntervalWork and the last runtime as value.
@@ -202,6 +214,14 @@ namespace MediaPortal.Common.Services.Threading
         iWrk.OnThreadPoolStopped();
     }
 
+    public void Shutdown()
+    {
+      Stop();
+      bool allTerminated = _threads.Keys.Aggregate(true, (current, thread) => current & thread.Join(THREAD_JOIN_TIMEOUT));
+      if (!allTerminated)
+        ServiceRegistration.Get<ILogger>().Warn("ThreadPool: Not all worker threads terminated");
+    }
+
     public void AddIntervalWork(IIntervalWork intervalWork, bool runNow)
     {
       if (_startInfo.DelayedInit)
@@ -282,7 +302,7 @@ namespace MediaPortal.Common.Services.Threading
       if (!_run)
         return;
 
-      lock (_threads.SyncRoot)
+      lock (_syncObj)
       {
         for (int i = 0; i < count; i++)
         {
@@ -311,7 +331,7 @@ namespace MediaPortal.Common.Services.Threading
       if (!_run)
         return;
       bool incrementRequired = false;
-      lock (_threads.SyncRoot)
+      lock (_syncObj)
       {
         // check if all threads are in use
         if (_inUseThreads == _threads.Count)
@@ -350,14 +370,17 @@ namespace MediaPortal.Common.Services.Threading
             // Dequeue has returned null or we should shutdown
             if (_threads.Count > _startInfo.MinimumThreads)
             {
-              lock (_threads.SyncRoot)
+              lock (_syncObj)
               {
                 if (_threads.Count > _startInfo.MinimumThreads)
                 {
                   ServiceRegistration.Get<ILogger>().Debug("ThreadPool.ProcessQueue(): Quitting (inUse: {0}, total: {1})", _inUseThreads, _threads.Count);
                   // remove thread from the pool
-                  if (_threads.Contains(Thread.CurrentThread))
-                    _threads.Remove(Thread.CurrentThread);
+                  if (_threads.ContainsKey(Thread.CurrentThread))
+                  {
+                    DateTime time;
+                    _threads.TryRemove(Thread.CurrentThread, out time);
+                  }
                   break;
                 }
               }
@@ -382,7 +405,7 @@ namespace MediaPortal.Common.Services.Threading
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Warn("ThreadPool.ProcessQueue(): Exception during processing work '{0}'", work.Description);
+            ServiceRegistration.Get<ILogger>().Warn("ThreadPool.ProcessQueue(): Exception during processing work '{0}'", e, work.Description);
             work.State = WorkState.ERROR;
             work.Exception = e;
           }
@@ -411,8 +434,11 @@ namespace MediaPortal.Common.Services.Threading
       }
       finally
       {
-        if (_threads.Contains(Thread.CurrentThread))
-          _threads.Remove(Thread.CurrentThread);
+        if (_threads.ContainsKey(Thread.CurrentThread))
+        {
+          DateTime time;
+          _threads.TryRemove(Thread.CurrentThread, out time);
+        }
       }
     }
 
