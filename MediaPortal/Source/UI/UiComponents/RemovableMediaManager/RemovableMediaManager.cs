@@ -106,7 +106,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
         PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
       else if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
-        PlayItemsModel.CheckQueryPlayAction(() => acddh.MediaItems, AVType.Audio);
+        PlayItemsModel.CheckQueryPlayAction(() => acddh.GetAllMediaItems(), AVType.Audio);
 
 
       // TODO: Other types
