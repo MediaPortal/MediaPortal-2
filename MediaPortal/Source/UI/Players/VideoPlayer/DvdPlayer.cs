@@ -83,7 +83,7 @@ namespace MediaPortal.UI.Players.Video
     /// <summary>
     /// List of chapters. Will be initialized lazily. <c>null</c> if not currently valid.
     /// </summary>
-    protected List<String> _chapters = null;
+    protected string[] _chapters = null;
 
     protected DvdHMSFTimeCode _currTime; // copy of current playback states, see OnDvdEvent()
     protected string[] _titles;
@@ -99,6 +99,7 @@ namespace MediaPortal.UI.Players.Video
     protected double _currentTime = 0;
 
     private const string DVD_NAVIGATOR = "DVD Navigator";
+    private const string DVD_MESSAGE_CHANNEL = "DVDPlayer Messaging";
 
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
     protected AspectRatioMode arMode = AspectRatioMode.Stretched;
@@ -119,6 +120,17 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
+    #region Message handling
+
+    protected override void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL, DVD_MESSAGE_CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    #endregion
+
     #region Graphbuilding overrides
 
     protected override void CreateGraphBuilder()
@@ -135,7 +147,7 @@ namespace MediaPortal.UI.Players.Video
     {
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer.AddFileSource");
       _pendingCmd = true;
-      
+
       _dvdbasefilter = (IBaseFilter) new DVDNavigator();
       _graphBuilder.AddFilter(_dvdbasefilter, DVD_NAVIGATOR);
 
@@ -228,7 +240,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void FreeCodecs()
     {
       _pendingCmd = false;
-      FilterGraphTools.TryRelease(ref _cmdOption);      
+      FilterGraphTools.TryRelease(ref _cmdOption);
       FilterGraphTools.TryRelease(ref _line21Decoder);
       FilterGraphTools.TryRelease(ref _dvdCtrl);
       FilterGraphTools.TryRelease(ref _dvdInfo);
@@ -317,7 +329,7 @@ namespace MediaPortal.UI.Players.Video
           Marshal.ReleaseComObject(dvdState);
           return false;
         }
-        IntPtr stateData = Marshal.AllocCoTaskMem((int)resumeSize);
+        IntPtr stateData = Marshal.AllocCoTaskMem((int) resumeSize);
 
         try
         {
@@ -414,6 +426,9 @@ namespace MediaPortal.UI.Players.Video
     public override void Stop()
     {
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: Stop");
+      if (_dvdCtrl != null)
+        _dvdCtrl.Stop();
+
       base.Stop();
     }
 
@@ -425,8 +440,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-          return _handlesInput;
+        return _handlesInput;
       }
     }
 
@@ -435,12 +449,11 @@ namespace MediaPortal.UI.Players.Video
       ServiceRegistration.Get<ILogger>().Debug("DvdPlayer: ShowDvdMenu");
       _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.None, out _cmdOption);
     }
-
+    
     public void OnMouseMove(float x, float y)
     {
-      lock (SyncObj)
-        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
-          return;
+      if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+        return;
 
       // Scale to video's size
       x *= _videoAttr.sourceResolutionX;
@@ -454,9 +467,8 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnMouseClick(float x, float y)
     {
-      lock (SyncObj)
-        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
-          return;
+      if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+        return;
 
       // Scale to video's size
       x *= _videoAttr.sourceResolutionX;
@@ -470,9 +482,8 @@ namespace MediaPortal.UI.Players.Video
 
     public void OnKeyPress(Key key)
     {
-      lock (SyncObj)
-        if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
-          return;
+      if (_dvdCtrl == null || !_handlesInput || _buttonCount <= 0)
+        return;
 
       if (key == Key.Up)
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
@@ -504,7 +515,7 @@ namespace MediaPortal.UI.Players.Video
         int hr;
         do
         {
-          IMediaEventEx eventEx = (IMediaEventEx)_graphBuilder;
+          IMediaEventEx eventEx = (IMediaEventEx) _graphBuilder;
           EventCode code;
           hr = eventEx.GetEvent(out code, out p1, out p2, 0);
           if (hr < 0)
@@ -534,21 +545,18 @@ namespace MediaPortal.UI.Players.Video
             case EventCode.DvdChapterStart:
               {
                 ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdChaptStart: {0}", p1.ToInt32());
-                _currChapter = p1.ToInt32();
-                CalculateDuration();
+                lock (SyncObj)
+                {
+                  _currChapter = p1.ToInt32();
+                  CalculateDuration();
+                }
                 ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
                 break;
               }
 
             case EventCode.DvdTitleChange:
               {
-                ServiceRegistration.Get<ILogger>().Debug("EVT: DvdTitleChange: {0}", p1.ToInt32());
-                _streamInfoSubtitles = null; // Invalidate subtitles - could be different in other title
-                _streamInfoAudio = null; // Invalidate audio streams - could be different in other title
-                _chapters = null; // Invalidate chapters - they are different per title
-                _currTitle = p1.ToInt32();
-                CalculateDuration();
-                ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
+                OnTitleSelect(p1.ToInt32());
                 break;
               }
 
@@ -594,7 +602,7 @@ namespace MediaPortal.UI.Players.Video
               break;
 
             case EventCode.DvdValidUopsChange:
-              _UOPs = (ValidUOPFlag)p1.ToInt32();
+              _UOPs = (ValidUOPFlag) p1.ToInt32();
               ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: DvdValidUopsChange: {0}", _UOPs);
               break;
 
@@ -637,6 +645,22 @@ namespace MediaPortal.UI.Players.Video
       {
         ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Exception in OnDvdEvent()", ex);
       }
+    }
+
+    protected void OnTitleSelect(int title)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("EVT: DvdTitleChange: {0}", title);
+      lock (SyncObj)
+      {
+        _streamInfoSubtitles = null; // Invalidate subtitles - could be different in other title
+        _streamInfoAudio = null; // Invalidate audio streams - could be different in other title
+        _chapters = null; // Invalidate chapters - they are different per title
+        _currTitle = title;
+      }
+      EnumerateChapters();
+      EnumerateStreams();
+      CalculateDuration();
+      ServiceRegistration.Get<ILogger>().Debug("  _duration: {0}", _currentTime);
     }
 
     /// <summary>
@@ -687,8 +711,28 @@ namespace MediaPortal.UI.Players.Video
       if (message.ChannelName == WindowsMessaging.CHANNEL)
       {
         Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
-        if (m.Msg == WM_DVD_EVENT)            
+        if (m.Msg == WM_DVD_EVENT)
           OnDvdEvent();
+      }
+      if (message.ChannelName == DVD_MESSAGE_CHANNEL)
+      {
+        string eventType = (string) message.MessageType;
+        if (eventType == "KeyPress")
+        {
+          Key key = (Key) message.MessageData["key"];
+          OnKeyPress(key);
+        }
+
+        if (eventType == "MouseMove" || eventType == "MouseClick")
+        {
+          float x = (float) message.MessageData["x"];
+          float y = (float) message.MessageData["y"];
+          
+          if (eventType == "MouseMove")
+            OnMouseMove(x, y); 
+          else
+            OnMouseClick(x, y);
+        }
       }
     }
 
@@ -717,7 +761,7 @@ namespace MediaPortal.UI.Players.Video
 
           StringBuilder currentAudio = new StringBuilder();
           currentAudio.AppendFormat("{0} ({1}/{2} ch/{3} KHz)",
-                                    languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency/1000));
+                                    languageName, attr.AudioFormat, attr.bNumberOfChannels, (attr.dwFrequency / 1000));
 
           switch (attr.LanguageExtension)
           {
@@ -765,8 +809,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        EnumerateStreams();
-        return _streamInfoAudio == null ? EMPTY_STRING_ARRAY : _streamInfoAudio.GetStreamNames();
+        lock (SyncObj)
+          return _streamInfoAudio == null ? EMPTY_STRING_ARRAY : _streamInfoAudio.GetStreamNames();
       }
     }
 
@@ -813,12 +857,8 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        // Accessing the list and count information can occure concurrently, this has to be avoided.
         lock (SyncObj)
-        {
-          EnumerateStreams();
           return _streamInfoSubtitles == null ? EMPTY_STRING_ARRAY : _streamInfoSubtitles.GetStreamNames();
-        }
       }
     }
 
@@ -943,6 +983,27 @@ namespace MediaPortal.UI.Players.Video
     #region DVD Chapters handling
 
     /// <summary>
+    /// Enumerates available chapters. Needs to be executed after title changes.
+    /// </summary>
+    protected void EnumerateChapters()
+    {
+      if (!_initialized || _dvdInfo == null)
+        return;
+      List<string> chapters = new List<string>();
+      DvdPlaybackLocation2 location;
+      int hr = _dvdInfo.GetCurrentLocation(out location);
+      if (hr == 0)
+      {
+        int chapterCount;
+        _dvdInfo.GetNumberOfChapters(location.TitleNum, out chapterCount);
+        for (int i = 1; i <= chapterCount; ++i)
+          chapters.Add(GetChapterName(i));
+      }
+      lock (SyncObj)
+        _chapters = chapters.ToArray();
+    }
+
+    /// <summary>
     /// Returns a localized chapter name.
     /// </summary>
     /// <param name="chapterNumber">0 based chapter number.</param>
@@ -961,22 +1022,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         lock (SyncObj)
-        {
-          if (_chapters != null)
-            return _chapters.ToArray();
-
-          _chapters = new List<string>();
-          if (_initialized && _dvdInfo != null)
-          {
-            int chapterCount;
-            DvdPlaybackLocation2 location;
-            _dvdInfo.GetCurrentLocation(out location);
-            _dvdInfo.GetNumberOfChapters(location.TitleNum, out chapterCount);
-            for (int i = 1; i <= chapterCount; ++i)
-              _chapters.Add(GetChapterName(i));
-          }
-        }
-        return _chapters.ToArray();
+          return _chapters ?? EMPTY_STRING_ARRAY;
       }
     }
 
@@ -1017,9 +1063,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        // 2011-07-24 morpheus_xx: test remove of lock to fix some issues with dead locking
-        //lock (_guiPropertiesLock)
-          return Chapters.Length != 0;
+        return Chapters.Length != 0;
       }
     }
 
@@ -1057,9 +1101,9 @@ namespace MediaPortal.UI.Players.Video
       int seconds = newTime.Seconds;
       DvdHMSFTimeCode timeCode = new DvdHMSFTimeCode
       {
-        bHours = (byte)(hours & 0xff),
-        bMinutes = (byte)(minutes & 0xff),
-        bSeconds = (byte)(seconds & 0xff),
+        bHours = (byte) (hours & 0xff),
+        bMinutes = (byte) (minutes & 0xff),
+        bSeconds = (byte) (seconds & 0xff),
         bFrames = 0
       };
       return timeCode;
@@ -1126,8 +1170,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        lock (SyncObj)
-          return ToTimeSpan(_currentTime);
+        return ToTimeSpan(_currentTime);
       }
       set
       {
@@ -1139,13 +1182,16 @@ namespace MediaPortal.UI.Players.Video
           return;
         DvdHMSFTimeCode timeCode = ToTimeCode(newTime);
         DvdPlaybackLocation2 loc;
-        _currTitle = _dvdInfo.GetCurrentLocation(out loc);
-
-        try
+        int hr = _dvdInfo.GetCurrentLocation(out loc);
+        if (hr == 0)
         {
-          _dvdCtrl.PlayAtTime(timeCode, DvdCmdFlags.Block, out _cmdOption);
+          _currTitle = loc.TitleNum;
+          try
+          {
+            _dvdCtrl.PlayAtTime(timeCode, DvdCmdFlags.Block, out _cmdOption);
+          }
+          catch { }
         }
-        catch { }
       }
     }
 

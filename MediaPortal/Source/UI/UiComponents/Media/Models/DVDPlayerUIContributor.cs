@@ -22,8 +22,11 @@
 
 #endregion
 
+using System;
 using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -37,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models
 {
   public class DVDPlayerUIContributor : BaseTimerControlledModel, IPlayerUIContributor
   {
-    protected static string[] EMPTY_STRING_ARRAY = new string[] {};
+    protected static string[] EMPTY_STRING_ARRAY = new string[] { };
 
     #region Protected fields
 
@@ -49,6 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected string[] _subtitles = EMPTY_STRING_ARRAY;
     protected ItemsList _subtitleMenuItems;
     protected ItemsList _chapterMenuItems;
+    protected bool _updating;
 
     #endregion
 
@@ -182,16 +186,33 @@ namespace MediaPortal.UiComponents.Media.Models
     // Update GUI properties
     protected override void Update()
     {
-      DvdPlayerHandlesInput = _player.IsHandlingUserInput;
-      ChaptersAvailable = _player.ChaptersAvailable;
-      ISubtitlePlayer subtitlePlayer = _player as ISubtitlePlayer;
-      if (subtitlePlayer != null)
+      if (_updating)
       {
-        _subtitles = subtitlePlayer.Subtitles;
-        SubtitlesAvailable = _subtitles.Length > 0;
+        ServiceRegistration.Get<ILogger>().Warn("DVDPlayerUIContributor: last update cycle still not finished.");
+        return;
       }
-      else
-        _subtitles = EMPTY_STRING_ARRAY;
+
+      if (_player == null)
+        return;
+
+      try
+      {
+        _updating = true;
+        DvdPlayerHandlesInput = _player.IsHandlingUserInput;
+        ChaptersAvailable = _player.ChaptersAvailable;
+        ISubtitlePlayer subtitlePlayer = _player as ISubtitlePlayer;
+        if (subtitlePlayer != null)
+        {
+          _subtitles = subtitlePlayer.Subtitles;
+          SubtitlesAvailable = _subtitles.Length > 0;
+        }
+        else
+          _subtitles = EMPTY_STRING_ARRAY;
+      }
+      finally
+      {
+        _updating = false;
+      }
     }
 
     /// <summary>
@@ -224,7 +245,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="key">Key that was pressed.</param>
     public void OnKeyPress(Key key)
     {
-      _player.OnKeyPress(key);
+      SendDvdPlayerKeyEvent(key);
     }
 
     /// <summary>
@@ -234,7 +255,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="y">Y coordinate relative to the video size.</param>
     public void OnMouseMove(float x, float y)
     {
-      _player.OnMouseMove(x, y);
+      SendDvdPlayerMouseEvent("MouseMove", x, y);
     }
 
     /// <summary>
@@ -246,8 +267,29 @@ namespace MediaPortal.UiComponents.Media.Models
     public void OnMouseClick(MouseButtons buttons, float x, float y)
     {
       if (buttons == MouseButtons.Left)
-        _player.OnMouseClick(x, y);
+        SendDvdPlayerMouseEvent("MouseClick", x, y);
     }
+
+    public static void SendDvdPlayerMouseEvent(string messageType, float x, float y)
+    {
+      SystemMessage msg = new SystemMessage(messageType);
+      msg.MessageData["x"] = x;
+      msg.MessageData["y"] = y;
+      SendMessage(msg);
+    }
+
+    public static void SendDvdPlayerKeyEvent(Key key)
+    {
+      SystemMessage msg = new SystemMessage("KeyPress");
+      msg.MessageData["key"] = key;
+      SendMessage(msg);
+    }
+
+    private static void SendMessage(SystemMessage msg)
+    {
+      ServiceRegistration.Get<IMessageBroker>().Send("DVDPlayer Messaging", msg);
+    }
+
 
     /// <summary>
     /// Skips to previous chapter.
