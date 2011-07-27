@@ -126,9 +126,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public override void OnMouseMove(float x, float y)
     {
       base.OnMouseMove(x, y);
-      // Use the GraphicsDevice Width and Height, because ActualWidth/ActualHeight does not scale when switching to fullscreen.
-      _lastMouseX = _mousePositionMode == PositionCalculationMode.Relative ? x / GraphicsDevice.Width : x;
-      _lastMouseY = _mousePositionMode == PositionCalculationMode.Relative ? y / GraphicsDevice.Height : y;
+      float xTrans = x;
+      float yTrans = y;
+      if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
+        return;
+
+      _lastMouseX = _mousePositionMode == PositionCalculationMode.Relative ? xTrans / (float) ActualWidth : x;
+      _lastMouseY = _mousePositionMode == PositionCalculationMode.Relative ? yTrans / (float) ActualHeight : y;
       if (!IsActive)
         return;
       ICommandStencil command = MouseMovedCommand;
