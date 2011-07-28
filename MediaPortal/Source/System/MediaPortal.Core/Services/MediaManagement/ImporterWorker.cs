@@ -90,12 +90,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       // Message queue will be started in method Start()
     }
 
-    ~ImporterWorker()
-    {
-      ShutdownImporterLoop();
-      _messageQueue.Shutdown();
-    }
-
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
