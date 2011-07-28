@@ -43,6 +43,10 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
   /// <summary>
   /// Drive handler for video BDs, DVDs and CDs. Creates one single media item for the video on the drive.
   /// </summary>
+  /// <remarks>
+  /// This drive handler doesn't cover CDs/DVDs/BDs with videos in video containers like AVI or MKV; those are
+  /// covered by the <see cref="MultimediaDriveHandler"/>.
+  /// </remarks>
   public class VideoDriveHandler : BaseDriveHandler
   {
     #region Protected fields
