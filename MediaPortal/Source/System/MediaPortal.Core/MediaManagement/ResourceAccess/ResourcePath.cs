@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
@@ -237,10 +238,10 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <returns>A string instance of the form described in the class docs of this class.</returns>
     public string Serialize()
     {
-      string result = string.Empty;
+      StringBuilder result = new StringBuilder(_pathSegments.Count * 200);
       foreach (ProviderPathSegment pathSegment in _pathSegments)
-        result += pathSegment.Serialize();
-      return result;
+        result.Append(pathSegment.Serialize());
+      return result.ToString();
     }
 
     /// <summary>
