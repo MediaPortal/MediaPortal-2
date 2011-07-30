@@ -409,5 +409,10 @@ namespace MediaPortal.Core.MediaManagement
       foreach (MediaItemAspectMetadata.AttributeSpecification attributeSpecification in _metadata.AttributeSpecifications.Values)
         _aspectData[attributeSpecification] = IGNORE;
     }
+
+    public override string ToString()
+    {
+      return "MIA of type '" + _metadata + "'";
+    }
   }
 }
