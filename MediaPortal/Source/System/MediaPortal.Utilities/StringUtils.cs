@@ -207,7 +207,7 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
-    /// Pads the given <paramref name="str"/> to a lenght of <paramref name="length"/> chars with the given
+    /// Pads the given <paramref name="str"/> to a length of <paramref name="length"/> chars with the given
     /// <paramref name="filler"/> char.
     /// </summary>
     /// <param name="str">String to pad. If this parameter is <c>null</c>, a string will be returned containing
