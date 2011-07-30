@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
 
 namespace MediaPortal.UiComponents.Media.Views
@@ -45,8 +46,8 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public RemovableDriveViewSpecification(string drive, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(string.Empty, necessaryMIATypeIds, optionalMIATypeIds)
+    public RemovableDriveViewSpecification(string drive) :
+        base(string.Empty, new Guid[] {}, new Guid[] {})
     {
       _driveInfo = new DriveInfo(drive);
       UpdateRemovableDriveHandler();
@@ -60,7 +61,7 @@ namespace MediaPortal.UiComponents.Media.Views
     {
       return DriveInfo.GetDrives().Where(
           driveInfo => driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable).Select(
-          driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString(), necessaryMIATypeIds, optionalMIATypeIds)).ToList();
+          driveInfo => new RemovableDriveViewSpecification(driveInfo.ToString())).ToList();
     }
 
     #endregion
@@ -70,7 +71,8 @@ namespace MediaPortal.UiComponents.Media.Views
     protected void UpdateRemovableDriveHandler()
     {
       _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo, _necessaryMIATypeIds) ??
-          AudioCDDriveHandler.TryCreateAudioDriveHandler(_driveInfo, _necessaryMIATypeIds) ??
+          AudioCDDriveHandler.TryCreateAudioCDDriveHandler(_driveInfo) ??
+          MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(_driveInfo, Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_PICTURE_MIAS, Consts.NECESSARY_MUSIC_MIAS) ??
           (IRemovableDriveHandler) new UnknownRemovableDriveHandler(_driveInfo);
     }
 

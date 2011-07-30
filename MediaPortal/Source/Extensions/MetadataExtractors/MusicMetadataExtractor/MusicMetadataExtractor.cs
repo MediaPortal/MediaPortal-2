@@ -307,7 +307,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         //{
         //  musictag.CoverArtImageBytes = pics[0].Data.Data;
         //}
-        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
+        audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
           audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
         if (tag.Tag.Track != 0)

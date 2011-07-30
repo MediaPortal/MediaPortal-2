@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
@@ -94,68 +93,35 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
     /// inserted media, different play modes are choosen.
     /// </summary>
     /// <param name="drive">Drive to be examined. Format: <c>D:</c>.</param>
-    /// <returns></returns>
-    protected bool ExamineVolume(string drive)
+    protected void ExamineVolume(string drive)
     {
       if (string.IsNullOrEmpty(drive))
-        return false;
+        return;
 
       DriveInfo driveInfo = new DriveInfo(drive);
       VideoDriveHandler vdh;
       AudioCDDriveHandler acddh;
+      MultimediaDriveHandler mcddh;
       if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
         PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
-      else if ((acddh = AudioCDDriveHandler.TryCreateAudioDriveHandler(driveInfo, Consts.NECESSARY_MUSIC_MIAS)) != null)
+      else if ((acddh = AudioCDDriveHandler.TryCreateAudioCDDriveHandler(driveInfo)) != null)
         PlayItemsModel.CheckQueryPlayAction(() => acddh.GetAllMediaItems(), AVType.Audio);
-
-
-      // TODO: Other types
-
-        //case MediaType.PHOTOS:
-        //  ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Photo volume inserted {0}", drive);
-        //  if (ShouldWeAutoPlay(MediaType.PHOTOS))
-        //  {
-        //  }
-        //  break;
-
-        //case MediaType.VIDEOS:
-        //  ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Video volume inserted {0}", drive);
-        //  if (ShouldWeAutoPlay(MediaType.VIDEOS))
-        //  {
-        //  }
-        //  break;
-
-        //case MediaType.AUDIO:
-        //  ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Audio volume inserted {0}", drive);
-        //  if (ShouldWeAutoPlay(MediaType.AUDIO))
-        //  {
-        //  }
-        //  break;
-
-        //default:
-        //  ServiceRegistration.Get<ILogger>().Info("RemovableMediaManager: Unknown media type inserted into drive {0}", drive);
-        //  break;
-
-      // Have a look at MediaInfo dll how to detect mime types.
-      /*
-      foreach (string FileName in allfiles)
-      {
-        string ext = System.IO.Path.GetExtension(FileName).ToLower();
-        if (MediaPortal.Util.CdUtils.IsVideo(FileName)) return MediaType.VIDEOS;
-      }
-
-      foreach (string FileName in allfiles)
-      {
-        string ext = System.IO.Path.GetExtension(FileName).ToLower();
-        if (MediaPortal.Util.Utils.IsAudio(FileName)) return MediaType.AUDIO;
-      }
-
-      foreach (string FileName in allfiles)
-      {
-        if (MediaPortal.Util.Utils.IsPicture(FileName)) return MediaType.PHOTOS;
-      }
-      */
-      return false;
+      else if ((mcddh = MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(driveInfo,
+          Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_MUSIC_MIAS, Consts.NECESSARY_PICTURE_MIAS)) != null)
+        switch (mcddh.MediaType)
+        {
+          case MultimediaDriveHandler.MultiMediaType.Video:
+          case MultimediaDriveHandler.MultiMediaType.Image:
+            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Video);
+            break;
+          case MultimediaDriveHandler.MultiMediaType.Audio:
+            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Audio);
+            break;
+          case MultimediaDriveHandler.MultiMediaType.Diverse:
+            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems());
+            break;
+        }
+      return;
     }
 
     #region IPluginStateTracker implementation

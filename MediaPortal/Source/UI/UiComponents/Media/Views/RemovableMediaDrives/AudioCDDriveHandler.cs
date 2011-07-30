@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -38,6 +37,10 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
+  /// <summary>
+  /// Drive handler for audio BDs, DVDs and CDs. Creates one single static sub view specification which contains all the audio
+  /// items from the media.
+  /// </summary>
   public class AudioCDDriveHandler : BaseDriveHandler
   {
     #region Consts
@@ -52,10 +55,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     #endregion
 
-    protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks,
-        IEnumerable<Guid> extractedMIATypeIds) : base(driveInfo)
+    protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks) : base(driveInfo)
     {
-      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, extractedMIATypeIds, new Guid[] {});
+      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, new Guid[] {}, new Guid[] {});
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
@@ -64,15 +66,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     /// Creates an <see cref="AudioCDDriveHandler"/> if the drive of the given <paramref name="driveInfo"/> contains an audio CD/DVD/BD.
     /// </summary>
     /// <param name="driveInfo">Drive info object for the drive to examine.</param>
-    /// <param name="extractedMIATypeIds">Media item aspect types to be extracted from the audio items. The given MIAs will be present
-    /// in the created instance's media items.</param>
     /// <returns><see cref="AudioCDDriveHandler"/> instance for the audio CD/DVD/BD or <c>null</c>, if the given drive doesn't contain
     /// an audio media.</returns>
-    public static AudioCDDriveHandler TryCreateAudioDriveHandler(DriveInfo driveInfo,
-        IEnumerable<Guid> extractedMIATypeIds)
+    public static AudioCDDriveHandler TryCreateAudioCDDriveHandler(DriveInfo driveInfo)
     {
       ICollection<MediaItem> tracks;
-      return DetectAudioCD(driveInfo.Name, out tracks) ? new AudioCDDriveHandler(driveInfo, tracks, extractedMIATypeIds) : null;
+      ICollection<Guid> extractedMIATypeIDs;
+      return DetectAudioCD(driveInfo.Name, out tracks, out extractedMIATypeIDs) ? new AudioCDDriveHandler(driveInfo, tracks) : null;
     }
 
     /// <summary>
@@ -80,40 +80,50 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     /// </summary>
     /// <param name="drive">The drive to be examined.</param>
     /// <param name="tracks">Returns a collection of audio tracks for the audio CD in the given <paramref name="drive"/>.</param>
+    /// <param name="extractedMIATypeIDs">IDs of the media item aspect types which were extracted from the returned <paramref name="tracks"/>.</param>
     /// <returns><c>true</c>, if an audio CD was identified, else <c>false</c>.</returns>
-    public static bool DetectAudioCD(string drive, out ICollection<MediaItem> tracks)
+    public static bool DetectAudioCD(string drive, out ICollection<MediaItem> tracks, out ICollection<Guid> extractedMIATypeIDs)
     {
       tracks = null;
+      extractedMIATypeIDs = null;
       if (string.IsNullOrEmpty(drive) || drive.Length < 2)
         return false;
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
 
+      if (!Directory.Exists(drive + "\\"))
+        return false;
+
       try
       {
-        int numTracks = BassUtils.GetNumTracks(drive);
-        if (numTracks <= 0)
+        IList<BassUtils.AudioTrack> audioTracks = BassUtils.GetAudioTracks(drive);
+        if (audioTracks == null || audioTracks.Count == 0)
           return false;
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         string systemId = systemResolver.LocalSystemId;
-        IList<MediaItem> resultTracks = new List<MediaItem>(numTracks);
-        int track = 1;
-        // FIXME Albert, 2011-07-25:
-        // Both Directory.GetFiles and DirectoryInfo.GetFiles() crash sometimes (using .net 3.5). I don't know why. -> To be fixed.
-        // DirectoryInfo.GetFiles() seems to work more stable.
-        foreach (string file in new DirectoryInfo(drive + '\\').GetFiles().Select(fileInfo => fileInfo.FullName))
-          resultTracks.Add(CreateMediaItem(file, track++, numTracks, systemId));
-        tracks = resultTracks;
+        tracks = new List<MediaItem>(audioTracks.Count);
+        foreach (BassUtils.AudioTrack track in audioTracks)
+          tracks.Add(CreateMediaItem(track, drive, audioTracks.Count, systemId));
+        extractedMIATypeIDs = new List<Guid>
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+              AudioAspect.ASPECT_ID,
+              SpecialSortAspect.ASPECT_ID
+          };
       }
       catch (IOException)
       {
         ServiceRegistration.Get<ILogger>().Warn("Error enumerating tracks of audio CD in drive {0}", drive);
+        tracks = null;
         return false;
       }
       return true;
     }
 
-    protected static MediaItem CreateMediaItem(string file, int track, int numTracks, string systemId)
+    protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, string drive, int numTracks, string systemId)
     {
+      // I assume the file system paths of the audio tracks will be in that way in each language and in each version of Windows?
+      string file = drive + "\\Track" + StringUtils.Pad(track.TrackNo.ToString(), 2, '0', true) + ".cda";
       IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
       // TODO: The creation of new media item aspects could be moved to a general method
       MediaItemAspect providerResourceAspect;
@@ -129,10 +139,13 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
           LocalFsMediaProviderBase.ToProviderResourcePath(file).Serialize());
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track);
-      audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, track);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track.TrackNo);
+      audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, track.TrackNo);
+      audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, track.Duration);
+      audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
+      audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);
-      specialSortAspect.SetAttribute(SpecialSortAspect.ATTR_SORT_STRING, StringUtils.Pad(track.ToString(), 5, '0', true));
+      specialSortAspect.SetAttribute(SpecialSortAspect.ATTR_SORT_STRING, StringUtils.Pad(track.TrackNo.ToString(), 5, '0', true));
 
       return new MediaItem(Guid.Empty, aspects);
     }

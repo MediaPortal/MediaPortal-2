@@ -182,6 +182,7 @@
     <Compile Include="Views\RemovableDriveViewSpecification.cs" />
     <Compile Include="Views\RemovableMediaDrives\AudioCDDriveHandler.cs" />
     <Compile Include="Views\RemovableMediaDrives\BaseDriveHandler.cs" />
+    <Compile Include="Views\RemovableMediaDrives\MultimediaDriveHandler.cs" />
     <Compile Include="Views\RemovableMediaDrives\IRemovableDriveHandler.cs" />
     <Compile Include="Views\RemovableMediaDrives\UnknownRemovableDriveHandler.cs" />
     <Compile Include="Views\RemovableMediaDrives\VideoDriveHandler.cs" />

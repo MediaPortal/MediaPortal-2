@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using Un4seen.Bass.AddOn.Cd;
@@ -31,35 +32,118 @@ namespace MediaPortal.Extensions.BassLibraries
 {
   public class BassUtils
   {
+    public class AudioTrack
+    {
+      protected int _trackNo;
+      protected double _duration;
+      protected int _startHour;
+      protected int _startMin;
+      protected int _startSec;
+      protected int _startFrame;
+
+      public  AudioTrack(int trackNo, double duration, int startHour, int startMin, int startSec, int startFrame)
+      {
+        _trackNo = trackNo;
+        _duration = duration;
+        _startHour = startHour;
+        _startMin = startMin;
+        _startSec = startSec;
+        _startFrame = startFrame;
+      }
+
+      /// <summary>
+      /// Number of audio track, starting with <c>1</c>.
+      /// </summary>
+      public int TrackNo
+      {
+        get { return _trackNo; }
+      }
+
+      /// <summary>
+      /// Duration of the audio track in seconds.
+      /// </summary>
+      public double Duration
+      {
+        get { return _duration; }
+      }
+
+      /// <summary>
+      /// Start hour of this audio track on the CD.
+      /// </summary>
+      public int StartHour
+      {
+        get { return _startHour; }
+      }
+
+      /// <summary>
+      /// Start minute of this audio track on the CD.
+      /// </summary>
+      public int StartMin
+      {
+        get { return _startMin; }
+      }
+
+      /// <summary>
+      /// Start second of this audio track on the CD.
+      /// </summary>
+      public int StartSec
+      {
+        get { return _startSec; }
+      }
+
+      /// <summary>
+      /// Start frame of this audio track on the CD.
+      /// </summary>
+      public int StartFrame
+      {
+        get { return _startFrame; }
+      }
+    }
+
     /// <summary>
     /// Checks, if the media in the given drive Letter is a Red Book (Audio) CD.
     /// </summary>
     /// <param name="drive">Drive path or drive letter (<c>"F:"</c> or <c>"F"</c>).</param>
     /// <returns><c>true</c>, if the media in the given <paramref name="drive"/> is a Red Book CD.</returns>
-    public static bool isARedBookCD(string drive)
+    public static bool IsARedBookCD(string drive)
     {
-      return GetNumTracks(drive) > 0;
+      return GetAudioTracks(drive).Count > 0;
     }
 
     /// <summary>
-    /// Returns the number of tracks of the audio CD in the given <paramref name="drive"/>.
+    /// Returns the audio tracks of the CD in the given <paramref name="drive"/>.
     /// </summary>
     /// <param name="drive">Drive letter (<c>d:</c>) or drive root path (<c>d:\</c>).</param>
-    /// <returns>Number of tracks of the current audio CD or <c>-1</c>, if an error occurs (for example: No audio CD present in
+    /// <returns>Audio tracks of the current CD or <c>null</c>, if an error occurs (for example: No CD present in
     /// the given <paramref name="drive"/>).</returns>
-    public static int GetNumTracks(string drive)
+    public static IList<AudioTrack> GetAudioTracks(string drive)
     {
       try
       {
         if (string.IsNullOrEmpty(drive))
-          return 0;
+          return null;
         char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
-        return BassCd.BASS_CD_GetTracks(Drive2BassID(driveLetter));
+        int driveId = Drive2BassID(driveLetter);
+
+        BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
+        IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
+        int trackNo = 0;
+        // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
+        // It seems that this algorithm returns the correct number of audio tracks.
+        foreach (BASS_CD_TOC_TRACK track in toc.tracks)
+        {
+          if ((track.Control & BASSCDTOCFlags.BASS_CD_TOC_CON_DATA) == 0 && track.track != 170) // 170 = lead-out (see BASS documentation)
+          {
+            double duration = BassCd.BASS_CD_GetTrackLengthSeconds(driveId, trackNo++);
+            result.Add(new AudioTrack(track.track, duration, track.hour + (track.minute / 60), track.minute, track.second, track.frame)); // Hours are returned as part of minutes (see BASS documentation)
+          }
+        }
+        return result;
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
-        return 0;
+        return null;
       }
     }
 
