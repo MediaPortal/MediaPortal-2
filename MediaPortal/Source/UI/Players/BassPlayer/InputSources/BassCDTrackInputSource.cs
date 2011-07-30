@@ -86,10 +86,6 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #endregion
 
-    #region Public members
-
-    #endregion
-
     #region Private members
 
     private BassCDTrackInputSource(string cdTrackFilePath)
