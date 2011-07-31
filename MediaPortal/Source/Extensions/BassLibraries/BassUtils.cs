@@ -111,6 +111,30 @@ namespace MediaPortal.Extensions.BassLibraries
     }
 
     /// <summary>
+    /// Returns the number of audio tracks of the CD in the given <paramref name="drive"/>.
+    /// </summary>
+    /// <param name="drive">Drive letter (<c>d:</c>) or drive root path (<c>d:\</c>).</param>
+    /// <returns>Number of audio tracks of the current CD or <c>-1</c>, if an error occurs (for example: No CD present in
+    /// the given <paramref name="drive"/>).</returns>
+    public static int GetNumAudioTracks(string drive)
+    {
+      try
+      {
+        if (string.IsNullOrEmpty(drive))
+          return -1;
+        char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
+        int driveId = Drive2BassID(driveLetter);
+
+        return BassCd.BASS_CD_GetTracks(driveId);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
+        return -1;
+      }
+    }
+
+    /// <summary>
     /// Returns the audio tracks of the CD in the given <paramref name="drive"/>.
     /// </summary>
     /// <param name="drive">Drive letter (<c>d:</c>) or drive root path (<c>d:\</c>).</param>
