@@ -32,13 +32,29 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
   {
     protected AudioCDMediaProvider _provider;
     protected char _drive; // For example "D"
-    protected int _trackNo;
+    protected byte _trackNo;
 
-    public AudioCDResourceAccessor(AudioCDMediaProvider provider, char drive, int trackNo)
+    public AudioCDResourceAccessor(AudioCDMediaProvider provider, char drive, byte trackNo)
     {
       _provider = provider;
       _drive = drive;
       _trackNo = trackNo;
+    }
+
+    /// <summary>
+    /// Returns the drive of the audio CD where this audio CD track resource is located.
+    /// </summary>
+    public char Drive
+    {
+      get { return _drive; }
+    }
+
+    /// <summary>
+    /// Returns the track number of this audio CD track resource. The first track has number 1.
+    /// </summary>
+    public byte TrackNo
+    {
+      get { return _trackNo; }
     }
 
     public void Dispose() { }
@@ -52,7 +68,7 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
 
     public ResourcePath LocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(LocalFsMediaProviderBase.LOCAL_FS_MEDIA_PROVIDER_ID, AudioCDMediaProvider.BuildPath(_drive, _trackNo)); }
+      get { return ResourcePath.BuildBaseProviderPath(LocalFsMediaProviderBase.LOCAL_FS_MEDIA_PROVIDER_ID, AudioCDMediaProvider.BuildProviderPath(_drive, _trackNo)); }
     }
 
     public DateTime LastChanged

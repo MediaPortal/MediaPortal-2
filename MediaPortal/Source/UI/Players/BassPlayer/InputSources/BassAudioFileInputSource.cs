@@ -33,7 +33,7 @@ using Un4seen.Bass;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a file inputsource implemented by the Bass library.
+  /// Represents a file inputsource.
   /// </summary>
   /// <remarks>
   /// This class encapsulates the access to local filesystem resources as well as resources which aren't don't provide

@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     protected VideoDriveHandler(DriveInfo driveInfo, IEnumerable<Guid> extractedMIATypeIds) : base(driveInfo)
     {
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-        ResourcePath rp = LocalFsMediaProviderBase.ToProviderResourcePath(driveInfo.Name);
+        ResourcePath rp = LocalFsMediaProviderBase.ToResourcePath(driveInfo.Name);
         using (IResourceAccessor ra = rp.CreateLocalResourceAccessor())
           _mediaItem = mediaAccessor.CreateMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
     }

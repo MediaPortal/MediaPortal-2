@@ -130,7 +130,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IEnumerable<Guid> meIds = mediaAccessor.GetMetadataExtractorsForMIATypes(videoMIATypeIds.Union(imageMIATypeIds).Union(audioMIATypeIds));
-        ResourcePath resourcePath = LocalFsMediaProviderBase.ToProviderResourcePath(directory);
+        ResourcePath resourcePath = LocalFsMediaProviderBase.ToResourcePath(directory);
         using (IFileSystemResourceAccessor directoryRA = new ResourceLocator(resourcePath).CreateLocalFsAccessor())
           AddMediaItems(directoryRA, mediaItems, meIds, mediaAccessor, systemResolver);
         MultiMediaType result = MultiMediaType.None;
@@ -174,7 +174,11 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         AddMediaItems(subDirectoryRA, mediaItems, metadataExtractorIds, mediaAccessor, systemResolver);
       ICollection<IFileSystemResourceAccessor> fileRAs = FileSystemResourceNavigator.GetFiles(directoryRA);
       foreach (IFileSystemResourceAccessor fileRA in fileRAs)
-        mediaItems.Add(mediaAccessor.CreateMediaItem(systemResolver, fileRA, metadataExtractorIds));
+      {
+        MediaItem item = mediaAccessor.CreateMediaItem(systemResolver, fileRA, metadataExtractorIds);
+        if (item != null)
+          mediaItems.Add(item);
+      }
     }
 
     public MultiMediaType MediaType

@@ -34,14 +34,14 @@ namespace MediaPortal.Extensions.BassLibraries
   {
     public class AudioTrack
     {
-      protected int _trackNo;
+      protected byte _trackNo;
       protected double _duration;
       protected int _startHour;
       protected int _startMin;
       protected int _startSec;
       protected int _startFrame;
 
-      public  AudioTrack(int trackNo, double duration, int startHour, int startMin, int startSec, int startFrame)
+      public AudioTrack(byte trackNo, double duration, int startHour, int startMin, int startSec, int startFrame)
       {
         _trackNo = trackNo;
         _duration = duration;
@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.BassLibraries
       /// <summary>
       /// Number of audio track, starting with <c>1</c>.
       /// </summary>
-      public int TrackNo
+      public byte TrackNo
       {
         get { return _trackNo; }
       }
@@ -150,6 +150,8 @@ namespace MediaPortal.Extensions.BassLibraries
         int driveId = Drive2BassID(driveLetter);
 
         BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
+        if (toc == null)
+          return null;
         IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
         int trackNo = 0;
         // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...

@@ -27,6 +27,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Settings;
+using MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider;
 using MediaPortal.Utilities;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
@@ -63,20 +64,26 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (!CanPlay(resourceLocator, mimeType))
         return null;
       IResourceAccessor accessor = resourceLocator.CreateAccessor();
-      string filePath = accessor.ResourcePathName;
       IInputSource result;
-      if (URLUtils.IsCDDA(filePath))
-      {
-        ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
-        if (lfra == null)
-          return null;
-        result = BassCDTrackInputSource.Create(lfra.LocalFileSystemPath);
-      }
-      else if (URLUtils.IsMODFile(filePath))
-        result = BassMODFileInputSource.Create(accessor);
+      AudioCDResourceAccessor acdra = accessor as AudioCDResourceAccessor;
+      if (acdra != null)
+        result = BassCDTrackInputSource.Create(acdra.Drive, acdra.TrackNo);
       else
-        result = BassAudioFileInputSource.Create(accessor);
-      // TODO: We could cope with web streams if resource locators would be able to hold web URLs: BassWebStreamInputSource.Create(...);
+      {
+        string filePath = accessor.ResourcePathName;
+        if (URLUtils.IsCDDA(filePath))
+        {
+          ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
+          if (lfra == null)
+            return null;
+          result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+        }
+        else if (URLUtils.IsMODFile(filePath))
+          result = BassMODFileInputSource.Create(accessor);
+        else
+          result = BassAudioFileInputSource.Create(accessor);
+        // TODO: Handle web streams when we have resource accessors for web URLs: BassWebStreamInputSource.Create(...);
+      }
 
       accessor.PrepareStreamAccess();
 
@@ -90,11 +97,14 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (!string.IsNullOrEmpty(mimeType) && !mimeType.StartsWith("audio"))
         return false;
 
-      IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
-
-      BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
-      return settings.SupportedExtensions.IndexOf(ext) > -1;
+      using (IResourceAccessor accessor = locator.CreateAccessor())
+      {
+        if (accessor is AudioCDResourceAccessor)
+          return true;
+        string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
+        BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
+        return settings.SupportedExtensions.IndexOf(ext) > -1;
+      }
     }
 
     #endregion

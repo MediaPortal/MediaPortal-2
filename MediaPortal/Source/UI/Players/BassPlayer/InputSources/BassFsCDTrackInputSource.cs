@@ -22,28 +22,28 @@
 
 #endregion
 
-using System;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Cd;
 
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a file inputsource.
+  /// Represents a CD track inputsource which is based on a virtual filesystem CD track file path.
   /// </summary>
-  internal class BassWebStreamInputSource : IInputSource
+  internal class BassFsCDTrackInputSource : IInputSource
   {
     #region Static members
 
     /// <summary>
-    /// Creates and initializes an new instance.
+    /// Creates and initializes an new instance using a given virtual audio CD file path.
     /// </summary>
-    /// <param name="url">The URL to be handled by the instance.</param>
+    /// <param name="cdTrackFilePath">The file path of the CD track in the form <c>"D:\\Track03.cda"</c> to be handled by the instance.</param>
     /// <returns>The new instance.</returns>
-    public static BassWebStreamInputSource Create(string url)
+    public static BassFsCDTrackInputSource Create(string cdTrackFilePath)
     {
-      BassWebStreamInputSource inputSource = new BassWebStreamInputSource(url);
+      BassFsCDTrackInputSource inputSource = new BassFsCDTrackInputSource(cdTrackFilePath);
       inputSource.Initialize();
       return inputSource;
     }
@@ -52,21 +52,21 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Fields
 
-    private readonly string _url;
+    private readonly string _cdTrackFilePath;
     private BassStream _BassStream;
 
     #endregion
 
-    public string URL
+    public string CDTrackFilePath
     {
-      get { return _url; }
+      get { return _cdTrackFilePath; }
     }
 
     #region IInputSource Members
 
     public MediaItemType MediaItemType
     {
-      get { return MediaItemType.WebStream; }
+      get { return MediaItemType.CDTrack; }
     }
 
     public BassStream OutputStream
@@ -86,15 +86,11 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #endregion
 
-    #region Public members
+    #region Private members
 
-    #endregion
-
-    #region Private Members
-
-    private BassWebStreamInputSource(string url)
+    private BassFsCDTrackInputSource(string cdTrackFilePath)
     {
-      _url = url;
+      _cdTrackFilePath = cdTrackFilePath;
     }
 
     /// <summary>
@@ -102,14 +98,14 @@ namespace Ui.Players.BassPlayer.InputSources
     /// </summary>
     private void Initialize()
     {
-      Log.Debug("BassWebStreamInputSource.Initialize()");
+      Log.Debug("BassCDTrackInputSource.Initialize()");
 
       const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
-      int handle = Bass.BASS_StreamCreateURL(_url, 0, flags, null, new IntPtr());
+      int handle = BassCd.BASS_CD_StreamCreateFile(_cdTrackFilePath, flags);
 
       if (handle == BassConstants.BassInvalidHandle)
-        throw new BassLibraryException("BASS_MusicLoad");
+        throw new BassLibraryException("BASS_CD_StreamCreateFile");
 
       _BassStream = BassStream.Create(handle);
     }
@@ -118,7 +114,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public override string ToString()
     {
-      return GetType().Name + ": " + _url;
+      return GetType().Name + ": " + _cdTrackFilePath;
     }
   }
 }

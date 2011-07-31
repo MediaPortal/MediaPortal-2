@@ -31,7 +31,7 @@ using Un4seen.Bass;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a MOD file inputsource implemented by the Bass library.
+  /// Represents a MOD file inputsource.
   /// </summary>
   internal class BassMODFileInputSource : AbstractBassResourceInputSource, IInputSource
   {

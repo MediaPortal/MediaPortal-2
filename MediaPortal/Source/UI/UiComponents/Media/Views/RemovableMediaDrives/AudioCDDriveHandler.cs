@@ -29,9 +29,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Extensions.BassLibraries;
+using MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider;
 using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
 using MediaPortal.Utilities;
 
@@ -90,9 +90,6 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         return false;
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
 
-      if (!Directory.Exists(drive + "\\"))
-        return false;
-
       try
       {
         IList<BassUtils.AudioTrack> audioTracks = BassUtils.GetAudioTracks(drive);
@@ -101,8 +98,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         string systemId = systemResolver.LocalSystemId;
         tracks = new List<MediaItem>(audioTracks.Count);
+        char driveChar = drive[0];
         foreach (BassUtils.AudioTrack track in audioTracks)
-          tracks.Add(CreateMediaItem(track, drive, audioTracks.Count, systemId));
+          tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId));
         extractedMIATypeIDs = new List<Guid>
           {
               ProviderResourceAspect.ASPECT_ID,
@@ -120,10 +118,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       return true;
     }
 
-    protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, string drive, int numTracks, string systemId)
+    protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, char drive, int numTracks, string systemId)
     {
-      // I assume the file system paths of the audio tracks will be in that way in each language and in each version of Windows?
-      string file = drive + "\\Track" + StringUtils.Pad(track.TrackNo.ToString(), 2, '0', true) + ".cda";
       IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
       // TODO: The creation of new media item aspects could be moved to a general method
       MediaItemAspect providerResourceAspect;
@@ -137,10 +133,10 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-          LocalFsMediaProviderBase.ToProviderResourcePath(file).Serialize());
+          AudioCDMediaProvider.ToResourcePath(drive, track.TrackNo).Serialize());
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track.TrackNo);
-      audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, track.TrackNo);
+      audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) track.TrackNo);
       audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, track.Duration);
       audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
       audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel

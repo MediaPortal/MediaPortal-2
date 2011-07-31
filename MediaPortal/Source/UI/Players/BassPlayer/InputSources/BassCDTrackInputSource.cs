@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Extensions.BassLibraries;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
@@ -30,20 +31,21 @@ using Un4seen.Bass.AddOn.Cd;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a CD track inputsource implemented by the Bass library.
+  /// Represents a CD track inputsource specified by drive letter and track number.
   /// </summary>
   internal class BassCDTrackInputSource : IInputSource
   {
     #region Static members
 
     /// <summary>
-    /// Creates and initializes an new instance.
+    /// Creates and initializes an new instance using drive and track number.
     /// </summary>
-    /// <param name="cdTrackFilePath">The file path of the CD track to be handled by the instance.</param>
+    /// <param name="drive">Drive letter of the drive where the audio CD is inserted.</param>
+    /// <param name="trackNo">Number of the track to play. The number of the first track is 1.</param>
     /// <returns>The new instance.</returns>
-    public static BassCDTrackInputSource Create(string cdTrackFilePath)
+    public static BassCDTrackInputSource Create(char drive, uint trackNo)
     {
-      BassCDTrackInputSource inputSource = new BassCDTrackInputSource(cdTrackFilePath);
+      BassCDTrackInputSource inputSource = new BassCDTrackInputSource(drive, trackNo);
       inputSource.Initialize();
       return inputSource;
     }
@@ -52,14 +54,26 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Fields
 
-    private readonly string _cdTrackFilePath;
+    private readonly char _drive;
+    private readonly uint _trackNo;
     private BassStream _BassStream;
 
     #endregion
 
-    public string CDTrackFilePath
+    /// <summary>
+    /// Drive letter of the CD drive where the audio CD is located.
+    /// </summary>
+    public char Drive
     {
-      get { return _cdTrackFilePath; }
+      get { return _drive; }
+    }
+
+    /// <summary>
+    /// Number of the audio CD track of this input source. The first track has the number 1.
+    /// </summary>
+    public uint TrackNo
+    {
+      get { return _trackNo; }
     }
 
     #region IInputSource Members
@@ -88,9 +102,10 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Private members
 
-    private BassCDTrackInputSource(string cdTrackFilePath)
+    private BassCDTrackInputSource(char drive, uint trackNo)
     {
-      _cdTrackFilePath = cdTrackFilePath;
+      _drive = drive;
+      _trackNo = trackNo;
     }
 
     /// <summary>
@@ -102,10 +117,11 @@ namespace Ui.Players.BassPlayer.InputSources
 
       const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
-      int handle = BassCd.BASS_CD_StreamCreateFile(_cdTrackFilePath, flags);
+      int bassDrive = BassUtils.Drive2BassID(_drive);
+      int handle = BassCd.BASS_CD_StreamCreate(bassDrive, (int) _trackNo, flags);
 
       if (handle == BassConstants.BassInvalidHandle)
-        throw new BassLibraryException("BASS_CD_StreamCreateFile");
+        throw new BassLibraryException("BASS_CD_StreamCreate");
 
       _BassStream = BassStream.Create(handle);
     }
@@ -114,7 +130,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public override string ToString()
     {
-      return GetType().Name + ": " + _cdTrackFilePath;
+      return string.Format("{0}: Track {1} of drive {2}:", GetType().Name, _trackNo, _drive);
     }
   }
 }

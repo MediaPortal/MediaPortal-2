@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
       _metadata = new MediaProviderMetadata(AUDIO_CD_MEDIA_PROVIDER_ID, "[AudioCDMediaProvider.Name]");
     }
 
-    public bool TryExtract(string path, out char drive, out int trackNo)
+    public bool TryExtract(string path, out char drive, out byte trackNo)
     {
       trackNo = 0;
       drive = (char) 0;
@@ -73,12 +73,17 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
       drive = path[1];
       if (drive < 'C' || drive > 'Z')
         return false;
-      return int.TryParse(path.Substring(3), out trackNo);
+      return byte.TryParse(path.Substring(3), out trackNo);
     }
 
-    public static string BuildPath(char drive, int trackNo)
+    public static string BuildProviderPath(char drive, byte trackNo)
     {
       return "/" + drive + "/" + trackNo;
+    }
+
+    public static ResourcePath ToResourcePath(char drive, byte trackNo)
+    {
+      return ResourcePath.BuildBaseProviderPath(AUDIO_CD_MEDIA_PROVIDER_ID, BuildProviderPath(drive, trackNo));
     }
 
     #endregion
@@ -93,7 +98,7 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
     public bool IsResource(string path)
     {
       char drive;
-      int trackNo;
+      byte trackNo;
       if (!TryExtract(path, out drive, out trackNo))
         return false;
       return BassUtils.GetNumAudioTracks(drive + ":") > trackNo;
@@ -102,7 +107,7 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
     public IResourceAccessor CreateMediaItemAccessor(string path)
     {
       char drive;
-      int trackNo;
+      byte trackNo;
       if (!TryExtract(path, out drive, out trackNo))
         throw new ArgumentException(string.Format("Path '{0}' is not valid in the {1}", path, GetType().Name));
       return new AudioCDResourceAccessor(this, drive, trackNo);
