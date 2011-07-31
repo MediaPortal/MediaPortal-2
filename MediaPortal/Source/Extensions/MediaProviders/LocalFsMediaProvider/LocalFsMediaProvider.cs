@@ -221,7 +221,6 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)
     {
-      ResourcePath result;
       if (string.IsNullOrEmpty(pathStr))
         return null;
       // The input string is given by the user. We can cope with two formats:
@@ -229,20 +228,18 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       //    starting media provider GUID)
       // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
       if (IsResource(pathStr))
-        result = new ResourcePath(new ProviderPathSegment[]
+        return new ResourcePath(new ProviderPathSegment[]
           {
               new ProviderPathSegment(_metadata.MediaProviderId, pathStr, true), 
           });
-      else
-        try
-        {
-          result = ResourcePath.Deserialize(pathStr);
-        }
-        catch (ArgumentException)
-        {
-          return null;
-        }
-      return result;
+      try
+      {
+        return ResourcePath.Deserialize(pathStr);
+      }
+      catch (ArgumentException)
+      {
+        return null;
+      }
     }
 
     #endregion
