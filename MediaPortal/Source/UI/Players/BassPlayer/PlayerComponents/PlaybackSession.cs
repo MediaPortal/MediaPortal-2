@@ -347,7 +347,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
             _state = SessionState.Ended;
           return (int) BASSStreamProc.BASS_STREAMPROC_END;
         }
-        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of inputSource
+        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of newInputSource
         lock (_syncObj)
         {
           _currentInputSource = newInputSource;
@@ -359,7 +359,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         if (read > 0)
           return read;
 
-        // No chance: Stream ended and we don't have another stream to switch to
+        // No chance: The old stream ended and the new stream doesn't work
         _state = SessionState.Ended;
         return (int) BASSStreamProc.BASS_STREAMPROC_END;
       }
