@@ -28,14 +28,117 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager.Builders;
 
 namespace MediaPortal.UI.Players.Video
 {
+  /// <summary>
+  /// Plugin item builder for <c>VideoPlayerMimeTypeMapping</c> plugin items.
+  /// </summary>
+  public class VideoPlayerMimeTypeMappingBuilder : IPluginItemBuilder
+  {
+    #region IPluginItemBuilder Member
+
+    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      BuilderHelper.CheckParameter("ClassName", itemData);
+      BuilderHelper.CheckParameter("MimeType", itemData);
+      return new VideoPlayerMimeTypeMapping(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["MimeType"]);
+    }
+
+    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+
+    }
+
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      return true;
+    }
+
+    #endregion
+  }
+
+  public class VideoPlayerMimeTypeMapping
+  {
+    public Type PlayerClass { get; private set; }
+    public string MimeType { get; private set; }
+
+    public VideoPlayerMimeTypeMapping(Type type, string mimetype)
+    {
+      PlayerClass = type;
+      MimeType = mimetype;
+    }
+  }
+
   /// <summary>
   /// Player builder for all video players of the VideoPlayers plugin.
   /// </summary>
   public class VideoPlayerBuilder : IPlayerBuilder
   {
+    #region Classes
+
+    protected class VideoPlayerBuilderPluginItemStateTracker : IPluginItemStateTracker
+    {
+      public string UsageDescription
+      {
+        get { return "VideoPlayerBuilder - MimeType registration"; }
+      }
+
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
+      {
+        return false;
+      }
+
+      public void Stop(PluginItemRegistration itemRegistration)
+      {
+        // Nothing to do
+      }
+
+      public void Continue(PluginItemRegistration itemRegistration)
+      {
+        // Nothing to do
+      }
+    }
+
+    #endregion
+
+    #region Consts
+
+    /// <summary>
+    /// Path where mappings of mimetypes to player types are registered.
+    /// </summary>
+    public const string VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH = "/VideoPlayers/MimeTypeRegistrations";
+
+    #endregion
+
+    #region Protected fields
+
+    protected VideoPlayerBuilderPluginItemStateTracker _videoPlayerBuilderPluginItemStateTracker;
+
+    #endregion
+
+    #region Ctor
+    
+    public VideoPlayerBuilder()
+    {
+      _videoPlayerBuilderPluginItemStateTracker = new VideoPlayerBuilderPluginItemStateTracker();
+
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH))
+      {
+        VideoPlayerMimeTypeMapping playerMapping = pluginManager.RequestPluginItem<VideoPlayerMimeTypeMapping>(
+            VIDEOPLAYERBUILDERMIMETYPES_REGISTRATION_PATH, itemMetadata.Id, _videoPlayerBuilderPluginItemStateTracker);
+        if (playerMapping == null)
+          ServiceRegistration.Get<ILogger>().Warn("Could not instantiate VideoPlayerMimeTypeMapping with id '{0}'", itemMetadata.Id);
+        else
+          PlayerRegistration.AddMimeTypeMapping(playerMapping.MimeType, playerMapping.PlayerClass);
+      }
+    }
+    
+    #endregion
+
     #region IPlayerBuilder implementation
 
     public IPlayer GetPlayer(IResourceLocator locator, string mimeType)

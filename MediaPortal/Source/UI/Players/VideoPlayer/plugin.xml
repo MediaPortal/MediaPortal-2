@@ -21,6 +21,15 @@
     <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="MediaPortal.UI.Players.Video.VideoPlayerBuilder"/>
   </Register>
 
+  <!-- Registration of the player builder for VideoPlayerMimeTypeMapping items -->
+  <Builder Name="VideoPlayerMimeTypeMapping" ClassName="MediaPortal.UI.Players.Video.VideoPlayerMimeTypeMappingBuilder"/>
+
+  <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <VideoPlayerMimeTypeMapping Id="wmv" ClassName="MediaPortal.UI.Players.Video.VideoPlayer" MimeType="video/x-ms-wmv"/>
+    <VideoPlayerMimeTypeMapping Id="ts" ClassName="MediaPortal.UI.Players.Video.TsVideoPlayer" MimeType="video/mp2t"/>
+    <VideoPlayerMimeTypeMapping Id="dvd" ClassName="MediaPortal.UI.Players.Video.DvdPlayer" MimeType="video/dvd"/>
+  </Register>
+
   <Register Location="/Resources/Language">
     <Resource Id="VideoPlayersLanguage" Directory="Language" Type="Language"/>
   </Register>

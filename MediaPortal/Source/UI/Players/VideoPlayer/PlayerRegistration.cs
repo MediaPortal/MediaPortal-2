@@ -36,8 +36,8 @@ namespace MediaPortal.UI.Players.Video
     /// List of (lower-case!) extensions which are played with one of our players.
     /// TODO: Move to settings like in PicturePlayer and BassPlayer.
     /// </summary>
-    public static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
-    public static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();
+    protected static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
+    protected static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();
 
     static PlayerRegistration()
     {
@@ -52,10 +52,12 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));
       // TODO: Go on with extensions mapping
 
-      MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
-      MIMETYPES2PLAYER.Add("video/mp2t", typeof(TsVideoPlayer));
-      MIMETYPES2PLAYER.Add("video/dvd", typeof(DvdPlayer));
-      // TODO: Go on with mime types mapping
+      // mimetypes are mapped in plugin.xml
+    }
+
+    internal static void AddMimeTypeMapping(string mimeType, Type playerType)
+    {
+      MIMETYPES2PLAYER.Add(mimeType, playerType);
     }
 
     public static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
