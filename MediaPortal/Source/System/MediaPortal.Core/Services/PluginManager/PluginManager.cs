@@ -291,10 +291,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public ICollection<PluginItemMetadata> GetAllPluginItemMetadata(string location)
     {
-      ICollection<PluginItemMetadata> result = new List<PluginItemMetadata>();
-      foreach (PluginItemRegistration registration in PluginRuntime.GetItemRegistrations(location))
-        result.Add(registration.Metadata);
-      return result;
+      return PluginRuntime.GetItemRegistrations(location).Select(registration => registration.Metadata).ToList();
     }
 
     public ICollection<string> GetAvailableChildLocations(string location)
@@ -316,14 +313,8 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
     {
-      ICollection<T> result = new List<T>();
-      foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
-      {
-        T item = (T) RequestItem(itemRegistration, typeof(T), stateTracker);
-        if (item != null)
-          result.Add(item);
-      }
-      return result;
+      return PluginRuntime.GetItemRegistrations(location).Select(
+          itemRegistration => (T) RequestItem(itemRegistration, typeof(T), stateTracker)).Where(item => item != null).ToList();
     }
 
     public ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker)
