@@ -136,6 +136,11 @@ namespace Ui.Players.BassPlayer.InputSources
       get { return _BassStream; }
     }
 
+    public TimeSpan Length
+    {
+      get { return _BassStream.Length; }
+    }
+
     #endregion
 
     #region IDisposable Members

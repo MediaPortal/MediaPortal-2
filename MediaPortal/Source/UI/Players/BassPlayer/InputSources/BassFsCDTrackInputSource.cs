@@ -22,99 +22,27 @@
 
 #endregion
 
-using Ui.Players.BassPlayer.Interfaces;
-using Ui.Players.BassPlayer.Utils;
-using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Cd;
+using System;
 
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a CD track inputsource which is based on a virtual filesystem CD track file path.
+  /// Static wrapper class to create a CD track inputsource by parsing a virtual filesystem CD track file path.
   /// </summary>
-  internal class BassFsCDTrackInputSource : IInputSource
+  internal static class BassFsCDTrackInputSource
   {
-    #region Static members
-
     /// <summary>
-    /// Creates and initializes an new instance using a given virtual audio CD file path.
+    /// Creates and initializes an instance of <see cref="BassCDTrackInputSource"/> using a given virtual audio CD file path.
     /// </summary>
     /// <param name="cdTrackFilePath">The file path of the CD track in the form <c>"D:\\Track03.cda"</c> to be handled by the instance.</param>
-    /// <returns>The new instance.</returns>
-    public static BassFsCDTrackInputSource Create(string cdTrackFilePath)
+    /// <returns>The new instance of <see cref="BassCDTrackInputSource"/>.</returns>
+    public static BassCDTrackInputSource Create(string cdTrackFilePath)
     {
-      BassFsCDTrackInputSource inputSource = new BassFsCDTrackInputSource(cdTrackFilePath);
-      inputSource.Initialize();
-      return inputSource;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly string _cdTrackFilePath;
-    private BassStream _BassStream;
-
-    #endregion
-
-    public string CDTrackFilePath
-    {
-      get { return _cdTrackFilePath; }
-    }
-
-    #region IInputSource Members
-
-    public MediaItemType MediaItemType
-    {
-      get { return MediaItemType.CDTrack; }
-    }
-
-    public BassStream OutputStream
-    {
-      get { return _BassStream; }
-    }
-
-    #endregion
-
-    #region IDisposable Members
-
-    public void Dispose()
-    {
-      if (_BassStream != null)
-        _BassStream.Dispose();
-    }
-
-    #endregion
-
-    #region Private members
-
-    private BassFsCDTrackInputSource(string cdTrackFilePath)
-    {
-      _cdTrackFilePath = cdTrackFilePath;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
-      Log.Debug("BassCDTrackInputSource.Initialize()");
-
-      const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
-
-      int handle = BassCd.BASS_CD_StreamCreateFile(_cdTrackFilePath, flags);
-
-      if (handle == BassConstants.BassInvalidHandle)
-        throw new BassLibraryException("BASS_CD_StreamCreateFile");
-
-      _BassStream = BassStream.Create(handle);
-    }
-
-    #endregion
-
-    public override string ToString()
-    {
-      return GetType().Name + ": " + _cdTrackFilePath;
+      if (string.IsNullOrEmpty(cdTrackFilePath) || cdTrackFilePath.Length != 14)
+        throw new ArgumentException(string.Format("Given file path '{0}' is no audio CD file path of the form 'D:\\Track03.cda'", cdTrackFilePath));
+      char drive = char.ToUpper(cdTrackFilePath[0]);
+      byte trackNo = byte.Parse(cdTrackFilePath.Substring(8, 2));
+      return BassCDTrackInputSource.Create(drive, trackNo);
     }
   }
 }

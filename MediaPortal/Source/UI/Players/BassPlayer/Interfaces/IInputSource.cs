@@ -40,5 +40,12 @@ namespace Ui.Players.BassPlayer.Interfaces
     /// Gets the output Bass stream.
     /// </summary>
     BassStream OutputStream { get; }
+
+    /// <summary>
+    /// Gets the length of this input source. For CD track input sources, the output stream will be lazily initialized
+    /// and requesting the output stream from a CD track input source which isn't currently playing via property <see cref="OutputStream"/>
+    /// will interfere with the current CD playback.
+    /// </summary>
+    TimeSpan Length { get; }
   }
 }

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
@@ -330,6 +331,19 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
         // Nothing could be read from old input source. Second try: Next input source.
         IInputSource newInputSource = _playbackProcessor.PeekNextInputSource();
+
+        // Special treatment for CD drives: If the new input source is from the same audio CD drive, we must take the stream over
+        BassCDTrackInputSource bcdtisOld = inputSource as BassCDTrackInputSource;
+        BassCDTrackInputSource bcdtisNew = newInputSource as BassCDTrackInputSource;
+        if (bcdtisOld != null && bcdtisNew != null)
+        {
+          if (bcdtisOld.SwitchTo(bcdtisNew))
+          {
+            _currentInputSource = bcdtisNew;
+            return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
+          }
+        }
+
         lock (_syncObj)
         {
           _currentInputSource = null;
@@ -353,15 +367,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           _currentInputSource = newInputSource;
           _state = SessionState.Playing;
         }
-        stream = newInputSource.OutputStream;
-        read = stream.Read(buffer, requestedBytes);
 
-        if (read > 0)
-          return read;
-
-        // No chance: The old stream ended and the new stream doesn't work
-        _state = SessionState.Ended;
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
+        // Next try
+        return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
       }
       catch (Exception)
       {

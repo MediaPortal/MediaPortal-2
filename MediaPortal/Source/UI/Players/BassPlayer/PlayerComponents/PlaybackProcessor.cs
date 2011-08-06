@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 
@@ -120,8 +121,22 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       IInputSource inputSource = PeekNextInputSource();
 
       if (_playbackSession != null)
+      {
+        BassCDTrackInputSource bcdtisNew = inputSource as BassCDTrackInputSource;
+        IInputSource currentInputSource = _playbackSession.CurrentInputSource;
+        BassCDTrackInputSource bcdtisOld = currentInputSource as BassCDTrackInputSource;
+        if (bcdtisOld != null && bcdtisNew != null)
+        {
+          // Special treatment for CD drives: If the new input source is from the same audio CD drive, we must take the stream over
+          if (bcdtisOld.SwitchTo(bcdtisNew))
+          {
+            DequeueNextInputSource(); // Remove from queue
+            return;
+          }
+        }
         // TODO: Trigger crossfading if CF is configured
         _playbackSession.End(_internalState == InternalPlaybackState.Playing); // Only wait for fade out when we are playing
+      }
 
       _internalState = InternalPlaybackState.Playing;
       if (inputSource == null)
@@ -133,7 +148,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         if (_playbackSession.InitializeWithNewInputSource(inputSource))
         {
           _playbackSession.Play();
-          DequeueNextInputSource();
+          DequeueNextInputSource(); // Remove from queue
           return;
         }
         _playbackSession.Dispose();

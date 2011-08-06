@@ -53,7 +53,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     #region Public members
 
     /// <summary>
-    /// Creates an IInputSource object for a given mediaitem.
+    /// Creates an <see cref="IInputSource"/> object for a given mediaitem.
     /// </summary>
     /// <param name="resourceLocator">Locator instance to the media item to create the input source for.</param>
     /// <param name="mimeType">Mime type of the media item, if present. May be <c>null</c>.</param>

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using Ui.Players.BassPlayer.Interfaces;
@@ -67,6 +68,11 @@ namespace Ui.Players.BassPlayer.InputSources
     public BassStream OutputStream
     {
       get { return _BassStream; }
+    }
+
+    public TimeSpan Length
+    {
+      get { return _BassStream.Length; }
     }
 
     #endregion
