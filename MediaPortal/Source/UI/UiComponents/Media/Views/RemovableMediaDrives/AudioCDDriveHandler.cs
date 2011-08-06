@@ -57,7 +57,16 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     protected AudioCDDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> tracks) : base(driveInfo)
     {
-      _audioCDSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, new Guid[] {}, new Guid[] {});
+      string volumeLabel;
+      try
+      {
+        volumeLabel = driveInfo.VolumeLabel;
+      }
+      catch (Exception)
+      {
+        volumeLabel = "Audio CD";
+      }
+      _audioCDSubViewSpecification = new StaticViewSpecification(volumeLabel, new Guid[] {}, new Guid[] {});
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
