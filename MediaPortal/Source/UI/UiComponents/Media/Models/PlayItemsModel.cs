@@ -345,8 +345,6 @@ namespace MediaPortal.UiComponents.Media.Models
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_CHECK_QUERY_PLAYACTION_SINGLE_ITEM, true);
     }
 
-    delegate void AsyncDelegate();
-
     protected void CheckPlayMenuInternal(GetMediaItemsDlgt getMediaItemsFunction, AVType avType)
     {
       IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
@@ -354,12 +352,12 @@ namespace MediaPortal.UiComponents.Media.Models
       if (numOpen == 0)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        AsyncDelegate ad = () =>
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+        threadPool.Add(() =>
           {
             LeaveCheckQueryPlayActionMultipleItemsState();
             PlayItems(getMediaItemsFunction, avType);
-          };
-        ad.BeginInvoke(null, null);
+          });
         return;
       }
       _playMenuItems = new ItemsList();
@@ -472,12 +470,12 @@ namespace MediaPortal.UiComponents.Media.Models
       if (numOpen == 0)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        AsyncDelegate ad = () =>
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+        threadPool.Add(() =>
           {
             LeaveCheckQueryPlayActionSingleItemState();
             PlayItem(item);
-          };
-        ad.BeginInvoke(null, null);
+          });
         return;
       }
       _playMenuItems = new ItemsList();
