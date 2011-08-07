@@ -78,6 +78,14 @@ namespace Ui.Players.BassPlayer.InputSources
       get { return _trackNo; }
     }
 
+    /// <summary>
+    /// Number of the audio CD track of this input source. The first track has the number 0.
+    /// </summary>
+    public int BassTrackNo
+    {
+      get { return (int) _trackNo - 1; }
+    }
+
     public bool IsInitialized
     {
       get { return _BassStream != null; }
@@ -90,7 +98,7 @@ namespace Ui.Players.BassPlayer.InputSources
         return false;
 
       BassStream stream = _BassStream;
-      if (stream != null && BassCd.BASS_CD_StreamSetTrack(stream.Handle, (int) other.TrackNo))
+      if (stream != null && BassCd.BASS_CD_StreamSetTrack(stream.Handle, other.BassTrackNo))
       {
         _trackNo = other.TrackNo;
         other.Dispose();
@@ -141,7 +149,7 @@ namespace Ui.Players.BassPlayer.InputSources
     {
       _drive = drive;
       _trackNo = trackNo;
-      _length = TimeSpan.FromSeconds(BassCd.BASS_CD_GetTrackLength(drive, (int) trackNo));
+      _length = TimeSpan.FromSeconds(BassCd.BASS_CD_GetTrackLength(drive, BassTrackNo));
     }
 
     /// <summary>
@@ -156,7 +164,7 @@ namespace Ui.Players.BassPlayer.InputSources
       const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
       int bassDrive = BassUtils.Drive2BassID(_drive);
-      int handle = BassCd.BASS_CD_StreamCreate(bassDrive, (int) _trackNo, flags);
+      int handle = BassCd.BASS_CD_StreamCreate(bassDrive, BassTrackNo, flags);
 
       if (handle == 0)
       {

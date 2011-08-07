@@ -153,7 +153,7 @@ namespace MediaPortal.Extensions.BassLibraries
         if (toc == null)
           return null;
         IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
-        int trackNo = 0;
+        int trackNo = 0; // BASS starts to count at track 0
         // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
         // It seems that this algorithm returns the correct number of audio tracks.
         foreach (BASS_CD_TOC_TRACK track in toc.tracks)
