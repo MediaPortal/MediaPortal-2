@@ -363,100 +363,106 @@ namespace MediaPortal.UiComponents.Media.Models
       _playMenuItems = new ItemsList();
       int numAudio = pcm.NumPlayerContextsOfType(AVType.Audio);
       int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
-      if (avType == AVType.Audio)
+      switch (avType)
       {
-        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEMS)
+        case AVType.Audio:
           {
-              Command = new MethodDelegateCommand(() =>
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEMS)
+              {
+                  Command = new MethodDelegateCommand(() =>
+                    {
+                      LeaveCheckQueryPlayActionMultipleItemsState();
+                      PlayItems(getMediaItemsFunction, avType);
+                    })
+              };
+            _playMenuItems.Add(playItem);
+            if (numAudio > 0)
+            {
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEMS)
                 {
-                  LeaveCheckQueryPlayActionMultipleItemsState();
-                  PlayItems(getMediaItemsFunction, avType);
-                })
-          };
-        _playMenuItems.Add(playItem);
-        if (numAudio > 0)
-        {
-          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEMS)
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionMultipleItemsState();
+                        PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
+                      })
+                };
+              _playMenuItems.Add(enqueueItem);
+            }
+            if (numVideo > 0)
             {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionMultipleItemsState();
-                    PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
-                  })
-            };
-          _playMenuItems.Add(enqueueItem);
-        }
-        if (numVideo > 0)
-        {
-          ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEMS)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionMultipleItemsState();
-                    PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
-                  })
-            };
-          _playMenuItems.Add(playItemConcurrently);
-        }
-      }
-      else if (avType == AVType.Video)
-      {
-        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS)
-          {
-              Command = new MethodDelegateCommand(() =>
+              ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEMS)
                 {
-                  LeaveCheckQueryPlayActionMultipleItemsState();
-                  PlayItems(getMediaItemsFunction, avType);
-                })
-          };
-        _playMenuItems.Add(playItem);
-        if (numVideo > 0)
-        {
-          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEMS)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionMultipleItemsState();
-                    PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
-                  })
-            };
-          _playMenuItems.Add(enqueueItem);
-        }
-        if (numAudio > 0)
-        {
-          ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionMultipleItemsState();
-                    PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio);
-                  })
-            };
-          _playMenuItems.Add(playItem_A);
-        }
-        if (numVideo > 0)
-        {
-          ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_PIP)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionMultipleItemsState();
-                    PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
-                  })
-            };
-          _playMenuItems.Add(playItem_V);
-        }
-      }
-      else
-      {
-        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-        Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT,
-            DialogType.OkDialog, false, DialogButtonType.Ok);
-        _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionMultipleItemsState();
+                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                      })
+                };
+              _playMenuItems.Add(playItemConcurrently);
+            }
+          }
+          break;
+        case AVType.Video:
           {
-            LeaveCheckQueryPlayActionMultipleItemsState();
-            return true;
-          });
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS)
+              {
+                  Command = new MethodDelegateCommand(() =>
+                    {
+                      LeaveCheckQueryPlayActionMultipleItemsState();
+                      PlayItems(getMediaItemsFunction, avType);
+                    })
+              };
+            _playMenuItems.Add(playItem);
+            if (numVideo > 0)
+            {
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEMS)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionMultipleItemsState();
+                        PlayOrEnqueueItems(getMediaItemsFunction, avType, false, PlayerContextConcurrencyMode.None);
+                      })
+                };
+              _playMenuItems.Add(enqueueItem);
+            }
+            if (numAudio > 0)
+            {
+              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_MUTED_CONCURRENT_AUDIO)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionMultipleItemsState();
+                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentAudio);
+                      })
+                };
+              _playMenuItems.Add(playItem_A);
+            }
+            if (numVideo > 0)
+            {
+              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEMS_PIP)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionMultipleItemsState();
+                        PlayOrEnqueueItems(getMediaItemsFunction, avType, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                      })
+                };
+              _playMenuItems.Add(playItem_V);
+            }
+          }
+          break;
+        default:
+          {
+            IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+            Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEMS_DIALOG_TEXT,
+                DialogType.OkDialog, false, DialogButtonType.Ok);
+            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
+              {
+                LeaveCheckQueryPlayActionMultipleItemsState();
+                return true;
+              });
+          }
+          break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG, (dialogName, dialogInstanceId) =>
@@ -482,100 +488,106 @@ namespace MediaPortal.UiComponents.Media.Models
       AVType avType = pcm.GetTypeOfMediaItem(item);
       int numAudio = pcm.NumPlayerContextsOfType(AVType.Audio);
       int numVideo = pcm.NumPlayerContextsOfType(AVType.Video);
-      if (avType == AVType.Audio)
+      switch (avType)
       {
-        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEM)
+        case AVType.Audio:
           {
-              Command = new MethodDelegateCommand(() =>
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_AUDIO_ITEM)
+              {
+                  Command = new MethodDelegateCommand(() =>
+                    {
+                      LeaveCheckQueryPlayActionSingleItemState();
+                      PlayItem(item);
+                    })
+              };
+            _playMenuItems.Add(playItem);
+            if (numAudio > 0)
+            {
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEM)
                 {
-                  LeaveCheckQueryPlayActionSingleItemState();
-                  PlayItem(item);
-                })
-          };
-        _playMenuItems.Add(playItem);
-        if (numAudio > 0)
-        {
-          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_AUDIO_ITEM)
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionSingleItemState();
+                        PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
+                      })
+                };
+              _playMenuItems.Add(enqueueItem);
+            }
+            if (numVideo > 0)
             {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionSingleItemState();
-                    PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
-                  })
-            };
-          _playMenuItems.Add(enqueueItem);
-        }
-        if (numVideo > 0)
-        {
-          ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEM)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionSingleItemState();
-                    PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
-                  })
-            };
-          _playMenuItems.Add(playItemConcurrently);
-        }
-      }
-      else if (avType == AVType.Video)
-      {
-        ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM)
-          {
-              Command = new MethodDelegateCommand(() =>
+              ListItem playItemConcurrently = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_VIDEO_PLAY_AUDIO_ITEM)
                 {
-                  LeaveCheckQueryPlayActionSingleItemState();
-                  PlayItem(item);
-                })
-          };
-        _playMenuItems.Add(playItem);
-        if (numVideo > 0)
-        {
-          ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEM)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionSingleItemState();
-                    PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
-                  })
-            };
-          _playMenuItems.Add(enqueueItem);
-        }
-        if (numAudio > 0)
-        {
-          ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionSingleItemState();
-                    PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio);
-                  })
-            };
-          _playMenuItems.Add(playItem_A);
-        }
-        if (numVideo > 0)
-        {
-          ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_PIP)
-            {
-                Command = new MethodDelegateCommand(() =>
-                  {
-                    LeaveCheckQueryPlayActionSingleItemState();
-                    PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
-                  })
-            };
-          _playMenuItems.Add(playItem_V);
-        }
-      }
-      else
-      {
-        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-        Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEM_DIALOG_TEXT,
-            DialogType.OkDialog, false, DialogButtonType.Ok);
-        _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionSingleItemState();
+                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                      })
+                };
+              _playMenuItems.Add(playItemConcurrently);
+            }
+          }
+          break;
+        case AVType.Video:
           {
-            LeaveCheckQueryPlayActionSingleItemState();
-            return true;
-          });
+            ListItem playItem = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM)
+              {
+                  Command = new MethodDelegateCommand(() =>
+                    {
+                      LeaveCheckQueryPlayActionSingleItemState();
+                      PlayItem(item);
+                    })
+              };
+            _playMenuItems.Add(playItem);
+            if (numVideo > 0)
+            {
+              ListItem enqueueItem = new ListItem(Consts.KEY_NAME, Consts.RES_ENQUEUE_VIDEO_ITEM)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionSingleItemState();
+                        PlayOrEnqueueItem(item, false, PlayerContextConcurrencyMode.None);
+                      })
+                };
+              _playMenuItems.Add(enqueueItem);
+            }
+            if (numAudio > 0)
+            {
+              ListItem playItem_A = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionSingleItemState();
+                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentAudio);
+                      })
+                };
+              _playMenuItems.Add(playItem_A);
+            }
+            if (numVideo > 0)
+            {
+              ListItem playItem_V = new ListItem(Consts.KEY_NAME, Consts.RES_PLAY_VIDEO_ITEM_PIP)
+                {
+                    Command = new MethodDelegateCommand(() =>
+                      {
+                        LeaveCheckQueryPlayActionSingleItemState();
+                        PlayOrEnqueueItem(item, true, PlayerContextConcurrencyMode.ConcurrentVideo);
+                      })
+                };
+              _playMenuItems.Add(playItem_V);
+            }
+          }
+          break;
+        default:
+          {
+            IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+            Guid dialogHandleId = dialogManager.ShowDialog(Consts.RES_SYSTEM_INFORMATION, Consts.RES_CANNOT_PLAY_ITEM_DIALOG_TEXT,
+                DialogType.OkDialog, false, DialogButtonType.Ok);
+            _dialogCloseWatcher = new DialogCloseWatcher(this, dialogHandleId, dialogResult =>
+              {
+                LeaveCheckQueryPlayActionSingleItemState();
+                return true;
+              });
+          }
+          break;
       }
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.SCREEN_PLAY_MENU_DIALOG, (dialogName, dialogInstanceId) =>
