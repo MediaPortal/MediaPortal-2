@@ -27,7 +27,7 @@ using System.Collections.Generic;
 namespace MediaPortal.Core.TaskScheduler
 {
   /// <summary>
-  /// Public representation of the global <see cref="TaskScheduler"/>.
+  /// Public representation of the task scheduler service.
   /// The task scheduler simplifies generating events at a particular time schedule. It sends out a message
   /// as soon as a task is due on the message queue of name <see cref="TaskSchedulerMessaging.CHANNEL"/>. It sends out a
   /// message of message type <see cref="TaskSchedulerMessaging.MessageType.DUE"/> with the particular <see cref="Task"/>
@@ -35,6 +35,8 @@ namespace MediaPortal.Core.TaskScheduler
   /// Listeners then can act on the generate message to perform time or interval based tasks.
   /// </summary>
   /// <remarks>
+  /// This is a high-level interface compared to the <see cref="Threading.IThreadPool"/> service, which provides the low-level threads.
+  /// Use this service to manage <see cref="Task">Task instances</see> which have a lifetime and other scheduling options.
   /// The counting of the task id starts with <c>0</c>, i.e. <c>-1</c> can be used as an invalid task id.
   /// </remarks>
   public interface ITaskScheduler
