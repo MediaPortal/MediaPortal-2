@@ -57,7 +57,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     private readonly char _drive;
     private uint _trackNo;
-    private readonly TimeSpan _length;
+    private TimeSpan _length;
     private BassStream _BassStream = null;
 
     #endregion
@@ -93,17 +93,20 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public bool SwitchTo(BassCDTrackInputSource other)
     {
-      Log.Debug("BassCDTrackInputSource.SwitchTo()");
       if (other.Drive != _drive)
         return false;
 
       BassStream stream = _BassStream;
       if (stream != null && BassCd.BASS_CD_StreamSetTrack(stream.Handle, other.BassTrackNo))
       {
-        _trackNo = other.TrackNo;
+        Log.Debug("BassCDTrackInputSource: Simply switched the current track to drive '{0}', track {1}", other.Drive, other.TrackNo);
+        _trackNo = other._trackNo;
+        _length = other._length;
+        stream.UpdateLocalFields();
         other.Dispose();
         return true;
       }
+      Log.Debug("BassCDTrackInputSource: Could not simply switch the current track to drive '{0}', track {1}", other.Drive, other.TrackNo);
       return false;
     }
 

@@ -90,12 +90,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public bool IsPassThrough
     {
-      get
-      {
-        return
-            StreamContentType != StreamContentType.PCM &&
-            StreamContentType != StreamContentType.Unknown;
-      }
+      get { return StreamContentType != StreamContentType.PCM && StreamContentType != StreamContentType.Unknown; }
     }
 
     /// <summary>
@@ -111,10 +106,7 @@ namespace Ui.Players.BassPlayer
     /// </summary>
     public StreamContentType StreamContentType
     {
-      get
-      {
-        return _StreamContentType;
-      }
+      get { return _StreamContentType; }
     }
 
     /// <summary>
@@ -273,6 +265,19 @@ namespace Ui.Players.BassPlayer
         SeekNextFrame(syncWord);
     }
 
+    /// <summary>
+    /// Updates locally cached fields.
+    /// </summary>
+    /// <remarks>
+    /// Actually, this method could/should be private but in case the stream is a CD track stream and that track is switched
+    /// from outside to another track, we need a means to update our internal data from outside.
+    /// </remarks>
+    public void UpdateLocalFields()
+    {
+      _Length = GetLength();
+      _SampleLength = GetSampleLength();
+    }
+
     #endregion
 
     #region Private members
@@ -303,10 +308,9 @@ namespace Ui.Players.BassPlayer
       {
         Log.Info("Stream info: {0}", _Info.ToString());
 
-        _Length = GetLength();
-        _SampleLength = GetSampleLength();
-
+        UpdateLocalFields();
         _StreamContentType = GetStreamContentType();
+
         Log.Info("Stream content: {0}", _StreamContentType);
       }
     }
@@ -430,50 +434,46 @@ namespace Ui.Players.BassPlayer
       int frameCount = 0;
 
       bool result = false;
-      bool endOfStream = false;
       int sampleIndex = 0;
       int maxSampleIndex = (syncWord.MaxFrameSize / bytesPerWord) * framesToCheck + syncWord.WordLength;
 
-      while (!result && !endOfStream && sampleIndex < maxSampleIndex)
+      while (!result && sampleIndex < maxSampleIndex)
       {
         int bytesRead = Bass.BASS_ChannelGetData(_Handle, readBuffer, readBuffer.Length * bytesPerSample);
-        endOfStream = bytesRead <= 0;
-        if (!endOfStream)
+        if (bytesRead <= 0)
+          // End of stream
+          break;
+        int samplesRead = bytesRead / bytesPerSample;
+        int readSample = 0;
+        while (!result && readSample < samplesRead)
         {
-          int samplesRead = bytesRead / bytesPerSample;
-          int readSample = 0;
-          while (!result && readSample < samplesRead)
+          // Convert float value to word
+          UInt16 word = (UInt16)(readBuffer[readSample] * 32768);
+
+          // Add word to fifo buffer
+          syncFifoBuffer.Write(word);
+
+          // Check Sync word
+          if (syncFifoBuffer.IsMatch())
           {
-            // Convert float value to word
-            UInt16 word = (UInt16)(readBuffer[readSample] * 32768);
-
-            // Add word to fifo buffer
-            syncFifoBuffer.Write(word);
-
-            // Check Sync word
-            if (syncFifoBuffer.IsMatch())
+            int newSyncWordPosition = (sampleIndex - syncWord.WordLength + 1) * bytesPerWord;
+            if (lastSyncWordPosition != -1)
             {
-              int newSyncWordPosition = (sampleIndex - syncWord.WordLength + 1) * bytesPerWord;
-              if (lastSyncWordPosition != -1)
+              int thisFrameSize = newSyncWordPosition - lastSyncWordPosition;
+              if (lastFrameSize != -1)
               {
-                int thisFrameSize = newSyncWordPosition - lastSyncWordPosition;
-                if (lastFrameSize != -1)
-                {
-                  if (thisFrameSize != lastFrameSize)
-                    break;
-                }
-                lastFrameSize = thisFrameSize;
-                frameCount++;
+                if (thisFrameSize != lastFrameSize)
+                  break;
               }
-              lastSyncWordPosition = newSyncWordPosition;
-              result = (frameCount == framesToCheck);
+              lastFrameSize = thisFrameSize;
+              frameCount++;
             }
-            sampleIndex++;
-            readSample++;
+            lastSyncWordPosition = newSyncWordPosition;
+            result = (frameCount == framesToCheck);
           }
+          sampleIndex++;
+          readSample++;
         }
-        else
-          endOfStream = true;
       }
 
       if (streamLength > 0)
@@ -502,37 +502,35 @@ namespace Ui.Players.BassPlayer
       float[] readBuffer = new float[channelCount];
 
       bool success = false;
-      bool endOfStream = false;
       int sampleIndex = 0;
       int maxSampleIndex = (syncWord.MaxFrameSize / bytesPerWord) + syncWord.WordLength;
 
-      while (!success && !endOfStream && sampleIndex < maxSampleIndex)
+      while (!success && sampleIndex < maxSampleIndex)
       {
         // For float streams we get one float value for each 16bit word
         int bytesRead = Bass.BASS_ChannelGetData(_Handle, readBuffer, readBuffer.Length * bytesPerSample);
-        endOfStream = bytesRead <= 0;
-        if (!endOfStream)
+        if (bytesRead <= 0)
+          // End of stream
+          break;
+        int samplesRead = bytesRead / bytesPerSample;
+        int readSample = 0;
+        while (!success && readSample < samplesRead)
         {
-          int samplesRead = bytesRead / bytesPerSample;
-          int readSample = 0;
-          while (!success && readSample < samplesRead)
+          // Convert float value to word
+          UInt16 word = (UInt16)(readBuffer[readSample] * 32768);
+
+          // Add word to fifo buffer
+          syncFifoBuffer.Write(word);
+
+          // Check Sync word
+          if (syncFifoBuffer.IsMatch())
           {
-            // Convert float value to word
-            UInt16 word = (UInt16)(readBuffer[readSample] * 32768);
-
-            // Add word to fifo buffer
-            syncFifoBuffer.Write(word);
-
-            // Check Sync word
-            if (syncFifoBuffer.IsMatch())
-            {
-              long pos = currentPosition + (sampleIndex - syncWord.WordLength + 1) * bytesPerWord;
-              Bass.BASS_ChannelSetPosition(_Handle, pos);
-              success = true;
-            }
-            sampleIndex++;
-            readSample++;
+            long pos = currentPosition + (sampleIndex - syncWord.WordLength + 1) * bytesPerWord;
+            Bass.BASS_ChannelSetPosition(_Handle, pos);
+            success = true;
           }
+          sampleIndex++;
+          readSample++;
         }
       }
 

@@ -130,6 +130,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           // Special treatment for CD drives: If the new input source is from the same audio CD drive, we must take the stream over
           if (bcdtisOld.SwitchTo(bcdtisNew))
           {
+            _playbackSession.IsAwaitingNextInputSource = false;
             DequeueNextInputSource(); // Remove from queue
             return;
           }
@@ -183,7 +184,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     protected void NextInputSourceAvailable_Sync()
     {
       PlaybackSession session = _playbackSession;
-      if (session != null && session.State == SessionState.AwaitingNextInputSource)
+      if (session != null && session.IsAwaitingNextInputSource)
         // In this case, the session will automatically switch to the new item
         return;
       if (session == null || session.State == SessionState.Ended)

@@ -35,7 +35,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     Reset,
     Initialized,
     Playing,
-    AwaitingNextInputSource,
     Ended
   }
 
@@ -46,6 +45,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// TODO: Crossfading
   public class PlaybackSession : IDisposable
   {
+    #region Consts
+
+    public static TimeSpan REQUEST_NEXT_ITEM_THRESHOLD = new TimeSpan(0, 0, 0, 0, 500);
+
+    #endregion
+
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -55,7 +60,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     protected readonly int _sampleRate;
     protected readonly bool _isPassThrough;
 
-    protected volatile SessionState _state;
+    protected SessionState _state;
+    protected bool _isAwaitingNextInputSource = false;
     protected volatile IInputSource _currentInputSource = null;
     protected volatile BassStream _outputStream;
     protected PlaybackBuffer _playbackBuffer;
@@ -179,6 +185,20 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       {
         lock (_syncObj)
           return _state;
+      }
+    }
+
+    public bool IsAwaitingNextInputSource
+    {
+      get
+      {
+        lock (_syncObj)
+          return _isAwaitingNextInputSource;
+      }
+      set
+      {
+        lock (_syncObj)
+          _isAwaitingNextInputSource = value;
       }
     }
 
@@ -317,9 +337,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
         bool doCheckNextInputSource = false;
         lock (_syncObj)
-          if (_state == SessionState.Playing && stream.GetPosition() > stream.Length - new TimeSpan(0, 0, 0, 0, 500))
+          if (!_isAwaitingNextInputSource && stream.GetPosition() > stream.Length.Subtract(REQUEST_NEXT_ITEM_THRESHOLD))
           { // Near end of the stream - make sure that next input source is available
-            _state = SessionState.AwaitingNextInputSource;
+            _isAwaitingNextInputSource = true;
             doCheckNextInputSource = true;
           }
         if (doCheckNextInputSource)
@@ -328,6 +348,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         if (read > 0)
           // Normal case, we have finished
           return read;
+
+        // Old buffer ran out of samples - either we can get another valid input source below or we are finished. End wait state.
+        _isAwaitingNextInputSource = false;
 
         // Nothing could be read from old input source. Second try: Next input source.
         IInputSource newInputSource = _playbackProcessor.PeekNextInputSource();
@@ -339,7 +362,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         {
           if (bcdtisOld.SwitchTo(bcdtisNew))
           {
-            _currentInputSource = bcdtisNew;
+            _playbackProcessor.DequeueNextInputSource();
             return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
           }
         }
