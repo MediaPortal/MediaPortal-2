@@ -37,7 +37,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <para>
   /// This playback processor class maintains a queue of input sources to be played and a current playback session.
   /// Input sources with the same number of channels and the same samplerate are compatible, which means that the same
-  /// playback session instance can play and crossfade them.
+  /// playback session instance can play them and crossfade between them.
   /// </para>
   /// <para>
   /// The playback session will automatically move to the next input source, if it is compatible.
@@ -45,11 +45,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <para>
   /// If the next input source is not compatible with the current playback session, the current session will notify
   /// its containing <see cref="PlaybackProcessor"/> which then will switch to a new playback session.
-  /// </para>
-  /// <para>
-  /// A sequence number is maintained to avoid multiple threads to concurrently change the played item. If we don't maintain
-  /// the sequence number, a change to the next item might interfere with the output device's stream end detection, for example
-  /// when tracks from an audio CD are played.
   /// </para>
   /// </remarks>
   public class PlaybackProcessor : IDisposable
