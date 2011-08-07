@@ -1644,8 +1644,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
 
-      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
-          bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height, 
+      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
+          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height,
           zPos, color);
 
       OpacityMask.SetupBrush(this, ref verts, zPos, false);
