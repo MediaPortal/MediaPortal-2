@@ -33,6 +33,7 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.SystemResolver;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -70,7 +71,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     protected MultimediaDriveHandler(DriveInfo driveInfo, IEnumerable<MediaItem> mediaItems, MultiMediaType mediaType) : base(driveInfo)
     {
       _mediaType = mediaType;
-      _mediaItemsSubViewSpecification = new StaticViewSpecification(driveInfo.VolumeLabel, new Guid[] {}, new Guid[] {});
+      _mediaItemsSubViewSpecification = new StaticViewSpecification(
+          driveInfo.VolumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")", new Guid[] {}, new Guid[] {});
       foreach (MediaItem item in mediaItems)
         _mediaItemsSubViewSpecification.AddMediaItem(item);
     }

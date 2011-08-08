@@ -34,6 +34,7 @@ using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider;
 using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -66,7 +67,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       {
         volumeLabel = "Audio CD";
       }
-      _audioCDSubViewSpecification = new StaticViewSpecification(volumeLabel, new Guid[] {}, new Guid[] {});
+      _audioCDSubViewSpecification = new StaticViewSpecification(
+          volumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")", new Guid[] {}, new Guid[] {});
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
