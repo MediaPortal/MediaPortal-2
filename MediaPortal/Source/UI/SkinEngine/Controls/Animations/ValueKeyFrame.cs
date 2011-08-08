@@ -29,12 +29,12 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public abstract class ValueKeyFrame<T>: DependencyObject, IKeyFrame
+  public abstract class ValueKeyFrame<T>: DependencyObject
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _keyTimeProperty;
-    AbstractProperty _keyValueProperty;
+    protected AbstractProperty _keyTimeProperty;
+    protected AbstractProperty _keyValueProperty;
 
     #endregion
 
@@ -56,10 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       base.DeepCopy(source, copyManager);
       ValueKeyFrame<T> kf = (ValueKeyFrame<T>) source;
       KeyTime = kf.KeyTime;
-      if (typeof(T).IsPrimitive)
-        Value = kf.Value;
-      else
-        Value = copyManager.GetCopy(kf.Value);
+      Value = typeof(T).IsPrimitive ? kf.Value : copyManager.GetCopy(kf.Value);
     }
 
     #endregion
@@ -82,20 +79,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _keyValueProperty.SetValue(value); }
     }
 
-    #endregion
-
-    #region IKeyFrame implementation
-
     public TimeSpan KeyTime
     {
       get { return (TimeSpan)_keyTimeProperty.GetValue(); }
       set { _keyTimeProperty.SetValue(value); }
-    }
-
-    object IKeyFrame.Value
-    {
-      get { return this.Value; }
-      set { this.Value = (T) value; }
     }
 
     #endregion

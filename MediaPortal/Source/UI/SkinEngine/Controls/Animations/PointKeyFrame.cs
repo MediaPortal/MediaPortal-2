@@ -26,11 +26,11 @@ using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public class PointKeyFrame : ValueKeyFrame<Vector2>
+  public abstract class PointKeyFrame : ValueKeyFrame<Vector2>
   {
     #region Ctor
 
-    public PointKeyFrame()
+    protected PointKeyFrame()
     {
       Init();
     }
@@ -42,9 +42,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
-    public virtual Vector2 Interpolate(Vector2 start, double keyframe)
-    {
-      return start;
-    }
+    public abstract Vector2 Interpolate(Vector2 start, double keyframe);
   }
 }

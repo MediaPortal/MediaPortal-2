@@ -24,11 +24,11 @@
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public class DoubleKeyFrame : ValueKeyFrame<double>
+  public abstract class DoubleKeyFrame : ValueKeyFrame<double>
   {
     #region Ctor
 
-    public DoubleKeyFrame()
+    protected DoubleKeyFrame()
     {
       Init();
     }
@@ -40,9 +40,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
-    public virtual double Interpolate(double start, double keyframe)
-    {
-      return 0;
-    }
+    public abstract double Interpolate(double start, double keyframe);
   }
 }

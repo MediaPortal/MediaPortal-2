@@ -29,21 +29,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class KeySpline
   {
-    #region Private fields
+    #region Protected fields
 
-    private double _Bx;
-    private double _By;
-    private Vector2 _controlVector1;
-    private Vector2 _controlVector2;
-    private double _Cx;
-    private double _Cx_Bx;
-    private double _Cy;
-    private bool _isDirty;
-    private bool _isSpecified;
-    private double _parameter;
-    private double _three_Cx;
-    private const double accuracy = 0.001;
-    private const double fuzz = 1E-06;
+    protected double _Bx;
+    protected double _By;
+    protected Vector2 _controlVector1;
+    protected Vector2 _controlVector2;
+    protected double _Cx;
+    protected double _Cx_Bx;
+    protected double _Cy;
+    protected bool _isDirty;
+    protected bool _isSpecified;
+    protected double _parameter;
+    protected double _three_Cx;
+    protected const double accuracy = 0.001;
 
     #endregion
 
@@ -117,9 +116,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     }
 
 
-    private bool IsValidControlVector(Vector2 point)
+    private static bool IsValidControlVector(Vector2 point)
     {
-      return ((((point.X >= 0.0) && (point.X <= 1.0)) && (point.Y >= 0.0)) && (point.Y <= 1.0));
+      return (point.X >= 0.0 && point.X <= 1.0 && point.Y >= 0.0 && point.Y <= 1.0);
     }
 
     protected void OnChanged()
@@ -144,37 +143,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           GetXAndDx(_parameter, out num4, out num6);
           double num5 = Math.Abs(num6);
           if (num4 > time)
-          {
             num = _parameter;
-          }
           else
-          {
             num2 = _parameter;
-          }
-          if (Math.Abs((double)(num4 - time)) < (0.001 * num5))
-          {
+          if (Math.Abs(num4 - time) < 0.001 * num5)
             return;
-          }
           if (num5 > 1E-06)
           {
             double num3 = _parameter - ((num4 - time) / num6);
             if (num3 >= num)
-            {
               _parameter = (_parameter + num) / 2.0;
-            }
             else if (num3 <= num2)
-            {
               _parameter = (_parameter + num2) / 2.0;
-            }
             else
-            {
               _parameter = num3;
-            }
           }
           else
-          {
             _parameter = (num2 + num) / 2.0;
-          }
         }
       }
     }
@@ -188,12 +173,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _controlVector1; }
       set
       {
-        if (value != _controlVector1)
-        {
-          if (!IsValidControlVector(value))
-            throw new ArgumentException(string.Format("Invalid control vector 1 '{0}'", value == null ? "null" : value.ToString()));
-          _controlVector1 = value;
-        }
+        if (value == _controlVector1) return;
+        if (!IsValidControlVector(value))
+          throw new ArgumentException(string.Format("Invalid control vector 1 '{0}'", value));
+        _controlVector1 = value;
       }
     }
 
@@ -202,17 +185,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _controlVector2; }
       set
       {
-        if (value != _controlVector2)
-        {
-          if (!IsValidControlVector(value))
-            throw new ArgumentException(string.Format("Invalid control vector 2 '{0}'", value == null ? "null" : value.ToString()));
-          _controlVector2 = value;
-        }
+        if (value == _controlVector2) return;
+        if (!IsValidControlVector(value))
+          throw new ArgumentException(string.Format("Invalid control vector 2 '{0}'", value));
+        _controlVector2 = value;
       }
     }
 
     #endregion
-
   }
 }
 

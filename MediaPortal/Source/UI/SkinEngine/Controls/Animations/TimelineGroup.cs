@@ -36,9 +36,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   /// </summary>
   class TimelineGroupContext: TimelineContext, IList<TimelineContext>
   {
-    #region Protected properties
+    #region Protected fields
 
     protected IList<TimelineContext> _children = new List<TimelineContext>();
+
+    #endregion
+
+    #region Ctor
 
     public TimelineGroupContext(UIElement visualParent) : base(visualParent) { }
 

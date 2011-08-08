@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Linq;
+
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class ParallelTimeline: TimelineGroup
@@ -48,9 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (base.HasEnded(context))
         return true;
       TimelineGroupContext tgc = (TimelineGroupContext) context;
-      for (int i = 0; i < Children.Count; i++)
-        if (!Children[i].HasEnded(tgc[i])) return false;
-      return true;
+      return !Children.Where((t, i) => !t.HasEnded(tgc[i])).Any();
     }
   }
 }

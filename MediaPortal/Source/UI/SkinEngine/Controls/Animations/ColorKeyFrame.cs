@@ -26,11 +26,11 @@ using System.Drawing;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public class ColorKeyFrame : ValueKeyFrame<Color>
+  public abstract class ColorKeyFrame : ValueKeyFrame<Color>
   {
     #region Ctor
 
-    public ColorKeyFrame()
+    protected ColorKeyFrame()
     {
       Init();
     }
@@ -42,9 +42,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
-    public virtual Color Interpolate(Color start, double keyframe)
-    {
-      return start;
-    }
+    public abstract Color Interpolate(Color start, double keyframe);
   }
 }

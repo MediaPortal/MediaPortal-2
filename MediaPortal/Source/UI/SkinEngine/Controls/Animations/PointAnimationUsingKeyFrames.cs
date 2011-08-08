@@ -33,9 +33,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class PointAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<PointKeyFrame>
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _keyFramesProperty;
+    protected AbstractProperty _keyFramesProperty;
 
     #endregion
 
@@ -117,11 +117,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           }
           return;
         }
-        else
-        {
-          time = key.KeyTime.TotalMilliseconds;
-          start = key.Value;
-        }
+        time = key.KeyTime.TotalMilliseconds;
+        start = key.Value;
       }
     }
 

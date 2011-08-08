@@ -33,11 +33,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
   public class ColorAnimation : PropertyAnimationTimeline
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _fromProperty;
-    AbstractProperty _toProperty;
-    AbstractProperty _byProperty;
+    protected AbstractProperty _fromProperty;
+    protected AbstractProperty _toProperty;
+    protected AbstractProperty _byProperty;
 
     #endregion
 
