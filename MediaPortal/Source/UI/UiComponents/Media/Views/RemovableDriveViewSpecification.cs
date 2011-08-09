@@ -85,6 +85,11 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return true; }
     }
 
+    public DriveInfo Drive
+    {
+      get { return _driveInfo; }
+    }
+
     public override string ViewDisplayName
     {
       get
@@ -114,6 +119,11 @@ namespace MediaPortal.UiComponents.Media.Views
       UpdateRemovableDriveHandler();
       mediaItems = _removableDriveHandler.MediaItems;
       subViewSpecifications = _removableDriveHandler.SubViewSpecifications;
+    }
+
+    public override string ToString()
+    {
+      return _driveInfo.ToString();
     }
 
     #endregion

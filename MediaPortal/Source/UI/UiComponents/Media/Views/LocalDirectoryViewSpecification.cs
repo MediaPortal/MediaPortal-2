@@ -28,7 +28,6 @@ using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -131,7 +130,6 @@ namespace MediaPortal.UiComponents.Media.Views
       mediaItems = new List<MediaItem>();
       subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       IEnumerable<Guid> metadataExtractorIds = mediaAccessor.GetMetadataExtractorsForMIATypes(_necessaryMIATypeIds.Union(_optionalMIATypeIds));
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor();
       // Add all items at the specified path
@@ -139,7 +137,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (files != null)
         foreach (IFileSystemResourceAccessor childAccessor in files)
         {
-          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
           if (result != null)
             mediaItems.Add(result);
         }
@@ -147,7 +145,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (directories != null)
         foreach (IFileSystemResourceAccessor childAccessor in directories)
         {
-          MediaItem result = mediaAccessor.CreateMediaItem(systemResolver, childAccessor, metadataExtractorIds);
+          MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
           if (result == null)
             subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.LocalResourcePath,
               _necessaryMIATypeIds, _optionalMIATypeIds));

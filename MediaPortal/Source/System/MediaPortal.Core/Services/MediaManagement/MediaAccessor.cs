@@ -299,8 +299,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       foreach (IBaseMediaProvider mediaProvider in LocalBaseMediaProviders)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
-        Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.MediaProviderId, "/"),
-            metadata.Name, null);
+        Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.MediaProviderId, "/"), metadata.Name, null);
         result.Add(sd);
       }
       return result;
@@ -360,15 +359,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       return success ? result : null;
     }
 
-    public MediaItem CreateMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
+    public MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      return CreateMediaItem(systemResolver, mediaItemAccessor, metadataExtractorIds);
-    }
-
-    public MediaItem CreateMediaItem(ISystemResolver systemResolver,
-        IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
-    {
       const bool forceQuickMode = true;
       IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)

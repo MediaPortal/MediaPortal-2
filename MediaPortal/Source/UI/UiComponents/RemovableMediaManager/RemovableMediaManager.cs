@@ -110,14 +110,14 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
           Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_MUSIC_MIAS, Consts.NECESSARY_PICTURE_MIAS)) != null)
         switch (mcddh.MediaType)
         {
-          case MultimediaDriveHandler.MultiMediaType.Video:
-          case MultimediaDriveHandler.MultiMediaType.Image:
+          case MultiMediaType.Video:
+          case MultiMediaType.Image:
             PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Video);
             break;
-          case MultimediaDriveHandler.MultiMediaType.Audio:
+          case MultiMediaType.Audio:
             PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Audio);
             break;
-          case MultimediaDriveHandler.MultiMediaType.Diverse:
+          case MultiMediaType.Diverse:
             PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems());
             break;
         }

@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       ResourcePath rp = LocalFsMediaProviderBase.ToResourcePath(driveInfo.Name);
       using (IResourceAccessor ra = rp.CreateLocalResourceAccessor())
-        _mediaItem = mediaAccessor.CreateMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
+        _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
       MediaItemAspect mia = _mediaItem.Aspects[MediaAspect.ASPECT_ID];
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +
           " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")");

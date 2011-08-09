@@ -174,6 +174,7 @@
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
+    <Compile Include="General\MultimediaDirectory.cs" />
     <Compile Include="Views\AllSharesViewSpecification.cs" />
     <Compile Include="Views\AddedRemovableMediaViewSpecificationFacade.cs" />
     <Compile Include="Views\CombinedViewChangeNotificator.cs" />
