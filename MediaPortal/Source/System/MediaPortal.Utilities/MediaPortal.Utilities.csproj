@@ -65,7 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CdUtils.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="CommandLine\ArgumentParser.cs" />
@@ -99,8 +98,6 @@
     <Compile Include="Exceptions\Exceptions.cs" />
     <Compile Include="FileSystem\DriveUtils.cs" />
     <Compile Include="FileSystem\FileUtils.cs" />
-    <Compile Include="FileSystem\WindowsFilesystemPathComparer.cs" />
-    <Compile Include="FileSystem\WindowsFilesystemPathEqualityComparer.cs" />
     <Compile Include="Localization\StringsFile\StringFile.cs" />
     <Compile Include="Localization\StringsFile\StringLocalized.cs" />
     <Compile Include="Localization\StringsFile\StringSection.cs" />
