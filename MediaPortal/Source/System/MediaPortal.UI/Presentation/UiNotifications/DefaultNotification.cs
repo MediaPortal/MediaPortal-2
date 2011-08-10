@@ -85,5 +85,10 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     public void Enqueued() { }
 
     public void Dequeued() { }
+
+    public override string ToString()
+    {
+      return _title;
+    }
   }
 }
