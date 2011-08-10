@@ -27,9 +27,9 @@ using System;
 namespace MediaPortal.Core.Threading
 {
   /// <summary>
-  /// Default implementation of an <see cref="IWorkInterval"/>.
+  /// Default implementation of an <see cref="IIntervalWork"/>.
   /// </summary>
-  public class IntervalWork : Work, IWorkInterval
+  public class IntervalWork : Work, IIntervalWork
   {
     #region Variables
 
@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Threading
 
     #endregion
 
-    #region IWorkInterval implementation
+    #region IIntervalWork implementation
 
     public IWork Work
     {

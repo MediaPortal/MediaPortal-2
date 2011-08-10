@@ -88,19 +88,22 @@ namespace MediaPortal.UI
       AdditionalUiBuilders.Register();
     }
 
+    public static void Startup()
+    {
+      RegisterDefaultCommandShortcuts();
+      ServiceRegistration.Get<IServerConnectionManager>().Startup();
+      ServiceRegistration.Get<IFrontendServer>().Startup();
+      ServiceRegistration.Get<IRemovableMediaTracker>().Startup();
+      ServiceRegistration.Get<INotificationService>().Startup();
+    }
+
     public static void StopUiServices()
     {
-      IRemovableMediaTracker removableMediaTracker = ServiceRegistration.Get<IRemovableMediaTracker>();
-      removableMediaTracker.Shutdown();
-
-      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      serverConnectionManager.Shutdown();
-
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      playerContextManager.Shutdown();
-
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseAllSlots();
+      ServiceRegistration.Get<INotificationService>().Shutdown();
+      ServiceRegistration.Get<IRemovableMediaTracker>().Shutdown();
+      ServiceRegistration.Get<IServerConnectionManager>().Shutdown();
+      ServiceRegistration.Get<IPlayerContextManager>().Shutdown();
+      ServiceRegistration.Get<IPlayerManager>().CloseAllSlots();
     }
 
     public static void DisposeUiServices()
@@ -149,14 +152,6 @@ namespace MediaPortal.UI
     protected static void RegisterDefaultCommandShortcuts()
     {
       //TODO: Shortcut to handle the "Power" key, further shortcuts
-    }
-
-    public static void Startup()
-    {
-      RegisterDefaultCommandShortcuts();
-      ServiceRegistration.Get<IServerConnectionManager>().Startup();
-      ServiceRegistration.Get<IFrontendServer>().Startup();
-      ServiceRegistration.Get<IRemovableMediaTracker>().Startup();
     }
   }
 }

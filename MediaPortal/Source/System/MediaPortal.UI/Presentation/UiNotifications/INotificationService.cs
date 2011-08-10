@@ -79,6 +79,9 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     /// </summary>
     bool CheckForTimeouts { get; set; }
 
+    void Startup();
+    void Shutdown();
+
     /// <summary>
     /// Enqueues a new basic notification which is simply shown to the user and discarded.
     /// </summary>

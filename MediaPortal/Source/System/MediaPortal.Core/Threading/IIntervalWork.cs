@@ -26,7 +26,7 @@ using System;
 
 namespace MediaPortal.Core.Threading
 {
-  public interface IWorkInterval
+  public interface IIntervalWork
   {
     /// <summary>
     /// Work to perform at a specified interval

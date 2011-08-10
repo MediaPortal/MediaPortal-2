@@ -26,8 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.TaskScheduler;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.Utilities;
 
@@ -35,17 +34,10 @@ namespace MediaPortal.UI.Services.UiNotifications
 {
   public class NotificationService : IDisposable, INotificationService
   {
-    #region Classes
-
-    #endregion
-
     #region Consts
 
     public const int PENDING_NOTIFICATIONS_WARNING_THRESHOLD = 10;
     public const int MAX_NUM_PENDING_NOTIFICATIONS_THRESHOLD = 100;
-    public const int TASK_ID_INVALID = -1;
-
-    public const string STR_TASK_OWNER = "NotificationService";
 
     public static readonly TimeSpan TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS = TimeSpan.FromSeconds(10);
 
@@ -53,41 +45,23 @@ namespace MediaPortal.UI.Services.UiNotifications
 
     #region Protected fields
 
-    protected object _syncObj = new object();
+    protected readonly object _syncObj = new object();
     protected IList<INotification> _normalQueue = new List<INotification>();
     protected IList<INotification> _urgentQueue = new List<INotification>();
-    protected AsynchronousMessageQueue _messageQueue;
-    protected int _notificationTimeoutTaskId = TASK_ID_INVALID;
+    protected volatile bool _timeoutCheckSuspended = false;
+    protected IIntervalWork _checkTimeoutIntervalWork = null;
 
     #endregion
 
-    public NotificationService()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            TaskSchedulerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
     public void Dispose()
     {
-      _messageQueue.Shutdown();
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
-      {
-        if ((TaskSchedulerMessaging.MessageType) message.MessageType == TaskSchedulerMessaging.MessageType.DUE &&
-            ((Task) message.MessageData[TaskSchedulerMessaging.TASK]).ID == _notificationTimeoutTaskId)
-          CheckTimeouts();
-      }
+      CheckForTimeouts = false;
     }
 
     protected void CheckTimeouts()
     {
+      if (_timeoutCheckSuspended)
+        return;
       ICollection<INotification> notifications = new List<INotification>(_normalQueue);
       CollectionUtils.AddAll(notifications, _urgentQueue);
       DateTime now = DateTime.Now;
@@ -115,24 +89,25 @@ namespace MediaPortal.UI.Services.UiNotifications
 
     public bool CheckForTimeouts
     {
-      get { return _notificationTimeoutTaskId != TASK_ID_INVALID; }
-      set
-      {
-        ITaskScheduler taskScheduler = ServiceRegistration.Get<ITaskScheduler>();
-        if (value)
-        {
-          if (_notificationTimeoutTaskId != TASK_ID_INVALID)
-            return;
-          _notificationTimeoutTaskId = taskScheduler.AddTask(new Task(STR_TASK_OWNER, TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS));
-        }
-        else
-        {
-          if (_notificationTimeoutTaskId == TASK_ID_INVALID)
-            return;
-          taskScheduler.RemoveTask(_notificationTimeoutTaskId);
-          _notificationTimeoutTaskId = TASK_ID_INVALID;
-        }
-      }
+      get { return !_timeoutCheckSuspended; }
+      set { _timeoutCheckSuspended = !value; }
+    }
+
+    public void Startup()
+    {
+      if (_checkTimeoutIntervalWork != null)
+        return;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      _checkTimeoutIntervalWork = new IntervalWork(CheckTimeouts, TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS);
+      threadPool.AddIntervalWork(_checkTimeoutIntervalWork, true);
+    }
+
+    public void Shutdown()
+    {
+      if (_checkTimeoutIntervalWork == null)
+        return;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.RemoveIntervalWork(_checkTimeoutIntervalWork);
     }
 
     public INotification EnqueueNotification(NotificationType type, string title, string text, bool urgent)

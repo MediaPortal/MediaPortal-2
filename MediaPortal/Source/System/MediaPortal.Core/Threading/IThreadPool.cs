@@ -63,8 +63,8 @@ namespace MediaPortal.Core.Threading
 
     #region Methods to manage interval-based work
 
-    void AddIntervalWork(IWorkInterval intervalWork, bool runNow);
-    void RemoveIntervalWork(IWorkInterval intervalWork);
+    void AddIntervalWork(IIntervalWork intervalWork, bool runNow);
+    void RemoveIntervalWork(IIntervalWork intervalWork);
 
     #endregion
 
