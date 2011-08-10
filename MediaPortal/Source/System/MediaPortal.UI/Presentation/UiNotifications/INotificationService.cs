@@ -46,7 +46,7 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     NotificationType Type { get; }
     string Title { get; }
     string Text { get; }
-    DateTime? Timeout { get; }
+    DateTime? Timeout { get; set; }
     Guid? HandlerWorkflowState { get; }
     string CustomIconPath { get; }
 
@@ -82,6 +82,9 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     /// <summary>
     /// Enqueues a new basic notification which is simply shown to the user and discarded.
     /// </summary>
+    /// <remarks>
+    /// The <see cref="INotification.Timeout"/> of the returned <see cref="INotification"/> object may be modified by the caller.
+    /// </remarks>
     /// <param name="type">Type of the notification to enqueue. The type only determines how the notification is
     /// shown to the user.</param>
     /// <param name="title">The short title of the notification which is presented to the user.</param>
@@ -95,6 +98,9 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     /// which gives the user more information and maybe presents a
     /// sub workflow.
     /// </summary>
+    /// <remarks>
+    /// The <see cref="INotification.Timeout"/> of the returned <see cref="INotification"/> object may be modified by the caller.
+    /// </remarks>
     /// <param name="type">Type of the notification to enqueue. The type only determines how the notification is
     /// shown to the user.</param>
     /// <param name="title">The short title of the notification which is presented to the user.</param>
