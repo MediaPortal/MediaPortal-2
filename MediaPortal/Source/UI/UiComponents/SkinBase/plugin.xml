@@ -39,6 +39,7 @@
   <Register Location="/Services">
     <Service Id="ConnectionListenerService" RegistrationClassName="MediaPortal.UiComponents.SkinBase.IConnectionListenerService"
         ServiceClassName="MediaPortal.UiComponents.SkinBase.ConnectionListenerService"/>
+    <Service Id="NotificationService" ServiceClassName="MediaPortal.UiComponents.SkinBase.NotificationsService"/>
   </Register>
 
   <Register Location="/Skins/default">

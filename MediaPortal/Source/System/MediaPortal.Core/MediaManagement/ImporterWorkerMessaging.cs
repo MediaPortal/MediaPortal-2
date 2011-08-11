@@ -44,7 +44,7 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     // Message data
-    public const string RESOURCE_PATH = "ResourcePath";
+    public const string RESOURCE_PATH = "ResourcePath"; // Type: ResourcePath
 
     internal static void SendImportMessage(MessageType messageType, ResourcePath path)
     {

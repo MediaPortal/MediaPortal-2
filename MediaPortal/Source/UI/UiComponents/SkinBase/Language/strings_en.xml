@@ -74,6 +74,12 @@
     <String Name="WatchNotificationsWorkflowStateLabel" Text="Notifications"/>
     <String Name="Handle" Text="Handle"/>
   </Section>
+  <Section Name="ImporterMessages">
+    <String Name="ImportStartedTitle" Text="Import started"/>
+    <String Name="ImportStartedText" Text="The import of '{0}' has started."/>
+    <String Name="ImportCompletedTitle" Text="Import completed"/>
+    <String Name="ImportCompletedText" Text="The import of '{0}' has finished."/>
+  </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
     <String Name="CurrentMediaInfo" Text="Current media info"/>

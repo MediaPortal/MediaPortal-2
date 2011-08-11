@@ -46,6 +46,11 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TITLE = "[ServerConnection.NotificationServerAvailableTitle]";
     public const string RES_NOTIFICATION_HOME_SERVER_AVAILABLE_IN_NETWORK_TEXT = "[ServerConnection.NotificationServerAvailableText]";
 
+    public const string RES_IMPORT_STARTED_TITLE = "[ImporterMessages.ImportStartedTitle]";
+    public const string RES_IMPORT_STARTED_TEXT = "[ImporterMessages.ImportStartedText]";
+    public const string RES_IMPORT_COMPLETED_TITLE = "[ImporterMessages.ImportCompletedTitle]";
+    public const string RES_IMPORT_COMPLETED_TEXT = "[ImporterMessages.ImportCompletedText]";
+
     // Images and icons
     public const string REL_PATH_USER_INTERACTION_REQUIRED_ICON = "user-interaction-required-icon.png";
     public const string REL_PATH_INFO_ICON = "info-icon.png";
