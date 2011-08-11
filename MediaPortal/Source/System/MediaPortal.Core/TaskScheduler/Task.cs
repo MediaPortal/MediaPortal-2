@@ -33,9 +33,24 @@ namespace MediaPortal.Core.TaskScheduler
   /// </summary>
   public enum Occurrence
   {
+    /// <summary>
+    /// Only run the task once.
+    /// </summary>
     Once,
+
+    /// <summary>
+    /// Repeatedly Run the task.
+    /// </summary>
     Repeat,
+
+    /// <summary>
+    /// Run the task every time when the program starts.
+    /// </summary>
     EveryStartUp,
+
+    /// <summary>
+    /// Run the task every time when the system wakes up from standby.
+    /// </summary>
     EveryWakeUp
   }
 
@@ -170,98 +185,98 @@ namespace MediaPortal.Core.TaskScheduler
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// This schedule will occur every every minute, every hour, every day.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
     public Task(string owner, Occurrence occurrence) : this(owner, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
     public Task(string owner, int minute) : this(owner, minute, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
     public Task(string owner, int minute, Occurrence occurrence) : this(owner, minute, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
     public Task(string owner, int minute, int hour) : this(owner, minute, hour, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the task scheduler with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
     public Task(string owner, int minute, int hour, Occurrence occurrence) : this(owner, minute, hour, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="day">specifies at which day of the week this task should run (-1 = every day).</param>
     public Task(string owner, int minute, int hour, int day) : this(owner, minute, hour, day, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="day">specifies at which day of the week this task should run (-1 = every day).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence) :
         this(owner, minute, hour, day, occurrence, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="day">specifies at which day of the week this task should run (-1 = every day).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires) :
         this(owner, minute, hour, day, occurrence, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="day">specifies at which day of the week this task should run (-1 = every day).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun) :
         this(owner, minute, hour, day, occurrence, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="minute">specifies at which minute this task should run (-1 = every minute).</param>
+    /// <param name="hour">specifies at which hour this task should run (-1 = every hour).</param>
+    /// <param name="day">specifies at which day of the week this task should run (-1 = every day).</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
+    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false).</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun, bool wakeup)
     {
       _owner = owner;
@@ -280,36 +295,36 @@ namespace MediaPortal.Core.TaskScheduler
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="interval">specifies the interval of this task's schedule</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="interval">specifies the interval of this task's schedule.</param>
     public Task(string owner, TimeSpan interval) : this(owner, interval, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="interval">specifies the interval of this task's schedule</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="interval">specifies the interval of this task's schedule.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
     public Task(string owner, TimeSpan interval, DateTime expires) : this(owner, interval, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="interval">specifies the interval of this task's schedule</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="interval">specifies the interval of this task's schedule.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
     public Task(string owner, TimeSpan interval, DateTime expires, bool forceRun) :
         this(owner, interval, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="interval">specifies the interval of this task's schedule</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="interval">specifies the interval of this task's schedule.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
+    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false).</param>
     public Task(string owner, TimeSpan interval, DateTime expires, bool forceRun, bool wakeup)
     {
       _owner = owner;
@@ -324,41 +339,41 @@ namespace MediaPortal.Core.TaskScheduler
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="schedule">specifies the schedule of this task</param>
-    /// <param name="occurrence">specifies the occurrence of this task</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="schedule">specifies the schedule of this task.</param>
+    /// <param name="occurrence">specifies the occurrence of this task.</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence) : this(owner, schedule, occurrence, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="schedule">specifies the schedule of this task</param>
-    /// <param name="occurrence">specifies the occurrence of this task</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="schedule">specifies the schedule of this task.</param>
+    /// <param name="occurrence">specifies the occurrence of this task.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires) :
         this(owner, schedule, occurrence, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="schedule">specifies the schedule of this task</param>
-    /// <param name="occurrence">specifies the occurrence of this task</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="schedule">specifies the schedule of this task.</param>
+    /// <param name="occurrence">specifies the occurrence of this task.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires, bool forceRun) :
         this(owner, schedule, occurrence, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
     /// </summary>
-    /// <param name="owner">specifies the owner of this task</param>
-    /// <param name="schedule">specifies the schedule of this task</param>
-    /// <param name="occurrence">specifies the occurrence of this task</param>
-    /// <param name="expires">specifies when the task's schedule should expire</param>
-    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false)</param>
+    /// <param name="owner">specifies the owner of this task.</param>
+    /// <param name="schedule">specifies the schedule of this task.</param>
+    /// <param name="occurrence">specifies the occurrence of this task.</param>
+    /// <param name="expires">specifies when the task's schedule should expire.</param>
+    /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true).</param>
+    /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false).</param>
     public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires, bool forceRun, bool wakeup)
     {
       _owner = owner;
@@ -373,7 +388,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// Creates a new task for the <see cref="TaskScheduler"/> based on the given task.
     /// Used for the <see cref="ICloneable"/> implementation.
     /// </summary>
-    /// <param name="task">The new task should be based upon</param>
+    /// <param name="task">The new task should be based upon.</param>
     public Task(Task task)
     {
       _taskID = task.ID;
@@ -403,7 +418,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <summary>
     /// Indicates whether or not this schedule is due now.
     /// </summary>
-    /// <returns></returns>
+    /// <returns><c>true</c> if this task is due, else <c>false</c>.</returns>
     public bool IsDue(DateTime now)
     {
       if (NextRun > now)
@@ -432,7 +447,9 @@ namespace MediaPortal.Core.TaskScheduler
     /// Retrieves the next schedule DateTime based on the internal structure of the Task (i.e., Occurrence type,
     /// ScheduleType and configured interval or minutes/hours/days). Used internally to update the NextRun property.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Next scheduled date and time of this task. If this task is configured to be started at
+    /// <see cref="TaskScheduler.Occurrence.EveryStartUp"/> or <see cref="TaskScheduler.Occurrence.EveryStartUp"/>,
+    /// <see cref="DateTime.MaxValue"/> is returned.</returns>
     private DateTime GetNextScheduleDateTime()
     {
       switch (_occurrence)
@@ -471,7 +488,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// Calculates the NextRun property for time-based task schedules. Used internally by the method
     /// GetNextScheduleDateTime().
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Next task schedule date and time</returns>
     private DateTime CalculateNextTimeBasedSchedule()
     {
       // Up to 8 different time-based schedules are possible
@@ -743,10 +760,6 @@ namespace MediaPortal.Core.TaskScheduler
 
     /// <summary>
     /// Specifies the occurrence type for this task. Either one of the following:
-    /// Occurrence.Once         : Only run this task once
-    /// Ocurrence.Repeat        : Repeatedly Run this task
-    /// Ocurrence.EveryStartup  : Run this task every time when the program starts
-    /// Ocurrence.EveryWakeup   : Run this task every time when the system wakes up from standby
     /// </summary>
     public Occurrence Occurrence
     {

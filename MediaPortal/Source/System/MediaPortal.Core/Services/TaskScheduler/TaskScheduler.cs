@@ -261,18 +261,14 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public Task GetTask(Guid taskId)
     {
-      IList<Task> allTasks;
       lock (_taskMutex)
-        allTasks = _settings.TaskCollection.Clone();
-      return allTasks.FirstOrDefault(task => task.ID == taskId);
+        return _settings.TaskCollection.GetTask(taskId);
     }
 
     public ICollection<Task> GetTasks(string ownerId)
     {
-      IList<Task> allTasks;
       lock (_taskMutex)
-        allTasks = _settings.TaskCollection.Tasks;
-      return allTasks.Where(task => task.Owner.Equals(ownerId)).ToList();
+        return _settings.TaskCollection.GetTasks(ownerId);
     }
 
     #endregion
