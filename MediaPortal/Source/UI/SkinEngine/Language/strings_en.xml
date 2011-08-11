@@ -21,7 +21,9 @@
     <String Name="Players.Rendering.DefaultGeometry.Help" Text="Sets the zoom mode which will be applied to video players by default"/>
   </Section>
   <Section Name="ScreenManager">
-    <String Name="ErrorLoadingSkin" Text="Error loading skin"/>
+    <String Name="NotificationErrorLoadingSkinTitle" Text="Error loading skin"/>
+    <String Name="NotificationErrorLoadingSkinFallingBackToCurrentText" Text="Falling back to current skin"/>
+    <String Name="NotificationErrorLoadingSkinFallingBackToDefaultText" Text="Falling back to default skin"/>
     <String Name="ErrorLoadingSkinResource" Text="Error loading skin resource"/>
     <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'."/>
     <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken."/>

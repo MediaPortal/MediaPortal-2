@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -105,8 +106,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      foreach (IBaseMediaProvider mediaProvider in mediaAccessor.LocalBaseMediaProviders)
-        yield return mediaProvider.Metadata;
+      return mediaAccessor.LocalBaseMediaProviders.Select(mediaProvider => mediaProvider.Metadata);
     }
 
     protected override MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)

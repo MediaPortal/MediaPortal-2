@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       {
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
-          double progress = (timepassed - time);
+          double progress = timepassed - time;
           if (progress == 0)
             patc.DataDescriptor.Value = key.Value;
           else
@@ -123,11 +123,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           }
           return;
         }
-        else
-        {
-          time = key.KeyTime.TotalMilliseconds;
-          start = key.Value;
-        }
+        time = key.KeyTime.TotalMilliseconds;
+        start = key.Value;
       }
     }
 

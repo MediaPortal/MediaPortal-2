@@ -48,6 +48,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     private volatile bool _terminated = false;
     private volatile bool _inputStreamInitialized = false;
+    private volatile bool _streamEnded = false; // Our AudioRingBuffer doesn't track our underlaying input stream's end mark, so we remember the stream end in this field
 
     private float[] _readData = new float[1];
 
@@ -145,6 +146,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       UpdateVizLatencyCorrection();
 
       _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize + _readOffset);
+      _streamEnded = false;
       _buffer.ResetPointers(_readOffsetBytes);
 
       CreateOutputStream();
@@ -301,7 +303,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
       int read = _buffer.Read(buffer, requestedBytes / BassConstants.FloatBytes, _readOffsetBytes);
-      int result = read * BassConstants.FloatBytes;
+      int result = (read == 0 && _streamEnded) ? (int) BASSStreamProc.BASS_STREAMPROC_END : read * BassConstants.FloatBytes;
       _notifyBufferUpdateThread.Set();
       return result;
     }
@@ -319,10 +321,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (_controller.Player.ExternalState == PlayerState.Active)
       {
         int read = _buffer.Peek(buffer, requestedBytes, _vizReadOffsetBytes);
-        return read * BassConstants.FloatBytes;
+        return (read == 0 && _streamEnded) ? (int) BASSStreamProc.BASS_STREAMPROC_END : read * BassConstants.FloatBytes;
       }
-      else
-        return _silence.Write(buffer, requestedBytes);
+      return _silence.Write(buffer, requestedBytes);
     }
 
     private void StartBufferUpdateThread()
@@ -379,6 +380,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
               int samplesRead = _inputStream.Read(_readData, requestedSamples);
               if (samplesRead > 0)
                 _buffer.Write(_readData, samplesRead);
+              else if (samplesRead == -1)
+                _streamEnded = true;
             }
           }
           _updateThreadFinished.Set();

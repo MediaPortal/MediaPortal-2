@@ -70,7 +70,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       return dosPath.StartsWith("/") ? dosPath : "/" + dosPath;
     }
 
-    public static ResourcePath ToProviderResourcePath(string dosPath)
+    public static ResourcePath ToResourcePath(string dosPath)
     {
       return ResourcePath.BuildBaseProviderPath(LOCAL_FS_MEDIA_PROVIDER_ID, "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/'));
     }

@@ -90,12 +90,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       // Message queue will be started in method Start()
     }
 
-    ~ImporterWorker()
-    {
-      ShutdownImporterLoop();
-      _messageQueue.Shutdown();
-    }
-
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
@@ -290,7 +284,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.LocalResourcePath;
-      ImporterWorkerMessaging.SendImportStatusMessage(path);
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
@@ -398,7 +392,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath currentDirectoryPath = directoryAccessor.LocalResourcePath;
       try
       {
-        ImporterWorkerMessaging.SendImportStatusMessage(currentDirectoryPath);
+        ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, currentDirectoryPath);
         if (ImportResource(directoryAccessor, parentDirectoryId, metadataExtractors, mediaItemAspectTypes,
             resultHandler, mediaAccessor))
           // The directory could be imported as a media item
@@ -536,6 +530,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           if (state == ImportJobState.Scheduled)
           {
             ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
+            ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, importJob.BasePath);
             IResourceAccessor accessor = importJob.BasePath.CreateLocalResourceAccessor();
             IFileSystemResourceAccessor fsra = accessor as IFileSystemResourceAccessor;
             if (fsra != null)
@@ -594,6 +589,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             if (importJob.State == ImportJobState.Started)
               importJob.State = ImportJobState.Finished;
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Finished import job '{0}'", importJob);
+            ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportCompleted, importJob.BasePath);
           return;
         }
         catch (Exception e)

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.MediaManagement.ResourceAccess
 {
@@ -129,28 +128,12 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode);
 
     /// <summary>
-    /// Returns a media item with metadata extracted by the metadata extractors specified by the
+    /// Returns a media item for a local resource with metadata extracted by the metadata extractors specified by the
     /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
     /// </summary>
-    /// <remarks>
-    /// This is a convenience method for <see cref="CreateMediaItem(ISystemResolver,IResourceAccessor,IEnumerable{System.Guid})"/>.
-    /// For iterated calls of this method use the other method instead.
-    /// </remarks>
     /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>
-    MediaItem CreateMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
-
-    /// <summary>
-    /// Returns a media item with metadata extracted by the metadata extractors specified by the
-    /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="mediaItemAccessor"/>.
-    /// </summary>
-    /// <param name="systemResolver">System resolver instance. This parameter is for performance to avoid
-    /// iterated calls to the <see cref="ServiceRegistration"/>.</param>
-    /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
-    /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
-    /// <returns>Media item with the specified metadata </returns>
-    MediaItem CreateMediaItem(ISystemResolver systemResolver,
-        IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
+    MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds);
   }
 }

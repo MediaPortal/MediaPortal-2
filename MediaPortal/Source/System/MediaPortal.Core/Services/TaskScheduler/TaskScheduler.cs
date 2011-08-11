@@ -51,7 +51,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Mutex object to serialize access to the registered tasks and next task id.
     /// </summary>
-    protected object _taskMutex = new object();
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -80,7 +80,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       DateTime now = DateTime.Now;
       // Only use minute precision
       now = now.AddSeconds(-now.Second);
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         foreach (Task task in _settings.TaskCollection.Tasks)
         {
@@ -106,7 +106,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       // Only use minute precision
       now = now.AddSeconds(-now.Second);
       // Exclusively get lock for task collection access
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         // Enumerate through all tasks
         foreach (Task task in _settings.TaskCollection.Tasks)
@@ -144,9 +144,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
           }
         }
         if (saveChanges)
-        {
           SaveChanges(needSort);
-        }
       }
     }
 
@@ -220,20 +218,20 @@ namespace MediaPortal.Core.Services.TaskScheduler
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
-    public int AddTask(Task newTask)
+    public Guid AddTask(Task newTask)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
-        newTask.ID = _settings.GetNextTaskID();
+        newTask.ID = Guid.NewGuid();
         _settings.TaskCollection.Add(newTask);
         SaveChanges(false);
       }
       return newTask.ID;
     }
 
-    public void UpdateTask(int taskId, Task updatedTask)
+    public void UpdateTask(Guid taskId, Task updatedTask)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         updatedTask.ID = taskId;
         _settings.TaskCollection.Replace(taskId, updatedTask);
@@ -242,9 +240,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
       }
     }
 
-    public void RemoveTask(int taskId)
+    public void RemoveTask(Guid taskId)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         Task task = null;
         foreach (Task t in _settings.TaskCollection.Tasks)
@@ -252,40 +250,24 @@ namespace MediaPortal.Core.Services.TaskScheduler
           if (t.ID == taskId)
             task = t;
         }
-        if (task != null)
-        {
-          _settings.TaskCollection.Remove(task);
-          SaveChanges(false);
-          TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
-        }
+        if (task == null)
+          return;
+        _settings.TaskCollection.Remove(task);
+        SaveChanges(false);
+        TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
       }
     }
 
-    public Task GetTask(int taskId)
+    public Task GetTask(Guid taskId)
     {
-      IList<Task> allTasks;
-      lock (_taskMutex)
-      {
-        allTasks = _settings.TaskCollection.Clone();
-      }
-      foreach (Task task in allTasks)
-        if (task.ID == taskId)
-          return task;
-      return null;
+      lock (_syncObj)
+        return _settings.TaskCollection.GetTask(taskId);
     }
 
-    public IList<Task> GetTasks(string ownerId)
+    public ICollection<Task> GetTasks(string ownerId)
     {
-      IList<Task> allTasks;
-      IList<Task> tasks = new List<Task>();
-      lock (_taskMutex)
-      {
-        allTasks = _settings.TaskCollection.Clone();
-      }
-      foreach (Task task in allTasks)
-        if (task.Owner.Equals(ownerId))
-          tasks.Add(task);
-      return tasks;
+      lock (_syncObj)
+        return _settings.TaskCollection.GetTasks(ownerId);
     }
 
     #endregion

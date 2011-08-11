@@ -42,8 +42,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
         string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
         SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-        long? duration = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
-        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) duration.Value)) : string.Empty;
+        double? duration = audioAspect == null ? null : (double?) audioAspect[AudioAspect.ATTR_DURATION];
+        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
       }
     }
 

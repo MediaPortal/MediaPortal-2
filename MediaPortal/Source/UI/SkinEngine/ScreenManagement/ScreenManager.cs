@@ -67,7 +67,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    public const string RES_ERROR_LOADING_SKIN_TEXT = "[ScreenManager.ErrorLoadingSkin]";
+    public const string RES_ERROR_LOADING_SKIN_TITLE = "[ScreenManager.NotificationErrorLoadingSkinTitle]";
+    public const string RES_ERROR_LOADING_SKIN_FALLING_BACK_TO_CURRENT_TEXT = "[ScreenManager.NotificationErrorLoadingSkinFallingBackToCurrentText]";
+    public const string RES_ERROR_LOADING_SKIN_FALLING_BACK_TO_DEFAULT_TEXT = "[ScreenManager.NotificationErrorLoadingSkinFallingBackToDefaultText]";
     public const string RES_ERROR_LOADING_SKIN_RESOURCE_TEXT = "[ScreenManager.ErrorLoadingSkinResource]";
     public const string RES_SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
     public const string RES_SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
@@ -497,10 +499,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         catch (ArgumentException ex)
         {
           // Fall back to current skin/theme
-          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', fallback to previous skin/theme",
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', falling back to previous skin/theme",
               ex, skinName, themeName);
-          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
-              RES_ERROR_LOADING_SKIN_TEXT, ex.Message, true);
+          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_ERROR_LOADING_SKIN_TITLE,
+              RES_ERROR_LOADING_SKIN_FALLING_BACK_TO_CURRENT_TEXT, true);
           skin = _skin;
           theme = _theme;
         }
@@ -521,15 +523,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         catch (Exception ex)
         {
           // Didn't work - try fallback skin/theme
-          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'", ex,
-              skin == null ? "<undefined>" : skin.Name, theme == null ? "<undefined>" : theme.Name);
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'",
+              ex, skin == null ? "<undefined>" : skin.Name, theme == null ? "<undefined>" : theme.Name);
           Skin fallbackSkin = _skin ?? defaultSkin; // Either the previous skin (_skin) or the default skin
           Theme fallbackTheme = fallbackSkin.DefaultTheme;
           if (fallbackSkin == skin && fallbackTheme == theme)
           {
-            ServiceRegistration.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
+            ServiceRegistration.Get<ILogger>().Critical("ScreenManager: There is no valid skin to show");
+            // No notification necessary here - we don't have a skin to show
             throw;
           }
+          ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_ERROR_LOADING_SKIN_TITLE,
+              RES_ERROR_LOADING_SKIN_FALLING_BACK_TO_DEFAULT_TEXT, true);
           return PrepareSkinAndTheme(fallbackSkin.Name, fallbackTheme == null ? null : fallbackTheme.Name);
         }
       }
@@ -1017,14 +1022,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
       if (skinFilePath == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", relativeScreenPath);
+        ServiceRegistration.Get<ILogger>().Error("ScreenManager: No skinfile for screen '{0}'", relativeScreenPath);
         return null;
       }
-      ServiceRegistration.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
+      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading screen from file path '{0}'...", skinFilePath);
       object obj = XamlLoader.Load(skinFilePath, loader, true);
       Screen screen = obj as Screen;
       if (screen == null)
       {
+        if (obj != null)
+          ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
         DependencyObject.TryDispose(ref obj);
         return null;
       }
@@ -1089,8 +1096,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
           ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
-              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT, LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
           return null;
         }
         return result;

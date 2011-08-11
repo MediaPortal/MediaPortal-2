@@ -85,7 +85,7 @@ namespace MediaPortal.UI.Players.Video
 
     public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
     public const string AUDIO_STREAM_NAME = "Audio1";
-    
+
     protected static string[] DEFAULT_AUDIO_STREAM_NAMES = new string[] { AUDIO_STREAM_NAME };
     protected static string[] EMPTY_STRING_ARRAY = new string[] { };
 
@@ -157,7 +157,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
-    private object _syncObj = new object();
+    private readonly object _syncObj = new object();
 
     #endregion
 
@@ -236,7 +236,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] {WindowsMessaging.CHANNEL});
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { WindowsMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -309,8 +309,6 @@ namespace MediaPortal.UI.Players.Video
         _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
         ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for media item '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
-        int hr;
-
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
 
@@ -325,7 +323,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) {CropSettings = _cropSettings};
+        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -347,7 +345,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Now run the graph, i.e. the DVD player needs a running graph before getting informations from dvd filter.
         IMediaControl mc = (IMediaControl) _graphBuilder;
-        hr = mc.Run();
+        int hr = mc.Run();
         DsError.ThrowExceptionForHR(hr);
 
         OnGraphRunning();
@@ -463,13 +461,11 @@ namespace MediaPortal.UI.Players.Video
 
       IEVRFilterConfig config = (IEVRFilterConfig) _evr;
 
-      //set the number of video/subtitle/cc streams that are allowed to be connected to EVR
+      // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR
       config.SetNumberOfStreams(_streamCount);
 
-      int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-      AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
-      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);//(uint) hMonitor.ToInt32());
+      int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);
       if (hr != 0)
       {
         EvrDeinit();
@@ -511,7 +507,7 @@ namespace MediaPortal.UI.Players.Video
     {
       if (_resourceAccessor == null) return;
       string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
-      if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
+      if (ext != null && (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0))
         _requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
       else
         _requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX | CodecHandler.CodecCapabilities.AudioMPEG;
@@ -526,7 +522,7 @@ namespace MediaPortal.UI.Players.Video
       int hr = _graphBuilder.RenderFile(_resourceAccessor.LocalFileSystemPath, null);
       DsError.ThrowExceptionForHR(hr);
     }
-    
+
     /// <summary>
     /// Adds preferred audio renderer.
     /// </summary>
@@ -792,8 +788,9 @@ namespace MediaPortal.UI.Players.Video
           DsLong seekPos = new DsLong((long) dTimeInSecs);
           DsLong stopPos = new DsLong(0);
 
-          int hr = mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos,
-              AMSeekingSeekingFlags.NoPositioning);
+          int hr = mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos, AMSeekingSeekingFlags.NoPositioning);
+          if (hr != 0)
+            ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to seek, hr: {1}", PlayerTitle, hr);
         }
       }
     }
@@ -973,9 +970,10 @@ namespace MediaPortal.UI.Players.Video
 
     protected void SetPreferredAudio()
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      EnumerateStreams();
       if (_streamInfoAudio == null)
-        EnumerateStreams();
+        return;
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
 
       // First try to find a stream by it's exact LCID...
       StreamInfo streamInfo = _streamInfoAudio.FindStream(settings.PreferredAudioLanguage);
@@ -1036,78 +1034,88 @@ namespace MediaPortal.UI.Players.Video
       {
         lock (SyncObj)
         {
-          if (_streamInfoAudio == null)
-            EnumerateStreams();
-
-          return _streamInfoAudio.Count == 0 ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
+          EnumerateStreams();
+          return _streamInfoAudio == null ? DEFAULT_AUDIO_STREAM_NAMES : _streamInfoAudio.GetStreamNames();
         }
       }
     }
 
-    protected virtual void EnumerateStreams()
+    /// <summary>
+    /// Enumerates streams from video (audio, subtitles).
+    /// </summary>
+    /// <returns>True if information has been changed.</returns>
+    protected virtual bool EnumerateStreams()
     {
-      FilterGraphTools.TryDispose(ref _streamInfoAudio);
-      FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
-      _streamInfoAudio = new StreamInfoHandler();
-      _streamInfoSubtitles = new StreamInfoHandler();
       if (_graphBuilder == null)
-        return;
+        return false;
 
-      foreach (IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
+      if (_streamInfoAudio == null || _streamInfoSubtitles == null)
       {
-        FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter)streamSelector));
-        int streamCount;
-        streamSelector.Count(out streamCount);
+        FilterGraphTools.TryDispose(ref _streamInfoAudio);
+        FilterGraphTools.TryDispose(ref _streamInfoSubtitles);
+        _streamInfoAudio = new StreamInfoHandler();
+        _streamInfoSubtitles = new StreamInfoHandler();
 
-        for (int i = 0; i < streamCount; ++i)
+        foreach (
+          IAMStreamSelect streamSelector in FilterGraphTools.FindFiltersByInterface<IAMStreamSelect>(_graphBuilder))
         {
-          AMMediaType mediaType;
-          AMStreamSelectInfoFlags selectInfoFlags;
-          int groupNumber, LCID;
-          string name;
-          object pppunk, ppobject;
+          FilterInfo fi = FilterGraphTools.QueryFilterInfoAndFree(((IBaseFilter) streamSelector));
+          int streamCount;
+          streamSelector.Count(out streamCount);
 
-          streamSelector.Info(i, out mediaType, out selectInfoFlags, out LCID, out groupNumber, out name,
-              out pppunk, out ppobject);
-          ServiceRegistration.Get<ILogger>().Debug("Stream {4}|{0}: MajorType {1}; Name {2}; PWDGroup: {3}; LCID: {5}", i,
-              mediaType.majorType, name, groupNumber, fi.achName, LCID);
-
-          StreamInfo currentStream = new StreamInfo(streamSelector, i, name, LCID);
-
-          if (groupNumber == 0)
+          for (int i = 0; i < streamCount; ++i)
           {
-            // video streams
-          }
-          if (groupNumber == 1)
-          {
-            if (mediaType.majorType == MediaType.AnalogAudio || mediaType.majorType == MediaType.Audio)
+            AMMediaType mediaType;
+            AMStreamSelectInfoFlags selectInfoFlags;
+            int groupNumber, lcid;
+            string name;
+            object pppunk, ppobject;
+
+            streamSelector.Info(i, out mediaType, out selectInfoFlags, out lcid, out groupNumber, out name,
+                                out pppunk, out ppobject);
+            ServiceRegistration.Get<ILogger>().Debug(
+              "Stream {4}|{0}: MajorType {1}; Name {2}; PWDGroup: {3}; LCID: {5}", i,
+              mediaType.majorType, name, groupNumber, fi.achName, lcid);
+
+            StreamInfo currentStream = new StreamInfo(streamSelector, i, name, lcid);
+
+            if (groupNumber == 0)
             {
-              String streamName = name.Trim();
-              String streamAppendix;
-              if (MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
-              {
-                // if audio information is available via WaveEx format, query the channel count
-                if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
-                {
-                  WaveFormatEx waveFormatEx =
-                    (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof (WaveFormatEx));
-                  streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
-                }
-                currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
-              }
-              _streamInfoAudio.AddUnique(currentStream);
+              // video streams
             }
-          }
-          if (groupNumber == 2 || groupNumber == 6590033 /*DirectVobSub*/)
-          {
-            // subtitles
-            _streamInfoSubtitles.AddUnique(currentStream, true);
-          }
+            if (groupNumber == 1)
+            {
+              if (mediaType.majorType == MediaType.AnalogAudio || mediaType.majorType == MediaType.Audio)
+              {
+                String streamName = name.Trim();
+                String streamAppendix;
+                if (MediaSubTypes.TryGetValue(mediaType.subType, out streamAppendix))
+                {
+                  // if audio information is available via WaveEx format, query the channel count
+                  if (mediaType.formatType == FormatType.WaveEx && mediaType.formatPtr != IntPtr.Zero)
+                  {
+                    WaveFormatEx waveFormatEx =
+                      (WaveFormatEx) Marshal.PtrToStructure(mediaType.formatPtr, typeof (WaveFormatEx));
+                    streamAppendix = String.Format("{0} {1}ch", streamAppendix, waveFormatEx.nChannels);
+                  }
+                  currentStream.Name = String.Format("{0} ({1})", streamName, streamAppendix);
+                }
+                _streamInfoAudio.AddUnique(currentStream);
+              }
+            }
+            if (groupNumber == 2 || groupNumber == 6590033 /*DirectVobSub*/)
+            {
+              // subtitles
+              _streamInfoSubtitles.AddUnique(currentStream, true);
+            }
 
-          // free MediaType and references
-          FilterGraphTools.FreeAMMediaType(mediaType);
+            // free MediaType and references
+            FilterGraphTools.FreeAMMediaType(mediaType);
+          }
         }
+        return true;
       }
+      return false;
     }
 
     #endregion
@@ -1201,7 +1209,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void FreeEvrCallback()
     {
-      if (_evrCallback !=null)
+      if (_evrCallback != null)
         _evrCallback.Dispose();
       _evrCallback = null;
     }
@@ -1211,7 +1219,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) {CropSettings = _cropSettings};
+        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();
         IEnumPins enumer;
@@ -1264,10 +1272,10 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Texture Texture 
+    public Texture Texture
     {
       get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
-    } 
+    }
 
     #endregion
 
@@ -1275,14 +1283,14 @@ namespace MediaPortal.UI.Players.Video
 
     protected void SetPreferredSubtitle()
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      EnumerateStreams();
       if (_streamInfoSubtitles == null)
-        EnumerateStreams();
+        return;
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ??
-          _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
-
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleSteamName);
       if (streamInfo == null || !settings.EnableSubtitles)
         _streamInfoSubtitles.EnableStream(NO_SUBTITLES);
       else
@@ -1298,11 +1306,11 @@ namespace MediaPortal.UI.Players.Video
       {
         lock (SyncObj)
         {
-          if (_streamInfoSubtitles == null)
-            EnumerateStreams();
+          EnumerateStreams();
 
           if (_streamInfoSubtitles == null)
             return EMPTY_STRING_ARRAY;
+
           // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
           string[] subtitleStreamNames = _streamInfoSubtitles.GetStreamNames();
           if (subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES)
@@ -1360,7 +1368,7 @@ namespace MediaPortal.UI.Players.Video
 
     public override string ToString()
     {
-      return string.Format("{0}: {1}", GetType().Name, _resourceAccessor.ResourceName);
+      return string.Format("{0}: {1}", GetType().Name, _resourceAccessor != null ? _resourceAccessor.ResourceName : "no resource");
     }
 
     #endregion

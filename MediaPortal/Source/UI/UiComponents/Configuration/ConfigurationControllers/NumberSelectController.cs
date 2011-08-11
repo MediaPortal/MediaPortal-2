@@ -330,7 +330,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     {
       NumberSelect numberSelect = (NumberSelect) _setting;
       GetLimits();
-      numberSelect.Value = (double)_numberModel.Value;
+      numberSelect.Value = Convert.ToDouble(_numberModel.Value);
       base.UpdateSetting();
     }
 

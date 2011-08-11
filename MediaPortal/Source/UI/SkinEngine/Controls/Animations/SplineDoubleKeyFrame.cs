@@ -30,10 +30,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class SplineDoubleKeyFrame : DoubleKeyFrame
   {
-    #region Private fields
+    #region Protected fields
 
-    KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
-    AbstractProperty _keySplineProperty;
+    protected KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
+    protected AbstractProperty _keySplineProperty;
 
     #endregion
 

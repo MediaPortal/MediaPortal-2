@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.Localization;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 
@@ -36,6 +37,18 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_SIMPLE_TITLE]; }
       set { SetLabel(Consts.KEY_SIMPLE_TITLE, value); }
+    }
+
+    public string SortString
+    {
+      get
+      {
+        IResourceString sortStr;
+        if (_labels.TryGetValue(Consts.KEY_SORT_STRING, out sortStr))
+          return sortStr.Evaluate();
+        return SimpleTitle;
+      }
+      set { SetLabel(Consts.KEY_SORT_STRING, value); }
     }
   }
 }

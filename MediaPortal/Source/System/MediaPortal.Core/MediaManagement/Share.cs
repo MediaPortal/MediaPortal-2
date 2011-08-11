@@ -43,12 +43,8 @@ namespace MediaPortal.Core.MediaManagement
   public enum DefaultMediaCategory
   {
     Audio,
-    AudioStream,
     Video,
-    VideoStream,
     Image,
-    RemovableDisc,
-    TvData
   }
 
   /// <summary>

@@ -22,12 +22,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Core.TaskScheduler
 {
   /// <summary>
-  /// Public representation of the global <see cref="TaskScheduler"/>.
+  /// Public representation of the task scheduler service.
   /// The task scheduler simplifies generating events at a particular time schedule. It sends out a message
   /// as soon as a task is due on the message queue of name <see cref="TaskSchedulerMessaging.CHANNEL"/>. It sends out a
   /// message of message type <see cref="TaskSchedulerMessaging.MessageType.DUE"/> with the particular <see cref="Task"/>
@@ -35,7 +36,8 @@ namespace MediaPortal.Core.TaskScheduler
   /// Listeners then can act on the generate message to perform time or interval based tasks.
   /// </summary>
   /// <remarks>
-  /// The counting of the task id starts with <c>0</c>, i.e. <c>-1</c> can be used as an invalid task id.
+  /// This is a high-level interface compared to the <see cref="Threading.IThreadPool"/> service, which provides the low-level threads.
+  /// Use this service to manage <see cref="Task">Task instances</see> which are persistent, have a lifetime and other scheduling options.
   /// </remarks>
   public interface ITaskScheduler
   {
@@ -54,33 +56,33 @@ namespace MediaPortal.Core.TaskScheduler
     /// </summary>
     /// <param name="newTask">Task to add to the scheduler.</param>
     /// <returns>ID assigned to the given task.</returns>
-    int AddTask(Task newTask);
+    Guid AddTask(Task newTask);
 
     /// <summary>
     /// Updates an already registered task.
     /// </summary>
     /// <param name="taskId">ID of the task to update.</param>
     /// <param name="updatedTask">The updated task.</param>
-    void UpdateTask(int taskId, Task updatedTask);
+    void UpdateTask(Guid taskId, Task updatedTask);
 
     /// <summary>
     /// Removes a task from the task scheduler.
     /// </summary>
     /// <param name="taskId">ID of the task to remove.</param>
-    void RemoveTask(int taskId);
+    void RemoveTask(Guid taskId);
 
     /// <summary>
     /// Gets a registered task from the task scheduler.
     /// </summary>
     /// <param name="taskId">ID of the task to get.</param>
     /// <returns>Task with given ID.</returns>
-    Task GetTask(int taskId);
+    Task GetTask(Guid taskId);
 
     /// <summary>
     /// Gets all registered tasks for the given owner from the task scheduler.
     /// </summary>
     /// <param name="ownerId">owner ID to get a task list for.</param>
     /// <returns>List of tasks for given owner.</returns>
-    IList<Task> GetTasks(string ownerId);
+    ICollection<Task> GetTasks(string ownerId);
   }
 }

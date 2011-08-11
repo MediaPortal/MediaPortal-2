@@ -296,8 +296,7 @@ namespace Ui.Players.BassPlayer.Utils
         {
           if (buffer != IntPtr.Zero)
           {
-            IntPtr ptr = new IntPtr(
-                (_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
+            IntPtr ptr = new IntPtr((_is32Bit ? buffer.ToInt32() : buffer.ToInt64()) + (count1*BassConstants.FloatBytes));
             Marshal.Copy(_buffer, 0, ptr, count2);
           }
           readPointer = count2;

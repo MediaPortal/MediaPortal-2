@@ -30,12 +30,11 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Core.TaskScheduler;
 using MediaPortal.UiComponents.Weather.Settings;
 
 namespace MediaPortal.UiComponents.Weather.Models
@@ -53,7 +52,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #endregion
 
-    #region Private/protected fields
+    #region Protected fields
 
     protected object _syncObj = new object();
     protected List<City> _locations = null;
@@ -63,11 +62,9 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected AbstractProperty _isUpdatingProperty = null;
     protected AbstractProperty _lastUpdateTimeProperty = null;
 
-    protected AsynchronousMessageQueue _messageQueue = null;
-
-    private String _preferredLocationCode;
-    private int? _refreshInterval;
-    private int _refreshTaskId;
+    protected String _preferredLocationCode = null;
+    protected int? _refreshIntervalSec = null;
+    protected IIntervalWork _refreshIntervalWork = null;
 
     #endregion
 
@@ -197,20 +194,12 @@ namespace MediaPortal.UiComponents.Weather.Models
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;
 
-      string lastUpdate;
-      if (updateTime.HasValue)
-        lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES,
-            updateTime.Value.ToString(culture));
-      else
-        lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES,
-            LocalizationHelper.Translate(NOT_UPDATED_YET_RES));
+      string lastUpdate = LocalizationHelper.Translate(LAST_UPDATE_TIME_RES, updateTime.HasValue ?
+          updateTime.Value.ToString(culture) : LocalizationHelper.Translate(NOT_UPDATED_YET_RES));
       lastUpdateTimeProperty.SetValue(lastUpdate);
     }
 
-    /// <summary>
-    /// this gets the locations from settings
-    /// </summary>
-    protected void GetLocationsFromSettings(bool shouldFire)
+    protected void ReadSettings(bool shouldFire)
     {
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
@@ -219,7 +208,7 @@ namespace MediaPortal.UiComponents.Weather.Models
         return;
 
       _preferredLocationCode = settings.LocationCode;
-      _refreshInterval = settings.RefreshInterval;
+      _refreshIntervalSec = settings.RefreshInterval;
       SetLastUpdateTime(settings.LastUpdate);
 
       foreach (CitySetupInfo loc in settings.LocationsList)
@@ -319,49 +308,17 @@ namespace MediaPortal.UiComponents.Weather.Models
     #region Message and Tasks handling
 
     /// <summary>
-    /// Subscribes to the TaskScheduler messaging to use Tasks for background refreshing.
-    /// </summary>
-    void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           TaskSchedulerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    /// <summary>
-    /// Unsubscribes from TaskScheduler messaging.
-    /// </summary>
-    void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
-      {
-        if ((TaskSchedulerMessaging.MessageType) message.MessageType == TaskSchedulerMessaging.MessageType.DUE &&
-            ((Task) message.MessageData[TaskSchedulerMessaging.TASK]).ID == _refreshTaskId)
-          Refresh();
-      }
-    }
-
-    /// <summary>
     /// Creates a task for background refresh that gets executed every n seconds (refresh interval).
     /// </summary>
     void StartRefreshTask()
     {
-      if (_refreshInterval == null)
+      if (_refreshIntervalSec == null)
+        return;
+      if (_refreshIntervalWork != null)
         return;
 
-      _refreshTaskId = ServiceRegistration.Get<ITaskScheduler>().AddTask(
-          new Task("Weather plugin", TimeSpan.FromSeconds((int) _refreshInterval)));
+      _refreshIntervalWork = new IntervalWork(Refresh, TimeSpan.FromSeconds((int) _refreshIntervalSec));
+      ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_refreshIntervalWork, false);
     }
 
     /// <summary>
@@ -369,7 +326,10 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     void EndRefreshTask()
     {
-      ServiceRegistration.Get<ITaskScheduler>().RemoveTask(_refreshTaskId);
+      if (_refreshIntervalWork == null)
+        return;
+      ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_refreshIntervalWork);
+      _refreshIntervalWork = null;
     }
 
     #endregion
@@ -398,15 +358,13 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
 
       // Add citys from settings to the locations list
-      GetLocationsFromSettings(true);
-      SubscribeToMessages();
+      ReadSettings(true);
       StartRefreshTask();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       EndRefreshTask();
-      UnsubscribeFromMessages();
       lock (_syncObj)
       {
         _currentLocationProperty = null;

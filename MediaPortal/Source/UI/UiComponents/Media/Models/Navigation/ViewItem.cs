@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {

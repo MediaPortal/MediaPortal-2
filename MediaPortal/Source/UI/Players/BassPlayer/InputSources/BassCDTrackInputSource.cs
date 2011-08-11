@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using MediaPortal.Extensions.BassLibraries;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
@@ -30,20 +32,21 @@ using Un4seen.Bass.AddOn.Cd;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a CD track inputsource implemented by the Bass library.
+  /// Represents a CD track inputsource specified by drive letter and track number.
   /// </summary>
   internal class BassCDTrackInputSource : IInputSource
   {
     #region Static members
 
     /// <summary>
-    /// Creates and initializes an new instance.
+    /// Creates and initializes an new instance using drive and track number.
     /// </summary>
-    /// <param name="cdTrackFilePath">The file path of the CD track to be handled by the instance.</param>
+    /// <param name="drive">Drive letter of the drive where the audio CD is inserted.</param>
+    /// <param name="trackNo">Number of the track to play. The number of the first track is 1.</param>
     /// <returns>The new instance.</returns>
-    public static BassCDTrackInputSource Create(string cdTrackFilePath)
+    public static BassCDTrackInputSource Create(char drive, uint trackNo)
     {
-      BassCDTrackInputSource inputSource = new BassCDTrackInputSource(cdTrackFilePath);
+      BassCDTrackInputSource inputSource = new BassCDTrackInputSource(drive, trackNo);
       inputSource.Initialize();
       return inputSource;
     }
@@ -52,14 +55,59 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Fields
 
-    private readonly string _cdTrackFilePath;
-    private BassStream _BassStream;
+    private readonly char _drive;
+    private uint _trackNo;
+    private TimeSpan _length;
+    private BassStream _BassStream = null;
 
     #endregion
 
-    public string CDTrackFilePath
+    /// <summary>
+    /// Drive letter of the CD drive where the audio CD is located.
+    /// </summary>
+    public char Drive
     {
-      get { return _cdTrackFilePath; }
+      get { return _drive; }
+    }
+
+    /// <summary>
+    /// Number of the audio CD track of this input source. The first track has the number 1.
+    /// </summary>
+    public uint TrackNo
+    {
+      get { return _trackNo; }
+    }
+
+    /// <summary>
+    /// Number of the audio CD track of this input source. The first track has the number 0.
+    /// </summary>
+    public int BassTrackNo
+    {
+      get { return (int) _trackNo - 1; }
+    }
+
+    public bool IsInitialized
+    {
+      get { return _BassStream != null; }
+    }
+
+    public bool SwitchTo(BassCDTrackInputSource other)
+    {
+      if (other.Drive != _drive)
+        return false;
+
+      BassStream stream = _BassStream;
+      if (stream != null && BassCd.BASS_CD_StreamSetTrack(stream.Handle, other.BassTrackNo))
+      {
+        Log.Debug("BassCDTrackInputSource: Simply switched the current track to drive '{0}', track {1}", other.Drive, other.TrackNo);
+        _trackNo = other._trackNo;
+        _length = other._length;
+        stream.UpdateLocalFields();
+        other.Dispose();
+        return true;
+      }
+      Log.Debug("BassCDTrackInputSource: Could not simply switch the current track to drive '{0}', track {1}", other.Drive, other.TrackNo);
+      return false;
     }
 
     #region IInputSource Members
@@ -71,7 +119,17 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public BassStream OutputStream
     {
-      get { return _BassStream; }
+      get
+      {
+        if (!IsInitialized)
+          Initialize();
+        return _BassStream;
+      }
+    }
+
+    public TimeSpan Length
+    {
+      get { return _length; }
     }
 
     #endregion
@@ -80,21 +138,21 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public void Dispose()
     {
-      if (_BassStream != null)
-        _BassStream.Dispose();
+      if (_BassStream == null)
+        return;
+      _BassStream.Dispose();
+      _BassStream = null;
     }
-
-    #endregion
-
-    #region Public members
 
     #endregion
 
     #region Private members
 
-    private BassCDTrackInputSource(string cdTrackFilePath)
+    private BassCDTrackInputSource(char drive, uint trackNo)
     {
-      _cdTrackFilePath = cdTrackFilePath;
+      _drive = drive;
+      _trackNo = trackNo;
+      _length = TimeSpan.FromSeconds(BassCd.BASS_CD_GetTrackLength(drive, BassTrackNo));
     }
 
     /// <summary>
@@ -104,13 +162,20 @@ namespace Ui.Players.BassPlayer.InputSources
     {
       Log.Debug("BassCDTrackInputSource.Initialize()");
 
+      Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_CD_FREEOLD, false);
+
       const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
 
-      int handle = BassCd.BASS_CD_StreamCreateFile(_cdTrackFilePath, flags);
+      int bassDrive = BassUtils.Drive2BassID(_drive);
+      int handle = BassCd.BASS_CD_StreamCreate(bassDrive, BassTrackNo, flags);
 
-      if (handle == BassConstants.BassInvalidHandle)
-        throw new BassLibraryException("BASS_CD_StreamCreateFile");
-
+      if (handle == 0)
+      {
+        if (Bass.BASS_ErrorGetCode() == BASSError.BASS_ERROR_ALREADY)
+          // Drive is already playing - stream must be lazily initialized
+          return;
+        throw new BassLibraryException("BASS_CD_StreamCreate");
+      }
       _BassStream = BassStream.Create(handle);
     }
 
@@ -118,7 +183,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     public override string ToString()
     {
-      return GetType().Name + ": " + _cdTrackFilePath;
+      return string.Format("{0}: Track {1} of drive {2}:", GetType().Name, _trackNo, _drive);
     }
   }
 }

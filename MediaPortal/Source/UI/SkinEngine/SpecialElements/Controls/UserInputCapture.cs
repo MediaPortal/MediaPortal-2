@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
@@ -125,8 +126,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public override void OnMouseMove(float x, float y)
     {
       base.OnMouseMove(x, y);
-      _lastMouseX = _mousePositionMode == PositionCalculationMode.Relative ? (float) (x / ActualWidth) : x;
-      _lastMouseY = _mousePositionMode == PositionCalculationMode.Relative ? (float) (y / ActualHeight) : y;
+      float xTrans = x;
+      float yTrans = y;
+      if (!TransformMouseCoordinates(ref xTrans, ref yTrans))
+        return;
+
+      _lastMouseX = _mousePositionMode == PositionCalculationMode.Relative ? xTrans / (float) ActualWidth : x;
+      _lastMouseY = _mousePositionMode == PositionCalculationMode.Relative ? yTrans / (float) ActualHeight : y;
       if (!IsActive)
         return;
       ICommandStencil command = MouseMovedCommand;

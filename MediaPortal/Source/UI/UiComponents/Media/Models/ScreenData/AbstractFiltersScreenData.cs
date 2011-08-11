@@ -31,7 +31,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;

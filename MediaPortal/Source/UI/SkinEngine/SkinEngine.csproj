@@ -94,7 +94,6 @@
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
-    <Compile Include="Controls\Animations\IKeyFrame.cs" />
     <Compile Include="Controls\Animations\PropertyAnimationTimeline.cs" />
     <Compile Include="Controls\Animations\TimelineContext.cs" />
     <Compile Include="Controls\Animations\ValueKeyFrame.cs" />

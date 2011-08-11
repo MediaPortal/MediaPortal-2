@@ -37,6 +37,13 @@ namespace MediaPortal.Core.Threading
 
   #endregion
 
+  /// <summary>
+  /// Container and management service for asynchronous execution threads and tasks.
+  /// </summary>
+  /// <remarks>
+  /// Use this service to create simple (low-level) work tasks. Use the <see cref="TaskScheduler.ITaskScheduler"/> service to manage higher-level
+  /// persistent tasks.
+  /// </remarks>
   public interface IThreadPool
   {
     #region Methods to add work
@@ -56,8 +63,8 @@ namespace MediaPortal.Core.Threading
 
     #region Methods to manage interval-based work
 
-    void AddIntervalWork(IWorkInterval intervalWork, bool runNow);
-    void RemoveIntervalWork(IWorkInterval intervalWork);
+    void AddIntervalWork(IIntervalWork intervalWork, bool runNow);
+    void RemoveIntervalWork(IIntervalWork intervalWork);
 
     #endregion
 

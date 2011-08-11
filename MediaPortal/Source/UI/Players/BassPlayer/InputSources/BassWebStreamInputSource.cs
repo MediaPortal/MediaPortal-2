@@ -30,7 +30,7 @@ using Un4seen.Bass;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a file inputsource implemented by the Bass library.
+  /// Represents a file inputsource.
   /// </summary>
   internal class BassWebStreamInputSource : IInputSource
   {
@@ -72,6 +72,11 @@ namespace Ui.Players.BassPlayer.InputSources
     public BassStream OutputStream
     {
       get { return _BassStream; }
+    }
+
+    public TimeSpan Length
+    {
+      get { return _BassStream.Length; }
     }
 
     #endregion

@@ -58,7 +58,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Duration in seconds.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(double), Cardinality.Inline, false);
 
     /// <summary>
     /// Track number.

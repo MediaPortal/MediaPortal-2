@@ -36,46 +36,13 @@ namespace MediaPortal.Core.Services.TaskScheduler
   [Serializable]
   public class TaskSchedulerSettings
   {
-    #region Consts
-
-    public const int FIRST_TASK_ID = 0;
-
-    #endregion
-
     #region Protected fields
 
-    protected int _lastTaskId = FIRST_TASK_ID;
     protected TaskCollection _taskCollection = new TaskCollection();
 
     #endregion
 
-    #region Public methods
-
-    /// <summary>
-    /// Gets the next LastTaskId to be assigned to a new <see cref="Task"/> and increments the stored LastTaskId.
-    /// </summary>
-    /// <returns>Next task ID.</returns>
-    public int GetNextTaskID()
-    {
-      if (_lastTaskId == Int32.MaxValue)
-        _lastTaskId = FIRST_TASK_ID;
-      else
-        _lastTaskId++;
-      return _lastTaskId;
-    }
-    #endregion
-
     #region Properties
-
-    /// <summary>
-    /// Property which is used by the <see cref="ISettingsManager"/> to retrieve/set the last dealt LastTaskId.
-    /// </summary>
-    [Setting(SettingScope.Global, FIRST_TASK_ID)]
-    public int LastTaskId
-    {
-      get { return _lastTaskId; }
-      set { _lastTaskId = value; }
-    }
 
     /// <summary>
     /// Property which is used by the <see cref="ISettingsManager"/> to retrieve/set list of registered <see cref="Task"/>s.

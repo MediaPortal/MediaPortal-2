@@ -26,8 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.TaskScheduler;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.Utilities;
 
@@ -35,16 +34,10 @@ namespace MediaPortal.UI.Services.UiNotifications
 {
   public class NotificationService : IDisposable, INotificationService
   {
-    #region Classes
-
-    #endregion
-
     #region Consts
 
-    public const int PENDING_NOTIFICATIONS_THRESHOLD = 10;
-    public const int TASK_ID_INVALID = -1;
-
-    public const string STR_TASK_OWNER = "NotificationService";
+    public const int PENDING_NOTIFICATIONS_WARNING_THRESHOLD = 10;
+    public const int MAX_NUM_PENDING_NOTIFICATIONS_THRESHOLD = 100;
 
     public static readonly TimeSpan TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS = TimeSpan.FromSeconds(10);
 
@@ -52,41 +45,23 @@ namespace MediaPortal.UI.Services.UiNotifications
 
     #region Protected fields
 
-    protected object _syncObj = new object();
+    protected readonly object _syncObj = new object();
     protected IList<INotification> _normalQueue = new List<INotification>();
     protected IList<INotification> _urgentQueue = new List<INotification>();
-    protected AsynchronousMessageQueue _messageQueue;
-    protected int _notificationTimeoutTaskId = TASK_ID_INVALID;
+    protected volatile bool _timeoutCheckSuspended = false;
+    protected IIntervalWork _checkTimeoutIntervalWork = null;
 
     #endregion
 
-    public NotificationService()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            TaskSchedulerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
     public void Dispose()
     {
-      _messageQueue.Shutdown();
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == TaskSchedulerMessaging.CHANNEL)
-      {
-        if ((TaskSchedulerMessaging.MessageType) message.MessageType == TaskSchedulerMessaging.MessageType.DUE &&
-            ((Task) message.MessageData[TaskSchedulerMessaging.TASK]).ID == _notificationTimeoutTaskId)
-          CheckTimeouts();
-      }
+      CheckForTimeouts = false;
     }
 
     protected void CheckTimeouts()
     {
+      if (_timeoutCheckSuspended)
+        return;
       ICollection<INotification> notifications = new List<INotification>(_normalQueue);
       CollectionUtils.AddAll(notifications, _urgentQueue);
       DateTime now = DateTime.Now;
@@ -114,25 +89,25 @@ namespace MediaPortal.UI.Services.UiNotifications
 
     public bool CheckForTimeouts
     {
-      get { return _notificationTimeoutTaskId != TASK_ID_INVALID; }
-      set
-      {
-        ITaskScheduler taskScheduler = ServiceRegistration.Get<ITaskScheduler>();
-        if (value)
-        {
-          if (_notificationTimeoutTaskId != TASK_ID_INVALID)
-            return;
-          _notificationTimeoutTaskId = taskScheduler.AddTask(
-              new Task(STR_TASK_OWNER, TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS));
-        }
-        else
-        {
-          if (_notificationTimeoutTaskId == TASK_ID_INVALID)
-            return;
-          taskScheduler.RemoveTask(_notificationTimeoutTaskId);
-          _notificationTimeoutTaskId = TASK_ID_INVALID;
-        }
-      }
+      get { return !_timeoutCheckSuspended; }
+      set { _timeoutCheckSuspended = !value; }
+    }
+
+    public void Startup()
+    {
+      if (_checkTimeoutIntervalWork != null)
+        return;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      _checkTimeoutIntervalWork = new IntervalWork(CheckTimeouts, TIMESPAN_CHECK_NOTIFICATION_TIMEOUTS);
+      threadPool.AddIntervalWork(_checkTimeoutIntervalWork, true);
+    }
+
+    public void Shutdown()
+    {
+      if (_checkTimeoutIntervalWork == null)
+        return;
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.RemoveIntervalWork(_checkTimeoutIntervalWork);
     }
 
     public INotification EnqueueNotification(NotificationType type, string title, string text, bool urgent)
@@ -158,21 +133,36 @@ namespace MediaPortal.UI.Services.UiNotifications
           _urgentQueue.Insert(0, notification);
         else
           _normalQueue.Insert(0, notification);
-        int numPendingNotifications = _urgentQueue.Count + _normalQueue.Count;
-        if (numPendingNotifications > PENDING_NOTIFICATIONS_THRESHOLD)
+        int numUrgentMessages = _urgentQueue.Count;
+        int numNormalMessages = _normalQueue.Count;
+        int numPendingNotifications = numUrgentMessages + numNormalMessages;
+        if (numPendingNotifications > PENDING_NOTIFICATIONS_WARNING_THRESHOLD)
+        {
           ServiceRegistration.Get<ILogger>().Warn("NotificationService: {0} pending notifications", numPendingNotifications);
+          while (_urgentQueue.Count > MAX_NUM_PENDING_NOTIFICATIONS_THRESHOLD)
+          {
+            INotification prunedNotification = _urgentQueue[_urgentQueue.Count - 1];
+            ServiceRegistration.Get<ILogger>().Warn("NotificationService: Removing unhandled urgent notification '{0}'", prunedNotification);
+            _urgentQueue.RemoveAt(_urgentQueue.Count - 1);
+          }
+          while (_normalQueue.Count > MAX_NUM_PENDING_NOTIFICATIONS_THRESHOLD)
+          {
+            INotification prunedNotification = _normalQueue[_normalQueue.Count - 1];
+            ServiceRegistration.Get<ILogger>().Warn("NotificationService: Removing unhandled normal notification '{0}'", prunedNotification);
+            _normalQueue.RemoveAt(_normalQueue.Count - 1);
+          }
+        }
       }
       NotificationServiceMessaging.SendMessage(NotificationServiceMessaging.MessageType.NotificationEnqueued, notification);
     }
 
     public void RemoveNotification(INotification notification)
     {
+      bool removed;
       lock (_syncObj)
-      {
-        _normalQueue.Remove(notification);
-        _urgentQueue.Remove(notification);
-      }
-      NotificationServiceMessaging.SendMessage(NotificationServiceMessaging.MessageType.NotificationRemoved, notification);
+        removed = _normalQueue.Remove(notification) || _urgentQueue.Remove(notification);
+      if (removed)
+        NotificationServiceMessaging.SendMessage(NotificationServiceMessaging.MessageType.NotificationRemoved, notification);
     }
 
     public INotification PeekNotification()
@@ -189,7 +179,7 @@ namespace MediaPortal.UI.Services.UiNotifications
 
     public INotification DequeueNotification()
     {
-      INotification notification = null;
+      INotification notification;
       lock (_syncObj)
       {
         if (_urgentQueue.Count > 0)
@@ -202,6 +192,8 @@ namespace MediaPortal.UI.Services.UiNotifications
           notification = _normalQueue[_normalQueue.Count - 1];
           _normalQueue.RemoveAt(_normalQueue.Count - 1);
         }
+        else
+          return null;
       }
       NotificationServiceMessaging.SendMessage(NotificationServiceMessaging.MessageType.NotificationRemoved, notification);
       return notification;

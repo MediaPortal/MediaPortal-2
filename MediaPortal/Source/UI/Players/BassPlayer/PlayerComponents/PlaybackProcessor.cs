@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 
@@ -33,12 +34,18 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// Management class for playback sessions and available input sources.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// This playback processor class maintains a queue of input sources to be played and a current playback session.
   /// Input sources with the same number of channels and the same samplerate are compatible, which means that the same
-  /// playback session instance can play and crossfade them.<br/>
-  /// The playback session will automatically move to the next input source, if it is compatible.<br/>
+  /// playback session instance can play them and crossfade between them.
+  /// </para>
+  /// <para>
+  /// The playback session will automatically move to the next input source, if it is compatible.
+  /// </para>
+  /// <para>
   /// If the next input source is not compatible with the current playback session, the current session will notify
   /// its containing <see cref="PlaybackProcessor"/> which then will switch to a new playback session.
+  /// </para>
   /// </remarks>
   public class PlaybackProcessor : IDisposable
   {
@@ -107,9 +114,25 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
       // TODO: Insert gap between tracks if we are in playback mode Normal
       IInputSource inputSource = PeekNextInputSource();
+
       if (_playbackSession != null)
+      {
+        BassCDTrackInputSource bcdtisNew = inputSource as BassCDTrackInputSource;
+        IInputSource currentInputSource = _playbackSession.CurrentInputSource;
+        BassCDTrackInputSource bcdtisOld = currentInputSource as BassCDTrackInputSource;
+        if (bcdtisOld != null && bcdtisNew != null)
+        {
+          // Special treatment for CD drives: If the new input source is from the same audio CD drive, we must take the stream over
+          if (bcdtisOld.SwitchTo(bcdtisNew))
+          {
+            _playbackSession.IsAwaitingNextInputSource = false;
+            DequeueNextInputSource(); // Remove from queue
+            return;
+          }
+        }
         // TODO: Trigger crossfading if CF is configured
         _playbackSession.End(_internalState == InternalPlaybackState.Playing); // Only wait for fade out when we are playing
+      }
 
       _internalState = InternalPlaybackState.Playing;
       if (inputSource == null)
@@ -121,7 +144,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         if (_playbackSession.InitializeWithNewInputSource(inputSource))
         {
           _playbackSession.Play();
-          DequeueNextInputSource();
+          DequeueNextInputSource(); // Remove from queue
           return;
         }
         _playbackSession.Dispose();
@@ -151,12 +174,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     /// <remarks>
     /// This method might block the calling thread as long as the switching to the new input source lasts in some cases.
-    /// See the notes for <see cref="MoveToNextInputSource_Sync"/>.
+    /// See the notes for <see cref="MoveToNextInputSource_Sync()"/>.
     /// </remarks>
     protected void NextInputSourceAvailable_Sync()
     {
       PlaybackSession session = _playbackSession;
-      if (session != null && session.State == SessionState.AwaitingNextInputSource)
+      if (session != null && session.IsAwaitingNextInputSource)
         // In this case, the session will automatically switch to the new item
         return;
       if (session == null || session.State == SessionState.Ended)

@@ -180,10 +180,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     /// </summary>
     private GraphicsPath GetLine(RectangleF baseRect)
     {
-      float x1 = (float)(X1);
-      float y1 = (float)(Y1);
-      float x2 = (float)(X2);
-      float y2 = (float)(Y2);
+      float x1 = (float) X1;
+      float y1 = (float) Y1;
+      float x2 = (float) X2;
+      float y2 = (float) Y2;
 
       float w = (float) Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 

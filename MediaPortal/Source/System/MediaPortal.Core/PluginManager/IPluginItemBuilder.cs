@@ -46,7 +46,7 @@ namespace MediaPortal.Core.PluginManager
     /// when this method is called, depending on the return value of <see cref="NeedsPluginActive"/>.
     /// </summary>
     /// <param name="itemData">The plugin item's metadata to use.</param>
-    /// <param name="plugin">The plugin runtime instance.</param>
+    /// <param name="plugin">The plugin runtime instance of the plugin which provides the <paramref name="itemData"/>.</param>
     /// <returns>Item which was built by this item builder. If the item cannot be built, <c>null</c> should be
     /// returned.</returns>
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
@@ -57,7 +57,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     /// <param name="item">The object to revoke.</param>
     /// <param name="itemData">The plugin item's metadata.</param>
-    /// <param name="plugin">The plugin runtime instance.</param>
+    /// <param name="plugin">The plugin runtime instance of the plugin which provides the <paramref name="itemData"/>.</param>
     void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin);
 
     /// <summary>
@@ -69,7 +69,7 @@ namespace MediaPortal.Core.PluginManager
     /// the plugin is active before the <see cref="BuildItem"/> method can be called.
     /// </remarks>
     /// <param name="itemData">The plugin item's metadata to use.</param>
-    /// <param name="plugin">The plugin runtime instance.</param>
+    /// <param name="plugin">The plugin runtime instance of the plugin which provides the <paramref name="itemData"/>.</param>
     /// <returns><c>true</c>, if the plugin needs to be active for the specified item to be built, else <c>false</c>.</returns>
     bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin);
 	}

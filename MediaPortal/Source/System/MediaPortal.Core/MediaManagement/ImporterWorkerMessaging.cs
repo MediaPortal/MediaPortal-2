@@ -38,15 +38,17 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     public enum MessageType
     {
+      ImportStarted,
       ImportStatus,
+      ImportCompleted,
     }
 
     // Message data
-    public const string RESOURCE_PATH = "ResourcePath";
+    public const string RESOURCE_PATH = "ResourcePath"; // Type: ResourcePath
 
-    internal static void SendImportStatusMessage(ResourcePath path)
+    internal static void SendImportMessage(MessageType messageType, ResourcePath path)
     {
-      SystemMessage msg = new SystemMessage(MessageType.ImportStatus);
+      SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[RESOURCE_PATH] = path;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

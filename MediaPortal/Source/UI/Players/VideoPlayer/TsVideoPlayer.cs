@@ -47,7 +47,7 @@ namespace MediaPortal.UI.Players.Video
     #region constants and structs
 
     private const string TSREADER_FILTER_NAME = "TsReader";
-  
+
     #endregion
 
     #region variables
@@ -95,7 +95,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddFileSource()
     {
       // Render the file
-      _fileSource = (IBaseFilter)new TsReader();
+      _fileSource = (IBaseFilter) new TsReader();
 
       ITsReader tsReader = (ITsReader) _fileSource;
       tsReader.SetRelaxedMode(1);
@@ -185,14 +185,14 @@ namespace MediaPortal.UI.Players.Video
     public int OnRequestAudioChange()
     {
       _bRequestAudioChange = true;
-      
+
+      EnumerateStreams();
+      if (_streamInfoAudio == null || _streamInfoAudio.Count == 0)
+        return 0;
+
       //FIXME: TsReader request an explicit choice for Audio Stream! Otherwise there is a 5 seconds delay, because
       // the demuxer is waiting...
-      if (_streamInfoAudio == null)
-        EnumerateStreams();
-
-      if (_streamInfoAudio.Count > 0)
-        _streamInfoAudio.EnableStream(_streamInfoAudio[0].Name);
+      _streamInfoAudio.EnableStream(_streamInfoAudio[0].Name);
       return 0;
     }
 
@@ -211,7 +211,7 @@ namespace MediaPortal.UI.Players.Video
       for (; ; )
       {
         hr = pinEnum.Next(1, pins, ptrFetched);
-        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0) 
+        if (hr != 0 || Marshal.ReadInt32(ptrFetched) == 0)
           break;
         IPin other;
         hr = pins[0].ConnectedTo(out other);
@@ -289,7 +289,7 @@ namespace MediaPortal.UI.Players.Video
           }
           ServiceRegistration.Get<ILogger>().Info("Graph stopped.");
           bool needRebuild = GraphNeedsRebuild(_fileSource);
-          
+
           if (needRebuild)
           {
             ServiceRegistration.Get<ILogger>().Info("Doing full graph rebuild.");
@@ -418,7 +418,7 @@ namespace MediaPortal.UI.Players.Video
             ServiceRegistration.Get<ILogger>().Info("no pins?");
             break;
           }
-        } 
+        }
         while (iFetched == 1);
         FilterGraphTools.TryRelease(ref pinEnum);
         Marshal.FreeCoTaskMem(ptrFetched);
@@ -499,38 +499,44 @@ namespace MediaPortal.UI.Players.Video
 
     #region subtitles
 
-    protected override void EnumerateStreams()
+    protected override bool EnumerateStreams()
     {
       //FIXME: TSReader only offers Audio in IAMStreamSelect, it would be cleaner to expose subs as well.
-      base.EnumerateStreams();
-
-      ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
-      int count = 0;
-      if (subtitleStream != null)
+      bool refreshed = base.EnumerateStreams();
+      if (refreshed)
       {
-        subtitleStream.GetSubtitleStreamCount(ref count);
-        for (int i = 0; i < count; ++i)
+        // If base class has refreshed the stream infos, then update the subtitle streams.
+        ISubtitleStream subtitleStream = _fileSource as ISubtitleStream;
+        int count = 0;
+        if (subtitleStream != null)
         {
-          //FIXME: language should be passed back also as LCID
-          SubtitleLanguage language = new SubtitleLanguage();
-          int type = 0;
-          subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-          subtitleStream.GetSubtitleStreamType(i, ref type);
-          string name = type == 0
-                          ? String.Format("{0} (DVB)", language.lang)
-                          : String.Format("{0} (Teletext)", language.lang);
-          StreamInfo subStream = new StreamInfo(null, i, name, 0);
-          _streamInfoSubtitles.AddUnique(subStream);
+          _streamInfoSubtitles = new StreamInfoHandler();
+          subtitleStream.GetSubtitleStreamCount(ref count);
+          for (int i = 0; i < count; ++i)
+          {
+            //FIXME: language should be passed back also as LCID
+            SubtitleLanguage language = new SubtitleLanguage();
+            int type = 0;
+            subtitleStream.GetSubtitleStreamLanguage(i, ref language);
+            subtitleStream.GetSubtitleStreamType(i, ref type);
+            string name = type == 0
+                            ? String.Format("{0} (DVB)", language.lang)
+                            : String.Format("{0} (Teletext)", language.lang);
+            StreamInfo subStream = new StreamInfo(null, i, name, 0);
+            _streamInfoSubtitles.AddUnique(subStream);
+          }
         }
       }
+      return refreshed;
     }
 
     public override void SetSubtitle(string subtitle)
     {
-      if (_streamInfoSubtitles==null)
-        EnumerateStreams();
+      EnumerateStreams();
+      if (_streamInfoSubtitles == null)
+        return;
 
-       // first try to find a stream by it's exact LCID.
+      // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(subtitle);
       if (streamInfo != null)
         _streamInfoSubtitles.EnableStream(streamInfo.Name);

@@ -36,6 +36,11 @@ namespace MediaPortal.Utilities.FileSystem
   /// </summary>
   public class DriveUtils
   {
+    public static string GetDriveNameWithoutRootDirectory(DriveInfo driveInfo)
+    {
+      return driveInfo.Name.Substring(0, 2);
+    }
+
     /// <summary>
     /// Is the Drive a Network Drive?
     /// </summary>

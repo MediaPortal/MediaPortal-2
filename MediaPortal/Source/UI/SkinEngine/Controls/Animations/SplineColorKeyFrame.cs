@@ -31,10 +31,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class SplineColorKeyFrame : ColorKeyFrame
   {
-    #region Private fields
+    #region Protected fields
 
-    KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
-    AbstractProperty _keySplineProperty;
+    protected KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
+    protected AbstractProperty _keySplineProperty;
 
     #endregion
 
@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       double r = start.R + ((Value.R - start.R) * v);
       double g = start.G + ((Value.G - start.G) * v);
       double b = start.B + ((Value.B - start.B) * v);
-      return Color.FromArgb((int)a, (int)r, (int)g, (int)b);
+      return Color.FromArgb((int) a, (int) r, (int) g, (int) b);
     }
   }
 }

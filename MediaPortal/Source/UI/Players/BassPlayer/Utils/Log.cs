@@ -34,7 +34,7 @@ namespace Ui.Players.BassPlayer.Utils
   {
     #region Fields
 
-    private const string _Prefix = "BassPlayer: ";
+    private const string PREFIX = "BassPlayer: ";
 
     #endregion
 
@@ -55,7 +55,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// <param name="args">An array of objects to write using format.</param>
     public static void Info(string format, params object[] args)
     {
-      Instance.Info(_Prefix + format, args);
+      Instance.Info(PREFIX + format, args);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// <param name="args">An array of objects to write using format.</param>
     public static void Debug(string format, params object[] args)
     {
-      Instance.Debug(_Prefix + format, args);
+      Instance.Debug(PREFIX + format, args);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// <param name="args">An array of objects to write using format.</param>
     public static void Error(string format, params object[] args)
     {
-      Instance.Error(_Prefix + format, args);
+      Instance.Error(PREFIX + format, args);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// <param name="args">An array of objects to write using format.</param>
     public static void Warn(string format, params object[] args)
     {
-      Instance.Warn(_Prefix + format, args);
+      Instance.Warn(PREFIX + format, args);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ namespace Ui.Players.BassPlayer.Utils
     /// <param name="args">An array of objects to write using format.</param>
     public static void Critical(string format, params object[] args)
     {
-      Instance.Critical(_Prefix + format, args);
+      Instance.Critical(PREFIX + format, args);
     }
 
     #endregion

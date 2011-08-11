@@ -28,6 +28,12 @@ namespace MediaPortal.UI.Presentation.UiNotifications
 {
   public class DefaultNotification : INotification
   {
+    #region Consts
+
+    public static TimeSpan DEFAULT_NOTIFICATIONS_TIMEOUT = TimeSpan.FromMinutes(10);
+
+    #endregion
+
     protected NotificationType _type;
     protected string _title;
     protected string _text;
@@ -40,13 +46,11 @@ namespace MediaPortal.UI.Presentation.UiNotifications
       _type = type;
       _title = title;
       _text = text;
+      _timeout = DateTime.Now + DEFAULT_NOTIFICATIONS_TIMEOUT;
     }
 
-    public DefaultNotification(NotificationType type, string title, string text, Guid? handlerWorkflowState)
+    public DefaultNotification(NotificationType type, string title, string text, Guid? handlerWorkflowState) : this(type, title, text)
     {
-      _type = type;
-      _title = title;
-      _text = text;
       _handlerWorkflowState = handlerWorkflowState;
     }
 
@@ -85,5 +89,10 @@ namespace MediaPortal.UI.Presentation.UiNotifications
     public void Enqueued() { }
 
     public void Dequeued() { }
+
+    public override string ToString()
+    {
+      return _title;
+    }
   }
 }

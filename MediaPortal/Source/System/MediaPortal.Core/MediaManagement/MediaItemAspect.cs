@@ -41,7 +41,7 @@ namespace MediaPortal.Core.MediaManagement
   /// has multiple instances of <see cref="MediaItemAspect"/> assigned, each holding data which semantically belong
   /// together. Importers will extract metadata either from the physical media files or gather additional data from
   /// other information sources like the internet.
-  /// We do not fix that each media item aspect is only handled by a signle metadata extractor. MEs should complete
+  /// We do not fix that each media item aspect is only handled by a single metadata extractor. MEs should complete
   /// each other by possibly setting different attribute values in the same media item aspect. For that reason, a
   /// metadata extractor updating a media item aspect which is already present in the media library for a media item
   /// needs a means to declare that an attribute should be left untouched.
@@ -408,6 +408,11 @@ namespace MediaPortal.Core.MediaManagement
       _aspectData.Clear();
       foreach (MediaItemAspectMetadata.AttributeSpecification attributeSpecification in _metadata.AttributeSpecifications.Values)
         _aspectData[attributeSpecification] = IGNORE;
+    }
+
+    public override string ToString()
+    {
+      return "MIA of type '" + _metadata + "'";
     }
   }
 }

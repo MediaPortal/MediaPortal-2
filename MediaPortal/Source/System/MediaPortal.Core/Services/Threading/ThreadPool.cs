@@ -57,9 +57,9 @@ namespace MediaPortal.Core.Services.Threading
     private readonly Hashtable _threads = Hashtable.Synchronized(new Hashtable());
 
     /// <summary>
-    /// List of objects that want to perform work in a fixed interval, with IWorkInterval and the last runtime as value.
+    /// List of objects that want to perform work in a fixed interval, with IIntervalWork and the last runtime as value.
     /// </summary>
-    private readonly List<IWorkInterval> _intervalBasedWork = new List<IWorkInterval>();
+    private readonly List<IIntervalWork> _intervalBasedWork = new List<IIntervalWork>();
 
     /// <summary>
     /// Last time we checked whether interval based work should be run.
@@ -284,11 +284,11 @@ namespace MediaPortal.Core.Services.Threading
     {
       _run = false;
       _cancelWaitHandle.Set();
-      foreach (IWorkInterval iWrk in _intervalBasedWork)
+      foreach (IIntervalWork iWrk in _intervalBasedWork)
         iWrk.OnThreadPoolStopped();
     }
 
-    public void AddIntervalWork(IWorkInterval intervalWork, bool runNow)
+    public void AddIntervalWork(IIntervalWork intervalWork, bool runNow)
     {
       if (_startInfo.DelayedInit)
       {
@@ -305,7 +305,7 @@ namespace MediaPortal.Core.Services.Threading
       }
     }
 
-    public void RemoveIntervalWork(IWorkInterval intervalWork)
+    public void RemoveIntervalWork(IIntervalWork intervalWork)
     {
       lock (_intervalBasedWork)
       {
@@ -514,7 +514,7 @@ namespace MediaPortal.Core.Services.Threading
           return;
 //        ServiceRegistration.Get<ILogger>().Debug("ThreadPool.CheckForIntervalBasedWork()");
         // Search for any interval which is due and not running already
-        foreach (IWorkInterval iWrk in _intervalBasedWork)
+        foreach (IIntervalWork iWrk in _intervalBasedWork)
         {
           if (iWrk.LastRun.AddTicks(iWrk.WorkInterval.Ticks) <= DateTime.Now)
             if (!iWrk.Running)
@@ -525,17 +525,17 @@ namespace MediaPortal.Core.Services.Threading
     }
 
     /// <summary>
-    /// Run the given <paramref name="workInterval"/>.
+    /// Run the given <paramref name="intervalWork"/>.
     /// </summary>
-    /// <param name="workInterval">IWorkInterval to run.</param>
-    protected void RunIntervalBasedWork(IWorkInterval workInterval)
+    /// <param name="intervalWork">IIntervalWork to run.</param>
+    protected void RunIntervalBasedWork(IIntervalWork intervalWork)
     {
 //      ServiceRegistration.Get<ILogger>().Debug("ThreadPool.RunIntervalBasedWork(): Running interval based work '{0}' (interval: {1})",
-//          workInterval.Work.Description, workInterval.WorkInterval);
-      workInterval.ResetWorkState();
-      workInterval.LastRun = DateTime.Now;
-      workInterval.Running = true;
-      Add(workInterval.Work, QueuePriority.Low);
+//          intervalWork.Work.Description, intervalWork.WorkInterval);
+      intervalWork.ResetWorkState();
+      intervalWork.LastRun = DateTime.Now;
+      intervalWork.Running = true;
+      Add(intervalWork.Work, QueuePriority.Low);
     }
 
     #endregion

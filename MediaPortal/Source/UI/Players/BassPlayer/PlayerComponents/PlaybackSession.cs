@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
@@ -34,7 +35,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     Reset,
     Initialized,
     Playing,
-    AwaitingNextInputSource,
     Ended
   }
 
@@ -45,6 +45,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// TODO: Crossfading
   public class PlaybackSession : IDisposable
   {
+    #region Consts
+
+    public static TimeSpan REQUEST_NEXT_ITEM_THRESHOLD = new TimeSpan(0, 0, 0, 0, 500);
+
+    #endregion
+
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -54,7 +60,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     protected readonly int _sampleRate;
     protected readonly bool _isPassThrough;
 
-    protected volatile SessionState _state;
+    protected SessionState _state;
+    protected bool _isAwaitingNextInputSource = false;
     protected volatile IInputSource _currentInputSource = null;
     protected volatile BassStream _outputStream;
     protected PlaybackBuffer _playbackBuffer;
@@ -181,6 +188,20 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       }
     }
 
+    public bool IsAwaitingNextInputSource
+    {
+      get
+      {
+        lock (_syncObj)
+          return _isAwaitingNextInputSource;
+      }
+      set
+      {
+        lock (_syncObj)
+          _isAwaitingNextInputSource = value;
+      }
+    }
+
     /// <summary>
     /// Determines whether a given inputsource fits in this session or not.
     /// </summary>
@@ -212,8 +233,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void End(bool waitForFadeOut)
     {
       lock (_syncObj)
+      {
         if (_state == SessionState.Reset)
           return;
+        _state = SessionState.Reset;
+      }
       _controller.OutputDeviceManager.StopDevice(waitForFadeOut);
 
       _controller.OutputDeviceManager.ResetInputStream();
@@ -228,7 +252,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _outputStream = null;
         _controller.ScheduleDisposeObject_Async(_currentInputSource);
         _currentInputSource = null;
-        _state = SessionState.Reset;
       }
     }
 
@@ -314,9 +337,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
         bool doCheckNextInputSource = false;
         lock (_syncObj)
-          if (_state == SessionState.Playing && stream.GetPosition() > stream.Length - new TimeSpan(0, 0, 0, 0, 500))
+          if (!_isAwaitingNextInputSource && stream.GetPosition() > stream.Length.Subtract(REQUEST_NEXT_ITEM_THRESHOLD))
           { // Near end of the stream - make sure that next input source is available
-            _state = SessionState.AwaitingNextInputSource;
+            _isAwaitingNextInputSource = true;
             doCheckNextInputSource = true;
           }
         if (doCheckNextInputSource)
@@ -326,8 +349,24 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           // Normal case, we have finished
           return read;
 
+        // Old buffer ran out of samples - either we can get another valid input source below or we are finished. End wait state.
+        _isAwaitingNextInputSource = false;
+
         // Nothing could be read from old input source. Second try: Next input source.
         IInputSource newInputSource = _playbackProcessor.PeekNextInputSource();
+
+        // Special treatment for CD drives: If the new input source is from the same audio CD drive, we must take the stream over
+        BassCDTrackInputSource bcdtisOld = inputSource as BassCDTrackInputSource;
+        BassCDTrackInputSource bcdtisNew = newInputSource as BassCDTrackInputSource;
+        if (bcdtisOld != null && bcdtisNew != null)
+        {
+          if (bcdtisOld.SwitchTo(bcdtisNew))
+          {
+            _playbackProcessor.DequeueNextInputSource();
+            return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
+          }
+        }
+
         lock (_syncObj)
         {
           _currentInputSource = null;
@@ -345,21 +384,15 @@ namespace Ui.Players.BassPlayer.PlayerComponents
             _state = SessionState.Ended;
           return (int) BASSStreamProc.BASS_STREAMPROC_END;
         }
-        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of inputSource
+        _playbackProcessor.DequeueNextInputSource(); // Should be the contents of newInputSource
         lock (_syncObj)
         {
           _currentInputSource = newInputSource;
           _state = SessionState.Playing;
         }
-        stream = newInputSource.OutputStream;
-        read = stream.Read(buffer, requestedBytes);
 
-        if (read > 0)
-          return read;
-
-        // No chance: Stream ended and we don't have another stream to switch to
-        _state = SessionState.Ended;
-        return (int) BASSStreamProc.BASS_STREAMPROC_END;
+        // Next try
+        return OutputStreamWriteProc(streamHandle, buffer, requestedBytes, userData);
       }
       catch (Exception)
       {

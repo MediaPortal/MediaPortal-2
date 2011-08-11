@@ -205,5 +205,35 @@ namespace MediaPortal.Utilities
       sb.Replace("}", "}}");
       return sb.ToString();
     }
+
+    /// <summary>
+    /// Pads the given <paramref name="str"/> to a length of <paramref name="length"/> chars with the given
+    /// <paramref name="filler"/> char.
+    /// </summary>
+    /// <param name="str">String to pad. If this parameter is <c>null</c>, a string will be returned containing
+    /// <paramref name="length"/> times the <paramref name="filler"/> charcter.</param>
+    /// <param name="length">Length of the result string.</param>
+    /// <param name="filler">Filler character to use for padding.</param>
+    /// <param name="left">If this parameter is <c>true</c>, the filler will be added at the start of the given
+    /// <paramref name="str"/>, else it will be added at the end.</param>
+    /// <returns>String of the given <paramref name="length"/>.</returns>
+    public static string Pad(string str, int length, char filler, bool left)
+    {
+      StringBuilder result = new StringBuilder(length);
+      int curLen = string.IsNullOrEmpty(str) ? 0 : str.Length;
+      if (left)
+      {
+        for (int i = curLen; i < length; i++)
+          result.Append(filler);
+        result.Append(str);
+      }
+      else
+      {
+        result.Append(str);
+        for (int i = curLen; i < length; i++)
+          result.Append(filler);
+      }
+      return result.ToString();
+    }
   }
 }

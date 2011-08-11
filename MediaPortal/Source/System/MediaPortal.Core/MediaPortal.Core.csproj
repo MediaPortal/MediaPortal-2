@@ -281,7 +281,7 @@
     <Compile Include="Threading\IntervalWork.cs" />
     <Compile Include="Threading\IThreadPool.cs" />
     <Compile Include="Threading\IWork.cs" />
-    <Compile Include="Threading\IWorkInterval.cs" />
+    <Compile Include="Threading\IIntervalWork.cs" />
     <Compile Include="Threading\Work.cs" />
     <Compile Include="Threading\WorkEventArgs.cs" />
     <Compile Include="Services\Messaging\MessageBroker.cs" />

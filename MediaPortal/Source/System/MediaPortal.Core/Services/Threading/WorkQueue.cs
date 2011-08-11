@@ -47,14 +47,6 @@ namespace MediaPortal.Core.Services.Threading
 
     #endregion
 
-    #region Constructors
-
-    public WorkQueue()
-    {
-    }
-
-    #endregion
-
     #region Public methods
 
     public void Add(IWork work)
@@ -162,12 +154,11 @@ namespace MediaPortal.Core.Services.Threading
     {
       if (_highQueue.Count > 0)
         return _highQueue;
-      else if (_normalQueue.Count > 0)
+      if (_normalQueue.Count > 0)
         return _normalQueue;
-      else if (_lowQueue.Count > 0)
+      if (_lowQueue.Count > 0)
         return _lowQueue;
-      else
-        return null;
+      return null;
     }
 
     #endregion

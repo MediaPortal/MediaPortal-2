@@ -37,7 +37,24 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected ResourcePath _nativeResourcePath;
 
     #endregion
+    
+    /// <summary>
+    /// Convenience constructor to create a resource locator for the local system.
+    /// </summary>
+    /// <param name="localResourcePath">Path of the desired resource in the local system.</param>
+    public ResourceLocator(ResourcePath localResourcePath)
+    {
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      _nativeSystemId = systemResolver.LocalSystemId;
+      _nativeResourcePath = localResourcePath;
+    }
 
+    /// <summary>
+    /// Creates a new resource accessor for the resource located in the system with the given <paramref name="systemId"/> with the
+    /// given <paramref name="nativeResourcePath"/>.
+    /// </summary>
+    /// <param name="systemId">Id of the MP2 system where the desirec resource is located.</param>
+    /// <param name="nativeResourcePath">Path of the desired resource in the system with the given <paramref name="systemId"/>.</param>
     public ResourceLocator(string systemId, ResourcePath nativeResourcePath)
     {
       _nativeSystemId = systemId;

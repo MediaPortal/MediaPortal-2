@@ -22,11 +22,15 @@
 
 #endregion
 
+using System;
 using System.Drawing;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
@@ -34,12 +38,32 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.Exceptions;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
+using SlimDX.Direct3D9;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  public enum TextCursorState
+  {
+    Visible,
+    Hidden
+  }
+
   // TODO: We don't notice font changes if font is declared on a parent element
   public class TextControl : Control
   {
+    #region Consts
+
+    public TimeSpan CURSOR_BLINK_INTERVAL = TimeSpan.FromSeconds(0.5);
+    public TimeSpan INFINITE_TIMESPAN = TimeSpan.FromMilliseconds(-1);
+
+    /// <summary>
+    /// Thickness of the text cursor in pixels.
+    /// </summary>
+    public int CURSOR_THICKNESS = 2;
+
+    #endregion
+
     #region Protected fields
 
     protected AbstractProperty _caretIndexProperty;
@@ -52,7 +76,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractTextInputHandler _textInputHandler = null;
 
     // Use to avoid change handlers during text updates
-    bool _internalUpdate = false; 
+    protected bool _internalUpdate = false; 
+
+    // Text cursor
+    protected bool _cursorShapeInvalid = true;
+    protected bool _cursorBrushInvalid = true;
+    protected Timer _cursorBlinkTimer = null;
+    protected TextCursorState _cursorState;
+    protected PrimitiveBuffer _cursorContext = null;
+    protected Brush _cursorBrush = null;
 
     #endregion
 
@@ -66,6 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
+      _cursorBlinkTimer = new Timer(CursorBlinkHandler);
       _caretIndexProperty = new SProperty(typeof(int), 0);
       _textProperty = new SProperty(typeof(string), string.Empty);
       _internalTextProperty = new SProperty(typeof(string), string.Empty);
@@ -74,6 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _preferredTextLengthProperty = new SProperty(typeof(int?), null);
       _textAlignProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
 
+      _cursorState = TextCursorState.Hidden;
+
       // Yes, we can have focus
       Focusable = true;
     }
@@ -81,6 +116,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _textProperty.Attach(OnTextChanged);
+      _caretIndexProperty.Attach(OnCaretIndexChanged);
+      _colorProperty.Attach(OnColorChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
       _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
@@ -92,6 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
+      _caretIndexProperty.Detach(OnCaretIndexChanged);
+      _colorProperty.Detach(OnColorChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
       _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
@@ -110,9 +149,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CaretIndex = tc.CaretIndex;
       InternalText = Text;
       Attach();
+      CheckTextCursor();
     }
 
     #endregion
+
+    void CursorBlinkHandler(object state)
+    {
+      ToggleTextCursorState();
+    }
 
     void OnHasFocusChanged(AbstractProperty prop, object oldValue)
     {
@@ -120,6 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _textInputHandler = HasFocus ? CreateTextInputHandler() : null;
       if (oldTextInputHandler != null)
         oldTextInputHandler.Dispose();
+      CheckTextCursor();
     }
 
     void OnTextChanged(AbstractProperty prop, object oldValue)
@@ -129,6 +175,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // The skin is setting the text, so update the caret
         CaretIndex = text.Length;
       InternalText = text;
+    }
+
+    void OnCaretIndexChanged(AbstractProperty prop, object oldValue)
+    {
+      _cursorShapeInvalid = true;
+      if (CursorState == TextCursorState.Visible)
+        // A cursor movement makes the text cursor visible at once
+        SetupCursor();
+    }
+
+    void OnColorChanged(AbstractProperty prop, object oldValue)
+    {
+      _cursorBrushInvalid = true;
     }
 
     void OnInternalTextChanged(AbstractProperty prop, object oldValue)
@@ -147,6 +206,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         AllocFont();
       else
         _asset.Text = text;
+      if (CursorState == TextCursorState.Visible)
+        // A text change makes the text cursor visible at once
+        SetupCursor();
+    }
+
+    protected void ToggleTextCursorState()
+    {
+      CursorState = CursorState == TextCursorState.Visible ? TextCursorState.Hidden : TextCursorState.Visible;
+    }
+
+    protected void CheckTextCursor()
+    {
+      if (HasFocus)
+        SetupCursor();
+      else
+        DisableCursor();
+    }
+
+    /// <summary>
+    /// Shows the text cursor and initializes the text cursor timer.
+    /// </summary>
+    protected void SetupCursor()
+    {
+      CursorState = TextCursorState.Visible;
+      _cursorBlinkTimer.Change(CURSOR_BLINK_INTERVAL, CURSOR_BLINK_INTERVAL);
+    }
+
+    /// <summary>
+    /// Hides the text cursor.
+    /// </summary>
+    protected void DisableCursor()
+    {
+      CursorState = TextCursorState.Hidden;
+      _cursorBlinkTimer.Change(INFINITE_TIMESPAN, INFINITE_TIMESPAN);
     }
 
     protected AbstractTextInputHandler CreateTextInputHandler()
@@ -179,6 +272,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (textInputHandler != null)
         textInputHandler.HandleInput(ref key);
       base.OnKeyPreview(ref key);
+    }
+
+    /// <summary>
+    /// Gets the current state of the text cursor (visible/invisible).
+    /// </summary>
+    public TextCursorState CursorState
+    {
+      get { return _cursorState; }
+      internal set { _cursorState = value; }
     }
 
     public AbstractProperty PreferredTextLengthProperty
@@ -261,6 +363,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    void DeallocateCursor()
+    {
+      if (_cursorContext != null)
+        PrimitiveBuffer.DisposePrimitiveBuffer(ref _cursorContext);
+    }
+
+    void UpdateCursorShape(RectangleF cursorBounds, float zPos)
+    {
+      DeallocateCursor();
+      Color4 col = ColorConverter.FromColor(Color);
+      int color = col.ToArgb();
+
+      PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
+          cursorBounds.Left - 0.5f, cursorBounds.Top - 0.5f, cursorBounds.Right - 0.5f, cursorBounds.Bottom - 0.5f,
+          0, 0, 0, 0, zPos, color);
+
+      if (_cursorBrushInvalid && _cursorBrush != null)
+      {
+        _cursorBrush.Deallocate();
+        _cursorBrush.Dispose();
+        _cursorBrush = null;
+      }
+      if (_cursorBrush == null)
+        _cursorBrush = new SolidColorBrush {Color = Color};
+      _cursorBrushInvalid = false;
+
+      _cursorBrush.SetupBrush(this, ref verts, zPos, false);
+      PrimitiveBuffer.SetPrimitiveBuffer(ref _cursorContext, ref verts, PrimitiveType.TriangleFan);
+
+      _cursorShapeInvalid = false;
+    }
+
     public override void OnKeyPressed(ref Key key)
     {
       base.OnKeyPressed(ref key);
@@ -293,7 +427,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void DoRender(RenderContext localRenderContext)
     {
       base.DoRender(localRenderContext);
-
       AllocFont();
 
       HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
@@ -311,7 +444,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
+      // Render text
       _asset.Render(_innerRect, horzAlign, vertAlign, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
+
+      // Update text cursor
+      if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)
+      {
+        string textBeforeCaret = Text;
+        textBeforeCaret = string.IsNullOrEmpty(textBeforeCaret) ? string.Empty : textBeforeCaret.Substring(0, CaretIndex);
+        float caretX = _asset.TextWidth(textBeforeCaret);
+        float textHeight = _asset.TextHeight(1);
+        float textInsetY;
+        switch (vertAlign)
+        {
+          case VerticalTextAlignEnum.Bottom:
+            textInsetY = _innerRect.Height - textHeight;
+            break;
+          case VerticalTextAlignEnum.Center:
+            textInsetY = (_innerRect.Height - textHeight) / 2;
+            break;
+          default: // VerticalTextAlignEnum.Top
+            textInsetY = 0;
+            break;
+        }
+        RectangleF cursorBounds = new RectangleF(_innerRect.X + caretX, _innerRect.Y + textInsetY, CURSOR_THICKNESS, textHeight);
+        UpdateCursorShape(cursorBounds, localRenderContext.ZOrder);
+      }
+
+      // Render text cursor
+      if (_cursorBrush != null && CursorState == TextCursorState.Visible)
+      {
+        _cursorBrush.BeginRenderBrush(_cursorContext, localRenderContext);
+        _cursorContext.Render(0);
+        _cursorBrush.EndRender();
+      }
     }
 
     public override void Deallocate()
@@ -322,11 +488,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _asset.Dispose();
         _asset = null;
       }
+      DeallocateCursor();
     }
 
     public override void Dispose()
     {
       Deallocate();
+      _cursorBlinkTimer.Dispose();
       base.Dispose();
     }
   }

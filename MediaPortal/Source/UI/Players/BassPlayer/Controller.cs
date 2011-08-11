@@ -251,10 +251,7 @@ namespace Ui.Players.BassPlayer
       IInputSource source = session.CurrentInputSource;
       if (source == null)
         return TimeSpan.Zero;
-      BassStream outputStream = source.OutputStream;
-      if (outputStream == null)
-        return TimeSpan.Zero;
-      return outputStream.Length;
+      return source.Length;
     }
 
     /// <summary>

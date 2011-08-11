@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.TaskScheduler;
 
 namespace MediaPortal.Core.Services.TaskScheduler
@@ -37,7 +38,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     #region Protected fields
 
     protected List<Task> _tasks;
-    protected TaskComparer _comparer;
+    protected TaskComparerByNextRun _compareByNextRun;
 
     #endregion
 
@@ -46,7 +47,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public TaskCollection()
     {
       _tasks = new List<Task>();
-      _comparer = new TaskComparer();
+      _compareByNextRun = new TaskComparerByNextRun();
     }
 
     #endregion
@@ -60,9 +61,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     public void Add(Task task)
     {
       if (_tasks.Contains(task))
-        throw new ArgumentException("Task is already in task list!");
+        throw new ArgumentException("Task is already in task list");
       {
-        int index = _tasks.BinarySearch(task, _comparer);
+        int index = _tasks.BinarySearch(task, _compareByNextRun);
         if (index < 0)
           _tasks.Insert(~index, task);
         else
@@ -76,8 +77,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <param name="task">Task to remove from the TaskCollection.</param>
     public void Remove(Task task)
     {
-      if (_tasks.Contains(task))
-        _tasks.Remove(task);
+      _tasks.Remove(task);
     }
 
     /// <summary>
@@ -85,17 +85,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// </summary>
     /// <param name="taskID">ID of the task to replace.</param>
     /// <param name="task">New task to replace the old one with.</param>
-    public void Replace(int taskID, Task task)
+    public void Replace(Guid taskID, Task task)
     {
-      Task oldTask = null;
-      foreach (Task t in _tasks)
-      {
-        if (t.ID == taskID)
-        {
-          oldTask = t;
-          break;
-        }
-      }
+      Task oldTask = _tasks.FirstOrDefault(t => t.ID == taskID);
       if (oldTask != null)
         Remove(oldTask);
       Add(task);
@@ -106,19 +98,20 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// </summary>
     public void Sort()
     {
-      _tasks.Sort(_comparer);
+      _tasks.Sort(_compareByNextRun);
     }
 
-    /// <summary>
-    /// Creates a clone of the TaskCollection.
-    /// </summary>
-    /// <returns>A list of tasks currently in the TaskCollection.</returns>
-    public IList<Task> Clone()
+    public Task GetTask(Guid taskId)
     {
-      List<Task> tasks = new List<Task>();
-      foreach (Task t in _tasks)
-        tasks.Add(t.Clone() as Task);
-      return tasks;
+      Task result = _tasks.FirstOrDefault(task => task.ID == taskId);
+      if (result == null)
+        return null;
+      return (Task) result.Clone();
+    }
+
+    public ICollection<Task> GetTasks(string ownerId)
+    {
+      return _tasks.Where(task => task.Owner == ownerId).Select(task => (Task) task.Clone()).ToList();
     }
 
     #endregion
@@ -139,7 +132,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
   /// <summary>
   /// Compares two <see cref="Task"/>s with each other.
   /// </summary>
-  public class TaskComparer : IComparer<Task>
+  public class TaskComparerByNextRun : IComparer<Task>
   {
     #region Public methods
 

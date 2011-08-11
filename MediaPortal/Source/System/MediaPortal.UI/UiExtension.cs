@@ -31,6 +31,7 @@ using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.RemovableMedia;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.SystemResolver;
 using MediaPortal.UI.Services.UiNotifications;
@@ -81,19 +82,28 @@ namespace MediaPortal.UI
       logger.Debug("UiExtension: Registering IFrontendServer service");
       ServiceRegistration.Set<IFrontendServer>(new Services.FrontendServer.FrontendServer());
 
+      logger.Debug("UiExtension: Registering IRemovableMediaTracker service");
+      ServiceRegistration.Set<IRemovableMediaTracker>(new Services.RemovableMedia.RemovableMediaTracker());
+
       AdditionalUiBuilders.Register();
+    }
+
+    public static void Startup()
+    {
+      RegisterDefaultCommandShortcuts();
+      ServiceRegistration.Get<IServerConnectionManager>().Startup();
+      ServiceRegistration.Get<IFrontendServer>().Startup();
+      ServiceRegistration.Get<IRemovableMediaTracker>().Startup();
+      ServiceRegistration.Get<INotificationService>().Startup();
     }
 
     public static void StopUiServices()
     {
-      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      serverConnectionManager.Shutdown();
-
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      playerContextManager.Shutdown();
-
-      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-      playerManager.CloseAllSlots();
+      ServiceRegistration.Get<INotificationService>().Shutdown();
+      ServiceRegistration.Get<IRemovableMediaTracker>().Shutdown();
+      ServiceRegistration.Get<IServerConnectionManager>().Shutdown();
+      ServiceRegistration.Get<IPlayerContextManager>().Shutdown();
+      ServiceRegistration.Get<IPlayerManager>().CloseAllSlots();
     }
 
     public static void DisposeUiServices()
@@ -101,6 +111,9 @@ namespace MediaPortal.UI
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
       // Reverse order than method RegisterUiServices()
+
+      logger.Debug("UiExtension: Removing IRemovableMediaTracker service");
+      ServiceRegistration.RemoveAndDispose<IRemovableMediaTracker>();
 
       logger.Debug("UiExtension: Removing IFrontendServer service");
       ServiceRegistration.RemoveAndDispose<IFrontendServer>();
@@ -139,13 +152,6 @@ namespace MediaPortal.UI
     protected static void RegisterDefaultCommandShortcuts()
     {
       //TODO: Shortcut to handle the "Power" key, further shortcuts
-    }
-
-    public static void Startup()
-    {
-      RegisterDefaultCommandShortcuts();
-      ServiceRegistration.Get<IServerConnectionManager>().Startup();
-      ServiceRegistration.Get<IFrontendServer>().Startup();
     }
   }
 }

@@ -26,6 +26,7 @@ using System;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -54,6 +55,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         Title = (string) mediaAspect[MediaAspect.ATTR_TITLE];
         Rating = (int?) mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
       }
+      MediaItemAspect specialSortAspect;
+      if (mediaItem.Aspects.TryGetValue(SpecialSortAspect.ASPECT_ID, out specialSortAspect))
+        SortString = (string) specialSortAspect[SpecialSortAspect.ATTR_SORT_STRING];
     }
 
     public static PlayableMediaItem CreateItem(MediaItem mediaItem)

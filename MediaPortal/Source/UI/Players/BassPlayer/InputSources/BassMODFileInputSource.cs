@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using Ui.Players.BassPlayer.Interfaces;
@@ -31,7 +32,7 @@ using Un4seen.Bass;
 namespace Ui.Players.BassPlayer.InputSources
 {
   /// <summary>
-  /// Represents a MOD file inputsource implemented by the Bass library.
+  /// Represents a MOD file inputsource.
   /// </summary>
   internal class BassMODFileInputSource : AbstractBassResourceInputSource, IInputSource
   {
@@ -67,6 +68,11 @@ namespace Ui.Players.BassPlayer.InputSources
     public BassStream OutputStream
     {
       get { return _BassStream; }
+    }
+
+    public TimeSpan Length
+    {
+      get { return _BassStream.Length; }
     }
 
     #endregion

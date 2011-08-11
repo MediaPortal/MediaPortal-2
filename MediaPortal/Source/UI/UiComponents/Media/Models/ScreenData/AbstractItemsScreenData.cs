@@ -31,7 +31,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Views;
+using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
@@ -47,11 +47,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected PlayableItemCreatorDelegate _playableItemCreator;
 
     protected object _syncObj = new object();
-
     // Variables to be synchronized for multithreading access
     protected View _view = null;
     protected bool _buildingList = false;
     protected bool _listDirty = false;
+    protected IViewChangeNotificator _viewChangeNotificator = null;
 
     /// <summary>
     /// Creates a new instance of <see cref="AbstractItemsScreenData"/>.
@@ -78,6 +78,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (!_presentsBaseView)
         return;
       ReloadMediaItems(navigationData.BaseViewSpecification.BuildView(), true);
+    }
+
+    public override void ReleaseScreenData()
+    {
+      base.ReleaseScreenData();
+      UninstallViewChangeNotificator();
     }
 
     public View CurrentView
@@ -125,6 +131,31 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ReloadMediaItems(createNewList);
     }
 
+    private void ViewChanged()
+    {
+      Reload();
+    }
+
+    protected void InstallViewChangeNotificator(IViewChangeNotificator viewChangeNotificator)
+    {
+      if (_viewChangeNotificator != null)
+        UninstallViewChangeNotificator();
+      _viewChangeNotificator = viewChangeNotificator;
+      if (_viewChangeNotificator == null)
+        return;
+      _viewChangeNotificator.Changed += ViewChanged;
+      _viewChangeNotificator.install();
+    }
+
+    protected void UninstallViewChangeNotificator()
+    {
+      if (_viewChangeNotificator == null)
+        return;
+      _viewChangeNotificator.Changed -= ViewChanged;
+      _viewChangeNotificator.Dispose();
+      _viewChangeNotificator = null;
+    }
+
     /// <summary>
     /// Updates the GUI data for a media items view screen which reflects the data of the <see cref="CurrentView"/>.
     /// </summary>
@@ -146,6 +177,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         _buildingList = true;
         _listDirty = false;
         view = _view;
+        InstallViewChangeNotificator(_view.GetViewChangeNotificator());
       }
       try
       {
@@ -179,7 +211,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               {
                 int totalNumItems = 0;
 
-                List<ListItem> viewsList = new List<ListItem>();
+                List<NavigationItem> viewsList = new List<NavigationItem>();
                 foreach (View sv in subViews)
                 {
                   ViewItem item = new ViewItem(sv, null, sv.AbsNumItems);
@@ -189,7 +221,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   if (sv.AbsNumItems.HasValue)
                     totalNumItems += sv.AbsNumItems.Value;
                 }
-                viewsList.Sort((v1, v2) => string.Compare(v1[Consts.KEY_SIMPLE_TITLE], v2[Consts.KEY_SIMPLE_TITLE]));
+                viewsList.Sort((v1, v2) => string.Compare(v1.SortString, v2.SortString));
                 CollectionUtils.AddAll(items, viewsList);
 
                 lock (_syncObj)
@@ -197,8 +229,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                     goto RebuildView;
 
                 PlayableItemCreatorDelegate picd = PlayableItemCreator;
-                List<ListItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<ListItem>().ToList();
-                itemsList.Sort((i1, i2) => string.Compare(i1[Consts.KEY_SIMPLE_TITLE], i2[Consts.KEY_SIMPLE_TITLE]));
+                List<NavigationItem> itemsList = mediaItems.Select(childItem => picd(childItem)).Where(item => item != null).Cast<NavigationItem>().ToList();
+                itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
 
                 Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
