@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Threading;
@@ -144,9 +145,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
           }
         }
         if (saveChanges)
-        {
           SaveChanges(needSort);
-        }
       }
     }
 
@@ -220,18 +219,18 @@ namespace MediaPortal.Core.Services.TaskScheduler
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
-    public int AddTask(Task newTask)
+    public Guid AddTask(Task newTask)
     {
       lock (_taskMutex)
       {
-        newTask.ID = _settings.GetNextTaskID();
+        newTask.ID = Guid.NewGuid();
         _settings.TaskCollection.Add(newTask);
         SaveChanges(false);
       }
       return newTask.ID;
     }
 
-    public void UpdateTask(int taskId, Task updatedTask)
+    public void UpdateTask(Guid taskId, Task updatedTask)
     {
       lock (_taskMutex)
       {
@@ -242,7 +241,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       }
     }
 
-    public void RemoveTask(int taskId)
+    public void RemoveTask(Guid taskId)
     {
       lock (_taskMutex)
       {
@@ -252,40 +251,28 @@ namespace MediaPortal.Core.Services.TaskScheduler
           if (t.ID == taskId)
             task = t;
         }
-        if (task != null)
-        {
-          _settings.TaskCollection.Remove(task);
-          SaveChanges(false);
-          TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
-        }
+        if (task == null)
+          return;
+        _settings.TaskCollection.Remove(task);
+        SaveChanges(false);
+        TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
       }
     }
 
-    public Task GetTask(int taskId)
+    public Task GetTask(Guid taskId)
     {
       IList<Task> allTasks;
       lock (_taskMutex)
-      {
         allTasks = _settings.TaskCollection.Clone();
-      }
-      foreach (Task task in allTasks)
-        if (task.ID == taskId)
-          return task;
-      return null;
+      return allTasks.FirstOrDefault(task => task.ID == taskId);
     }
 
-    public IList<Task> GetTasks(string ownerId)
+    public ICollection<Task> GetTasks(string ownerId)
     {
       IList<Task> allTasks;
-      IList<Task> tasks = new List<Task>();
       lock (_taskMutex)
-      {
-        allTasks = _settings.TaskCollection.Clone();
-      }
-      foreach (Task task in allTasks)
-        if (task.Owner.Equals(ownerId))
-          tasks.Add(task);
-      return tasks;
+        allTasks = _settings.TaskCollection.Tasks;
+      return allTasks.Where(task => task.Owner.Equals(ownerId)).ToList();
     }
 
     #endregion

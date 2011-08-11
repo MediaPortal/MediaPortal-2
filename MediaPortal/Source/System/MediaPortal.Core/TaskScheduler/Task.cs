@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.ComponentModel;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Core.TaskScheduler
@@ -117,18 +117,8 @@ namespace MediaPortal.Core.TaskScheduler
     [XmlElement("Interval", DataType = "duration")]
     public string TimeSpanInterval
     {
-      get
-      {
-        return TypeDescriptor.GetConverter(_interval).ConvertTo(_interval, typeof(string)) as string;
-      }
-      set
-      {
-        object interval = TypeDescriptor.GetConverter(_interval).ConvertFrom(value);
-        if (interval is TimeSpan)
-        {
-          Interval = (TimeSpan)interval;
-        }
-      }
+      get { return XmlConvert.ToString(_interval); }
+      set { Interval = XmlConvert.ToTimeSpan(value); }
     }
 
     public ScheduleType Type
@@ -137,9 +127,7 @@ namespace MediaPortal.Core.TaskScheduler
       set
       {
         if (value == ScheduleType.TimeBased)
-        {
           _interval = TimeSpan.MinValue;
-        }
         else
         {
           _minute = -1;
@@ -156,7 +144,7 @@ namespace MediaPortal.Core.TaskScheduler
   {
     #region Private fields
 
-    private int _taskID = 0;
+    private Guid _taskID = Guid.Empty;
     private Occurrence _occurrence = Occurrence.Once;
     private Schedule _schedule = new Schedule();
     private DateTime _lastRun = DateTime.MinValue;
@@ -170,6 +158,7 @@ namespace MediaPortal.Core.TaskScheduler
     #endregion
 
     #region Ctor
+
     /// <summary>
     /// Parameterless Constructor for object deserialisation
     /// </summary>
@@ -183,16 +172,14 @@ namespace MediaPortal.Core.TaskScheduler
     /// </summary>
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    public Task(string owner, Occurrence occurrence)
-      : this(owner, -1, occurrence) { }
+    public Task(string owner, Occurrence occurrence) : this(owner, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// </summary>
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
-    public Task(string owner, int minute)
-      : this(owner, minute, Occurrence.Once) { }
+    public Task(string owner, int minute) : this(owner, minute, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -200,8 +187,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    public Task(string owner, int minute, Occurrence occurrence)
-      : this(owner, minute, -1, occurrence) { }
+    public Task(string owner, int minute, Occurrence occurrence) : this(owner, minute, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -209,8 +195,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
-    public Task(string owner, int minute, int hour)
-      : this(owner, minute, hour, Occurrence.Once) { }
+    public Task(string owner, int minute, int hour) : this(owner, minute, hour, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the task scheduler with a time-based <see cref="Schedule"/>.
@@ -219,8 +204,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    public Task(string owner, int minute, int hour, Occurrence occurrence)
-      : this(owner, minute, hour, -1, occurrence) { }
+    public Task(string owner, int minute, int hour, Occurrence occurrence) : this(owner, minute, hour, -1, occurrence) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -229,8 +213,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    public Task(string owner, int minute, int hour, int day)
-      : this(owner, minute, hour, day, Occurrence.Once) { }
+    public Task(string owner, int minute, int hour, int day) : this(owner, minute, hour, day, Occurrence.Once) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -240,8 +223,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
-    public Task(string owner, int minute, int hour, int day, Occurrence occurrence)
-      : this(owner, minute, hour, day, occurrence, DateTime.MaxValue) { }
+    public Task(string owner, int minute, int hour, int day, Occurrence occurrence) :
+        this(owner, minute, hour, day, occurrence, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -252,8 +235,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
-    public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires)
-      : this(owner, minute, hour, day, occurrence, expires, true) { }
+    public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires) :
+        this(owner, minute, hour, day, occurrence, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -265,8 +248,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun)
-      : this(owner, minute, hour, day, occurrence, expires, forceRun, false) { }
+    public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun) :
+        this(owner, minute, hour, day, occurrence, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
@@ -289,7 +272,7 @@ namespace MediaPortal.Core.TaskScheduler
       _occurrence = occurrence;
       _expires = expires;
       _forceRun = forceRun;
-      if ((wakeup) && (occurrence == Occurrence.EveryStartUp || occurrence == Occurrence.EveryWakeUp))
+      if (wakeup && (occurrence == Occurrence.EveryStartUp || occurrence == Occurrence.EveryWakeUp))
         throw new ArgumentException("wakeup setting cannot be used together with Occurrence " + _occurrence);
       _wakeup = wakeup;
     }
@@ -299,8 +282,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// </summary>
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="interval">specifies the interval of this task's schedule</param>
-    public Task(string owner, TimeSpan interval)
-      : this(owner, interval, DateTime.MaxValue) { }
+    public Task(string owner, TimeSpan interval) : this(owner, interval, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
@@ -308,8 +290,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="interval">specifies the interval of this task's schedule</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
-    public Task(string owner, TimeSpan interval, DateTime expires)
-      : this(owner, interval, expires, true) { }
+    public Task(string owner, TimeSpan interval, DateTime expires) : this(owner, interval, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
@@ -318,8 +299,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="interval">specifies the interval of this task's schedule</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    public Task(string owner, TimeSpan interval, DateTime expires, bool forceRun)
-      : this(owner, interval, expires, forceRun, false) { }
+    public Task(string owner, TimeSpan interval, DateTime expires, bool forceRun) :
+        this(owner, interval, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with an interval-based <see cref="Schedule"/>.
@@ -346,8 +327,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="owner">specifies the owner of this task</param>
     /// <param name="schedule">specifies the schedule of this task</param>
     /// <param name="occurrence">specifies the occurrence of this task</param>
-    public Task(string owner, Schedule schedule, Occurrence occurrence)
-      : this(owner, schedule, occurrence, DateTime.MaxValue) { }
+    public Task(string owner, Schedule schedule, Occurrence occurrence) : this(owner, schedule, occurrence, DateTime.MaxValue) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
@@ -356,8 +336,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="schedule">specifies the schedule of this task</param>
     /// <param name="occurrence">specifies the occurrence of this task</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
-    public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires)
-      : this(owner, schedule, occurrence, expires, true) { }
+    public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires) :
+        this(owner, schedule, occurrence, expires, true) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
@@ -367,8 +347,8 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="occurrence">specifies the occurrence of this task</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
-    public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires, bool forceRun)
-      : this(owner, schedule, occurrence, expires, forceRun, false) { }
+    public Task(string owner, Schedule schedule, Occurrence occurrence, DateTime expires, bool forceRun) :
+        this(owner, schedule, occurrence, expires, forceRun, false) { }
 
     /// <summary>
     /// Creates a new task for the <see cref="TaskScheduler"/> with given <see cref="Schedule"/> as schedule.
@@ -393,7 +373,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// Creates a new task for the <see cref="TaskScheduler"/> based on the given task.
     /// Used for the <see cref="ICloneable"/> implementation.
     /// </summary>
-    /// <param name="task">task the new task should be based upon</param>
+    /// <param name="task">The new task should be based upon</param>
     public Task(Task task)
     {
       _taskID = task.ID;
@@ -427,17 +407,11 @@ namespace MediaPortal.Core.TaskScheduler
     public bool IsDue(DateTime now)
     {
       if (NextRun > now)
-      {
         return false;
-      }
-      else if (NextRun == now)
-      {
+      if (NextRun == now)
         return true;
-      }
-      else if (_forceRun && NextRun < now)
-      {
+      if (_forceRun && NextRun < now)
         return true;
-      }
       return false;
     }
 
@@ -475,20 +449,17 @@ namespace MediaPortal.Core.TaskScheduler
             }
             return _lastRun.Add(_schedule.Interval);
           }
-          else
+          // time-based schedule; determine next schedule based on last run + given schedule
+          DateTime nowDate = DateTime.Now;
+          DateTime nextDate = CalculateNextTimeBasedSchedule();
+          // check if next schedule is not in the past
+          if (nextDate < nowDate)
           {
-            // time-based schedule; determine next schedule based on last run + given schedule
-            DateTime nowDate = DateTime.Now;
-            DateTime nextDate = CalculateNextTimeBasedSchedule();
-            // check if next schedule is not in the past
-            if (nextDate < nowDate)
-            {
-              // it's in the past, so reset it and recalculate schedule
-              Reset();
-              nextDate = CalculateNextTimeBasedSchedule();
-            }
-            return nextDate;
+            // it's in the past, so reset it and recalculate schedule
+            Reset();
+            nextDate = CalculateNextTimeBasedSchedule();
           }
+          return nextDate;
 //        case Occurrence.EveryStartUp: // Default behavior
 //        case Occurrence.EveryWakeUp: // Default behavior
         default:
@@ -513,15 +484,10 @@ namespace MediaPortal.Core.TaskScheduler
       {
         // Run every minute, every hour, every day (same as a TimeSpan of one minute)
         if (_lastRun == DateTime.MinValue)
-        {
           return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
-        }
-        else
-        {
-          return _lastRun.AddMinutes(1);
-        }
+        return _lastRun.AddMinutes(1);
       }
-      else if (hour == -1 && day == -1)
+      if (hour == -1 && day == -1)
       {
         // Run at xx minute, every hour, every day
         if (_lastRun == DateTime.MinValue)
@@ -529,40 +495,28 @@ namespace MediaPortal.Core.TaskScheduler
           nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, min, 0);
           if (now.Minute < min)
             return nextDate;
-          else
-            return nextDate.AddHours(1);
+          return nextDate.AddHours(1);
         }
-        else
-        {
-          return _lastRun.AddHours(1);
-        }
+        return _lastRun.AddHours(1);
       }
-      else if (min == -1 && hour == -1)
+      if (min == -1 && hour == -1)
       {
         // Run every minute, every hour, on day x
-        int nowDay = (int)now.DayOfWeek;
+        int nowDay = (int) now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {
           nextDate = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
           if (nowDay == day)
           {
             if ((int) now.AddMinutes(1).DayOfWeek != nowDay)
-            {
               nextDate = nextDate.AddDays(7);
-            }
             else
-            {
               nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
-            }
           }
           else if (nowDay < day)
-          {
             nextDate = nextDate.AddDays(day - nowDay);
-          }
           else
-          {
             nextDate = nextDate.AddDays(7 - (nowDay - day));
-          }
         }
         else
         {
@@ -571,72 +525,45 @@ namespace MediaPortal.Core.TaskScheduler
           {
             nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, 0, 0, 0);
             if (nowDay == day)
-            {
               nextDate.AddDays(7);
-            }
             else if (nowDay < day)
-            {
               nextDate.AddDays(day - nowDay);
-            }
             else
-            {
               nextDate.AddDays(7 - (nowDay - day));
-            }
           }
         }
         return nextDate;
       }
-      else if (min == -1 && day == -1)
+      if (min == -1 && day == -1)
       {
         // Run every minute, at hour xx, every day
         if (_lastRun == DateTime.MinValue)
         {
           if (now.Hour == hour && now.Minute < 59)
-          {
             return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
-          }
-          else if (now.Hour < hour)
-          {
+          if (now.Hour < hour)
             return new DateTime(now.Year, now.Month, now.Day, hour, 0, 0);
-          }
-          else
-          {
-            nextDate = new DateTime(now.Year, now.Month, now.Day, hour, 0, 0);
-            return nextDate.AddDays(1);
-          }
+          nextDate = new DateTime(now.Year, now.Month, now.Day, hour, 0, 0);
+          return nextDate.AddDays(1);
         }
-        else
-        {
-          if (_lastRun.Minute < 59)
-            return _lastRun.AddMinutes(1);
-          else
-          {
-            nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, _lastRun.Hour, 0, 0);
-            return nextDate.AddDays(1);
-          }
-        }
+        if (_lastRun.Minute < 59)
+          return _lastRun.AddMinutes(1);
+        nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, _lastRun.Hour, 0, 0);
+        return nextDate.AddDays(1);
       }
-      else if (day == -1)
+      if (day == -1)
       {
         // Run at xx minute, at hour xx, every day
         if (_lastRun == DateTime.MinValue)
         {
           if ((now.Hour == hour && now.Minute < min) || (now.Hour < hour))
-          {
             return new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
-          }
-          else
-          {
-            nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
-            return nextDate.AddDays(1);
-          }
+          nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
+          return nextDate.AddDays(1);
         }
-        else
-        {
-          return _lastRun.AddDays(1);
-        }
+        return _lastRun.AddDays(1);
       }
-      else if (hour == -1)
+      if (hour == -1)
       {
         // Run at xx minute, every hour, on day x
         int nowDay = (int)now.DayOfWeek;
@@ -646,102 +573,49 @@ namespace MediaPortal.Core.TaskScheduler
           {
             nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, min, 0);
             if (now.Minute < min && now.Hour < 23)
-            {
               return nextDate;
-            }
-            else if (now.Minute > min && now.Hour < 23)
-            {
+            if (now.Minute > min && now.Hour < 23)
               return nextDate.AddHours(1);
-            }
           }
           nextDate = new DateTime(now.Year, now.Month, now.Day, 0, min, 0);
           if (nowDay == day)
-          {
             return nextDate.AddDays(7);
-          }
-          else if (nowDay < day)
-          {
+          if (nowDay < day)
             return nextDate.AddDays(day - nowDay);
-          }
-          else
-          {
-            return nextDate.AddDays(7 - (nowDay - day));
-          }
+          return nextDate.AddDays(7 - (nowDay - day));
         }
-        else
-        {
-          if ((int)_lastRun.DayOfWeek == day && _lastRun.Hour < 23)
-          {
-            return _lastRun.AddHours(1);
-          }
-          else
-          {
-            nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, 0, min, 0);
-            if (nowDay == day)
-            {
-              return nextDate.AddDays(7);
-            }
-            else if (nowDay < day)
-            {
-              return nextDate.AddDays(day - nowDay);
-            }
-            else
-            {
-              return nextDate.AddDays(7 - (nowDay - day));
-            }
-          }
-        }
+        if ((int)_lastRun.DayOfWeek == day && _lastRun.Hour < 23)
+          return _lastRun.AddHours(1);
+        nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, 0, min, 0);
+        if (nowDay == day)
+          return nextDate.AddDays(7);
+        if (nowDay < day)
+          return nextDate.AddDays(day - nowDay);
+        return nextDate.AddDays(7 - (nowDay - day));
       }
-      else if (min == -1)
+      if (min == -1)
       {
         // Run every minute, at hour xx, on day x
         int nowDay = (int)now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {
           if (nowDay == day && now.Hour == hour && now.Minute < 59)
-          {
             return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
-          }
-          else
-          {
-            nextDate = new DateTime(now.Year, now.Month, now.Day, hour, 0, 0);
-            if (nowDay == day)
-            {
-              return nextDate.AddDays(7);
-            }
-            else if (nowDay < day)
-            {
-              return nextDate.AddDays(day - nowDay);
-            }
-            else
-            {
-              return nextDate.AddDays(7 - (nowDay - day));
-            }
-          }
+          nextDate = new DateTime(now.Year, now.Month, now.Day, hour, 0, 0);
+          if (nowDay == day)
+            return nextDate.AddDays(7);
+          if (nowDay < day)
+            return nextDate.AddDays(day - nowDay);
+          return nextDate.AddDays(7 - (nowDay - day));
         }
-        else
-        {
-          if ((int)_lastRun.DayOfWeek == day && _lastRun.Hour == hour && _lastRun.Minute < 59)
-          {
-            return _lastRun.AddMinutes(1);
-          }
-          else
-          {
-            nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, _lastRun.Hour, 0, 0);
-            if (nowDay == day)
-            {
-              return _lastRun.AddDays(7);
-            }
-            else if (nowDay < day)
-            {
-              return nextDate.AddDays(day - nowDay);
-            }
-            else
-            {
-              return nextDate.AddDays(7 - (nowDay - day));
-            }
-          }
-        }
+        if ((int)_lastRun.DayOfWeek == day && _lastRun.Hour == hour && _lastRun.Minute < 59)
+          return _lastRun.AddMinutes(1);
+        nextDate = new DateTime(_lastRun.Year, _lastRun.Month, _lastRun.Day, _lastRun.Hour, 0, 0);
+        if (nowDay == day)
+          return _lastRun.AddDays(7);
+        if (nowDay < day)
+          return nextDate.AddDays(day - nowDay);
+        return nextDate.AddDays(7 - (nowDay - day));
       }
       else
       {
@@ -751,41 +625,19 @@ namespace MediaPortal.Core.TaskScheduler
         {
           nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
           if (nowDay == day && now.Hour <= hour && now.Minute < min)
-          {
             return nextDate;
-          }
-          else
-          {
-            if (nowDay == day)
-            {
-              return nextDate.AddDays(7);
-            }
-            else if (nowDay < day)
-            {
-              return nextDate.AddDays(day - nowDay);
-            }
-            else
-            {
-              return nextDate.AddDays(7 - (nowDay - day));
-            }
-          }
-        }
-        else
-        {
-          nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
           if (nowDay == day)
-          {
             return nextDate.AddDays(7);
-          }
-          else if (nowDay < day)
-          {
+          if (nowDay < day)
             return nextDate.AddDays(day - nowDay);
-          }
-          else
-          {
-            return nextDate.AddDays(7 - (nowDay - day));
-          }
+          return nextDate.AddDays(7 - (nowDay - day));
         }
+        nextDate = new DateTime(now.Year, now.Month, now.Day, hour, min, 0);
+        if (nowDay == day)
+          return nextDate.AddDays(7);
+        if (nowDay < day)
+          return nextDate.AddDays(day - nowDay);
+        return nextDate.AddDays(7 - (nowDay - day));
       }
     }
 
@@ -857,10 +709,7 @@ namespace MediaPortal.Core.TaskScheduler
         }
         return _nextRun;
       }
-      set
-      {
-        _nextRun = value;
-      }
+      set { _nextRun = value; }
     }
 
     /// <summary>
@@ -870,17 +719,14 @@ namespace MediaPortal.Core.TaskScheduler
     public DateTime Expires
     {
       get { return _expires; }
-      set
-      {
-        _expires = value;
-      }
+      set { _expires = value; }
     }
 
     /// <summary>
     /// Unique task identifier. This property should be set only by the task scheduler itself. A value of 0 indicates
     /// that the Task is not yet submitted to the task scheduler.
     /// </summary>
-    public int ID
+    public Guid ID
     {
       get { return _taskID; }
       set { _taskID = value; }
@@ -926,9 +772,8 @@ namespace MediaPortal.Core.TaskScheduler
       if (_schedule.Type == ScheduleType.IntervalBased)
         return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: interval, Interval: {3}, LastRun: {4}, NextRun: {5}, Expires: {6}, Wakeup: {7}, Force: {8}",
           _taskID, _owner, _occurrence, _schedule.Interval, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
-      else
-        return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: time-based: D:{3}-H:{4}-M:{5}, LastRun: {6}, NextRun: {7}, Expires: {8}, Wakeup: {9}, Force: {10}",
-          _taskID, _owner, _occurrence, _schedule.Day, _schedule.Hour, _schedule.Minute, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
+      return String.Format("Task: {0}, Owner: {1}, Occurrence: {2}, Type: time-based: D:{3}-H:{4}-M:{5}, LastRun: {6}, NextRun: {7}, Expires: {8}, Wakeup: {9}, Force: {10}",
+        _taskID, _owner, _occurrence, _schedule.Day, _schedule.Hour, _schedule.Minute, _lastRun, _nextRun, _expires, _wakeup, _forceRun);
     }
 
     #endregion

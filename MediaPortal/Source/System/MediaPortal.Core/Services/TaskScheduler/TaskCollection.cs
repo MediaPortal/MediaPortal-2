@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.TaskScheduler;
 
 namespace MediaPortal.Core.Services.TaskScheduler
@@ -85,17 +86,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// </summary>
     /// <param name="taskID">ID of the task to replace.</param>
     /// <param name="task">New task to replace the old one with.</param>
-    public void Replace(int taskID, Task task)
+    public void Replace(Guid taskID, Task task)
     {
-      Task oldTask = null;
-      foreach (Task t in _tasks)
-      {
-        if (t.ID == taskID)
-        {
-          oldTask = t;
-          break;
-        }
-      }
+      Task oldTask = _tasks.FirstOrDefault(t => t.ID == taskID);
       if (oldTask != null)
         Remove(oldTask);
       Add(task);
@@ -115,10 +108,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <returns>A list of tasks currently in the TaskCollection.</returns>
     public IList<Task> Clone()
     {
-      List<Task> tasks = new List<Task>();
-      foreach (Task t in _tasks)
-        tasks.Add(t.Clone() as Task);
-      return tasks;
+      return _tasks.Select(t => (Task) t.Clone()).ToList();
     }
 
     #endregion
