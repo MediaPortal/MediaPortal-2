@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Threading;
@@ -52,7 +51,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Mutex object to serialize access to the registered tasks and next task id.
     /// </summary>
-    protected object _taskMutex = new object();
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -81,7 +80,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       DateTime now = DateTime.Now;
       // Only use minute precision
       now = now.AddSeconds(-now.Second);
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         foreach (Task task in _settings.TaskCollection.Tasks)
         {
@@ -107,7 +106,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       // Only use minute precision
       now = now.AddSeconds(-now.Second);
       // Exclusively get lock for task collection access
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         // Enumerate through all tasks
         foreach (Task task in _settings.TaskCollection.Tasks)
@@ -221,7 +220,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public Guid AddTask(Task newTask)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         newTask.ID = Guid.NewGuid();
         _settings.TaskCollection.Add(newTask);
@@ -232,7 +231,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public void UpdateTask(Guid taskId, Task updatedTask)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         updatedTask.ID = taskId;
         _settings.TaskCollection.Replace(taskId, updatedTask);
@@ -243,7 +242,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public void RemoveTask(Guid taskId)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
       {
         Task task = null;
         foreach (Task t in _settings.TaskCollection.Tasks)
@@ -261,13 +260,13 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public Task GetTask(Guid taskId)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
         return _settings.TaskCollection.GetTask(taskId);
     }
 
     public ICollection<Task> GetTasks(string ownerId)
     {
-      lock (_taskMutex)
+      lock (_syncObj)
         return _settings.TaskCollection.GetTasks(ownerId);
     }
 
