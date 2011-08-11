@@ -1096,8 +1096,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
               throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
           }
           ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error,
-              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
+              RES_ERROR_LOADING_SKIN_RESOURCE_TEXT, LocalizationHelper.CreateResourceString(errorText).Evaluate(screenName), true);
           return null;
         }
         return result;
