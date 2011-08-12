@@ -65,7 +65,18 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public override IViewChangeNotificator GetChangeNotificator()
     {
-      return CombinedViewChangeNotificator.CombineViewChangeNotificators(_removableDriveVS);
+      IViewChangeNotificator delegateChangeNotificator = _delegate.GetChangeNotificator();
+      IViewChangeNotificator removableDriveChangeNotificator = CombinedViewChangeNotificator.CombineViewChangeNotificators(_removableDriveVS);
+      IList<IViewChangeNotificator> subChangeNotificators = new List<IViewChangeNotificator>(2);
+      if (delegateChangeNotificator != null)
+        subChangeNotificators.Add(delegateChangeNotificator);
+      if (removableDriveChangeNotificator != null)
+        subChangeNotificators.Add(removableDriveChangeNotificator);
+      if (subChangeNotificators.Count == 0)
+        return null;
+      if (subChangeNotificators.Count == 1)
+        return subChangeNotificators[0];
+      return new CombinedViewChangeNotificator(subChangeNotificators);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
