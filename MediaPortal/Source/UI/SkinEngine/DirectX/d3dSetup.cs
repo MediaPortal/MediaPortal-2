@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public IList<DisplayMode> GetDisplayModes()
     {
       return _graphicsSettings.FullscreenDisplayModes.Where(mode => mode.Width != 0 || mode.Height != 0 || mode.RefreshRate != 0).ToList();
-      }
+    }
 
     public string DesktopDisplayMode
     {
@@ -309,18 +309,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedWidth = _ourRenderTarget.Width;
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
-        _graphicsSettings.WindowedDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
+        _graphicsSettings.WindowedDepthStencilBufferFormat = (Format) bestDeviceCombo.DepthStencilFormatList[0];
 
       int iQuality = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>().MultiSampleType;
       if (iQuality >= bestDeviceCombo.MultisampleTypeList.Count)
         iQuality = 0;
 
-      _graphicsSettings.WindowedMultisampleType = (MultisampleType)bestDeviceCombo.MultisampleTypeList[iQuality];
+      _graphicsSettings.WindowedMultisampleType = (MultisampleType) bestDeviceCombo.MultisampleTypeList[iQuality];
       _graphicsSettings.WindowedMultisampleQuality = 0;
 
       _graphicsSettings.WindowedVertexProcessingType =
         (VertexProcessingType)bestDeviceCombo.VertexProcessingTypeList[0];
-      _graphicsSettings.WindowedPresentInterval = (PresentInterval)bestDeviceCombo.PresentIntervalList[0];
+      _graphicsSettings.WindowedPresentInterval = (PresentInterval) bestDeviceCombo.PresentIntervalList[0];
 
       return true;
     }

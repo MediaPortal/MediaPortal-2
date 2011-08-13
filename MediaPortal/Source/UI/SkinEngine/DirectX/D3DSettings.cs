@@ -60,22 +60,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public SwapEffect WindowedSwapEffect
     {
-      get
-      {
-        return WindowedMultisampleType == MultisampleType.None
-                 ? SwapEffect.FlipEx
-                 : SwapEffect.Discard;
-      }
+      get { return WindowedMultisampleType == MultisampleType.None ? SwapEffect.FlipEx : SwapEffect.Discard; }
     }
 
     public Present WindowedPresent
     {
-      get
-      {
-        return WindowedMultisampleType == MultisampleType.None
-                 ? Present.ForceImmediate
-                 : Present.None;
-      }
+      get { return WindowedMultisampleType == MultisampleType.None ? Present.ForceImmediate : Present.None; }
     }
 
     public GraphicsAdapterInfo AdapterInfo
@@ -192,11 +182,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         else
           FullscreenPresentInterval = value;
       }
-    }
-
-    public D3DSettings Clone()
-    {
-      return (D3DSettings) MemberwiseClone();
     }
   }
 }

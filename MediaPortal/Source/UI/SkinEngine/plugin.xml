@@ -64,21 +64,23 @@
         HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.CellPhoneInputStyle"/>
     <ConfigSetting
+        Id="Antialiasing"
+        Text="[Settings.Appearance.System.Antialiasing]"
+        HelpText="[Settings.Appearance.System.Antialiasing.Help]"
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Antialiasing"/>
+
+    <ConfigSetting
         Id="ScreenSaverEnabled"
         Text="[Settings.Appearance.System.ScreenSaverEnabled]"
         HelpText="[Settings.Appearance.System.ScreenSaverEnabled.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverEnabled"/>
+
     <ConfigSetting
         Id="ScreenSaverTimeout"
         Text="[Settings.Appearance.System.ScreenSaverTimeout]"
         HelpText="[Settings.Appearance.System.ScreenSaverTimeout.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.ScreenSaverTimeout"/>
 
-    <ConfigSetting
-        Id="MultiSampleType"
-        Text="[Settings.Appearance.System.MultiSampleType]"
-        HelpText="[Settings.Appearance.System.MultiSampleType.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.MultiSampleType"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->

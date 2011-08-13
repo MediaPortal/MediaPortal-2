@@ -23,19 +23,20 @@
 
 #endregion
 
-using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.DirectX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
-  public class MultiSampleType : SingleSelectionList
+  public class Antialiasing : SingleSelectionList
   {
     #region Variables
 
-    private ArrayList _multiSampleTypes;
+    private IList<MultisampleType> _multiSampleTypes;
 
     #endregion
 
@@ -43,17 +44,13 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 
     public override void Load()
     {
-      _multiSampleTypes = GraphicsDevice.WindowedMultiSampleTypes;
+      _multiSampleTypes = new List<MultisampleType>(GraphicsDevice.WindowedMultiSampleTypes.Cast<MultisampleType>());
       int selectedMsType = SettingsManager.Load<AppSettings>().MultiSampleType;
       if (selectedMsType > _multiSampleTypes.Count)
         selectedMsType = 0;
 
       // Fill items
-      _items = new List<IResourceString>(_multiSampleTypes.Count);
-      for (int i = 0; i < _multiSampleTypes.Count; i++)
-      {
-        _items.Add(LocalizationHelper.CreateStaticString(_multiSampleTypes[i].ToString()));
-      }
+      _items = _multiSampleTypes.Select(mst => LocalizationHelper.CreateStaticString(mst.ToString())).ToList();
       Selected = selectedMsType;
     }
 
@@ -62,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       AppSettings settings = SettingsManager.Load<AppSettings>();
       settings.MultiSampleType = Selected;
       SettingsManager.Save(settings);
+      // TODO: Reload DX settings, reset DX device
     }
 
     #endregion
