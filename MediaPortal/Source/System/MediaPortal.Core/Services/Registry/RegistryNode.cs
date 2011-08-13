@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Registry;
 using MediaPortal.Utilities;
@@ -84,9 +85,8 @@ namespace MediaPortal.Core.Services.Registry
       {
         if (_parent == null)
           return "/" + _name;
-        else
-          lock (_syncObj)
-            return _parent.Path + "/" + _name;
+        lock (_syncObj)
+          return _parent.Path + "/" + _name;
       }
     }
 
@@ -165,12 +165,10 @@ namespace MediaPortal.Core.Services.Registry
 
     public IList<T> GetItems<T>()
     {
-      IList<T> result = new List<T>();
+      List<T> result = new List<T>();
       lock (_syncObj)
       {
-        foreach (object item in _items.Values)
-          if (item is T)
-            result.Add((T) item);
+        result.AddRange(_items.Values.OfType<T>());
       }
       return result;
 
@@ -187,8 +185,7 @@ namespace MediaPortal.Core.Services.Registry
         List<string> result = new List<string> {"[" + _name + "]"};
         if (_subNodes != null)
           foreach (RegistryNode child in _subNodes.Values)
-            foreach (string line in child.GetStatus())
-              result.Add("  " + line);
+            result.AddRange(child.GetStatus().Select(line => "  " + line));
         return result;
       }
     }
