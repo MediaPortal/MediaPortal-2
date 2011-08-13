@@ -111,7 +111,10 @@ namespace MediaPortal.UI.Services.Players
             _playIndexList = BuildPlayIndexList();
           foreach (int i in _playIndexList)
             if (_playIndexList[i] == currentItemIndex)
+            {
               _currentPlayIndex = i;
+              break;
+            }
         }
       PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
     }
@@ -331,11 +334,9 @@ namespace MediaPortal.UI.Services.Players
           else
             _playIndexList[i] -= removeCount;
         }
-        // Adapt current play index
-        if (_currentPlayIndex >= fromIndex)
-          _currentPlayIndex -= fromIndex;
-        if (_currentPlayIndex < 0)
-          _currentPlayIndex = -1;
+        // Fix current play index
+        if (_currentPlayIndex >= _playIndexList.Count)
+          _currentPlayIndex = 0;
       }
     }
 
@@ -350,17 +351,17 @@ namespace MediaPortal.UI.Services.Players
         CollectionUtils.Swap(_itemList, index1, index2);
         if (!InBatchUpdateMode)
           PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
-        if (_playIndexList == null || _playMode == PlayMode.Continuous)
-          // If index list isn't yet initialized or if we are in continuous mode, we don't need to adapt the play index positions
+        if (_playIndexList == null)
+          // If index list isn't yet initialized, we don't need to adapt the play index positions
           return;
         // Adapt play index list
-        int[] swapIndices = new int[2];
+        int[] piIndices = new int[2];
         int numFound = 0;
         for (int i = 0; i < _playIndexList.Count; i++)
         {
           int tmpIndex = _playIndexList[i];
           if (tmpIndex == index1 || tmpIndex == index2)
-            swapIndices[numFound++] = i;
+            piIndices[numFound++] = i;
           if (numFound == 2)
             break;
         }
@@ -370,11 +371,9 @@ namespace MediaPortal.UI.Services.Players
           _currentPlayIndex = -1;
           return;
         }
-        CollectionUtils.Swap(_playIndexList, swapIndices[0], swapIndices[1]);
-        // Adapt current play index
-        for (int i = 0; i < 2; i++)
-          if (_currentPlayIndex == swapIndices[i])
-            _currentPlayIndex = swapIndices[1 - i];
+        int tmp = _playIndexList[piIndices[0]];
+        _playIndexList[piIndices[0]] = _playIndexList[piIndices[1]];
+        _playIndexList[piIndices[1]] = tmp;
       }
     }
 
@@ -396,14 +395,16 @@ namespace MediaPortal.UI.Services.Players
             _playIndexList[i] += 1;
         // ... and add new item
         if (_playMode == PlayMode.Shuffle)
+        {
           // Shuffle mode: insert an index entry for the new item at a random position
-          _playIndexList.Insert(rnd.Next(_itemList.Count-1), index);
+          int insertPos = rnd.Next(_itemList.Count - 1);
+          _playIndexList.Insert(insertPos, index);
+          if (_currentPlayIndex > -1 && insertPos <= _currentPlayIndex)
+            _currentPlayIndex++;
+        }
         else
           // Continuous mode: Simply add an index entry at the end of the index list
           _playIndexList.Add(index);
-        // Adapt current play index
-        if (index <= _currentPlayIndex)
-          _currentPlayIndex += 1;
         return true;
       }
     }
