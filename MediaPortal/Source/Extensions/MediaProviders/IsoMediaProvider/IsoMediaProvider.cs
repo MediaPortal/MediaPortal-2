@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     public IsoMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(ISO_MEDIA_PROVIDER_ID, "[IsoMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(ISO_MEDIA_PROVIDER_ID, "[IsoMediaProvider.Name]");
     }
 
     #endregion
@@ -71,9 +71,10 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
     {
-      if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
+      string resourceName = potentialBaseResourceAccessor.ResourceName;
+      if (string.IsNullOrEmpty(resourceName) || !potentialBaseResourceAccessor.IsFile)
         return false;
-      if (".iso".Equals(Path.GetExtension(potentialBaseResourceAccessor.ResourceName), StringComparison.OrdinalIgnoreCase))
+      if (".iso".Equals(Path.GetExtension(resourceName), StringComparison.OrdinalIgnoreCase))
       {
         return true;
       }
@@ -82,11 +83,13 @@ namespace MediaPortal.Extensions.MediaProviders.IsoMediaProvider
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
-      if (string.IsNullOrEmpty(baseResourceAccessor.ResourceName) || baseResourceAccessor.IsFile)
+      string resourceName = baseResourceAccessor.ResourceName;
+      if (string.IsNullOrEmpty(resourceName) || baseResourceAccessor.IsFile)
         return false;
 
       IsoReader isoReader = new IsoReader();
-      isoReader.Open(baseResourceAccessor.ResourcePathName);
+      string resourcePathName = baseResourceAccessor.ResourcePathName;
+      isoReader.Open(resourcePathName);
       
       string dosPath = "\\" + LocalFsMediaProviderBase.ToDosPath(Path.GetDirectoryName(path));
       string dosResource = "\\" + LocalFsMediaProviderBase.ToDosPath(path);
