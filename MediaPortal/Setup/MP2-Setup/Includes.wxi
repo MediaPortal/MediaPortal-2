@@ -9,7 +9,7 @@
   <?define RegKeyRoot="Software\Team MediaPortal\MediaPortal 2" ?>
   <?define RegKeyInstall="$(var.RegKeyRoot)\Install" ?>
 
-  <?define ClientPathLabels=DATA;CONFIG;LOG;PLUGINS;REMOTERESOURCES;PLAYLISTS ?>
+  <?define ClientPathLabels=DATA;CONFIG;LOG;PLUGINS;REMOTERESOURCES ?>
   <?define ServerPathLabels=DATA;CONFIG;LOG;PLUGINS;REMOTERESOURCES;DATABASE ?>
 
 </Include>
