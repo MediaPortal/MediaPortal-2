@@ -128,17 +128,7 @@ namespace MediaPortal.Extensions.BassLibraries
           char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
           int driveId = Drive2BassID(driveLetter);
 
-          try
-          {
-            return BassCd.BASS_CD_GetTracks(driveId);
-          }
-          finally
-          {
-            // The docs don't tell us exactly what BASS_CD_Release does, but it seems it is necessary here to make other calls
-            // (Notably the DriveInfo.IsReady call, which is typically made by multiple threads when accessing the audio drive and when this method
-            // is called)
-            BassCd.BASS_CD_Release(driveId);
-          }
+          return BassCd.BASS_CD_GetTracks(driveId);
         }
         catch (Exception e)
         {
@@ -163,32 +153,22 @@ namespace MediaPortal.Extensions.BassLibraries
           char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
           int driveId = Drive2BassID(driveLetter);
 
-          try
+          BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
+          if (toc == null)
+            return null;
+          IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
+          int trackNo = 0; // BASS starts to count at track 0
+          // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
+          // It seems that this algorithm returns the correct number of audio tracks.
+          foreach (BASS_CD_TOC_TRACK track in toc.tracks)
           {
-            BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
-            if (toc == null)
-              return null;
-            IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
-            int trackNo = 0; // BASS starts to count at track 0
-            // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
-            // It seems that this algorithm returns the correct number of audio tracks.
-            foreach (BASS_CD_TOC_TRACK track in toc.tracks)
+            if ((track.Control & BASSCDTOCFlags.BASS_CD_TOC_CON_DATA) == 0 && track.track != 170) // 170 = lead-out (see BASS documentation)
             {
-              if ((track.Control & BASSCDTOCFlags.BASS_CD_TOC_CON_DATA) == 0 && track.track != 170) // 170 = lead-out (see BASS documentation)
-              {
-                double duration = BassCd.BASS_CD_GetTrackLengthSeconds(driveId, trackNo++);
-                result.Add(new AudioTrack(track.track, duration, track.hour + (track.minute / 60), track.minute, track.second, track.frame)); // Hours are returned as part of minutes (see BASS documentation)
-              }
+              double duration = BassCd.BASS_CD_GetTrackLengthSeconds(driveId, trackNo++);
+              result.Add(new AudioTrack(track.track, duration, track.hour + (track.minute / 60), track.minute, track.second, track.frame)); // Hours are returned as part of minutes (see BASS documentation)
             }
-            return result;
           }
-          finally
-          {
-            // The docs don't tell us exactly what BASS_CD_Release does, but it seems it is necessary here to make other calls
-            // (Notably the DriveInfo.IsReady call, which is typically made by multiple threads when accessing the audio drive and when this method
-            // is called)
-            BassCd.BASS_CD_Release(driveId);
-          }
+          return result;
         }
         catch (Exception e)
         {
@@ -206,24 +186,11 @@ namespace MediaPortal.Extensions.BassLibraries
     {
       lock (_syncObj)
       {
-        BASS_CD_INFO cdinfo = new BASS_CD_INFO();
         for (int i = 0; i < 26; i++)
         {
-          try
-          {
-            if (BassCd.BASS_CD_GetInfo(i, cdinfo))
-            {
-              if (cdinfo.DriveLetter == driveLetter)
-                return i;
-            }
-          }
-          finally
-          {
-            // The docs don't tell us exactly what BASS_CD_Release does, but it seems it is necessary here to make other calls
-            // (Notably the DriveInfo.IsReady call, which is typically made by multiple threads when accessing the audio drive and when this method
-            // is called)
-            BassCd.BASS_CD_Release(i);
-          }
+          BASS_CD_INFO cdInfo = BassCd.BASS_CD_GetInfo(i, true);
+          if (cdInfo != null && cdInfo.DriveLetter == driveLetter)
+            return i;
         }
       }
       return -1;
