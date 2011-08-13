@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Views
       get
       {
         string volumeLabel = _removableDriveHandler.VolumeLabel;
-        return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : ("(" + volumeLabel + ")"));
+        return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : (" (" + volumeLabel + ")"));
       }
     }
 
