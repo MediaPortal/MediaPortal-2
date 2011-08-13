@@ -84,8 +84,6 @@ namespace MediaPortal.UiComponents.Media.Views
       _delegate.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);
       foreach (RemovableDriveViewSpecification rdvs in _removableDriveVS)
       {
-        if (!rdvs.IsDriveReady)
-          continue;
         IList<MediaItem> rdvsItems;
         IList<ViewSpecification> rdvsViewSpecs;
         rdvs.ReLoadItemsAndSubViewSpecifications(out rdvsItems, out rdvsViewSpecs);
