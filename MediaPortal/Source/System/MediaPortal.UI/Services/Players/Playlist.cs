@@ -275,12 +275,7 @@ namespace MediaPortal.UI.Services.Players
     public void Add(MediaItem mediaItem)
     {
       lock (_syncObj)
-      {
-        if (_playMode == PlayMode.Shuffle)
-          Insert(rnd.Next(_itemList.Count), mediaItem);
-        else
-          Insert(_itemList.Count, mediaItem);
-      }
+        Insert(_playMode == PlayMode.Shuffle ? rnd.Next(_itemList.Count) : _itemList.Count, mediaItem);
     }
 
     public void AddAll(IEnumerable<MediaItem> mediaItems)
@@ -374,6 +369,7 @@ namespace MediaPortal.UI.Services.Players
         int tmp = _playIndexList[piIndices[0]];
         _playIndexList[piIndices[0]] = _playIndexList[piIndices[1]];
         _playIndexList[piIndices[1]] = tmp;
+        // We don't need to update the _currentPlayIndex because the change only happens on the underlaying data
       }
     }
 

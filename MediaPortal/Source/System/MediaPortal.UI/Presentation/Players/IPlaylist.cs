@@ -41,12 +41,28 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
-  /// List of media items to be played in a player slot.
+  /// List of media items to be played.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The playlist is responsible to manage the list of media items to be playes as well as the
-  /// current play state of the items.
+  /// The playlist is responsible to manage the list of media items to be played as well as the current play state of the items.
+  /// </para>
+  /// <para>
+  /// To manage that state, the playlist maintains two lists:
+  /// <list>
+  /// <item>A list containing <see cref="MediaItem"/> instances (called <strong>Items list</strong>)</item>
+  /// <item>A list which contains the play order; this is a list containing indices to the first list (called <strong>Play order index list</strong>)</item>
+  /// </list>
+  /// The items list simply contains all media items which are in the playlist.
+  /// The index list contains all numbers from <c>0</c> to the size of the items list minus one, which are interpreted as indices to the items list.
+  /// The play order is determined by that index list; the entries from the index list are read in the order of the index list. To determine the
+  /// n-th item to be played, the n-th entry of the index list is taken and used as index in the items list.
+  /// Depending on the <see cref="PlayMode"/>, the index list's indices are ordered or shuffled.
+  /// </para>
+  /// <para>
+  /// Furthermore, the playlist maintains a pointer to the <see cref="Current"/> media item, which is maintained as a pointer to the play order
+  /// index list. That pointer is automatically updated when the list is changed, for example if the item which is currently played is removed,
+  /// the <see cref="Current"/> pointer will point to the next item at once.
   /// </para>
   /// <para>
   /// This component is multithreading safe.
@@ -133,7 +149,6 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Noves the playlist to the previous media item to be played and returns it.
     /// </summary>
-    /// <para
     /// <returns>Media item instance or <c>null</c>, if there are no previous items available (i.e. the playlist is
     /// not started at all or empty or the current item is already the first one).</returns>
     MediaItem MoveAndGetPrevious();
