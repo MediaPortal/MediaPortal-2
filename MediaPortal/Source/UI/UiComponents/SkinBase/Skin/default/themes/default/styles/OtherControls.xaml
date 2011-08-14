@@ -188,7 +188,8 @@
   <Style x:Key="DefaultItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Style.Triggers>
       <Trigger Property="Selected" Value="True">
-        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the same property -->
+        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
+             same internal property for all panel types -->
         <Setter Property="StackPanel.ZIndex" Value="100.0"/>
       </Trigger>
     </Style.Triggers>
