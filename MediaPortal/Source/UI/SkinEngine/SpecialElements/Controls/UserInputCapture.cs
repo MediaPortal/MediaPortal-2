@@ -26,7 +26,6 @@ using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
