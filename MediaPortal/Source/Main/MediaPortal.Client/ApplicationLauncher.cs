@@ -50,6 +50,9 @@ using MediaPortal.Utilities.Screens;
 
 namespace MediaPortal.Client
 {
+  /// <summary>
+  /// The main class for the MediaPortal 2 client.
+  /// </summary>
   internal static class ApplicationLauncher
   {
     private static SplashScreen CreateSplashScreen()
