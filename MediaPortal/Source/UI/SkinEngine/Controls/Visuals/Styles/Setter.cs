@@ -125,8 +125,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         string propertyProvider = Property.Substring(0, index);
         string propertyName = Property.Substring(index + 1);
-        MpfAttachedPropertyDataDescriptor result;
-        if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
+        DefaultAttachedPropertyDataDescriptor result;
+        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
             element, propertyProvider, propertyName, out result))
           throw new ArgumentException(
             string.Format("Attached property '{0}' cannot be set on element '{1}'", Property, targetObject));

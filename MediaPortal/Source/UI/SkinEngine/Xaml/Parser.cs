@@ -347,7 +347,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
         // Step 2: Instantiate the element
         elementContext.Instance = GetNamespaceHandler(currentElement.NamespaceURI).
-            InstantiateElement(this, currentElement.LocalName, currentElement.NamespaceURI, new List<object>());
+            InstantiateElement(this, currentElement.LocalName, new List<object>());
         IInitializable initializable = elementContext.Instance as IInitializable;
         if (initializable != null)
           initializable.StartInitialization(this);
@@ -467,7 +467,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           _elementContextStack.GetNamespaceOfPrefix(string.Empty) :
           memberDeclarationNode.NamespaceURI;
         isAttached = GetNamespaceHandler(namespaceURI).HasAttachedProperty(
-            explicitTargetQualifier, memberName, elementContext.Instance, namespaceURI);
+            explicitTargetQualifier, memberName, elementContext.Instance);
       }
       else
         isAttached = true;
@@ -477,10 +477,13 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         string namespaceURI = (memberDeclarationNode.NamespaceURI == string.Empty && memberDeclarationNode is XmlAttribute) ?
             _elementContextStack.GetNamespaceOfPrefix(string.Empty) :
             memberDeclarationNode.NamespaceURI;
-        IDataDescriptor attachedPropertyDD = GetNamespaceHandler(namespaceURI).GetAttachedProperty(
-            explicitTargetQualifier, memberName, elementContext.Instance, namespaceURI);
+        DefaultAttachedPropertyDataDescriptor dapdd;
+        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(GetNamespaceHandler(namespaceURI),
+            elementContext.Instance, explicitTargetQualifier, memberName, out dapdd))
+          throw new InvalidOperationException(string.Format("Attached property '{0}.{1}' is not available on new target object '{2}'",
+              explicitTargetQualifier, memberName, elementContext.Instance));
         object value = ParseValue(memberDeclarationNode);
-        HandleMemberAssignment(attachedPropertyDD, value);
+        HandleMemberAssignment(dapdd, value);
       }
       else
       { // Local member
@@ -712,7 +715,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           // Parameters given in a Name=Value syntax
           // Step 2: Instantiate the element
           elementContext.Instance = GetNamespaceHandler(namespaceURI).InstantiateElement(
-              this, extensionName, namespaceURI, new List<object>()); // Invoke default constructor
+              this, extensionName, new List<object>()); // Invoke default constructor
           initializable = elementContext.Instance as IInitializable;
           if (initializable != null)
             initializable.StartInitialization(this);
@@ -761,8 +764,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             }
             flatParams.Add(value);
           }
-          elementContext.Instance = GetNamespaceHandler(namespaceURI).
-              InstantiateElement(this, extensionName, namespaceURI, flatParams);
+          elementContext.Instance = GetNamespaceHandler(namespaceURI).InstantiateElement(this, extensionName, flatParams);
           initializable = elementContext.Instance as IInitializable;
           if (initializable != null)
             initializable.StartInitialization(this);

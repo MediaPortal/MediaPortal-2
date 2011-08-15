@@ -23,39 +23,19 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {
-  public class MpfNamespaceHandler: INamespaceHandler
+  public class MpfNamespaceHandler : AbstractNamespaceHandler
   {
-    #region Protected methods
+    /// <summary>
+    /// XAML namespace for the MediaPortal Skin Engine visual's class library.
+    /// </summary>
+    public const string NS_MEDIAPORTAL_MPF_URI = "www.team-mediaportal.com/2008/mpf/directx";
 
-    internal static IDataDescriptor GetAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject)
-    {
-      return new MpfAttachedPropertyDataDescriptor(targetObject, propertyProvider, propertyName);
-    }
-
-    internal static MethodInfo GetAttachedPropertyGetter(string propertyProvider,
-        string propertyName)
-    {
-      Type type = GetElementType(propertyProvider);
-      MethodInfo mi = null;
-      while (mi == null && type != null)
-      {
-        mi = type.GetMethod("Get" + propertyName + "AttachedProperty",
-            BindingFlags.Public | BindingFlags.Static);
-        type = type.BaseType;
-      }
-      return mi;
-    }
-
-    internal static Type GetElementType(string typeName)
+    public override Type GetElementType(string typeName)
     {
       try
       {
@@ -63,81 +43,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
       catch
       {
-        throw new XamlParserException("Element type '{0}' is not present in MpfNamespaceHandler",
-          typeName);
+        throw new XamlParserException("Element type '{0}' is not present in MpfNamespaceHandler", typeName);
       }
     }
-
-    internal static bool HasAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject)
-    {
-      return GetAttachedPropertyGetter(propertyProvider, propertyName) != null;
-    }
-
-    internal static bool FindBestConstructor(Type t, IList<object> parameters, out ConstructorInfo constructorInfo,
-        out object[] convertedParameters)
-    {
-      MethodBase methodBase;
-      object[] parameterObjects = new object[parameters.Count];
-      parameters.CopyTo(parameterObjects, 0);
-      if (ReflectionHelper.FindBestMember(t.GetConstructors(), parameterObjects, out methodBase, out convertedParameters))
-      {
-        constructorInfo = (ConstructorInfo) methodBase;
-        return true;
-      }
-      constructorInfo = null;
-      return false;
-    }
-
-    #endregion
-
-    #region INamespaceHandler implementation
-
-    public object InstantiateElement(IParserContext context, string typeName, string namespaceURI,
-        IList<object> parameters)
-    {
-      try
-      {
-        Type t = GetElementType(typeName, namespaceURI);
-        ConstructorInfo constructorInfo;
-        object[] convertedParameters;
-        if (!FindBestConstructor(t, parameters, out constructorInfo, out convertedParameters))
-          throw new XamlParserException("Error creating element type '{0}' in namespace '{1}'",
-            typeName, namespaceURI);
-        return constructorInfo.Invoke(convertedParameters);
-      }
-      catch (Exception e)
-      {
-        if (e is XamlParserException)
-          throw;
-        throw new XamlParserException("Error creating element type '{0}' in namespace '{1}'",
-          e, typeName, namespaceURI);
-      }
-    }
-
-    public Type GetElementType(string typeName, string namespaceURI)
-    {
-      return GetElementType(typeName);
-    }
-
-    public bool HasAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
-    {
-      return GetAttachedPropertyGetter(propertyProvider, propertyName) != null;
-    }
-
-    public IDataDescriptor GetAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
-    {
-      MpfAttachedPropertyDataDescriptor result;
-      if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
-          targetObject, propertyProvider, propertyName, out result))
-        throw new InvalidOperationException(string.Format(
-            "Attached property '{0}.{1}' is not available on target object '{2}'",
-            propertyProvider, propertyName, targetObject));
-      return result;
-    }
-
-    #endregion
   }
 }

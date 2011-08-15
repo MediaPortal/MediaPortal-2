@@ -23,18 +23,15 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
   /// <summary>
-  /// Defines the handler for a standard namespace declaration in the form
-  /// <c>xmlns:sys="clr-namespace:System;assembly=mscorlib"</c>.
+  /// Defines the handler for a standard namespace declaration in the form <c>xmlns:sys="clr-namespace:System;assembly=mscorlib"</c>.
   /// </summary>
-  public class DefaultNamespaceHandler: INamespaceHandler
+  public class DefaultNamespaceHandler : AbstractNamespaceHandler
   {
     protected Assembly _assembly;
     protected string _namespaceName;
@@ -52,13 +49,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     }
 
     /// <summary>
-    /// Creates a <see cref="DefaultNamespaceHandler"/> instance for the
-    /// namespace declaration in the form
-    /// <c>"clr-namespace:System;assembly=mscorlib"</c> or
-    /// <c>"clr-namespace:Media"</c>.
+    /// Creates a <see cref="DefaultNamespaceHandler"/> instance for the namespace declaration in the form
+    /// <c>"clr-namespace:System;assembly=mscorlib"</c> or <c>"clr-namespace:Media"</c>.
     /// </summary>
-    public static DefaultNamespaceHandler createDefaultHandler(
-        string qualifiedNamespace)
+    public static DefaultNamespaceHandler createDefaultHandler(string qualifiedNamespace)
     {
       string namespaceToken = qualifiedNamespace;
       string assemblyToken = string.Empty;
@@ -69,7 +63,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         assemblyToken = qualifiedNamespace.Substring(i + 1);
       }
       if (!namespaceToken.StartsWith("clr-namespace:"))
-        throw new XamlBindingException("This method can only handle namespaces specified in the form 'clr-namespace:[Namespace]<;assembly=[AssemblyName]>'");
+        throw new XamlBindingException(
+            "This method can only handle namespaces specified in the form 'clr-namespace:[Namespace]<;assembly=[AssemblyName]>'");
       string namespaceName = namespaceToken.Substring("clr-namespace:".Length);
       i = assemblyToken.IndexOf('=');
       string assemblyName = null;
@@ -77,44 +72,15 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         assemblyName = assemblyToken.Substring(i+1);
       if (assemblyName == null)
         return new DefaultNamespaceHandler(namespaceName);
-      else
-        return new DefaultNamespaceHandler(
-            AssemblyHelper.LoadAssembly(assemblyName), namespaceName);
+      return new DefaultNamespaceHandler(AssemblyHelper.LoadAssembly(assemblyName), namespaceName);
     }
 
-    #region INamespaceHandler implementation
-
-    public object InstantiateElement(IParserContext context,
-        string typeName, string namespaceURI, IList<object> parameters)
-    {
-      Type type = GetElementType(typeName, namespaceURI);
-      object[] parameterObjects = new object[parameters.Count];
-      parameters.CopyTo(parameterObjects, 0);
-      return Activator.CreateInstance(type, parameterObjects);
-    }
-
-    public Type GetElementType(string typeName, string namespaceURI)
+    public override Type GetElementType(string typeName)
     {
       string fullName = String.Format("{0}.{1}", _namespaceName, typeName);
       if (_assembly == null)
         return Type.GetType(fullName);
-      else
-        return _assembly.GetType(fullName);
+      return _assembly.GetType(fullName);
     }
-
-    public IDataDescriptor GetAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
-    {
-      throw new XamlBindingException("Namespace handler {0} doesn't provide attached properties",
-        typeof(DefaultNamespaceHandler).Name);
-    }
-
-    public bool HasAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
-    {
-      return false;
-    }
-
-    #endregion
   }
 }

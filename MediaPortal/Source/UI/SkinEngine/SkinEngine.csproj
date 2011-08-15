@@ -249,6 +249,8 @@
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
     <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
     <Compile Include="Xaml\EvaluatableMarkupExtensionActivator.cs" />
+    <Compile Include="Xaml\DefaultAttachedPropertyDataDescriptor.cs" />
+    <Compile Include="Xaml\AbstractNamespaceHandler.cs" />
     <Compile Include="Xaml\PathExpression.cs" />
     <Compile Include="Xaml\ReflectionHelper.cs" />
     <Compile Include="Xaml\TypeConverter.cs" />
@@ -340,7 +342,6 @@
     <Compile Include="MarkupExtensions\ServiceRegistrationMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
     <Compile Include="MarkupExtensions\TreeHelper.cs" />
-    <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
     <Compile Include="MpfElements\Registration.cs" />
     <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
