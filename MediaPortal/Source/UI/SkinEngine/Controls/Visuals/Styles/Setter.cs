@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     void OnValueChanged(AbstractProperty prop, object oldVal)
     {
-      Registration.SetOwner(oldVal, null);
+      Registration.CleanupAndDisposeResourceIfOwner(oldVal, this);
       Registration.SetOwner(Value, this);
     }
 

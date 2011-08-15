@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           _binding.Dispose();
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
-          Registration.CleanupAndDisposeResourceIfOwner(property.GetValue(), this);
+          Registration.TryCleanupAndDispose(property.GetValue());
     }
 
     #endregion
