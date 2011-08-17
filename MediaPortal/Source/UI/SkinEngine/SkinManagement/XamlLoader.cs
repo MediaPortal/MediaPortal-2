@@ -39,11 +39,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// </summary>              
   public class XamlLoader
   {
-    /// <summary>
-    /// XAML namespace for the MediaPortal Skin Engine visual's class library.
-    /// </summary>
-    public const string NS_MEDIAPORTAL_MPF_URI = "www.team-mediaportal.com/2008/mpf/directx";
-
     public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
 
     /// <summary>
@@ -100,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     static INamespaceHandler parser_ImportNamespace(IParserContext context, string namespaceURI)
     {
-      if (namespaceURI == NS_MEDIAPORTAL_MPF_URI)
+      if (namespaceURI == MpfNamespaceHandler.NS_MEDIAPORTAL_MPF_URI)
         return new MpfNamespaceHandler();
       throw new XamlNamespaceNotSupportedException("XAML namespace '{0}' is not supported by the MediaPortal skin engine", namespaceURI);
     }

@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       string localName;
       string namespaceURI;
       context.LookupNamespace(typeName, out localName, out namespaceURI);
-      return context.GetNamespaceHandler(namespaceURI).GetElementType(localName, namespaceURI);
+      return context.GetNamespaceHandler(namespaceURI).GetElementType(localName);
     }
   }
 }

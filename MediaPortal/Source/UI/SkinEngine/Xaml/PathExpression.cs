@@ -160,8 +160,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       result = null;
       try
       {
-        result = _namespaceHandler.
-          GetAttachedProperty(_propertyProvider, _propertyName, source.Value, _namespaceURI);
+        DefaultAttachedPropertyDataDescriptor dapdd;
+        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(_namespaceHandler,
+            source.Value, _propertyProvider, _propertyName, out dapdd))
+          throw new InvalidOperationException(string.Format("Attached property '{0}.{1}' is not available on new target object '{2}'",
+              _propertyProvider, _propertyName, source.Value));
+        result = dapdd;
       }
       catch (Exception e)
       {

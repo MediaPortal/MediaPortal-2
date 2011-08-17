@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager.Builders;
@@ -32,12 +33,15 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// The global service provider class. It is used to provide the references to all
-  /// globally available services.
+  /// The global service provider class. It is used to provide the references to all globally available services.
   /// </summary>
   /// <remarks>
-  /// <para>This class is some kind of repository that holds a reference to
-  /// services that other components could need.</para>
+  /// <para>
+  /// This class is some kind of repository that holds a reference to services that other components could need.
+  /// </para>
+  /// <para>
+  /// All public methods of this class are multithreading-safe. It is safe to call methods of this class while holding arbitrary locks.
+  /// </para>
   /// </remarks>
   public sealed class ServiceRegistration : IDisposable, IStatus
   {

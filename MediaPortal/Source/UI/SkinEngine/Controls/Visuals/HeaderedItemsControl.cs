@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ItemsControl ic = FindParentOfType<ItemsControl>();
       if (ic != null)
-        ic.UpdateSelectedItem(this, Selected);
+        ic.UpdateSelectedItem(this);
     }
 
     protected override void OnItemsSourceChanged()

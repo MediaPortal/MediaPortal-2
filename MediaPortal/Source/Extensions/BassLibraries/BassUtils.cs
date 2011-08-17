@@ -100,6 +100,8 @@ namespace MediaPortal.Extensions.BassLibraries
       }
     }
 
+    protected static readonly object _syncObj = new object();
+
     /// <summary>
     /// Checks, if the media in the given drive Letter is a Red Book (Audio) CD.
     /// </summary>
@@ -118,20 +120,21 @@ namespace MediaPortal.Extensions.BassLibraries
     /// the given <paramref name="drive"/>).</returns>
     public static int GetNumAudioTracks(string drive)
     {
-      try
-      {
-        if (string.IsNullOrEmpty(drive))
-          return -1;
-        char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
-        int driveId = Drive2BassID(driveLetter);
+      lock (_syncObj)
+        try
+        {
+          if (string.IsNullOrEmpty(drive))
+            return -1;
+          char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
+          int driveId = Drive2BassID(driveLetter);
 
-        return BassCd.BASS_CD_GetTracks(driveId);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
-        return -1;
-      }
+          return BassCd.BASS_CD_GetTracks(driveId);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
+          return -1;
+        }
     }
 
     /// <summary>
@@ -142,35 +145,36 @@ namespace MediaPortal.Extensions.BassLibraries
     /// the given <paramref name="drive"/>).</returns>
     public static IList<AudioTrack> GetAudioTracks(string drive)
     {
-      try
-      {
-        if (string.IsNullOrEmpty(drive))
-          return null;
-        char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
-        int driveId = Drive2BassID(driveLetter);
-
-        BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
-        if (toc == null)
-          return null;
-        IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
-        int trackNo = 0; // BASS starts to count at track 0
-        // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
-        // It seems that this algorithm returns the correct number of audio tracks.
-        foreach (BASS_CD_TOC_TRACK track in toc.tracks)
+      lock (_syncObj)
+        try
         {
-          if ((track.Control & BASSCDTOCFlags.BASS_CD_TOC_CON_DATA) == 0 && track.track != 170) // 170 = lead-out (see BASS documentation)
+          if (string.IsNullOrEmpty(drive))
+            return null;
+          char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
+          int driveId = Drive2BassID(driveLetter);
+
+          BASS_CD_TOC toc = BassCd.BASS_CD_GetTOC(driveId, BASSCDTOCMode.BASS_CD_TOC_TIME);
+          if (toc == null)
+            return null;
+          IList<AudioTrack> result = new List<AudioTrack>(toc.tracks.Count);
+          int trackNo = 0; // BASS starts to count at track 0
+          // Albert, 2011-07-30: Due to the spare documentation of the BASS library, I don't know the correct way...
+          // It seems that this algorithm returns the correct number of audio tracks.
+          foreach (BASS_CD_TOC_TRACK track in toc.tracks)
           {
-            double duration = BassCd.BASS_CD_GetTrackLengthSeconds(driveId, trackNo++);
-            result.Add(new AudioTrack(track.track, duration, track.hour + (track.minute / 60), track.minute, track.second, track.frame)); // Hours are returned as part of minutes (see BASS documentation)
+            if ((track.Control & BASSCDTOCFlags.BASS_CD_TOC_CON_DATA) == 0 && track.track != 170) // 170 = lead-out (see BASS documentation)
+            {
+              double duration = BassCd.BASS_CD_GetTrackLengthSeconds(driveId, trackNo++);
+              result.Add(new AudioTrack(track.track, duration, track.hour + (track.minute / 60), track.minute, track.second, track.frame)); // Hours are returned as part of minutes (see BASS documentation)
+            }
           }
+          return result;
         }
-        return result;
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
-        return null;
-      }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("BassUtils: Error examining CD in drive '{0}'", e, drive);
+          return null;
+        }
     }
 
     /// <summary>
@@ -180,12 +184,12 @@ namespace MediaPortal.Extensions.BassLibraries
     /// <returns>Bass id of the given <paramref name="driveLetter"/>.</returns>
     public static int Drive2BassID(char driveLetter)
     {
-      BASS_CD_INFO cdinfo = new BASS_CD_INFO();
-      for (int i = 0; i < 25; i++)
+      lock (_syncObj)
       {
-        if (BassCd.BASS_CD_GetInfo(i, cdinfo))
+        for (int i = 0; i < 26; i++)
         {
-          if (cdinfo.DriveLetter == driveLetter)
+          BASS_CD_INFO cdInfo = BassCd.BASS_CD_GetInfo(i, true);
+          if (cdInfo != null && cdInfo.DriveLetter == driveLetter)
             return i;
         }
       }

@@ -452,8 +452,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SelectionChanged.Execute(new object[] { CurrentItem });
     }
 
-    public void UpdateSelectedItem(ISelectableItemContainer container, bool isSelected)
+    public void UpdateSelectedItem(ISelectableItemContainer container)
     {
+      bool isSelected = container != null && container.Selected;
       if (ReferenceEquals(_lastSelectedItem, container))
       { // Our selected container
         if (!isSelected)

@@ -24,73 +24,57 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
-  /// Defines the callback interface the <see cref="Parser"/> uses to
-  /// handle XAML elements of an XML namespace. The term "namespace"
-  /// describes here an XML namespace, not necessarily a code namespace.
-  /// Often, an XML namespace will be mapped to a code namespace even so.
+  /// Defines the callback interface the <see cref="Parser"/> uses to  handle XAML elements of an XML namespace. The term "namespace"
+  /// describes here an XML namespace, not necessarily a code namespace. Often, an XML namespace will be mapped to a code namespace even so.
   /// </summary>
   public interface INamespaceHandler
   {
     /// <summary>
-    /// Instantiates a XAML element and returns its visual element or the
-    /// binding defined by it.
+    /// Instantiates a XAML element and returns its visual element or the binding defined by it.
     /// </summary>
     /// <param name="context">The context instance during the parsing process.</param>
     /// <param name="typeName">The type name of the element to be instantiated.</param>
-    /// <param name="namespaceURI">The URI of the namespace where the element
-    /// to be instantiated is located.</param>
-    /// <param name="parameters">List of parameters to pass to the constructor of the
-    /// element to be instantiated.</param>
+    /// <param name="parameters">List of parameters to pass to the constructor of the element to be instantiated.</param>
     /// <returns>The new visual's element or markup extension instance.</returns>
-    object InstantiateElement(IParserContext context, string typeName, string namespaceURI,
-        IList<object> parameters);
+    object InstantiateElement(IParserContext context, string typeName, IList<object> parameters);
 
     /// <summary>
-    /// Returns the type of the specified <paramref name="typeName"/> for the
-    /// namespace handled by this namespace handler.
+    /// Returns the type of the specified <paramref name="typeName"/> for the namespace handled by this namespace handler.
     /// </summary>
     /// <param name="typeName">XAML element name.</param>
-    /// <param name="namespaceURI">XML namespace uri of the XAML element.</param>
-    Type GetElementType(string typeName, string namespaceURI);
+    Type GetElementType(string typeName);
 
     /// <summary>
-    /// Returns attached property with name <paramref name="propertyName"/>
-    /// of the specified <paramref name="propertyProvider"/> for the specified
-    /// <paramref name="targetObject"/> in the specified <paramref name="namespaceURI"/>.
+    /// Returns the information, if the attached property with name <paramref name="propertyName"/> of the specified
+    /// <paramref name="propertyProvider"/> for the specified <paramref name="targetObject"/> exists.
     /// </summary>
+    /// <param name="propertyProvider">Property provider of the attached property to request.</param>
+    /// <param name="propertyName">Name of the attached property to request.</param>
+    /// <param name="targetObject">The target object, on which the property should be placed.</param>
+    /// <returns>true, if the specified attached property exists, else false.</returns>
+    bool HasAttachedProperty(string propertyProvider, string propertyName, object targetObject);
+
+    /// <summary>
+    /// Returns the attached property with name <paramref name="propertyName"/> of the specified <paramref name="propertyProvider"/>
+    /// for the specified <paramref name="targetObject"/>.
+    /// </summary>
+    /// <remarks>
     /// <example>
     /// Attached properties in XAML files are assigned on an element e by either
-    /// <code><e [PropertyProvider].[PropertyName]=[Value]></code>
+    /// <code>&lt;e [PropertyProvider].[PropertyName]=[Value]&gt;</code>
     /// or 
-    /// <code><e><[PropertyProvider].[PropertyName]>[Value]</[PropertyProvider].[PropertyName]></e></code>
+    /// <code><e>&lt;[PropertyProvider].[PropertyName]&gt;[Value]&lt;/[PropertyProvider].[PropertyName]&gt;</e></code>
     /// </example>
-    /// <param name="propertyProvider">Property provider of the attached property to
-    /// return.</param>
+    /// </remarks>
+    /// <param name="propertyProvider">Property provider of the attached property to return.</param>
     /// <param name="propertyName">Name of the attached property to return.</param>
-    /// <param name="targetObject">The target object, on which the property should be
-    /// set.</param>
-    /// <param name="namespaceURI">Namespace of the property provider.</param>
+    /// <param name="targetObject">The target object, on which the property should be set.</param>
     /// <returns>Data descriptor for the requested attached property.</returns>
-    IDataDescriptor GetAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI);
-
-    /// <summary>
-    /// Returns the information, if the attached property with name <paramref name="propertyName"/>
-    /// of the specified <paramref name="propertyProvider"/> for the specified
-    /// <paramref name="targetObject"/> in the specified <paramref name="namespaceURI"/> exists.
-    /// </summary>
-    /// <param name="propertyProvider">Property provider of the attached property to
-    /// request.</param>
-    /// <param name="propertyName">Name of the attached property to request.</param>
-    /// <param name="targetObject">The target object, on which the property should be
-    /// placed.</param>
-    /// <param name="namespaceURI">Namespace of the property provider.</param>
-    /// <returns>true, if the specified attached property exists, else false.</returns>
-    bool HasAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI);
+    AbstractProperty GetAttachedProperty(string propertyProvider, string propertyName, object targetObject);
   }
 }

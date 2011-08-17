@@ -83,14 +83,12 @@ namespace MediaPortal.Core.General
 
     protected string[] InitializeAliases(string hostName)
     {
-      ICollection<string> aliases = new List<string>();
+      List<string> aliases = new List<string>();
       try
       {
         IPHostEntry hostEntry = Dns.GetHostEntry(_hostName);
-        foreach (string alias in hostEntry.Aliases)
-          aliases.Add(GetCanonicalForm(alias));
-        foreach (IPAddress address in hostEntry.AddressList)
-          aliases.Add(NetworkUtils.IPAddrToString(address));
+        aliases.AddRange(hostEntry.Aliases.Select(GetCanonicalForm));
+        aliases.AddRange(hostEntry.AddressList.Select(NetworkUtils.IPAddrToString));
       }
       catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
       {
@@ -202,10 +200,7 @@ namespace MediaPortal.Core.General
         return false;
       if (IsLocalSystem() && obj.IsLocalSystem())
         return true;
-      foreach (string alias in _aliases)
-        if (alias == obj._hostName)
-          return true;
-      return false;
+      return _aliases.Any(alias => alias == obj._hostName);
     }
 
     public override bool Equals(object obj)

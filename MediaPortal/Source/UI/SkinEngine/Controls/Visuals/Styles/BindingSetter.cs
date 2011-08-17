@@ -101,8 +101,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         string propertyProvider = Property.Substring(0, index);
         string propertyName = Property.Substring(index + 1);
-        MpfAttachedPropertyDataDescriptor targetDd;
-        if (MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
+        DefaultAttachedPropertyDataDescriptor targetDd;
+        if (DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
             element, propertyProvider, propertyName, out targetDd))
         bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
       }

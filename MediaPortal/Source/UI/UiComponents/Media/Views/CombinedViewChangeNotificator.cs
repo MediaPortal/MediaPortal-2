@@ -64,9 +64,11 @@ namespace MediaPortal.UiComponents.Media.Views
 
     public static IViewChangeNotificator CombineViewChangeNotificators<T>(IEnumerable<T> viewSpecifications) where T : ViewSpecification
     {
-      ICollection<IViewChangeNotificator> subChangeNotificators = viewSpecifications.Select(vs => vs.GetChangeNotificator()).Where(vcn => vcn != null).ToList();
+      IList<IViewChangeNotificator> subChangeNotificators = viewSpecifications.Select(vs => vs.GetChangeNotificator()).Where(vcn => vcn != null).ToList();
       if (subChangeNotificators.Count == 0)
         return null;
+      if (subChangeNotificators.Count == 1)
+        return subChangeNotificators[0];
       return new CombinedViewChangeNotificator(subChangeNotificators);
     }
   }

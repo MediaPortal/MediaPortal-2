@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Views
 
     protected void UpdateRemovableDriveHandler()
     {
-      _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo, _necessaryMIATypeIds) ??
+      _removableDriveHandler = VideoDriveHandler.TryCreateVideoDriveHandler(_driveInfo, Consts.NECESSARY_MOVIE_MIAS) ??
           AudioCDDriveHandler.TryCreateAudioCDDriveHandler(_driveInfo) ??
           MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(_driveInfo, Consts.NECESSARY_MOVIE_MIAS, Consts.NECESSARY_PICTURE_MIAS, Consts.NECESSARY_MUSIC_MIAS) ??
           (IRemovableDriveHandler) new UnknownRemovableDriveHandler(_driveInfo);
@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Views
       get
       {
         string volumeLabel = _removableDriveHandler.VolumeLabel;
-        return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : ("(" + volumeLabel + ")"));
+        return _driveInfo.RootDirectory.Name + (string.IsNullOrEmpty(volumeLabel) ? string.Empty : (" (" + volumeLabel + ")"));
       }
     }
 

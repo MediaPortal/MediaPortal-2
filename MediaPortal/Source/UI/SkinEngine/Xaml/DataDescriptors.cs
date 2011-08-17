@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-
+using System.Linq;
 using System.Reflection;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -410,11 +410,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public override int GetHashCode()
     {
-      int sum = 0;
-      if (_indices != null)
-        foreach (object o in _indices)
-          sum += o.GetHashCode();
-      return _target.GetHashCode() + sum;
+      return _target.GetHashCode() + (_indices == null ? 0 : _indices.Sum(o => o.GetHashCode()));
     }
 
     public override bool Equals(object other)
@@ -593,11 +589,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public override int GetHashCode()
     {
-      int sum = 0;
-      if (_indices != null)
-        foreach (object o in _indices)
-          sum += o.GetHashCode();
-      return _obj.GetHashCode() + _prop.GetHashCode() + sum;
+      return _obj.GetHashCode() + _prop.GetHashCode() + (_indices == null ? 0 : _indices.Sum(o => o.GetHashCode()));
     }
 
     public override bool Equals(object other)

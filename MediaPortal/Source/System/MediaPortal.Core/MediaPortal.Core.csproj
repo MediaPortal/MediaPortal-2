@@ -256,7 +256,7 @@
     <Compile Include="PluginManager\PluginManagerMessaging.cs" />
     <Compile Include="PluginManager\PluginState.cs" />
     <Compile Include="ServiceCreatorCallback.cs" />
-    <Compile Include="ServiceNotFoundException.cs" />
+    <Compile Include="Exceptions\ServiceNotFoundException.cs" />
     <Compile Include="ServiceRegistration.cs" />
     <Compile Include="Services\Settings\SettingsCache.cs" />
     <Compile Include="Services\Settings\SettingsFileHandler.cs" />

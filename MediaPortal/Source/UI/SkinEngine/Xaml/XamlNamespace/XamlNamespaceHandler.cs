@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-using MediaPortal.UI.SkinEngine.Xaml.XamlNamespace;
 
 namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 {
@@ -47,12 +47,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     #region INamespaceHandler implementation
 
-    public object InstantiateElement(IParserContext context, string typeName, string namespaceURI,
-        IList<object> parameters)
+    public object InstantiateElement(IParserContext context, string typeName, IList<object> parameters)
     {
       try
       {
-        Type t = GetElementType(typeName, namespaceURI);
+        Type t = GetElementType(typeName);
         object[] parameterObjects = new object[parameters.Count];
         parameters.CopyTo(parameterObjects, 0);
         return Activator.CreateInstance(t, parameterObjects);
@@ -60,13 +59,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
       catch (Exception e)
       {
         if (e is XamlParserException)
-          throw e;
-        throw new XamlParserException("Error creating element type '{0}' in namespace '{1}'",
-          e, typeName, namespaceURI);
+          throw;
+        throw new XamlParserException("Error creating element type '{0}'", e, typeName);
       }
     }
 
-    public Type GetElementType(string typeName, string namespaceURI)
+    public Type GetElementType(string typeName)
     {
       try
       {
@@ -74,20 +72,16 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
       }
       catch
       {
-        throw new XamlParserException("Element type '{0}' is not present in namespace '{1}'",
-          typeName, namespaceURI);
+        throw new XamlParserException("Element type '{0}' is not present", typeName);
       }
     }
 
-    public IDataDescriptor GetAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
+    public AbstractProperty GetAttachedProperty(string propertyProvider, string propertyName, object targetObject)
     {
-      throw new XamlBindingException("Namespace handler {0} doesn't provide attached properties",
-        typeof(XamlNamespaceHandler).Name);
+      throw new XamlBindingException("Namespace handler {0} doesn't provide attached properties", typeof(XamlNamespaceHandler).Name);
     }
 
-    public bool HasAttachedProperty(string propertyProvider,
-        string propertyName, object targetObject, string namespaceURI)
+    public bool HasAttachedProperty(string propertyProvider, string propertyName, object targetObject)
     {
       return false;
     }
