@@ -56,8 +56,8 @@
       <Component Id="MP2Client.config" Guid="D3FFB65D-0A46-4F34-8472-85466CD1067C">
         <File Id="MP2Client.exe.config" Name="MP2-Client.exe.config" KeyPath="yes" Checksum="yes" />
       </Component>
-      <Component Id="MP2ClientSplashscreen" Guid="B038F5DE-3940-46A9-AD12-C4142F826044">
-        <File Id="MP2ClientSplashscreen.jpg" Name="MP2 Client Splashscreen.jpg" KeyPath="yes" Checksum="yes" />
+      <Component Id="MP2Client.Splashscreen" Guid="B038F5DE-3940-46A9-AD12-C4142F826044">
+        <File Id="MP2Client.Splashscreen.jpg" Name="MP2 Client Splashscreen.jpg" KeyPath="yes" Checksum="yes" />
       </Component>
 
       <Component Id="HttpServer" Guid="D26BF800-F936-4FD8-94A9-9A71CCB7AB3B">

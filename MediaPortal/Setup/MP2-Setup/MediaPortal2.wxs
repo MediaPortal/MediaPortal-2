@@ -75,11 +75,6 @@
                 <CreateFolder/>
               </Component>
             </Directory>
-            <Directory Id="CLIENT.PLAYLISTS.FOLDER" Name="Playlists">
-              <Component Id="CLIENT.PLAYLISTS.FOLDER" Guid="CB5D1CDB-E3D2-4464-8078-25546C2C6B38">
-                <CreateFolder/>
-              </Component>
-            </Directory>
             <Directory Id="CLIENT.REMOTERESOURCES.FOLDER" Name="RemoteResources">
               <Component Id="CLIENT.REMOTERESOURCES.FOLDER" Guid="BC77FD55-512B-4669-8BBE-D69318234DAA">
                 <CreateFolder/>

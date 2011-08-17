@@ -32,8 +32,6 @@
   <String Id="F_Client_Config_Desc">Client Config Beschreibung</String>
   <String Id="F_Client_Log">Log</String>
   <String Id="F_Client_Log_Desc">Client Log Beschreibung</String>
-  <String Id="F_Client_Playlist">Playlist</String>
-  <String Id="F_Client_Playlist_Desc">Client Playlist Beschreibung</String>
   <String Id="F_Client_RemoteResources">RemoteResources</String>
   <String Id="F_Client_RemoteResources_Desc">Client RemoteResources Beschreibung</String>
 

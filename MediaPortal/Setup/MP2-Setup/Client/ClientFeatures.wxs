@@ -21,7 +21,7 @@
 
       <ComponentRef Id="MP2Client" />
       <ComponentRef Id="MP2Client.config" />
-      <ComponentRef Id="MP2ClientSplashscreen" />
+      <ComponentRef Id="MP2Client.Splashscreen" />
       <ComponentRef Id="MP2Client.Desktop.Shortcut" />
       <ComponentRef Id="MP2Client.StartMenu.Shortcut" />
 
@@ -62,12 +62,6 @@
                  Title="!(loc.F_Client_Log)"
                  Description="!(loc.F_Client_Log_Desc)">
           <ComponentRef Id="CLIENT.LOG.FOLDER" />
-        </Feature>
-        <Feature Id="Client.Playlists" Level="2" Absent="disallow" AllowAdvertise="no"
-                 ConfigurableDirectory="CLIENT.PLAYLISTS.FOLDER"
-                 Title="!(loc.F_Client_Playlist)"
-                 Description="!(loc.F_Client_Playlist_Desc)">
-          <ComponentRef Id="CLIENT.PLAYLISTS.FOLDER" />
         </Feature>
         <Feature Id="Client.RemoteResources" Level="2" Absent="disallow" AllowAdvertise="no"
                  ConfigurableDirectory="CLIENT.REMOTERESOURCES.FOLDER"
