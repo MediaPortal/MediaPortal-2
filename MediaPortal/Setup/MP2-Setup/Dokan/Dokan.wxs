@@ -4,6 +4,8 @@
   <Fragment>
 
     <Property Id="DokanFile">1</Property>
+
+    <!--LaunchCondition obsolete when installing dokan with MP    
     
     <Condition Message="!(loc.LC_Dokan)">
       <![CDATA[Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)]]>
@@ -11,6 +13,7 @@
     <Condition Message="!(loc.LC_DokanError)">
       <![CDATA[Installed OR DOKANINSTALLED]]>
     </Condition>
+    -->
 
     <Property Id="DOKANINSTALLED">
       <RegistrySearch Id="IsDokanServiceInstalled"
@@ -31,6 +34,22 @@
         <FileSearch Name="Dokan.sys" MinSize="120407" MaxSize="120409" />
       </DirectorySearch>
     </Property>
+
+    <Binary Id="DokanInstallerExe" SourceFile="$(var.ProjectDir)Dokan\DokanInstall_0.6.0.exe" />
+
+    <CustomAction Id="CA_InstallDokan"
+                  BinaryKey="DokanInstallerExe"
+                  Impersonate="yes"
+                  Execute="deferred"
+                  ExeCommand="/S"
+                  Return="check" />
+    
+    <CustomAction Id="CA_UninstallDokan"
+                  Directory="DokanLibraryFolder"
+                  ExeCommand="[DokanLibraryFolder]DokanUninstall.exe"
+                  Impersonate="yes"
+                  Execute="deferred"
+                  Return="ignore" />
 
   </Fragment>
 </Wix>

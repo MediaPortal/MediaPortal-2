@@ -167,9 +167,21 @@
     <InstallExecuteSequence>
       
       <Custom Action="ReadCustomPaths" Before="SetCustomPaths">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
-      
+
       <Custom Action="SetCustomPaths" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
+
+      <!-- Uninstall Dokan during installation, if dokan is out of date -->
+      <Custom Action="UninstallDokan" After="InstallFiles">
+        NOT Installed AND DOKANINSTALLED AND
+        NOT (
+        (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)
+        )
+      </Custom>
+      <!-- Install Dokan, if correct version is not installed yet -->
+      <Custom Action="InstallDokan" After="CA_UninstallOldDokan">
+        NOT (Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64))
+      </Custom>
 
       <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
