@@ -26,21 +26,8 @@
 
         | | DirectX
         |X| Dokan: Check if $SYSDIR\drivers\dokan.sys exists
-            | | ??? install by integrating dokan completely into MP2.msi
-            | | ??? install by creating an MSM package?
-            | | ??? install via CustomAction and launching the original dokan installer?
-            | | ??? install via BootStrapper and launching the original dokan installer?
-        
             | | no --> install it
             | | yes --> check version
-                | | install check (dokan.sys exists)
-                | | version check (registry / filesize / fileversion)
-                | | CustomAction: install if not installed
-                    | | during installation if not installed
-                    | | during installation if older, first uninstall
-                | | CustomAction: uninstall
-                    | | during installation if older
-                    | | during uninstallation
                 |X| 0.6 -> is installed, do nothin dokan related
                 | | older -> warn the user to uninstall dokan and to reboot the pc
 
