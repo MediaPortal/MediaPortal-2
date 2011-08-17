@@ -59,6 +59,10 @@
             <Directory Id="SERVER.PLUGINS.FOLDER" Name="Plugins"/>
           </Directory>
         </Directory>
+        
+        <Directory Id="DokanFolder" Name="Dokan">
+          <Directory Id="DokanLibraryFolder" Name="DokanLibrary"/>
+        </Directory>
       </Directory>
 
       <Directory Id="CommonAppDataFolder">
@@ -172,14 +176,14 @@
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
 
       <!-- Uninstall Dokan during installation, if dokan is out of date -->
-      <Custom Action="UninstallDokan" After="InstallFiles">
+      <Custom Action="CA_UninstallDokan" After="InstallFiles">
         NOT Installed AND DOKANINSTALLED AND
         NOT (
         (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)
         )
       </Custom>
       <!-- Install Dokan, if correct version is not installed yet -->
-      <Custom Action="InstallDokan" After="CA_UninstallOldDokan">
+      <Custom Action="CA_InstallDokan" After="CA_UninstallDokan">
         NOT (Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64))
       </Custom>
 
