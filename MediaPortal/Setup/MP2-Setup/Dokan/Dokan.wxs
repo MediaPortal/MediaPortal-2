@@ -4,6 +4,13 @@
   <Fragment>
 
     <Property Id="DokanFile">1</Property>
+    
+    <Condition Message="!(loc.LC_Dokan)">
+      <![CDATA[Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)]]>
+    </Condition>
+    <Condition Message="!(loc.LC_DokanError)">
+      <![CDATA[Installed OR DOKANINSTALLED]]>
+    </Condition>
 
     <Property Id="DOKANINSTALLED">
       <RegistrySearch Id="IsDokanServiceInstalled"

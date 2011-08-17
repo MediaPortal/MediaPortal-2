@@ -9,13 +9,6 @@
       <![CDATA[Installed OR VersionNT >= 601]]>
     </Condition>
 
-    <Condition Message="!(loc.LC_Dokan)">
-      <![CDATA[Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)]]>
-    </Condition>
-    <Condition Message="!(loc.LC_DokanError)">
-      <![CDATA[Installed OR DOKANINSTALLED]]>
-    </Condition>
-
     <Condition Message="!(loc.LC_NET)">
       <![CDATA[Installed OR NETFRAMEWORK40FULL]]>
     </Condition>
