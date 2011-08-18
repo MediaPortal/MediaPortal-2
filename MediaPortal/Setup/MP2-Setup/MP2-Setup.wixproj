@@ -18,13 +18,13 @@
     <SuppressValidation>False</SuppressValidation>
     <Cultures>
     </Cultures>
-    <SuppressIces>ICE60</SuppressIces>
+    <SuppressIces>ICE60;ICE80</SuppressIces>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>SourceClientPlugins=$(ProjectDir)..\..\Bin\MP2-Client\bin\x86\Release\Plugins;SourceServerPlugins=$(ProjectDir)..\..\Bin\MP2-Server\bin\x86\Release\Plugins</DefineConstants>
-    <SuppressIces>ICE60</SuppressIces>
+    <SuppressIces>ICE60;ICE80</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Client\ClientPlugins.wxs" />
