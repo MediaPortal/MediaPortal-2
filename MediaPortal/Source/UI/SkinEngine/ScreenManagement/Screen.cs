@@ -557,40 +557,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void DoFireScreenShowingEvent()
     {
-      FireEvent(SHOW_EVENT);
+      FireEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
     }
 
     public void FireScreenClosingEvent()
     {
-      FireEvent(CLOSE_EVENT);
+      FireEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
       _closeTime = FindCloseEventCompletionTime();
     }
 
     public bool DoneClosing
     {
       get { return SkinContext.FrameRenderingStartTime.CompareTo(_closeTime) > 0; }
-    }
-
-    /// <summary>
-    /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
-    /// focus. This will reset the focus on the former focused element.
-    /// This will be called from the <see cref="FrameworkElement"/> class.
-    /// </summary>
-    /// <param name="focusedElement">The element which gained focus.</param>
-    /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
-    /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
-    /// should be called again after the element arranged its layout.</returns>
-    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
-    {
-      if (_focusedElement == focusedElement)
-        return;
-      RemoveCurrentFocus();
-      if (focusedElement == null)
-        return;
-      _focusedElement = focusedElement;
-      _lastFocusRect = focusedElement.ActualBounds;
-      focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
-      return;
     }
 
     /// <summary>
@@ -631,6 +609,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
+    /// focus. This will reset the focus on the former focused element.
+    /// This will be called from the <see cref="FrameworkElement"/> class.
+    /// </summary>
+    /// <param name="focusedElement">The element which gained focus.</param>
+    /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
+    /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
+    /// should be called again after the element arranged its layout.</returns>
+    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
+    {
+      if (_focusedElement == focusedElement)
+        return;
+      RemoveCurrentFocus();
+      if (focusedElement == null)
+        return;
+      _focusedElement = focusedElement;
+      _lastFocusRect = focusedElement.ActualBounds;
+      focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
+      return;
+    }
+
+    /// <summary>
     /// Informs the screen that the specified <paramref name="focusedElement"/> lost its
     /// focus. This will be called from the <see cref="FrameworkElement"/> class.
     /// </summary>
@@ -640,7 +640,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (focusedElement != null && _focusedElement == focusedElement)
       {
         _focusedElement = null;
-        focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT);
+        focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
       }
     }
 

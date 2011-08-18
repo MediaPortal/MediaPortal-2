@@ -132,9 +132,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ConfigureContentScrollFacility();
     }
 
-    public override void FireEvent(string eventName)
+    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
-      base.FireEvent(eventName);
+      base.FireEvent(eventName, routingStrategy);
       if (eventName == LOADED_EVENT)
         UpdateScrollBars();
     }

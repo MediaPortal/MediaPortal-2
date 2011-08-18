@@ -184,11 +184,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Base overrides
 
-    public override void FireEvent(string eventName)
+    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
       if (eventName == LOADED_EVENT)
         InitializeGroup();
-      base.FireEvent(eventName);
+      base.FireEvent(eventName, routingStrategy);
     }
 
     #endregion
@@ -228,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>GroupContext</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetGroupContext(DependencyObject targetObject, string value)
     {
       targetObject.SetAttachedPropertyValue<string>(GROUPCONTEXT_ATTACHED_PROPERTY, value);

@@ -58,6 +58,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Collapsed = 2,
   }
 
+  public enum RoutingStrategyEnum
+  {
+    /// <summary>
+    /// Event handlers on the event source are invoked. The routed event then routes to successive parent elements until reaching the element tree root.
+    /// </summary>
+    Bubble,
+
+    /// <summary>
+    /// Only the source element itself is given the opportunity to invoke handlers in response.
+    /// </summary>
+    Direct,
+
+    /// <summary>
+    /// Initially, event handlers at the element tree root are invoked. The routed event then travels a route through successive child elements
+    /// along the route, towards the node element that is the routed event source (the element that raised the routed event).
+    /// </summary>
+    Tunnel,
+
+    /// <summary>
+    /// Event handlers of the complete visual tree starting at the element itself are invoked.
+    /// </summary>
+    VisualTree
+  }
+
   /// <summary>
   /// Delegate interface which decides if an UI element fulfills a special condition.
   /// </summary>
@@ -766,9 +790,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return value;
     }
 
-    // TODO: Add routing strategy parameter/functionality? See http://msdn.microsoft.com/en-us/library/ms742806.aspx#routing_strategies
-    public virtual void FireEvent(string eventName)
+    public virtual void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
+      if (routingStrategy == RoutingStrategyEnum.Tunnel)
+      {
+        // Tunnel strategy: All parents first, then this element
+        UIElement parent = VisualParent as UIElement;
+        if (parent != null)
+          parent.FireEvent(eventName, routingStrategy);
+      }
       if (eventName == LOADED_EVENT)
       {
         if (_loaded != null)
@@ -777,6 +807,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIEventDelegate dlgt = EventOccured;
       if (dlgt != null)
         dlgt(eventName);
+      switch (routingStrategy)
+      {
+        case RoutingStrategyEnum.Bubble:
+          // Bubble strategy: First this element, then all parents
+          UIElement parent = VisualParent as UIElement;
+          if (parent != null)
+            parent.FireEvent(eventName, routingStrategy);
+          break;
+        case RoutingStrategyEnum.VisualTree:
+          // VisualTree strategy: First this element, then all children
+          foreach (UIElement child in GetChildren())
+            child.FireEvent(eventName, routingStrategy);
+          break;
+      }
     }
 
     public virtual void OnMouseMove(float x, float y)
@@ -962,7 +1006,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!_fireLoaded)
         return;
-      FireEvent(LOADED_EVENT);
+      FireEvent(LOADED_EVENT, RoutingStrategyEnum.Direct);
       _fireLoaded = false;
     }
 

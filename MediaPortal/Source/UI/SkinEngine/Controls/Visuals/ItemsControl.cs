@@ -408,6 +408,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Item management
 
+    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    {
+      base.FireEvent(eventName, routingStrategy);
+      if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
+        UpdateCurrentItem();
+    }
+
     /// <summary>
     /// Checks if the currently focused element is contained in this items control.
     /// </summary>
@@ -435,21 +442,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void UpdateCurrentItem()
     {
       Screen screen = Screen;
-      _lastFocusedElement = screen == null ? null : screen.FocusedElement;
-      if (_itemsHostPanel == null || !CheckFocusInScope(_lastFocusedElement))
-        CurrentItem = null;
-      else
+      FrameworkElement focusedElement = screen == null ? null : screen.FocusedElement;
+      if (_lastFocusedElement == focusedElement)
+        return;
+      _lastFocusedElement = focusedElement;
+      object lastCurrentItem = CurrentItem;
+      object newCurrentItem = null;
+      if (_itemsHostPanel != null && CheckFocusInScope(focusedElement))
       {
-        Visual element = _lastFocusedElement;
+        Visual element = focusedElement;
         while (element != null && element.VisualParent != _itemsHostPanel)
           element = element.VisualParent;
-        CurrentItem = element == null ? null : element.Context;
+        newCurrentItem = element == null ? null : element.Context;
         ISelectableItemContainer container = element as ISelectableItemContainer;
         if (container != null)
           container.Selected = true; // Triggers an update of our _lastSelectedItem
       }
-      if (SelectionChanged != null)
-        SelectionChanged.Execute(new object[] { CurrentItem });
+      if (newCurrentItem != lastCurrentItem)
+      {
+        CurrentItem = newCurrentItem;
+        FireSelectionChanged(newCurrentItem);
+      }
+    }
+
+    protected void FireSelectionChanged(object newCurrentItem)
+    {
+      ICommandStencil commandStencil = SelectionChanged;
+      if (commandStencil != null)
+        commandStencil.Execute(new object[] { newCurrentItem });
     }
 
     public void UpdateSelectedItem(ISelectableItemContainer container)
@@ -671,14 +691,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       UpdatePreparedItems();
       return base.CalculateInnerDesiredSize(totalSize);
-    }
-
-    public override void DoRender(Rendering.RenderContext localRenderContext)
-    {
-      Screen screen = Screen;
-      if (screen != null && _lastFocusedElement != screen.FocusedElement)
-        UpdateCurrentItem();
-      base.DoRender(localRenderContext);
     }
 
     public override void StartInitialization(IParserContext context)

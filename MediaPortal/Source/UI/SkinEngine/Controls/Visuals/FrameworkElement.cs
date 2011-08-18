@@ -1223,7 +1223,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (!IsMouseOver)
           {
             IsMouseOver = true;
-            FireEvent(MOUSEENTER_EVENT);
+            FireEvent(MOUSEENTER_EVENT, RoutingStrategyEnum.Direct);
           }
           bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
           if (!hasFocus && inVisibleArea)
@@ -1236,7 +1236,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (IsMouseOver)
           {
             IsMouseOver = false;
-            FireEvent(MOUSELEAVE_EVENT);
+            FireEvent(MOUSELEAVE_EVENT, RoutingStrategyEnum.Direct);
           }
           if (hasFocus)
             ResetFocus();
