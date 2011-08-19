@@ -22,6 +22,12 @@
 
 #endregion
 
+// Define DEBUG_LOCKOWNER to make the WF-Manager track the last operation which is currently owner of the workflow manager's lock.
+//#define DEBUG_LOCKOWNER
+
+// Define DEBUG_LOCKREQUESTS to write lock requests and -releases to the system trace output writer.
+//#define DEBUG_LOCKREQUESTS
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,6 +142,10 @@ namespace MediaPortal.UI.Services.Workflow
 
     #region Protected fields
 
+#if DEBUG_LOCKOWNER
+    protected int _lockDepth = 0;
+    protected string _lastLockOperation = null;
+#endif
     protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
 
@@ -191,21 +201,53 @@ namespace MediaPortal.UI.Services.Workflow
     {
       if (!_lock.TryEnterWriteLock(LOCK_TIMEOUT))
         throw new WorkflowManagerLockException("The workflow manager cannot be locked for write operation '{0}' (deadlock?)", operation);
+#if DEBUG_LOCKOWNER
+#if DEBUG_LOCKREQUESTS
+      System.Diagnostics.Trace.WriteLine(string.Format("{0}Entering write operation '{1}' (Thread: {2})", StringUtils.Repeat("  ", _lockDepth), operation, Thread.CurrentThread.Name));
+#endif
+      _lockDepth++;
+      if (_lockDepth == 1)
+        _lastLockOperation = operation;
+#endif
     }
 
     protected void EnterReadLock(string operation)
     {
       if (!_lock.TryEnterReadLock(LOCK_TIMEOUT))
         throw new WorkflowManagerLockException("The workflow manager cannot be locked for read operation '{0}' (deadlock?)", operation);
+#if DEBUG_LOCKOWNER
+#if DEBUG_LOCKREQUESTS
+      System.Diagnostics.Trace.WriteLine(string.Format("{0}Entering read operation '{1}' (Thread: {2})", StringUtils.Repeat("  ", _lockDepth), operation, Thread.CurrentThread.Name));
+#endif
+      _lockDepth++;
+      if (_lockDepth == 1)
+        _lastLockOperation = operation;
+#endif
     }
 
     protected void ExitWriteLock()
     {
+#if DEBUG_LOCKOWNER
+      _lockDepth--;
+      if (_lockDepth == 0)
+        _lastLockOperation = null;
+#if DEBUG_LOCKREQUESTS
+      System.Diagnostics.Trace.WriteLine(string.Format("{0}Exiting write operation (Thread: {1})", StringUtils.Repeat("  ", _lockDepth), Thread.CurrentThread.Name));
+#endif
+#endif
       _lock.ExitWriteLock();
     }
 
     protected void ExitReadLock()
     {
+#if DEBUG_LOCKOWNER
+      _lockDepth--;
+      if (_lockDepth == 0)
+        _lastLockOperation = null;
+#if DEBUG_LOCKREQUESTS
+      System.Diagnostics.Trace.WriteLine(string.Format("{0}Exiting read operation (Thread: {1})", StringUtils.Repeat("  ", _lockDepth), Thread.CurrentThread.Name));
+#endif
+#endif
       _lock.ExitReadLock();
     }
 
