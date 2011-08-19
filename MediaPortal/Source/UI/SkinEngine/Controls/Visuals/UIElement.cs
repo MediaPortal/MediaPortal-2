@@ -1042,6 +1042,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.Deallocate();
     }
 
+    /// <summary>
+    /// Saves the state of this <see cref="UIElement"/> and all its child elements in the given <paramref name="state"/> memento.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This function is used to store a visual state of parts of the screen, for example the scroll position of containers and
+    /// the current focus. Descendants which have sensible data to store and restore can override this method.
+    /// </para>
+    /// <para>
+    /// Note that between the calls to <see cref="SaveUIState"/> and <see cref="RestoreUIState"/>, the screen might have been rebuilt and/or
+    /// changed its UI elements so elements must be able to restore their state from a memento which potentially doesn't fit any more to 100%.
+    /// So the keys in the <paramref name="state"/> dictionary should be choosen in a way that they still can be used in changed elements,
+    /// i.e. try to prevent simple int indices as keys, for example.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">State memento which can be used to save the UI state.</param>
+    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.</param>
+    public virtual void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      // Nothing to store here
+    }
+
+    /// <summary>
+    /// Restores the state of this <see cref="UIElement"/> and all its child elements from the given <paramref name="state"/> memento.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SaveUIState"/>.
+    /// <para>
+    /// Note that this memento might have been stored by the screen in a different state with different controls present so the memento
+    /// might not fit any more to the element's state. Descendants must try to restore as much of their state as they can.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">State memento which was filled by <see cref="SaveUIState"/>.</param>
+    /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
+    public virtual void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      // Nothing to restore here
+    }
+
     public override void SetBindingValue(IDataDescriptor dd, object value)
     {
       SetValueInRenderThread(dd, value);
