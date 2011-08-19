@@ -302,8 +302,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _garbageCollectorThread = new Thread(DoGarbageCollection)
         {
           Name = "ScrMgrGC",  //garbage collector thread
-            Priority = ThreadPriority.Lowest,
-            IsBackground = true
+          Priority = ThreadPriority.Lowest,
+          IsBackground = true
         };
       _garbageCollectorThread.Start();
     }

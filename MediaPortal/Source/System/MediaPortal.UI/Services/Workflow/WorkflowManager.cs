@@ -134,7 +134,7 @@ namespace MediaPortal.UI.Services.Workflow
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
     public const int MODEL_CACHE_MAX_NUM_UNUSED = 50;
 
-    protected readonly static NavigationContextConfig EMPTY_NAVIGATION_CONTEXT_CONFIG = new NavigationContextConfig();
+    protected static readonly NavigationContextConfig EMPTY_NAVIGATION_CONTEXT_CONFIG = new NavigationContextConfig();
 
     protected static readonly TimeSpan LOCK_TIMEOUT = TimeSpan.FromSeconds(10);
 

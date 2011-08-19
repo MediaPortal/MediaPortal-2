@@ -311,6 +311,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
+    protected static void TryScheduleUpdateParentsRenderOrder(DependencyObject targetObject)
+    {
+      Visual v = targetObject as Visual;
+      if (v != null)
+      {
+        Panel parent = v.VisualParent as Panel;
+        if (parent != null)
+          parent._updateRenderOrder = true;
+      }
+    }
+
     /// <summary>
     /// Returns all children which should be rendered.
     /// </summary>
@@ -378,17 +389,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #endregion
 
     #region Attached properties
-
-    protected static void TryScheduleUpdateParentsRenderOrder(DependencyObject targetObject)
-    {
-      Visual v = targetObject as Visual;
-      if (v != null)
-      {
-        Panel parent = v.VisualParent as Panel;
-        if (parent != null)
-          parent._updateRenderOrder = true;
-      }
-    }
 
     /// <summary>
     /// Getter method for the attached property <c>ZIndex</c>.
