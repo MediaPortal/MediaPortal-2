@@ -550,7 +550,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       internal set { _screenInstanceId = value; }
     }
 
-    public void FireScreenShowingEvent()
+    public void TriggerScreenShowingEvent()
     {
       _screenShowEventPending = true;
     }
