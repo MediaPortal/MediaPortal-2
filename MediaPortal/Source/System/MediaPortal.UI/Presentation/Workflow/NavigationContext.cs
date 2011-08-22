@@ -276,5 +276,10 @@ namespace MediaPortal.UI.Presentation.Workflow
     }
 
     #endregion
+
+    public override string ToString()
+    {
+      return DisplayLabel;
+    }
   }
 }
