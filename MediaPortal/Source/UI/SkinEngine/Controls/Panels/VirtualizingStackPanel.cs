@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -632,7 +633,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to first element
@@ -685,7 +686,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to last element
@@ -738,7 +739,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to first element
@@ -791,7 +792,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to last element
@@ -815,7 +816,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (itemProvider.NumItems == 0)
           return false;
-        GetItem(0, itemProvider, true).SetFocus = true;
+        FrameworkElement item = GetItem(0, itemProvider, true);
+        item.SetFocusPrio = SetFocusPriority.Default;
       }
       SetScrollIndex(0, true);
       return true;
@@ -833,7 +835,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         numItems = itemProvider.NumItems;
         if (numItems == 0)
           return false;
-        GetItem(numItems - 1, itemProvider, true).SetFocus = true;
+        FrameworkElement item = GetItem(numItems - 1, itemProvider, true);
+        item.SetFocusPrio = SetFocusPriority.Default;
       }
       SetScrollIndex(numItems - 1, false);
       return true;

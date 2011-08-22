@@ -221,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (element == null)
         return false;
       _itemsHostPanel.MakeItemVisible(elementIndex);
-      element.SetFocus = true; // For VirtualizingStackPanel, the item might not be in the visual tree yet so defer the focus setting to the next layouting
+      element.SetFocusPrio = SetFocusPriority.Default; // For VirtualizingStackPanel, the item might not be in the visual tree yet so defer the focus setting to the next layouting
       return true;
     }
 

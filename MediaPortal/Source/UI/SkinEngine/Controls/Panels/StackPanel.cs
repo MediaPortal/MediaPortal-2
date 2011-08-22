@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
@@ -749,7 +750,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (visibleChildren.Count == 0)
         return false;
       SetScrollIndex(0, true);
-      visibleChildren[0].SetFocus = true;
+      visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
 
@@ -759,7 +760,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (visibleChildren.Count == 0)
         return false;
       SetScrollIndex(int.MaxValue, false);
-      visibleChildren[visibleChildren.Count - 1].SetFocus = true;
+      visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
 

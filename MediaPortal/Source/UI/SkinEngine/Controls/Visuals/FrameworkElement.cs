@@ -132,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
     
-    protected volatile bool _setFocus = false;
+    protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
     protected SizeF? _availableSize;
     protected RectangleF? _outerRect;
@@ -243,7 +243,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
-      _setFocus = fe.SetFocus;
+      _setFocusPrio = fe.SetFocusPrio;
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
@@ -492,17 +492,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Helper property to make it possible in the screenfiles to set the focus to a framework element (or its first focusable child)
-    /// before the screen was initialized. Use this property to set the initial focus.
+    /// when the screen is initialized. Use this property to set the initial focus.
     /// </summary>
-    public bool SetFocus
+    public SetFocusPriority SetFocusPrio
     {
-      get { return _setFocus; }
+      get { return _setFocusPrio; }
       set
       {
-        _setFocus = value;
-        if (value)
+        _setFocusPrio = value;
+        if (value > SetFocusPriority.None)
           InvalidateLayout(false, true);
       }
+    }
+
+    public bool SetFocus
+    {
+      get { return _setFocusPrio > SetFocusPriority.None; }
+      set { _setFocusPrio = SetFocusPriority.Default; }
     }
 
     public AbstractProperty HasFocusProperty
@@ -668,9 +674,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Screen screen = Screen;
       if (screen == null)
         return;
-      if (!_setFocus)
+      if (_setFocusPrio <= screen.LastFocusPriority)
+        // Only set the focus if our priority is higher than the last focus request in this layout cycle
         return;
-      _setFocus = false;
+      _setFocusPrio = SetFocusPriority.None;
       FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
       if (fe != null)
         fe.TrySetFocus(true);
@@ -1037,7 +1044,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CheckFireLoaded(); // Has to be done after all triggers are initialized to make EventTriggers for UIElement.Loaded work properly
 
       ArrangeOverride();
-      UpdateFocus(); // Has to be done after all children have arranged to make SetFocus work properly
+      UpdateFocus(); // Has to be done after all children have arranged to make SetFocusPrio work properly
     }
 
     protected virtual void ArrangeOverride()
@@ -1544,8 +1551,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object focused;
       bool? bFocused;
       if (state.TryGetValue(prefix + "/Focused", out focused) && (bFocused = focused as bool?).HasValue && bFocused.Value)
-        // Albert TODO: Doesn't work, interferes with SetFocus which is defined in XAML code
-        SetFocus = true;
+        SetFocusPrio = SetFocusPriority.RestoreState;
     }
 
     public virtual void DoRender(RenderContext localRenderContext)

@@ -46,6 +46,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   public delegate void ClosedEventDlgt(Screen screen);
 
+  public enum SetFocusPriority
+  {
+    None,
+    DefaultLow,
+    Default,
+    DefaultHigh,
+    RestoreState,
+    Highest
+  }
+
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
@@ -153,6 +163,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected int _skinWidth;
     protected int _skinHeight;
     protected bool _hasBackground = true;
+    protected SetFocusPriority _lastFocusPrio = SetFocusPriority.None;
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -262,6 +273,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set { _hasBackground = value; }
     }
 
+    internal SetFocusPriority LastFocusPriority
+    {
+      get { return _lastFocusPrio; }
+      set { _lastFocusPrio = value; }
+    }
+
     /// <summary>
     /// Shows a virtual keyboard input control which fills the given <paramref name="textProperty"/>.
     /// </summary>
@@ -348,6 +365,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           DoHandleMouseMove(x, y);
         }
+        _lastFocusPrio = SetFocusPriority.None; // Initialize focus priority state for the next layout cycle
         _root.UpdateLayoutRoot();
         if (_screenShowEventPending)
         {
