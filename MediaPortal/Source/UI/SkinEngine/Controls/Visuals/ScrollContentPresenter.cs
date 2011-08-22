@@ -281,6 +281,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      state[prefix + "/ScrollOffsetX"] = _scrollOffsetX;
+      state[prefix + "/ScrollOffsetY"] = _scrollOffsetX;
+  }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      float? scrollOffsetX;
+      float? scrollOffsetY;
+      object so;
+      if (state.TryGetValue(prefix + "/ScrollOffsetX", out so) && (scrollOffsetX = so as float?).HasValue &&
+          state.TryGetValue(prefix + "/ScrollOffsetY", out so) && (scrollOffsetY = so as float?).HasValue)
+        SetScrollOffset(scrollOffsetX.Value, scrollOffsetY.Value);
+    }
+
     #region Public properties
 
     /// <summary>

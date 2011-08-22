@@ -559,6 +559,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         SetScrollIndex(index, false);
     }
 
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      state[prefix + "/FirstVisibleChild"] = _actualFirstVisibleChild;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      object first;
+      int? iFirst;
+      if (state.TryGetValue(prefix + "/FirstVisibleChild", out first) && (iFirst = first as int?).HasValue)
+        SetScrollIndex(iFirst.Value, true);
+    }
+
     #endregion
 
     #region Rendering

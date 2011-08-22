@@ -500,7 +500,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set
       {
         _setFocus = value;
-        InvalidateLayout(false, true);
+        if (value)
+          InvalidateLayout(false, true);
       }
     }
 
@@ -641,7 +642,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Screen screen = Screen;
         if (screen == null)
           return false;
-        MakeVisible(this, ActualBounds);
+        RectangleF actualBounds = ActualBounds;
+        MakeVisible(this, actualBounds);
+        screen.UpdateFocusRect(actualBounds);
         screen.FrameworkElementGotFocus(this);
         HasFocus = true;
         return true;
@@ -665,7 +668,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Screen screen = Screen;
       if (screen == null)
         return;
-      screen.UpdateFocusRect(ActualBounds);
       if (!_setFocus)
         return;
       _setFocus = false;
@@ -1528,6 +1530,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #endregion
+
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      if (HasFocus)
+        state[prefix + "/Focused"] = true;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      object focused;
+      bool? bFocused;
+      if (state.TryGetValue(prefix + "/Focused", out focused) && (bFocused = focused as bool?).HasValue && bFocused.Value)
+        // Albert TODO: Doesn't work, interferes with SetFocus which is defined in XAML code
+        SetFocus = true;
+    }
 
     public virtual void DoRender(RenderContext localRenderContext)
     {

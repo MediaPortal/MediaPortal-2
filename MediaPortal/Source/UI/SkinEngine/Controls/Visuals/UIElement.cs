@@ -890,7 +890,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Adds all children in the visual tree to the specified <paramref name="childrenOut"/> collection.
+    /// Adds all direct children in the visual tree to the specified <paramref name="childrenOut"/> collection.
     /// </summary>
     /// <param name="childrenOut">Collection to add children to.</param>
     public virtual void AddChildren(ICollection<UIElement> childrenOut) { }
@@ -1002,7 +1002,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public virtual void CheckFireLoaded()
+    public void CheckFireLoaded()
     {
       if (!_fireLoaded)
         return;
@@ -1058,10 +1058,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </para>
     /// </remarks>
     /// <param name="state">State memento which can be used to save the UI state.</param>
-    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.</param>
+    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.
+    /// To call <see cref="SaveUIState"/> for child elements, a <c>"/"</c> plus a descriptive string for the child element should be added,
+    /// like <c>"/children"</c>.</param>
     public virtual void SaveUIState(IDictionary<string, object> state, string prefix)
     {
-      // Nothing to store here
+      int i = 0;
+      foreach (UIElement child in GetChildren())
+        child.SaveUIState(state, prefix + "/Child" + (i++));
     }
 
     /// <summary>
@@ -1078,7 +1082,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
     public virtual void RestoreUIState(IDictionary<string, object> state, string prefix)
     {
-      // Nothing to restore here
+      int i = 0;
+      foreach (UIElement child in GetChildren())
+        child.RestoreUIState(state, prefix + "/Child" + (i++));
     }
 
     public override void SetBindingValue(IDataDescriptor dd, object value)
