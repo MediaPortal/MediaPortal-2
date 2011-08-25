@@ -22,7 +22,9 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 
@@ -40,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
 
     #endregion
 
-    private static void OnStateSlotChanged(DependencyObject targetObject, string contextVariable)
+    private static void OnStateSlotChanged(DependencyObject targetObject, NavigationContext context, string contextVariable)
     {
       if (string.IsNullOrEmpty(contextVariable))
       {
@@ -57,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
           // Action already attached to object
           return;
         UIElement uiElement = targetObject as UIElement;
-        WorkflowSaveRestoreStateAction action = new WorkflowSaveRestoreStateAction(contextVariable);
+        WorkflowSaveRestoreStateAction action = new WorkflowSaveRestoreStateAction(context, contextVariable);
         SetSaveRestoreAction(targetObject, action);
         action.AttachToObject(uiElement);
       }
@@ -97,7 +99,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       if (result != null)
         return result;
       result = targetObject.GetOrCreateAttachedProperty(STATE_SLOT_ATTACHED_PROPERTY, string.Empty);
-      result.Attach((prop, oldVal) => OnStateSlotChanged(targetObject, (string) prop.GetValue()));
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      // We save the workflow navigation context at the time when this attached property is requested because that is the time when
+      // the navigation context is the right one for the current screen. At the time when the Screen.HIDE_EVENT is raised,
+      // the navigation context has already moved to the next state.
+      NavigationContext context = workflowManager.CurrentNavigationContext;
+      result.Attach((prop, oldVal) => OnStateSlotChanged(targetObject, context, (string) prop.GetValue()));
       return result;
     }
 

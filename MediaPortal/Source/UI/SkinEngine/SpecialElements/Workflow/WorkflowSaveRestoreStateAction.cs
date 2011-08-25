@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -38,13 +37,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
   {
     #region Protected fields
 
+    protected NavigationContext _context;
     protected string _contextVariable;
     protected UIElement _targetObject;
 
     #endregion
 
-    public WorkflowSaveRestoreStateAction(string contextVariable)
+    public WorkflowSaveRestoreStateAction(NavigationContext context, string contextVariable)
     {
+      _context = context;
       _contextVariable = contextVariable;
     }
 
@@ -75,11 +76,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       UIElement targetElement = _targetObject;
       if (targetElement == null)
         return;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      NavigationContext context = workflowManager.CurrentNavigationContext;
       if (eventname == Screen.SHOW_EVENT)
       {
-        IDictionary<string, object> state = (IDictionary<string, object>) context.GetContextVariable(_contextVariable, false);
+        IDictionary<string, object> state = (IDictionary<string, object>) _context.GetContextVariable(_contextVariable, false);
         if (state == null)
           return;
         targetElement.RestoreUIState(state, string.Empty);
@@ -88,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       {
         IDictionary<string, object> state = new Dictionary<string, object>(1000);
         targetElement.SaveUIState(state, string.Empty);
-        context.SetContextVariable(_contextVariable, state);
+        _context.SetContextVariable(_contextVariable, state);
       }
     }
   }
