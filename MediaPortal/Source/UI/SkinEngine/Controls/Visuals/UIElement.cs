@@ -1063,9 +1063,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// like <c>"/children"</c>.</param>
     public virtual void SaveUIState(IDictionary<string, object> state, string prefix)
     {
-      int i = 0;
-      foreach (UIElement child in GetChildren())
-        child.SaveUIState(state, prefix + "/Child_" + (i++));
+      SaveChildrenState(state, prefix);
     }
 
     /// <summary>
@@ -1081,6 +1079,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="state">State memento which was filled by <see cref="SaveUIState"/>.</param>
     /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
     public virtual void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      RestoreChildrenState(state, prefix);
+    }
+
+    /// <summary>
+    /// Saves the UI state of all children in the given <paramref name="state"/> memento under the given <paramref name="prefix"/>
+    /// (see <see cref="SaveUIState"/>).
+    /// </summary>
+    /// <remarks>
+    /// This method is a generic implementation which simply saves the states of all children returned by <see cref="GetChildren"/>.
+    /// Sub classes can override this behaviour by a better implementation.
+    /// </remarks>
+    /// <param name="state">State memento which can be used to save the children's UI state.</param>
+    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.
+    /// To call <see cref="SaveUIState"/> for child elements, a <c>"/"</c> plus a descriptive string for the child element should be added,
+    /// like <c>"/children"</c>.</param>
+    protected virtual void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      int i = 0;
+      foreach (UIElement child in GetChildren())
+        child.SaveUIState(state, prefix + "/Child_" + (i++));
+    }
+
+    /// <summary>
+    /// Counterpart to <see cref="SaveChildrenState"/>.
+    /// </summary>
+    /// <param name="state">State memento which was filled by <see cref="SaveChildrenState"/>.</param>
+    /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
+    public virtual void RestoreChildrenState(IDictionary<string, object> state, string prefix)
     {
       int i = 0;
       foreach (UIElement child in GetChildren())

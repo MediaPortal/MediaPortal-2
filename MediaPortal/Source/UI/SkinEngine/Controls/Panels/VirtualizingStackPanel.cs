@@ -594,6 +594,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           numElementsBeforeAndAfter, numElementsBeforeAndAfter, elements);
     }
 
+    protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveChildrenState(state, prefix);
+      IList<FrameworkElement> arrangedItemsCopy;
+      int index;
+      lock (Children.SyncRoot)
+      {
+        arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
+        index = _arrangedItemsStartIndex;
+      }
+      state[prefix + "/ItemsStartIndex"] = index;
+      state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+      foreach (FrameworkElement child in arrangedItemsCopy)
+        child.SaveUIState(state, prefix + "/Child_" + (index++));
+    }
+
+    public override void RestoreChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreChildrenState(state, prefix);
+      object oNumItems;
+      object oIndex;
+      int? numItems;
+      int? startIndex;
+      if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
+          (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
+      {
+        IItemProvider itemProvider = ItemProvider;
+        for (int i = 0; i < numItems.Value; i++)
+        {
+          FrameworkElement child = GetItem(startIndex.Value + i, itemProvider, false);
+          child.RestoreUIState(state, prefix + "/Child_" + i);
+        }
+      }
+    }
+
     public override bool FocusPageUp()
     {
       IItemProvider itemProvider = ItemProvider;
