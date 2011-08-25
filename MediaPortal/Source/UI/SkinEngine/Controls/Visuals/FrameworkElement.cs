@@ -508,7 +508,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool SetFocus
     {
       get { return _setFocusPrio > SetFocusPriority.None; }
-      set { _setFocusPrio = SetFocusPriority.Default; }
+      set { _setFocusPrio = value ? SetFocusPriority.Default : SetFocusPriority.None; }
     }
 
     public AbstractProperty HasFocusProperty
