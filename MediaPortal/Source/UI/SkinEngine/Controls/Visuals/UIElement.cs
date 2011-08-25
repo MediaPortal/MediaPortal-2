@@ -1065,7 +1065,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       int i = 0;
       foreach (UIElement child in GetChildren())
-        child.SaveUIState(state, prefix + "/Child" + (i++));
+        child.SaveUIState(state, prefix + "/Child_" + (i++));
     }
 
     /// <summary>
@@ -1075,7 +1075,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <see cref="SaveUIState"/>.
     /// <para>
     /// Note that this memento might have been stored by the screen in a different state with different controls present so the memento
-    /// might not fit any more to the element's state. Descendants must try to restore as much of their state as they can.
+    /// might not fit any more to the element's state. Descendants must try to restore as much of their state as they can and behave fail-safe.
     /// </para>
     /// </remarks>
     /// <param name="state">State memento which was filled by <see cref="SaveUIState"/>.</param>
@@ -1084,7 +1084,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       int i = 0;
       foreach (UIElement child in GetChildren())
-        child.RestoreUIState(state, prefix + "/Child" + (i++));
+        child.RestoreUIState(state, prefix + "/Child_" + (i++));
     }
 
     public override void SetBindingValue(IDataDescriptor dd, object value)
