@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 
@@ -42,7 +43,7 @@ namespace Models.HelloWorld
   /// Note that properties, which are updated by the model and whose new value should be propagated to the
   /// skin, must be backed by an instance of <see cref="AbstractProperty"/>. That instance must be made available
   /// to the skin engine by publishing it under the same name as the actual property plus "Property", see for example
-  /// <see cref="HelloStringProperty"/>.
+  /// <see cref="HelloStringProperty"/>. In models, always <see cref="WProperty"/> instances are used.
   /// </para>
   /// <para>
   /// You can also consider to implement the interface <see cref="IWorkflowModel"/>, which makes it
@@ -55,7 +56,7 @@ namespace Models.HelloWorld
   /// in the <c>plugin.xml</c> file.
   /// </para>
   /// </remarks>
-  public class Model
+  public class Model : IDisposable
   {
     /// <summary>
     /// This is a localized string resource. Localized string resources always look like this:
@@ -88,9 +89,16 @@ namespace Models.HelloWorld
       _helloStringProperty = new WProperty(typeof(string), HELLOWORLD_RESOURCE);
     }
 
+    public void Dispose()
+    {
+      // If the model implements IDisposable, its Dispose() method will automatically be called when the workflow manager
+      // releases the model instance. The model instance is cached and freed when the model instance wasn't used for
+      // several workflow steps.
+    }
+
     /// <summary>
     /// This sample property will be accessed by the hello_world screen. Note that the data type must be the same
-    /// as in the instantiation of our backing property <see cref="_helloStringProperty"/>.
+    /// as given in the instantiation of our backing property <see cref="_helloStringProperty"/>.
     /// </summary>
     public string HelloString
     {
@@ -104,11 +112,12 @@ namespace Models.HelloWorld
     /// <remarks>
     /// <para>
     /// If the screen databinds to the <see cref="HelloString"/> property in a binding mode which will propagate data
-    /// changes from the model to the skin, the SkinEngine will attach a change handler to this property.
+    /// changes from the model to the skin (OneWay, TwoWay), the SkinEngine will attach a change handler to this property
+    /// and react to changes.
     /// </para>
     /// <para>
-    /// In other words: Every property <c>Xyz</c>, which should be able to be attached to, must be present also as
-    /// <c>XyzProperty</c>.
+    /// In other words: For each property <c>Xyz</c>, which should be able to be attached to, there must be an
+    /// <see cref="AbstractProperty"/> with name <c>XyzProperty</c>.
     /// Only if <c>XyzProperty</c> is present in the model, value changes can be propagated to the skin.
     /// </remarks>
     public AbstractProperty HelloStringProperty
@@ -121,6 +130,8 @@ namespace Models.HelloWorld
     /// </summary>
     public void ChangeHelloWorldString()
     {
+      // Localized resources in the form [Section.Name] can be used in each Label in screens. Labels automatically
+      // request the localized string from the system if a text of that form is written into their Content property.
       HelloString = COMMAND_TRIGGERED_RESOURCE;
     }
   }
