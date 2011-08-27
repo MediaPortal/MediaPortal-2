@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Hello World Example Plugin")]
-[assembly: AssemblyDescription("Shows how a plugin can be written for MediaPortal 2")]
+[assembly: AssemblyTitle("MyPlugin")]
+[assembly: AssemblyDescription("MP2 Plugin Template")]
 [assembly : AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
-[assembly: AssemblyProduct("HelloWorldExamplePlugin - MediaPortal 2")]
+[assembly: AssemblyProduct("MyPlugin - MediaPortal 2")]
 [assembly: AssemblyCopyright("Copyright ©  2008-2011")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly : Guid("f431bd59-31b0-44bb-93bf-7dde9ccd4442")]
+[assembly: Guid("1FF9DE8C-1889-4475-80E8-98A6E541106D")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -22,11 +22,10 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 
-namespace Models.HelloWorld
+namespace HelloWorld.Models
 {
   /// <summary>
   /// Example for a simple model.
@@ -56,8 +55,10 @@ namespace Models.HelloWorld
   /// in the <c>plugin.xml</c> file.
   /// </para>
   /// </remarks>
-  public class Model : IDisposable
+  public class HelloWorldModel
   {
+    #region Consts
+
     /// <summary>
     /// This is a localized string resource. Localized string resources always look like this:
     /// <example>
@@ -74,27 +75,32 @@ namespace Models.HelloWorld
     /// </summary>
     protected const string COMMAND_TRIGGERED_RESOURCE = "[HelloWorld.ButtonTextCommandExecuted]";
 
+    #endregion
+
+    #region Protected properties
+
     /// <summary>
     /// This property holds a string that we will modify in this tutorial.
     /// </summary>
-    private readonly AbstractProperty _helloStringProperty;
+    protected readonly AbstractProperty _helloStringProperty;
+
+    #endregion
+
+    #region Ctor & maintainance
 
     /// <summary>
     /// Constructor... this one is called by the WorkflowManager when this model is loaded due to a screen reference.
     /// </summary>
-    public Model()
+    public HelloWorldModel()
     {
       // In models, properties will always be WProperty instances. When using SProperties for screen databinding,
       // the system might run into memory leaks.
       _helloStringProperty = new WProperty(typeof(string), HELLOWORLD_RESOURCE);
     }
 
-    public void Dispose()
-    {
-      // If the model implements IDisposable, its Dispose() method will automatically be called when the workflow manager
-      // releases the model instance. The model instance is cached and freed when the model instance wasn't used for
-      // several workflow steps.
-    }
+    #endregion
+
+    #region Public members
 
     /// <summary>
     /// This sample property will be accessed by the hello_world screen. Note that the data type must be the same
@@ -119,6 +125,7 @@ namespace Models.HelloWorld
     /// In other words: For each property <c>Xyz</c>, which should be able to be attached to, there must be an
     /// <see cref="AbstractProperty"/> with name <c>XyzProperty</c>.
     /// Only if <c>XyzProperty</c> is present in the model, value changes can be propagated to the skin.
+    /// </para>
     /// </remarks>
     public AbstractProperty HelloStringProperty
     {
@@ -134,5 +141,7 @@ namespace Models.HelloWorld
       // request the localized string from the system if a text of that form is written into their Content property.
       HelloString = COMMAND_TRIGGERED_RESOURCE;
     }
+
+    #endregion
   }
 }

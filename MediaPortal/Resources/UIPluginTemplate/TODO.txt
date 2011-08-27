@@ -1,0 +1,9 @@
+﻿Implementing a MediaPortal 2 UI plugin:
+
+- Define workflow states to be used in the user UI navigation of the plugin
+- Define workflow state transitions
+- Write and register one or more models to handle the plugin's logic
+- Write and register a plugin state tracker, if necessary
+- Design the UI
+- Create localized strings, at least for the english language
+- Edit project properties

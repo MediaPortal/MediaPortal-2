@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{813BF2B2-CAC9-4AF3-9124-0E96C4D20A18}</ProjectGuid>
+    <ProjectGuid>{826DD0DA-BAE9-4CA0-B3C9-DB7ADE3EB948}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HelloWorld</RootNamespace>
-    <AssemblyName>HelloWorld</AssemblyName>
+    <RootNamespace>MyPlugin</RootNamespace>
+    <AssemblyName>MyPlugin</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -44,18 +44,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\HelloWorldModel.cs" />
+    <Compile Include="Models\MyWorkflowModel.cs" />
+    <Compile Include="Models\MySimpleModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\screens\hello_world.xaml">
+    <Content Include="Skin\default\screens\my_main_screen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\default\workflow\hello-world-actions.xml" />
-    <Content Include="Skin\default\workflow\hello-world-states.xml" />
+    <Content Include="Skin\default\workflow\my-plugin-actions.xml" />
+    <Content Include="Skin\default\workflow\my-plugin-states.xml" />
     <Content Include="Language\strings_en.xml" />
+    <Content Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
