@@ -1034,6 +1034,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public void SetupDefaultLocalShares()
+    {
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (Share share in mediaAccessor.CreateDefaultShares())
+        RegisterShare(share);
+    }
+
     #endregion
 
     #region Client online registration

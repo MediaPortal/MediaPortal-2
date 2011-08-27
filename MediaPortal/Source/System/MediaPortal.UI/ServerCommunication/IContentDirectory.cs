@@ -65,6 +65,7 @@ namespace MediaPortal.UI.ServerCommunication
     ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
     Share GetShare(Guid shareId);
     void ReImportShare(Guid guid);
+    void SetupDefaultServerShares();
 
     #endregion
 

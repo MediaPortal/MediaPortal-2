@@ -157,6 +157,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
+    public void SetupDefaultServerShares()
+    {
+      CpAction action = GetAction("SetupDefaultServerShares");
+      action.InvokeAction(null);
+    }
+
     #endregion
 
     #region Media item aspect storage management

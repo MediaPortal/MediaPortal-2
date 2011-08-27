@@ -106,10 +106,13 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       get
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
         bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+        bool homeServerConncted = contentDirectory != null;
         ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-        return !localHomeServer && localSharesManagement.Shares.Count == 0;
+        return localHomeServer ? (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0) :
+            localSharesManagement.Shares.Count == 0;
       }
     }
 
@@ -150,9 +153,23 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public void Execute()
     {
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
+      SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
+      bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+      bool homeServerConncted = contentDirectory != null;
+
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      if (CanSetupDefaultShares)
-        localSharesManagement.SetupDefaultShares();
+      if (localHomeServer)
+      {
+        if (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0)
+          contentDirectory.SetupDefaultServerShares();
+      }
+      else
+      {
+        if (localSharesManagement.Shares.Count == 0)
+          localSharesManagement.SetupDefaultShares();
+      }
     }
 
     #endregion

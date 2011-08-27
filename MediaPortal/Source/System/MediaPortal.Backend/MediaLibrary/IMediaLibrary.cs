@@ -342,6 +342,12 @@ namespace MediaPortal.Backend.MediaLibrary
     /// share doesn't exist, the method returns <c>null</c>.</returns>
     Share GetShare(Guid shareId);
 
+    /// <summary>
+    /// Tries to create default shares for the local system. Typically, this are the shares for the system's
+    /// MyMusic, MyVideos and MyPictures directories.
+    /// </summary>
+    void SetupDefaultLocalShares();
+
     #endregion
 
     #region Client online registration

@@ -321,6 +321,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(reImportShareAction);
 
+      DvAction setupDefaultServerSharesAction = new DvAction("SetupDefaultServerShares", OnSetupDefaultServerShares,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+          });
+      AddAction(setupDefaultServerSharesAction);
+
       // Media item aspect storage management
 
       DvAction addMediaItemAspectStorageAction = new DvAction("AddMediaItemAspectStorage", OnAddMediaItemAspectStorage,
@@ -716,6 +723,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       Share share = ServiceRegistration.Get<IMediaLibrary>().GetShare(shareId);
       ServiceRegistration.Get<IImporterWorker>().ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnSetupDefaultServerShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      ServiceRegistration.Get<IMediaLibrary>().SetupDefaultLocalShares();
       outParams = null;
       return null;
     }
