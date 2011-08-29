@@ -38,6 +38,7 @@ namespace MediaPortal.Helpers.ReloadSkin
     // F5 is already used for media screen refresh
     public static readonly Key RELOAD_SCREEN_KEY = Key.F3;
     public static readonly Key RELOAD_THEME_KEY = Key.F4;
+    public static readonly Key SAVE_SKIN_AND_THEME_KEY = Key.F12;
 
     #endregion
 
@@ -45,6 +46,9 @@ namespace MediaPortal.Helpers.ReloadSkin
 
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
+
+    protected string _skinName = null;
+    protected string _themeName = null;
 
     #endregion
 
@@ -93,11 +97,12 @@ namespace MediaPortal.Helpers.ReloadSkin
       }
     }
 
-    static void AddKeyActions()
+    void AddKeyActions()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, ReloadScreenAction);
       inputManager.AddKeyBinding(RELOAD_THEME_KEY, ReloadThemeAction);
+      inputManager.AddKeyBinding(SAVE_SKIN_AND_THEME_KEY, SaveSkinAndThemeAction);
     }
 
     static void ReloadScreenAction()
@@ -106,10 +111,17 @@ namespace MediaPortal.Helpers.ReloadSkin
       screenManager.Reload();
     }
 
-    static void ReloadThemeAction()
+    void ReloadThemeAction()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ReloadSkinAndTheme();
+      screenManager.SwitchSkinAndTheme(_skinName, _themeName);
+    }
+
+    void SaveSkinAndThemeAction()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      _skinName = screenManager.SkinName;
+      _themeName = screenManager.ThemeName;
     }
 
     public bool RequestEnd()
