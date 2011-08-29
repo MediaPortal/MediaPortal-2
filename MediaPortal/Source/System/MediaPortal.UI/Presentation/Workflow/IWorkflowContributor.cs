@@ -41,6 +41,7 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     /// <summary>
     /// Returns the title to be displayed for this workflow contributor action.
+    /// If set to <c>null</c>, the title from the action declaration will be used.
     /// </summary>
     IResourceString DisplayTitle { get; }
 
