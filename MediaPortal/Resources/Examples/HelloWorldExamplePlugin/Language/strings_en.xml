@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- This file contains language resources for the english language. There can be present localziation resource files
-     for arbitrary languages. The naming of the file must always be like this: strings_[culture name].xml
-     The localization system of MediaPortal 2 will always fallback to the next general language and at the end to the
-     default (english) language when a string isn't present in the localization resources for the user's configured
-     language. -->
 <Language>
   <Section Name="HelloWorld">
     <String Name="MenuEntry" Text="Hello world"/>
     <String Name="StateDisplayLabel" Text="Hello world state"/>
+    <String Name="ScreenTitle" Text="Hello world screen"/>
+    <String Name="HelloWorldText" Text="Pressing the button will change this text"/>
+    <String Name="SampleText" Text="This is the sample screen of the HelloWorld plugin"/>
     <String Name="ButtonText" Text="Press me"/>
-    <String Name="HelloWorldText" Text="Hello World!"/>
     <String Name="ButtonTextCommandExecuted" Text="Congrats, you just triggered a Command!"/>
   </Section>
 </Language>
