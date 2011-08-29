@@ -436,9 +436,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    /// <summary>
-    /// Waits until all screens pending to be hidden are hidden and all screens pending to be shown are shown.
-    /// </summary>
     protected internal void WaitForPendingOperations()
     {
       lock (_syncObj)
@@ -1241,6 +1238,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       string currentSuperLayerName;
       Screen backgroundScreen;
       string currentBackgroundName;
+
       lock (_syncObj)
       {
         ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'",
@@ -1259,15 +1257,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       lock (_syncObj)
       {
+        // Wait for screens and dialogs to be closed
+        WaitForPendingOperations();
+
         PlayersHelper.ReleaseGUIResources();
 
+        Controls.Brushes.BrushCache.Instance.Clear();
         // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
         // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
         // need to clear the brush cache.
-        Controls.Brushes.BrushCache.Instance.Clear();
         ServiceRegistration.Get<ContentManager>().Clear();
-
-        WaitForPendingOperations();
 
         PrepareSkinAndTheme(newSkinName, newThemeName);
         PlayersHelper.ReallocGUIResources();
