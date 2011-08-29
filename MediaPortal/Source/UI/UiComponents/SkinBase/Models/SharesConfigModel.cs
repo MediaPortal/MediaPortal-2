@@ -512,12 +512,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected ICollection<Share> GetSelectedShares(ItemsList sharesItemsList)
     {
-      ICollection<Share> result = new List<Share>(); // Fill the result inside the method to make it possible to lock other threads out while looking at the shares list
       lock (_syncObj)
-        foreach (ListItem shareItem in sharesItemsList)
-          if (shareItem.Selected)
-            result.Add((Share) shareItem.AdditionalProperties[SHARE_KEY]);
-      return result;
+        // Fill the result inside this method to make it possible to lock other threads out while looking at the shares list
+        return new List<Share>(sharesItemsList.Where(
+            shareItem => shareItem.Selected).Select(
+            shareItem => (Share) shareItem.AdditionalProperties[SHARE_KEY]));
     }
 
     protected ICollection<Share> GetSelectedLocalShares()
