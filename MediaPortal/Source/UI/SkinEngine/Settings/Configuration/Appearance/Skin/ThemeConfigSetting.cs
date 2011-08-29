@@ -44,10 +44,6 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 
     #endregion
 
-    public ThemeConfigSetting()
-    {
-    }
-
     public ICollection<Theme> Themes
     {
       get { return _themes; }
@@ -86,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (screenManager == null)
         return;
-      screenManager.SwitchTheme(_currentThemeName);
+      screenManager.SwitchSkinAndTheme(null, _currentThemeName);
     }
 
     #endregion

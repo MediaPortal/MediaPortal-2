@@ -101,16 +101,12 @@ namespace MediaPortal.UI.Presentation.Screens
     bool BackgroundDisabled { get; set; }
 
     /// <summary>
-    /// Switches the GUI to the specified skin, using the default theme of the skin.
+    /// Switches the active skin and theme. This method will set the skin with the specified <paramref name="newSkinName"/>
+    /// and the theme belonging to this skin with the specified <paramref name="newThemeName"/>, or the default theme for this skin.
     /// </summary>
-    /// <param name="newSkinName">Logical name of the skin.</param>
-    void SwitchSkin(string newSkinName);
-
-    /// <summary>
-    /// Switches the GUI to the specified theme.
-    /// </summary>
-    /// <param name="newThemeName">Logical name of the theme.</param>
-    void SwitchTheme(string newThemeName);
+    /// <param name="newSkinName">Name of the skin to load or <c>null</c> to use the current skin.</param>
+    /// <param name="newThemeName">Name of the theme to load or <c>null</c>, if the default theme should be used.</param>
+    void SwitchSkinAndTheme(string newSkinName, string newThemeName);
 
     /// <summary>
     /// Reloads skin and theme.
