@@ -77,18 +77,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string SHARES_CONFIG_LOCAL_SHARE_RES = "[SharesConfig.LocalShare]";
     public const string SHARES_CONFIG_GLOBAL_SHARE_RES = "[SharesConfig.GlobalShare]";
 
-    public static Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
+    public static readonly Guid SHARESCONFIG_MODEL_ID = new Guid(SHARESCONFIG_MODEL_ID_STR);
 
-    public static Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
+    public static readonly Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
 
-    public static Guid SHARE_INFO_STATE_ID = new Guid(SHARE_INFO_STATE_ID_STR);
+    public static readonly Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
 
-    public static Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
-    public static Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
-    public static Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
+    public static readonly Guid SHARE_INFO_STATE_ID = new Guid(SHARE_INFO_STATE_ID_STR);
+
+    public static readonly Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
@@ -181,8 +183,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            UpdateProperties();
-            UpdateSharesLists(false);
+            UpdateProperties_NoLock();
+            UpdateSharesLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             if (_shareProxy is ServerShares)
@@ -190,8 +192,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               NavigateBackToOverview();
             else
             {
-              UpdateProperties();
-              UpdateSharesLists(false);
+              UpdateProperties_NoLock();
+              UpdateSharesLists_NoLock(false);
             }
             break;
         }
@@ -204,8 +206,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
-            UpdateProperties();
-            UpdateSharesLists(false);
+            UpdateProperties_NoLock();
+            UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -507,7 +509,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     void OnShareItemSelectionChanged(AbstractProperty shareItem, object oldValue)
     {
-      UpdateIsSharesSelected();
+      UpdateIsSharesSelected_NoLock();
     }
 
     protected ICollection<Share> GetSelectedShares(ItemsList sharesItemsList)
@@ -529,12 +531,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return GetSelectedShares(_serverSharesList);
     }
 
-    protected void UpdateIsSharesSelected()
+    protected void UpdateIsSharesSelected_NoLock()
     {
-      IsSharesSelected = GetSelectedLocalShares().Count > 0 || GetSelectedServerShares().Count > 0;
+      bool result;
+      lock (_syncObj)
+        result = GetSelectedLocalShares().Count > 0 || GetSelectedServerShares().Count > 0;
+      IsSharesSelected = result;
     }
 
-    protected void UpdateSystemsList()
+    protected void UpdateSystemsList_NoLock()
     {
       lock (_syncObj)
       {
@@ -562,7 +567,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _systemsList.FireChange();
     }
 
-    protected void UpdateSharesLists(bool create)
+    protected internal void UpdateSharesLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -580,12 +585,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         List<Share> serverShareDescriptors = IsHomeServerConnected ?
             new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
         int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
-        UpdateSharesList(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
+        UpdateSharesList_NoLock(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
         if (IsHomeServerConnected)
           // If our home server is not connected, don't try to update its list of shares
           try
           {
-            UpdateSharesList(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
+            UpdateSharesList_NoLock(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
           }
           catch (NotConnectedException)
           {
@@ -607,7 +612,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateSharesList(ItemsList list, List<Share> shareDescriptors, ShareOrigin origin, bool selectFirstItem)
+    protected void UpdateSharesList_NoLock(ItemsList list, List<Share> shareDescriptors, ShareOrigin origin, bool selectFirstItem)
     {
       list.Clear();
       bool selectShare = selectFirstItem;
@@ -685,7 +690,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateProperties()
+    protected void UpdateProperties_NoLock()
     {
       lock (_syncObj)
       {
@@ -726,13 +731,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         if (workflowState == SHARES_OVERVIEW_STATE_ID)
         {
-          UpdateSharesLists(true);
+          UpdateSharesLists_NoLock(true);
         }
         else if (!push)
           return;
         if (workflowState == SHARES_REMOVE_STATE_ID)
         {
-          UpdateSharesLists(push);
+          UpdateSharesLists_NoLock(push);
         }
         else if (workflowState == SHARE_INFO_STATE_ID)
         {
@@ -740,7 +745,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         else if (workflowState == SHARE_ADD_CHOOSE_SYSTEM_STATE_ID)
         {
-          UpdateSystemsList();
+          UpdateSystemsList_NoLock();
         }
         else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID)
         {
@@ -793,7 +798,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SHARESCONFIG_MODEL_ID_STR); }
+      get { return SHARESCONFIG_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -805,7 +810,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       SubscribeToMessages();
       ClearData();
-      UpdateProperties();
+      UpdateProperties_NoLock();
       PrepareState(newContext.WorkflowState.StateId, true);
     }
 
