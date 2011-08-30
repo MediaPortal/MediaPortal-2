@@ -309,7 +309,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource DefaultRadioButtonStyle}"
+          <RadioButton x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
@@ -381,7 +381,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <CheckBox x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
+          <CheckBox x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}"
               Content="{Binding}">
@@ -407,7 +407,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource DefaultRadioButtonStyle}"
+          <RadioButton x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
@@ -511,8 +511,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -573,8 +572,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -602,8 +600,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -631,8 +628,7 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -725,7 +721,7 @@
                 Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
                 VerticalAlignment="Center"/>
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
-                Style="{ThemeResource DefaultRadioButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
                 Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
               <RadioButton.Triggers>
@@ -770,7 +766,7 @@
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
                 VerticalAlignment="Center"/>
-            <CheckBox x:Name="Checker" Style="{ThemeResource DefaultCheckBoxStyle}"
+            <CheckBox x:Name="Checker"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
                 Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
@@ -818,8 +814,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer CanContentScroll="false" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -1255,7 +1250,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ContentPresenter}">
           <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
-            <Button Command="{Command GoToNotification}" Style="{ThemeResource DefaultButtonStyle}">
+            <Button Command="{Command GoToNotification}">
               <Grid> <!-- Outer grid is needed because of DataContext used by Button -->
                 <Grid Context="{StaticResource NotificationsModel}"> <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
                   <Image Source="{Binding NotificationSymbolRelFilePath}" Width="48" Stretch="Uniform"/>

@@ -88,11 +88,9 @@
                     </Border.Background>
                     <!-- Shows the progress of current time in relation to the current playing program -->
                     <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource DefaultProgressBarStyle}"
                       Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
                     <!-- Shows the buffer position of timeshift playback -->
                     <!--<ProgressBar x:Name="PlayingProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource DefaultProgressBarStyle}"
                       Value="{Binding Path=PercentPlayed}"/>-->
                   </Border>
 
@@ -233,7 +231,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <!--<ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false"
+          <!--<ScrollViewer CanContentScroll="false"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
