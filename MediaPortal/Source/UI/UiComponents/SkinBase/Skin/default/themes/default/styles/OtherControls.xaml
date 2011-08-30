@@ -51,6 +51,10 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <!-- If a control is defined without a style, the engine will choose a default style for that control.
+       To avoid that default behavior, simply set this empty style. -->
+  <Style x:Key="EmptyStyle"/>
+
   <!-- ***************************** Progress bar ******************************** -->
 
   <Style x:Key="DefaultProgressBarStyle" TargetType="{x:Type ProgressBar}">
@@ -1107,7 +1111,7 @@
                - AdditionalProperties[IsFirst] is true for the first item
                - Executing the Command will navigate the workflow to the underlaying workflow state
           -->
-          <Button Command="{Binding Command}">
+          <Button Command="{Binding Command}" Style="{ThemeResource EmptyStyle}">
             <Button.TemplateControl>
               <Grid>
                 <Grid.RowDefinitions>

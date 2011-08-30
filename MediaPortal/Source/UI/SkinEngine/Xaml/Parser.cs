@@ -630,6 +630,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             continue;
           object key;
           object value = Instantiate((XmlElement) childNode, out key);
+          if (key == null)
+            key = GetImplicitKey(value);
           IEvaluableMarkupExtension evaluableMarkupExtension = value as IEvaluableMarkupExtension;
           // Handle the case if a markup extension was instantiated as a child
           if (evaluableMarkupExtension != null)
@@ -662,24 +664,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           resultList.Add(((XmlCharacterData) childNode).Data);
       }
       if (resultList.Count > 0 && resultDict.Count > 0)
-      {
-        // Try to add implicit keys for resources which don't have one
-        foreach (object o in resultList)
-        {
-          object key = GetImplicitKey(o);
-          try
-          {
-            resultDict.Add(key, o);
-          }
-          catch
-          {
-            throw new XamlBindingException(
-                "Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute",
-                node.Name);
-          }
-        }
-        resultList.Clear();
-      }
+        throw new XamlBindingException(
+            "Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute",
+            node.Name);
 
       if (resultDict.Count > 0)
         return resultDict;
@@ -882,9 +869,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected static object GetImplicitKey(object o)
     {
       IImplicitKey implicitKey = o as IImplicitKey;
-      if (implicitKey == null)
-        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
-      return implicitKey.GetImplicitKey();
+      return implicitKey == null ? null : implicitKey.GetImplicitKey();
     }
 
     #endregion

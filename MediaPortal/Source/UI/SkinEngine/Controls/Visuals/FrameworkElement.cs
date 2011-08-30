@@ -40,8 +40,10 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -639,6 +641,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Checks if this element is focusable. This is the case if the element is visible, enabled and
     /// focusable. If this is the case, this method will set the focus to this element.
     /// </summary>
+    /// <param name="checkChildren">If this parameter is set to <c>true</c>, this method will also try to
+    /// set the focus to any of its child elements.</param>
     public bool TrySetFocus(bool checkChildren)
     {
       if (HasFocus)
@@ -1260,6 +1264,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight;
     }
 
+    public Style FindDefaultStyle()
+    {
+      Type type = GetType();
+      Style result = null;
+      while (result == null && type != null)
+      {
+        result = FindResource(type) as Style;
+        type = type.BaseType;
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Find the default style especially in the loading phase of an element when the element tree is not yet put together.
+    /// </summary>
+    /// <param name="context">Current parser context.</param>
+    /// <returns>Default style for this element or <c>null</c>, if no default style is defined.</returns>
+    protected Style FindDefaultStyle(IParserContext context)
+    {
+      Type type = GetType();
+      Style result = null;
+      while (result == null && type != null)
+      {
+        result = (ResourceDictionary.FindResourceInParserContext(type, context) ?? FindResource(type)) as Style;
+        type = type.BaseType;
+      }
+      return result;
+    }
+
     #region Focus & control predicition
 
     #region Focus movement
@@ -1684,6 +1717,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
+    }
+
+    public override void FinishInitialization(IParserContext context)
+    {
+      base.FinishInitialization(context);
+      if (Style == null)
+        Style = FindDefaultStyle(context);
     }
   }
 }
