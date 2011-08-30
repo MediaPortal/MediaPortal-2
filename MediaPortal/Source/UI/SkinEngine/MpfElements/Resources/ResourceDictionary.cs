@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region Protected members
 
-    public static object FindResourceInParserContext(string resourceKey, IParserContext context)
+    public static object FindResourceInParserContext(object resourceKey, IParserContext context)
     {
       object result = null;
       // Step up the parser's context stack to find the resource.
