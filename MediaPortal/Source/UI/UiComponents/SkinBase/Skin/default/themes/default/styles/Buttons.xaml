@@ -199,7 +199,7 @@
 
   <!-- ***************************** Standard buttons ******************************** -->
 
-  <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="DefaultButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -251,6 +251,9 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!-- Implicit default style for Button controls -->
+  <Style BasedOn="{ThemeResource DefaultButtonStyle}" TargetType="{x:Type Button}"/>
 
   <Style x:Key="ButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
@@ -316,7 +319,7 @@
 
   <!-- ***************************** Radio buttons ******************************** -->
 
-  <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
+  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -377,6 +380,9 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!-- Implicit default style for RadioButton controls -->
+  <Style BasedOn="{ThemeResource DefaultRadioButtonStyle}" TargetType="{x:Type RadioButton}"/>
 
   <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
@@ -442,7 +448,7 @@
 
   <!-- ******************************** Checkbox *********************************** -->
 
-  <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
+  <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
@@ -502,6 +508,9 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!-- Implicit default style for CheckBox controls -->
+  <Style BasedOn="{ThemeResource DefaultCheckBoxStyle}" TargetType="{x:Type CheckBox}"/>
 
   <!-- ***************************** Dialog close button ******************************** -->
 

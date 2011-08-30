@@ -186,7 +186,7 @@
                       </Border.Background>
                       <!-- Shows the progress of current time in relation to the current playing program -->
                       <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                          Style="{ThemeResource ProgressBarStyle}"
+                          Style="{ThemeResource DefaultProgressBarStyle}"
                           Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
                     </Border>
 

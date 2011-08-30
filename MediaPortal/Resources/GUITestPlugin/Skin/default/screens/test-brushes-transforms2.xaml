@@ -39,7 +39,7 @@
       <ResourceWrapper x:Key="RectangleGradient4" Resource="Black"/>
       <ResourceWrapper x:Key="RectangleGradient5" Resource="Blue"/>
 
-      <Style x:Key="TestVisualButtonStyle" BasedOn="{ThemeResource ButtonStyle}" TargetType="{x:Type Button}">
+      <Style x:Key="TestVisualButtonStyle" BasedOn="{ThemeResource DefaultButtonStyle}" TargetType="{x:Type Button}">
         <Setter Property="Width" Value="50"/>
         <Setter Property="Height" Value="20"/>
         <Setter Property="Content" Value="Test-Button"/>

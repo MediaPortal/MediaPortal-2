@@ -27,7 +27,7 @@
           </Control.TemplateControl>
         </Control>
 
-        <TextBox Grid.Column="0" Grid.Row="1" Style="{ThemeResource TextBoxStyle}"
+        <TextBox Grid.Column="0" Grid.Row="1" Style="{ThemeResource DefaultTextBoxStyle}"
             Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
         <Control Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>

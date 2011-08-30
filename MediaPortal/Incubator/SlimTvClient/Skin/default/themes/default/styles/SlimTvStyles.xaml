@@ -88,11 +88,11 @@
                     </Border.Background>
                     <!-- Shows the progress of current time in relation to the current playing program -->
                     <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource ProgressBarStyle}"
+                      Style="{ThemeResource DefaultProgressBarStyle}"
                       Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
                     <!-- Shows the buffer position of timeshift playback -->
                     <!--<ProgressBar x:Name="PlayingProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource ProgressBarStyle}"
+                      Style="{ThemeResource DefaultProgressBarStyle}"
                       Value="{Binding Path=PercentPlayed}"/>-->
                   </Border>
 

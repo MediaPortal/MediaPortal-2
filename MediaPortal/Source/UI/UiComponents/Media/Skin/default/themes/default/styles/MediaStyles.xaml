@@ -96,7 +96,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Style="{ThemeResource ProgressBarStyle}"
+                    Style="{ThemeResource DefaultProgressBarStyle}"
                     Value="{Binding Path=PercentPlayed}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
@@ -228,7 +228,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Style="{ThemeResource ProgressBarStyle}"
+                    Style="{ThemeResource DefaultProgressBarStyle}"
                     Value="{Binding Path=PercentPlayed}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">

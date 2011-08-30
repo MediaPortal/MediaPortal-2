@@ -152,7 +152,7 @@
                 <Rectangle.Fill>
                   <VisualBrush>
                     <VisualBrush.Visual>
-                      <Button Style="{ThemeResource ButtonStyle}" Content="Test-Visual"/>
+                      <Button Style="{ThemeResource DefaultButtonStyle}" Content="Test-Visual"/>
                     </VisualBrush.Visual>
                   </VisualBrush>
                 </Rectangle.Fill>

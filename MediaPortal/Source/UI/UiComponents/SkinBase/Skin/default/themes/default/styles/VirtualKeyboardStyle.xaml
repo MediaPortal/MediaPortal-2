@@ -6,7 +6,7 @@
     DependsOnStyleResources="Colors,Buttons,OtherControls"
     >
 
-  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource ButtonStyle}">
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource DefaultButtonStyle}">
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
@@ -53,11 +53,11 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- TODO: Change styles to toggle button style -->
-        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
             IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
             IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
+        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
             IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
       </Grid>
 
