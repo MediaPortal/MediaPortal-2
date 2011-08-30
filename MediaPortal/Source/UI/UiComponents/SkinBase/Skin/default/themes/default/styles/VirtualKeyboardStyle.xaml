@@ -28,6 +28,11 @@
     </Setter>
   </Style>
 
+  <!-- Fallback keyboard layout which is loaded when no localized keyboard layout is available.
+       Localized keyboard layouts should be provided by localization plugins which provide language files.
+       To provide a localized keyboard layout, copy this control template into a file with name
+       VirtualKeyboardStyle_XX.xaml, where XX is the two-letter code for the language, like
+       de for german. Then change your copied control to build the desired layout. -->
   <ControlTemplate x:Key="VirtualKeyboardLayout">
     <Grid x:Name="FullKeyboardLayout">
       <Grid.ColumnDefinitions>
