@@ -89,6 +89,14 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodec"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Players/Codecs/AudioCodecs">
+    <ConfigSetting
+        Id="AudioCodecLATMAAC"
+        Text="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC]"
+        HelpText="[Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioCodecLATMAAC"/>
+  </Register>
+
   <Register Location="/Configuration/Settings/Players/Codecs">
     <ConfigGroup
         Id="AudioRenderer"

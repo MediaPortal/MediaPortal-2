@@ -75,11 +75,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\DirectShowLibExt.cs" />
     <Compile Include="PlayerRegistration.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
     <Compile Include="Settings\Configuration\AudioCodec.cs" />
     <Compile Include="Settings\Configuration\ClosedCaptions.cs" />
     <Compile Include="Settings\Configuration\AudioRenderer.cs" />
+    <Compile Include="Settings\Configuration\AudioCodecLATMAAC.cs" />
     <Compile Include="Settings\Configuration\Subtitles.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />

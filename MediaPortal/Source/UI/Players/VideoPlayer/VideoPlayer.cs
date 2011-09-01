@@ -556,6 +556,9 @@ namespace MediaPortal.UI.Players.Video
           if (settings.H264Codec != null)
             pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
 
+          if (settings.AudioCodecLATMAAC != null)
+            pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
+
           if (settings.AudioCodec != null)
           {
             foreach (Guid guid in new Guid[]
