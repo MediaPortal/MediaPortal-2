@@ -28,7 +28,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
   <Grid x:Name="RootElement" Context="{DynamicResource DataContext}">
