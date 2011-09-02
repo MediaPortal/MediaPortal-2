@@ -415,7 +415,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       AllocFont();
 
-      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(Text), _asset.TextHeight(1));
+      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(Text ?? string.Empty), _asset.TextHeight(1));
 
       if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction
