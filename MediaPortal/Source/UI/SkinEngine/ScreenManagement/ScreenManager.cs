@@ -78,6 +78,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
+    public static readonly TimeSpan TIMEOUT_SWITCH_THEME_WAIT_FOR_RENDER = TimeSpan.FromSeconds(3);
+
     #endregion
 
     #region Classes, delegates & enums
@@ -251,6 +253,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected readonly object _syncObj = new object(); // Synchronize field access
     protected bool _terminated = false;
+    protected AutoResetEvent _renderingFinishedEvent = new AutoResetEvent(false);
+    protected bool _skipRendering = false;
+
     protected readonly SkinManager _skinManager;
 
     protected readonly BackgroundData _backgroundData;
@@ -436,6 +441,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    /// <summary>
+   /// Waits until all screens pending to be hidden are hidden and all screens pending to be shown are shown.
+   /// </summary>
     protected internal void WaitForPendingOperations()
     {
       lock (_syncObj)
@@ -933,27 +941,67 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Render()
     {
-      SkinContext.FrameRenderingStartTime = DateTime.Now;
+      _renderingFinishedEvent.Reset();
+      try
+      {
+        lock (_syncObj)
+          if (_skipRendering)
+            return;
 
-      // Check if we're waiting for screens to finish closing
-      CompleteScreenClosure_NoLock();
-      CompleteDialogClosures_NoLock();
+        SkinContext.FrameRenderingStartTime = DateTime.Now;
 
-      IList<Screen> disabledScreens;
-      IList<Screen> enabledScreens;
+        // Check if we're waiting for screens to finish closing
+        CompleteScreenClosure_NoLock();
+        CompleteDialogClosures_NoLock();
+
+        IList<Screen> disabledScreens;
+        IList<Screen> enabledScreens;
+        lock (_syncObj)
+        {
+          disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
+          enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
+        }
+        foreach (Screen screen in disabledScreens)
+          // Animation of disabled screens is necessary to avoid an overrun of the async properties setter buffer
+          screen.Animate();
+        foreach (Screen screen in enabledScreens)
+        {
+          screen.Animate();
+          screen.Render();
+        }
+      }
+      finally
+      {
+        _renderingFinishedEvent.Set();
+      }
+    }
+
+    /// <summary>
+    /// Temporary suspend rendering.
+    /// </summary>
+    /// <remarks>
+    /// After this method was called, <see cref="ResumeRendering"/> should be called to resume the rendering.
+    /// </remarks>
+    /// <param name="waitForRenderThread">If this parameter is set to <c>true</c>, this method waits until the last render
+    /// call has finished.</param>
+    public void SuspendRendering(bool waitForRenderThread)
+    {
       lock (_syncObj)
-      {
-        disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
-        enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
-      }
-      foreach (Screen screen in disabledScreens)
-        // Animation of disabled screens is necessary to avoid an overrun of the async properties setter buffer
-        screen.Animate();
-      foreach (Screen screen in enabledScreens)
-      {
-        screen.Animate();
-        screen.Render();
-      }
+        _skipRendering = true;
+      if (waitForRenderThread)
+        _renderingFinishedEvent.WaitOne(TIMEOUT_SWITCH_THEME_WAIT_FOR_RENDER);
+    }
+
+    /// <summary>
+    /// Resumes the temporary suspended rendering.
+    /// </summary>
+    /// <remarks>
+    /// This method resumes the rendering which was suspended by a call to <see cref="SuspendRendering"/>.
+    /// </remarks>
+    public void ResumeRendering()
+    {
+      lock (_syncObj)
+        _skipRendering = false;
     }
 
     /// <summary>
@@ -1251,6 +1299,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         UninstallBackgroundManager();
         _backgroundData.Unload();
+        SuspendRendering(true);
       }
 
       DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
@@ -1285,6 +1334,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ResumeRendering();
     }
 
     public void ReloadSkinAndTheme()
