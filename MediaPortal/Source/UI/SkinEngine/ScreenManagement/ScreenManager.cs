@@ -251,7 +251,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Protected fields
 
-    protected readonly object _syncObj = new object(); // Synchronize field access
+    /// <summary>
+    /// Synchronization object for field access.
+    /// </summary>
+    /// <remarks>
+    /// In the rendering subsystem, sometimes we break the MP2 multithreading guidelines; We DO hold multiple locks sometimes.
+    /// This lock should be used to synchronize field access but not during the rendering of screens.
+    /// </remarks>
+    protected readonly object _syncObj = new object();
     protected bool _terminated = false;
     protected AutoResetEvent _renderingFinishedEvent = new AutoResetEvent(false);
     protected bool _skipRendering = false;
@@ -423,6 +430,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    /// <summary>
+    /// Increments the number of async operation which are pending and being executed via our async message loop.
+    /// </summary>
+    /// <remarks>
+    /// This method has to be called before ANY call to methods of class <see cref="ScreenManagerMessaging"/>.
+    /// </remarks>
     protected internal void IncPendingOperations()
     {
       lock (_syncObj)
@@ -432,6 +445,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    /// <summary>
+    /// Decrements the number of async operation which are pending and being executed via our async message loop.
+    /// </summary>
+    /// <remarks>
+    /// This method has to be called after EACH handling of a <see cref="ScreenManagerMessaging"/> message.
+    /// </remarks>
     protected internal void DecPendingOperations()
     {
       lock (_syncObj)
@@ -1160,12 +1179,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public DialogData ShowDialogEx(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
       Screen newDialog = GetScreen(dialogName, ScreenType.ScreenOrDialog);
       if (newDialog == null)
         return null;
       DialogData result = new DialogData(newDialog, dialogCloseCallback);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageShowDialog(result);
       return result;
     }
@@ -1299,6 +1318,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         UninstallBackgroundManager();
         _backgroundData.Unload();
+
+        // Wait for screens and dialogs to be closed
+        WaitForPendingOperations();
+
         SuspendRendering(true);
       }
 
@@ -1306,9 +1329,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       lock (_syncObj)
       {
-        // Wait for screens and dialogs to be closed
-        WaitForPendingOperations();
-
         PlayersHelper.ReleaseGUIResources();
 
         Controls.Brushes.BrushCache.Instance.Clear();
@@ -1397,25 +1417,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void CloseDialog(Guid dialogInstanceId)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, CloseDialogsMode.CloseSingleDialog);
     }
 
     public void CloseDialogs(Guid dialogInstanceId, bool inclusive)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}' and all dialogs on top of it", dialogInstanceId);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, inclusive ? CloseDialogsMode.CloseAllOnTopIncluding : CloseDialogsMode.CloseAllOnTopExcluding);
     }
 
     public void CloseTopmostDialog()
     {
-      IncPendingOperations();
       Guid? dialogInstanceId = TopmostDialogInstanceId;
       if (dialogInstanceId.HasValue)
       {
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+        IncPendingOperations();
         ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId.Value, CloseDialogsMode.CloseSingleDialog);
       }
       else
@@ -1436,10 +1456,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool SetSuperLayer(string superLayerName)
     {
-      IncPendingOperations();
       if (superLayerName == null)
       {
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to hide super layer...");
+        IncPendingOperations();
         ScreenManagerMessaging.SendMessageSetSuperLayer(null);
         return true;
       }
@@ -1448,14 +1468,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageSetSuperLayer(newScreen);
       return true;
     }
 
     public void Reload()
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageReloadScreens();
     }
 
