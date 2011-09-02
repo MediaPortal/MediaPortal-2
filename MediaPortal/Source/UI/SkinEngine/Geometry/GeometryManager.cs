@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
         {
           String name = Path.GetFileNameWithoutExtension(kv.Key);
           name.Replace('_', ' ');
-          name = info.ToTitleCase(name);
+          name = "[Effects." + info.ToTitleCase(name) + "]";
           string key = kv.Key;
           key = key.Remove(0, SkinResources.SHADERS_DIRECTORY.Length+1);
           key = key.Remove(key.Length - 3, 3);

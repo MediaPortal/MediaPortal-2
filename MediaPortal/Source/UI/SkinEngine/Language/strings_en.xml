@@ -42,6 +42,15 @@
     <String Name="Zoom" Text="Zoom"/>
     <String Name="Zoom149" Text="Zoom 14:9"/>
   </Section>
+  <Section Name="Effects">
+    <String Name="Denoise" Text="Denoise"/>
+    <String Name="Greyscale" Text="Greyscale"/>
+    <String Name="Invert" Text="Invert"/>
+    <String Name="None" Text="None"/>
+    <String Name="Sepia" Text="Sepia"/>
+    <String Name="Sharpen" Text="Sharpen"/>
+    <String Name="Sharpen_complex" Text="Sharpen Complex"/>
+  </Section>
   <Section Name="PlayerControl">
     <String Name="NoPlayer" Text="No player"/>
     <String Name="NoMediaItem" Text="- No media item -"/>
