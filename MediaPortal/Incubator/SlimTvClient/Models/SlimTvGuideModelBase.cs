@@ -141,7 +141,7 @@ namespace MediaPortal.Plugins.SlimTvClient
                                     new MethodDelegateCommand(() =>
                                     {
                                       IChannel channel;
-                                      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+                                      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
                                         _tvHandler.StartTimeshift(PlayerManagerConsts.PRIMARY_SLOT, channel);
                                     })
                                 });

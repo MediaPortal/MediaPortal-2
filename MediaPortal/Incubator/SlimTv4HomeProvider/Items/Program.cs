@@ -33,8 +33,9 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
     public Program()
     {}
 
-    public Program(WebProgramDetailed webProgram)
+    public Program(WebProgramDetailed webProgram, int serverIndex)
     {
+      ServerIndex = serverIndex;
       Description = webProgram.Description;
       StartTime = webProgram.StartTime;
       EndTime = webProgram.EndTime;
@@ -46,6 +47,7 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
 
     #region IProgram Member
 
+    public int ServerIndex { get; set; }
     public int ProgramId { get; set; }
     public int ChannelId { get; set; }
     public string Title { get; set; }

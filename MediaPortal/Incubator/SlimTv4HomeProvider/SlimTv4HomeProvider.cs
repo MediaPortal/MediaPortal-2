@@ -44,7 +44,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 {
   public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo
   {
-    private ITVEInteraction _tvServer;
+    private ITVEInteraction[] _tvServers;
+    private string[] _serverNames;
     private readonly IChannel[] _channels = new IChannel[2];
 
     #region ITvProvider Member
@@ -67,11 +68,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     {
       try
       {
-        EndpointAddress endPoint;
-        Binding binding;
-        GetBindingAndEndpoint(out binding, out endPoint);
-        _tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(binding, endPoint);
-        _tvServer.TestConnectionToTVService();
+        CreateAllTvServerConnections();
         return true;
       }
       catch (Exception ex)
@@ -83,17 +80,23 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool DeInit()
     {
-      if (_tvServer == null)
+      if (_tvServers == null)
         return false;
 
       try
       {
-        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
-        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
+        foreach (ITVEInteraction tvServer in _tvServers)
+        {
+          if (tvServer != null)
+          {
+            tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(0));
+            tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(1));
+          }
+        }
       }
       catch (Exception) { }
 
-      _tvServer = null;
+      _tvServers = null;
       return true;
     }
 
@@ -108,9 +111,13 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (!CheckConnection())
         return false;
 
+      Channel indexChannel = channel as Channel;
+      if (indexChannel == null)
+        return false;
+
       try
       {
-        String streamUrl = _tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
+        String streamUrl = TvServer(indexChannel.ServerIndex).SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
         if (String.IsNullOrEmpty(streamUrl))
           return false;
 
@@ -133,7 +140,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
       try
       {
-        _tvServer.CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
+        Channel slotChannel = _channels[slotIndex] as Channel;
+        if (slotChannel == null)
+          return false;
+
+        TvServer(slotChannel.ServerIndex).CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
         _channels[slotIndex] = null;
         return true;
       }
@@ -144,13 +155,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    private ITVEInteraction TvServer(int serverIndex)
+    {
+      return _tvServers[serverIndex];
+    }
+
     private bool CheckConnection()
     {
       try
       {
-        if (_tvServer != null)
-          _tvServer.TestConnectionToTVService();
-        return true;
+        bool failure = false;
+        foreach (ITVEInteraction tvServer in _tvServers)
+        {
+          if (tvServer != null)
+            failure |= !tvServer.TestConnectionToTVService();
+        }
+        return !failure;
       }
       catch (Exception)
       {
@@ -166,18 +186,32 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return host.ToLowerInvariant() == "localhost" || host == "127.0.0.1" || host == "::1";
     }
 
-    private static void GetBindingAndEndpoint(out Binding binding, out EndpointAddress endpointAddress)
+    private void CreateAllTvServerConnections()
     {
       TV4HomeProviderSettings setting = ServiceRegistration.Get<ISettingsManager>().Load<TV4HomeProviderSettings>();
-      if (IsLocal(setting.TvServerHost))
+      if (setting.TvServerHost == null)
+        return;
+
+      _serverNames = setting.TvServerHost.Split(';');
+      _tvServers = new ITVEInteraction[_serverNames.Length];
+
+      int serverIndex = 0;
+      foreach (string serverName in _serverNames)
       {
-        endpointAddress = new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService");
-        binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
-      }
-      else
-      {
-        endpointAddress = new EndpointAddress(string.Format("http://{0}:4321/TV4Home.Server.CoreService/TVEInteractionService", setting.TvServerHost));
-        binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+        Binding binding;
+        EndpointAddress endpointAddress;
+        if (IsLocal(serverName))
+        {
+          endpointAddress = new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService");
+          binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
+        }
+        else
+        {
+          endpointAddress = new EndpointAddress(string.Format("http://{0}:4321/TV4Home.Server.CoreService/TVEInteractionService", serverName));
+          binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+        }
+        ITVEInteraction tvServer = ChannelFactory<ITVEInteraction>.CreateChannel(binding, endpointAddress);
+        _tvServers[serverIndex++] = tvServer;
       }
     }
 
@@ -196,10 +230,15 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
       try
       {
-        List<WebChannelGroup> tvGroups = _tvServer.GetGroups();
-        foreach (WebChannelGroup webChannelGroup in tvGroups)
+        int idx = 0;
+        foreach (ITVEInteraction tvServer in _tvServers)
         {
-          groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = webChannelGroup.GroupName });
+          List<WebChannelGroup> tvGroups = tvServer.GetGroups();
+          foreach (WebChannelGroup webChannelGroup in tvGroups)
+          {
+            groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = String.Format("{0}: {1}", _serverNames[idx], webChannelGroup.GroupName), ServerIndex = idx});
+          }
+          idx++;
         }
         return true;
       }
@@ -215,14 +254,15 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       channels = new List<IChannel>();
       if (!CheckConnection())
         return false;
-      if (group == null)
+      ChannelGroup indexGroup = group as ChannelGroup;
+      if (indexGroup == null)
         return false;
       try
       {
-        List<WebChannelBasic> tvChannels = _tvServer.GetChannelsBasic(group.ChannelGroupId);
+        List<WebChannelBasic> tvChannels = TvServer(indexGroup.ServerIndex).GetChannelsBasic(group.ChannelGroupId);
         foreach (WebChannelBasic webChannel in tvChannels)
         {
-          channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName });
+          channels.Add(new Channel { ChannelId = webChannel.IdChannel, Name = webChannel.DisplayName, ServerIndex = indexGroup.ServerIndex });
         }
         return true;
       }
@@ -240,10 +280,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return false;
       try
       {
-        WebChannelBasic tvChannel = _tvServer.GetChannelBasicById(channelId);
+        //FIXME: correct index?
+        WebChannelBasic tvChannel = TvServer(0).GetChannelBasicById(channelId);
         if (tvChannel != null)
         {
-          channel = new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName };
+          channel = new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, ServerIndex = 0};
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+      }
+      return false;
+    }
+
+    public bool GetChannel(IProgram program, out IChannel channel)
+    {
+      channel = null;
+      if (!CheckConnection())
+        return false;
+      Program indexProgram = program as Program;
+      if (indexProgram == null)
+        return false;
+
+      try
+      {
+        WebChannelBasic tvChannel = TvServer(indexProgram.ServerIndex).GetChannelBasicById(indexProgram.ChannelId);
+        if (tvChannel != null)
+        {
+          channel = new Channel { ChannelId = tvChannel.IdChannel, Name = tvChannel.DisplayName, ServerIndex = indexProgram.ServerIndex };
           return true;
         }
       }
@@ -305,14 +371,17 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       program = null;
       if (!CheckConnection())
         return false;
-      if (channel == null)
+
+      Channel indexChannel = channel as Channel;
+      if (indexChannel == null)
         return false;
+
       try
       {
-        WebProgramDetailed tvProgram = _tvServer.GetCurrentProgramOnChannel(channel.ChannelId);
+        WebProgramDetailed tvProgram = TvServer(indexChannel.ServerIndex).GetCurrentProgramOnChannel(channel.ChannelId);
         if (tvProgram != null)
         {
-          program = new Program(tvProgram);
+          program = new Program(tvProgram, indexChannel.ServerIndex);
           return true;
         }
       }
@@ -331,19 +400,23 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (channel == null)
         return false;
 
+      Channel indexChannel = channel as Channel;
+      if (indexChannel == null)
+        return false;
+
       IProgram currentProgram;
       try
       {
         if (GetCurrentProgram(channel, out currentProgram))
         {
-          List<WebProgramDetailed> nextPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId,
+          List<WebProgramDetailed> nextPrograms = TvServer(indexChannel.ServerIndex).GetProgramsDetailedForChannel(channel.ChannelId,
                                                                                           currentProgram.EndTime.
                                                                                             AddMinutes(1),
                                                                                           currentProgram.EndTime.
                                                                                             AddMinutes(1));
           if (nextPrograms != null && nextPrograms.Count > 0)
           {
-            program = new Program(nextPrograms[0]);
+            program = new Program(nextPrograms[0], indexChannel.ServerIndex);
             return true;
           }
         }
@@ -363,12 +436,16 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (channel == null)
         return false;
 
+      Channel indexChannel = channel as Channel;
+      if (indexChannel == null)
+        return false;
+
       programs = new List<IProgram>();
       try
       {
-        List<WebProgramDetailed> tvPrograms = _tvServer.GetProgramsDetailedForChannel(channel.ChannelId, from, to);
+        List<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetProgramsDetailedForChannel(channel.ChannelId, from, to);
         foreach (WebProgramDetailed webProgram in tvPrograms)
-          programs.Add(new Program(webProgram));
+          programs.Add(new Program(webProgram, indexChannel.ServerIndex));
       }
       catch (Exception ex)
       {

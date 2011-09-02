@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
 
     public override int DisplayLength
     {
-      get { return 30; }
+      get { return 50; }
     }
   }
 }
