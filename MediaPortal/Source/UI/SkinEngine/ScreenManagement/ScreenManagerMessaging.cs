@@ -78,6 +78,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// <see cref="ScreenManagerMessaging.SCREEN"/> is used to indicate which screen is being closed.
       /// </summary>
       ScreenClosing,
+
+      /// <summary>
+      /// Internal message to switch the skin/theme. The parameters <see cref="SKIN_NAME"/> and <see cref="THEME_NAME"/> are set.
+      /// </summary>
+      SwitchSkinAndTheme,
     }
 
     // Message data
@@ -86,6 +91,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string DIALOG_DATA = "DialogData"; // Type DialogData
     public const string DIALOG_INSTANCE_ID = "DialogInstanceId"; // Type Guid
     public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
+    public const string SKIN_NAME = "SkinName"; // Type string
+    public const string THEME_NAME = "ThemeName"; // Type string
 
     internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
@@ -127,6 +134,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       SystemMessage msg = new SystemMessage(MessageType.ScreenClosing);
       msg.MessageData[SCREEN] = screen;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageSwitchSkinAndTheme(string newSkinName, string newThemeName)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.SwitchSkinAndTheme);
+      msg.MessageData[SKIN_NAME] = newSkinName;
+      msg.MessageData[THEME_NAME] = newThemeName;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
