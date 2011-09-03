@@ -141,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected object _converterParameter = null;
 
     // State variables
-    protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
+    protected bool _valueAssigned = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
     protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
@@ -152,6 +152,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected PathExpression _compiledPath = null;
     protected BindingDependency _bindingDependency = null;
     protected DataDescriptorRepeater _evaluatedSourceValue = new DataDescriptorRepeater();
+
+    protected IDataDescriptor _lastUpdatedValue = null;
 
     #endregion
 
@@ -489,7 +491,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
     protected void OnSourceValueChanged(IDataDescriptor sourceValue)
     {
-      if (_active && _retryBinding)
+      if (_active && !_valueAssigned)
         UpdateBinding();
     }
 
@@ -982,15 +984,21 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         { // In this case, this instance should be used rather than the evaluated source value
           if (_targetDataDescriptor != null)
             _contextObject.SetBindingValue(_targetDataDescriptor, this);
-          _retryBinding = false;
+          _valueAssigned = true;
           return true;
         }
         IDataDescriptor sourceDd;
         if (!Evaluate(out sourceDd))
         {
-          _retryBinding = true;
+          _valueAssigned = false;
           return false;
         }
+
+        // We're called multiple times, for example when a resource dictionary changes.
+        // To avoid too many updates, we remember the last updated value.
+        if (ReferenceEquals(sourceDd, _lastUpdatedValue) && !_valueAssigned)
+          return true;
+        _lastUpdatedValue = sourceDd;
 
 #if DEBUG_BINDINGS
         DebugOutput("UpdateBinding: Binding evaluated to '{0}'", sourceDd.Value);
@@ -1023,7 +1031,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             if (!Convert(value, _targetDataDescriptor.DataType, out value))
               return false;
             _contextObject.SetBindingValue(_targetDataDescriptor, value);
-            _retryBinding = false;
+            _valueAssigned = true;
             Dispose();
             return true; // In this case, we have finished with only assigning the value
         }
@@ -1034,7 +1042,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
             parent as UIElement, _valueConverter, _converterParameter);
-        _retryBinding = false;
+        _valueAssigned = true;
         return true;
       }
       finally

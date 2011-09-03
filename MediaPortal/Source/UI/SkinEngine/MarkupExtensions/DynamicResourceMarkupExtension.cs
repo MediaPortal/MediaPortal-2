@@ -109,6 +109,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _resourceKeyProperty; // Resource key to resolve
     protected AbstractProperty _treeSearchModeProperty;
     protected AbstractProperty _assignmentModeProperty;
+    protected object _lastUpdateValue = null;
 
     #endregion
 
@@ -300,6 +301,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected void UpdateTarget(object value)
     {
+      // We're called multiple times, for example when a resource dictionary changes.
+      // To avoid too many updates, we remember the last updated value.
+      if (ReferenceEquals(value, _lastUpdateValue))
+        return;
+      _lastUpdateValue = value;
+
       object assignValue;
       if (AssignmentMode == AssignmentMode.Reference)
         assignValue = value;
@@ -316,7 +323,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 #if DEBUG_DRME
       DebugOutput("Setting target value to '{0}'", assignValue);
 #endif
-      _contextObject.SetBindingValue(_targetDataDescriptor, TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
+      object assignValueConverted = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
+      if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
+        Registration.TryCleanupAndDispose(assignValue);
+      _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
     }
 
     /// <summary>
