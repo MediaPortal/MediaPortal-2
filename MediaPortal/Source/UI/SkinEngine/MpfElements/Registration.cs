@@ -444,6 +444,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (resource != null && resource.Owner != null)
         // Optimize disposal for unmodifiable resources: They are only disposed by their parent ResourceDictionary
         return;
+      TryCleanupAndDispose_NoCheckOwner(maybeUIElementOrDisposable);
+    }
+
+    protected static void TryCleanupAndDispose_NoCheckOwner(object maybeUIElementOrDisposable)
+    {
       UIElement u = maybeUIElementOrDisposable as UIElement;
       if (u != null)
       {
@@ -466,8 +471,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public static void CleanupAndDisposeResourceIfOwner(object res, object checkOwner)
     {
       IUnmodifiableResource resource = res as IUnmodifiableResource;
-      if (resource != null && ReferenceEquals(resource.Owner, checkOwner))
-        TryCleanupAndDispose(res);
+      if (resource == null || resource.Owner == null || ReferenceEquals(resource.Owner, checkOwner))
+        TryCleanupAndDispose_NoCheckOwner(res);
     }
 
     #endregion

@@ -108,17 +108,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
-      UIElement oldUIElement = oldValue as UIElement;
-      if (oldUIElement != null)
-        oldUIElement.CleanupAndDispose();
-      UIElement oldContentElement = _content as UIElement;
+      Registration.TryCleanupAndDispose(oldValue);
+      Registration.TryCleanupAndDispose(_content);
+
       object content = Content;
       // Try to unwrap ResourceWrapper before _content is accessed elsewhere
       if (!Registration.ConvertType(content, typeof(object), out _content))
         _content = content;
-
-      if (oldContentElement != null && !ReferenceEquals(oldContentElement, oldUIElement))
-        oldContentElement.CleanupAndDispose();
 
       if (ContentTemplate == null)
         // No ContentTemplate set

@@ -57,6 +57,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       Value = copyManager.GetCopy(vw.Value);
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Registration.TryCleanupAndDispose(Value);
+    }
+
     #endregion
 
     #region Public properties
