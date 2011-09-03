@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Weather">
+    <String Name="WeatherStateDisplayLabel" Text="Weather"/>
+    <String Name="WeatherSetupStateDisplayLabel" Text="Weather Setup"/> <!-- Dialog state, doesn't appear at the UI -->
+    <String Name="WeatherLocationStateDisplayLabel" Text="Choose Location"/> <!-- Dialog state, doesn't appear at the UI -->
+
     <String Name="Title" Text="Weather"/>
     <String Name="ChooseLocation" Text="Choose location"/>
     <String Name="Refresh" Text="Refresh"/>
