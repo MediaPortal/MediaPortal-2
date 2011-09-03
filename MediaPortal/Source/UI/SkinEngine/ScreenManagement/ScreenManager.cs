@@ -78,9 +78,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
-    public static readonly TimeSpan TIMEOUT_SWITCH_THEME_WAIT_FOR_RENDER = TimeSpan.FromSeconds(3);
-    public static readonly TimeSpan TIMEOUT_INFINITE = TimeSpan.FromMilliseconds(-1);
-
     #endregion
 
     #region Classes, delegates & enums
@@ -261,8 +258,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </remarks>
     protected readonly object _syncObj = new object();
     protected bool _terminated = false;
-    protected AutoResetEvent _renderingFinishedEvent = new AutoResetEvent(false);
-    protected ManualResetEvent _renderAndResourceAccessEnabled = new ManualResetEvent(true);
+    protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
     protected readonly SkinManager _skinManager;
 
@@ -489,7 +485,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       // Suspend both rendering and resource access to avoid the render thread rendering screens which are being closed here and
       // to block other threads accessing our skin resources (via indirect GetScreen calls)
-      SuspendRenderAndResourceAccess_NoLock(true);
+      _renderAndResourceAccessLock.EnterWriteLock();
       try
       {
         lock (_syncObj)
@@ -523,7 +519,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       finally
       {
         // Resume resource access before we reload everything below
-        ResumeRenderAndResourceAccess();
+        _renderAndResourceAccessLock.ExitWriteLock();
       }
       if (!InstallBackgroundManager())
         _backgroundData.Load(currentBackgroundName);
@@ -1029,13 +1025,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Render()
     {
-      _renderingFinishedEvent.Reset();
+      _renderAndResourceAccessLock.EnterReadLock();
       try
       {
-        lock (_syncObj)
-          if (!_renderAndResourceAccessEnabled.WaitOne(0))
-            return;
-
         SkinContext.FrameRenderingStartTime = DateTime.Now;
 
         // Check if we're waiting for screens to finish closing
@@ -1060,36 +1052,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       finally
       {
-        _renderingFinishedEvent.Set();
+        _renderAndResourceAccessLock.ExitReadLock();
       }
-    }
-
-    /// <summary>
-    /// Temporary suspends rendering and access to resources like the <see cref="GetScreen(string,IModelLoader,ScreenType)"/> method.
-    /// </summary>
-    /// <remarks>
-    /// After this method was called, <see cref="ResumeRenderAndResourceAccess"/> should be called to resume the rendering.
-    /// </remarks>
-    /// <param name="waitForRenderThread">If this parameter is set to <c>true</c>, this method waits until the last render
-    /// call has finished.</param>
-    public void SuspendRenderAndResourceAccess_NoLock(bool waitForRenderThread)
-    {
-      lock (_syncObj)
-        _renderAndResourceAccessEnabled.Reset();
-      if (waitForRenderThread)
-        _renderingFinishedEvent.WaitOne(TIMEOUT_SWITCH_THEME_WAIT_FOR_RENDER);
-    }
-
-    /// <summary>
-    /// Resumes the temporary suspended rendering.
-    /// </summary>
-    /// <remarks>
-    /// This method resumes the rendering which was suspended by a call to <see cref="SuspendRenderAndResourceAccess_NoLock"/>.
-    /// </remarks>
-    public void ResumeRenderAndResourceAccess()
-    {
-      lock (_syncObj)
-        _renderAndResourceAccessEnabled.Set();
     }
 
     /// <summary>
@@ -1143,7 +1107,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Screen GetScreen(string screenName, IModelLoader loader, ScreenType screenType)
     {
-      _renderAndResourceAccessEnabled.WaitOne(TIMEOUT_INFINITE);
+      _renderAndResourceAccessLock.EnterReadLock();
       try
       {
         string relativeDirectory;
@@ -1217,6 +1181,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return null;
         }
         return null;
+      }
+      finally
+      {
+        _renderAndResourceAccessLock.ExitReadLock();
       }
     }
 
