@@ -1003,7 +1003,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </remarks>
     /// <param name="waitForRenderThread">If this parameter is set to <c>true</c>, this method waits until the last render
     /// call has finished.</param>
-    public void SuspendRendering(bool waitForRenderThread)
+    public void SuspendRendering_NoLock(bool waitForRenderThread)
     {
       lock (_syncObj)
         _skipRendering = true;
@@ -1015,7 +1015,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Resumes the temporary suspended rendering.
     /// </summary>
     /// <remarks>
-    /// This method resumes the rendering which was suspended by a call to <see cref="SuspendRendering"/>.
+    /// This method resumes the rendering which was suspended by a call to <see cref="SuspendRendering_NoLock"/>.
     /// </remarks>
     public void ResumeRendering()
     {
@@ -1301,60 +1301,65 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
-      string currentScreenName;
-      string currentSuperLayerName;
-      Screen backgroundScreen;
-      string currentBackgroundName;
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'", newSkinName, newThemeName);
 
-      lock (_syncObj)
+      try
       {
-        ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'",
-            newSkinName, newThemeName);
+        SuspendRendering_NoLock(true);
 
-        currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
-        currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
-        backgroundScreen = _backgroundData.BackgroundScreen;
-        currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
+        string currentScreenName;
+        string currentSuperLayerName;
+        Screen backgroundScreen;
+        string currentBackgroundName;
 
-        UninstallBackgroundManager();
-        _backgroundData.Unload();
+        lock (_syncObj)
+        {
+          currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
+          currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
+          backgroundScreen = _backgroundData.BackgroundScreen;
+          currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
 
-        // Wait for screens and dialogs to be closed
-        WaitForPendingOperations();
+          UninstallBackgroundManager();
+          _backgroundData.Unload();
 
-        SuspendRendering(true);
+          // Wait for screens and dialogs to be closed
+          WaitForPendingOperations();
+        }
+
+        DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
+
+        lock (_syncObj)
+        {
+          PlayersHelper.ReleaseGUIResources();
+
+          Controls.Brushes.BrushCache.Instance.Clear();
+          // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
+          // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
+          // need to clear the brush cache.
+          ServiceRegistration.Get<ContentManager>().Clear();
+
+          PrepareSkinAndTheme(newSkinName, newThemeName);
+          PlayersHelper.ReallocGUIResources();
+
+          if (!InstallBackgroundManager())
+            _backgroundData.Load(currentBackgroundName);
+        }
+        Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
+        DoExchangeScreen_NoLock(screen);
+        if (currentSuperLayerName != null)
+        {
+          Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
+          DoSetSuperLayer_NoLock(superLayer);
+        }
+        SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+        settings.Skin = SkinName;
+        settings.Theme = ThemeName;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
       }
-
-      DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
-
-      lock (_syncObj)
+      finally
       {
-        PlayersHelper.ReleaseGUIResources();
-
-        Controls.Brushes.BrushCache.Instance.Clear();
-        // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
-        // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
-        // need to clear the brush cache.
-        ServiceRegistration.Get<ContentManager>().Clear();
-
-        PrepareSkinAndTheme(newSkinName, newThemeName);
-        PlayersHelper.ReallocGUIResources();
-
-        if (!InstallBackgroundManager())
-          _backgroundData.Load(currentBackgroundName);
+        ResumeRendering();
       }
-      Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
-      DoExchangeScreen_NoLock(screen);
-      if (currentSuperLayerName != null)
-      {
-        Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
-        DoSetSuperLayer_NoLock(superLayer);
-      }
-      SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
-      settings.Skin = SkinName;
-      settings.Theme = ThemeName;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
-      ResumeRendering();
     }
 
     public void ReloadSkinAndTheme()
