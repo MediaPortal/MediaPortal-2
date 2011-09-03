@@ -610,15 +610,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       FocusScreen_NoLock(dialogData.DialogScreen);
     }
 
-    protected LinkedListNode<DialogData> FindDialogNode(Guid dialogInstanceId)
+    protected internal void DoCloseDialogs_NoLock(bool fireCloseDelegates, bool dialogPersistence)
     {
-      lock (_syncObj)
-      {
-        LinkedListNode<DialogData> node = _dialogStack.First;
-        while (node != null && node.Value.DialogInstanceId != dialogInstanceId)
-          node = node.Next;
-        return node;
-      }
+      DoCloseDialogs_NoLock(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates, dialogPersistence);
     }
 
     protected internal void DoCloseDialogs_NoLock(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
@@ -687,9 +681,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
     }
 
-    protected internal void DoCloseDialogs_NoLock(bool fireCloseDelegates, bool dialogPersistence)
+    protected LinkedListNode<DialogData> FindDialogNode(Guid dialogInstanceId)
     {
-      DoCloseDialogs_NoLock(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates, dialogPersistence);
+      lock (_syncObj)
+      {
+        LinkedListNode<DialogData> node = _dialogStack.First;
+        while (node != null && node.Value.DialogInstanceId != dialogInstanceId)
+          node = node.Next;
+        return node;
+      }
     }
 
     protected internal void CompleteDialogClosures_NoLock()
@@ -763,6 +763,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       UnfocusCurrentScreen_NoLock();
     }
 
+    protected internal void DoExchangeScreen_NoLock(Screen screen)
+    {
+      screen.Prepare();
+      lock (_syncObj)
+      {
+        if (_nextScreen != null)
+        { // If next screen is already set, dispose it. This might happen if during a screen change, another screen change is scheduled.
+          _nextScreen.ScreenState = Screen.State.Closed;
+          ScheduleDisposeScreen(_nextScreen);
+        }
+        if (_currentScreen != null)
+          _currentScreen.ScreenState = Screen.State.Closing;
+  
+        _nextScreen = screen;
+      }
+      CompleteScreenClosure_NoLock();
+    }
+
     protected internal void CompleteScreenClosure_NoLock()
     {
       Screen screen;
@@ -786,24 +804,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         BackgroundDisabled = (_currentScreen == null) ? false : !_currentScreen.HasBackground;
       }
       FocusScreen_NoLock(screen);
-    }
-
-    protected internal void DoExchangeScreen_NoLock(Screen screen)
-    {
-      screen.Prepare();
-      lock (_syncObj)
-      {
-        if (_nextScreen != null)
-        { // If next screen is already set, dispose it. This might happen if during a screen change, another screen change is scheduled.
-          _nextScreen.ScreenState = Screen.State.Closed;
-          ScheduleDisposeScreen(_nextScreen);
-        }
-        if (_currentScreen != null)
-          _currentScreen.ScreenState = Screen.State.Closing;
-  
-        _nextScreen = screen;
-      }
-      CompleteScreenClosure_NoLock();
     }
 
     protected internal void DoSetSuperLayer_NoLock(Screen screen)
