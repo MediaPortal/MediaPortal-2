@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
-      _forceExpanderProperty.Attach(OnForceExpanderChanged);
+      _forceExpanderProperty.Detach(OnForceExpanderChanged);
       _subItemsProviderProperty.Detach(OnSubItemsProviderChanged);
       _selectedProperty.Detach(OnSelectedChanged);
     }

@@ -91,14 +91,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      ContentProperty.Attach(OnContentChanged);
-
       _verticalScrollBarVisibilityProperty.Attach(OnScrollBarVisibilityChanged);
       _horizontalScrollBarVisibilityProperty.Attach(OnScrollBarVisibilityChanged);
+
+      ContentProperty.Attach(OnContentChanged);
     }
 
     void Detach()
     {
+      _verticalScrollBarVisibilityProperty.Detach(OnScrollBarVisibilityChanged);
+      _horizontalScrollBarVisibilityProperty.Detach(OnScrollBarVisibilityChanged);
+
       ContentProperty.Detach(OnContentChanged);
     }
 

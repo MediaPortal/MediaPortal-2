@@ -57,16 +57,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
-      _templateControlProperty.Attach(OnTemplateControlChanged);
-      _isExpandedProperty.Attach(OnExpandedChanged);
+      
+      TemplateControlProperty.Attach(OnTemplateControlChanged);
+      IsExpandedProperty.Attach(OnExpandedChanged);
     }
 
     void Detach()
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
-      _templateControlProperty.Detach(OnTemplateControlChanged);
-      _isExpandedProperty.Detach(OnExpandedChanged);
+      
+      TemplateControlProperty.Detach(OnTemplateControlChanged);
+      IsExpandedProperty.Detach(OnExpandedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

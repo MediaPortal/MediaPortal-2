@@ -72,33 +72,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _contentProperty.Attach(OnContentChanged);
-      _horizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _verticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _horizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);      
       _wrapProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
 
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);
+      HorizontalAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      VerticalAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      FontFamilyProperty.Attach(OnFontChanged);
+      FontSizeProperty.Attach(OnFontChanged);
+
+      HorizontalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
+      VerticalContentAlignmentProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
-      _horizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      _verticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
-      _horizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      _verticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
 
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
+      HorizontalAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      VerticalAlignmentProperty.Detach(OnLayoutPropertyChanged); 
+      FontFamilyProperty.Detach(OnFontChanged);
+      FontSizeProperty.Detach(OnFontChanged);
+
+      HorizontalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
+      VerticalContentAlignmentProperty.Detach(OnLayoutPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

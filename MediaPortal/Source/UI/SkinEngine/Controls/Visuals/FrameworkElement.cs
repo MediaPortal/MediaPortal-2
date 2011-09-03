@@ -201,12 +201,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
 
-      _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
-      _marginProperty.Attach(OnMeasureGetsInvalid);
-      _visibilityProperty.Attach(OnParentCompleteLayoutGetsInvalid);
-      _opacityProperty.Attach(OnOpacityChanged);
-      _opacityMaskProperty.Attach(OnOpacityChanged);
-      _actualPositionProperty.Attach(OnActualBoundsChanged);
+      LayoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
+      MarginProperty.Attach(OnMeasureGetsInvalid);
+      VisibilityProperty.Attach(OnParentCompleteLayoutGetsInvalid);
+      OpacityProperty.Attach(OnOpacityChanged);
+      OpacityMaskProperty.Attach(OnOpacityChanged);
+      ActualPositionProperty.Attach(OnActualBoundsChanged);
     }
 
     void Detach()
@@ -217,12 +217,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
 
-      _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
-      _marginProperty.Detach(OnMeasureGetsInvalid);
-      _visibilityProperty.Detach(OnParentCompleteLayoutGetsInvalid);
-      _opacityProperty.Detach(OnOpacityChanged);
-      _opacityMaskProperty.Detach(OnOpacityChanged);
-      _actualPositionProperty.Detach(OnActualBoundsChanged);
+      LayoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
+      MarginProperty.Detach(OnMeasureGetsInvalid);
+      VisibilityProperty.Detach(OnParentCompleteLayoutGetsInvalid);
+      OpacityProperty.Detach(OnOpacityChanged);
+      OpacityMaskProperty.Detach(OnOpacityChanged);
+      ActualPositionProperty.Detach(OnActualBoundsChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

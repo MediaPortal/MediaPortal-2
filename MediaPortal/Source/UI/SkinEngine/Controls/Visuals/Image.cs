@@ -112,8 +112,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _sourceProperty = new SProperty(typeof(object), null);
       _fallbackSourceProperty = new SProperty(typeof(object), null);
-      _stretchDirectionProperty = new SProperty(typeof(StretchDirection), StretchDirection.Both);
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
+      _stretchDirectionProperty = new SProperty(typeof(StretchDirection), StretchDirection.Both);
       _thumbnailProperty = new SProperty(typeof(bool), false);
       _skinNeutralProperty = new SProperty(typeof(bool), false);
       _hasImageProperty = new SProperty(typeof(bool), false);
@@ -127,8 +127,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Attach(OnArrangeGetsInvalid);
       _thumbnailProperty.Attach(OnArrangeGetsInvalid);
       _skinNeutralProperty.Attach(OnArrangeGetsInvalid);
-      _widthProperty.Attach(OnImageSizeChanged);
-      _heightProperty.Attach(OnImageSizeChanged);
+
+      WidthProperty.Attach(OnImageSizeChanged);
+      HeightProperty.Attach(OnImageSizeChanged);
     }
 
     void Detach()
@@ -139,8 +140,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _stretchDirectionProperty.Detach(OnArrangeGetsInvalid);
       _thumbnailProperty.Detach(OnArrangeGetsInvalid);
       _skinNeutralProperty.Detach(OnArrangeGetsInvalid);
-      _widthProperty.Detach(OnImageSizeChanged);
-      _heightProperty.Detach(OnImageSizeChanged);
+
+      WidthProperty.Detach(OnImageSizeChanged);
+      HeightProperty.Detach(OnImageSizeChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

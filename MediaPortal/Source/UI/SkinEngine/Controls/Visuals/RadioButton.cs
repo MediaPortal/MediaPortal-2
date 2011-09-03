@@ -61,14 +61,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _isCheckedProperty.Attach(OnCheckChanged);
       _groupNameProperty.Attach(OnGroupNameChanged);
-      _isPressedProperty.Attach(OnButtonPressedChanged);
+
+      IsPressedProperty.Attach(OnButtonPressedChanged);
     }
 
     void Detach()
     {
       _isCheckedProperty.Detach(OnCheckChanged);
       _groupNameProperty.Detach(OnGroupNameChanged);
-      _isPressedProperty.Detach(OnButtonPressedChanged);
+
+      IsPressedProperty.Detach(OnButtonPressedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

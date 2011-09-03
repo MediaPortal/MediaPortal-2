@@ -79,12 +79,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void Attach()
     {
+      _autoCenteringProperty.Attach(OnArrangeGetsInvalid);
       _horizontalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
       _verticalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
     }
 
     protected void Detach()
     {
+      _autoCenteringProperty.Detach(OnArrangeGetsInvalid);
       _horizontalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
       _verticalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
     }

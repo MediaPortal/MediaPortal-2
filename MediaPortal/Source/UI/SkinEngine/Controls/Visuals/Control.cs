@@ -80,18 +80,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _backgroundProperty.Attach(OnBackgroundChanged);
       _templateProperty.Attach(OnTemplateChanged);
       _templateControlProperty.Attach(OnTemplateControlChanged);
+      _backgroundProperty.Attach(OnBackgroundChanged);
       _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
-      _backgroundProperty.Detach(OnBackgroundChanged);
       _templateProperty.Detach(OnTemplateChanged);
       _templateControlProperty.Detach(OnTemplateControlChanged);
+      _backgroundProperty.Detach(OnBackgroundChanged);
       _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
     }

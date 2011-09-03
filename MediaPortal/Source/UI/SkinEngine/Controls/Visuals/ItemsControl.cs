@@ -108,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsProperty.Detach(OnItemsChanged);
       _itemTemplateProperty.Detach(OnItemTemplateChanged);
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
-      _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
+      _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
       DetachFromItems(Items);
     }

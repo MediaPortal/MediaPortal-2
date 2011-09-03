@@ -66,8 +66,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
-      HorizontalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
-      VerticalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
+      HorizontalContentAlignmentProperty.Detach(OnContentAlignmentChanged);
+      VerticalContentAlignmentProperty.Detach(OnContentAlignmentChanged);
       TemplateControlProperty.Detach(OnTemplateControlChanged);
     }
 

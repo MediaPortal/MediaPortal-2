@@ -99,8 +99,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _cursorBlinkTimer = new Timer(CursorBlinkHandler);
-      _caretIndexProperty = new SProperty(typeof(int), 0);
       _textProperty = new SProperty(typeof(string), string.Empty);
+      _caretIndexProperty = new SProperty(typeof(int), 0);
       _internalTextProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
 
@@ -117,26 +117,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _textProperty.Attach(OnTextChanged);
       _caretIndexProperty.Attach(OnCaretIndexChanged);
-      _colorProperty.Attach(OnColorChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
+      _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
-      _hasFocusProperty.Attach(OnHasFocusChanged);
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);
+      HasFocusProperty.Attach(OnHasFocusChanged);
+      FontFamilyProperty.Attach(OnFontChanged);
+      FontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
       _caretIndexProperty.Detach(OnCaretIndexChanged);
-      _colorProperty.Detach(OnColorChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
+      _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
-      _hasFocusProperty.Attach(OnHasFocusChanged);
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
+      HasFocusProperty.Detach(OnHasFocusChanged);
+      FontFamilyProperty.Detach(OnFontChanged);
+      FontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

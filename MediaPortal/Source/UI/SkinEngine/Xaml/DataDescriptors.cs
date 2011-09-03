@@ -908,8 +908,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       _valueChanged += handler;
       if (!_attachedToProperty)
+      {
         _prop.Attach(OnPropertyChanged);
-      _attachedToProperty = true;
+        _attachedToProperty = true;
+      }
     }
 
     public void Detach(DataChangedHandler handler)
