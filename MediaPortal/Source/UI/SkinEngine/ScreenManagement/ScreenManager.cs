@@ -1032,15 +1032,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Render()
     {
+      SkinContext.FrameRenderingStartTime = DateTime.Now;
+
+      // Check if we're waiting for screens to finish closing
+      CompleteScreenClosure_NoLock();
+      CompleteDialogClosures_NoLock();
+
       _renderAndResourceAccessLock.EnterReadLock();
       try
       {
-        SkinContext.FrameRenderingStartTime = DateTime.Now;
-
-        // Check if we're waiting for screens to finish closing
-        CompleteScreenClosure_NoLock();
-        CompleteDialogClosures_NoLock();
-
         IList<Screen> disabledScreens;
         IList<Screen> enabledScreens;
         lock (_syncObj)
@@ -1114,7 +1114,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public Screen GetScreen(string screenName, IModelLoader loader, ScreenType screenType)
     {
-      _renderAndResourceAccessLock.EnterReadLock();
       try
       {
         string relativeDirectory;
@@ -1133,7 +1132,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
         }
         string relativeScreenPath = relativeDirectory + Path.DirectorySeparatorChar + screenName + ".xaml";
-        Screen result = LoadScreen(screenName, relativeScreenPath, loader);
+
+        Screen result;
+        _renderAndResourceAccessLock.EnterReadLock();
+        try
+        {
+          result = LoadScreen(screenName, relativeScreenPath, loader);
+        }
+        finally
+        {
+          _renderAndResourceAccessLock.ExitReadLock();
+        }
+
         if (result == null)
         {
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
@@ -1188,10 +1198,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           return null;
         }
         return null;
-      }
-      finally
-      {
-        _renderAndResourceAccessLock.ExitReadLock();
       }
     }
 
