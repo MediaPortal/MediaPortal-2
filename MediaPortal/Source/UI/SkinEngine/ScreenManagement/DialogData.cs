@@ -57,5 +57,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       get { return _closeCallback; }
     }
+
+    public override string ToString()
+    {
+      return _dialogScreen.ToString();
+    }
   }
 }

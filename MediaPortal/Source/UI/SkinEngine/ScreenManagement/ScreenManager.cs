@@ -223,6 +223,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         get { return _closeCallback; }
       }
+
+      public override string ToString()
+      {
+        return _dialogName + "(" + _dialogId + ")";
+      }
     }
 
     protected class DialogStackList : LinkedList<DialogData>
@@ -691,17 +696,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       LinkedListNode<DialogData> bottomDialogNode;
       lock(_syncObj)
       {
-        bottomDialogNode = dialogInstanceId.HasValue ? FindDialogNode(dialogInstanceId.Value) : _dialogStack.First;
+        bottomDialogNode = dialogInstanceId.HasValue ? FindDialogNode(dialogInstanceId.Value) : _dialogStack.Last;
         if (bottomDialogNode == null)
         {
           if (dialogInstanceId.HasValue)
             ServiceRegistration.Get<ILogger>().Warn("ScreenManager.DoCloseDialogs: Dialog to close with dialog instance id '{0}' was not found on the dialog stack", dialogInstanceId.Value);
           return;
         }
-      }
 
-      lock(_syncObj)
-      {
         // Find all dialogs on top of our dialog
         LinkedListNode<DialogData> node;
         if (mode != CloseDialogsMode.CloseSingleDialog)
@@ -903,9 +905,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.ResourceName;
         screenName = _currentScreen.ResourceName;
         superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
-        dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         // Remember all dialogs and their close callbacks
-        dialogsReverse.AddRange(_dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.ResourceName, dd.DialogInstanceId, dd.CloseCallback)));
+        dialogsReverse = new List<DialogSaveDescriptor>(
+            _dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.ResourceName, dd.DialogInstanceId, dd.CloseCallback)));
+        dialogsReverse.Reverse();
       }
 
       // Close all
