@@ -504,6 +504,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _backgroundData.Unload();
         }
 
+        // Potential deadlock situation... But we cannot release our lock since noone is allowed to access the skin resources during skin/theme update.
         DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
 
         lock (_syncObj)
