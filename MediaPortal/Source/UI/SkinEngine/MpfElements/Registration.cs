@@ -36,6 +36,7 @@ using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities;
 using SlimDX;
@@ -438,6 +439,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return false;
     }
 
+    /// <summary>
+    /// Method to cleanup resources for callers which don't register themselves as owner.
+    /// </summary>
+    /// <param name="maybeUIElementOrDisposable">Element to be cleaned up or disposed.</param>
     public static void TryCleanupAndDispose(object maybeUIElementOrDisposable)
     {
       IUnmodifiableResource resource = maybeUIElementOrDisposable as IUnmodifiableResource;
@@ -461,6 +466,22 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       d.Dispose();
     }
 
+    /// <summary>
+    /// Sets the owner of the given resource to the given <paramref name="owner"/>, if the given resource implements the
+    /// <see cref="IUnmodifiableResource"/> interface.
+    /// </summary>
+    /// <remarks>
+    /// Containers like <see cref="ResourceDictionary"/> or <see cref="Setter"/> set themselves as owner of their contents.
+    /// That has two implications:
+    /// <list type="bullet">
+    /// <item>The owner of a resource is responsible for the disposal of the resource. A resource with an owner cannot live longer than its owner.</item>
+    /// <item>A resource with an owner is not copied. Instead, the <see cref="CopyMpfObject"/> method will return the original reference.</item>
+    /// </list>
+    /// That works only for resources which implement the <see cref="IUnmodifiableResource"/> interface. Those resources are unmodifiable, i.e.
+    /// they are not "personalized" to their owner so it is safe to reuse their reference.
+    /// </remarks>
+    /// <param name="res">Resource to set the owner.</param>
+    /// <param name="owner">Owner to be set.</param>
     public static void SetOwner(object res, object owner)
     {
       IUnmodifiableResource resource = res as IUnmodifiableResource;
@@ -468,6 +489,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         resource.Owner = owner;
     }
 
+    /// <summary>
+    /// Method to cleanup resources for callers which register themselves as owner.
+    /// </summary>
+    /// <param name="res">Element to be cleaned up or disposed.</param>
+    /// <param name="checkOwner">Owner reference to check for. This method will only clean up the given element if the
+    /// specified <paramref name="checkOwner"/> is the owner of the given element or if the element doesn't have an owner.</param>
     public static void CleanupAndDisposeResourceIfOwner(object res, object checkOwner)
     {
       IUnmodifiableResource resource = res as IUnmodifiableResource;
