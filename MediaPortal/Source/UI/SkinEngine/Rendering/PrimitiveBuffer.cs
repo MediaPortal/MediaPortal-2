@@ -67,6 +67,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #endregion
 
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      Clear();
+    }
+
+    #endregion
+
     #region Buffer creation
 
     /// <summary>
@@ -76,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Create(int numVertices)
     {
       if (_vertexBuffer != null)
-        Dispose();
+        Clear();
       _vertexBuffer = new VertexBuffer(GraphicsDevice.Device, PositionColoredTextured.StrideSize * numVertices, Usage.WriteOnly, PositionColoredTextured.Format, Pool.Default);
       ++_allocationCount;
     }
@@ -103,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         case PrimitiveType.LineStrip:
           if (numVertices < 2)
             ThrowInvalidVertexCount();
-          _primitiveCount = (numVertices - 1);
+          _primitiveCount = numVertices - 1;
           break;
         case PrimitiveType.TriangleList:
           if (numVertices < 3 || numVertices % 3 != 0)
@@ -114,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         case PrimitiveType.TriangleFan:
           if (numVertices < 3)
             ThrowInvalidVertexCount();
-          _primitiveCount = (numVertices - 2);
+          _primitiveCount = numVertices - 2;
           break;
         default:
           throw new NotImplementedException("Unknown PrimitiveType");
@@ -124,6 +133,21 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       using (DataStream stream = _vertexBuffer.Lock(0, 0, LockFlags.None))
         stream.WriteRange(vertices);
       _vertexBuffer.Unlock();
+    }
+
+    #endregion
+
+    #region Buffer disposal
+
+    protected void Clear()
+    {
+      if (_vertexBuffer != null)
+      {
+        _vertexBuffer.Dispose();
+        --_allocationCount;
+        _vertexBuffer = null;
+      }
+      _primitiveCount = 0;
     }
 
     #endregion
@@ -228,21 +252,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public int VertexCount
     {
       get { return (_vertexBuffer == null) ? 0 : (_vertexBuffer.Description.SizeInBytes / StrideSize); }
-    }
-
-    #endregion
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      if (_vertexBuffer != null)
-      {
-        _vertexBuffer.Dispose();
-        --_allocationCount;
-      }
-      _vertexBuffer = null;
-      _primitiveCount = 0;
     }
 
     #endregion
