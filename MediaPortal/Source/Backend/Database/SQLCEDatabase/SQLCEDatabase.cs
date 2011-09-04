@@ -52,13 +52,14 @@ namespace MediaPortal.BackendComponents.Database.SQLCE
       try
       {
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-        string dataDirectory = pathManager.GetPath("<DATA>");
+        string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, DEFAULT_DATABASE_FILE);
 
         _connectionString = "Data Source='" + databaseFile + "'; Default Lock Timeout=" + LOCK_TIMEOUT + "; Max Buffer Size = " + MAX_BUFFER_SIZE;
         SqlCeEngine engine = new SqlCeEngine(_connectionString);
         if (!File.Exists(databaseFile))
         {
+          Directory.CreateDirectory(dataDirectory);
           engine.CreateDatabase();
           engine.Dispose();
         }
