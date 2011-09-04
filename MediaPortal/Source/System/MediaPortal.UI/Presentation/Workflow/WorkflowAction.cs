@@ -156,5 +156,10 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// Can be overridden in sub classes to track a usage counter. See <see cref="AddRef"/>.
     /// </summary>
     public virtual void RemoveRef() { }
+
+    public override string ToString()
+    {
+      return _name + ": " + _actionId;
+    }
   }
 }

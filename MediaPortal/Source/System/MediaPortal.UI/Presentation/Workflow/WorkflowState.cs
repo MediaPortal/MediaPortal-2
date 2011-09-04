@@ -188,5 +188,10 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       return new WorkflowState(Guid.NewGuid(), name, displayLabel, isTemporary, mainScreen, inheritMenu, true, null, workflowType);
     }
+
+    public override string ToString()
+    {
+      return _name + ": " + _stateId;
+    }
   }
 }
