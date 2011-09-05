@@ -78,18 +78,33 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
         return;
       if (eventname == Screen.SHOW_EVENT)
       {
-        IDictionary<string, object> state = (IDictionary<string, object>) _context.GetContextVariable(_contextVariable, false);
+        // Mapping of context variable name -> UI state
+        IDictionary<string, IDictionary<string, object>> state =
+            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false);
         if (state == null)
           return;
         Screen screen = targetElement.Screen;
-        targetElement.RestoreUIState(state, screen == null ? string.Empty : screen.ResourceName);
+        string screenName = screen == null ? "ScreenState" : screen.ResourceName;
+
+        // Mapping of element paths -> element states
+        IDictionary<string, object> screenStateDictionary;
+        if (!state.TryGetValue(screenName, out screenStateDictionary))
+          return;
+        targetElement.RestoreUIState(screenStateDictionary, string.Empty);
       }
       else if (eventname == Screen.CLOSE_EVENT)
       {
-        IDictionary<string, object> state = (IDictionary<string, object>) _context.GetContextVariable(_contextVariable, false) ??
-            new Dictionary<string, object>(1000);
+        // Mapping of context variable name -> UI state
+        IDictionary<string, IDictionary<string, object>> state =
+            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false) ??
+            new Dictionary<string, IDictionary<string, object>>(10);
         Screen screen = targetElement.Screen;
-        targetElement.SaveUIState(state, screen == null ? string.Empty : screen.ResourceName);
+        string screenName = screen == null ? "ScreenState" : screen.ResourceName;
+
+        // Mapping of element paths -> element states
+        IDictionary<string, object> screenStateDictionary = new Dictionary<string, object>(1000);
+        state[screenName] = screenStateDictionary;
+        targetElement.SaveUIState(screenStateDictionary, string.Empty);
         _context.SetContextVariable(_contextVariable, state);
       }
     }
