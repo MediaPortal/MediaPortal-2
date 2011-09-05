@@ -59,13 +59,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Attach()
     {
-      _childrenProperty.Attach(OnPropertyChanged);
+      _childrenProperty.Attach(OnChildrenChanged);
       Children.ObjectChanged += OnChildrenChanged;
     }
 
     void Detach()
     {
-      _childrenProperty.Detach(OnPropertyChanged);
+      _childrenProperty.Detach(OnChildrenChanged);
       Children.ObjectChanged -= OnChildrenChanged;
     }
 
@@ -81,13 +81,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #endregion
 
-    protected void OnChildrenChanged(IObservable observable)
+    protected void OnChildrenChanged(AbstractProperty prop, object oldVal)
     {
+      TransformCollection tc = (TransformCollection) oldVal;
+      if (tc != null)
+        tc.ObjectChanged -= OnChildrenChanged;
+      tc = Children;
+      if (tc != null)
+        tc.ObjectChanged += OnChildrenChanged;
       _needUpdate = true;
       Fire();
     }
 
-    protected void OnPropertyChanged(AbstractProperty property)
+    protected void OnChildrenChanged(IObservable observable)
     {
       _needUpdate = true;
       Fire();
