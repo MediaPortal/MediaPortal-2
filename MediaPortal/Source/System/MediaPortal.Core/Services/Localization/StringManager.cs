@@ -121,23 +121,33 @@ namespace MediaPortal.Core.Services.Localization
       LocalizationMessaging.SendLanguageChangedMessage(culture);
     }
 
-    public string ToString(string label, params object[] parameters)
+    public bool TryTranslate(string section, string name, out string translation, params object[] parameters)
     {
-      string section;
-      string name;
-      string translation = StringId.ExtractSectionAndName(label, out section, out name) ?
-          _strings.ToString(section, name) : label;
-      if (translation == null || parameters == null || parameters.Length == 0)
-        return translation;
+      translation = _strings.ToString(section, name);
+      if (translation == null)
+        return false;
+      if (parameters == null || parameters.Length == 0)
+        return true;
       try
       {
-        return string.Format(translation, parameters);
+        translation = string.Format(translation, parameters);
       }
       catch (FormatException e)
       {
         ServiceRegistration.Get<ILogger>().Error("StringManager: Error formatting localized string '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
-        return translation;
+        return false;
       }
+      return true;
+    }
+
+    public string ToString(string label, params object[] parameters)
+    {
+      string section;
+      string name;
+      string translation;
+      if (StringId.ExtractSectionAndName(label, out section, out name) && TryTranslate(section, name, out translation, parameters))
+        return translation;
+      return label;
     }
 
     public CultureInfo GetBestAvailableLanguage()

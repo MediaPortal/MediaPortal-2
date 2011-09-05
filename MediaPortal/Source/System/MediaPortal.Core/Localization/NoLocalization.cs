@@ -49,6 +49,12 @@ namespace MediaPortal.Core.Localization
 
     public void ChangeLanguage(CultureInfo culture) {}
 
+    public bool TryTranslate(string section, string name, out string translation, params object[] parameters)
+    {
+      translation = name;
+      return true;
+    }
+
     public string ToString(string label, params object[] parameters)
     {
       return label;

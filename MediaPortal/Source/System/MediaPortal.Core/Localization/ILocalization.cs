@@ -79,6 +79,18 @@ namespace MediaPortal.Core.Localization
     void ChangeLanguage(CultureInfo culture);
 
     /// <summary>
+    /// Tries to find a translation for the string with the given <paramref name="section"/> and <paramref name="name"/> and formats the
+    /// string with the given parameters in the current language.
+    /// </summary>
+    /// <param name="section">Section of the localization resource.</param>
+    /// <param name="name">Name of the localization resource.</param>
+    /// <param name="parameters">Parameters used in the formating of the localized resource string.</param>
+    /// <param name="translation">Translation, if available. Else, <c>null</c> is returned.</param>
+    /// <returns><c>true</c>, if the resource specified by <paramref name="section"/> and <paramref name="name"/> was found,
+    /// else <c>false</c>.</returns>
+    bool TryTranslate(string section, string name, out string translation, params object[] parameters);
+
+    /// <summary>
     /// Returns the translation for a given string resource and formats the string with the given parameters
     /// in the current language.
     /// </summary>
@@ -92,7 +104,7 @@ namespace MediaPortal.Core.Localization
     /// <c>"[Section.Name]"</c>.</param>
     /// <param name="parameters">Parameters used in the formating of the localized resource string.</param>
     /// <returns>
-    /// String containing the translated text.
+    /// String containing the translated text or the given <paramref name="label"/>, if the translation could not be evaluated.
     /// </returns>
     string ToString(string label, params object[] parameters);
 
