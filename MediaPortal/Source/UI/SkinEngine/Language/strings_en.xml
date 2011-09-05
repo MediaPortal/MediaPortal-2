@@ -42,7 +42,7 @@
     <String Name="Zoom" Text="Zoom"/>
     <String Name="Zoom149" Text="Zoom 14:9"/>
   </Section>
-  <Section Name="Effects">
+  <Section Name="Effects"> <!-- File names (files in shaders/effects, without extension) to effect names to be shown in the GUI -->
     <String Name="Denoise" Text="Denoise"/>
     <String Name="Greyscale" Text="Greyscale"/>
     <String Name="Invert" Text="Invert"/>

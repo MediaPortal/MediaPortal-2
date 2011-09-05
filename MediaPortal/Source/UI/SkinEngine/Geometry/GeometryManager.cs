@@ -22,11 +22,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Globalization;
+using System.IO;
 using MediaPortal.Core;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.Settings;
@@ -40,6 +40,12 @@ namespace MediaPortal.UI.SkinEngine.Geometry
   /// </summary>
   public class GeometryManager : IGeometryManager
   {
+    #region Consts
+
+    public const string EFFECTS_SECTION = "Effects";
+
+    #endregion
+
     private readonly IDictionary<string, IGeometry> _availableGeometries = new Dictionary<string, IGeometry>();
     private IGeometry _defaultVideoGeometry;
     private CropSettings _cropSettings = new CropSettings();
@@ -102,17 +108,25 @@ namespace MediaPortal.UI.SkinEngine.Geometry
       get
       {
         TextInfo info = CultureInfo.CurrentCulture.TextInfo;
-        string search = String.Format(@"{0}\\effects(\\[^(\*\+\?\%\*\:\|<>\\)]+)*\.fx$", SkinResources.SHADERS_DIRECTORY);
+        ILocalization localization = ServiceRegistration.Get<ILocalization>();
+        string search = string.Format(@"{0}\\effects(\\[^(\*\+\?\%\*\:\|<>\\)]+)*\.fx$", SkinResources.SHADERS_DIRECTORY);
         IDictionary<string, string> files = SkinContext.SkinResources.GetResourceFilePaths(search);
-        Dictionary<string, string> effects = new Dictionary<string, string>();
+        IDictionary<string, string> effects = new Dictionary<string, string>();
         foreach (KeyValuePair<string, string> kv in files)
         {
-          String name = Path.GetFileNameWithoutExtension(kv.Key);
-          name.Replace('_', ' ');
-          name = "[Effects." + info.ToTitleCase(name) + "]";
-          string key = kv.Key;
-          key = key.Remove(0, SkinResources.SHADERS_DIRECTORY.Length+1);
-          key = key.Remove(key.Length - 3, 3);
+          string filepath = kv.Key;
+          string filename = Path.GetFileNameWithoutExtension(filepath);
+          string name;
+          if (!localization.TryTranslate(EFFECTS_SECTION, filename, out name))
+          {
+            name = (Path.GetFileNameWithoutExtension(kv.Key) ?? string.Empty).Replace('_', ' ');
+            name = info.ToTitleCase(name);
+          }
+          string key = filepath;
+          key = key.Remove(0, SkinResources.SHADERS_DIRECTORY.Length + 1);
+          string extension = Path.GetExtension(key);
+          if (!string.IsNullOrEmpty(extension))
+            key = key.Remove(key.Length - extension.Length, extension.Length);
           effects[key] = name;
         }
         return effects;
