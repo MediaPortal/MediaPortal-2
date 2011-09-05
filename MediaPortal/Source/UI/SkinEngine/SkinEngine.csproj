@@ -401,6 +401,10 @@
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
+    <None Include="Skin\default\shaders\effects\directional_blur.fx" />
+    <None Include="Skin\default\shaders\effects\glass_tiles.fx" />
+    <None Include="Skin\default\shaders\effects\pixelate.fx" />
+    <None Include="Skin\default\shaders\effects\zoom_blur.fx" />
     <None Include="Skin\default\shaders\font.fx" />
     <None Include="Skin\default\shaders\font_fade.fx" />
     <None Include="Skin\default\shaders\greyscale.fx" />
