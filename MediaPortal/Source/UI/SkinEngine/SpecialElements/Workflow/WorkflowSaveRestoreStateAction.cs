@@ -81,12 +81,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
         IDictionary<string, object> state = (IDictionary<string, object>) _context.GetContextVariable(_contextVariable, false);
         if (state == null)
           return;
-        targetElement.RestoreUIState(state, string.Empty);
+        Screen screen = targetElement.Screen;
+        targetElement.RestoreUIState(state, screen == null ? string.Empty : screen.ResourceName);
       }
       else if (eventname == Screen.CLOSE_EVENT)
       {
-        IDictionary<string, object> state = new Dictionary<string, object>(1000);
-        targetElement.SaveUIState(state, string.Empty);
+        IDictionary<string, object> state = (IDictionary<string, object>) _context.GetContextVariable(_contextVariable, false) ??
+            new Dictionary<string, object>(1000);
+        Screen screen = targetElement.Screen;
+        targetElement.SaveUIState(state, screen == null ? string.Empty : screen.ResourceName);
         _context.SetContextVariable(_contextVariable, state);
       }
     }
