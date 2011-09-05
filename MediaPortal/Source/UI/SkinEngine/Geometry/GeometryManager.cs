@@ -117,8 +117,10 @@ namespace MediaPortal.UI.SkinEngine.Geometry
           string filepath = kv.Key;
           string filename = Path.GetFileNameWithoutExtension(filepath);
           string name;
+          // Try to find a translation for the effect name...
           if (!localization.TryTranslate(EFFECTS_SECTION, filename, out name))
           {
+            // ... and fall back to the effect name without '_', in title case
             name = (Path.GetFileNameWithoutExtension(kv.Key) ?? string.Empty).Replace('_', ' ');
             name = info.ToTitleCase(name);
           }
