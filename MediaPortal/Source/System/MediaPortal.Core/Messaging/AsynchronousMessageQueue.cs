@@ -129,7 +129,7 @@ namespace MediaPortal.Core.Messaging
 
     protected void DoWork()
     {
-      while (true)
+      while (!IsTerminated)
       {
         SystemMessage message;
         while ((message = Dequeue()) != null)
@@ -152,15 +152,12 @@ namespace MediaPortal.Core.Messaging
               ServiceRegistration.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
                   e, _queueName, message.MessageType);
             }
-          if (_terminatedEvent.WaitOne(0))
+          if (IsTerminated)
             // Break early if terminated
             break;
         }
         // Block until messages are available or we are terminated
         WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _messageAvailableEvent});
-        if (_terminatedEvent.WaitOne(0))
-          // Check again for break
-          break;
       }
     }
 
