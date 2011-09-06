@@ -78,6 +78,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
+    protected static readonly TimeSpan TIMESPAN_INFINITE = TimeSpan.FromMilliseconds(-1);
+
     #endregion
 
     #region Classes, delegates & enums
@@ -262,7 +264,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// This lock should be used to synchronize field access but not during the rendering of screens.
     /// </remarks>
     protected readonly object _syncObj = new object();
-    protected bool _terminated = false;
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected AutoResetEvent _garbageScreensAvailable = new AutoResetEvent(false);
+    protected AutoResetEvent _pendingOperationsDecreasedEvent = new AutoResetEvent(false);
     protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
     protected readonly SkinManager _skinManager;
@@ -272,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Screen _currentScreen = null; // "Normal" screen
     protected Screen _nextScreen = null; // Holds the next screen while the current screen finishes closing
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
-    protected int _numPendingAsyncOperations = 0;
+    protected volatile int _numPendingAsyncOperations = 0;
     protected Screen _focusedScreen = null;
     protected DateTime _screenPersistenceTime = DateTime.MaxValue;
 
@@ -395,7 +399,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         Screen screen;
         bool active = true;
-        while (active)
+        do
         {
           lock (_syncObj)
             screen = _garbageScreens.Count == 0 ? null : _garbageScreens.Dequeue();
@@ -403,27 +407,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             active = false;
           else
             screen.Close();
-        }
-        lock (_syncObj)
-          if (_terminated)
-          {
-            if (_garbageScreens.Count == 0)
-              break;
-            // else: run another loop to clean up the rest of the screens
-          }
-          else
-            Monitor.Wait(_syncObj);
+        } while (active);
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable});
+        if (_terminatedEvent.WaitOne() && _garbageScreens.Count == 0)
+          break;
       }
     }
 
     protected void FinishGarbageCollection()
     {
       lock (_syncObj)
-      {
         _garbageCollectorThread.Priority = ThreadPriority.AboveNormal;
-        _terminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _terminatedEvent.Set();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Waiting for screen garbage collection...");
       _garbageCollectorThread.Join();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Screen garbage collection finished");
@@ -432,10 +427,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected void ScheduleDisposeScreen(Screen screen)
     {
       lock (_syncObj)
-      {
         _garbageScreens.Enqueue(screen);
-        Monitor.PulseAll(_syncObj);
-      }
+      _garbageScreensAvailable.Set();
     }
 
     /// <summary>
@@ -446,11 +439,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </remarks>
     protected internal void IncPendingOperations()
     {
-      lock (_syncObj)
-      {
-        _numPendingAsyncOperations++;
-        Monitor.PulseAll(_syncObj);
-      }
+      Interlocked.Increment(ref _numPendingAsyncOperations);
     }
 
     /// <summary>
@@ -461,11 +450,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </remarks>
     protected internal void DecPendingOperations()
     {
-      lock (_syncObj)
-      {
-        _numPendingAsyncOperations--;
-        Monitor.PulseAll(_syncObj);
-      }
+      Interlocked.Decrement(ref _numPendingAsyncOperations);
+      _pendingOperationsDecreasedEvent.Set();
     }
 
     /// <summary>
@@ -473,10 +459,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
    /// </summary>
     protected internal void WaitForPendingOperations()
     {
-      lock (_syncObj)
-        while (_numPendingAsyncOperations > 0)
-          // Wait until all outstanding screens have been hidden asynchronously
-          Monitor.Wait(_syncObj);
+      while (_numPendingAsyncOperations > 0)
+        // Wait until all outstanding async operations have been executed
+        _pendingOperationsDecreasedEvent.WaitOne(TIMESPAN_INFINITE);
     }
 
     public void DoSwitchSkinAndTheme_NoLock(string newSkinName, string newThemeName)
