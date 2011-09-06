@@ -86,6 +86,7 @@ namespace Ui.Players.BassPlayer
     protected volatile int _volume = 100;
 
     protected Thread _playerThread;
+    protected AutoResetEvent _playerThreadNotifyEvent = new AutoResetEvent(false);
     protected volatile bool _mainThreadTerminated;
     protected WorkItemQueue _workItemQueue;
 
@@ -182,10 +183,8 @@ namespace Ui.Players.BassPlayer
     public void EnqueueWorkItem(WorkItem workItem)
     {
       lock (_syncObj)
-      {
         _workItemQueue.Enqueue(workItem);
-        Monitor.PulseAll(_syncObj);
-      }
+      _playerThreadNotifyEvent.Set();
     }
 
     public void StateReady()
@@ -355,15 +354,12 @@ namespace Ui.Players.BassPlayer
         {
           WorkItem item = DequeueWorkItem();
 
-          lock (_syncObj)
-          {
-            if (_mainThreadTerminated)
-              // Has to be checked again inside the lock statement
-              break;
-            if (item == null)
-              Monitor.Wait(_syncObj);
-          }
-          if (item != null) // Must be done outside lock
+          if (_mainThreadTerminated)
+            // Check the terminated flag early
+            break;
+          if (item == null)
+            _playerThreadNotifyEvent.WaitOne(TIMESPAN_INFINITE);
+          else
             item.Invoke();
         }
       }
@@ -382,11 +378,8 @@ namespace Ui.Players.BassPlayer
         return;
       Log.Debug("Stopping player main thread");
 
-      lock (_syncObj)
-      {
-        _mainThreadTerminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _mainThreadTerminated = true;
+      _playerThreadNotifyEvent.Set();
       _playerThread.Join();
     }
 
