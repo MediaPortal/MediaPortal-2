@@ -38,14 +38,18 @@
               <Label x:Name="Actors" Grid.Row="4" Grid.Column="1" Wrap="true" HorizontalAlignment="Stretch"
                   Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"/>
             </Grid>
-            <StackPanel DockPanel.Dock="Center" Orientation="Vertical"
+            <DockPanel LastChildFill="True" DockPanel.Dock="Center"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                  Content="[Media.VideoStoryPlotLabel]"/>
-              <TextBox x:Name="StoryPlot"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  Text="{Binding VideoStoryPlot}"/>
-            </StackPanel>
+                  DockPanel.Dock="Top" Content="[Media.VideoStoryPlotLabel]"/>
+              <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  DockPanel.Dock="Center" HorizontalScrollBarVisibility="Disabled"
+                  Focusable="True">
+                <Label x:Name="StoryPlot" Wrap="True"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Content="{Binding VideoStoryPlot}"/>
+              </ScrollViewer>
+            </DockPanel>
           </DockPanel>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
