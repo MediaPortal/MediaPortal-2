@@ -163,7 +163,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected bool _busyScreenVisible = false;
     protected Thread _workThread;
     protected Queue<InputEvent> _inputEventQueue = new Queue<InputEvent>(30);
-    protected bool _terminated = false;
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected AutoResetEvent _inputAvailableEvent = new AutoResetEvent(false);
 
     protected static InputManager _instance = null;
     protected static object _syncObj = new object();
@@ -220,11 +221,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     public void Terminate()
     {
-      lock (_syncObj)
-      {
-        _terminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _terminatedEvent.Set();
+    }
+
+    public bool IsTerminated
+    {
+      get { return _terminatedEvent.WaitOne(0); }
     }
 
     protected bool IsEventAvailable
@@ -253,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       bool showBusyScreen = false;
       lock (_syncObj)
       {
-        if (_terminated)
+        if (IsTerminated)
           return;
         if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
         { // Client call lasts longer than our BUSY_TIMEOUT
@@ -267,10 +269,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
         superLayerManager.ShowBusyScreen();
         lock (_syncObj)
-        {
           _busyScreenVisible = true;
-          Monitor.PulseAll(_syncObj);
-        }
         return; // Finished, no further processing
       }
       EnqueueEvent(evt);
@@ -301,7 +300,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
           _busyScreenVisible = false;
           _callingClientStart = null;
         }
-        if (hideBusyScreen && !_terminated)
+        if (hideBusyScreen && !IsTerminated)
         {
           ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
           superLayerManager.HideBusyScreen();
@@ -314,7 +313,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       lock (_syncObj)
       {
         _inputEventQueue.Enqueue(evt);
-        Monitor.PulseAll(_syncObj);
+        _inputAvailableEvent.Set();
       }
     }
 
@@ -365,19 +364,16 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       while (true)
       {
-        InputEvent evt = DequeueEvent();
-        if (evt != null)
-          DispatchEvent(evt);
-        lock (_syncObj)
+        InputEvent evt;
+        while ((evt = DequeueEvent()) != null)
         {
-          if (_terminated)
-            // We have to check this in the synchronized block, else we could miss the PulseAll event
+          DispatchEvent(evt);
+          if (IsTerminated)
             break;
-          // We need to check this in a synchronized block. If we wouldn't prevent other threads from
-          // enqueuing data in this moment, we could miss the PulseAll event
-          if (!IsEventAvailable)
-            Monitor.Wait(_syncObj);
         }
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _inputAvailableEvent});
+        if (IsTerminated)
+          break;
       }
     }
 
