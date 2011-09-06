@@ -100,8 +100,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
       AutoCentering = scp.AutoCentering;
-      HorizontalScrollDisabled = scp.HorizontalScrollDisabled;
-      VerticalScrollDisabled = scp.VerticalScrollDisabled;
+      HorizontalFitToSpace = scp.HorizontalFitToSpace;
+      VerticalFitToSpace = scp.VerticalFitToSpace;
       Attach();
     }
 
@@ -236,9 +236,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           availableSize = _innerRect.Size;
         }
 
-        if (HorizontalScrollDisabled)
+        if (HorizontalFitToSpace)
           availableSize.Width = _innerRect.Size.Width;
-        if (VerticalScrollDisabled)
+        if (VerticalFitToSpace)
           availableSize.Height = _innerRect.Size.Height;
 
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
@@ -328,7 +328,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.HorizontalScrollBarVisibility"/> setting.
     /// </summary>
-    public bool HorizontalScrollDisabled
+    public bool HorizontalFitToSpace
     {
       get { return (bool) _horizontalScrollDisabledProperty.GetValue(); }
       set { _horizontalScrollDisabledProperty.SetValue(value); }
@@ -344,7 +344,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.VerticalScrollBarVisibility"/> setting.
     /// </summary>
-    public bool VerticalScrollDisabled
+    public bool VerticalFitToSpace
     {
       get { return (bool) _verticalScrollDisabledProperty.GetValue(); }
       set { _verticalScrollDisabledProperty.SetValue(value); }

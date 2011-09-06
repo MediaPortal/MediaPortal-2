@@ -232,8 +232,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
       if (scp == null)
         return;
-      scp.HorizontalScrollDisabled = HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled;
-      scp.VerticalScrollDisabled = VerticalScrollBarVisibility == ScrollBarVisibility.Disabled;
+      scp.HorizontalFitToSpace = HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled;
+      scp.VerticalFitToSpace = VerticalScrollBarVisibility == ScrollBarVisibility.Disabled;
 
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
@@ -256,8 +256,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (templateControl == null)
         return;
       RectangleF childRect = new RectangleF(_innerRect.X, _innerRect.Y,
-          HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? templateControl.DesiredSize.Width : _innerRect.Width,
-          VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? templateControl.DesiredSize.Height : _innerRect.Height);
+          (HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden) || (HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
+          templateControl.DesiredSize.Width : _innerRect.Width,
+          (VerticalScrollBarVisibility == ScrollBarVisibility.Hidden) || (VerticalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
+          templateControl.DesiredSize.Height : _innerRect.Height);
       templateControl.Arrange(childRect);
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
