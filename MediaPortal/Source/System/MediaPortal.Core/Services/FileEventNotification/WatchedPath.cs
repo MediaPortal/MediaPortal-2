@@ -150,18 +150,13 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// <returns></returns>
     public bool IsPathAvailable()
     {
-      Monitor.Enter(_syncPoll);
       bool callEvent;
-      try
+      lock (_syncPoll)
       {
         bool available = CheckPathAvailability();
         // We want to call the PathStateChangedEvent if the old state doesn't equal the current state
         callEvent = available != _available;
         _available = available;
-      }
-      finally
-      {
-        Monitor.Exit(_syncPoll);
       }
       if (callEvent && PathStateChangedEvent != null)
         PathStateChangedEvent(this, _available);
@@ -198,8 +193,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
         return false;
       try
       {
-        /// _path.Exists doesn't auto-refresh,
-        /// and calling Refresh() introduces too much overhead.
+        // _path.Exists doesn't auto-refresh, and calling Refresh() introduces too much overhead.
         return Directory.Exists(_path.FullName);
       }
       catch (Exception e)
