@@ -904,7 +904,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.ResourceName;
-        screenName = _currentScreen.ResourceName;
+        screenName = _currentScreen == null ? null : _currentScreen.ResourceName;
         superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
         // Remember all dialogs and their close callbacks
         dialogsReverse = new List<DialogSaveDescriptor>(
