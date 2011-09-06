@@ -175,6 +175,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     protected FrameworkElement _focusedElement = null;
     protected RectangleF? _lastFocusRect = null;
+    protected WeakReference _lastFocusedElement = new WeakReference(null);
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
@@ -388,7 +389,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseWheeled += HandleMouseWheel;
         HasInputFocus = true;
       }
-      PretendMouseMove();
+      FrameworkElement lastFocusElement = (FrameworkElement) _lastFocusedElement.Target;
+      if (!PretendMouseMove() && lastFocusElement != null)
+        lastFocusElement.SetFocusPrio = SetFocusPriority.DefaultHigh;
     }
 
     public void DetachInput()
@@ -442,11 +445,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         dlgt(this);
     }
 
-    protected void PretendMouseMove()
+    protected bool PretendMouseMove()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       if (inputManager.IsMouseUsed)
+      {
         DoHandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+        return true;
+      }
+      return false;
     }
 
     protected void DoHandleMouseMove(float x, float y)
@@ -657,6 +664,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (focusedElement != null && _focusedElement == focusedElement)
       {
+        _lastFocusedElement.Target = _focusedElement;
         _focusedElement = null;
         focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
       }
