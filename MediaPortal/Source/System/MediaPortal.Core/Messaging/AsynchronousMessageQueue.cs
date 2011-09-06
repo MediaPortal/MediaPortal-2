@@ -46,7 +46,8 @@ namespace MediaPortal.Core.Messaging
 
     protected ShutdownWatcher _shutdownWatcher;
     protected Thread _messageDeliveryThread = null;
-    protected bool _terminated = false;
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected AutoResetEvent _messageAvailableEvent = new AutoResetEvent(false);
 
     #endregion
 
@@ -130,8 +131,8 @@ namespace MediaPortal.Core.Messaging
     {
       while (true)
       {
-        SystemMessage message = Dequeue();
-        if (message != null)
+        SystemMessage message;
+        while ((message = Dequeue()) != null)
         {
           MessageReceivedHandler handler = MessageReceived;
           if (handler == null)
@@ -151,24 +152,21 @@ namespace MediaPortal.Core.Messaging
               ServiceRegistration.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
                   e, _queueName, message.MessageType);
             }
-        }
-        lock (_syncObj)
-        {
-          if (_terminated)
-            // We have to check this in the synchronized block, else we could miss the PulseAll event
+          if (_terminatedEvent.WaitOne(0))
+            // Break early if terminated
             break;
-          // We need to check this in a synchronized block. If we wouldn't prevent other threads from
-          // enqueuing data in this moment, we could miss the PulseAll event
-          if (!IsMessagesAvailable)
-            Monitor.Wait(_syncObj);
         }
+        // Block until messages are available or we are terminated
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _messageAvailableEvent});
+        if (_terminatedEvent.WaitOne(0))
+          // Check again for break
+          break;
       }
     }
 
     protected override void HandleMessageAvailable(SystemMessage message)
     {
-      lock (_syncObj)
-        Monitor.PulseAll(_syncObj); // Awake the possibly sleeping asynchronous message delivery thread
+      _messageAvailableEvent.Set();
       MessageReceivedHandler handler = PreviewMessage;
       if (handler != null)
         handler(this, message);
@@ -193,15 +191,11 @@ namespace MediaPortal.Core.Messaging
 
     /// <summary>
     /// Returns the information if this async message queue is terminated. A terminated message queue won't
-    /// enqueue any more messages, and its asynchronous message delivery thread will terminate when possible.
+    /// enqueue any more messages, and its asynchronous message delivery thread will terminate as soon as possible.
     /// </summary>
     public bool IsTerminated
     {
-      get
-      {
-        lock (_syncObj)
-          return _terminated;
-      }
+      get { return _terminatedEvent.WaitOne(0); }
     }
 
     /// <summary>
@@ -218,22 +212,17 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     public void Start()
     {
+      if (_messageDeliveryThread != null)
+        return;
       RegisterAtAllMessageChannels();
-      lock (_syncObj)
-      {
-        if (_messageDeliveryThread != null)
-          return;
-        _terminated = false;
-      }
       _shutdownWatcher = ShutdownWatcher.Create(this);
+      Thread thread;
       lock (_syncObj)
-      {
-        _messageDeliveryThread = new Thread(DoWork)
+        _messageDeliveryThread = thread = new Thread(DoWork)
           {
               Name = string.Format("AMQ '{0}'", _queueName)
           };
-        _messageDeliveryThread.Start();
-      }
+      thread.Start();
     }
 
     /// <summary>
@@ -286,11 +275,7 @@ namespace MediaPortal.Core.Messaging
         _shutdownWatcher.Remove();
       _shutdownWatcher = null;
       UnregisterFromAllMessageChannels();
-      lock (_syncObj)
-      {
-        _terminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _terminatedEvent.Set();
     }
 
     #endregion

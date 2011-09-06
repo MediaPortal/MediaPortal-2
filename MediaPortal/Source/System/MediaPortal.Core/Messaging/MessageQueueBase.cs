@@ -155,10 +155,7 @@ namespace MediaPortal.Core.Messaging
     public SystemMessage Dequeue()
     {
       lock (_syncObj)
-        if (_messages.Count > 0)
-          return _messages.Dequeue();
-        else
-          return null;
+        return _messages.Count == 0 ? null : _messages.Dequeue();
     }
 
     public SystemMessage Peek()
