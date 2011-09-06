@@ -399,16 +399,17 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// <param name="e"></param>
     private void NotifyTimer_Elapsed(object sender, ElapsedEventArgs e)
     {
+      Queue<FileWatchEvent> eventsToBeFired;
       if (!Monitor.TryEnter(_syncNotify))
         return; // This timer event was skipped, processing will happen during the next timer event
-      // Set the current threads name for logging purpose.
-      if (Thread.CurrentThread.Name == null)
-        Thread.CurrentThread.Name = "FEN"; // FileEventNotifier
-      // Only one thread at a time is processing the events.
-      // We don't fire the events inside the lock. We will queue them here until the code exits the lock.
-      var eventsToBeFired = new Queue<FileWatchEvent>();
       try
       {
+        // Set the current threads name for logging purpose.
+        if (Thread.CurrentThread.Name == null)
+          Thread.CurrentThread.Name = "FEN"; // FileEventNotifier
+        // Only one thread at a time is processing the events.
+        // We don't fire the events inside the lock. We will queue them here until the code exits the lock.
+        eventsToBeFired = new Queue<FileWatchEvent>();
         // Lock the collection while processing the events
         lock (_events)
         {
