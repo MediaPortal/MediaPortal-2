@@ -78,7 +78,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected IMediaBrowsing _mediaBrowsingCallback = null;
     protected IImportResultHandler _importResultHandler = null;
     protected List<ImportJob> _importJobs = new List<ImportJob>(); // We need more flexibility than the default Queue implementation provides, so we just use a List
-    protected bool _isSuspended = true;
+    protected ManualResetEvent _suspendedEvent = new ManualResetEvent(true);
+    protected AutoResetEvent _importJobsReadyAvailableEvent = new AutoResetEvent(false);
 
     public ImporterWorker()
     {
@@ -150,7 +151,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
         _importJobs.Clear();
         CollectionUtils.AddAll(_importJobs, settings.PendingImportJobs);
-        Monitor.PulseAll(_syncObj);
+        _importJobsReadyAvailableEvent.Set();
       }
     }
 
@@ -173,7 +174,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         job.State = ImportJobState.Scheduled;
         _importJobs.Insert(0, job);
-        Monitor.PulseAll(_syncObj);
+        _importJobsReadyAvailableEvent.Set();
       }
     }
 
@@ -206,26 +207,20 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         // We handle three cases here:
         // 1) Job available - process job and continue
-        // 2) No job available - sleep until a job is available
+        // 2) No job available - sleep until a job is available or we are suspended
         // 3) Job cannot be processed - exit loop and suspend
-        ImportJob job = PeekImportJob();
-        if (job != null)
+        ImportJob job;
+        while ((job = PeekImportJob()) != null)
         {
           Process(job);
           ImportJobState state = job.State;
           if (state == ImportJobState.Finished || state == ImportJobState.Erroneous || state == ImportJobState.Cancelled)
             RemoveImportJob(job); // Maybe the queue was changed (cleared & filled again), so a simple call to Dequeue() could dequeue the wrong job
-        }
-        lock (_syncObj)
-        {
           if (IsSuspended)
-            // We have to check this in the synchronized block, else we could miss the PulseAll event
             break;
-          // We need to check this in a synchronized block. If we wouldn't prevent other threads from
-          // enqueuing data in this moment, we could miss the PulseAll event
-          if (!IsImportJobAvailable)
-            Monitor.Wait(_syncObj);
         }
+        if (!IsImportJobAvailable)
+          WaitHandle.WaitAny(new WaitHandle[] {_importJobsReadyAvailableEvent, _suspendedEvent});
       }
     }
 
@@ -243,9 +238,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           return;
       lock (_syncObj)
       {
+        IsSuspended = false;
         _workerThread = new Thread(ImporterLoop) {Name = "Importer", Priority = ThreadPriority.BelowNormal};
         _workerThread.Start();
-        IsSuspended = false;
       }
     }
 
@@ -615,22 +610,19 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public bool IsSuspended
     {
-      get
-      {
-        lock (_syncObj)
-          return _isSuspended;
-      }
+      get { return _suspendedEvent.WaitOne(0); }
       internal set
       {
         lock (_syncObj)
         {
-          _isSuspended = value;
-          if (_isSuspended)
+          if (value)
           {
+            _suspendedEvent.Set();
             _mediaBrowsingCallback = null;
             _importResultHandler = null;
           }
-          Monitor.PulseAll(_syncObj);
+          else
+            _suspendedEvent.Reset();
         }
       }
     }
