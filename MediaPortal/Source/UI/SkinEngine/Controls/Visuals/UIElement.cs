@@ -1180,7 +1180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override string ToString()
     {
       string name = Name;
-      return GetType().Name + (string.IsNullOrEmpty(name) ? string.Empty : (", Name: '" + name + "'"));
+      return GetType().Name + (string.IsNullOrEmpty(name) ? string.Empty : (", Name: '" + name + "'")) + ", ElementState: " + _elementState;
     }
 
     #endregion
