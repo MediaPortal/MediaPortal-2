@@ -269,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
       object key;
-      _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
+      _rootObject = ParserHelper.UnwrapIncludesAndCleanup(Instantiate(_xmlDocument.DocumentElement, out key));
       if (key != null)
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
       foreach (EvaluatableMarkupExtensionActivator activator in _deferredMarkupExtensionActivations)
@@ -640,9 +640,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             if (!evaluableMarkupExtension.Evaluate(out value))
               throw new XamlParserException("Could not evaluate markup extension '{0}'", evaluableMarkupExtension);
           }
-          IInclude include = value as IInclude;
-          if (include != null)
-            value = include.Content;
+          value = ParserHelper.UnwrapIncludesAndCleanup(value);
           if (key == null)
             resultList.Add(value);
           else
@@ -843,18 +841,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           throw;
         throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
       }
-    }
-
-    /// <summary>
-    /// Given a root element parsed from a XAML file, this method extracts the root
-    /// element, if the given <paramref name="rootElement"/> is an include.
-    /// </summary>
-    /// <param name="rootElement">Root element parsed from a XAML file.</param>
-    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
-    protected static object UnwrapIncludes(object rootElement)
-    {
-      IInclude include = rootElement as IInclude;
-      return include == null ? rootElement : UnwrapIncludes(include.Content);
     }
 
     /// <summary>

@@ -22,7 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -31,7 +31,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
-  public class Include : NameScope, IInclude, IInitializable
+  public class Include : NameScope, IInclude, IInitializable, IDisposable
   {
     public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
 
@@ -46,6 +46,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public Include()
     {
       Init();
+    }
+
+    public void Dispose()
+    {
+      Registration.TryCleanupAndDispose(_content);
+      Registration.TryCleanupAndDispose(_resources);
     }
 
     void Init()
@@ -80,9 +86,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region IInclude implementation
 
-    public object Content
+    public object PassContent()
     {
-      get { return _content; }
+      object result = _content;
+      _content = null;
+      return result;
     }               
 
     #endregion
@@ -104,30 +112,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       {
         UIElement target = (UIElement) _content;
         // Merge resources with those from the included content
-        MergeResourceDictionaries(Resources, target.Resources);
-        // Merge namescope into the included content
-        INameScope targetNs = target.FindNameScope();
-        if (targetNs != null)
-          foreach (KeyValuePair<string, object> kvp in _names)
-            targetNs.RegisterName(kvp.Key, kvp.Value);
+        target.Resources.TakeOver(_resources, true, true);
+        _resources = null;
       }
       else if (_content is ResourceDictionary)
-        MergeResourceDictionaries(Resources, (ResourceDictionary) _content);
-    }
-
-    public void MergeResourceDictionaries(ResourceDictionary source, ResourceDictionary target)
-    {
-      IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) source).GetEnumerator();
-      IDictionary<object, object> targetDictionary = target.GetOrCreateUnderlayingDictionary();
-      while (enumer.MoveNext())
       {
-        object entry = enumer.Current.Value;
-        targetDictionary[enumer.Current.Key] = entry;
-        DependencyObject depObj = entry as DependencyObject;
-        if (depObj != null)
-          depObj.LogicalParent = target;
+        ((ResourceDictionary) _content).TakeOver(_resources, true, true);
+        _resources = null;
       }
-      target.FireChanged();
     }
 
     #endregion

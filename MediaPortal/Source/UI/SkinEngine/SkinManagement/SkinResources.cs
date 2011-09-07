@@ -444,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
             if (rd == null)
               throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
                   "' doesn't contain a ResourceDictionary as root element");
-            _localStyleResources.TakeOver(rd, true);
+            _localStyleResources.TakeOver(rd, false, true);
           }
           catch (Exception ex)
           {

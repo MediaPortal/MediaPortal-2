@@ -28,7 +28,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
@@ -98,8 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <returns><c>true</c>, if the conversion was successful, else <c>false</c>.</returns>
     protected static bool ToCollection(object obj, Type entryType, out ICollection result)
     {
-      if (obj is IInclude)
-        obj = ((IInclude) obj).Content;
+      obj = ParserHelper.UnwrapIncludesAndCleanup(obj);
       if (obj.GetType() != typeof(string)) // Don't treat strings as a collection of characters
       {
         if (obj is ICollection)

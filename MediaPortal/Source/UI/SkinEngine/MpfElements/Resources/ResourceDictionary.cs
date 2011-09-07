@@ -56,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -158,6 +158,40 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       return _resources ?? (_resources = new Dictionary<object, object>());
     }
 
+    internal void Add(object key, object value, bool fireChanged)
+    {
+      IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+      resources.Add(key, value);
+      Registration.SetOwner(value, this);
+      if (fireChanged)
+        FireChanged();
+    }
+
+    internal bool Remove(object key, bool fireChanged)
+    {
+      if (_resources == null)
+        return false;
+      object oldRes;
+      if (_resources.TryGetValue(key, out oldRes))
+        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
+      bool result = _resources.Remove(key);
+      if (fireChanged)
+        FireChanged();
+      return result;
+    }
+
+    internal void Set(object key, object value, bool fireChanged)
+    {
+      IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+      object oldRes;
+      if (resources.TryGetValue(key, out oldRes))
+        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
+      resources[key] = value;
+      Registration.SetOwner(value, this);
+      if (fireChanged)
+        FireChanged();
+    }
+
     protected IList<ResourceDictionary> GetOrCreateMergedDictionaries()
     {
       return _mergedDictionaries ?? (_mergedDictionaries = new List<ResourceDictionary>());
@@ -178,6 +212,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     protected IDictionary<string, object> GetOrCreateNames()
     {
       return _names ?? (_names = new Dictionary<string, object>());
+    }
+
+    protected void SetName(string name, object instance)
+    {
+      IDictionary<string, object> names = GetOrCreateNames();
+      names[name] = instance;
     }
 
     #endregion
@@ -245,16 +285,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// instance.
     /// </summary>
     /// <param name="dict">Resource dictionary whose contents should be taken over.</param>
+    /// <param name="overwriteNames">If set to <c>true</c>, name collisions between the <paramref name="dict"/> and
+    /// this dictionary will be ignored.</param>
     /// <param name="takeoverDictInstance">If set to <c>true</c>, the given <paramref name="dict"/> instance will be
     /// disposed by this method. Else, the <paramref name="dict"/> will be left untouched.</param>
-    public void TakeOver(ResourceDictionary dict, bool takeoverDictInstance)
+    public void TakeOver(ResourceDictionary dict, bool overwriteNames, bool takeoverDictInstance)
     {
-      IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) dict).GetEnumerator();
       bool wasChanged = false;
-      while (enumer.MoveNext())
+      foreach (KeyValuePair<object, object> entry in (IDictionary<object, object>) dict)
       {
-        object key = enumer.Current.Key;
-        object value = enumer.Current.Value;
+        object key = entry.Key;
+        object value = entry.Value;
         this[key] = value;
         Registration.SetOwner(value, this);
         DependencyObject depObj = key as DependencyObject;
@@ -265,6 +306,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
           depObj.LogicalParent = this;
         wasChanged = true;
       }
+      if (dict._names != null)
+        foreach (KeyValuePair<string, object> kvp in dict._names)
+          if (overwriteNames)
+            SetName(kvp.Key, kvp.Value);
+          else
+            RegisterName(kvp.Key, kvp.Value);
       if (takeoverDictInstance)
       {
         if (dict._resources != null)
@@ -283,7 +330,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// <param name="dict">Resource dictionary whose contents should be merged.</param>
     public void Merge(ResourceDictionary dict)
     {
-      TakeOver(MpfCopyManager.DeepCopyCutLP(dict), true);
+      TakeOver(MpfCopyManager.DeepCopyCutLP(dict), false, true);
     }
 
     public void RemoveResources(ResourceDictionary dict)
@@ -332,12 +379,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
             TryDispose(ref obj);
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         }
-        TakeOver(mergeDict, true);
+        TakeOver(mergeDict, false, true);
       }
       if (_mergedDictionaries != null && _mergedDictionaries.Count > 0)
       {
         foreach (ResourceDictionary dictionary in _mergedDictionaries)
-          TakeOver(dictionary, true);
+          TakeOver(dictionary, false, true);
         _mergedDictionaries.Clear();
       }
       FireChanged();
@@ -385,22 +432,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void Add(object key, object value)
     {
-      IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
-      resources.Add(key, value);
-      Registration.SetOwner(value, this);
-      FireChanged();
+      Add(key, value, true);
     }
 
     public bool Remove(object key)
     {
-      if (_resources == null)
-        return false;
-      object oldRes;
-      if (_resources.TryGetValue(key, out oldRes))
-        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
-      bool result = _resources.Remove(key);
-      FireChanged();
-      return result;
+      return Remove(key, true);
     }
 
     public bool TryGetValue(object key, out object value)
@@ -419,16 +456,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
           throw new KeyNotFoundException(string.Format("Key '{0}' was not found in this ResourceDictionary", key));
         return _resources[key];
       }
-      set
-      {
-        IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
-        object oldRes;
-        if (resources.TryGetValue(key, out oldRes))
-          Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
-        resources[key] = value;
-        Registration.SetOwner(value, this);
-        FireChanged();
-      }
+      set { Set(key, value, true); }
     }
 
     public ICollection<object> Keys

@@ -26,6 +26,12 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   public interface IInclude
   {
-    object Content { get;}
+    /// <summary>
+    /// Returns the content of this include and removes it from the include. After this method was called,
+    /// the include's content isn't maintained by this include any more; a subsequent disposal of this
+    /// include won't dispose the content.
+    /// </summary>
+    /// <returns></returns>
+    object PassContent();
   }
 }
