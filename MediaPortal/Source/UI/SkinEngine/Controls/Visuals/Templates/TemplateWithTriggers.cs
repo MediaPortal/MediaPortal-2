@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       }
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
-      UIElement result = cm.GetCopy(_templateElement);
+      FrameworkElement result = cm.GetCopy(_templateElement);
       NameScope ns =  (NameScope) cm.GetCopy(_templateElement.TemplateNameScope);
       result.Resources.Merge(Resources);
       if (_names != null)
