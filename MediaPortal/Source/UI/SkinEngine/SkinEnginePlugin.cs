@@ -143,23 +143,23 @@ namespace MediaPortal.UI.SkinEngine
       _screenManager.Shutdown();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
-      ServiceRegistration.Remove<ISkinResourceManager>();
+      ServiceRegistration.RemoveAndDispose<ISkinResourceManager>();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
-      ServiceRegistration.Remove<IScreenManager>();
+      ServiceRegistration.RemoveAndDispose<IScreenManager>();
       _screenManager = null;
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
-      ServiceRegistration.Remove<IInputManager>();
+      ServiceRegistration.RemoveAndDispose<IInputManager>();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
-      ServiceRegistration.Remove<IGeometryManager>();
+      ServiceRegistration.RemoveAndDispose<IGeometryManager>();
 
       SkinEngine.Controls.Brushes.BrushCache.Instance.Clear();
 
       ServiceRegistration.Get<ContentManager>().Clear();
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ContentManager service");
-      ServiceRegistration.Remove<ContentManager>();
+      ServiceRegistration.RemoveAndDispose<ContentManager>();
     }
 
     public void Dispose()
