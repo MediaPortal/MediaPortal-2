@@ -290,9 +290,9 @@ namespace MediaPortal.UiComponents.Media.Models
       pc.CloseWhenFinished = settings.ClosePlayerWhenFinished; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       if (play)
       {
-        if (pc.AVType == AVType.Video)
-          pcm.ShowFullscreenContent(false);
         pc.Play();
+        if (pc.AVType == AVType.Video)
+          pcm.ShowFullscreenContent(true);
       }
     }
 
