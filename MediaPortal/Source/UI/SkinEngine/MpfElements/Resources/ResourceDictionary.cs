@@ -116,19 +116,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       // dictionaries are not built yet.
       foreach (ElementContextInfo current in context.ContextStack)
       {
-        if (current.ContainsKey(resourceKey))
-          result = current.GetKeyedElement(resourceKey);
-        else if (current.Instance is UIElement &&
-            ((UIElement) current.Instance).Resources.ContainsKey(resourceKey))
-          // Don't call UIElement.FindResource here, because the logical tree
-          // may be not set up yet.
-          result = ((UIElement) current.Instance).Resources[resourceKey];
-        else if (current.Instance is ResourceDictionary)
-        {
-          ResourceDictionary rd = (ResourceDictionary) current.Instance;
-          if (rd.ContainsKey(resourceKey))
-            result = rd[resourceKey];
-        }
+        if (current.TryGetKeyedElement(resourceKey, out result) ||
+            // Don't call UIElement.FindResource here, because the logical tree
+            // may be not set up yet.
+            (current.Instance is UIElement && ((UIElement) current.Instance).Resources.TryGetValue(resourceKey, out result)) ||
+            (current.Instance is ResourceDictionary && ((ResourceDictionary) current.Instance).TryGetValue(resourceKey, out result)))
+          break;
       }
       if (result == null)
         return null;
