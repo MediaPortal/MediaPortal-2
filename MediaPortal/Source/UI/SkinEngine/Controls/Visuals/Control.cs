@@ -141,6 +141,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         FinishBindingsDlgt finishDlgt;
         IList<TriggerBase> newTriggers;
         FrameworkElement templateControl = Template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
+        if (templateControl != null)
+          templateControl.LogicalParent = this;
         TemplateControl = templateControl;
         finishDlgt.Invoke();
         UninitializeTriggers();
