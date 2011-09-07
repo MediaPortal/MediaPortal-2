@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SuperLayer,
     }
 
-  public class ScreenManager : IScreenManager
+  public class ScreenManager : IScreenManager, IDisposable
   {
     #region Consts
 
@@ -324,6 +324,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           IsBackground = true
         };
       _garbageCollectorThread.Start();
+    }
+
+    public void Dispose()
+    {
+      _terminatedEvent.Close();
+      _garbageScreensAvailable.Close();
+      _pendingOperationsDecreasedEvent.Close();
+      _renderAndResourceAccessLock.Dispose();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)

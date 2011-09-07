@@ -68,10 +68,7 @@ namespace MediaPortal.UI.SkinEngine
         {
           //switch to fullscreen
           IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-          if (sc.IsFullScreen)
-            sc.SwitchMode(ScreenMode.NormalWindowed);
-          else
-            sc.SwitchMode(ScreenMode.FullScreen);
+          sc.SwitchMode(sc.IsFullScreen ? ScreenMode.NormalWindowed : ScreenMode.FullScreen);
         });
     }
 
@@ -150,6 +147,7 @@ namespace MediaPortal.UI.SkinEngine
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
       ServiceRegistration.Remove<IScreenManager>();
+      _screenManager = null;
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
       ServiceRegistration.Remove<IInputManager>();
