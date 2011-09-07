@@ -267,6 +267,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
     protected AutoResetEvent _garbageScreensAvailable = new AutoResetEvent(false);
     protected AutoResetEvent _pendingOperationsDecreasedEvent = new AutoResetEvent(false);
+    protected ManualResetEvent _garbageCollectionFinished = new ManualResetEvent(true);
     protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
     protected readonly SkinManager _skinManager;
@@ -332,6 +333,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _terminatedEvent.Close();
       _garbageScreensAvailable.Close();
       _pendingOperationsDecreasedEvent.Close();
+      _garbageCollectionFinished.Close();
       _renderAndResourceAccessLock.Dispose();
     }
 
@@ -406,6 +408,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       while (true)
       {
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable});
+        _garbageCollectionFinished.Reset();
         Screen screen;
         bool active = true;
         do
@@ -417,10 +421,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           else
             screen.Close();
         } while (active);
-        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable});
-        if (_terminatedEvent.WaitOne() && _garbageScreens.Count == 0)
+        _garbageCollectionFinished.Set();
+        if (_terminatedEvent.WaitOne())
           break;
       }
+    }
+
+    protected void WaitForGarbageCollection()
+    {
+      _garbageCollectionFinished.WaitOne(TIMESPAN_INFINITE);
     }
 
     protected void FinishGarbageCollection()
@@ -500,6 +509,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         // Potential deadlock situation... But we cannot release our lock since noone is allowed to access the skin resources during skin/theme update.
         DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
+        WaitForGarbageCollection();
 
         lock (_syncObj)
         {
