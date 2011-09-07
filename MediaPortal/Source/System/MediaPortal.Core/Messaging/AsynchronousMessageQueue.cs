@@ -121,6 +121,8 @@ namespace MediaPortal.Core.Messaging
     {
       Terminate();
       base.Dispose();
+      _terminatedEvent.Close();
+      _messageAvailableEvent.Close();
     }
 
     #endregion
