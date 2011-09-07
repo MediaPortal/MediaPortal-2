@@ -62,6 +62,12 @@ namespace Ui.Players.BassPlayer
   /// </remarks>
   public class Controller : IDisposable
   {
+    #region Consts
+
+    public static readonly TimeSpan TIMESPAN_INFINITE = TimeSpan.FromMilliseconds(-1);
+
+    #endregion
+
     #region Delegates
 
     // Delegates used in conjunction with workitems.
