@@ -54,8 +54,10 @@ namespace MediaPortal.Core.Services.MediaManagement
   }
 
   // TODO: Schedule regular reimports for all local shares
-  public class ImporterWorker : IImporterWorker
+  public class ImporterWorker : IImporterWorker, IDisposable
   {
+    #region Consts
+
     protected static IEnumerable<Guid> IMPORTER_MIA_ID_ENUMERATION = new Guid[]
         {
           ImporterAspect.ASPECT_ID,
@@ -70,6 +72,8 @@ namespace MediaPortal.Core.Services.MediaManagement
           DirectoryAspect.ASPECT_ID,
         };
     protected static IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] {};
+
+    #endregion
 
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
@@ -89,6 +93,14 @@ namespace MediaPortal.Core.Services.MediaManagement
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       // Message queue will be started in method Start()
+    }
+
+    public void Dispose()
+    {
+      ShutdownImporterLoop();
+      _messageQueue.Shutdown();
+      _suspendedEvent.Close();
+      _importJobsReadyAvailableEvent.Close();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
