@@ -6,6 +6,7 @@ namespace HttpServer
   /// <summary>
   /// Used to queue incoming requests.
   /// </summary>
+  // TODO Albert, Team-MediaPortal: Add proper disposal, close _event
   internal class RequestQueue
   {
     private int _maxRequestCount = 25;

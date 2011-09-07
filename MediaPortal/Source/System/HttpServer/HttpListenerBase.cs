@@ -10,6 +10,7 @@ namespace HttpServer
   /// <summary>
   /// Contains a listener that doesn't do anything with the connections.
   /// </summary>
+  // TODO Albert, Team-MediaPortal: Add proper disposal, close _shutdownEvent
   public abstract class HttpListenerBase
   {
     private readonly IPAddress _address;
