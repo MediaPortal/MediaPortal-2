@@ -181,6 +181,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       ClearInputBuffer();
       Terminate();
+      _terminatedEvent.Set();
       _terminatedEvent.Close();
       _inputAvailableEvent.Close();
     }

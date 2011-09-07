@@ -30,7 +30,7 @@ namespace Ui.Players.BassPlayer.Utils
   /// <summary>
   /// Represents a single workitem to be executed on a different thread.
   /// </summary>
-  public class WorkItem
+  public class WorkItem : IDisposable
   {
     #region Fields
 
@@ -49,6 +49,11 @@ namespace Ui.Players.BassPlayer.Utils
     public WaitHandle WaitHandle
     {
       get { return _Event; }
+    }
+
+    public void Dispose()
+    {
+      _Event.Close();
     }
 
     /// <summary>

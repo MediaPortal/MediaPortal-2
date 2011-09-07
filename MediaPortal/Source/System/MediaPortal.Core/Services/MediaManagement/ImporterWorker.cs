@@ -99,6 +99,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       ShutdownImporterLoop();
       _messageQueue.Shutdown();
+      _suspendedEvent.Set();
       _suspendedEvent.Close();
       _importJobsReadyAvailableEvent.Close();
     }

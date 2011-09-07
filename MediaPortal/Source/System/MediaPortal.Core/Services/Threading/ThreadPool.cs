@@ -119,6 +119,7 @@ namespace MediaPortal.Core.Services.Threading
       // If the thread pool was not stopped correctly, we'll at least make our worker threads stop
       _run = false;
       _cancelWaitHandle.Set();
+      _cancelWaitHandle.Close();
     }
 
     #endregion

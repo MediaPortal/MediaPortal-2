@@ -104,6 +104,7 @@ namespace MediaPortal.UI.Presentation.Models
         WaitHandle notifyObject = new ManualResetEvent(false);
         _timer.Dispose(notifyObject);
         notifyObject.WaitOne();
+        notifyObject.Close();
         _timer = null;
       }
     }

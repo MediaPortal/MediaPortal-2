@@ -363,6 +363,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       _messageQueue.Shutdown();
       Close();
+      _videoRenderFrameEvent.Close();
     }
 
     public void Minimize()

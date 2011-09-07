@@ -98,6 +98,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       Log.Debug("PlaybackBuffer.Dispose()");
 
       ResetInputStream();
+
+      _updateThreadFinished.Close();
+      _notifyBufferUpdateThread.Close();
     }
 
     #endregion

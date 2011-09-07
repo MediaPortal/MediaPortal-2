@@ -132,6 +132,8 @@ namespace Ui.Players.BassPlayer
       _outputDeviceManager.Dispose();
 
       _bassLibraryManager.Dispose();
+
+      _playerThreadNotifyEvent.Close();
     }
 
     #region Public members
@@ -366,7 +368,10 @@ namespace Ui.Players.BassPlayer
           if (item == null)
             _playerThreadNotifyEvent.WaitOne(TIMESPAN_INFINITE);
           else
+          {
             item.Invoke();
+            item.Dispose();
+          }
         }
       }
       catch (Exception e)
