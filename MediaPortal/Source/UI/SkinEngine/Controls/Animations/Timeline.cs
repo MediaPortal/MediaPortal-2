@@ -156,6 +156,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       _durationProperty.SetValue(t._durationProperty.GetValue()); // Copying of a Nullable<TimeSpan>
       FillBehavior = t.FillBehavior;
       RepeatBehavior = t.RepeatBehavior;
+
+      _owner = copyManager.GetCopy(t._owner);
     }
 
     #endregion

@@ -77,6 +77,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         _setters.Add(copyManager.GetCopy(setter));
       TargetType = s.TargetType;
       _resources = copyManager.GetCopy(s.Resources);
+
+      _owner = copyManager.GetCopy(s._owner);
     }
 
     public override void Dispose()

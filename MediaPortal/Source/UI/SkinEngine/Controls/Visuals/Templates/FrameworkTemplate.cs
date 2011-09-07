@@ -85,6 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
           else
             _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
       }
+
+      _owner = copyManager.GetCopy(ft._owner);
     }
 
     public override void Dispose()
