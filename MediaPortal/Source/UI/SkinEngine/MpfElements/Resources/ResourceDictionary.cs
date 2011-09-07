@@ -289,7 +289,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       {
         object key = entry.Key;
         object value = entry.Value;
-        this[key] = value;
+        Set(key, value, false);
         Registration.SetOwner(value, this);
         DependencyObject depObj = key as DependencyObject;
         if (depObj != null)
