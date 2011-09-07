@@ -181,6 +181,8 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       ClearInputBuffer();
       Terminate();
+      _terminatedEvent.Close();
+      _inputAvailableEvent.Close();
     }
 
     public static InputManager Instance
@@ -222,6 +224,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     public void Terminate()
     {
       _terminatedEvent.Set();
+      _workThread.Join();
     }
 
     public bool IsTerminated
