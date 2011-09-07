@@ -22,15 +22,14 @@
 
 #endregion
 
-using System;
-using System.Globalization;
-using MediaPortal.UI.SkinEngine.MpfElements;
-
-namespace MediaPortal.UI.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {
-  public interface IValueConverter : ISkinEngineManagedResource
+  /// <summary>
+  /// Marker interface for each SkinEngine's class. Instances of this interface are automatically disposed during
+  /// screen changes/theme maintainance. We need this interface to distinguish between automatically disposed instances
+  /// and external instances (for example model references which must not be disposed during screen changes/theme maintainance).
+  /// </summary>
+  public interface ISkinEngineManagedResource
   {
-    bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
-    bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result);
   }
 }

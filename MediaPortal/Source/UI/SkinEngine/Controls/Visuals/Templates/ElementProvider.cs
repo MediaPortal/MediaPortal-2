@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -29,7 +30,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class ElementProvider<T> : IUnmodifiableResource, IInitializable where T : class
+  public class ElementProvider<T> : IUnmodifiableResource, IInitializable, ISkinEngineManagedResource where T : class
   {
     #region Protected fields
 

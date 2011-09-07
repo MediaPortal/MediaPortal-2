@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
@@ -37,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// Only one color scheme can be used, either RGB or HSV, that means don't set both RGB and HSV values,
   /// else an exception will be thrown.
   /// </summary>
-  public class ColorMarkupExtension: IEvaluableMarkupExtension
+  public class ColorMarkupExtension: IEvaluableMarkupExtension, ISkinEngineManagedResource
   {
     #region Protected fields
 

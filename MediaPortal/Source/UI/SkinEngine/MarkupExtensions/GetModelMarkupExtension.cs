@@ -23,13 +23,14 @@
 #endregion
 
 using System;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class GetModelMarkupExtension: IEvaluableMarkupExtension
+  public class GetModelMarkupExtension: IEvaluableMarkupExtension, ISkinEngineManagedResource
   {
 
     #region Protected fields
