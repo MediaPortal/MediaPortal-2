@@ -221,7 +221,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -686,7 +686,7 @@
             <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
-                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid}"
                 VerticalAlignment="Top"/>
             <ContentPresenter x:Name="TreeItemContentPresenter" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
@@ -698,7 +698,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid}"/>
   </Style>
 
   <!-- Tree item container which shows a PlusMinus button and a radio button in front of the item content, in expanded state a sub stack panel unter the first line -->
@@ -718,12 +718,12 @@
             <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
-                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid}"
                 VerticalAlignment="Center"/>
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid}">
               <RadioButton.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -744,7 +744,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid}"/>
   </Style>
 
   <!-- Tree item container which shows a PlusMinus button and a checkbox in front of the item content, in expanded state a sub stack panel unter the first line -->
@@ -764,12 +764,12 @@
             <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
-                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid}"
                 VerticalAlignment="Center"/>
             <CheckBox x:Name="Checker"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid}">
               <CheckBox.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -790,7 +790,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid}"/>
   </Style>
 
   <!-- ************************ TreeItem data templates for TreeViews *************************** -->

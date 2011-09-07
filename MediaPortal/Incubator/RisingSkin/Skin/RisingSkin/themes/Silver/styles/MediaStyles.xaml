@@ -590,7 +590,7 @@
           <Button x:Name="ItemButton"
               Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemNameLabel" Property="Scroll" Value="Auto"/>
@@ -625,17 +625,17 @@
             <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveUpButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid}"
                 SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}"/>
             <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveDownButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid}"
                 SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}"/>
             <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource RemoveButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -1122,7 +1122,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Margin="2" IsEnabled="{Binding Enabled}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
