@@ -422,7 +422,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             screen.Close();
         } while (active);
         _garbageCollectionFinished.Set();
-        if (_terminatedEvent.WaitOne())
+        if (_terminatedEvent.WaitOne(0))
           break;
       }
     }
