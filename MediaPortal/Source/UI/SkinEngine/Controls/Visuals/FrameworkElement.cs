@@ -93,8 +93,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public enum ElementState
   {
+    /// <summary>
+    /// The element is used as template, style resource or during resource creation.
+    /// </summary>
     Available,
+
+    /// <summary>
+    /// The element participates in the render run.
+    /// </summary>
     Running,
+
+    /// <summary>
+    /// The element is (being) disposed.
+    /// </summary>
     Disposing
   }
 

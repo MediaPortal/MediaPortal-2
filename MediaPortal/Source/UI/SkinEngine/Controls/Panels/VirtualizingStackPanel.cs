@@ -267,15 +267,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         FrameworkElement item = itemProvider.GetOrCreateItem(childIndex, this, out newlyCreated);
         if (item == null)
           return null;
+        if (newlyCreated)
+          // item.Screen was set by the item provider
+          item.SetElementState(ElementState.Running);
         if (newlyCreated || forceMeasure)
         {
           SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float) ActualWidth, float.NaN) :
               new SizeF(float.NaN, (float) ActualHeight);
           item.Measure(ref childSize);
         }
-        if (newlyCreated)
-          // item.Screen was set by the item provider
-          item.SetElementState(ElementState.Running);
         return item;
       }
     }

@@ -417,11 +417,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         _root.InvalidateLayout(true, true);
         int maxNumUpdate = 10;
+        _root.SetElementState(ElementState.Running);
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
           // It can be necessary to call UpdateLayoutRoot multiple times because UI elements sometimes initialize template controls/styles etc.
           // in the first Measure() call, which then need to invalidate the element tree again. That can happen multiple times.
           _root.UpdateLayoutRoot();
-        _root.SetElementState(ElementState.Running);
       }
     }
 

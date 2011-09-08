@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (element != null)
       {
         element.SetScreen(Screen);
-        element.SetElementState(ElementState.Running);
+        element.SetElementState(_elementState);
         element.VisualParent = this;
         if (element.TemplateNameScope == null)
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,

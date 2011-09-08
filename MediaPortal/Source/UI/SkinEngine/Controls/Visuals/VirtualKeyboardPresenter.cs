@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       keyboardLayoutControl.Context = parent;
       keyboardLayoutControl.SetScreen(Screen);
-      keyboardLayoutControl.SetElementState(ElementState.Running);
+      keyboardLayoutControl.SetElementState(_elementState);
       keyboardLayoutControl.VisualParent = this;
       if (IsAllocated)
         keyboardLayoutControl.Allocate();

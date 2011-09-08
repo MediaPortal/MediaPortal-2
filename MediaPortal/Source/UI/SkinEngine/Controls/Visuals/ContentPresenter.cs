@@ -198,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         templateControl.Context = content;
       templateControl.VisualParent = this;
       templateControl.SetScreen(Screen);
-      templateControl.SetElementState(ElementState.Running);
+      templateControl.SetElementState(_elementState);
       if (IsAllocated)
         templateControl.Allocate();
       _templateControl = templateControl;

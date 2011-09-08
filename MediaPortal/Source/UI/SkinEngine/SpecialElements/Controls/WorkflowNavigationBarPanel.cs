@@ -119,6 +119,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 // ReSharper restore UseObjectOrCollectionInitializer
         {
             VisualParent = this,
+            ElementState = _elementState,
             Screen = Screen,
         };
       // Set the style after all other properties have been set to avoid doing work multiple times
