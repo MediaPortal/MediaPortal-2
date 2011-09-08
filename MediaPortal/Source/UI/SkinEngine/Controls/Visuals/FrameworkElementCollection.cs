@@ -85,6 +85,39 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         FireCollectionChanged();
     }
 
+    internal void AddAll(IEnumerable<FrameworkElement> elements, bool notifyParent)
+    {
+      lock (_syncObj)
+        foreach (FrameworkElement element in elements)
+          Add(element, false);
+      if (notifyParent)
+        FireCollectionChanged();
+    }
+
+    internal void Remove(FrameworkElement element, bool notifyParent)
+    {
+      lock (_syncObj)
+      {
+        if (_elements.Remove(element))
+          element.CleanupAndDispose();
+      }
+      if (notifyParent)
+        FireCollectionChanged();
+    }
+
+    internal void Clear(bool notifyParent)
+    {
+      lock (_syncObj)
+      {
+        IList<FrameworkElement> oldElements = _elements;
+        _elements = new List<FrameworkElement>();
+        foreach (FrameworkElement element in oldElements)
+          element.CleanupAndDispose();
+      }
+      if (notifyParent)
+        FireCollectionChanged();
+    }
+
     public void SetParent(FrameworkElement parent)
     {
       lock (_syncObj)
@@ -114,32 +147,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void AddAll(IEnumerable<FrameworkElement> elements)
     {
-      lock (_syncObj)
-        foreach (FrameworkElement element in elements)
-          Add(element, false);
-      FireCollectionChanged();
+      AddAll(elements, true);
     }
 
     public void Remove(FrameworkElement element)
     {
-      lock (_syncObj)
-      {
-        if (_elements.Remove(element))
-          element.CleanupAndDispose();
-      }
-      FireCollectionChanged();
+      Remove(element, true);
     }
 
     public void Clear()
     {
-      lock (_syncObj)
-      {
-        IList<FrameworkElement> oldElements = _elements;
-        _elements = new List<FrameworkElement>();
-        foreach (FrameworkElement element in oldElements)
-          element.CleanupAndDispose();
-      }
-      FireCollectionChanged();
+      Clear(true);
     }
 
     public int Count

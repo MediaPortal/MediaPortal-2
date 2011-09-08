@@ -256,8 +256,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       Registration.TryCleanupAndDispose(ContextMenuCommand);
-      Registration.TryCleanupAndDispose(Style);
       base.Dispose();
+      Registration.TryCleanupAndDispose(Style);
     }
 
     #endregion
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
-      Style oldStyle = oldValue as Style;
+      Style oldStyle = (Style) oldValue;
       if (oldStyle != null)
       {
         oldStyle.Reset(this);
@@ -487,6 +487,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _styleProperty; }
     }
 
+    /// <summary>
+    /// Style of this element. This property must be set to a sensible value, else, this element cannot be rendered.
+    /// This property can be guessed by assigning te return value of <see cref="CopyDefaultStyle"/>.
+    /// </summary>
     public Style Style
     {
       get { return (Style) _styleProperty.GetValue(); }
@@ -1265,7 +1269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight;
     }
 
-    public Style FindDefaultStyle()
+    public Style CopyDefaultStyle()
     {
       Type type = GetType();
       Style result = null;
@@ -1274,7 +1278,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = FindResource(type) as Style;
         type = type.BaseType;
       }
-      return result;
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
     }
 
     /// <summary>
@@ -1282,7 +1286,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="context">Current parser context.</param>
     /// <returns>Default style for this element or <c>null</c>, if no default style is defined.</returns>
-    protected Style FindDefaultStyle(IParserContext context)
+    protected Style CopyDefaultStyle(IParserContext context)
     {
       Type type = GetType();
       Style result = null;
@@ -1291,7 +1295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = (ResourceDictionary.FindResourceInParserContext(type, context) ?? FindResource(type)) as Style;
         type = type.BaseType;
       }
-      return result;
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
     }
 
     #region Focus & control predicition
@@ -1724,7 +1728,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.FinishInitialization(context);
       if (Style == null)
-        Style = FindDefaultStyle(context);
+        Style = CopyDefaultStyle(context);
     }
   }
 }

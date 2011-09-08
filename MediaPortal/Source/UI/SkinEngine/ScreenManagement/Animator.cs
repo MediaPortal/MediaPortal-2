@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -213,6 +214,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (curVal == value)
             return;
+          Registration.TryCleanupAndDispose(curVal);
         }
         else if (dataDescriptor.Value == value)
           return;

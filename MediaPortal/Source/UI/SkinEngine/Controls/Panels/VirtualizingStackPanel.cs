@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -62,6 +63,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     // Assigned in CalculateInnerDesiredSize
     protected float _averageItemSize = 0;
 
+    protected IItemProvider _newItemProvider = null; // Store new item provider until next render cylce
+
     #endregion
 
     #region Ctor
@@ -80,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.Dispose();
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider != null)
-        itemProvider.Dispose();
+        Registration.TryCleanupAndDispose(itemProvider);
     }
 
     #endregion
@@ -92,8 +95,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _itemProvider; }
       set
       {
-        _itemProvider = value;
-        InvalidateLayout(true, true);
+        if (_itemProvider != value)
+        {
+          if (_elementState == ElementState.Running)
+            lock (Children.SyncRoot)
+            {
+              if (_newItemProvider == value)
+                return;
+              if (_newItemProvider != null)
+                Registration.TryCleanupAndDispose(_newItemProvider);
+              _newItemProvider = value;
+            }
+          else
+          {
+            if (_newItemProvider != value && _newItemProvider != null)
+              Registration.TryCleanupAndDispose(_newItemProvider);
+            if (_itemProvider != null)
+              Registration.TryCleanupAndDispose(_itemProvider);
+            _itemProvider = value;
+          }
+          InvalidateLayout(true, true);
+        }
       }
     }
 
@@ -197,8 +219,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      lock (Children.SyncRoot)
+      FrameworkElementCollection children = Children;
+      lock (children.SyncRoot)
       {
+        if (_newItemProvider != null)
+        {
+          if (children.Count > 0)
+          children.Clear(false);
+          if (_itemProvider != null)
+            Registration.TryCleanupAndDispose(_itemProvider);
+          _itemProvider = _newItemProvider;
+        }
         _averageItemSize = 0;
         IItemProvider itemProvider = ItemProvider;
         if (itemProvider == null)
@@ -599,38 +630,47 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
     {
-      base.SaveChildrenState(state, prefix);
-      IList<FrameworkElement> arrangedItemsCopy;
-      int index;
-      lock (Children.SyncRoot)
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.SaveChildrenState(state, prefix);
+      else
       {
-        arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
-        index = _arrangedItemsStartIndex;
+        IList<FrameworkElement> arrangedItemsCopy;
+        int index;
+        lock (Children.SyncRoot)
+        {
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
+          index = _arrangedItemsStartIndex;
+        }
+        state[prefix + "/ItemsStartIndex"] = index;
+        state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+        foreach (FrameworkElement child in arrangedItemsCopy)
+          child.SaveUIState(state, prefix + "/Child_" + (index++));
       }
-      state[prefix + "/ItemsStartIndex"] = index;
-      state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
-      foreach (FrameworkElement child in arrangedItemsCopy)
-        child.SaveUIState(state, prefix + "/Child_" + (index++));
     }
 
     public override void RestoreChildrenState(IDictionary<string, object> state, string prefix)
     {
-      base.RestoreChildrenState(state, prefix);
-      object oNumItems;
-      object oIndex;
-      int? numItems;
-      int? startIndex;
-      if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
-          (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.RestoreChildrenState(state, prefix);
+      else
       {
-        IItemProvider itemProvider = ItemProvider;
-        int numRestoreItems = Math.Max(numItems.Value, itemProvider.NumItems);
-        for (int i = 0; i < numRestoreItems; i++)
+        object oNumItems;
+        object oIndex;
+        int? numItems;
+        int? startIndex;
+        if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
+            (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
         {
-          FrameworkElement child = GetItem(startIndex.Value + i, itemProvider, false);
-          if (child == null)
-            continue;
-          child.RestoreUIState(state, prefix + "/Child_" + i);
+          int numRestoreItems = Math.Max(numItems.Value, itemProvider.NumItems);
+          for (int i = 0; i < numRestoreItems; i++)
+          {
+            FrameworkElement child = GetItem(startIndex.Value + i, itemProvider, false);
+            if (child == null)
+              continue;
+            child.RestoreUIState(state, prefix + "/Child_" + i);
+          }
         }
       }
     }

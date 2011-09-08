@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
     protected UIElement()
     {
