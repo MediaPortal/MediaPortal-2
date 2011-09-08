@@ -327,6 +327,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Registration.TryCleanupAndDispose(LayoutTransform);
       Registration.TryCleanupAndDispose(TemplateNameScope);
       Registration.TryCleanupAndDispose(OpacityMask);
+      Registration.TryCleanupAndDispose(_resources);
     }
 
     #endregion
