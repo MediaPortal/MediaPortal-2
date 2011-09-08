@@ -143,10 +143,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       ItemCollection preparedItems = _preparedItems;
       if (preparedItems != null)
-        preparedItems.Clear();
+        preparedItems.Dispose();
       ItemCollection preparedChildren = _preparedChildren;
       if (preparedChildren != null)
-        preparedChildren.Clear();
+        preparedChildren.Dispose();
       base.Dispose();
       Registration.TryCleanupAndDispose(ItemTemplate);
       Registration.TryCleanupAndDispose(ItemContainerStyle);
@@ -603,9 +603,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         preparedChildren = _preparedChildren;
         _preparedChildren = null;
       }
+      Panel itemsHostPanel = _itemsHostPanel;
       if (doSetChildren)
       {
-        FrameworkElementCollection children = _itemsHostPanel.Children;
+        FrameworkElementCollection children = itemsHostPanel.Children;
         lock (children.SyncRoot)
         {
           children.Clear(false);
@@ -617,7 +618,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               FrameworkElement fe = item as FrameworkElement;
               if (fe == null)
               {
-                Registration.TryCleanupAndDispose(fe);
+                Registration.TryCleanupAndDispose(item);
                 continue;
               }
               ISelectableItemContainer sic = item as ISelectableItemContainer;
@@ -632,7 +633,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (doSetItems)
       {
-        IsEmpty = preparedItems == null ? true : preparedItems.Count == 0;
         Items.Clear();
         if (preparedItems != null)
         {
@@ -640,6 +640,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           preparedItems.Dispose();
         }
       }
+      VirtualizingStackPanel vsp = itemsHostPanel as VirtualizingStackPanel;
+      IItemProvider itemProvider = vsp == null ? null : vsp.ItemProvider;
+      IsEmpty = (itemProvider == null ? itemsHostPanel.Children.Count : itemProvider.NumItems) == 0;
     }
 
     /// <summary>
