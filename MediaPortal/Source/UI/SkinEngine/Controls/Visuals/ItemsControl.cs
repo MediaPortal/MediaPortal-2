@@ -510,7 +510,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         foreach (object item in items)
         {
-          object itemCopy = MpfCopyManager.DeepCopyCutLP(item);
+          object itemCopy = MpfCopyManager.DeepCopyWithFixedObject(item, this); // Keep this object as LogicalParent
           FrameworkElement element = itemCopy as FrameworkElement ?? PrepareItemContainer(itemCopy);
           if (element.Style == null)
             element.Style = ItemContainerStyle;
