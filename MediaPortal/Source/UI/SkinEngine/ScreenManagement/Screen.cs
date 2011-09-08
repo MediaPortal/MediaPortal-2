@@ -188,6 +188,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #endregion
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      _root.CleanupAndDispose();
+    }
+
     /// <summary>
     /// Initializes this instance.
     /// </summary>
@@ -245,7 +251,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else if (value == State.Closing)
           { } // Nothing to do
         else if (value == State.Closed)
-          _root.SetElementState(ElementState.Disposing);
+          { } // Nothing to do
         else
           throw new IllegalCallException("Invalid screen state transition from {0} to {1}", _state, value);
         _state = value;
@@ -435,7 +441,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _root.Deallocate();
       }
       FireClosed();
-      _root.CleanupAndDispose();
     }
 
     protected void FireClosed()

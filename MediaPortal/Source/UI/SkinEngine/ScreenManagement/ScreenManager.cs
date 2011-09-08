@@ -419,7 +419,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (screen == null)
             active = false;
           else
+          {
             screen.Close();
+            screen.Dispose();
+          }
         } while (active);
         _garbageCollectionFinished.Set();
         if (_terminatedEvent.WaitOne(0))
