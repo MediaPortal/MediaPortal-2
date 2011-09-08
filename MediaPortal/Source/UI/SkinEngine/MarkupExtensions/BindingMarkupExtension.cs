@@ -232,6 +232,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _bindingDependency = null;
       }
       ResetChangeHandlerAttachments();
+      Registration.TryCleanupAndDispose(_valueConverter);
+      Registration.TryCleanupAndDispose(Source);
       base.Dispose();
     }
 
