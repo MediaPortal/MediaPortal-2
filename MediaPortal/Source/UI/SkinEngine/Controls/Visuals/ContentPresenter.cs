@@ -112,7 +112,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Registration.TryCleanupAndDispose(_content);
 
       object content = Content;
-      // Try to unwrap ResourceWrapper before _content is accessed elsewhere
+      // Try to unwrap ResourceWrapper before _content is accessed elsewhere.
+      // That's the only function we need from the ConvertType method, that's why we only call Registration.ConvertType
+      // instead of TypeConverter.Convert.
       if (!Registration.ConvertType(content, typeof(object), out _content))
         _content = content;
 
