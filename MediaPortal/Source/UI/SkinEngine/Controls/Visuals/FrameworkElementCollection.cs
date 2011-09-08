@@ -56,14 +56,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _syncObj; }
     }
 
-    protected void FireCollectionChanged()
+    public void FireCollectionChanged()
     {
       FrameworkElementCollectionChangedDlgt dlgt = CollectionChanged;
       if (dlgt != null)
         dlgt(this);
     }
 
-    protected void AddInternal(FrameworkElement element, bool notifyParent)
+    internal void Add(FrameworkElement element, bool notifyParent)
     {
       lock (_syncObj)
       {
@@ -109,14 +109,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Add(FrameworkElement element)
     {
-      AddInternal(element, true);
+      Add(element, true);
     }
 
     public void AddAll(IEnumerable<FrameworkElement> elements)
     {
       lock (_syncObj)
         foreach (FrameworkElement element in elements)
-          AddInternal(element, false);
+          Add(element, false);
       FireCollectionChanged();
     }
 

@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = p.IsItemsHost;
       foreach (FrameworkElement el in p.Children)
-        Children.Add(copyManager.GetCopy(el));
+        Children.Add(copyManager.GetCopy(el), false);
       Attach();
     }
 

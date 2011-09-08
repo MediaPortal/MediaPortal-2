@@ -363,9 +363,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         {
           // Attach change handler to resource dictionary
           AttachToResources(resources);
-          if (resources.ContainsKey(ResourceKey))
+          object value;
+          if (resources.TryGetValue(ResourceKey, out value))
           {
-            UpdateTarget(resources[ResourceKey]);
+            UpdateTarget(value);
             return true;
           }
         }
