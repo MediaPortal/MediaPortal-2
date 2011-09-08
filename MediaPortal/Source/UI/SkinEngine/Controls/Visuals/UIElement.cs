@@ -546,10 +546,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
     /// other time-consuming tasks need to be executed.
     /// </remarks>
-    public ElementState ElementState
+    public virtual ElementState ElementState
     {
       get { return _elementState; }
-      set { _elementState = value; }
+      internal set { _elementState = value; }
     }
 
     #endregion

@@ -370,6 +370,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _itemsHostPanel != null; }
     }
 
+    public override ElementState ElementState
+    {
+      internal set
+      {
+        base.ElementState = value;
+        if (value == ElementState.Running)
+          PrepareItems();
+      }
+    }
+
     #endregion
 
     #region Item management
@@ -476,6 +486,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected virtual void PrepareItems()
     {
       if (_preventItemsPreparation)
+        return;
+      if (_elementState != ElementState.Running)
         return;
       // Check properties which are necessary in each case
       if (ItemsPanel == null) return;
