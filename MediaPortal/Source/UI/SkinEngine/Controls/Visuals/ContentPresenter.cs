@@ -117,6 +117,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // instead of TypeConverter.Convert.
       if (!Registration.ConvertType(content, typeof(object), out _content))
         _content = content;
+      DependencyObject depObj;
+      if (!ReferenceEquals(content, _content) && (depObj = _content as DependencyObject) != null)
+        depObj.LogicalParent = this;
 
       if (ContentTemplate == null)
         // No ContentTemplate set
