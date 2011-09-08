@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Services.Threading
     /// <summary>
     /// Holds all the necessary parameters for this ThreadPool.
     /// </summary>
-    private readonly ThreadPoolStartInfo _startInfo = new ThreadPoolStartInfo();
+    private readonly ThreadPoolStartInfo _startInfo;
 
     /// <summary>
     /// List of threads from this pool, with the Thread object being the key and the last activity time as value.
@@ -97,21 +97,15 @@ namespace MediaPortal.Core.Services.Threading
 
     #region Constructors and destructor
 
-    public ThreadPool()
-    {
-      Init();
-    }
+    public ThreadPool() : this(new ThreadPoolStartInfo()) { }
 
-    public ThreadPool(int minThreads, int maxThreads)
-    {
-      _startInfo = new ThreadPoolStartInfo(minThreads, maxThreads);
-      Init();
-    }
+    public ThreadPool(int minThreads, int maxThreads) : this(new ThreadPoolStartInfo(minThreads, maxThreads)) { }
 
     public ThreadPool(ThreadPoolStartInfo startInfo)
     {
       _startInfo = startInfo;
-      Init();
+      if (!_startInfo.DelayedInit)
+        Init();
     }
 
     ~ThreadPool()
