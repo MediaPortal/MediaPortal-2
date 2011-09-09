@@ -268,6 +268,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AutoResetEvent _garbageScreensAvailable = new AutoResetEvent(false);
     protected AutoResetEvent _pendingOperationsDecreasedEvent = new AutoResetEvent(false);
     protected ManualResetEvent _garbageCollectionFinished = new ManualResetEvent(true);
+    protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
     protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
 
     protected readonly SkinManager _skinManager;
@@ -408,7 +409,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       while (true)
       {
-        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable});
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable}); // Only run if garbage screens are available
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _renderFinished}); // If currently rendering, wait once before we can be sure that no screen is rendered any more
         _garbageCollectionFinished.Reset();
         Screen screen;
         bool active = true;
@@ -1046,6 +1048,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       CompleteDialogClosures_NoLock();
 
       _renderAndResourceAccessLock.EnterReadLock();
+      _renderFinished.Reset();
       try
       {
         IList<Screen> disabledScreens;
@@ -1067,6 +1070,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       finally
       {
         _renderAndResourceAccessLock.ExitReadLock();
+        _renderFinished.Set();
       }
     }
 
