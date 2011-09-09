@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         {
           object valueCopy = copyManager.GetCopy(kvp.Value);
           _resources.Add(copyManager.GetCopy(kvp.Key), valueCopy);
-          Registration.SetOwner(valueCopy, this);
+          Registration.SetOwner(valueCopy, this, false);
         }
       }
     }
@@ -143,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return;
       ResourceDictionary rd = enumer.Current.Instance as ResourceDictionary;
       if (rd != null)
-        Registration.SetOwner(resource, rd);
+        Registration.SetOwner(resource, rd, false);
     }
 
     internal IDictionary<object, object> GetOrCreateUnderlayingDictionary()
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(key, value);
-      Registration.SetOwner(value, this);
+      Registration.SetOwner(value, this, false);
       if (fireChanged)
         FireChanged();
     }
@@ -180,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       if (resources.TryGetValue(key, out oldRes))
         Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
       resources[key] = value;
-      Registration.SetOwner(value, this);
+      Registration.SetOwner(value, this, false);
       if (fireChanged)
         FireChanged();
     }
@@ -290,7 +290,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         object key = entry.Key;
         object value = entry.Value;
         Set(key, value, false);
-        Registration.SetOwner(value, this);
+        // Here we have the rare case that we must force to set the owner property to this instance to make the adopted resource really
+        // belong to it.
+        Registration.SetOwner(value, this, true);
         DependencyObject depObj = key as DependencyObject;
         if (depObj != null)
           depObj.LogicalParent = this;
@@ -470,7 +472,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(item);
-      Registration.SetOwner(item.Value, this);
+      Registration.SetOwner(item.Value, this, false);
       FireChanged();
     }
 

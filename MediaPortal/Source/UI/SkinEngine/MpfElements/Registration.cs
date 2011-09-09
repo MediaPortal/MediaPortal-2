@@ -479,7 +479,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     /// <summary>
     /// Sets the owner of the given resource to the given <paramref name="owner"/>, if the given resource implements the
-    /// <see cref="IUnmodifiableResource"/> interface.
+    /// <see cref="IUnmodifiableResource"/> interface. The owner is only set if no owner is set yet, except if <paramref name="force"/> is
+    /// set to <c>true</c>.
     /// </summary>
     /// <remarks>
     /// Containers like <see cref="ResourceDictionary"/> or <see cref="Setter"/> set themselves as owner of their contents.
@@ -490,13 +491,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </list>
     /// That works only for resources which implement the <see cref="IUnmodifiableResource"/> interface. Those resources are unmodifiable, i.e.
     /// they are not "personalized" to their owner so it is safe to reuse their reference.
+    /// So if a container sets itself as owner of its contents, it can optimize the performance if the contents are very often of type
+    /// <see cref="IUnmodifiableResource"/>.
     /// </remarks>
     /// <param name="res">Resource to set the owner.</param>
     /// <param name="owner">Owner to be set.</param>
-    public static void SetOwner(object res, object owner)
+    /// <param name="force">If set to <c>false</c> and the <paramref name="res">resource</paramref> has already an owner, nothing happens.
+    /// Else, the owner of the resource will be set.</param>
+    public static void SetOwner(object res, object owner, bool force)
     {
       IUnmodifiableResource resource = res as IUnmodifiableResource;
-      if (resource != null)
+      if (resource != null && (resource.Owner == null || force))
         resource.Owner = owner;
     }
 
