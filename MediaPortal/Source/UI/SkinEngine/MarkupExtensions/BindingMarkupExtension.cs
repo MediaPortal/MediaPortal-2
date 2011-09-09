@@ -225,6 +225,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
+      Dispose(false);
+    }
+
+    public void Dispose(bool passSourceToContextObject)
+    {
       Detach();
       if (_bindingDependency != null)
       {
@@ -233,7 +238,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       ResetChangeHandlerAttachments();
       Registration.TryCleanupAndDispose(_valueConverter);
-      Registration.TryCleanupAndDispose(Source);
+      object source = Source;
+      if (passSourceToContextObject && source != null)
+        _contextObject.TakeOverOwnership(source);
+      else
+        Registration.TryCleanupAndDispose(Source);
       base.Dispose();
     }
 
@@ -1034,7 +1043,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
               return false;
             _contextObject.SetBindingValue(_targetDataDescriptor, value);
             _valueAssigned = true;
-            Dispose();
+            Dispose(true);
             return true; // In this case, we have finished with only assigning the value
         }
         DependencyObject parent;

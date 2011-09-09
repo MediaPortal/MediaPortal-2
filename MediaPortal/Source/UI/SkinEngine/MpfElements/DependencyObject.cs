@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     #region Protected fields
 
     protected ICollection<BindingBase> _bindings = null;
+    protected IList<object> _adoptedObjects = null;
     protected IDictionary<string, AbstractProperty> _attachedProperties = null; // Lazy initialized
     protected AbstractProperty _dataContextProperty;
     protected AbstractProperty _logicalParentProperty;
@@ -88,6 +89,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
           Registration.TryCleanupAndDispose(property.GetValue());
+      if (_adoptedObjects != null)
+        foreach (object o in _adoptedObjects)
+          Registration.TryCleanupAndDispose(o);
     }
 
     #endregion
@@ -120,6 +124,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     }
 
     #endregion
+
+    /// <summary>
+    /// Passes the ownership of the given object <paramref name="o"/> to this object. The caller can forget about the object disposal
+    /// of the given object; the given object's lifetime will not end before this object's lifetime ends.
+    /// </summary>
+    /// <param name="o">Object to be passed to this object.</param>
+    public void TakeOverOwnership(object o)
+    {
+      if (_adoptedObjects == null)
+        _adoptedObjects = new List<object>();
+      _adoptedObjects.Add(o);
+    }
 
     public static void TryDispose(ref object maybeDisposable)
     {
