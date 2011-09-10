@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Dispose()
     {
       FrameworkElement visual = Visual;
-      Registration.TryCleanupAndDispose(visual);
+      MPF.TryCleanupAndDispose(visual);
       base.Dispose();
     }
 

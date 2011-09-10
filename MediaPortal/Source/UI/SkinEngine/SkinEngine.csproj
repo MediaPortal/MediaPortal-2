@@ -346,7 +346,7 @@
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
     <Compile Include="MarkupExtensions\TreeHelper.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
-    <Compile Include="MpfElements\Registration.cs" />
+    <Compile Include="MpfElements\MPF.cs" />
     <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
     <Compile Include="MpfElements\Resources\Include.cs" />
     <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />

@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public override void Dispose()
     {
       base.Dispose();
-      Registration.TryCleanupAndDispose(Value);
+      MPF.TryCleanupAndDispose(Value);
     }
 
     #endregion

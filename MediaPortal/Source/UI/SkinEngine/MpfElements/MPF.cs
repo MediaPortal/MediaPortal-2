@@ -47,10 +47,10 @@ using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {                            
   /// <summary>
-  /// This class holds a registration for all elements which can be instantiated  by a XAML file. It also holds
+  /// This class holds a registration for all elements which can be instantiated  by a XAML file. It also provides
   /// static methods for type conversions between special types and for copying instances.
   /// </summary>
-  public class Registration
+  public class MPF
   {
     #region Variables
 
@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// Registration for all elements the loader can create from a XAML file.
     /// </summary>
     protected static IDictionary<string, Type> _objectClassRegistrations = new Dictionary<string, Type>();
-    static Registration()
+    static MPF()
     {                    
       // Screen
       _objectClassRegistrations.Add("Screen", typeof(SkinEngine.ScreenManagement.Screen));

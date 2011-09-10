@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Storyboard);
+      MPF.TryCleanupAndDispose(Storyboard);
       base.Dispose();
     }
 

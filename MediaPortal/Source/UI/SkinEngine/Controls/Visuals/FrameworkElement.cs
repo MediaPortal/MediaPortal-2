@@ -266,9 +266,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(ContextMenuCommand);
+      MPF.TryCleanupAndDispose(ContextMenuCommand);
       base.Dispose();
-      Registration.TryCleanupAndDispose(Style);
+      MPF.TryCleanupAndDispose(Style);
     }
 
     #endregion
@@ -281,7 +281,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (oldStyle != null)
       {
         oldStyle.Reset(this);
-        Registration.TryCleanupAndDispose(oldStyle);
+        MPF.TryCleanupAndDispose(oldStyle);
       }
       if (Style != null)
         Style.Set(this);

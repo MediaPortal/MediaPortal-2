@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_command);
+      MPF.TryCleanupAndDispose(_command);
       base.Dispose();
     }
 

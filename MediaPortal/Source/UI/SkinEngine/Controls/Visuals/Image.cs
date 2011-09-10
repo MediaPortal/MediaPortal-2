@@ -190,9 +190,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void DisposeImageSources()
     {
-      Registration.TryCleanupAndDispose(_sourceState.ImageSource);
+      MPF.TryCleanupAndDispose(_sourceState.ImageSource);
       _sourceState.ImageSource = null;
-      Registration.TryCleanupAndDispose(_fallbackSourceState.ImageSource);
+      MPF.TryCleanupAndDispose(_fallbackSourceState.ImageSource);
       _fallbackSourceState.ImageSource = null;
     }
 

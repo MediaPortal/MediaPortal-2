@@ -323,11 +323,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.CleanupAndDispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
-      Registration.TryCleanupAndDispose(RenderTransform);
-      Registration.TryCleanupAndDispose(LayoutTransform);
-      Registration.TryCleanupAndDispose(TemplateNameScope);
-      Registration.TryCleanupAndDispose(OpacityMask);
-      Registration.TryCleanupAndDispose(_resources);
+      MPF.TryCleanupAndDispose(RenderTransform);
+      MPF.TryCleanupAndDispose(LayoutTransform);
+      MPF.TryCleanupAndDispose(TemplateNameScope);
+      MPF.TryCleanupAndDispose(OpacityMask);
+      MPF.TryCleanupAndDispose(_resources);
     }
 
     #endregion

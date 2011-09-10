@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(Background);
       Children.Dispose();
       base.Dispose();
     }

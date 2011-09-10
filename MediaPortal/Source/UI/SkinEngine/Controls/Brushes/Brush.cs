@@ -61,8 +61,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      Registration.TryCleanupAndDispose(RelativeTransform);
-      Registration.TryCleanupAndDispose(Transform);
+      MPF.TryCleanupAndDispose(RelativeTransform);
+      MPF.TryCleanupAndDispose(Transform);
     }
 
     void Init()

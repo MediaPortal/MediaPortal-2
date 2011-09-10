@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_bindingWrapper);
+      MPF.TryCleanupAndDispose(_bindingWrapper);
       base.Dispose();
     }
 

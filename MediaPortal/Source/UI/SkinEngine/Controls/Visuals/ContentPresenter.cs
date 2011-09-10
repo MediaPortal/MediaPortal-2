@@ -97,10 +97,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_content);
-      Registration.TryCleanupAndDispose(_templateControl);
-      Registration.TryCleanupAndDispose(Content);
-      Registration.TryCleanupAndDispose(ContentTemplate);
+      MPF.TryCleanupAndDispose(_content);
+      MPF.TryCleanupAndDispose(_templateControl);
+      MPF.TryCleanupAndDispose(Content);
+      MPF.TryCleanupAndDispose(ContentTemplate);
       base.Dispose();
     }
 
@@ -108,14 +108,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
-      Registration.TryCleanupAndDispose(oldValue);
-      Registration.TryCleanupAndDispose(_content);
+      MPF.TryCleanupAndDispose(oldValue);
+      MPF.TryCleanupAndDispose(_content);
 
       object content = Content;
       // Try to unwrap ResourceWrapper before _content is accessed elsewhere.
-      // That's the only function we need from the ConvertType method, that's why we only call Registration.ConvertType
+      // That's the only function we need from the ConvertType method, that's why we only call MPF.ConvertType
       // instead of TypeConverter.Convert.
-      if (!Registration.ConvertType(content, typeof(object), out _content))
+      if (!MPF.ConvertType(content, typeof(object), out _content))
         _content = content;
       DependencyObject depObj;
       if (!ReferenceEquals(content, _content) && (depObj = _content as DependencyObject) != null)

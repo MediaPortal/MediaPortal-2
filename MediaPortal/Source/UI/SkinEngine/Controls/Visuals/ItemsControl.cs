@@ -148,10 +148,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (preparedChildren != null)
         preparedChildren.Dispose();
       base.Dispose();
-      Registration.TryCleanupAndDispose(ItemTemplate);
-      Registration.TryCleanupAndDispose(ItemContainerStyle);
-      Registration.TryCleanupAndDispose(ItemsPanel);
-      Registration.TryCleanupAndDispose(SelectionChanged);
+      MPF.TryCleanupAndDispose(ItemTemplate);
+      MPF.TryCleanupAndDispose(ItemContainerStyle);
+      MPF.TryCleanupAndDispose(ItemsPanel);
+      MPF.TryCleanupAndDispose(SelectionChanged);
     }
 
     #endregion
@@ -630,7 +630,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               FrameworkElement fe = item as FrameworkElement;
               if (fe == null)
               {
-                Registration.TryCleanupAndDispose(item);
+                MPF.TryCleanupAndDispose(item);
                 continue;
               }
               ISelectableItemContainer sic = item as ISelectableItemContainer;

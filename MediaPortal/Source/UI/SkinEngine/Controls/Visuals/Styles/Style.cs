@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         setterBase.Dispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
-      Registration.TryCleanupAndDispose(_resources);
+      MPF.TryCleanupAndDispose(_resources);
       base.Dispose();
     }
 
@@ -218,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         foreach (TriggerBase trigger in triggers)
           if (element.Triggers.Remove(trigger))
-            Registration.TryCleanupAndDispose(trigger);
+            MPF.TryCleanupAndDispose(trigger);
         element.SetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
       }
     }

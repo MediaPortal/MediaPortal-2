@@ -88,10 +88,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           _binding.Dispose();
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
-          Registration.TryCleanupAndDispose(property.GetValue());
+          MPF.TryCleanupAndDispose(property.GetValue());
       if (_adoptedObjects != null)
         foreach (object o in _adoptedObjects)
-          Registration.TryCleanupAndDispose(o);
+          MPF.TryCleanupAndDispose(o);
     }
 
     #endregion

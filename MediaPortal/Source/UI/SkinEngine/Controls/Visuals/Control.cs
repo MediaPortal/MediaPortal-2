@@ -117,10 +117,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Template);
-      Registration.TryCleanupAndDispose(TemplateControl);
-      Registration.TryCleanupAndDispose(BorderBrush);
-      Registration.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(Template);
+      MPF.TryCleanupAndDispose(TemplateControl);
+      MPF.TryCleanupAndDispose(BorderBrush);
+      MPF.TryCleanupAndDispose(Background);
       base.Dispose();
     }
 
@@ -156,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
-      Registration.TryCleanupAndDispose(oldTemplateControl);
+      MPF.TryCleanupAndDispose(oldTemplateControl);
 
       FrameworkElement element = TemplateControl;
       if (element != null)

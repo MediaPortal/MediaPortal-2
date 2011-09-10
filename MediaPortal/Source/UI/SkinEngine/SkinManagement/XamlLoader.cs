@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       try
       {
         Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
-        parser.SetCustomTypeConverter(Registration.ConvertType);
+        parser.SetCustomTypeConverter(MPF.ConvertType);
         parser.SetContextVariable(typeof(IModelLoader), loader);
         parser.SetContextVariable(KEY_ACTIVATE_BINDINGS, activateBindings);
         return parser.Parse(activateBindings);

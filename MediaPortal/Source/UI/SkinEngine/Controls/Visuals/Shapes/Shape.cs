@@ -83,8 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     public override void Dispose()
     {
       Detach();
-      Registration.TryCleanupAndDispose(Fill);
-      Registration.TryCleanupAndDispose(Stroke);
+      MPF.TryCleanupAndDispose(Fill);
+      MPF.TryCleanupAndDispose(Stroke);
       base.Dispose();
     }
 

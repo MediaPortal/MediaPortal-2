@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Dispose()
     {
-      Registration.CleanupAndDisposeResourceIfOwner(Value, this);
+      MPF.CleanupAndDisposeResourceIfOwner(Value, this);
       base.Dispose();
     }
 
@@ -79,8 +79,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     void OnValueChanged(AbstractProperty prop, object oldVal)
     {
-      Registration.CleanupAndDisposeResourceIfOwner(oldVal, this);
-      Registration.SetOwner(Value, this, false);
+      MPF.CleanupAndDisposeResourceIfOwner(oldVal, this);
+      MPF.SetOwner(Value, this, false);
     }
 
     #region Properties

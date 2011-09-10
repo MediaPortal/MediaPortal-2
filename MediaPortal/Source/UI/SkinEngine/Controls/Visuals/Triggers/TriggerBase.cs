@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       {
         if (!ReferenceEquals(obj, checkValue))
           // If the conversion created a copy of the object, dispose it
-          Registration.TryCleanupAndDispose(obj);
+          MPF.TryCleanupAndDispose(obj);
       }
     }
   }

@@ -277,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 #endif
       object assignValueConverted = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
       if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
-        Registration.TryCleanupAndDispose(assignValue);
+        MPF.TryCleanupAndDispose(assignValue);
       _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
     }
 

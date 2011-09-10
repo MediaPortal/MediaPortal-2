@@ -237,12 +237,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _bindingDependency = null;
       }
       ResetChangeHandlerAttachments();
-      Registration.TryCleanupAndDispose(_valueConverter);
+      MPF.TryCleanupAndDispose(_valueConverter);
       object source = Source;
       if (passSourceToContextObject && source != null)
         _contextObject.TakeOverOwnership(source);
       else
-        Registration.TryCleanupAndDispose(Source);
+        MPF.TryCleanupAndDispose(Source);
       base.Dispose();
     }
 

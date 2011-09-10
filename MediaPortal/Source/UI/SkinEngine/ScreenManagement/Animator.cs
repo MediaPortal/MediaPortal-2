@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Dispose()
     {
       foreach (object value in _valuesToSet.Values)
-        Registration.TryCleanupAndDispose(value);
+        MPF.TryCleanupAndDispose(value);
       // 2011-09-10 Albert TODO: Proper disposal of animation contexts. Not necessary at the moment because currently,
       // no animation can cope with disposable objects. As soon as there are such animations, disposal should be implemented for AnimationContexts.
       //foreach (AnimationContext context in _scheduledAnimations)
@@ -222,7 +222,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (curVal == value)
             return;
-          Registration.TryCleanupAndDispose(curVal);
+          MPF.TryCleanupAndDispose(curVal);
         }
         else if (dataDescriptor.Value == value)
           return;

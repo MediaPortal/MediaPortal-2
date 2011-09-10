@@ -83,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.Dispose();
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider != null)
-        Registration.TryCleanupAndDispose(itemProvider);
+        MPF.TryCleanupAndDispose(itemProvider);
     }
 
     #endregion
@@ -103,15 +103,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               if (_newItemProvider == value)
                 return;
               if (_newItemProvider != null)
-                Registration.TryCleanupAndDispose(_newItemProvider);
+                MPF.TryCleanupAndDispose(_newItemProvider);
               _newItemProvider = value;
             }
           else
           {
             if (_newItemProvider != value && _newItemProvider != null)
-              Registration.TryCleanupAndDispose(_newItemProvider);
+              MPF.TryCleanupAndDispose(_newItemProvider);
             if (_itemProvider != null)
-              Registration.TryCleanupAndDispose(_itemProvider);
+              MPF.TryCleanupAndDispose(_itemProvider);
             _itemProvider = value;
           }
           InvalidateLayout(true, true);
@@ -227,7 +227,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (children.Count > 0)
           children.Clear(false);
           if (_itemProvider != null)
-            Registration.TryCleanupAndDispose(_itemProvider);
+            MPF.TryCleanupAndDispose(_itemProvider);
           _itemProvider = _newItemProvider;
         }
         _averageItemSize = 0;

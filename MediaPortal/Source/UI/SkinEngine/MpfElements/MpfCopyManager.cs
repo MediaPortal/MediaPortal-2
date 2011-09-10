@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         return true;
 
       object res;
-      if (Registration.CopyMpfObject(source, out res))
+      if (MPF.CopyMpfObject(source, out res))
       {
         result = (T) res;
         return true;

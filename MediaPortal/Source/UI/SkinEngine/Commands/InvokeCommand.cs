@@ -55,9 +55,9 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(CommandStencil);
+      MPF.TryCleanupAndDispose(CommandStencil);
       foreach (object parameter in CommandParameters)
-        Registration.TryCleanupAndDispose(parameter);
+        MPF.TryCleanupAndDispose(parameter);
       base.Dispose();
     }
 

@@ -87,8 +87,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Content);
-      Registration.TryCleanupAndDispose(ContentTemplate);
+      MPF.TryCleanupAndDispose(Content);
+      MPF.TryCleanupAndDispose(ContentTemplate);
       base.Dispose();
     }
 

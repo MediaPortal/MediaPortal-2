@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         {
           object valueCopy = copyManager.GetCopy(kvp.Value);
           _resources.Add(copyManager.GetCopy(kvp.Key), valueCopy);
-          Registration.SetOwner(valueCopy, this, false);
+          MPF.SetOwner(valueCopy, this, false);
         }
       }
     }
@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       if (_resources != null)
         foreach (object res in _resources.Values)
           // Really dispose objects if we are the owner
-          Registration.CleanupAndDisposeResourceIfOwner(res, this);
+          MPF.CleanupAndDisposeResourceIfOwner(res, this);
       base.Dispose();
     }
 
@@ -143,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return;
       ResourceDictionary rd = enumer.Current.Instance as ResourceDictionary;
       if (rd != null)
-        Registration.SetOwner(resource, rd, false);
+        MPF.SetOwner(resource, rd, false);
     }
 
     internal IDictionary<object, object> GetOrCreateUnderlayingDictionary()
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(key, value);
-      Registration.SetOwner(value, this, false);
+      MPF.SetOwner(value, this, false);
       if (fireChanged)
         FireChanged();
     }
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return false;
       object oldRes;
       if (_resources.TryGetValue(key, out oldRes))
-        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
+        MPF.CleanupAndDisposeResourceIfOwner(oldRes, this);
       bool result = _resources.Remove(key);
       if (fireChanged)
         FireChanged();
@@ -178,9 +178,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       object oldRes;
       if (resources.TryGetValue(key, out oldRes))
-        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
+        MPF.CleanupAndDisposeResourceIfOwner(oldRes, this);
       resources[key] = value;
-      Registration.SetOwner(value, this, false);
+      MPF.SetOwner(value, this, false);
       if (fireChanged)
         FireChanged();
     }
@@ -292,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         Set(key, value, false);
         // Here we have the rare case that we must force to set the owner property to this instance to make the adopted resource really
         // belong to it.
-        Registration.SetOwner(value, this, true);
+        MPF.SetOwner(value, this, true);
         DependencyObject depObj = key as DependencyObject;
         if (depObj != null)
           depObj.LogicalParent = this;
@@ -338,7 +338,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         object oldObj;
         if (_resources.TryGetValue(key, out oldObj))
         {
-          Registration.CleanupAndDisposeResourceIfOwner(oldObj, this);
+          MPF.CleanupAndDisposeResourceIfOwner(oldObj, this);
           _resources.Remove(key);
           wasChanged = true;
         }
@@ -472,7 +472,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
       resources.Add(item);
-      Registration.SetOwner(item.Value, this, false);
+      MPF.SetOwner(item.Value, this, false);
       FireChanged();
     }
 
@@ -481,7 +481,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       if (_resources == null)
         return;
       foreach (KeyValuePair<object, object> kvp in _resources)
-        Registration.CleanupAndDisposeResourceIfOwner(kvp.Value, this);
+        MPF.CleanupAndDisposeResourceIfOwner(kvp.Value, this);
       _resources = null;
       FireChanged();
     }
@@ -504,7 +504,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         return false;
       object oldRes;
       if (_resources.TryGetValue(item.Key, out oldRes))
-        Registration.CleanupAndDisposeResourceIfOwner(oldRes, this);
+        MPF.CleanupAndDisposeResourceIfOwner(oldRes, this);
       bool result = _resources.Remove(item);
       FireChanged();
       return result;

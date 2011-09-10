@@ -110,8 +110,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Background);
-      Registration.TryCleanupAndDispose(BorderBrush);
+      MPF.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(BorderBrush);
       base.Dispose();
     }
 

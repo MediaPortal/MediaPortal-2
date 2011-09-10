@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         result = _elements.Remove(element);
-        Registration.TryCleanupAndDispose(element);
+        MPF.TryCleanupAndDispose(element);
       }
       FireCollectionChanged();
       return result;
@@ -131,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         foreach (object element in _elements)
-          Registration.TryCleanupAndDispose(element);
+          MPF.TryCleanupAndDispose(element);
         _elements.Clear();
       }
       FireCollectionChanged();

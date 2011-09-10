@@ -50,8 +50,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void Dispose()
     {
-      Registration.TryCleanupAndDispose(_content);
-      Registration.TryCleanupAndDispose(_resources);
+      MPF.TryCleanupAndDispose(_content);
+      MPF.TryCleanupAndDispose(_resources);
     }
 
     void Init()
