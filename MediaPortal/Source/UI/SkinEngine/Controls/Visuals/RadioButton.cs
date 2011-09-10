@@ -138,7 +138,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected void InitializeGroup()
     {
+      if (_elementState != ElementState.Running)
+        return;
       if (_radioButtonGroup != null)
+        // Remove from last group, if the group name changed
         _radioButtonGroup.Remove(this);
       _radioButtonGroup = null;
       if (!string.IsNullOrEmpty(GroupName))
@@ -152,13 +155,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _radioButtonGroup = new List<RadioButton>();
           ns.RegisterName(GroupName, _radioButtonGroup);
         }
-        _radioButtonGroup.Add(this);
+        if (!_radioButtonGroup.Contains(this))
+          _radioButtonGroup.Add(this);
       }
     }
 
     #endregion
 
     #region Public properties
+
+    public override ElementState ElementState
+    {
+      internal set
+      {
+        base.ElementState = value;
+        if (value == ElementState.Running)
+          InitializeGroup();
+      }
+    }
 
     public AbstractProperty GroupNameProperty
     {
@@ -180,17 +194,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (bool) _isCheckedProperty.GetValue(); }
       set { _isCheckedProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Base overrides
-
-    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
-    {
-      if (eventName == LOADED_EVENT)
-        InitializeGroup();
-      base.FireEvent(eventName, routingStrategy);
     }
 
     #endregion
