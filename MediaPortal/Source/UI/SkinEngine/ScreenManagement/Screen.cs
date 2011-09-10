@@ -192,6 +192,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       base.Dispose();
       _root.CleanupAndDispose();
+      _animator.Dispose();
     }
 
     /// <summary>
