@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
@@ -119,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         result = _elements.Remove(element);
-        UIElement.TryCleanupAndDispose(ref element);
+        Registration.TryCleanupAndDispose(element);
       }
       FireCollectionChanged();
       return result;
@@ -130,10 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         foreach (object element in _elements)
-        {
-          object o = element;
-          UIElement.TryCleanupAndDispose(ref o);
-        }
+          Registration.TryCleanupAndDispose(element);
         _elements.Clear();
       }
       FireCollectionChanged();

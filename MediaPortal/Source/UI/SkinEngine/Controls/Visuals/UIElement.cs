@@ -698,18 +698,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VisualParent = null;
     }
 
-    public static void TryCleanupAndDispose(ref object maybeUIElementOrDisposable)
-    {
-      UIElement u = maybeUIElementOrDisposable as UIElement;
-      if (u != null)
-      {
-        maybeUIElementOrDisposable = null;
-        u.CleanupAndDispose();
-        return;
-      }
-      TryDispose(ref maybeUIElementOrDisposable);
-    }
-
     /// <summary>
     /// Finds the resource with the given resource key.
     /// </summary>
