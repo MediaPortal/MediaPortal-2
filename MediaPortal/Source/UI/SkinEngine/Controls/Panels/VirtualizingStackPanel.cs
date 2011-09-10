@@ -268,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item == null)
           return null;
         if (newlyCreated)
-          // item.Screen was set by the item provider
+          // VisualParent and item.Screen were set by the item provider
           item.SetElementState(ElementState.Running);
         if (newlyCreated || forceMeasure)
         {

@@ -127,6 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           if (_parent != null)
           {
+            element.VisualParent = _parent;
             element.SetScreen(_parent.Screen);
             element.SetElementState(_parent.ElementState);
             if (_parent.IsAllocated)
@@ -134,7 +135,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
           else
             element.SetElementState(ElementState.Available);
-          element.VisualParent = _parent;
           element.InvalidateLayout(true, true);
         }
       }

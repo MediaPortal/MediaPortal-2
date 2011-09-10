@@ -763,9 +763,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void AddChild(FrameworkElement child)
     {
       _root = child;
+      _root.VisualParent = this;
       SetScreen(this);
       ScreenState = _state; // Set the visual's element state via our ScreenState setter
-      _root.VisualParent = this;
       InitializeTriggers();
     }
 

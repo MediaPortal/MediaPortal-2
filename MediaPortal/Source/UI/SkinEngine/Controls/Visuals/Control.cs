@@ -161,9 +161,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement element = TemplateControl;
       if (element != null)
       {
+        element.VisualParent = this;
         element.SetScreen(Screen);
         element.SetElementState(_elementState);
-        element.VisualParent = this;
         if (element.TemplateNameScope == null)
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
           // which normally sets the TemplateNameScope.
