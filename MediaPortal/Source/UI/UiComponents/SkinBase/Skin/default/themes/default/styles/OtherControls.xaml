@@ -809,7 +809,8 @@
 
   <!-- ****************************** TreeView styles ********************************** -->
 
-  <!-- Standard TreeView properties. Property "ItemContainerStyle" has to be completed. -->
+  <!-- Standard TreeView properties. Properties "ItemContainerStyle", "ItemTemplate", "DataStringProvider" and "SubItemsProvider"
+       should be replaced for custom treeview styles. -->
   <Style x:Key="DefaultTreeViewStyle" TargetType="{x:Type TreeView}">
     <Setter Property="Template">
       <Setter.Value>
@@ -827,6 +828,7 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultTreeItemContainerStyle}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultTreeItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultTreeItemDataStringProvider}"/>
     <Setter Property="SubItemsProvider" Value="{ThemeResource DefaultTreeItemSubItemsProvider}"/>
