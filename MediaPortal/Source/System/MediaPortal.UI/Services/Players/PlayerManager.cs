@@ -24,11 +24,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Services.Players
@@ -156,6 +158,7 @@ namespace MediaPortal.UI.Services.Players
       };
       _playerBuilderPluginItemStateTracker = new PlayerBuilderPluginItemStateTracker(this);
       _playerBuilderRegistrationChangeListener = new PlayerBuilderRegistrationChangeListener(this);
+      LoadSettings();
       SubscribeToMessages();
     }
 
@@ -211,6 +214,14 @@ namespace MediaPortal.UI.Services.Players
         return;
       _messageQueue.Shutdown();
       _messageQueue = null;
+    }
+
+    internal void LoadSettings()
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      _volume = settings.Volume;
+      settingsManager.Save(settings);
     }
 
     /// <summary>
@@ -316,12 +327,8 @@ namespace MediaPortal.UI.Services.Players
     {
       get
       {
-        int result = 0;
         lock (_syncObj)
-          foreach (PlayerSlotController psc in _slots)
-            if (psc.IsActive)
-              result++;
-        return result;
+          return _slots.Count(psc => psc.IsActive);
       }
     }
 
@@ -390,10 +397,9 @@ namespace MediaPortal.UI.Services.Players
               if (psc.IsActive)
                 psc.IsMuted = _isMuted;
             });
-          if (_isMuted)
-            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersMuted);
-          else
-            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersResetMute);
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(_isMuted ?
+              PlayerManagerMessaging.MessageType.PlayersMuted :
+              PlayerManagerMessaging.MessageType.PlayersResetMute);
         }
       }
     }
@@ -413,6 +419,10 @@ namespace MediaPortal.UI.Services.Players
           else if (vol > 100)
             vol = 100;
           _volume = vol;
+          ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+          PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+          settings.Volume = _volume;
+          settingsManager.Save(settings);
         }
         ForEachInternal(psc =>
           {

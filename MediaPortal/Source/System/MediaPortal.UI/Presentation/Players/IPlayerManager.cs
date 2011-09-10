@@ -48,6 +48,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when the
   /// <see cref="Muted"/> property is set to <c>true</c>.
   /// Slots are switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
+  /// </para>
   /// <para>
   /// <b>Thread-Safety:</b><br/>
   /// This class can be called from multiple threads. It synchronizes thread access to its fields via its

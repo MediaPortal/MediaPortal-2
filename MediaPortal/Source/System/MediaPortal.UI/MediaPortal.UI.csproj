@@ -150,6 +150,7 @@
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
+    <Compile Include="Services\Players\PlayerManagerSettings.cs" />
     <Compile Include="Services\RemovableMedia\DeviceVolumeMonitor.cs" />
     <Compile Include="Services\RemovableMedia\RemovableMediaTracker.cs" />
     <Compile Include="Services\RemovableMedia\Settings\RemovableMediaTrackerSettings.cs" />
