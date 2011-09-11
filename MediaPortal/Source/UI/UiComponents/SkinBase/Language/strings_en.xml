@@ -81,6 +81,13 @@
     <String Name="ImportCompletedText" Text="The import of '{0}' has finished."/>
   </Section>
   <Section Name="Players">
+    <!-- For MP UI player subsystem -->
+    <String Name="NoPlayerAvailableNotificationTitle" Text="No player"/>
+    <String Name="NoPlayerAvailableNotificationText" Text="There is no player registered to play media item '{0}'"/>
+    <String Name="ErrorPlayingMediaItemTitle" Text="Error playing media item"/>
+    <String Name="UnableToPlayMediaItemText" Text="Unable to play media item '{0}'"/>
+    <String Name="ResourceNotFoundText" Text="Resource '{0}' not found"/>
+    
     <String Name="PlayerConfiguration" Text="Player configuration"/>
     <String Name="CurrentMediaInfo" Text="Current media info"/>
     <String Name="FullscreenVideo" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->

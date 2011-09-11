@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -68,11 +69,9 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected ICollection<IFileSystemResourceAccessor> WrapResourcePathsData(ICollection<ResourcePathMetadata> resourcesData)
     {
       string nativeSystemId = _resourceLocator.NativeSystemId;
-      ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-      foreach (ResourcePathMetadata fileData in resourcesData)
-        result.Add(new RemoteFileSystemResourceAccessor( new ResourceLocator(nativeSystemId, fileData.ResourcePath),
-            true, fileData.HumanReadablePath, fileData.ResourceName));
-      return result;
+      return new List<IFileSystemResourceAccessor>(resourcesData.Select(fileData => new RemoteFileSystemResourceAccessor(
+          new ResourceLocator(nativeSystemId, fileData.ResourcePath), true, fileData.HumanReadablePath,
+              fileData.ResourceName)).Cast<IFileSystemResourceAccessor>());
     }
 
     protected void FillCaches()
@@ -89,6 +88,15 @@ namespace MediaPortal.Core.Services.MediaManagement
         throw new IOException(string.Format("Unable to get file information for '{0}'", _resourceLocator));
       _lastChangedCache = lastChanged;
       _sizeCache = isFile ? size : -1;
+    }
+
+    public override bool Exists
+    {
+      get
+      {
+        IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+        return rris.ResourceExists(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
+      }
     }
 
     public override long Size
@@ -109,7 +117,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return !_isFile; }
     }
 
-    public bool Exists(string path)
+    public bool ResourceExists(string path)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       string nativeSystemId = _resourceLocator.NativeSystemId;

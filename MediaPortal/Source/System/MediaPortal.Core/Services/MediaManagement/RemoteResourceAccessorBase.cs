@@ -79,6 +79,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       get { return null; }
     }
 
+    public abstract bool Exists { get; }
+
     public bool IsFile
     {
       get { return _isFile; }

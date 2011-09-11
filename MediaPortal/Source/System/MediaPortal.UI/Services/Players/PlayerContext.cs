@@ -140,12 +140,7 @@ namespace MediaPortal.UI.Services.Players
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
-      if (psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime))
-      {
-        Play();
-        return true;
-      }
-      return false;
+      return psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime);
     }
 
     protected bool DoPlay(MediaItem item, StartTime startTime)
@@ -207,10 +202,8 @@ namespace MediaPortal.UI.Services.Players
       else
       {
         // skipSeconds is negative
-        if (currentPosition.TotalSeconds + skipSeconds > 0)
-          player.CurrentTime = currentPosition.Add(TimeSpan.FromSeconds(skipSeconds));
-        else
-          player.CurrentTime = TimeSpan.FromSeconds(0); // seek to beginning
+        player.CurrentTime = currentPosition.TotalSeconds + skipSeconds > 0 ?
+            currentPosition.Add(TimeSpan.FromSeconds(skipSeconds)) : TimeSpan.FromSeconds(0);
       }
     }
 

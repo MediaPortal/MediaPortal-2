@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
@@ -280,9 +281,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         CallContext context)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ICollection<MediaProviderMetadata> metadata = new List<MediaProviderMetadata>();
-      foreach (IBaseMediaProvider mediaProvider in mediaAccessor.LocalBaseMediaProviders)
-        metadata.Add(mediaProvider.Metadata);
+      IEnumerable<MediaProviderMetadata> metadata = mediaAccessor.LocalBaseMediaProviders.Select(mediaProvider => mediaProvider.Metadata);
       outParams = new List<object> {metadata};
       return null;
     }
@@ -466,7 +465,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       bool result = false;
       if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp) && mp is IBaseMediaProvider)
       {
-        IResourceAccessor rootAccessor = ((IBaseMediaProvider) mp).CreateMediaItemAccessor("/");
+        IResourceAccessor rootAccessor = ((IBaseMediaProvider) mp).CreateResourceAccessor("/");
         try
         {
           result = rootAccessor is IFileSystemResourceAccessor;

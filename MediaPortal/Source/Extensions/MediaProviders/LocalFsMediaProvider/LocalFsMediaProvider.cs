@@ -212,7 +212,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       return File.Exists(dosPath) || Directory.Exists(dosPath);
     }
 
-    public IResourceAccessor CreateMediaItemAccessor(string path)
+    public IResourceAccessor CreateResourceAccessor(string path)
     {
       if (!IsResource(path))
         throw new ArgumentException(string.Format("The resource described by path '{0}' doesn't exist", path));

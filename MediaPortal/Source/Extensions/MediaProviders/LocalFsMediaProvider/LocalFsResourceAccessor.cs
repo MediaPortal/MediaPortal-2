@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
       }
     }
 
-    public bool Exists(string path)
+    public bool ResourceExists(string path)
     {
       if (string.IsNullOrEmpty(path))
         return false;
@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 
     public IResourceAccessor GetResource(string path)
     {
-      return _provider.CreateMediaItemAccessor(ExpandPath(path));
+      return _provider.CreateResourceAccessor(ExpandPath(path));
     }
 
     public void PrepareStreamAccess()
@@ -140,7 +140,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
         // No files at root level - there are only logical drives
         return new List<IFileSystemResourceAccessor>();
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-      return !Directory.Exists(dosPath) ? null : ConcatPaths(_path, Directory.GetFiles(dosPath), false);
+      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? ConcatPaths(_path, Directory.GetFiles(dosPath), false) : null;
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
@@ -151,7 +151,7 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
         return Directory.GetLogicalDrives().Where(drive => new DriveInfo(drive).IsReady).Select<string, IFileSystemResourceAccessor>(
             drive => new LocalFsResourceAccessor(_provider, "/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/")).ToList();
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-      return !Directory.Exists(dosPath) ? null : ConcatPaths(_path, Directory.GetDirectories(dosPath), true);
+      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? ConcatPaths(_path, Directory.GetDirectories(dosPath), true) : null;
     }
 
     public bool IsFile
@@ -161,7 +161,17 @@ namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
         if (string.IsNullOrEmpty(_path) || _path == "/")
           return false;
         string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-        return File.Exists(dosPath);
+        return !string.IsNullOrEmpty(dosPath) && File.Exists(dosPath);
+      }
+    }
+
+    public bool Exists
+    {
+      get {
+        if (string.IsNullOrEmpty(_path) || _path == "/")
+          return false;
+        string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
+        return !string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath));
       }
     }
 

@@ -53,6 +53,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     IMediaProvider ParentProvider { get; }
 
     /// <summary>
+    /// Explicitly checks if the resource described by this resource accessor currently exists.
+    /// </summary>
+    bool Exists { get; }
+
+    /// <summary>
     /// Returns the information if this resource is a file which can be opened to an input stream.
     /// </summary>
     /// <value><c>true</c>, if this resource denotes a file which can be opened, else <c>false</c>.</value>

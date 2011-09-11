@@ -58,7 +58,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <param name="path">Absolute or relative path to check for a resource.</param>
     /// <returns><c>true</c> if a resource at the given path exists in the <see cref="IResourceAccessor.ParentProvider"/>,
     /// else <c>false</c>.</returns>
-    bool Exists(string path);
+    bool ResourceExists(string path);
 
     /// <summary>
     /// Returns a resource which is located in the same underlaying media provider and which might be located relatively

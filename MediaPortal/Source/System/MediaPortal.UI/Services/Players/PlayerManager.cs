@@ -284,12 +284,14 @@ namespace MediaPortal.UI.Services.Players
     /// </summary>
     /// <param name="locator">Resource locator to access the to-be-played media item.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
-    /// <returns>Player which was built or <c>null</c>, if no player could be built for the given parameters.</returns>
-    internal IPlayer BuildPlayer_NoLock(IResourceLocator locator, string mimeType)
+    /// <param name="exceptions">All exceptions which have been thrown by any player builder which was tried.</param>
+    /// <returns>Player which was built or <c>null</c>, if no player could be built for the given resource.</returns>
+    internal IPlayer BuildPlayer_NoLock(IResourceLocator locator, string mimeType, out ICollection<Exception> exceptions)
     {
       ICollection<IPlayerBuilder> builders;
       lock (_syncObj)
         builders = new List<IPlayerBuilder>(_playerBuilders.Values);
+      exceptions = new List<Exception>();
       foreach (IPlayerBuilder playerBuilder in builders)
       {
         try
@@ -301,6 +303,7 @@ namespace MediaPortal.UI.Services.Players
         catch (Exception e)
         {
           ServiceRegistration.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
+          exceptions.Add(e);
         }
       }
       return null;

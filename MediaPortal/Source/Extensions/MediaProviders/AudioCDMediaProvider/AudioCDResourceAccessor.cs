@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Extensions.BassLibraries;
 
 namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
 {
@@ -94,6 +95,11 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
     public Stream OpenWrite()
     {
       return null;
+    }
+
+    public bool Exists
+    {
+      get { return BassUtils.GetNumAudioTracks(_drive + ":") > _trackNo; }
     }
 
     public bool IsFile

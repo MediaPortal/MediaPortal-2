@@ -66,6 +66,15 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     #region IResourceAccessor implementation
 
+    public override bool Exists
+    {
+      get
+      {
+        IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
+        return rris.ResourceExists(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
+      }
+    }
+
     public override DateTime LastChanged
     {
       get { return _lastChanged; }

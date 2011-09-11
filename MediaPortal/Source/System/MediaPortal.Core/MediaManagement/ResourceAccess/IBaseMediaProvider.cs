@@ -46,7 +46,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
     /// <returns>Resource accessor instance.</returns>
     /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
     /// described by the path doesn't exist.</exception>
-    IResourceAccessor CreateMediaItemAccessor(string path);
+    IResourceAccessor CreateResourceAccessor(string path);
 
     /// <summary>
     /// Given the specified <paramref name="pathStr"/>, this method tries to expand it to a resource path by trying

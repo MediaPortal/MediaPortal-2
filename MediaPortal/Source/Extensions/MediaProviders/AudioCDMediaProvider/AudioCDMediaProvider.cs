@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider
       return BassUtils.GetNumAudioTracks(drive + ":") > trackNo;
     }
 
-    public IResourceAccessor CreateMediaItemAccessor(string path)
+    public IResourceAccessor CreateResourceAccessor(string path)
     {
       char drive;
       byte trackNo;

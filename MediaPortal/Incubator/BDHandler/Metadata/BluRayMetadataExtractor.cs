@@ -91,10 +91,10 @@ namespace MediaPortal.Media.MetadataExtractors
       try
       {
         ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-        if (fsra != null && fsra.IsDirectory && fsra.Exists("BDMV"))
+        if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("BDMV"))
         {
           IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV") as IFileSystemResourceAccessor;
-          if (fsraBDMV != null && fsraBDMV.Exists("index.bdmv"))
+          if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
           {
             // BluRay
             MediaItemAspect mediaAspect;

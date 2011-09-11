@@ -342,7 +342,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
               throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseMediaProvider).Name);
             try
             {
-              resourceAccessor = baseProvider.CreateMediaItemAccessor(pathSegment.Path);
+              resourceAccessor = baseProvider.CreateResourceAccessor(pathSegment.Path);
             }
             catch (ArgumentException e)
             {

@@ -167,6 +167,11 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
       get { return _zipProvider; }
     }
 
+    public bool Exists
+    {
+      get { return _zipResourceAccessor.Exists; }
+    }
+
     public bool IsDirectory
     {
       get { return _isDirectory; }
@@ -249,7 +254,7 @@ namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider
 
     #region IFileSystemResourceAccessor implementation
 
-    public bool Exists(string path)
+    public bool ResourceExists(string path)
     {
       if (path.Equals("/") && _currentDirList.Count > 0)
         return true;

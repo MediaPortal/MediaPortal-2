@@ -62,6 +62,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       get { return null; }
     }
 
+    // TODO: Complete implementation
+    public bool Exists
+    {
+      get { return true; }
+    }
+
     public bool IsFile
     {
       get { return true; }
@@ -151,7 +157,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       get { return false; }
     }
 
-    public bool Exists(string path)
+    public bool ResourceExists(string path)
     {
       return true;
     }

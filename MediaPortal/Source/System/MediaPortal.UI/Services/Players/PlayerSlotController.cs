@@ -25,9 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
@@ -38,6 +40,17 @@ namespace MediaPortal.UI.Services.Players
   /// </summary>
   internal class PlayerSlotController : IPlayerSlotController
   {
+    #region Consts
+
+    public const string RES_NO_PLAYER_AVAILABLE_NOTIFICATION_TITLE = "[Players.NoPlayerAvailableNotificationTitle]";
+    public const string RES_NO_PLAYER_AVAILABLE_NOTIFICATION_TEXT = "[Players.NoPlayerAvailableNotificationText]";
+
+    public const string RES_ERROR_PLAYING_MEDIA_ITEM_TITLE = "[Players.ErrorPlayingMediaItemTitle]";
+    public const string RES_UNABLE_TO_PLAY_MEDIA_ITEM_TEXT = "[Players.UnableToPlayMediaItemText]";
+    public const string RES_RESOURCE_NOT_FOUND_TEXT = "[Players.ResourceNotFoundText]";
+
+    #endregion
+
     protected PlayerManager _playerManager;
     protected int _slotIndex;
     protected bool _isAudioSlot = false;
@@ -263,6 +276,45 @@ namespace MediaPortal.UI.Services.Players
         dlgt(this, slotState);
     }
 
+    protected void HandleUnableToPlay(IResourceLocator locator, string mimeType, ICollection<Exception> exceptions)
+    { // We come here in two cases: 1) No player available to play the resource and 2) resouce broken
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      // Start a heuristics to find a proper error message for the user
+      if (exceptions.Count != 0) // This is the indicator that at least one player builder tried to open the resource but threw an exception
+      {
+        // 1) Check if resource is present
+        IResourceAccessor ra = null;
+        try
+        {
+          bool exists = true;
+          try
+          {
+            ra = locator.CreateAccessor();
+          }
+          catch (Exception)
+          {
+            exists = false;
+          }
+          exists &= ra != null && ra.Exists;
+          notificationService.EnqueueNotification(
+              NotificationType.UserInteractionRequired, RES_ERROR_PLAYING_MEDIA_ITEM_TITLE, exists ?
+                  LocalizationHelper.Translate(RES_UNABLE_TO_PLAY_MEDIA_ITEM_TEXT, ra.ResourceName) :
+                  LocalizationHelper.Translate(RES_RESOURCE_NOT_FOUND_TEXT, locator.NativeResourcePath.FileName), true);
+        }
+        finally
+        {
+          if (ra != null)
+            ra.Dispose();
+        }
+      }
+      else
+      {
+        using (IResourceAccessor ra = locator.CreateAccessor())
+          notificationService.EnqueueNotification(NotificationType.UserInteractionRequired, RES_NO_PLAYER_AVAILABLE_NOTIFICATION_TITLE,
+              LocalizationHelper.Translate(RES_NO_PLAYER_AVAILABLE_NOTIFICATION_TEXT, ra.ResourceName), true);
+      }
+    }
+
     #region IPlayerSlotController implementation
 
     public event SlotStateChangedDlgt SlotStateChanged;
@@ -423,8 +475,11 @@ namespace MediaPortal.UI.Services.Players
           }
         }
         ReleasePlayer_NoLock();
-        player = _playerManager.BuildPlayer_NoLock(locator, mimeType);
-        if (player != null)
+        ICollection<Exception> exceptions;
+        player = _playerManager.BuildPlayer_NoLock(locator, mimeType, out exceptions);
+        if (player == null)
+          HandleUnableToPlay(locator, mimeType, exceptions);
+        else
         {
           IMediaPlaybackControl mpc;
           IDisposable disposePlayer = null;
@@ -449,6 +504,9 @@ namespace MediaPortal.UI.Services.Players
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Slot {0} - error playing '{1}'", e, _slotIndex, locator);
+        IDisposable disposePlayer = player as IDisposable;
+        if (disposePlayer != null)
+          disposePlayer.Dispose();
         player = null;
         return false;
       }

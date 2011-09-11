@@ -271,10 +271,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         MovieResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (fsra != null && fsra.IsDirectory && fsra.Exists("VIDEO_TS"))
+        if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS") as IFileSystemResourceAccessor;
-          if (fsraVideoTs != null && fsraVideoTs.Exists("VIDEO_TS.IFO"))
+          if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
           { // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {

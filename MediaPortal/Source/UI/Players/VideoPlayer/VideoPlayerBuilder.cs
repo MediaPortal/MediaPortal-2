@@ -154,9 +154,10 @@ namespace MediaPortal.UI.Players.Video
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it
         ServiceRegistration.Get<ILogger>().Warn("{0}: Unable to play '{1}'", e, playerType, locator);
-        if (player is IDisposable)
-          ((IDisposable) player).Dispose();
-        player = null;
+        IDisposable disposablePlayer = player as IDisposable;
+        if (disposablePlayer != null)
+          disposablePlayer.Dispose();
+        throw;
       }
       return (IPlayer) player;
     }

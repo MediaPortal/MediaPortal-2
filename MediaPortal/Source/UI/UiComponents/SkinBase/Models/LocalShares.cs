@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         MediaProviderMetadata mpm = BaseMediaProvider;
         if (mpm == null)
           return false;
-        IResourceAccessor rootAccessor = GetMediaProvider(mpm.MediaProviderId).CreateMediaItemAccessor("/");
+        IResourceAccessor rootAccessor = GetMediaProvider(mpm.MediaProviderId).CreateResourceAccessor("/");
         try
         {
           return rootAccessor is IFileSystemResourceAccessor;

@@ -74,7 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return true;
     }
 
-    public IResourceAccessor CreateMediaItemAccessor(string path)
+    public IResourceAccessor CreateResourceAccessor(string path)
     {
       return SlimTvResourceAccessor.GetResourceAccessor(path);
     }

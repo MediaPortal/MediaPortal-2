@@ -105,6 +105,11 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       get { return null; }
     }
 
+    public bool Exists
+    {
+      get { return _baseAccessor.Exists; }
+    }
+
     public bool IsFile
     {
       get { return _baseAccessor.IsFile; }
@@ -135,10 +140,10 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
       get { return _baseAccessor.Size; }
     }
 
-    public bool Exists(string path)
+    public bool ResourceExists(string path)
     {
       IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
-      return fsra == null ? false : fsra.Exists(path);
+      return fsra == null ? false : fsra.ResourceExists(path);
     }
 
     public IResourceAccessor GetResource(string path)
