@@ -722,7 +722,7 @@
                 VerticalAlignment="Center"/>
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid}}"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid}">
               <RadioButton.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -768,7 +768,7 @@
                 VerticalAlignment="Center"/>
             <CheckBox x:Name="Checker"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid}}"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid}">
               <CheckBox.Triggers>
                 <Trigger Property="HasFocus" Value="True">

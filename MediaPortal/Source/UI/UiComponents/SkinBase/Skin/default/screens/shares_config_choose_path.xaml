@@ -45,9 +45,7 @@
               </Command>
             </CommandList>
 
-            <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
-
-            <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+            <!-- Checker_Command isn't necessary here - the selection state will be propagated via the Selected property.
                  We use a dummy. -->
             <ResourceWrapper x:Key="Checker_Command"/>
           </TreeView.Resources>
