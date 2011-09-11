@@ -397,9 +397,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         ListItem mediaProviderItem = new ListItem(SharesConfigModel.NAME_KEY, metadata.Name);
         mediaProviderItem.AdditionalProperties[SharesConfigModel.MEDIA_PROVIDER_METADATA_KEY] = metadata;
-        if ((choosenBaseMediaProvider != null &&
-            choosenBaseMediaProvider.MediaProviderId == metadata.MediaProviderId) ||
-                mediaProviderMDs.Count == 1)
+        if ((choosenBaseMediaProvider != null && choosenBaseMediaProvider.MediaProviderId == metadata.MediaProviderId) ||
+            mediaProviderMDs.Count == 1)
         {
           mediaProviderItem.Selected = true;
           selected = true;
@@ -412,22 +411,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public MediaProviderMetadata GetSelectedBaseMediaProvider()
     {
-      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
-        if (mediaProviderItem.Selected)
-          return mediaProviderItem.AdditionalProperties[SharesConfigModel.MEDIA_PROVIDER_METADATA_KEY] as MediaProviderMetadata;
-      return null;
+      return _allBaseMediaProvidersList.Where(mediaProviderItem => mediaProviderItem.Selected).Select(
+          mediaProviderItem => mediaProviderItem.AdditionalProperties[
+              SharesConfigModel.MEDIA_PROVIDER_METADATA_KEY] as MediaProviderMetadata).FirstOrDefault();
     }
 
     public void UpdateIsMediaProviderSelected()
     {
-      bool result = false;
-      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
-        if (mediaProviderItem.Selected)
-        {
-          result = true;
-          break;
-        }
-      IsMediaProviderSelected = result;
+      IsMediaProviderSelected = _allBaseMediaProvidersList.Any(mediaProviderItem => mediaProviderItem.Selected);
     }
 
     public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
