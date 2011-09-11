@@ -37,6 +37,7 @@ namespace MediaPortal.Core.MediaManagement.ResourceAccess
   /// The media provider is partitioned in its metadata part (see <see cref="Metadata"/>) and this worker class.
   /// </para>
   /// </remarks>
+  // TODO: Rename to IResourceProvider, rename all related classes
   public interface IMediaProvider
   {
     /// <summary>
