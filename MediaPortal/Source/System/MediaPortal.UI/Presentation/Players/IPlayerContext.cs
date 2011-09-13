@@ -172,8 +172,10 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Returns all audio stream descriptors for this player context.
     /// </summary>
-    /// <returns>Enumeration of audio stream descriptors.</returns>
-    IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors();
+    /// <param name="currentAudioStream">Descriptor for the current audio stream. This will also be filled if
+    /// we are in muted mode. If there is no current audio stream set, <c>null</c> will be returned.</param>
+    /// <returns>Collection of audio stream descriptors.</returns>
+    ICollection<AudioStreamDescriptor> GetAudioStreamDescriptors(out AudioStreamDescriptor currentAudioStream);
 
     /// <summary>
     /// Sets a special <paramref name="geometry"/> for the <see cref="CurrentPlayer"/>, if it is a video player.

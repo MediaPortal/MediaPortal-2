@@ -1468,8 +1468,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       if (playerContext == null)
         return;
       IPlayerSlotController psc = playerContext.PlayerSlotController;
+      AudioStreamDescriptor currentAudioStream;
       IList<AudioStreamDescriptor> audioStreamDescriptors =
-          new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors());
+          new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors(out currentAudioStream));
       int slotIndex = psc.SlotIndex;
       if (audioStreamDescriptors.Count <= 1)
         if (IsAudio)

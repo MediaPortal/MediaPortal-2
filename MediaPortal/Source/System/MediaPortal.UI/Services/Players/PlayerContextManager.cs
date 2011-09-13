@@ -750,15 +750,21 @@ namespace MediaPortal.UI.Services.Players
       return GetPlayerContextInternal(slotIndex);
     }
 
-    public ICollection<AudioStreamDescriptor> GetAvailableAudioStreams()
+    public ICollection<AudioStreamDescriptor> GetAvailableAudioStreams(out AudioStreamDescriptor currentAudioStream)
     {
+      currentAudioStream = null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
       ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
+      int audioSlotIndex = playerManager.AudioSlotIndex;
       for (int i = 0; i < 2; i++)
       {
         IPlayerContext playerContext = GetPlayerContext(i);
         if (playerContext == null)
           continue;
-        CollectionUtils.AddAll(result, playerContext.GetAudioStreamDescriptors());
+        AudioStreamDescriptor current;
+        CollectionUtils.AddAll(result, playerContext.GetAudioStreamDescriptors(out current));
+        if (audioSlotIndex == i)
+          currentAudioStream = current;
       }
       return result;
     }

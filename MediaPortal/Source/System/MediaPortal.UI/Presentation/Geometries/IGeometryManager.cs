@@ -58,7 +58,12 @@ namespace MediaPortal.UI.Presentation.Geometries
     /// Returns a dictionary of available geometry instances. The dictionary contains geometry names mapped
     /// to geometry instances.
     /// </summary>
-    IDictionary<string, IGeometry> AvailableGeometries { get;}
+    IDictionary<string, IGeometry> AvailableGeometries { get; }
+
+    /// <summary>
+    /// Gets the relative name of the video effect file which represents the null-effect.
+    /// </summary>
+    string StandardEffectFile { get; }
 
     /// <summary>
     /// Returns a list of the available video/image effects. Relative file names are matched to human readable names.

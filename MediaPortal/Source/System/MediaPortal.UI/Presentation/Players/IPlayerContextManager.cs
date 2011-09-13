@@ -364,7 +364,10 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Returns all audio streams which are available from the currently active players.
     /// </summary>
-    ICollection<AudioStreamDescriptor> GetAvailableAudioStreams();
+    /// <param name="currentAudioStream">Descriptor for the current audio stream. This will also be filled if
+    /// we are in muted mode. If there is no current audio stream set, <c>null</c> will be returned.</param>
+    /// <returns>Collection of audio stream descriptors.</returns>
+    ICollection<AudioStreamDescriptor> GetAvailableAudioStreams(out AudioStreamDescriptor currentAudioStream);
 
     /// <summary>
     /// Activates one of the available audio streams. This method might fail if the specified audio stream isn't available

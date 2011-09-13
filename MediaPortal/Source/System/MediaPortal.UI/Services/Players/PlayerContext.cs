@@ -320,14 +320,23 @@ namespace MediaPortal.UI.Services.Players
       return DoPlay_NoLock(locator, mimeType, mediaItemTitle, StartTime.AtOnce);
     }
 
-    public IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors()
+    public ICollection<AudioStreamDescriptor> GetAudioStreamDescriptors(out AudioStreamDescriptor currentAudioStream)
     {
+      currentAudioStream = null;
+      ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
       IVideoPlayer videoPlayer = CurrentPlayer as IVideoPlayer;
       if (videoPlayer != null)
       {
         ICollection<string> audioStreamNames = videoPlayer.AudioStreams;
+        string currentAudioStreamName = videoPlayer.CurrentAudioStream;
         foreach (string streamName in audioStreamNames)
-          yield return new AudioStreamDescriptor(this, videoPlayer.Name, streamName);
+        {
+          AudioStreamDescriptor descriptor = new AudioStreamDescriptor(this, videoPlayer.Name, streamName);
+          if (streamName == currentAudioStreamName)
+            currentAudioStream = descriptor;
+          result.Add(descriptor);
+        }
+        return result;
       }
       IAudioPlayer audioPlayer = CurrentPlayer as IAudioPlayer;
       if (audioPlayer != null)
@@ -341,8 +350,9 @@ namespace MediaPortal.UI.Services.Players
           string mediaItemTitle;
           title = GetItemData(item, out locator, out mimeType, out mediaItemTitle) ? mediaItemTitle : "Audio";
         }
-        yield return new AudioStreamDescriptor(this, audioPlayer.Name, title);
+        result.Add(currentAudioStream = new AudioStreamDescriptor(this, audioPlayer.Name, title));
       }
+      return result;
     }
 
     public void OverrideGeometry(IGeometry geometry)

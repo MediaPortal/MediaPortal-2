@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     #region Consts
 
     public const string EFFECTS_SECTION = "Effects";
+    public const string STANDARD_VIDEO_EFFECT = "effects\\none";
 
     #endregion
 
@@ -101,6 +102,11 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     {
       get { return _cropSettings; }
       set { _cropSettings = value ?? new CropSettings(); }
+    }
+
+    public string StandardEffectFile
+    {
+      get { return STANDARD_VIDEO_EFFECT; }
     }
 
     public IDictionary<string, string> AvailableEffects
