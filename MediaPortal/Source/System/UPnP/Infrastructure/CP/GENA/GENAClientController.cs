@@ -168,9 +168,9 @@ namespace UPnP.Infrastructure.CP.GENA
         NetworkHelper.BindAndConfigureGENAMulticastSocket(socket, address);
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(_endpoint, UPnPConsts.UDP_GENA_RECEIVE_BUFFER_SIZE, socket));
       }
-      catch (Exception) // SocketException, SecurityException
+      catch (Exception e) // SocketException, SecurityException
       {
-        UPnPConfiguration.LOGGER.Info("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'",
+        UPnPConfiguration.LOGGER.Info("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
             NetworkHelper.IPAddrToString(address));
       }
     }

@@ -182,10 +182,8 @@ namespace UPnP.Infrastructure.CP.SSDP
       lock (_cpData.SyncObj)
       {
         DateTime now = DateTime.Now;
-        ICollection<KeyValuePair<string, RootEntry>> removeEntries = new List<KeyValuePair<string, RootEntry>>();
-        foreach (KeyValuePair<string, RootEntry> kvp in _cpData.DeviceEntries)
-          if (kvp.Value.ExpirationTime < now)
-            removeEntries.Add(kvp);
+        ICollection<KeyValuePair<string, RootEntry>> removeEntries = new List<KeyValuePair<string, RootEntry>>(
+            _cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
         foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
         {
           _cpData.DeviceEntries.Remove(kvp);
@@ -313,9 +311,9 @@ namespace UPnP.Infrastructure.CP.SSDP
             _cpData.Endpoints.Add(config);
             StartUnicastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
           }
-          catch (Exception) // SocketException, SecurityException
+          catch (Exception e) // SocketException, SecurityException
           {
-            UPnPConfiguration.LOGGER.Info("SSDPClientController: Unable to bind to unicast address '{0}'",
+            UPnPConfiguration.LOGGER.Info("SSDPClientController: Unable to bind to unicast address '{0}'", e,
                 NetworkHelper.IPAddrToString(config.EndPointIPAddress));
           }
         }
