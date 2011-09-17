@@ -507,8 +507,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           EventInfo evt = t.GetEvent(memberName);
           if (evt != null)
           { // Event assignment
-            HandleEventAssignment(elementContext.Instance, evt,
-                (string) Convert(value, typeof(string)));
+            HandleEventAssignment(elementContext.Instance, evt, (string) Convert(value, typeof(string)));
             return;
           }
           throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
