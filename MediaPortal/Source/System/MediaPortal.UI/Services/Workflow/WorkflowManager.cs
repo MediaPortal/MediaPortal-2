@@ -37,6 +37,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
@@ -977,8 +978,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePushAsync(Guid stateId, NavigationContextConfig config)
     {
-      ParameterlessMethod dlgt = () => NavigatePushInternal(stateId, config);
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => NavigatePushInternal(stateId, config));
     }
 
     public void NavigatePush(Guid stateId)
@@ -998,8 +999,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePushTransientAsync(WorkflowState state, NavigationContextConfig config)
     {
-      ParameterlessMethod dlgt = () => NavigatePushTransientInternal(state, config);
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => NavigatePushTransientInternal(state, config));
     }
 
     public void NavigatePop(int count)
@@ -1009,8 +1010,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePopAsync(int count)
     {
-      ParameterlessMethod dlgt = () => NavigatePopInternal(count);
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => NavigatePopInternal(count));
     }
 
     public void NavigatePopToState(Guid stateId, bool inclusive)
@@ -1020,8 +1021,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void NavigatePopToStateAsync(Guid stateId, bool inclusive)
     {
-      ParameterlessMethod dlgt = () => NavigatePopToStateInternal(stateId, inclusive);
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(() => NavigatePopToStateInternal(stateId, inclusive));
     }
 
     public bool NavigatePopModel(Guid modelId)
@@ -1067,8 +1068,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void StartBatchUpdateAsync()
     {
-      ParameterlessMethod dlgt = StartBatchUpdateInternal;
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(StartBatchUpdateInternal);
     }
 
     public void EndBatchUpdate()
@@ -1078,8 +1079,8 @@ namespace MediaPortal.UI.Services.Workflow
 
     public void EndBatchUpdateAsync()
     {
-      ParameterlessMethod dlgt = EndBatchUpdateInternal;
-      dlgt.BeginInvoke(null, null);
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
+      threadPool.Add(EndBatchUpdateInternal);
     }
 
     public object GetModel(Guid modelId)
