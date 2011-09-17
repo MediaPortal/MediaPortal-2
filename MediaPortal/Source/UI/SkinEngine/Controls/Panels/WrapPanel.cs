@@ -210,7 +210,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 LayoutChildren(children, startIndex, currentIndex, new PointF(actualPosition.X, actualPosition.Y + offsetY), totalHeight);
                 offsetX = desiredChildSize.Width;
                 offsetY += totalHeight;
-                totalHeight = 0;
+                totalHeight = desiredChildSize.Height;
                 startIndex = currentIndex;
               }
               if (desiredChildSize.Height > totalHeight)
@@ -234,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 LayoutChildren(children, startIndex, currentIndex, new PointF(actualPosition.X + offsetX, actualPosition.Y), totalWidth);
                 offsetX += totalWidth;
                 offsetY = desiredChildSize.Height;
-                totalWidth = 0;
+                totalWidth = desiredChildSize.Width;
                 startIndex = currentIndex;
               }
               if (desiredChildSize.Width > totalWidth)
