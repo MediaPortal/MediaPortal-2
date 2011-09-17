@@ -603,19 +603,20 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       {
         ServiceRegistration.Get<ILogger>().Error(e);
       }
-      // FIXME: Possible NRE
-      _subFilter.StatusTest(111);
-      IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(_callBack);
-      _subFilter.SetBitmapCallback(pCallback);
+      if (_subFilter != null)
+      {
+        _subFilter.StatusTest(111);
+        IntPtr pCallback = Marshal.GetFunctionPointerForDelegate(_callBack);
+        _subFilter.SetBitmapCallback(pCallback);
 
-      _subFilter.StatusTest(222);
+        _subFilter.StatusTest(222);
 
-      IntPtr pResetCallBack = Marshal.GetFunctionPointerForDelegate(_resetCallBack);
-      _subFilter.SetResetCallback(pResetCallBack);
+        IntPtr pResetCallBack = Marshal.GetFunctionPointerForDelegate(_resetCallBack);
+        _subFilter.SetResetCallback(pResetCallBack);
 
-      IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(_updateTimeoutCallBack);
-      _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
-
+        IntPtr pUpdateTimeoutCallBack = Marshal.GetFunctionPointerForDelegate(_updateTimeoutCallBack);
+        _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
+      }
       return _filter;
     }
 
