@@ -809,12 +809,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return null;
     }
 
-    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
+    public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
       lock (_syncObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
-          return;
+          return false;
         _managedMIATypes.Add(miam.AspectId, null);
       }
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -1114,14 +1114,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       lock (_syncObj)
         _managedMIATypes[miam.AspectId] = miam;
+      return true;
     }
 
-    public void RemoveMediaItemAspectStorage(Guid aspectId)
+    public bool RemoveMediaItemAspectStorage(Guid aspectId)
     {
       lock (_syncObj)
       {
         if (!_managedMIATypes.ContainsKey(aspectId))
-          return;
+          return false;
         _managedMIATypes[aspectId] = null;
       }
       MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
@@ -1245,6 +1246,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       lock (_syncObj)
         _managedMIATypes.Remove(aspectId);
+      return true;
     }
 
     public bool IsCLOBAttribute(MediaItemAspectMetadata.AttributeSpecification specification)

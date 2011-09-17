@@ -797,14 +797,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Adding media item aspect storage for MIA type '{0}' (name '{1}')", miam.AspectId, miam.Name);
-      _miaManagement.AddMediaItemAspectStorage(miam);
+      if (_miaManagement.AddMediaItemAspectStorage(miam))
+        ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') was added", miam.AspectId, miam.Name);
     }
 
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing media item aspect storage for MIA type '{0}'", aspectId);
-      _miaManagement.RemoveMediaItemAspectStorage(aspectId);
+      if (_miaManagement.RemoveMediaItemAspectStorage(aspectId))
+        ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Media item aspect storage for MIA type '{0}' was removed", aspectId);
     }
 
     public IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()
