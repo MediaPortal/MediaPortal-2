@@ -99,107 +99,115 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // Size of the child
         SizeF childSize = child.DesiredSize;
 
-        if (GetDock(child) == Dock.Top)
+        switch (GetDock(child))
         {
-          PointF location = new PointF(offsetLeft, offsetTop);
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
+          case Dock.Top:
+            {
+              PointF location = new PointF(offsetLeft, offsetTop);
+              location.X += ActualPosition.X;
+              location.Y += ActualPosition.Y;
 
-          // Allocate area to child
-          if (count == visibleChildren.Count && LastChildFill)
-            childArea = new SizeF(availableSize.Width, availableSize.Height);
-          else
-            childArea = new SizeF(availableSize.Width, childSize.Height);
+              // Allocate area to child
+              if (count == visibleChildren.Count && LastChildFill)
+                childArea = new SizeF(availableSize.Width, availableSize.Height);
+              else
+                childArea = new SizeF(availableSize.Width, childSize.Height);
 
-          // Position the child within the child area
-          ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
-          child.Arrange(new RectangleF(location, childArea));
+              // Position the child within the child area
+              ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
+              child.Arrange(new RectangleF(location, childArea));
 
-          offsetTop += childArea.Height;
-          availableSize.Height -= childArea.Height;
-        }
-        else if (GetDock(child) == Dock.Bottom)
-        {
-          PointF location;
-          if (count == visibleChildren.Count && LastChildFill)
-            location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + availableSize.Height));
-          else
-            location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + childSize.Height));
+              offsetTop += childArea.Height;
+              availableSize.Height -= childArea.Height;
+            }
+            break;
+          case Dock.Bottom:
+            {
+              PointF location;
+              if (count == visibleChildren.Count && LastChildFill)
+                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + availableSize.Height));
+              else
+                location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + childSize.Height));
 
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
+              location.X += ActualPosition.X;
+              location.Y += ActualPosition.Y;
 
-          // Allocate area to child
-          if (count == visibleChildren.Count && LastChildFill)
-            childArea = new SizeF(availableSize.Width, availableSize.Height);
-          else
-            childArea = new SizeF(availableSize.Width, childSize.Height);
+              // Allocate area to child
+              if (count == visibleChildren.Count && LastChildFill)
+                childArea = new SizeF(availableSize.Width, availableSize.Height);
+              else
+                childArea = new SizeF(availableSize.Width, childSize.Height);
 
-          // Position the child within the child area
-          ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
-          child.Arrange(new RectangleF(location, childArea));
+              // Position the child within the child area
+              ArrangeChildHorizontal(child, child.HorizontalAlignment, ref location, ref childArea);
+              child.Arrange(new RectangleF(location, childArea));
 
-          offsetBottom += childArea.Height;
-          availableSize.Height -= childArea.Height;
-        }
-        else if (GetDock(child) == Dock.Left)
-        {
-          PointF location = new PointF(offsetLeft, offsetTop);
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
+              offsetBottom += childArea.Height;
+              availableSize.Height -= childArea.Height;
+            }
+            break;
+          case Dock.Left:
+            {
+              PointF location = new PointF(offsetLeft, offsetTop);
+              location.X += ActualPosition.X;
+              location.Y += ActualPosition.Y;
 
-          // Allocate area to child
-          if (count == visibleChildren.Count && LastChildFill)
-            childArea = new SizeF(availableSize.Width, availableSize.Height);
-          else
-            childArea = new SizeF(childSize.Width, availableSize.Height);
+              // Allocate area to child
+              if (count == visibleChildren.Count && LastChildFill)
+                childArea = new SizeF(availableSize.Width, availableSize.Height);
+              else
+                childArea = new SizeF(childSize.Width, availableSize.Height);
 
-          // Position the child within the child area
-          ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
-          child.Arrange(new RectangleF(location, childArea));
+              // Position the child within the child area
+              ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
+              child.Arrange(new RectangleF(location, childArea));
 
-          offsetLeft += childArea.Width;
-          availableSize.Width -= childArea.Width;
-        }
-        else if (GetDock(child) == Dock.Right)
-        {
-          PointF location;
-          if (count == visibleChildren.Count && LastChildFill)
-            location = new PointF(_innerRect.Width - (offsetRight + availableSize.Width), offsetTop);
-          else
-            location = new PointF(_innerRect.Width - (offsetRight + childSize.Width), offsetTop);
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
+              offsetLeft += childArea.Width;
+              availableSize.Width -= childArea.Width;
+            }
+            break;
+          case Dock.Right:
+            {
+              PointF location;
+              if (count == visibleChildren.Count && LastChildFill)
+                location = new PointF(_innerRect.Width - (offsetRight + availableSize.Width), offsetTop);
+              else
+                location = new PointF(_innerRect.Width - (offsetRight + childSize.Width), offsetTop);
+              location.X += ActualPosition.X;
+              location.Y += ActualPosition.Y;
 
-          // Allocate area to child
-          if (count == visibleChildren.Count && LastChildFill)
-            childArea = new SizeF(availableSize.Width,availableSize.Height);
-          else
-            childArea = new SizeF(childSize.Width,availableSize.Height);
+              // Allocate area to child
+              if (count == visibleChildren.Count && LastChildFill)
+                childArea = new SizeF(availableSize.Width,availableSize.Height);
+              else
+                childArea = new SizeF(childSize.Width,availableSize.Height);
 
-          // Position the child within the child area
-          ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
-          child.Arrange(new RectangleF(location, childArea));
+              // Position the child within the child area
+              ArrangeChildVertical(child, child.VerticalAlignment, ref location, ref childArea);
+              child.Arrange(new RectangleF(location, childArea));
 
-          offsetRight += childArea.Width;
-          availableSize.Width -= childArea.Width;
-        }
-        else // Center
-        {
-          PointF location = new PointF(offsetLeft, offsetTop);
-          location.X += ActualPosition.X;
-          location.Y += ActualPosition.Y;
-          childSize = new SizeF(availableSize.Width, availableSize.Height);
-          if (count == visibleChildren.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, childSize));
-          else
-          {
-            ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref location, ref childSize);
-            child.Arrange(new RectangleF(location, childSize));
-          }
+              offsetRight += childArea.Width;
+              availableSize.Width -= childArea.Width;
+            }
+            break;
+          default: // Dock.Center
+            {
+              PointF location = new PointF(offsetLeft, offsetTop);
+              location.X += ActualPosition.X;
+              location.Y += ActualPosition.Y;
+              childSize = new SizeF(availableSize.Width, availableSize.Height);
+              if (count == visibleChildren.Count && LastChildFill)
+                child.Arrange(new RectangleF(location, childSize));
+              else
+              {
+                ArrangeChild(child, child.HorizontalAlignment, child.VerticalAlignment, ref location, ref childSize);
+                child.Arrange(new RectangleF(location, childSize));
+              }
 
-          // Do not remove child size from a border offset or from size - the child will
-          // stay in the "empty space" without taking place from the border layouting variables
+              // Do not remove child size from a border offset or from size - the child will
+              // stay in the "empty space" without taking place from the border layouting variables
+            }
+            break;
         }
       }
     }
@@ -211,10 +219,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return new SizeF(0, 0);
 
       FrameworkElement child = currentVisibleChildEnumerator.Current;
+      if (child == null) // Not necessary to check this, only to avoid warning
+        return new SizeF();
+
       SizeF childSize = new SizeF(currentAvailableSize.Width, currentAvailableSize.Height);
       SizeF nextChildrenDesiredSize;
 
-      if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
+      Dock childDock = GetDock(child);
+      if (childDock == Dock.Top || childDock == Dock.Bottom)
       {
         child.Measure(ref childSize);
         currentAvailableSize.Height -= childSize.Height;
@@ -222,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return new SizeF(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
             childSize.Height + nextChildrenDesiredSize.Height);
       }
-      if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
+      if (childDock == Dock.Left || childDock == Dock.Right)
       {
         child.Measure(ref childSize);
         currentAvailableSize.Width -= childSize.Width;
@@ -257,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>Dock</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetDock(DependencyObject targetObject, Dock value)
     {
       targetObject.SetAttachedPropertyValue<Dock>(DOCK_ATTACHED_PROPERTY, value);
