@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using MediaPortal.Backend.Services.Database;
@@ -336,10 +337,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected bool NamePresent(string dbObjectName)
     {
-      foreach (string objectName in _nameAliases.Values)
-        if (dbObjectName == objectName)
-          return true;
-      return false;
+      return _nameAliases.Values.Any(objectName => dbObjectName == objectName);
     }
 
     protected void AddNameAlias(ITransaction transaction, Guid aspectId, string objectIdentifier, string dbObjectName)
