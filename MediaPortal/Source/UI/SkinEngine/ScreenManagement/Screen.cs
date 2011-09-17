@@ -645,6 +645,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return new RenderContext(transform, null, new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
+    protected RectangleF CreateCenterRect()
+    {
+      return new RectangleF(_skinWidth / 2 - 10, _skinHeight / 2 - 10, _skinWidth / 2 + 10, _skinHeight / 2 + 10);
+    }
+
     /// <summary>
     /// Returns the currently focused element in this screen.
     /// </summary>
@@ -700,7 +705,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected void UpdateFocus(ref Key key)
     {
       FrameworkElement focusedElement = FocusedElement;
-      FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? new RectangleF?() :
+      FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? _lastFocusRect ?? CreateCenterRect() :
           focusedElement.ActualBounds, key);
       if (cntl != null)
       {
