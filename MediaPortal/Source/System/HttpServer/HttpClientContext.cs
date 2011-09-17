@@ -272,6 +272,7 @@ namespace HttpServer
 
         // copy unused bytes to the beginning of the array
         if (offset > 0 && _bytesLeft != offset)
+          // FIXME Albert, Team MediaPortal: _bytesLeft can be 0 while offset is >0
           Buffer.BlockCopy(_buffer, offset, _buffer, 0, _bytesLeft - offset);
 
         _bytesLeft -= offset;
