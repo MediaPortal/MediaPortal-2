@@ -375,7 +375,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set
       {
         base.ElementState = value;
-        if (value == ElementState.Running)
+        if (value == ElementState.Running || value == ElementState.Preparing)
           PrepareItems();
       }
     }
@@ -487,7 +487,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_preventItemsPreparation)
         return;
-      if (_elementState != ElementState.Running)
+      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
       // Check properties which are necessary in each case
       if (ItemsPanel == null) return;
@@ -593,6 +593,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         oldPreparedItems.Dispose();
       if (oldPreparedChildren != null)
         oldPreparedChildren.Dispose();
+      if (_elementState == ElementState.Preparing)
+        // Shortcut in state Preparing - no render thread necessary here to do the UpdatePreparedItems work
+        UpdatePreparedItems();
       InvalidateLayout(true, true);
     }
 

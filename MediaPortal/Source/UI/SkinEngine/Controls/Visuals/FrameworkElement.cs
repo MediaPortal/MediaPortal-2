@@ -99,7 +99,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Available,
 
     /// <summary>
-    /// The element participates in the render run.
+    /// The element doesn't participate in the render run yet but is being prepared. This means we can take some shortcuts
+    /// when setting properties.
+    /// </summary>
+    Preparing,
+
+    /// <summary>
+    /// The element participates in the render run. In this state, the render thread is the only thread which may access several
+    /// properties of the elements in the screens (only some exceptions for properties which can be accessed by the input thread).
     /// </summary>
     Running,
 
@@ -691,16 +698,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void UpdateFocus()
     {
+      if (_setFocusPrio == SetFocusPriority.None)
+        return;
       Screen screen = Screen;
       if (screen == null)
         return;
-      if (_setFocusPrio <= screen.LastFocusPriority)
-        // Only set the focus if our priority is higher than the last focus request in this layout cycle
-        return;
+      screen.ScheduleSetFocus(this, _setFocusPrio);
       _setFocusPrio = SetFocusPriority.None;
-      FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
-      if (fe != null)
-        fe.TrySetFocus(true);
     }
 
     /// <summary>

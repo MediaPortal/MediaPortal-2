@@ -79,7 +79,10 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         themeItem.SetLabel(KEY_IMAGESRC, preview);
         _items.Add(themeItem);
         if (themeSetting.CurrentThemeName == theme.Name)
+        {
+          themeItem.Selected = true;
           _choosenItem = themeItem;
+        }
       }
       _items.FireChange();
       base.SettingChanged();

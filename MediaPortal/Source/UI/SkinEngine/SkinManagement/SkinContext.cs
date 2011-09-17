@@ -46,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static Form _form;
     private static DateTime _frameRenderingStartTime;
     private static float _fps = 0;
+    private static volatile Thread _renderThread = null;
 
     public static uint SystemTickCount;
 
@@ -84,6 +85,12 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       get { return _form; }
       set { _form = value; }
+    }
+
+    public static Thread RenderThread
+    {
+      get { return _renderThread; }
+      set { _renderThread = value; }
     }
 
     /// <summary>

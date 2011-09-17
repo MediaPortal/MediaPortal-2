@@ -269,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return null;
         if (newlyCreated)
           // VisualParent and item.Screen were set by the item provider
-          item.SetElementState(ElementState.Running);
+          item.SetElementState(_elementState == ElementState.Running ? ElementState.Running : ElementState.Preparing);
         if (newlyCreated || forceMeasure)
         {
           SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float) ActualWidth, float.NaN) :

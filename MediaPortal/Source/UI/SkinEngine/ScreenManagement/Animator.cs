@@ -252,9 +252,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Animate()
     {
-      // We need to copy the values dictionary, because we need to execute the setters outside our lock.
-      // Furthermore could the setting of each value cause changes to the values dictionary.
-      IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>();
       lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
@@ -274,6 +271,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _scheduledAnimations.Remove(ac);
         }
         stoppedAnimations.Clear();
+      }
+    }
+
+    public void SetValues()
+    {
+      // We need to copy the values dictionary, because we need to execute the setters outside our lock.
+      // Furthermore could the setting of each value cause changes to the values dictionary.
+      IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>();
+      lock (_syncObject)
+      {
         CollectionUtils.AddAll(values, _valuesToSet);
         _valuesToSet.Clear();
       }

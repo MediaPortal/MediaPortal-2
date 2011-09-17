@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected void InitializeGroup()
     {
-      if (_elementState != ElementState.Running)
+      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
       if (_radioButtonGroup != null)
         // Remove from last group, if the group name changed
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set
       {
         base.ElementState = value;
-        if (value == ElementState.Running)
+        if (value == ElementState.Running || value == ElementState.Preparing)
           InitializeGroup();
       }
     }

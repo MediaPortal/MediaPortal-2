@@ -65,7 +65,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
 
-    private Thread _renderThread;
     private bool _renderThreadStopped;
     private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
@@ -279,22 +278,22 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     protected void StartRenderThread_Async()
     {
-      if (_renderThread != null)
+      if (SkinContext.RenderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
       _renderThreadStopped = false;
-      _renderThread = new Thread(RenderLoop) {Name = "DX Render"};
-      _renderThread.Start();
+      SkinContext.RenderThread = new Thread(RenderLoop) {Name = "DX Render"};
+      SkinContext.RenderThread.Start();
     }
 
     internal void StopRenderThread()
     {
       _renderThreadStopped = true;
-      if (_renderThread == null)
+      if (SkinContext.RenderThread == null)
         return;
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
-      _renderThread.Join();
-      _renderThread = null;
+      SkinContext.RenderThread.Join();
+      SkinContext.RenderThread = null;
     }
 
     private void SynchronizeToVideoPlayerFramerate(ISlimDXVideoPlayer videoPlayer)

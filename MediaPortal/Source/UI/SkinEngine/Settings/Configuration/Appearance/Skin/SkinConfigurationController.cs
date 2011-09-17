@@ -85,7 +85,10 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         skinItem.SetLabel(KEY_IMAGESRC, preview);
         _items.Add(skinItem);
         if (skinSetting.CurrentSkinName == skin.Name)
+        {
+          skinItem.Selected = true;
           _choosenItem = skinItem;
+        }
       }
       _items.FireChange();
       base.SettingChanged();

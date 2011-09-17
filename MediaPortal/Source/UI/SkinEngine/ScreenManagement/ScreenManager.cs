@@ -1060,9 +1060,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         foreach (Screen screen in disabledScreens)
           // Animation of disabled screens is necessary to avoid an overrun of the async properties setter buffer
-          screen.Animate();
+          screen.SetValues();
         foreach (Screen screen in enabledScreens)
         {
+          screen.SetValues();
           screen.Animate();
           screen.Render();
         }

@@ -49,10 +49,35 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   public enum SetFocusPriority
   {
     None,
+
+    /// <summary>
+    /// Set the focus to the element if no other focusable element is present.
+    /// </summary>
+    Fallback,
+
+    /// <summary>
+    /// Set the focus to the element as default, but value other default priorities higher.
+    /// </summary>
     DefaultLow,
+
+    /// <summary>
+    /// Set the focus to the element as default.
+    /// </summary>
     Default,
+
+    /// <summary>
+    /// Set the focus to this element as default, overrule other default focus elements.
+    /// </summary>
     DefaultHigh,
+
+    /// <summary>
+    /// Special focus priority used to restore the last skin state.
+    /// </summary>
     RestoreState,
+
+    /// <summary>
+    /// Set the focus to this element in any case. Overrule all other focus priorities.
+    /// </summary>
     Highest
   }
 
@@ -67,6 +92,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string SHOW_EVENT = "Screen.Show";
     public const string CLOSE_EVENT = "Screen.Hide";
+
+    /// <summary>
+    /// Number of render cycles where we will try to handle a set-focus query. If it is not possible to set the focus on the requested element
+    /// after this number of render cycles, the query will be discarded.
+    /// </summary>
+    protected int MAX_SET_FOCUS_AGE = 10;
 
     #endregion
 
@@ -140,6 +171,27 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    protected class ScheduledFocus
+    {
+      protected FrameworkElement _focusElement = null;
+      protected int _age = 0;
+      
+      public ScheduledFocus(FrameworkElement focusElement)
+      {
+        _focusElement = focusElement;
+      }
+
+      public FrameworkElement FocusElement
+      {
+        get { return _focusElement; }
+      }
+
+      public int IncAge()
+      {
+        return ++_age;
+      }
+    }
+
     #endregion
 
     #region Enums
@@ -163,7 +215,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected int _skinWidth;
     protected int _skinHeight;
     protected bool _hasBackground = true;
-    protected SetFocusPriority _lastFocusPrio = SetFocusPriority.None;
+    // TODO: Replace by OrderedDictionary when we move to .net 4
+    protected IDictionary<SetFocusPriority, ScheduledFocus> _scheduledFocus = new Dictionary<SetFocusPriority, ScheduledFocus>();
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -281,12 +334,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set { _hasBackground = value; }
     }
 
-    internal SetFocusPriority LastFocusPriority
-    {
-      get { return _lastFocusPrio; }
-      set { _lastFocusPrio = value; }
-    }
-
     /// <summary>
     /// Shows a virtual keyboard input control which fills the given <paramref name="textProperty"/>.
     /// </summary>
@@ -353,6 +400,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _keyBindings.Remove(key);
     }
 
+    public void SetValues()
+    {
+      lock (_root)
+        _animator.SetValues();
+    }
+
     public void Animate()
     {
       lock (_root)
@@ -373,8 +426,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           DoHandleMouseMove(x, y);
         }
-        _lastFocusPrio = SetFocusPriority.None; // Initialize focus priority state for the next layout cycle
         _root.UpdateLayoutRoot();
+        HandleScheduledFocus();
         if (_screenShowEventPending)
         {
           DoFireScreenShowingEvent();
@@ -424,11 +477,19 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         _root.InvalidateLayout(true, true);
         int maxNumUpdate = 10;
+        // Prepare run. In the prepare run, the screen uses some shortcuts to set values
+        _root.SetElementState(ElementState.Preparing);
+        _root.UpdateLayoutRoot();
+        // Switch to "Running" state which builds the final screen structure
         _root.SetElementState(ElementState.Running);
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
+        {
+          SetValues();
           // It can be necessary to call UpdateLayoutRoot multiple times because UI elements sometimes initialize template controls/styles etc.
           // in the first Measure() call, which then need to invalidate the element tree again. That can happen multiple times.
           _root.UpdateLayoutRoot();
+        }
+        HandleScheduledFocus();
       }
     }
 
@@ -442,6 +503,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _root.Deallocate();
       }
       FireClosed();
+    }
+
+    protected void HandleScheduledFocus()
+    {
+      if (_scheduledFocus.Count == 0)
+        // Shortcut
+        return;
+      for (SetFocusPriority prio = SetFocusPriority.Highest; prio != SetFocusPriority.None; prio--)
+      {
+        ScheduledFocus sf;
+        if (_scheduledFocus.TryGetValue(prio, out sf))
+          if (sf.FocusElement.TrySetFocus(true))
+          {
+            // Remove all lower focus priority requests
+            for (SetFocusPriority removePrio = prio; removePrio != SetFocusPriority.None; removePrio--)
+              _scheduledFocus.Remove(removePrio);
+          }
+          else if (sf.IncAge() > MAX_SET_FOCUS_AGE)
+            _scheduledFocus.Remove(prio);
+      }
     }
 
     protected void FireClosed()
@@ -770,5 +851,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     #endregion
+
+    public void ScheduleSetFocus(FrameworkElement element, SetFocusPriority setFocusPriority)
+    {
+      if (_scheduledFocus.ContainsKey(setFocusPriority))
+        return;
+      _scheduledFocus[setFocusPriority] = new ScheduledFocus(element);
+    }
   }
 }
