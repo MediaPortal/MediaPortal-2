@@ -273,6 +273,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
+      if (HasFocus || SetFocus)
+      {
+        FrameworkElement parent = VisualParent as FrameworkElement;
+        if (parent != null)
+          parent.SetFocus = true;
+      }
       MPF.TryCleanupAndDispose(ContextMenuCommand);
       base.Dispose();
       MPF.TryCleanupAndDispose(Style);
