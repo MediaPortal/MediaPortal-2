@@ -342,7 +342,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void PrepareState(NavigationContext context)
     {
       _currentNavigationContext = context;
-      NavigationData navigationData = NavigationData;
+      NavigationData navigationData = GetNavigationData(context, false);
       if (navigationData == null)
         PrepareRootState();
     }
