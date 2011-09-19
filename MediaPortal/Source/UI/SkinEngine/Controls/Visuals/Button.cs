@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.OnKeyPreview(ref key);
       if (!HasFocus)
         return;
-      // We handle "normal" button presses in the KeyPreview event, because "Default" and "Cancel" events need
+      // We handle "normal" button presses in the KeyPreview event, because the "Default" event needs
       // to be handled after the focused button was able to consume the event
       if (key == Key.None) return;
       if (key == Key.Ok)
@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      // We handle "Default" and "Cancel" events here, "normal" events will be handled in the KeyPreview event
+      // We handle the "Default" event here, "normal" events will be handled in the KeyPreview event
       base.OnKeyPressed(ref key);
       if (key == Key.None) return;
       if (IsDefault && key == Key.Ok)
@@ -103,8 +103,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       TrySetFocus(true);
       IsPressed = true;
-      if (Command != null)
-        Command.Execute();
+      IExecutableCommand command = Command;
+      if (command != null)
+        command.Execute();
     }
 
     #region Public properties
