@@ -29,7 +29,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public abstract class ValueKeyFrame<T>: DependencyObject
+  public abstract class ValueKeyFrame<T> : DependencyObject
   {
     #region Protected fields
 

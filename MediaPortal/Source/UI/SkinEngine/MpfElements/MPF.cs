@@ -139,6 +139,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("SplineColorKeyFrame", typeof(SkinEngine.Controls.Animations.SplineColorKeyFrame));
       _objectClassRegistrations.Add("SplineDoubleKeyFrame", typeof(SkinEngine.Controls.Animations.SplineDoubleKeyFrame));
       _objectClassRegistrations.Add("SplinePointKeyFrame", typeof(SkinEngine.Controls.Animations.SplinePointKeyFrame));
+      _objectClassRegistrations.Add("ObjectAnimationUsingKeyFrames", typeof(SkinEngine.Controls.Animations.ObjectAnimationUsingKeyFrames));
+      _objectClassRegistrations.Add("DiscreteObjectKeyFrame", typeof(SkinEngine.Controls.Animations.DiscreteObjectKeyFrame));
 
       // Triggers
       _objectClassRegistrations.Add("EventTrigger", typeof(SkinEngine.Controls.Visuals.Triggers.EventTrigger));

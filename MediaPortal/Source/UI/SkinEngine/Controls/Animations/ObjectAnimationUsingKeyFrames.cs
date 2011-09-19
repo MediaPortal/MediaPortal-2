@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -30,7 +31,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public class DoubleAnimationUsingKeyFrames: PropertyAnimationTimeline, IAddChild<DoubleKeyFrame>
+  public class ObjectAnimationUsingKeyFrames : PropertyAnimationTimeline, IAddChild<DiscreteObjectKeyFrame>
   {
     #region Protected fields
 
@@ -40,29 +41,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Ctor
 
-    public DoubleAnimationUsingKeyFrames()
+    public ObjectAnimationUsingKeyFrames()
     {
       Init();
     }
 
     void Init()
     {
-      _keyFramesProperty = new SProperty(typeof(IList<DoubleKeyFrame>), new List<DoubleKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(IList<DiscreteObjectKeyFrame>), new List<DiscreteObjectKeyFrame>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      DoubleAnimationUsingKeyFrames a = (DoubleAnimationUsingKeyFrames) source;
-      IList<DoubleKeyFrame> keyFrames = KeyFrames;
-      foreach (DoubleKeyFrame kf in a.KeyFrames)
+      ObjectAnimationUsingKeyFrames a = (ObjectAnimationUsingKeyFrames) source;
+      IList<DiscreteObjectKeyFrame> keyFrames = KeyFrames;
+      foreach (DiscreteObjectKeyFrame kf in a.KeyFrames)
         keyFrames.Add(copyManager.GetCopy(kf));
     }
 
     public override void Dispose()
     {
-      foreach (DoubleKeyFrame doubleKeyFrame in KeyFrames)
-        doubleKeyFrame.Dispose();
+      foreach (DiscreteObjectKeyFrame colorKeyFrame in KeyFrames)
+        colorKeyFrame.Dispose();
       base.Dispose();
     }
 
@@ -75,9 +76,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return _keyFramesProperty; }
     }
 
-    public IList<DoubleKeyFrame> KeyFrames
+    public IList<DiscreteObjectKeyFrame> KeyFrames
     {
-      get { return _keyFramesProperty.GetValue() as IList<DoubleKeyFrame>; }
+      get { return _keyFramesProperty.GetValue() as IList<DiscreteObjectKeyFrame>; }
     }
 
     public override double ActualDurationInMilliseconds
@@ -106,25 +107,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
-      double time = 0;
-      double start = (double) patc.StartValue;
-      foreach (DoubleKeyFrame key in KeyFrames)
+      foreach (DiscreteObjectKeyFrame key in KeyFrames)
       {
-        if (key.KeyTime.TotalMilliseconds >= timepassed)
-        {
-          double progress = timepassed - time;
-          if (progress == 0)
-            patc.DataDescriptor.Value = key.Value;
-          else
-          {
-            progress /= key.KeyTime.TotalMilliseconds - time;
-            double result = key.Interpolate(start, progress);
-            patc.DataDescriptor.Value = result;
-          }
+        if (key.KeyTime.TotalMilliseconds < timepassed)
+          continue;
+        object value = key.Value;
+        if (patc.DataDescriptor.Value == value)
           return;
-        }
-        time = key.KeyTime.TotalMilliseconds;
-        start = key.Value;
+        if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
+          patc.DataDescriptor.Value = value;
+        else
+          throw new InvalidCastException(string.Format("Cannot from {0} to {1}", value == null ? null : value.GetType(), patc.DataDescriptor.DataType));
+        return;
       }
     }
 
@@ -132,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region IAddChild Members
 
-    public void AddChild(DoubleKeyFrame o)
+    public void AddChild(DiscreteObjectKeyFrame o)
     {
       KeyFrames.Add(o);
     }

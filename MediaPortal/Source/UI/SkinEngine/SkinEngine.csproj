@@ -91,6 +91,8 @@
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DiscreteObjectKeyFrame.cs" />
+    <Compile Include="Controls\Animations\ObjectAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
