@@ -701,7 +701,7 @@
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Media.NoPlaylistsAvailable]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
@@ -726,7 +726,7 @@
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Media.NoPlaylistsAvailable]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
