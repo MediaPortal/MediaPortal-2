@@ -1403,7 +1403,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return null;
       if (!currentFocusRect.HasValue)
         return focusableChildren.First();
-      return FindNextFocusElement(focusableChildren, currentFocusRect, dir);
+      FrameworkElement result = FindNextFocusElement(focusableChildren, currentFocusRect, dir);
+      if (result != null)
+        return result;
+      return focusableChildren.First();
     }
 
     /// <summary>
