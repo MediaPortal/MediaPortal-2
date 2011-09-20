@@ -43,6 +43,11 @@ namespace MediaPortal.UI.Presentation.SkinResources
       /// are added or removed, for example.
       /// </summary>
       SkinResourcesChanged,
+
+      /// <summary>
+      /// The skin or the theme changed.
+      /// </summary>
+      SkinOrThemeChanged,
     }
 
     // Message data

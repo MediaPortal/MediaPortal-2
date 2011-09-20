@@ -193,8 +193,13 @@ namespace MediaPortal.UI.Services.Workflow
       if (message.ChannelName == SkinResourcesMessaging.CHANNEL)
       {
         SkinResourcesMessaging.MessageType messageType = (SkinResourcesMessaging.MessageType) message.MessageType;
-        if (messageType == SkinResourcesMessaging.MessageType.SkinResourcesChanged)
-          ReloadWorkflowResources();
+        switch (messageType)
+        {
+          case SkinResourcesMessaging.MessageType.SkinResourcesChanged:
+          case SkinResourcesMessaging.MessageType.SkinOrThemeChanged:
+            ReloadWorkflowResources();
+            break;
+        }
       }
     }
 
