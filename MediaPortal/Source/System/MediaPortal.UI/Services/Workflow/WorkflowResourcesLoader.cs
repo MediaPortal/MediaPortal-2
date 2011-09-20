@@ -60,7 +60,6 @@ namespace MediaPortal.UI.Services.Workflow
     /// <summary>
     /// Loads workflow resources from files contained in the current skin context.
     /// </summary>
-    /// be added.</param>
     public void Load()
     {
       _states.Clear();
