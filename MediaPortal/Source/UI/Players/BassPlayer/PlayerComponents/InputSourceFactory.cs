@@ -24,9 +24,9 @@
 
 using System;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider;
 using MediaPortal.Utilities;
 using Ui.Players.BassPlayer.InputSources;

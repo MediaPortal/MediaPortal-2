@@ -23,11 +23,11 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UiComponents.Media.General;

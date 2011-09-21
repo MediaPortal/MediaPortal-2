@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.ImageSources

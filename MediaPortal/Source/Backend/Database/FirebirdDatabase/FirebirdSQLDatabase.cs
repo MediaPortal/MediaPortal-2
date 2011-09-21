@@ -28,9 +28,9 @@ using System.IO;
 using System.Reflection;
 using FirebirdSql.Data.FirebirdClient;
 using MediaPortal.Backend.Database;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.BackendComponents.Database.Firebird.Settings;
 
 namespace MediaPortal.BackendComponents.Database.Firebird

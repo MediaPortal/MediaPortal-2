@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;

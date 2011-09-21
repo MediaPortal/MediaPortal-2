@@ -25,8 +25,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.MediaProviders.ZipMediaProvider

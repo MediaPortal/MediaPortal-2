@@ -23,8 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System;
 using DirectShowLib;
 using MediaPortal.UI.Players.Video.Tools;

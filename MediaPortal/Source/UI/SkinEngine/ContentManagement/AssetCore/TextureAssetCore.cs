@@ -27,13 +27,13 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.Core.Services.ThumbnailGenerator;
+using MediaPortal.Common.Services.ThumbnailGenerator;
 
 // TODO: Add support for web thumbnails? Requires changing IThumbnailGenerator
 

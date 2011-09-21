@@ -25,9 +25,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.SkinManagement;

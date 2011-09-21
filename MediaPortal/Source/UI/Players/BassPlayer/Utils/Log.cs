@@ -22,8 +22,8 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace Ui.Players.BassPlayer.Utils
 {

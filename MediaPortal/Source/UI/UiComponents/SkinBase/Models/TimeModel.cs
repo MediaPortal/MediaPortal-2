@@ -24,11 +24,11 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.SkinBase.Settings;
 

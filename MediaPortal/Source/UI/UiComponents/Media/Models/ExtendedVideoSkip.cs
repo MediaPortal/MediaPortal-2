@@ -25,10 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.Settings;

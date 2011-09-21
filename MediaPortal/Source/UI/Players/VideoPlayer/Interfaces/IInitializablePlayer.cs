@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.UI.Players.Video.Interfaces
 {

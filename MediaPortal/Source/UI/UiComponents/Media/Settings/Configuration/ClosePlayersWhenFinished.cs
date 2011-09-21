@@ -22,8 +22,8 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration

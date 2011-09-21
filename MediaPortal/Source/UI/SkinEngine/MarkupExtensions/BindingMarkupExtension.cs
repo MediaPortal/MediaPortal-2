@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities;

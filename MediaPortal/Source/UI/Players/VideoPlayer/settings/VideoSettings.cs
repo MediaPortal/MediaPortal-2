@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using System.Xml.Serialization;

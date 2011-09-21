@@ -23,10 +23,10 @@
 #endregion
 
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.RemovableMedia;
 using MediaPortal.UiComponents.Media.General;

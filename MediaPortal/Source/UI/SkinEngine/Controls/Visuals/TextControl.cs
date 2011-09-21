@@ -25,9 +25,9 @@
 using System;
 using System.Drawing;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX;

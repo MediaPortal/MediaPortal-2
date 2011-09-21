@@ -24,8 +24,8 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;

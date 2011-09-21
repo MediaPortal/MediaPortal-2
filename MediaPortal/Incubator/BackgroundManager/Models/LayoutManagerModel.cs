@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.BackgroundManager.Settings;
 
 namespace MediaPortal.UiComponents.BackgroundManager.Models

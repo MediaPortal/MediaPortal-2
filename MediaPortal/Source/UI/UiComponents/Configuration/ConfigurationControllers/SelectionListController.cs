@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration;
+using MediaPortal.Common.Configuration;
 using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers

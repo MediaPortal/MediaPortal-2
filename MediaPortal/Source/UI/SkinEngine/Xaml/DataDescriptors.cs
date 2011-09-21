@@ -25,7 +25,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities;
 

@@ -24,7 +24,7 @@
 
 using System;
 using System.Threading;
-using MediaPortal.Core;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Utilities.Exceptions;
 

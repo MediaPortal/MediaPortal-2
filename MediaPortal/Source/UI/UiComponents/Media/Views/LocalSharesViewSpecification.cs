@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Shares;
 
 namespace MediaPortal.UiComponents.Media.Views

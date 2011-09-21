@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.SkinEngine.Players

@@ -24,7 +24,7 @@
 
 using System;
 using System.IO;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.Extensions.BassLibraries;
 
 namespace MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider

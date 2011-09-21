@@ -29,11 +29,11 @@ using System.Net;
 using System.Threading;
 using System.Xml.Serialization;
 
-using MediaPortal.Core;
+using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Settings;
 
 using IrssComms;
 using IrssUtils;

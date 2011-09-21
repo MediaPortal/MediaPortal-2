@@ -23,13 +23,13 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.PluginManager.Builders;
 
 namespace MediaPortal.UI.Players.Video
 {

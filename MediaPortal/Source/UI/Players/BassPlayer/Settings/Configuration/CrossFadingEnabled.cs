@@ -23,7 +23,7 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace Ui.Players.BassPlayer.Settings.Configuration
 {

@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2011 Team MediaPortal
+﻿#region Copyright (C) 2007-2011 Team MediaPortal
 
 /*
     Copyright (C) 2007-2011 Team MediaPortal
@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.UiComponents.Weather
 {

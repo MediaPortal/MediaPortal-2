@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common.MediaManagement;
 using System;
 
 namespace MediaPortal.UiComponents.Media.Views

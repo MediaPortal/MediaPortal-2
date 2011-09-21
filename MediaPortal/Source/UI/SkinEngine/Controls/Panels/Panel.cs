@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;

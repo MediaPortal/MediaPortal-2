@@ -26,16 +26,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using TagLib;
 using File = TagLib.File;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 {

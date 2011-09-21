@@ -29,9 +29,9 @@ using MediaPortal.Backend.Database;
 using System.Data.SqlServerCe;
 using System.IO;
 using MediaPortal.Backend.Services.Database;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.BackendComponents.Database.SQLCE
 {

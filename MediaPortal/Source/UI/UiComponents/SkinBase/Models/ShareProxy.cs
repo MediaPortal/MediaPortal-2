@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.SystemResolver;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;

@@ -25,9 +25,9 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
 {

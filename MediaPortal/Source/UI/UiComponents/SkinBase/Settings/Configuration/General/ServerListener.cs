@@ -23,9 +23,9 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
 {

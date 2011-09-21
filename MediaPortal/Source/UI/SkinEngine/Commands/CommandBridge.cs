@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Commands;
+using MediaPortal.Common.Commands;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 

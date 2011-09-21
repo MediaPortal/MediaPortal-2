@@ -24,9 +24,9 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;

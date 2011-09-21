@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Localization;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UiComponents.Media.General
 {

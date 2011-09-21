@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 

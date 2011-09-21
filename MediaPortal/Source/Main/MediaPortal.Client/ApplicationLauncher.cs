@@ -25,14 +25,14 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
 #if DEBUG
-using MediaPortal.Core.Services.Logging;
+using MediaPortal.Common.Services.Logging;
 #else
 using MediaPortal.UI.Services.Logging;
 using System.Drawing;
@@ -41,10 +41,10 @@ using MediaPortal.Utilities.Screens;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
-using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Services.Runtime;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Runtime;
+using MediaPortal.Common.Logging;
 
 [assembly: CLSCompliant(true)]
 

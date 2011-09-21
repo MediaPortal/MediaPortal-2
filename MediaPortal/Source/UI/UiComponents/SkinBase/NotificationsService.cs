@@ -23,11 +23,11 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UiComponents.SkinBase.General;
 

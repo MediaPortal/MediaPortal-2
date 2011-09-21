@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
@@ -222,7 +222,7 @@ namespace MediaPortal.Plugins.SlimTvClient
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(Core.MediaManagement.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
+    public bool NextItem(Common.MediaManagement.ResourceAccess.IResourceLocator locator, string mimeType, StartTime startTime)
     {
       if (mimeType != "video/livetv")
         return false;

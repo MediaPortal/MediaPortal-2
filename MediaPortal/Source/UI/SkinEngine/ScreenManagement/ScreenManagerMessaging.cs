@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {

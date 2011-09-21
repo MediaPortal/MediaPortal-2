@@ -23,8 +23,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 
 namespace BDInfo

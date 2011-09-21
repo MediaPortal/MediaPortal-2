@@ -23,8 +23,8 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance

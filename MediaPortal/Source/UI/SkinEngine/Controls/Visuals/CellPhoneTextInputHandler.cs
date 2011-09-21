@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Timers;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Xaml;
 

@@ -27,9 +27,9 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 

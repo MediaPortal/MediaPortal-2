@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Screens;
@@ -35,7 +35,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Geometry;
 using MediaPortal.UI.SkinEngine.GUI;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 

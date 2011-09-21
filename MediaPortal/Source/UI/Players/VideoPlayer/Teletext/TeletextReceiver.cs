@@ -25,8 +25,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UI.Players.Video.Teletext
 {

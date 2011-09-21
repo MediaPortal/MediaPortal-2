@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Screens;
 

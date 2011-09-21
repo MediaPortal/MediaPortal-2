@@ -31,9 +31,9 @@ using System.Text;
 using System.Web;
 using System.Xml;
 using System.Xml.XPath;
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UiComponents.Weather.Grabbers
 {

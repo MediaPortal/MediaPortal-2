@@ -1,0 +1,112 @@
+#region Copyright (C) 2007-2011 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2011 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+
+namespace MediaPortal.Common.MediaManagement
+{
+  /// <summary>
+  /// Holds all metadata for a the metadata extractor specified by the <see cref="MetadataExtractorId"/>.
+  /// </summary>
+  /// <remarks>
+  /// Every metadata extractor has to declare the <see cref="MediaItemAspect"/>s of its output.
+  /// </remarks>
+  public class MetadataExtractorMetadata
+  {
+    #region Protected fields
+
+    protected Guid _metadataExtractorId;
+    protected string _name;
+    protected bool _processesNonFiles;
+    protected ICollection<string> _shareCategories;
+    protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
+
+    #endregion
+
+    public MetadataExtractorMetadata(Guid metadataExtractorId, string name, bool processesNonFiles,
+        IEnumerable<string> shareCategories, IEnumerable<MediaItemAspectMetadata> extractedAspectTypes)
+    {
+      _metadataExtractorId = metadataExtractorId;
+      _name = name;
+      _processesNonFiles = processesNonFiles;
+      _shareCategories = new List<string>(shareCategories);
+      _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+      foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
+        _extractedAspectTypes.Add(aspectMetadata.AspectId, aspectMetadata);
+    }
+
+    /// <summary>
+    /// GUID which uniquely identifies the metadata extractor.
+    /// </summary>
+    public Guid MetadataExtractorId
+    {
+      get { return _metadataExtractorId; }
+    }
+
+    /// <summary>
+    /// Returns a name for the metadata extractor.
+    /// </summary>
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the categories of media items which are supported by the metadata extractor.
+    /// </summary>
+    /// <remarks>
+    /// The categories can be used by the system to classify shares and metadata extractors. The system might
+    /// offer all metadata extractors of category "Audio" for shares classified as "Audio", for example.
+    /// <br/>
+    /// There are default categories which can be taken from the enum <see cref="DefaultMediaCategory"/>,
+    /// but also user-defined categories can be returned.
+    /// </remarks>
+    public ICollection<string> ShareCategories
+    {
+      get { return _shareCategories; }
+    }
+
+    /// <summary>
+    /// Returns the information if the metadata extractor also wants to process resources which are not files.
+    /// </summary>
+    public bool ProcessesNonFiles
+    {
+      get { return _processesNonFiles; }
+    }
+
+    /// <summary>
+    /// Returns the media item aspects which are provided by the extractor.
+    /// </summary>
+    /// <remarks>
+    /// Every media item aspect whose attributes might be equipped by the metadata extractor
+    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadata"/>
+    /// for aspects which aren't returned here, these attributes might be discarded by the system.
+    /// </remarks>
+    public IDictionary<Guid, MediaItemAspectMetadata> ExtractedAspectTypes
+    {
+      get { return _extractedAspectTypes; }
+    }
+  }
+}

@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core.Configuration;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
+using MediaPortal.Common.Configuration;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers

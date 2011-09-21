@@ -25,10 +25,10 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
-using MediaPortal.Core;
-using MediaPortal.Core.ClientCommunication;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.ClientCommunication;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Server
 {

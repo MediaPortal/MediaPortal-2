@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {

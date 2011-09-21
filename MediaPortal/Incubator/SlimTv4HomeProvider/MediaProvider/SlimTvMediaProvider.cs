@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {

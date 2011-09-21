@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;

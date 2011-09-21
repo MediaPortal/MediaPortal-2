@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement

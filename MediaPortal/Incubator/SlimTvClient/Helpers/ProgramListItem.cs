@@ -1,4 +1,4 @@
-﻿using MediaPortal.Core.General;
+﻿using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 

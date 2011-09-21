@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 

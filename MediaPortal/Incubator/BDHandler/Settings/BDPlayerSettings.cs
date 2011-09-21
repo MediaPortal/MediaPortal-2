@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.Plugins.BDHandler.Settings

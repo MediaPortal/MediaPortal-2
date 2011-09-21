@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.FileEventNotification;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common;
+using MediaPortal.Common.FileEventNotification;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaProviders.LocalFsMediaProvider
 {

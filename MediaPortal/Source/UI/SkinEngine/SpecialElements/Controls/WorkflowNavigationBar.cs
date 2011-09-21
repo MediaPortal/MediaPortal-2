@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 
