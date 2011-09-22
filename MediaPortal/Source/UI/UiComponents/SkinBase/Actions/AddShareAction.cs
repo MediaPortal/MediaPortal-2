@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action to add a share. Depending on the evaluation if our home server runs at the same machine as the GUI,
-  /// we either push the "choose media provider" or the "choose system" workflow state.
+  /// we either push the "choose resource provider" or the "choose system" workflow state.
   /// In case the home server runs at the same machine, we don't provide the local shares configuration because
   /// in each case, the local server should host our shares.
   /// If the local server is not online, we don't provide any add shares action.
@@ -46,12 +46,12 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     public const string ADD_SHARE_CONTRIBUTOR_MODEL_ID_STR = "9E456C79-3FF1-4040-8CD7-4247C4C12817";
 
     public const string SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
-    public const string SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public const string SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
 
     public static readonly Guid ADD_SHARE_CONTRIBUTOR_MODEL_ID = new Guid(ADD_SHARE_CONTRIBUTOR_MODEL_ID_STR);
 
     public static readonly Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
-    public static readonly Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR);
 
     public const string CANNOT_ADD_SHARES_TITLE_RES = "[SharesConfig.CannotAddSharesTitle]";
     public const string CANNOT_ADD_SHARE_LOCAL_HOME_SERVER_NOT_CONNECTED_RES = "[SharesConfig.CannotAddShareLocalHomeServerNotConnected]";

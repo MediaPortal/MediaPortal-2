@@ -34,8 +34,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   public interface IResourceInformationService
   {
     ICollection<string> GetMediaCategoriesFromMetadataExtractors();
-    ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata();
-    MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId);
+    ICollection<ResourceProviderMetadata> GetAllBaseResourceProviderMetadata();
+    ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId);
     string GetResourcePathDisplayName(ResourcePath path);
     string GetResourceDisplayName(ResourcePath path);
     ICollection<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path);
@@ -43,9 +43,9 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     bool DoesResourceExist(ResourcePath path);
     bool GetResourceInformation(ResourcePath path, out bool isFileSystemResource,
         out bool isFile, out string resourcePathName, out string resourceName, out DateTime lastChanged, out long size);
-    bool DoesMediaProviderSupportTreeListing(Guid mediaProviderId);
+    bool DoesResourceProviderSupportTreeListing(Guid resourceProviderId);
 
-    ResourcePath ExpandResourcePathFromString(Guid mediaProviderId, string path);
+    ResourcePath ExpandResourcePathFromString(Guid resourceProviderId, string path);
     ResourcePath ConcatenatePaths(ResourcePath basePath, string relativePath);
     string GetResourceServerBaseURL();
   }

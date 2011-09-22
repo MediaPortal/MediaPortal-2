@@ -74,7 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region IResourceAccessor implementation
 
-    public IMediaProvider ParentProvider
+    public IResourceProvider ParentProvider
     {
       get { return null; }
     }

@@ -144,7 +144,7 @@
     <String Name="SharesRemoveWorkflowNavigationContextDisplayLabel" Text="Remove shares"/>
     <String Name="ShareInfoWorkflowNavigationContextDisplayLabel" Text="Share info"/>
     <String Name="SharesAddChooseSystemWorkflowNavigationContextDisplayLabel" Text="Choose system"/>
-    <String Name="SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
+    <String Name="SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel" Text="Choose resource provider"/>
     <String Name="SharesEditEditPathWorkflowNavigationContextDisplayLabel" Text="Edit path"/>
     <String Name="SharesEditChoosePathWorkflowNavigationContextDisplayLabel" Text="Choose path"/>
     <String Name="SharesEditEditNameWorkflowNavigationContextDisplayLabel" Text="Edit name"/>
@@ -156,7 +156,7 @@
     <String Name="NoSharesAvailable" Text="There are no shares available"/>
     <String Name="ShareInformationHeader" Text="Share information"/>
     <String Name="ShareNameInfo" Text="Name:"/>
-    <String Name="ShareMediaProviderInfo" Text="Base media provider:"/>
+    <String Name="ShareResourceProviderInfo" Text="Base resource provider:"/>
     <String Name="ShareSystem" Text="System:"/>
     <String Name="SharePathInfo" Text="Path:"/>
     <String Name="ShareResourcePathInfo" Text="Technical path:"/>
@@ -175,10 +175,10 @@
     <String Name="GlobalShares" Text="Global shares"/>
     <String Name="NoConfigGlobalSharesHomeServerNotConnected" Text="The home server is currently not connected, so global shares cannot be managed at the moment."/>
     <String Name="NoConfigLocalSharesHomeServerLocal" Text="The home server is located at the same machine, so only global shares can be configured."/>
-    <String Name="ChooseMediaProviderForShare" Text="Please select a media provider for the share"/>
-    <String Name="EditMediaProviderPathForShare" Text="Edit the path to the share"/>
-    <String Name="MediaProviderPathIsNotValid" Text="Edit a valid path in the choosen media provider. You can edit a simple path which is understandable by the media provider. You can also edit a complex path in the format {[Base-MediaProvider-ID]}://[Base-MediaProvider-Path]>{[Chained-MediaProvider-ID]}://[Chained-MediaProvider-Path]>..."/>
-    <String Name="ChooseMediaProviderPathForShare" Text="Choose the path of the share"/>
+    <String Name="ChooseResourceProviderForShare" Text="Please select a resource provider for the share"/>
+    <String Name="EditResourceProviderPathForShare" Text="Edit the path to the share"/>
+    <String Name="ResourceProviderPathIsNotValid" Text="Edit a valid path in the choosen resource provider. You can edit a simple path which is understandable by the resource provider. You can also edit a complex path in the format {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]>{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]>..."/>
+    <String Name="ChooseResourceProviderPathForShare" Text="Choose the path of the share"/>
     <String Name="EditShareName" Text="Edit the share's display name"/>
     <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
     <String Name="ChooseMetadataExtractorsManually" Text="Choose metadata extractors manually"/>
@@ -191,7 +191,7 @@
     <String Name="AddLocalShare" Text="Add local share"/>
     <String Name="EditLocalShare" Text="Edit local share"/>
     <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
-    <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's media provider and/or path have been updated."/>
+    <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's resource provider and/or path have been updated."/>
     <String Name="UpdateShareRelocateItemsQueryText.Description" Text="The media library's information about the media items in that share can be updated (relocated) or cleared and reimported."/>
     <String Name="UpdateShareRelocateItemsQueryText.Query" Text="Do you want to relocate or clear and reimport?"/>
     <String Name="Relocate" Text="Relocate"/>

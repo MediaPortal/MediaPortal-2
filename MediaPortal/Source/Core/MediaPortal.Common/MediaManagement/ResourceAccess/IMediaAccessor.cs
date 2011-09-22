@@ -34,24 +34,24 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   public interface IMediaAccessor
   {
     /// <summary>
-    /// Collection of all registered local media providers, organized as a dictionary of
+    /// Collection of all registered local resource providers, organized as a dictionary of
     /// (GUID; provider) mappings.
-    /// This media provider collection is the proposed entry point to get access to physical media
+    /// This resource provider collection is the proposed entry point to get access to physical media
     /// files.
     /// </summary>
-    IDictionary<Guid, IMediaProvider> LocalMediaProviders { get; }
+    IDictionary<Guid, IResourceProvider> LocalResourceProviders { get; }
 
     /// <summery>
-    /// Returns a collection of all local base media providers. This is a convenience property for
-    /// using <see cref="LocalMediaProviders"/> and filtering and casting them for <see cref="IBaseMediaProvider"/>.
+    /// Returns a collection of all local base resource providers. This is a convenience property for
+    /// using <see cref="LocalResourceProviders"/> and filtering and casting them for <see cref="IBaseResourceProvider"/>.
     /// </summery>
-    IEnumerable<IBaseMediaProvider> LocalBaseMediaProviders { get; }
+    IEnumerable<IBaseResourceProvider> LocalBaseResourceProviders { get; }
 
     /// <summery>
-    /// Returns a collection of all local chained media providers. This is a convenience property for
-    /// using <see cref="LocalMediaProviders"/> and filtering and casting them for <see cref="IChainedMediaProvider"/>.
+    /// Returns a collection of all local chained resource providers. This is a convenience property for
+    /// using <see cref="LocalResourceProviders"/> and filtering and casting them for <see cref="IChainedResourceProvider"/>.
     /// </summery>
-    IEnumerable<IChainedMediaProvider> LocalChainedMediaProviders { get; }
+    IEnumerable<IChainedResourceProvider> LocalChainedResourceProviders { get; }
 
     /// <summary>
     /// Collection of all registered local metadata extractors, organized as a dictionary of
@@ -60,7 +60,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors { get; }
 
     /// <summary>
-    /// Initializes media providers, metadata extractors and internal structures.
+    /// Initializes resource providers, metadata extractors and internal structures.
     /// </summary>
     void Initialize();
 
@@ -109,7 +109,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
-    /// The result might not contain all media item aspects which can be extracted by the specified media provider,
+    /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode);
@@ -122,7 +122,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <param name="forceQuickMode">Specifies if only quick operations for IMetaDataExtractor are allowed.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if none of the specified providers could extract any metadata.
-    /// The result might not contain all media item aspects which can be extracted by the specified media provider,
+    /// The result might not contain all media item aspects which can be extracted by the specified resource provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode);

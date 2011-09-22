@@ -43,8 +43,8 @@ namespace MediaPortal.Common.UPnP
     public static readonly UPnPExtendedDataType DtMediaItemAspectEnumeration = new UPnPDtMediaItemAspectEnumeration();
     public static readonly UPnPExtendedDataType DtResourcePathMetadata = new UPnPDtResourcePathMetadata();
     public static readonly UPnPExtendedDataType DtResourcePathMetadataEnumeration = new UPnPDtResourcePathMetadataEnumeration();
-    public static readonly UPnPExtendedDataType DtMediaProviderMetadata = new UPnPDtMediaProviderMetadata();
-    public static readonly UPnPExtendedDataType DtMediaProviderMetadataEnumeration = new UPnPDtMediaProviderMetadataEnumeration();
+    public static readonly UPnPExtendedDataType DtResourceProviderMetadata = new UPnPDtResourceProviderMetadata();
+    public static readonly UPnPExtendedDataType DtResourceProviderMetadataEnumeration = new UPnPDtResourceProviderMetadataEnumeration();
     public static readonly UPnPExtendedDataType DtMLQueryResultGroupEnumeration = new UPnPDtMLQueryResultGroupEnumeration();
     public static readonly UPnPExtendedDataType DtMPClientMetadata = new UPnPDtMPClientMetadataEnumeration();
     public static readonly UPnPExtendedDataType DtPlaylistInformationDataEnumeration = new UPnPDtPlaylistInformationDataEnumeration();
@@ -66,8 +66,8 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtMediaItemAspectEnumeration);
       AddDataType(DtResourcePathMetadata);
       AddDataType(DtResourcePathMetadataEnumeration);
-      AddDataType(DtMediaProviderMetadata);
-      AddDataType(DtMediaProviderMetadataEnumeration);
+      AddDataType(DtResourceProviderMetadata);
+      AddDataType(DtResourceProviderMetadataEnumeration);
       AddDataType(DtMLQueryResultGroupEnumeration);
       AddDataType(DtMPClientMetadata);
       AddDataType(DtPlaylistInformationDataEnumeration);

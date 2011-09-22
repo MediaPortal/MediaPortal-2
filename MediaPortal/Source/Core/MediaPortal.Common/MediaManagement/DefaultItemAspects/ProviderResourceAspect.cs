@@ -28,7 +28,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
   /// <summary>
   /// Contains the metadata specification of the "ProviderResource" media item aspect which is assigned
-  /// to all resource files provided by some media provider.
+  /// to all resource files provided by some resource provider.
   /// </summary>
   public static class ProviderResourceAspect
   {

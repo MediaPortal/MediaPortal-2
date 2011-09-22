@@ -52,11 +52,6 @@ namespace MediaPortal.UI.Services.Shares
 
     #region Protected fields
 
-    /// <summary>
-    /// Contains the id of the LocalFsMediaProvider.
-    /// </summary>
-    protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
-
     protected IDictionary<Guid, Share> _shares = new Dictionary<Guid, Share>();
 
     #endregion

@@ -38,7 +38,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   /// </summary>
   /// <remarks>
   /// <para>
-  /// In MediaPortal, a resource is identified by the id of a media provider and a path which is sensible to that provider.
+  /// In MediaPortal, a resource is identified by the id of a resource provider and a path which is sensible to that provider.
   /// Providers can be chained in that way that a so called "base provider" provides access to a resource (e.g. from
   /// the local HDD, form an FTP server, from an HTTP site, ...) by providing a <see cref="Stream"/> instance. If this
   /// resource is able to be interpreted as an archive, for example, then an archive provider (which is able to handle such
@@ -170,11 +170,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     }
 
     /// <summary>
-    /// Convenience method for creating a <see cref="ResourcePath"/> of a single base media provider path.
+    /// Convenience method for creating a <see cref="ResourcePath"/> of a single base resource provider path.
     /// </summary>
     /// <remarks>
-    /// This method doesn't do any checks if the media provider of the given <paramref name="baseProviderId"/> is present
-    /// in the system nor if it is a base media provider. The caller has to ensure those criteria, else, the returned
+    /// This method doesn't do any checks if the resource provider of the given <paramref name="baseProviderId"/> is present
+    /// in the system nor if it is a base resource provider. The caller has to ensure those criteria, else, the returned
     /// resource path won't work (i.e. no media accessor can be created).
     /// </remarks>
     /// <param name="baseProviderId">Id of the provider for the given path.</param>
@@ -190,11 +190,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// doesn't change this instance; it creates a new <see cref="ResourcePath"/> instance.
     /// </summary>
     /// <remarks>
-    /// This method doesn't do any checks if the media provider of the given <paramref name="chainedProviderId"/> is present
-    /// in the system nor if it is a chained media provider. The caller has to ensure those criteria, else, the returned
+    /// This method doesn't do any checks if the resource provider of the given <paramref name="chainedProviderId"/> is present
+    /// in the system nor if it is a chained resource provider. The caller has to ensure those criteria, else, the returned
     /// resource path won't work (i.e. no media accessor can be created).
     /// </remarks>
-    /// <param name="chainedProviderId">Id of a chained media provider to be appended to the copy of this path.</param>
+    /// <param name="chainedProviderId">Id of a chained resource provider to be appended to the copy of this path.</param>
     /// <param name="providerPath">Path in the last chained provider segment which will be added to the copy of this path.</param>
     /// <returns>Resource path representing a path which is equal to this path with the given path segment appended.</returns>
     public ResourcePath ChainUp(Guid chainedProviderId, string providerPath)
@@ -208,8 +208,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// Appends the given provider path segment to this resource path.
     /// </summary>
     /// <remarks>
-    /// This method doesn't do any checks if the media provider of the given <paramref name="chainedProviderId"/> is present
-    /// in the system nor if it is a chained media provider. The caller has to ensure those criteria, else, the returned
+    /// This method doesn't do any checks if the resource provider of the given <paramref name="chainedProviderId"/> is present
+    /// in the system nor if it is a chained resource provider. The caller has to ensure those criteria, else, the returned
     /// resource path won't work (i.e. no media accessor can be created).
     /// </remarks>
     public void Append(Guid chainedProviderId, string providerPath)
@@ -283,7 +283,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     public void CheckValidLocalPath()
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      if (!IsAbsolute) // This will check the path itself. Below, we will check if the referenced media providers implement the correct interfaces
+      if (!IsAbsolute) // This will check the path itself. Below, we will check if the referenced resource providers implement the correct interfaces
         throw new ArgumentException(string.Format(
             "Can only access media files at an absolute resource path (given relative path is '{0}')", Serialize()));
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();
@@ -293,21 +293,21 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       do
       {
         ProviderPathSegment pathSegment = enumer.Current;
-        IMediaProvider mediaProvider;
-        if (!mediaAccessor.LocalMediaProviders.TryGetValue(pathSegment.ProviderId, out mediaProvider))
-          throw new IllegalCallException("The media provider with id '{0}' is not accessible in the current system", pathSegment.ProviderId);
+        IResourceProvider resourceProvider;
+        if (!mediaAccessor.LocalResourceProviders.TryGetValue(pathSegment.ProviderId, out resourceProvider))
+          throw new IllegalCallException("The resource provider with id '{0}' is not accessible in the current system", pathSegment.ProviderId);
         if (baseSegment)
         {
-          IBaseMediaProvider baseProvider = mediaProvider as IBaseMediaProvider;
+          IBaseResourceProvider baseProvider = resourceProvider as IBaseResourceProvider;
           if (baseProvider == null)
-            throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseMediaProvider).Name);
+            throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseResourceProvider).Name);
           baseSegment = false;
         }
         else
         {
-          IChainedMediaProvider chainedProvider = mediaProvider as IChainedMediaProvider;
+          IChainedResourceProvider chainedProvider = resourceProvider as IChainedResourceProvider;
           if (chainedProvider == null)
-            throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedMediaProvider).Name);
+            throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedResourceProvider).Name);
         }
       } while (enumer.MoveNext());
     }
@@ -317,7 +317,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// (see <see cref="CheckValidLocalPath"/>), and returns its result in a <see cref="IResourceAccessor"/> instance.
     /// </summary>
     /// <returns>Resource accessor to access the resource represented by this path.</returns>
-    /// <exception cref="IllegalCallException">If one of the referenced media providers is not available in the system or
+    /// <exception cref="IllegalCallException">If one of the referenced resource providers is not available in the system or
     /// has the wrong type, or if this path doesn't represent a valid resource in this system.</exception>
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
     public IResourceAccessor CreateLocalResourceAccessor()
@@ -332,14 +332,14 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         do
         {
           ProviderPathSegment pathSegment = enumer.Current;
-          IMediaProvider mediaProvider;
-          if (!mediaAccessor.LocalMediaProviders.TryGetValue(pathSegment.ProviderId, out mediaProvider))
-            throw new IllegalCallException("The media provider with id '{0}' is not accessible in the current system", pathSegment.ProviderId);
+          IResourceProvider resourceProvider;
+          if (!mediaAccessor.LocalResourceProviders.TryGetValue(pathSegment.ProviderId, out resourceProvider))
+            throw new IllegalCallException("The resource provider with id '{0}' is not accessible in the current system", pathSegment.ProviderId);
           if (resourceAccessor == null)
           {
-            IBaseMediaProvider baseProvider = mediaProvider as IBaseMediaProvider;
+            IBaseResourceProvider baseProvider = resourceProvider as IBaseResourceProvider;
             if (baseProvider == null)
-              throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseMediaProvider).Name);
+              throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IBaseResourceProvider).Name);
             try
             {
               resourceAccessor = baseProvider.CreateResourceAccessor(pathSegment.Path);
@@ -351,9 +351,9 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
           }
           else
           {
-            IChainedMediaProvider chainedProvider = mediaProvider as IChainedMediaProvider;
+            IChainedResourceProvider chainedProvider = resourceProvider as IChainedResourceProvider;
             if (chainedProvider == null)
-              throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedMediaProvider).Name);
+              throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedResourceProvider).Name);
             try
             {
               resourceAccessor = chainedProvider.CreateResourceAccessor(resourceAccessor, pathSegment.Path);

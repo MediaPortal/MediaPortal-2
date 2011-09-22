@@ -33,8 +33,8 @@
         <Label Grid.Row="0" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareNameInfo]"/>
         <Label Grid.Row="0" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.ShareName}" Scroll="Auto"/>
 
-        <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareMediaProviderInfo]"/>
-        <Label Grid.Row="1" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.BaseMediaProvider.Name}" Scroll="Auto"/>
+        <Label Grid.Row="1" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareResourceProviderInfo]"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.BaseResourceProvider.Name}" Scroll="Auto"/>
 
         <Label Grid.Row="2" Grid.Column="0" Margin="5" Content="[SharesConfig.ShareMediaCategoriesInfo]"/>
         <Label Grid.Row="2" Grid.Column="2" Margin="5" Content="{Binding ShareProxy.MediaCategories}" Scroll="Auto"/>

@@ -52,7 +52,7 @@ namespace MediaPortal.Common.MediaManagement
   /// in an MP 2 system.
   /// A share basically is a directory of a provider, which gets assigned a special name (the share name).
   /// Some user interaction at the GUI level will use the share as a means to simplify the work with
-  /// media provider paths (for example the automatic import).
+  /// resource provider paths (for example the automatic import).
   /// </summary>
   /// <remarks>
   /// <para>
@@ -107,7 +107,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// Creates a new share. This will create a new share id and call the constructor with it.
     /// </summary>
-    /// <param name="systemId">Specifies the system on that the media provider with the specified
+    /// <param name="systemId">Specifies the system on that the resource provider with the specified
     /// <paramref name="baseResourcePath"/> will be evaluated.</param>
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be

@@ -40,9 +40,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     public enum MessageType
     {
-      // Media provider related messages. The param will contain the id of the media provider.
-      MediaProviderAdded,
-      MediaProviderRemoved,
+      // Resource provider related messages. The param will contain the id of the resource provider.
+      ResourceProviderAdded,
+      ResourceProviderRemoved,
 
       // Metadata extractor related messages. The param will contain the id of the metadata extractor.
       MetadataExtractorAdded,
@@ -53,14 +53,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
     /// <summary>
-    /// Sends a message concerning a media provider.
+    /// Sends a message concerning a resource provider.
     /// </summary>
     /// <param name="messageType">Type of the message to send.</param>
-    /// <param name="mediaProviderId">Media provider which is affected.</param>
-    public static void SendMediaProviderMessage(MessageType messageType, Guid mediaProviderId)
+    /// <param name="resourceProviderId">Resource provider which is affected.</param>
+    public static void SendResourceProviderMessage(MessageType messageType, Guid resourceProviderId)
     {
       SystemMessage msg = new SystemMessage(messageType);
-      msg.MessageData[PARAM] = mediaProviderId;
+      msg.MessageData[PARAM] = resourceProviderId;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

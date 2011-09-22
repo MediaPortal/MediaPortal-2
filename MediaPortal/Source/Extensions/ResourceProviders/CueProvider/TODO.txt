@@ -1,0 +1,1 @@
+﻿Create a chained Cue resource provider in this project. The CueSheet class comes from the ancient MusicImporter.

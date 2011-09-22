@@ -66,13 +66,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
-    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a media provider.
+    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a resource provider.
     /// </summary>
-    protected class MediaProviderFileAbstraction : File.IFileAbstraction
+    protected class ResourceProviderFileAbstraction : File.IFileAbstraction
     {
       protected IResourceAccessor _resourceAccessor;
 
-      public MediaProviderFileAbstraction(IResourceAccessor resourceAccessor)
+      public ResourceProviderFileAbstraction(IResourceAccessor resourceAccessor)
       {
         _resourceAccessor = resourceAccessor;
       }
@@ -265,7 +265,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         try
         {
           ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
-          tag = File.Create(new MediaProviderFileAbstraction(mediaItemAccessor));
+          tag = File.Create(new ResourceProviderFileAbstraction(mediaItemAccessor));
 
         }
         catch (CorruptFileException)

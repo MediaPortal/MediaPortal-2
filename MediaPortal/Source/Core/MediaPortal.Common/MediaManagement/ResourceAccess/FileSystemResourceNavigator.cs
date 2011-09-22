@@ -37,7 +37,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <remarks>
     /// This will return all native child directories of the given directory together with all virtual child
     /// directories. The native child directories are taken directly from the given <paramref name="directoryAccessor"/>,
-    /// the virtual child directories are obtained by taking the root directories of each chained media provider applied
+    /// the virtual child directories are obtained by taking the root directories of each chained resource provider applied
     /// to the child files of the given directory.
     /// If, for example, the given <paramref name="directoryAccessor"/> contains a child directory "A" and a child
     /// archive file "B" which can work as input for an installed archive provider, providing the root directory "C"
@@ -46,7 +46,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <param name="directoryAccessor">Directory resource accessor to get all child directories for.</param>
     /// <returns>Collection of directory accessors for all native and virtual child directories or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/> and
-    /// if there is no chained media provider to unfold the given directory.</returns>
+    /// if there is no chained resource provider to unfold the given directory.</returns>
     public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor)
     {
       if (directoryAccessor is IFileSystemResourceAccessor)
@@ -60,7 +60,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
           {
-            IChainedMediaProvider provider;
+            IChainedResourceProvider provider;
             if (CanBeUnfolded(fileAccessor, out provider))
             {
               IResourceAccessor ra = provider.CreateResourceAccessor(fileAccessor, "/");
@@ -74,7 +74,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       }
       else
       { // Try to unfold simple resource
-        IChainedMediaProvider provider;
+        IChainedResourceProvider provider;
         if (CanBeUnfolded(directoryAccessor, out provider))
         {
           IResourceAccessor ra = provider.CreateResourceAccessor(directoryAccessor, "/");
@@ -108,11 +108,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// </summary>
     /// <param name="fileAccessor">File resource accessor to be used as input for a potential chained
     /// provider.</param>
-    /// <param name="provider">Chained media provider which can chain upon the given file resource.</param>
-    public static bool CanBeUnfolded(IResourceAccessor fileAccessor, out IChainedMediaProvider provider)
+    /// <param name="provider">Chained resource provider which can chain upon the given file resource.</param>
+    public static bool CanBeUnfolded(IResourceAccessor fileAccessor, out IChainedResourceProvider provider)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      foreach (IChainedMediaProvider cmp in mediaAccessor.LocalChainedMediaProviders)
+      foreach (IChainedResourceProvider cmp in mediaAccessor.LocalChainedResourceProviders)
         if (cmp.CanChainUp(fileAccessor))
         {
           provider = cmp;

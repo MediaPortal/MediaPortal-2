@@ -77,7 +77,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <param name="relativePath">Relative path to be added to the given <paramref name="nativeResourcePath"/>.</param>
     /// <returns>Concatenated path or <c>null</c>, if it doesn't exist at the system with the given
     /// <paramref name="nativeSystemId"/> or if <paramref name="nativeResourcePath"/> isn't a path in a virtual
-    /// filesystem, i.e. the underlaying media provider doesn't support concatenation of paths.</returns>
+    /// filesystem, i.e. the underlaying resource provider doesn't support concatenation of paths.</returns>
     /// <exception cref="NotConnectedException">If the given <paramref name="nativeSystemId"/> is not connected.</exception>
     ResourcePath ConcatenatePaths(string nativeSystemId, ResourcePath nativeResourcePath, string relativePath);
 

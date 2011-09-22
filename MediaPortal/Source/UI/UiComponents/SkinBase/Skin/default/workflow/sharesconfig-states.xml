@@ -32,9 +32,9 @@
 
     <!-- Provides a screen to select the base media provider of a share -->
     <WorkflowState Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
-        Name="SharesEditChooseMediaProvider"
-        DisplayLabel="[SharesConfig.SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel]"
-        MainScreen="shares_config_choose_media_provider"
+        Name="SharesEditChooseResourceProvider"
+        DisplayLabel="[SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_choose_resource_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <!-- Provides a screen to edit the media provider path of a share,

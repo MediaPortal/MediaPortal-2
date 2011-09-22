@@ -187,7 +187,7 @@
     <Content Include="Skin\default\screens\AttachToServerDialog.xaml" />
     <Content Include="Skin\default\screens\WatchSystemNotifications.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_resource_provider.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />

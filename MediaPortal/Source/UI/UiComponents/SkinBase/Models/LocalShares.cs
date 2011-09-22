@@ -55,14 +55,14 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE_RES : EDIT_SHARE_TITLE_RES; }
     }
 
-    public override bool MediaProviderSupportsResourceTreeNavigation
+    public override bool ResourceProviderSupportsResourceTreeNavigation
     {
       get
       {
-        MediaProviderMetadata mpm = BaseMediaProvider;
-        if (mpm == null)
+        ResourceProviderMetadata rpm = BaseResourceProvider;
+        if (rpm == null)
           return false;
-        IResourceAccessor rootAccessor = GetMediaProvider(mpm.MediaProviderId).CreateResourceAccessor("/");
+        IResourceAccessor rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
         try
         {
           return rootAccessor is IFileSystemResourceAccessor;
@@ -94,37 +94,37 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       sharesManagement.RegisterShare(ChoosenResourcePath, ShareName, MediaCategories);
     }
 
-    protected static IBaseMediaProvider GetMediaProvider(Guid mediaProviderId)
+    protected static IBaseResourceProvider GetResourceProvider(Guid resourceProviderId)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      IMediaProvider result;
-      if (!mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out result))
+      IResourceProvider result;
+      if (!mediaAccessor.LocalResourceProviders.TryGetValue(resourceProviderId, out result))
         return null;
-      return result as IBaseMediaProvider;
+      return result as IBaseResourceProvider;
     }
 
-    protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
+    protected override IEnumerable<ResourceProviderMetadata> GetAvailableBaseResourceProviders()
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      return mediaAccessor.LocalBaseMediaProviders.Select(mediaProvider => mediaProvider.Metadata);
+      return mediaAccessor.LocalBaseResourceProviders.Select(resourceProvider => resourceProvider.Metadata);
     }
 
-    protected override MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)
+    protected override ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId)
     {
-      return GetLocalMediaProviderMetadata(mediaProviderId);
+      return GetLocalResourceProviderMetadata(resourceProviderId);
     }
 
-    public static MediaProviderMetadata GetLocalMediaProviderMetadata(Guid mediaProviderId)
+    public static ResourceProviderMetadata GetLocalResourceProviderMetadata(Guid resourceProviderId)
     {
-      IMediaProvider result = GetMediaProvider(mediaProviderId);
+      IResourceProvider result = GetResourceProvider(resourceProviderId);
       return result == null ? null : result.Metadata;
     }
 
     protected override ResourcePath ExpandResourcePathFromString(string pathStr)
     {
-      MediaProviderMetadata mpm = BaseMediaProvider;
-      IBaseMediaProvider mp = GetMediaProvider(mpm.MediaProviderId);
-      return mp.ExpandResourcePathFromString(pathStr);
+      ResourceProviderMetadata rpm = BaseResourceProvider;
+      IBaseResourceProvider rp = GetResourceProvider(rpm.ResourceProviderId);
+      return rp.ExpandResourcePathFromString(pathStr);
     }
 
     protected override bool GetIsPathValid(ResourcePath path)

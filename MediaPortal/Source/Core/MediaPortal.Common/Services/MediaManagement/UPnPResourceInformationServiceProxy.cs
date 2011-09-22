@@ -48,19 +48,19 @@ namespace MediaPortal.Common.Services.MediaManagement
       return new List<string>(((string) outParameters[0]).Split(','));
     }
 
-    public ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata()
+    public ICollection<ResourceProviderMetadata> GetAllBaseResourceProviderMetadata()
     {
-      CpAction action = GetAction("GetAllBaseMediaProviderMetadata");
+      CpAction action = GetAction("GetAllBaseResourceProviderMetadata");
       IList<object> outParameters = action.InvokeAction(null);
-      return (ICollection<MediaProviderMetadata>) outParameters[0];
+      return (ICollection<ResourceProviderMetadata>) outParameters[0];
     }
 
-    public MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)
+    public ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId)
     {
-      CpAction action = GetAction("GetMediaProviderMetadata");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId)};
+      CpAction action = GetAction("GetResourceProviderMetadata");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(resourceProviderId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (MediaProviderMetadata) outParameters[0];
+      return (ResourceProviderMetadata) outParameters[0];
     }
 
     public string GetResourcePathDisplayName(ResourcePath path)
@@ -119,18 +119,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       return (bool) outParameters[6];
     }
 
-    public bool DoesMediaProviderSupportTreeListing(Guid mediaProviderId)
+    public bool DoesResourceProviderSupportTreeListing(Guid resourceProviderId)
     {
-      CpAction action = GetAction("DoesMediaProviderSupportTreeListing");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId)};
+      CpAction action = GetAction("DoesResourceProviderSupportTreeListing");
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(resourceProviderId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (bool) outParameters[0];
     }
 
-    public ResourcePath ExpandResourcePathFromString(Guid mediaProviderId, string path)
+    public ResourcePath ExpandResourcePathFromString(Guid resourceProviderId, string path)
     {
       CpAction action = GetAction("ExpandResourcePathFromString");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(mediaProviderId), path};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(resourceProviderId), path};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return ResourcePath.Deserialize((string) outParameters[0]);
     }

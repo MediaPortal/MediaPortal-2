@@ -89,7 +89,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <paramref name="changeTypes"/>.
     /// </summary>
     /// <remarks>
-    /// The registration of this change tracker will be stored in the underlaying media provider and thus will also
+    /// The registration of this change tracker will be stored in the underlaying resource provider and thus will also
     /// work if this resource accessor is disposed. It isn't persistent over system shutdowns and so has to be re-done
     /// every time the underlaying provider is re-created, i.e. typically on system start and when a provider plugin is
     /// enabled during the runtime.
@@ -114,7 +114,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     /// <summary>
     /// Removes all registrations of the specified <paramref name="changeDelegate"/> for all resources of the underlaying
-    /// media provider.
+    /// resource provider.
     /// </summary>
     /// <param name="changeDelegate">Delegate method to remove all registrations for.</param>
     void UnregisterAll(PathChangeDelegate changeDelegate);

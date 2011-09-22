@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.General
         return MultiMediaType.None;
       }
 
-      return DetectMultimedia(LocalFsMediaProviderBase.ToResourcePath(directory),
+      return DetectMultimedia(LocalFsResourceProviderBase.ToResourcePath(directory),
           videoMIATypeIds, imageMIATypeIds, audioMIATypeIds, out mediaItems);
     }
 

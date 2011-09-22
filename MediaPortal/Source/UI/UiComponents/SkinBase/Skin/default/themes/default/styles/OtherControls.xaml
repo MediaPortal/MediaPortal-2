@@ -495,7 +495,7 @@
       <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
 <!-- Additionally available properties to show here:
-      <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[MediaProviderMetadata].Name}"
+      <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Name}"
           FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="Categories" Grid.Column="3" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"/>
 -->

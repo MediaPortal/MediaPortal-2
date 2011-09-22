@@ -55,12 +55,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE_RES : EDIT_SHARE_TITLE_RES; }
     }
 
-    public override bool MediaProviderSupportsResourceTreeNavigation
+    public override bool ResourceProviderSupportsResourceTreeNavigation
     {
       get
       {
         IResourceInformationService ris = GetResourceInformationService();
-        return ris.DoesMediaProviderSupportTreeListing(BaseMediaProvider.MediaProviderId);
+        return ris.DoesResourceProviderSupportTreeListing(BaseResourceProvider.ResourceProviderId);
       }
     }
 
@@ -128,7 +128,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override ResourcePath ExpandResourcePathFromString(string path)
     {
       IResourceInformationService ris = GetResourceInformationService();
-      return ris.ExpandResourcePathFromString(BaseMediaProvider.MediaProviderId, path);
+      return ris.ExpandResourcePathFromString(BaseResourceProvider.ResourceProviderId, path);
     }
 
     protected override bool GetIsPathValid(ResourcePath path)
@@ -168,22 +168,21 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
+    protected override IEnumerable<ResourceProviderMetadata> GetAvailableBaseResourceProviders()
     {
       IResourceInformationService ris = GetResourceInformationService();
-      foreach (MediaProviderMetadata mpm in ris.GetAllBaseMediaProviderMetadata())
-        yield return mpm;
+      return new List<ResourceProviderMetadata>(ris.GetAllBaseResourceProviderMetadata());
     }
 
-    protected override MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)
+    protected override ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId)
     {
-      return GetServerMediaProviderMetadata(mediaProviderId);
+      return GetServerResourceProviderMetadata(resourceProviderId);
     }
 
-    public static MediaProviderMetadata GetServerMediaProviderMetadata(Guid mediaProviderId)
+    public static ResourceProviderMetadata GetServerResourceProviderMetadata(Guid resourceProviderId)
     {
       IResourceInformationService ris = GetResourceInformationService();
-      return ris.GetMediaProviderMetadata(mediaProviderId);
+      return ris.GetResourceProviderMetadata(resourceProviderId);
     }
   }
 }

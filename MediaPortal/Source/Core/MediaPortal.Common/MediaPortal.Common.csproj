@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -163,15 +163,15 @@
     <Compile Include="MediaManagement\ResourceAccess\IMediaAccessor.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IResourceMountingService.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\IChainedMediaProvider.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\IBaseMediaProvider.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\IChainedResourceProvider.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\IBaseResourceProvider.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IResourceServer.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractAttributeFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\SerializationHelper.cs" />
     <Compile Include="MediaManagement\ResourceAccess\ProviderPathSegment.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\LocalFsMediaProviderBase.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\LocalFsResourceProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />
     <Compile Include="MediaManagement\MLQueries\BetweenFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\BooleanCombinationFilter.cs" />
@@ -211,9 +211,9 @@
     <Compile Include="Services\MediaManagement\MediaAccessor.cs" />
     <Compile Include="Services\MediaManagement\MediaAccessorMessaging.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IFileSystemResourceAccessor.cs" />
-    <Compile Include="MediaManagement\ResourceAccess\IMediaProvider.cs" />
+    <Compile Include="MediaManagement\ResourceAccess\IResourceProvider.cs" />
     <Compile Include="MediaManagement\ResourceAccess\IResourceChangeNotifier.cs" />
-    <Compile Include="MediaManagement\MediaProviderMetadata.cs" />
+    <Compile Include="MediaManagement\ResourceProviderMetadata.cs" />
     <Compile Include="MediaManagement\MetadataExtractorMetadata.cs" />
     <Compile Include="MediaManagement\Share.cs" />
     <Compile Include="Messaging\AsynchronousMessageQueue.cs" />
@@ -315,8 +315,8 @@
     <Compile Include="UPnP\UPnPDtPlaylistContents.cs" />
     <Compile Include="UPnP\UPnPDtPlaylistInformationDataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMPClientMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaProviderMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaProviderMetadata.cs" />
+    <Compile Include="UPnP\UPnPDtResourceProviderMetadataEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtResourceProviderMetadata.cs" />
     <Compile Include="UPnP\UPnPDtResourcePathMetadataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspectEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAttributeValues.cs" />

@@ -38,7 +38,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   /// </summary>
   /// <remarks>
   /// Via this instance, the resource, which potentially is located in a remote system, can be accessed
-  /// via a local media provider chain specified by the <see cref="LocalResourcePath"/>.
+  /// via a local resource provider chain specified by the <see cref="LocalResourcePath"/>.
   /// To get a resource accessor, get an <see cref="IResourceLocator"/> and use its
   /// <see cref="IResourceLocator.CreateAccessor"/> method.
   /// The temporary resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method
@@ -47,10 +47,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   public interface IResourceAccessor : IDisposable
   {
     /// <summary>
-    /// Returns the media provider which provides this resource, if available. If this resource accessor is not hosted
-    /// by a media provider, this property returns <c>null</c>.
+    /// Returns the resource provider which provides this resource, if available. If this resource accessor is not hosted
+    /// by a resource provider, this property returns <c>null</c>.
     /// </summary>
-    IMediaProvider ParentProvider { get; }
+    IResourceProvider ParentProvider { get; }
 
     /// <summary>
     /// Explicitly checks if the resource described by this resource accessor currently exists.

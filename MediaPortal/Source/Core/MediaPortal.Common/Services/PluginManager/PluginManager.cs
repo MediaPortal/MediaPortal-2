@@ -410,7 +410,7 @@ namespace MediaPortal.Common.Services.PluginManager
               else
                 releaseItem = item;
               object result = itemRegistration.Item;
-              if (result != null && type.IsAssignableFrom(result.GetType()))
+              if (type.IsAssignableFrom(result.GetType()))
               {
                 if (!itemRegistration.StateTrackers.Contains(stateTracker))
                   itemRegistration.StateTrackers.Add(stateTracker);
@@ -1038,7 +1038,7 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <summary>
     /// Loads all available plugin descriptors from all known plugin directories.
     /// </summary>
-    /// <returns>Mapping of plugin names to metadata descriptors.</returns>
+    /// <returns>Mapping of plugin ids to metadata descriptors.</returns>
     public IDictionary<Guid, IPluginMetadata> LoadPluginsData()
     {
       IDictionary<Guid, IPluginMetadata> result = new Dictionary<Guid, IPluginMetadata>();

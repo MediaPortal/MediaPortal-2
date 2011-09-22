@@ -91,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       // Try to get an ILocalFsResourceAccessor
       ILocalFsResourceAccessor result = baseResourceAccessor as ILocalFsResourceAccessor;
       if (result != null)
-        // Simple case: The media item is located in the local file system or the media provider returns
+        // Simple case: The media item is located in the local file system or the resource provider returns
         // an ILocalFsResourceAccessor from elsewhere - simply return it
         return result;
       // Set up a resource bridge mapping the remote or complex resource to a local file
@@ -100,7 +100,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     #region IResourceAccessor implementation
 
-    public IMediaProvider ParentProvider
+    public IResourceProvider ParentProvider
     {
       get { return null; }
     }
@@ -127,7 +127,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     public ResourcePath LocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(LocalFsMediaProviderBase.LOCAL_FS_MEDIA_PROVIDER_ID, LocalFileSystemPath); }
+      get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFileSystemPath); }
     }
 
     public DateTime LastChanged
