@@ -17,8 +17,8 @@
   <Builder Name="CustomConfigSetting" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
 
   <Register Location="/Services">
-    <Service Id="ConfigurationManagerService" RegistrationClassName="MediaPortal.Core.Configuration.IConfigurationManager"
-        RegistrationClassAssembly="MediaPortal.Core"
+    <Service Id="ConfigurationManagerService" RegistrationClassName="MediaPortal.Common.Configuration.IConfigurationManager"
+        RegistrationClassAssembly="MediaPortal.Common"
         ServiceClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>
   </Register>
 

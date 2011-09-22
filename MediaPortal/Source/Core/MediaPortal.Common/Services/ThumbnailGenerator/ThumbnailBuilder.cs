@@ -34,8 +34,8 @@
 //using System.Windows.Media.Imaging;
 ////using DirectShowLib;
 ////using DirectShowLib.DES;
-//using MediaPortal.Core;
-//using MediaPortal.Core.Logging;
+//using MediaPortal.Common;
+//using MediaPortal.Common.Logging;
 //using MediaPortal.UI.Services.ThumbnailGenerator.Database;
 //using MediaPortal.UI.Thumbnails;
 
