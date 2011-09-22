@@ -27,7 +27,7 @@ using MediaPortal.Backend.Database;
 using System.Data.SqlServerCe;
 using MediaPortal.Backend.Services.Database;
 
-namespace MediaPortal.BackendComponents.Database.SQLCE
+namespace MediaPortal.Database.SQLCE
 {
     public class SQLCETransaction : ITransaction
     {

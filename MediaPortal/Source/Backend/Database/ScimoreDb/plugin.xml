@@ -14,6 +14,6 @@
 
   <Register Location="/Services">
     <Service Id="ScimoreDb" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
-        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.ScimoreDb.ScimoreDb"/>
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.ScimoreDb.ScimoreDb"/>
   </Register>
 </Plugin>

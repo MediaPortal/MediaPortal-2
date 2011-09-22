@@ -8,7 +8,7 @@
     <ProjectGuid>{91188F73-7361-40C1-93CE-BA24AE50A694}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.BackendComponents.Database.SQLCE</RootNamespace>
+    <RootNamespace>MediaPortal.Database.SQLCE</RootNamespace>
     <AssemblyName>SQLCEDatabase</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

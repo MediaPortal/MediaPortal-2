@@ -8,7 +8,7 @@
     <ProjectGuid>{99071112-C30D-4EBB-87AD-990DD85118D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.BackendComponents.Database.ScimoreDb</RootNamespace>
+    <RootNamespace>MediaPortal.Database.ScimoreDb</RootNamespace>
     <AssemblyName>ScimoreDb</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

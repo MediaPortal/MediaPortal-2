@@ -33,7 +33,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 
-namespace MediaPortal.BackendComponents.Database.SQLCE
+namespace MediaPortal.Database.SQLCE
 {
   public class SQLCEDatabase : ISQLDatabase
   {

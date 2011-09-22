@@ -28,7 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.BackendComponents.Database.Firebird.Settings
+namespace MediaPortal.Database.Firebird.Settings
 {
   public class FirebirdSettings
   {

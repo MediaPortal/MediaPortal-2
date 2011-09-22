@@ -14,6 +14,6 @@
 
   <Register Location="/Services">
     <Service Id="SQLCEDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
-        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.SQLCE.SQLCEDatabase"/>
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.SQLCE.SQLCEDatabase"/>
   </Register>
 </Plugin>

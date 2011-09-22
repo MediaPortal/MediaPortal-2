@@ -31,7 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using Scimore.Data.ScimoreClient;
 
-namespace MediaPortal.BackendComponents.Database.ScimoreDb
+namespace MediaPortal.Database.ScimoreDb
 {
   public class ScimoreDb : ISQLDatabase, IDisposable
   {

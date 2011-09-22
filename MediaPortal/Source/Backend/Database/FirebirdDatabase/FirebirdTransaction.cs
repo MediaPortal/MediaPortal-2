@@ -29,7 +29,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 #endif
 
-namespace MediaPortal.BackendComponents.Database.Firebird
+namespace MediaPortal.Database.Firebird
 {
   /// <summary>
   /// Encapsulates a db transaction which closes the underlaying Firebird connection automatically when the transaction is

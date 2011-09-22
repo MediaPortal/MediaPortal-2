@@ -31,9 +31,9 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
-using MediaPortal.BackendComponents.Database.Firebird.Settings;
+using MediaPortal.Database.Firebird.Settings;
 
-namespace MediaPortal.BackendComponents.Database.Firebird
+namespace MediaPortal.Database.Firebird
 {
   /// <summary>
   /// Database implementation for the FirebirdDotNet implementation.
