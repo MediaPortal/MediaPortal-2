@@ -197,19 +197,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected void InitializeItemsSource()
+    protected bool InitializeItemsSource()
     {
       SubItemsProvider sip = SubItemsProvider;
+      IEnumerable oldItemsSource = ItemsSource;
       ItemsSource = sip == null ? null : sip.GetSubItems(Context);
+      if (oldItemsSource == ItemsSource)
+        return false;
       CheckExpandable();
+      return true;
     }
 
-    protected override void PrepareItems()
+    protected override void PrepareItems(bool force)
     {
-      SubItemsProvider sip = SubItemsProvider;
-      if (ItemsSource == null && sip != null)
-        InitializeItemsSource();
-      base.PrepareItems();
+      if (_preventItemsPreparation)
+        return;
+      _preventItemsPreparation = true;
+      try
+      {
+        SubItemsProvider sip = SubItemsProvider;
+        if (ItemsSource == null && sip != null)
+        {
+          if (InitializeItemsSource()) // This could trigger a recursive call of PrepareItems(true) if the ItemsSource was changed, that's why we set _preventItemsPreparation above
+            force = true;
+        }
+      }
+      finally
+      {
+        _preventItemsPreparation = false;
+      }
+      base.PrepareItems(force);
     }
 
     protected override FrameworkElement PrepareItemContainer(object dataItem)

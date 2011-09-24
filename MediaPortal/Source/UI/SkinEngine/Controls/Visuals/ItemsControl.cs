@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _lastSelectedItem = copyManager.GetCopy(c._lastSelectedItem);
       Attach();
       _preventItemsPreparation = false;
-      copyManager.CopyCompleted += manager => PrepareItems(); // During the deep copy process, our referenced objects are not initialized yet so defer preparation of items to the end of the copy process
+      copyManager.CopyCompleted += manager => PrepareItems(false); // During the deep copy process, our referenced objects are not initialized yet so defer preparation of items to the end of the copy process
     }
 
     public override void Dispose()
@@ -200,23 +200,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnItemTemplateChanged(AbstractProperty property, object oldValue)
     {
-      PrepareItems();
+      PrepareItems(true);
     }
 
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
     {
       _panelTemplateApplied = false;
-      PrepareItems();
+      PrepareItems(true);
     }
 
     void OnDataStringProviderChanged(AbstractProperty property, object oldValue)
     {
-      PrepareItems();
+      PrepareItems(true);
     }
 
     void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
     {
-      PrepareItems();
+      PrepareItems(true);
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual void OnItemsSourceChanged()
     {
-      PrepareItems();
+      PrepareItems(true);
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         base.ElementState = value;
         if (value == ElementState.Running || value == ElementState.Preparing)
-          PrepareItems();
+          PrepareItems(false);
       }
     }
 
@@ -483,9 +483,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    protected virtual void PrepareItems()
+    protected virtual void PrepareItems(bool force)
     {
       if (_preventItemsPreparation)
+        return;
+      if (_panelTemplateApplied && _itemsHostPanel != null && !force)
         return;
       if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
@@ -708,7 +710,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.FinishInitialization(context);
       _preventItemsPreparation = false;
-      PrepareItems();
+      PrepareItems(false);
     }
   }
 }

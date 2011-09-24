@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnExpandedChanged(AbstractProperty property, object oldValue)
     {
       if (!IsItemsPrepared)
-        PrepareItems();
+        PrepareItems(false);
     }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
@@ -154,11 +154,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected override void PrepareItems()
+    protected override void PrepareItems(bool force)
     {
       if (!IsExpanded)
         return;
-      base.PrepareItems();
+      base.PrepareItems(force);
     }
 
     protected ContentPresenter FindContentPresenter()

@@ -83,6 +83,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
     }
 
+    public override void Dispose()
+    {
+      if (_radioButtonGroup != null)
+        _radioButtonGroup.Remove(this);
+      base.Dispose();
+    }
+
     #endregion
 
     #region Private/protected methods
