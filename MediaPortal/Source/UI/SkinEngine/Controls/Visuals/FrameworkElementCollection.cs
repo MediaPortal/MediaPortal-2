@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Dispose()
     {
       _parent = null;
-      Clear();
+      Clear(false);
     }
 
     public event FrameworkElementCollectionChangedDlgt CollectionChanged;
