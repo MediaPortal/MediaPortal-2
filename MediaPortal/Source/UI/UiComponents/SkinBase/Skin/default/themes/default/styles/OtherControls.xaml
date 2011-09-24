@@ -222,7 +222,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Selected}">
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
