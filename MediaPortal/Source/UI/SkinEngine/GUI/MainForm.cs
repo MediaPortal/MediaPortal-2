@@ -302,7 +302,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         if (videoPlayer == _synchronizedVideoPlayer)
           return;
-        ISlimDXVideoPlayer oldPlayer = videoPlayer;
+        ISlimDXVideoPlayer oldPlayer = _synchronizedVideoPlayer;
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
