@@ -56,15 +56,15 @@ namespace MediaPortal.Common.Services.PluginManager
   /// </para>
   /// <seealso cref="PluginState"/>.
   /// </remarks>
-  /// 
-  /// Implementation hints (multithreading strategy):
-  /// - C# locks are held shortly only to protect internal data structures against data corruption
-  /// - Protection of plugin states against concurrent modification during state changes or during item request/revocation is
-  ///   done by the use of explicit, non-blocking reader/writer locks implemented in PluginRuntime class
-  /// - It is possible to lock a plugin state dependency (reader lock) or a state lock for write (writer lock). Also a reader
-  ///   lock can be turned into a writer lock.
-  /// - With this implementation, we shouldn't get too many problems with concurrent state modifications; the only thing to
-  ///   care about is the startup and shutdown phase, where potentially multiple concurrent services try to enable plugins.
+
+  // Implementation hints (multithreading strategy):
+  // - C# locks are held shortly only to protect internal data structures against data corruption
+  // - Protection of plugin states against concurrent modification during state changes or during item request/revocation is
+  //   done by the use of explicit, non-blocking reader/writer locks implemented in PluginRuntime class
+  // - It is possible to lock a plugin state dependency (reader lock) or a state lock for write (writer lock). Also a reader
+  //   lock can be turned into a writer lock.
+  // - With this implementation, we shouldn't get too many problems with concurrent state modifications; the only thing to
+  //   care about is the startup and shutdown phase, where potentially multiple concurrent services try to enable plugins.
   public class PluginManager : IPluginManager, IStatus
   {
     #region Protected fields
@@ -127,10 +127,8 @@ namespace MediaPortal.Common.Services.PluginManager
     {
       lock (_syncObj)
       {
-        if (maintenanceMode)
-          ServiceRegistration.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
-        else
-          ServiceRegistration.Get<ILogger>().Info("PluginManager: Startup");
+        ServiceRegistration.Get<ILogger>().Info(
+            maintenanceMode ? "PluginManager: Startup in maintenance mode" : "PluginManager: Startup");
         _maintenanceMode = maintenanceMode;
         _state = PluginManagerState.Starting;
       }
@@ -154,10 +152,8 @@ namespace MediaPortal.Common.Services.PluginManager
       PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.PluginsInitialized);
       lock (_syncObj)
         _state = PluginManagerState.Running;
-      if (maintenanceMode)
-        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
-      else
-        ServiceRegistration.Get<ILogger>().Debug("PluginManager: Ready");
+      ServiceRegistration.Get<ILogger>().Debug(
+          maintenanceMode ? "PluginManager: Running in maintenance mode" : "PluginManager: Ready");
       ServiceRegistration.LoadServicesFromPlugins();
     }
 
