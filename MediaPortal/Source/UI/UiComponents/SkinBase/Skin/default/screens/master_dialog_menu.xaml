@@ -40,7 +40,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Dialog_Header_Text" -->
 
     <!-- Contents -->
-    <ListView x:Key="Contents_Element" x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}"
+    <ListView x:Key="Contents_Element" x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}"
         ItemsSource="{Binding Source={DynamicResource ResourceKey=Menu_Items,TreeSearchMode=Hybrid},Path=Resource}" SetFocusPrio="Default"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
   </Include.Resources>

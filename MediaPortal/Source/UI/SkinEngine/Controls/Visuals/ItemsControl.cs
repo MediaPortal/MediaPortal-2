@@ -492,7 +492,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
       // Check properties which are necessary in each case
-      if (ItemsPanel == null) return;
+      if (ItemsPanel == null)
+        return;
 
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null)

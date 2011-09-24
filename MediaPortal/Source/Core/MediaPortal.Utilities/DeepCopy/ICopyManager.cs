@@ -22,8 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-
 namespace MediaPortal.Utilities.DeepCopy
 {
   /// <summary>
