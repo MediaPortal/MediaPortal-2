@@ -426,8 +426,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           DoHandleMouseMove(x, y);
         }
-        SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
-        _root.UpdateLayoutRoot(skinSize);
+        if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
+          _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
         HandleScheduledFocus();
         if (_screenShowEventPending)
         {
