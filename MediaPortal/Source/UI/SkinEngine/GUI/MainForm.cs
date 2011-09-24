@@ -474,12 +474,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         else
           _isScreenSaverActive = false;
 
-        if (IsFullScreen)
-          // If we are in fullscreen mode, we may control the mouse cursor
-          ShowMouseCursor(inputManager.IsMouseUsed);
-        else
-          // Reset it to visible state, if state was switched
-          ShowMouseCursor(true);
+        // If we are in fullscreen mode, we may control the mouse cursor, else reset it to visible state, if state was switched
+        ShowMouseCursor(!IsFullScreen || inputManager.IsMouseUsed);
       }
       catch (Exception ex)
       {
