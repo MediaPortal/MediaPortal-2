@@ -1024,6 +1024,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', exiting because measurement is invalid", GetType().Name, Name));
 #endif
 #endif
+        InvalidateLayout(true, true); // Re-schedule arrangement
         return;
       }
 #if DEBUG_LAYOUT
