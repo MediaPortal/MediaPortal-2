@@ -426,7 +426,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           DoHandleMouseMove(x, y);
         }
-        _root.UpdateLayoutRoot();
+        SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
+        _root.UpdateLayoutRoot(skinSize);
         HandleScheduledFocus();
         if (_screenShowEventPending)
         {
@@ -479,7 +480,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         int maxNumUpdate = 10;
         // Prepare run. In the prepare run, the screen uses some shortcuts to set values
         _root.SetElementState(ElementState.Preparing);
-        _root.UpdateLayoutRoot();
+        SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
+        _root.UpdateLayoutRoot(skinSize);
         // Switch to "Running" state which builds the final screen structure
         _root.SetElementState(ElementState.Running);
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
@@ -487,7 +489,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           SetValues();
           // It can be necessary to call UpdateLayoutRoot multiple times because UI elements sometimes initialize template controls/styles etc.
           // in the first Measure() call, which then need to invalidate the element tree again. That can happen multiple times.
-          _root.UpdateLayoutRoot();
+          _root.UpdateLayoutRoot(skinSize);
         }
         HandleScheduledFocus();
       }

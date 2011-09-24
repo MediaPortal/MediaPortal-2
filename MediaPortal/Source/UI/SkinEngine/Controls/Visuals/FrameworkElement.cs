@@ -1210,26 +1210,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// layout debug defines are in the scope of this file.
     /// This method must be called from the render thread before the call to <see cref="Render"/>.
     /// </remarks>
-    public void UpdateLayoutRoot()
+    /// <param name="skinSize">The size of the skin.</param>
+    public void UpdateLayoutRoot(SizeF skinSize)
     {
-      Screen screen = Screen;
-      SizeF screenSize = screen == null ? SizeF.Empty : new SizeF(screen.SkinWidth, screen.SkinHeight);
-      SizeF size = new SizeF(screenSize);
+      SizeF size = new SizeF(skinSize);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
       Measure(ref size);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, screenSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
       // Ignore the measured size - arrange with screen size
-      Arrange(new RectangleF(new PointF(0, 0), screenSize));
+      Arrange(new RectangleF(new PointF(0, 0), skinSize));
     }
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
