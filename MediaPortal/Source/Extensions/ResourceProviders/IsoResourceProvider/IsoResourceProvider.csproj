@@ -8,8 +8,8 @@
     <ProjectGuid>{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Extensions.MediaProviders.IsoMediaProvider</RootNamespace>
-    <AssemblyName>IsoMediaProvider</AssemblyName>
+    <RootNamespace>MediaPortal.Extensions.ResourceProviders.IsoResourceProvider</RootNamespace>
+    <AssemblyName>IsoResourceProvider</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IsoMediaProvider.cs" />
+    <Compile Include="IsoResourceProvider.cs" />
     <Compile Include="ISOReader\DirectoryRecord.cs" />
     <Compile Include="ISOReader\FileFlags.cs" />
     <Compile Include="ISOReader\IsoFileStream.cs" />
@@ -68,17 +68,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Core</Name>
+      <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LocalFsMediaProvider\LocalFsMediaProvider.csproj">
+    <ProjectReference Include="..\..\ResourceProviders\LocalFsResourceProvider\LocalFsResourceProvider.csproj">
       <Project>{347E1EC5-D40A-4A9A-A219-B0507A8A0D40}</Project>
-      <Name>LocalFsMediaProvider</Name>
+      <Name>LocalFsResourceProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
