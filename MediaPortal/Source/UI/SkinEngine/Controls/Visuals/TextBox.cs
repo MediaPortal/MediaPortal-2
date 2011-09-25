@@ -61,9 +61,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       TextBox t = (TextBox) source;
+      CaretIndex = t.CaretIndex;
       Text = t.Text;
       Color = t.Color;
-      CaretIndex = t.CaretIndex;
+
+      PreferredTextLength = t.PreferredTextLength;
+      TextAlign = t.TextAlign;
     }
 
     #endregion

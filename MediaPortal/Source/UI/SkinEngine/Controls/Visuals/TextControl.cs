@@ -116,8 +116,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _textProperty.Attach(OnTextChanged);
-      _caretIndexProperty.Attach(OnCaretIndexChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
+      _caretIndexProperty.Attach(OnCaretIndexChanged);
       _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
@@ -129,8 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
-      _caretIndexProperty.Detach(OnCaretIndexChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
+      _caretIndexProperty.Detach(OnCaretIndexChanged);
       _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
@@ -145,9 +145,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       TextControl tc = (TextControl) source;
       Text = tc.Text;
-      Color = tc.Color;
-      CaretIndex = tc.CaretIndex;
       InternalText = Text;
+      CaretIndex = tc.CaretIndex;
+      Color = tc.Color;
+      PreferredTextLength = tc.PreferredTextLength;
       Attach();
       CheckTextCursor();
     }
@@ -445,7 +446,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float) localRenderContext.Opacity;
 
       // Render text
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, false, false, localRenderContext.ZOrder, TextScrollEnum.None, 0.0f, localRenderContext.Transform);
 
       // Update text cursor
       if ((_cursorShapeInvalid || _cursorBrushInvalid) && CursorState == TextCursorState.Visible)

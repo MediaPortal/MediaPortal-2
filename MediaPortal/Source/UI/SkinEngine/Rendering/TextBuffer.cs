@@ -423,11 +423,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="vertAlignment">The vertical alignment.</param>
     /// <param name="color">The color.</param>
     /// <param name="wrap">If <c>true</c> then text will be word-wrapped to fit the <paramref name="textBox"/>.</param>
+    /// <param name="fade">If <c>true</c> then text will be faded at the edge of the <paramref name="textBox"/>.</param>
     /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
     /// <param name="scrollMode">Text scrolling behaviour.</param>
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="finalTransform">The final combined layout/render-transform.</param>
-    public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color, bool wrap, float zOrder,
+    public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
+        bool wrap, bool fade, float zOrder,
         TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
     {
       if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
@@ -473,7 +475,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Do we need to add fading edges?
       Vector4 fadeBorder;
-      if (CalculateFadeBorder(actualScrollMode, textBox, horzAlignment, out fadeBorder))
+      if (fade && CalculateFadeBorder(actualScrollMode, textBox, horzAlignment, out fadeBorder))
       {
         _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT_FADE);
         _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;

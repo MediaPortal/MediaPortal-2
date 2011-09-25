@@ -272,7 +272,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, localRenderContext.ZOrder, 
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
         Scroll, (float) ScrollSpeed, localRenderContext.Transform);
     }
 
