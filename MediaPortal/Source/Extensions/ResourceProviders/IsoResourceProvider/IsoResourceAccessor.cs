@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       _isDirectory = true;
       _resourceName = Path.GetFileName(_isoResourceAccessor.ResourceName);
       _resourcePath = _pathFile == "/" ? "/" : dosPath;
-      _lastChanged = DateTime.MinValue;
+      _lastChanged = accessor.LastChanged;
       _size = -1;
 
       if (!IsEmptyOrRoot)
