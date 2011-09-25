@@ -63,8 +63,8 @@
       <Component Id="HttpServer" Guid="D26BF800-F936-4FD8-94A9-9A71CCB7AB3B">
         <File Id="HttpServer.dll" Name="HttpServer.dll" KeyPath="yes" Checksum="yes" />
       </Component>
-      <Component Id="MediaPortal.Core" Guid="60570A25-6C30-4CBB-8484-261C99C74B71">
-        <File Id="MediaPortal.Core.dll" Name="MediaPortal.Core.dll" KeyPath="yes" Checksum="yes" />
+      <Component Id="MediaPortal.Common" Guid="60570A25-6C30-4CBB-8484-261C99C74B71">
+        <File Id="MediaPortal.Common.dll" Name="MediaPortal.Common.dll" KeyPath="yes" Checksum="yes" />
       </Component>
       <Component Id="MediaPortal.UI" Guid="07414112-5955-4639-B425-25DE0D55684D">
         <File Id="MediaPortal.UI.dll" Name="MediaPortal.UI.dll" KeyPath="yes" Checksum="yes" />

@@ -68,8 +68,8 @@
       <Component Id="MediaPortal.Backend" Guid="C6555D68-586C-45FF-9E5B-92C00F6E3A25">
         <File Id="MediaPortal.Backend.dll" Name="MediaPortal.Backend.dll" KeyPath="yes" Checksum="yes" />
       </Component>
-      <Component Id="S__MediaPortal.Core" Guid="51EFED2C-A252-4EEF-9C72-4829DA11FC27">
-        <File Id="S__MediaPortal.Core.dll" Name="MediaPortal.Core.dll" KeyPath="yes" Checksum="yes" />
+      <Component Id="S__MediaPortal.Common" Guid="51EFED2C-A252-4EEF-9C72-4829DA11FC27">
+        <File Id="S__MediaPortal.Common.dll" Name="MediaPortal.Common.dll" KeyPath="yes" Checksum="yes" />
       </Component>
       <Component Id="S__MediaPortal.Utilities" Guid="9726D595-7054-438A-9E77-39ECEE934769">
         <File Id="S__MediaPortal.Utilities.dll" Name="MediaPortal.Utilities.dll" KeyPath="yes" Checksum="yes" />

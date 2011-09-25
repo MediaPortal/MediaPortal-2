@@ -28,13 +28,13 @@ using System.IO;
 using Microsoft.Deployment.WindowsInstaller;
 
 using MediaPortal.Backend.Services.SystemResolver;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Services.Settings;
-using MediaPortal.Core.Services.PathManager;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.SystemResolver;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Services.PathManager;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication.Settings;
 using Microsoft.Win32;
 

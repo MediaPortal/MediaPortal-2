@@ -28,7 +28,7 @@
       <ComponentRef Id="S__HttpServer" />
       <ComponentRef Id="S__log4net" />
       <ComponentRef Id="MediaPortal.Backend" />
-      <ComponentRef Id="S__MediaPortal.Core" />
+      <ComponentRef Id="S__MediaPortal.Common" />
       <ComponentRef Id="S__MediaPortal.Utilities" />
       <ComponentRef Id="S_Microsoft.WindowsAPICodePack"/>
       <ComponentRef Id="S_Microsoft.WindowsAPICodePack.Shell"/>

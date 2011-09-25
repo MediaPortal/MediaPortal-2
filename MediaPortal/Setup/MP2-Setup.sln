@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
@@ -8,17 +8,17 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomActions", "CustomActions\CustomActions.csproj", "{461696FB-AB81-4BF8-8907-E648F51CCDF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "..\Source\System\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\Source\System\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\Source\System\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.UI", "..\Source\System\MediaPortal.UI\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.UI", "..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MP2references", "MP2references", "{7E55CAE4-ADE5-4118-BC01-1256ED558E6A}"
 EndProject
