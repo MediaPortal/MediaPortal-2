@@ -3,14 +3,14 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_configuration_dialog_wb.xaml"
+    Source="screens\master_configuration_entry.xaml"
     >
   <Include.Resources>
     <!-- Configuration model -->
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
-    <ResourceWrapper x:Key="Config_Contents_Element">
-      <Grid>
+    <ResourceWrapper x:Key="Config_Entry_Element">
+      <Grid x:Name="ContentsGrid">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>

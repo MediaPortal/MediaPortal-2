@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
   /// Configuration controller for the <see cref="NumberSelect"/> and <see cref="LimitedNumberSelect"/> configuration settings.
   /// For <see cref="NumberSelect"/> the value's min/max definitions are used as internal limit.
   /// </summary>
-  public class NumberSelectController : DialogConfigurationController
+  public class NumberSelectController : AbstractEntryController
   {
     #region Consts
 
@@ -52,8 +52,10 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     public interface INumberModel
     {
-      bool TrySetValue(string value, out string errorText);
       object Value { get; }
+      bool IsUpEnabled { get; }
+      bool IsDownEnabled { get; }
+      bool TrySetValue(string value, out string errorText);
       double LowerLimit { get; set; }
       double UpperLimit { get; set; }
       void Up();
@@ -140,6 +142,16 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       {
         get { return _upperLimit; }
         set { _upperLimit = value; }
+      }
+
+      public bool IsUpEnabled
+      {
+        get { return _value < _upperLimit; }
+      }
+
+      public bool IsDownEnabled
+      {
+        get { return _value > _lowerLimit; }
       }
 
       public void Up()
@@ -233,6 +245,16 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         set { _upperLimit = (int)value; }
       }
 
+      public bool IsUpEnabled
+      {
+        get { return _value < _upperLimit; }
+      }
+
+      public bool IsDownEnabled
+      {
+        get { return _value > _lowerLimit; }
+      }
+
       public void Up()
       {
         if (_value + _step > _upperLimit)
@@ -254,18 +276,16 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     #region Protected fields
 
-    protected AbstractProperty _valueProperty;
-    protected AbstractProperty _isValueValidProperty;
-    protected AbstractProperty _errorTextProperty;
     protected INumberModel _numberModel = null;
+    protected AbstractProperty _isUpEnabledProperty;
+    protected AbstractProperty _isDownEnabledProperty;
 
     #endregion
 
     public NumberSelectController()
     {
-      _valueProperty = new WProperty(typeof(string), "0");
-      _isValueValidProperty = new WProperty(typeof(bool), true);
-      _errorTextProperty = new WProperty(typeof(string), string.Empty);
+      _isUpEnabledProperty = new WProperty(typeof(bool), true);
+      _isDownEnabledProperty = new WProperty(typeof(bool), true);
 
       _valueProperty.Attach(OnValueChanged);
     }
@@ -283,6 +303,8 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
         IsValueValid = false;
         ErrorText = errorText;
       }
+      IsUpEnabled = _numberModel.IsUpEnabled;
+      IsDownEnabled = _numberModel.IsDownEnabled;
     }
 
     public override Type ConfigSettingType
@@ -293,6 +315,28 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
     protected override string DialogScreen
     {
       get { return "dialog_configuration_numberselect"; }
+    }
+
+    public AbstractProperty IsUpEnabledProperty
+    {
+      get { return _isUpEnabledProperty; }
+    }
+
+    public bool IsUpEnabled
+    {
+      get { return (bool) _isUpEnabledProperty.GetValue(); }
+      set { _isUpEnabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsDownEnabledProperty
+    {
+      get { return _isDownEnabledProperty; }
+    }
+
+    public bool IsDownEnabled
+    {
+      get { return (bool) _isDownEnabledProperty.GetValue(); }
+      set { _isDownEnabledProperty.SetValue(value); }
     }
 
     protected override void SettingChanged()
@@ -314,6 +358,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       }
       GetLimits();
       Value = _numberModel.ToString();
+      DisplayLength = (int) Math.Log10(_numberModel.UpperLimit) + 1;
     }
 
     private void GetLimits()
@@ -332,39 +377,6 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
       GetLimits();
       numberSelect.Value = Convert.ToDouble(_numberModel.Value);
       base.UpdateSetting();
-    }
-
-    public AbstractProperty ValueProperty
-    {
-      get { return _valueProperty; }
-    }
-
-    public string Value
-    {
-      get { return (string) _valueProperty.GetValue(); }
-      set { _valueProperty.SetValue(value); }
-    }
-
-    public AbstractProperty IsValueValidProperty
-    {
-      get { return _isValueValidProperty; }
-    }
-
-    public bool IsValueValid
-    {
-      get { return (bool) _isValueValidProperty.GetValue(); }
-      set { _isValueValidProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ErrorTextProperty
-    {
-      get { return _errorTextProperty; }
-    }
-
-    public string ErrorText
-    {
-      get { return (string) _errorTextProperty.GetValue(); }
-      set { _errorTextProperty.SetValue(value); }
     }
 
     public void Up()
