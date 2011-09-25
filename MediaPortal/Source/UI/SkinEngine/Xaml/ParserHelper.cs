@@ -94,5 +94,24 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       context.LookupNamespace(typeName, out localName, out namespaceURI);
       return context.GetNamespaceHandler(namespaceURI).GetElementType(localName);
     }
+
+    /// <summary>
+    /// Given an element parsed from a XAML file, this method unwraps the include's content and returns it,
+    /// if it is an <see cref="IInclude"/>.
+    /// </summary>
+    /// <param name="maybeIncludeElement">Element parsed from a XAML file.</param>
+    /// <returns>The given <paramref name="maybeIncludeElement"/> or its content, if it is an include.</returns>
+    public static object UnwrapIncludesAndCleanup(object maybeIncludeElement)
+    {
+      IInclude include = maybeIncludeElement as IInclude;
+      if (include == null)
+        return maybeIncludeElement;
+      object content = include.PassContent();
+      object result = UnwrapIncludesAndCleanup(content);
+      IDisposable disposable = include as IDisposable;
+      if (disposable != null)
+        disposable.Dispose();
+      return result;
+    }
   }
 }

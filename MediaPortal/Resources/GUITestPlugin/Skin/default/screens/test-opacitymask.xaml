@@ -58,10 +58,8 @@
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
         <Label Content="Simple"/>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}"/>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}"/>
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
       </StackPanel>
   
       <StackPanel x:Name="ButtonTranslatedPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="1" Grid.Row="0">
@@ -72,15 +70,13 @@
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
         <Label Content="Button translated"/>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}">
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="{StaticResource ButtonTranslation}"/>
             <!-- Brush (gradient) will be adapted to the real render size of the stack panel -->
           </Button.RenderTransform>
         </Button>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}"/>
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
       </StackPanel>
   
       <StackPanel x:Name="RotatingPanel" Style="{StaticResource SurroundingStackPanelStyle}" Grid.Column="2" Grid.Row="0" RenderTransformOrigin="0.5,0.5">
@@ -95,15 +91,13 @@
           <!-- Brush (gradient) should be rotated too -->
         </StackPanel.RenderTransform>
         <Label Content="StackPanel rotated"/>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}">
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="{StaticResource ButtonTranslation}"/>
             <!-- Brush (gradient) will be adapted to the real render size of the stack panel -->
           </Button.RenderTransform>
         </Button>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}"/>
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
         <StackPanel.Triggers>
           <EventTrigger RoutedEvent="UIElement.Loaded">
             <BeginStoryboard x:Name="RotationStoryboard" Storyboard="{StaticResource RotationStoryboard}"/>
@@ -119,8 +113,7 @@
           </LinearGradientBrush>
         </StackPanel.OpacityMask>
         <Label Content="Button moving"/>
-        <Button x:Name="TranslatingButton" Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}">
+        <Button x:Name="TranslatingButton" Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}">
           <Button.RenderTransform>
             <TranslateTransform X="0"/>
             <!-- Brush (gradient) will be adapted to the overall real render size of the stack panel -->
@@ -131,8 +124,7 @@
             </EventTrigger>
           </Button.Triggers>
         </Button>
-        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Style="{ThemeResource ButtonStyle}"
-            Content="{StaticResource ButtonContent}"/>
+        <Button Margin="5" RenderTransformOrigin="0.5,0.5" Content="{StaticResource ButtonContent}"/>
       </StackPanel>
   
       <Label Content="Test" Grid.Row="2" Grid.Column="0"/>

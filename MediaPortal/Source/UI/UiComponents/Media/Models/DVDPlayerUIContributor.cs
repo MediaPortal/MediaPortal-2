@@ -24,17 +24,17 @@
 
 using System;
 using System.Windows.Forms;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Commands;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Commands;
 
 namespace MediaPortal.UiComponents.Media.Models
 {

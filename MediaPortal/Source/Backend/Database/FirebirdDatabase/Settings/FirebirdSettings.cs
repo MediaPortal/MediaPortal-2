@@ -24,11 +24,11 @@
 
 using System.IO;
 using FirebirdSql.Data.FirebirdClient;
-using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.BackendComponents.Database.Firebird.Settings
+namespace MediaPortal.Database.Firebird.Settings
 {
   public class FirebirdSettings
   {

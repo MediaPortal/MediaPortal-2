@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Weather">
+    <String Name="WeatherStateDisplayLabel" Text="Wetter"/>
+    <String Name="WeatherSetupStateDisplayLabel" Text="Wetter-Setup"/>
+    <String Name="WeatherLocationStateDisplayLabel" Text="Ort auswählen"/>
+
     <String Name="Title" Text="Wetter"/>
     <String Name="ChooseLocation" Text="Stadt wählen"/>
     <String Name="Refresh" Text="Aktualisieren"/>

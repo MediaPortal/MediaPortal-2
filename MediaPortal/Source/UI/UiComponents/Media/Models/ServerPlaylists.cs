@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Exceptions;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common;
+using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Models

@@ -61,6 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       foreach (GradientBrushTexture brushTexture in _cache)
         brushTexture.Dispose();
+      _cache.Clear();
     }
   }
 }

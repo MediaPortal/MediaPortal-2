@@ -27,7 +27,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using Scimore.Data.ScimoreClient;
 
-namespace MediaPortal.BackendComponents.Database.ScimoreDb
+namespace MediaPortal.Database.ScimoreDb
 {
     public class ScimoreDbTransaction : ITransaction
     {

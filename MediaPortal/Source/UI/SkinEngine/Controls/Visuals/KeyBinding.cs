@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       UnregisterKeyBinding();
-      Registration.TryCleanupAndDispose(Command);
+      MPF.TryCleanupAndDispose(Command);
       base.Dispose();
     }
 

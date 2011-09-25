@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 

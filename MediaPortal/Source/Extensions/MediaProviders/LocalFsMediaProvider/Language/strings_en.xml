@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Language>
-  <Section Name="LocalFsMediaProvider">
-    <String Name="Name" Text="Local filesystem mediaprovider"/>
-  </Section>
-</Language>

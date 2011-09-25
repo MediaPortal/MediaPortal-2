@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(Background);
       Children.Dispose();
       base.Dispose();
     }
@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Background = copyManager.GetCopy(p.Background);
       IsItemsHost = p.IsItemsHost;
       foreach (FrameworkElement el in p.Children)
-        Children.Add(copyManager.GetCopy(el));
+        Children.Add(copyManager.GetCopy(el), false);
       Attach();
     }
 
@@ -311,6 +311,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
+    protected static void TryScheduleUpdateParentsRenderOrder(DependencyObject targetObject)
+    {
+      Visual v = targetObject as Visual;
+      if (v != null)
+      {
+        Panel parent = v.VisualParent as Panel;
+        if (parent != null)
+          parent._updateRenderOrder = true;
+      }
+    }
+
     /// <summary>
     /// Returns all children which should be rendered.
     /// </summary>
@@ -378,17 +389,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     #endregion
 
     #region Attached properties
-
-    protected static void TryScheduleUpdateParentsRenderOrder(DependencyObject targetObject)
-    {
-      Visual v = targetObject as Visual;
-      if (v != null)
-      {
-        Panel parent = v.VisualParent as Panel;
-        if (parent != null)
-          parent._updateRenderOrder = true;
-      }
-    }
 
     /// <summary>
     /// Getter method for the attached property <c>ZIndex</c>.

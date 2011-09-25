@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("MyHelloWorld")]
-[assembly : AssemblyDescription("")]
+[assembly: AssemblyTitle("Hello World Example Plugin")]
+[assembly: AssemblyDescription("Shows how a plugin can be written for MediaPortal 2")]
 [assembly : AssemblyConfiguration("")]
-[assembly : AssemblyCompany("")]
-[assembly: AssemblyProduct("MyHelloWorld")]
-[assembly : AssemblyCopyright("Copyright ©  2007")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("HelloWorldExamplePlugin - MediaPortal 2")]
+[assembly: AssemblyCopyright("Copyright ©  2008-2011")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 

@@ -25,10 +25,10 @@
 
 using System;
 
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General

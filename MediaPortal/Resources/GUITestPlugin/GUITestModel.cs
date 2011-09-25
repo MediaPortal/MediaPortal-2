@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 

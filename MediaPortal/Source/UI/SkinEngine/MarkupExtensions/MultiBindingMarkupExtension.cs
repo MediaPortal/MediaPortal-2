@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     // State variables
     protected object _syncObj = new object();
-    protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
+    protected bool _valueAssigned = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
     protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected bool _isUpdatingSourceValue = false; // Avoid recursive calls to method UpdateSourceValue
@@ -62,6 +62,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     // Derived properties
     protected DataDescriptorRepeater _evaluatedSourceValue = new DataDescriptorRepeater();
     protected BindingDependency _bindingDependency = null;
+
+    protected IDataDescriptor _lastUpdatedValue = null;
 
     #endregion
 
@@ -250,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <param name="sourceValue">Our <see cref="_evaluatedSourceValue"/> data descriptor.</param>
     protected void OnSourceValueChanged(IDataDescriptor sourceValue)
     {
-      if (_active && _retryBinding)
+      if (_active && !_valueAssigned)
         UpdateBinding();
     }
 
@@ -359,16 +361,23 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         { // In this case, this instance should be used rather than the evaluated source value
           if (_targetDataDescriptor != null)
             _contextObject.SetBindingValue(_targetDataDescriptor, this);
-          _retryBinding = false;
+          _valueAssigned = true;
           return true;
         }
         IDataDescriptor sourceDd;
         lock (_syncObj)
           if (!Evaluate(out sourceDd))
           {
-            _retryBinding = true;
+            _valueAssigned = false;
             return false;
           }
+
+        // We're called multiple times, for example when a resource dictionary changes.
+        // To avoid too many updates, we remember the last updated value.
+        if (ReferenceEquals(sourceDd, _lastUpdatedValue) && !_valueAssigned)
+          return true;
+        _lastUpdatedValue = sourceDd;
+
         // Don't lock the following lines because the binding dependency object updates source or target objects.
         // Holding a lock during that process would offend against the MP2 threading policy.
 
@@ -382,14 +391,15 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             throw new XamlBindingException(
                 "MultiBindingMarkupExtension doesn't support BindingMode.TwoWay and BindingMode.OneWayToSource");
           case BindingMode.OneTime:
-            _contextObject.SetBindingValue(_targetDataDescriptor, sourceDd.Value);
-            _retryBinding = false;
+            object value = sourceDd.Value;
+            _contextObject.SetBindingValue(_targetDataDescriptor, value);
+            _valueAssigned = true;
             Dispose();
             return true; // In this case, we have finished with only assigning the value
           default: // Mode == BindingMode.OneWay || Mode == BindingMode.Default
             _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
                 UpdateSourceTrigger.Explicit, null, null, null);
-            _retryBinding = false;
+            _valueAssigned = true;
             break;
         }
         return true;

@@ -26,7 +26,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="Screen"
     >
   <Screen.Resources>
@@ -44,8 +46,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
-  <DockPanel x:Name="ScreenAnimationElement" Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-      RenderTransformOrigin="0.5,0.5" LastChildFill="True">
+  <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" LastChildFill="True">
     <DockPanel.RenderTransform>
       <TransformGroup>
         <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>

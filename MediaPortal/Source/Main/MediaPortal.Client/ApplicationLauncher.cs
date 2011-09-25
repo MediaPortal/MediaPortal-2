@@ -23,28 +23,28 @@
 #endregion
 
 using System;
-using System.Drawing;
-using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
 #if DEBUG
-using MediaPortal.Core.Services.Logging;
+using MediaPortal.Common.Services.Logging;
 #else
 using MediaPortal.UI.Services.Logging;
+using System.Drawing;
+using System.IO;
+using MediaPortal.Utilities.Screens;
 #endif
 using MediaPortal.UI.Shares;
 using CommandLine;
-using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Services.Runtime;
-using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Screens;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Runtime;
+using MediaPortal.Common.Logging;
 
 [assembly: CLSCompliant(true)]
 
@@ -55,6 +55,7 @@ namespace MediaPortal.Client
   /// </summary>
   internal static class ApplicationLauncher
   {
+#if !DEBUG
     private static SplashScreen CreateSplashScreen()
     {
       SplashScreen result = new SplashScreen
@@ -67,6 +68,7 @@ namespace MediaPortal.Client
           };
       return result;
     }
+#endif
 
     /// <summary>
     /// The main entry point for the MP 2 client application.
@@ -75,8 +77,10 @@ namespace MediaPortal.Client
     {
       Thread.CurrentThread.Name = "Main";
 
+#if !DEBUG
       SplashScreen splashScreen = CreateSplashScreen();
       splashScreen.ShowSplashScreen();
+#endif
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
@@ -153,7 +157,9 @@ namespace MediaPortal.Client
           skinEngine.Initialize(); // 1)
           workflowManager.Initialize(); // 2)
 
+#if !DEBUG
           splashScreen.CloseSplashScreen(); // 3)
+#endif
 
           skinEngine.Startup(); // 4)
           UiExtension.Startup(); // 5)

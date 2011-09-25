@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using System.Xml.Serialization;
@@ -63,6 +63,13 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo AudioCodec { get; set; }
+
+    // Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// <summary>
+    /// Gets or Sets the preferred audio codec for LATM-AAC.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo AudioCodecLATMAAC { get; set; }
 
     /// <summary>
     /// Gets or sets the preferred MPEG2 codec.

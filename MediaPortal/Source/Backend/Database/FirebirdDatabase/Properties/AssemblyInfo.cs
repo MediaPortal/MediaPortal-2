@@ -29,12 +29,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly : AssemblyTitle("MediaPortal.Core.Database")]
-[assembly : AssemblyDescription("")]
+[assembly: AssemblyTitle("FirebirdDatabase")]
+[assembly: AssemblyDescription("Firebird database for MediaPortal 2")]
 [assembly : AssemblyConfiguration("")]
-[assembly : AssemblyCompany("TSS")]
-[assembly : AssemblyProduct("MediaPortal.Core.Database")]
-[assembly : AssemblyCopyright("Copyright © TSS 2007")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("MediaPortal 2")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2010")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 

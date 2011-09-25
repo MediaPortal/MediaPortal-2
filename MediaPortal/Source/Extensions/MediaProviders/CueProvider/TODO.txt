@@ -1,1 +1,0 @@
-﻿Create a chained Cue media provider in this project. The CueSheet class comes from the ancient MusicImporter.

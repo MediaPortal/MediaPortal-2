@@ -32,8 +32,8 @@ Modification History:
 * *** **********************************************/
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {

@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Models;
 

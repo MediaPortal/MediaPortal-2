@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow states template -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <!-- Register here all workflow states of your plugin. Each workflow state corresponds to
+         a certain UI state. The id is needed to be able to reference the state, for example in the action which
+         navigates to this state, see in file my-plugin-actions.xml.
+
+         The file name of this file must be unique among all possible plugins, so chose a much more meaningful name
+         than "my-plugin-states.xml".
+
+         The Id uniquely identifies the state among all workflow states. Use a GUID generator to create
+         a new state id. The id is referenced from workflow actions which lead to this state as well as from
+         code which tells the WorkflowManager to push a workflow state onto the workflow navigation stack.
+
+         The name of the state is only needed for debug reasons and will not be shown to the user.
+
+         The MainScreen will automatically be shown by the workflow manager when switching to the state.
+         It is also possible for a workflow model to set the screen programmatically in its UpdateScreen method.
+
+         The DisplayLabel is the string which is shown in the Navigation bar for this state. -->
+    <WorkflowState Id="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+        Name="MyPluginMainState" MainScreen="my_main_screen"
+        DisplayLabel="[MyPlugin.StateDisplayLabel]"/> <!-- No workflow model -->
+  </States>
+</Workflow>

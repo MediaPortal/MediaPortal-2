@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
@@ -107,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
 
-      double from = From ?? (double)patc.StartValue;
+      double from = From ?? (double) patc.StartValue;
       double to = To ?? (By.HasValue ? from + By.Value : (double) patc.OriginalValue);
       
       double duration = Duration.TotalMilliseconds;

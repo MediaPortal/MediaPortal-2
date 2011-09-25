@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
@@ -120,6 +120,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
             VisualParent = this,
             Screen = Screen,
+            ElementState = _elementState,
         };
       // Set the style after all other properties have been set to avoid doing work multiple times
       result.Style = EllipsisControlStyle;
@@ -144,7 +145,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         _ellipsisControl = CreateEllipsisControl();
       childSize = new SizeF(totalSize.Width, totalSize.Height);
       _ellipsisControl.Measure(ref childSize);
-      _ellipsisControl.SetElementState(ElementState.Running);
       if (float.IsNaN(maxChildSize.Width) || childSize.Width > maxChildSize.Width)
         maxChildSize.Width = childSize.Width;
       if (float.IsNaN(maxChildSize.Height) || childSize.Height > maxChildSize.Height)

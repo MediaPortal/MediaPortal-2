@@ -27,17 +27,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Settings;
@@ -59,9 +59,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SuperLayer,
     }
 
-  // TODO: Use _syncObj only for access on local variables; use the screen's own sync object to lock
-  // out threads during render and other screen access
-  public class ScreenManager : IScreenManager
+  public class ScreenManager : IScreenManager, IDisposable
   {
     #region Consts
 
@@ -79,6 +77,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string RES_SUPER_LAYER_BROKEN_TEXT = "[ScreenManager.SuperLayerScreenBroken]";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
+
+    protected static readonly TimeSpan TIMESPAN_INFINITE = TimeSpan.FromMilliseconds(-1);
 
     #endregion
 
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public bool Load(string backgroundName)
       {
         Unload();
-        Screen background = GetScreen(backgroundName, this, ScreenType.Background);
+        Screen background = _parent.GetScreen(backgroundName, this, ScreenType.Background);
         if (background == null)
           return false;
         background.Prepare();
@@ -225,6 +225,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       {
         get { return _closeCallback; }
       }
+
+      public override string ToString()
+      {
+        return _dialogName + "(" + _dialogId + ")";
+      }
     }
 
     protected class DialogStackList : LinkedList<DialogData>
@@ -251,8 +256,21 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Protected fields
 
-    protected readonly object _syncObj = new object(); // Synchronize field access
-    protected bool _terminated = false;
+    /// <summary>
+    /// Synchronization object for field access.
+    /// </summary>
+    /// <remarks>
+    /// In the rendering subsystem, sometimes we break the MP2 multithreading guidelines; We DO hold multiple locks sometimes.
+    /// This lock should be used to synchronize field access but not during the rendering of screens.
+    /// </remarks>
+    protected readonly object _syncObj = new object();
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected AutoResetEvent _garbageScreensAvailable = new AutoResetEvent(false);
+    protected AutoResetEvent _pendingOperationsDecreasedEvent = new AutoResetEvent(false);
+    protected ManualResetEvent _garbageCollectionFinished = new ManualResetEvent(true);
+    protected ManualResetEvent _renderFinished = new ManualResetEvent(true);
+    protected ReaderWriterLockSlim _renderAndResourceAccessLock = new ReaderWriterLockSlim();
+
     protected readonly SkinManager _skinManager;
 
     protected readonly BackgroundData _backgroundData;
@@ -260,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Screen _currentScreen = null; // "Normal" screen
     protected Screen _nextScreen = null; // Holds the next screen while the current screen finishes closing
     protected Screen _currentSuperLayer = null; // Layer on top of screen and all dialogs - busy indicator and additional popups
-    protected int _numPendingAsyncOperations = 0;
+    protected volatile int _numPendingAsyncOperations = 0;
     protected Screen _focusedScreen = null;
     protected DateTime _screenPersistenceTime = DateTime.MaxValue;
 
@@ -304,10 +322,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _garbageCollectorThread = new Thread(DoGarbageCollection)
         {
           Name = "ScrMgrGC",  //garbage collector thread
-            Priority = ThreadPriority.Lowest,
-            IsBackground = true
+          Priority = ThreadPriority.Lowest,
+          IsBackground = true
         };
       _garbageCollectorThread.Start();
+    }
+
+    public void Dispose()
+    {
+      _terminatedEvent.Set();
+      _terminatedEvent.Close();
+      _garbageScreensAvailable.Close();
+      _pendingOperationsDecreasedEvent.Close();
+      _garbageCollectionFinished.Close();
+      _renderAndResourceAccessLock.Dispose();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -321,32 +349,38 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           case ScreenManagerMessaging.MessageType.ShowScreen:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
-            DoShowScreen(screen, closeDialogs);
+            DoShowScreen_NoLock(screen, closeDialogs);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SetSuperLayer:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
-            DoSetSuperLayer(screen);
+            DoSetSuperLayer_NoLock(screen);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ShowDialog:
             DialogData dialogData = (DialogData) message.MessageData[ScreenManagerMessaging.DIALOG_DATA];
-            DoShowDialog(dialogData);
+            DoShowDialog_NoLock(dialogData);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.CloseDialogs:
             Guid dialogInstanceId = (Guid) message.MessageData[ScreenManagerMessaging.DIALOG_INSTANCE_ID];
             CloseDialogsMode mode = (CloseDialogsMode) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS_MODE];
-            DoCloseDialogs(dialogInstanceId, mode, true, true);
+            DoCloseDialogs_NoLock(dialogInstanceId, mode, true, true);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
-            DoReloadScreens();
+            DoReloadScreens_NoLock();
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.ScreenClosing:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
-            DoStartClosingScreen(screen);
+            DoStartClosingScreen_NoLock(screen);
+            DecPendingOperations();
+            break;
+          case ScreenManagerMessaging.MessageType.SwitchSkinAndTheme:
+            string newSkinName = (string) message.MessageData[ScreenManagerMessaging.SKIN_NAME];
+            string newThemeName = (string) message.MessageData[ScreenManagerMessaging.THEME_NAME];
+            DoSwitchSkinAndTheme_NoLock(newSkinName, newThemeName);
             DecPendingOperations();
             break;
         }
@@ -375,37 +409,39 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       while (true)
       {
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _garbageScreensAvailable}); // Only run if garbage screens are available
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _renderFinished}); // If currently rendering, wait once before we can be sure that no screen is rendered any more
+        _garbageCollectionFinished.Reset();
         Screen screen;
         bool active = true;
-        while (active)
+        do
         {
           lock (_syncObj)
             screen = _garbageScreens.Count == 0 ? null : _garbageScreens.Dequeue();
           if (screen == null)
             active = false;
           else
-            screen.Close();
-        }
-        lock (_syncObj)
-          if (_terminated)
           {
-            if (_garbageScreens.Count == 0)
-              break;
-            // else: run another loop to clean up the rest of the screens
+            screen.Close();
+            screen.Dispose();
           }
-          else
-            Monitor.Wait(_syncObj);
+        } while (active);
+        _garbageCollectionFinished.Set();
+        if (_terminatedEvent.WaitOne(0))
+          break;
       }
+    }
+
+    protected void WaitForGarbageCollection()
+    {
+      _garbageCollectionFinished.WaitOne(TIMESPAN_INFINITE);
     }
 
     protected void FinishGarbageCollection()
     {
       lock (_syncObj)
-      {
         _garbageCollectorThread.Priority = ThreadPriority.AboveNormal;
-        _terminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _terminatedEvent.Set();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Waiting for screen garbage collection...");
       _garbageCollectorThread.Join();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Screen garbage collection finished");
@@ -414,46 +450,111 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected void ScheduleDisposeScreen(Screen screen)
     {
       lock (_syncObj)
-      {
         _garbageScreens.Enqueue(screen);
-        Monitor.PulseAll(_syncObj);
-      }
+      _garbageScreensAvailable.Set();
     }
 
+    /// <summary>
+    /// Increments the number of async operation which are pending and being executed via our async message loop.
+    /// </summary>
+    /// <remarks>
+    /// This method has to be called before ANY call to methods of class <see cref="ScreenManagerMessaging"/>.
+    /// </remarks>
     protected internal void IncPendingOperations()
     {
-      lock (_syncObj)
-      {
-        _numPendingAsyncOperations++;
-        Monitor.PulseAll(_syncObj);
-      }
+      Interlocked.Increment(ref _numPendingAsyncOperations);
     }
 
+    /// <summary>
+    /// Decrements the number of async operation which are pending and being executed via our async message loop.
+    /// </summary>
+    /// <remarks>
+    /// This method has to be called after EACH handling of a <see cref="ScreenManagerMessaging"/> message.
+    /// </remarks>
     protected internal void DecPendingOperations()
     {
-      lock (_syncObj)
-      {
-        _numPendingAsyncOperations--;
-        Monitor.PulseAll(_syncObj);
-      }
+      Interlocked.Decrement(ref _numPendingAsyncOperations);
+      _pendingOperationsDecreasedEvent.Set();
     }
 
     /// <summary>
-    /// Waits until all screens pending to be hidden are hidden and all screens pending to be shown are shown.
-    /// </summary>
+   /// Waits until all screens pending to be hidden are hidden and all screens pending to be shown are shown.
+   /// </summary>
     protected internal void WaitForPendingOperations()
     {
-      lock (_syncObj)
-        while (_numPendingAsyncOperations > 0)
-          // Wait until all outstanding screens have been hidden asynchronously
-          Monitor.Wait(_syncObj);
+      while (_numPendingAsyncOperations > 0)
+        // Wait until all outstanding async operations have been executed
+        _pendingOperationsDecreasedEvent.WaitOne(TIMESPAN_INFINITE);
+    }
+
+    public void DoSwitchSkinAndTheme_NoLock(string newSkinName, string newThemeName)
+    {
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'", newSkinName, newThemeName);
+
+      string currentScreenName;
+      string currentSuperLayerName;
+      Screen backgroundScreen;
+      string currentBackgroundName;
+
+      // Suspend both rendering and resource access to avoid the render thread rendering screens which are being closed here and
+      // to block other threads accessing our skin resources (via indirect GetScreen calls)
+      _renderAndResourceAccessLock.EnterWriteLock();
+      try
+      {
+        lock (_syncObj)
+        {
+          currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
+          currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
+          backgroundScreen = _backgroundData.BackgroundScreen;
+          currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
+
+          UninstallBackgroundManager();
+          _backgroundData.Unload();
+        }
+
+        // Potential deadlock situation... But we cannot release our lock since noone is allowed to access the skin resources during skin/theme update.
+        DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
+        WaitForGarbageCollection();
+
+        lock (_syncObj)
+        {
+          PlayersHelper.ReleaseGUIResources();
+
+          Controls.Brushes.BrushCache.Instance.Clear();
+          // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
+          // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
+          // need to clear the brush cache.
+          ServiceRegistration.Get<ContentManager>().Clear();
+
+          PrepareSkinAndTheme(newSkinName, newThemeName);
+          PlayersHelper.ReallocGUIResources();
+
+        }
+      }
+      finally
+      {
+        // Resume resource access before we reload everything below
+        _renderAndResourceAccessLock.ExitWriteLock();
+      }
+      if (!InstallBackgroundManager())
+        _backgroundData.Load(currentBackgroundName);
+      Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
+      DoExchangeScreen_NoLock(screen);
+      if (currentSuperLayerName != null)
+      {
+        Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
+        DoSetSuperLayer_NoLock(superLayer);
+      }
+      SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      settings.Skin = SkinName;
+      settings.Theme = ThemeName;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     /// <summary>
-    /// Prepares the skin and theme, this will load the skin and theme instances and
-    /// set it as the current skin and theme in the <see cref="SkinContext"/>.
-    /// After calling this method, the <see cref="SkinContext.SkinResources"/>
-    /// contents can be requested.
+    /// Prepares the skin and theme, this will load the skin and theme instances and set it as the current skin and theme
+    /// in the <see cref="SkinContext"/>.
+    /// After calling this method, the <see cref="SkinContext.SkinResources"/> contents can be requested.
     /// </summary>
     /// <param name="skinName">The name of the skin to be prepared or <c>null</c> to use the current skin.</param>
     /// <param name="themeName">The name of the theme for the specified skin to be prepared,
@@ -541,29 +642,33 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return true;
     }
 
-    protected internal void DoShowScreen(Screen screen, bool closeDialogs)
+    protected internal void DoShowScreen_NoLock(Screen screen, bool closeDialogs)
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
-      lock (_syncObj)
-      {
-        if (closeDialogs)
-          DoCloseDialogs(true, false);
-        DoExchangeScreen(screen);
-      }
+      if (closeDialogs)
+        DoCloseDialogs_NoLock(true, false);
+      DoExchangeScreen_NoLock(screen);
     }
 
-    public void FocusScreen(Screen screen)
+    public void SetInputFocus_NoLock(Screen focusScreen)
     {
+      Screen unfocusScreen;
       lock (_syncObj)
-        if (screen == _focusedScreen)
+        if (focusScreen == _focusedScreen)
           return;
         else
-          _focusedScreen = screen;
-      if (screen != null)
-        screen.AttachInput();
+        {
+          unfocusScreen = _focusedScreen;
+          _focusedScreen = focusScreen;
+        }
+      // Don't hold the ScreenManager's lock while calling the next methods - they call event handlers
+      if (unfocusScreen != null)
+        unfocusScreen.DetachInput();
+      if (focusScreen != null)
+        focusScreen.AttachInput();
     }
 
-    public void UnfocusCurrentScreen()
+    public void UnfocusCurrentScreen_NoLock()
     {
       Screen screen;
       lock (_syncObj)
@@ -572,49 +677,42 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _focusedScreen = null;
       }
       if (screen != null)
+        // Don't hold the ScreenManager's lock while calling this - it calls event handlers
         screen.DetachInput();
     }
 
-    protected internal void DoShowDialog(DialogData dialogData)
+    protected internal void DoShowDialog_NoLock(DialogData dialogData)
     {
       dialogData.DialogScreen.Prepare();
-      dialogData.DialogScreen.FireScreenShowingEvent();
+      dialogData.DialogScreen.TriggerScreenShowingEvent();
+
       lock (_syncObj)
       {
-        UnfocusCurrentScreen();
-
         DialogData dd = dialogData;
         _dialogStack.Push(dd);
       }
       // Don't hold the lock while focusing the screen
-      FocusScreen(dialogData.DialogScreen);
+      SetInputFocus_NoLock(dialogData.DialogScreen);
     }
 
-    protected LinkedListNode<DialogData> FindDialogNode(Guid dialogInstanceId)
+    protected internal void DoCloseDialogs_NoLock(bool fireCloseDelegates, bool dialogPersistence)
     {
-      lock (_syncObj)
-      {
-        LinkedListNode<DialogData> node = _dialogStack.First;
-        while (node != null && node.Value.DialogInstanceId != dialogInstanceId)
-          node = node.Next;
-        return node;
-      }
+      DoCloseDialogs_NoLock(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates, dialogPersistence);
     }
 
-    protected internal void DoCloseDialogs(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
+    protected internal void DoCloseDialogs_NoLock(Guid? dialogInstanceId, CloseDialogsMode mode, bool fireCloseDelegates, bool dialogPersistence)
     {
       ICollection<DialogData> oldDialogData = new List<DialogData>();
+      LinkedListNode<DialogData> bottomDialogNode;
       lock(_syncObj)
       {
-        LinkedListNode<DialogData> bottomDialogNode = dialogInstanceId.HasValue ? FindDialogNode(dialogInstanceId.Value) : _dialogStack.First;
+        bottomDialogNode = dialogInstanceId.HasValue ? FindDialogNode(dialogInstanceId.Value) : _dialogStack.Last;
         if (bottomDialogNode == null)
         {
           if (dialogInstanceId.HasValue)
             ServiceRegistration.Get<ILogger>().Warn("ScreenManager.DoCloseDialogs: Dialog to close with dialog instance id '{0}' was not found on the dialog stack", dialogInstanceId.Value);
           return;
         }
-        // Remove input attachment
-        UnfocusCurrentScreen();
 
         // Find all dialogs on top of our dialog
         LinkedListNode<DialogData> node;
@@ -640,12 +738,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
       }
       foreach (DialogData dd in oldDialogData)
-        DoCloseDialog(dd, fireCloseDelegates, dialogPersistence);
+        DoCloseDialog_NoLock(dd, fireCloseDelegates, dialogPersistence);
 
-      CompleteDialogClosures();
+      CompleteDialogClosures_NoLock();
     }
 
-    protected internal void DoCloseDialog(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
+    protected internal void DoCloseDialog_NoLock(DialogData dd, bool fireCloseDelegates, bool dialogPersistence)
     {
       Screen oldDialog = dd.DialogScreen;
       if (dialogPersistence)
@@ -663,12 +761,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
     }
 
-    protected internal void DoCloseDialogs(bool fireCloseDelegates, bool dialogPersistence)
+    protected LinkedListNode<DialogData> FindDialogNode(Guid dialogInstanceId)
     {
-      DoCloseDialogs(null, CloseDialogsMode.CloseAllOnTopIncluding, fireCloseDelegates, dialogPersistence);
+      lock (_syncObj)
+      {
+        LinkedListNode<DialogData> node = _dialogStack.First;
+        while (node != null && node.Value.DialogInstanceId != dialogInstanceId)
+          node = node.Next;
+        return node;
+      }
     }
 
-    protected internal void CompleteDialogClosures()
+    protected internal void CompleteDialogClosures_NoLock()
     {
       Screen screenToFocus = null;
       lock (_syncObj)
@@ -693,73 +797,53 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (screenToFocus == null)
           screenToFocus = _currentScreen;
       }
-      FocusScreen(screenToFocus);
+      SetInputFocus_NoLock(screenToFocus);
     }
 
-    protected internal void DoCloseScreen()
+    protected internal void DoCloseScreen_NoLock()
     {
+      Screen screen;
       lock (_syncObj)
       {
         if (_currentScreen == null)
           return;
-        Screen screen = _currentScreen;
+        screen = _currentScreen;
         _currentScreen = null;
         _screenPersistenceTime = DateTime.MinValue;
 
         screen.ScreenState = Screen.State.Closed;
-        UnfocusCurrentScreen();
-
-        ScheduleDisposeScreen(screen);
       }
+      UnfocusCurrentScreen_NoLock();
+
+      ScheduleDisposeScreen(screen);
     }
 
-    protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer, bool closeSuperLayer, bool fireCloseDelegates)
+    protected internal void DoCloseCurrentScreenAndDialogs_NoLock(bool closeBackgroundLayer, bool closeSuperLayer, bool fireCloseDelegates)
     {
       if (closeBackgroundLayer)
         _backgroundData.Unload();
       if (closeSuperLayer)
-        DoSetSuperLayer(null);
-      DoCloseDialogs(fireCloseDelegates, false);
-      DoCloseScreen();
+        DoSetSuperLayer_NoLock(null);
+      DoCloseDialogs_NoLock(fireCloseDelegates, false);
+      DoCloseScreen_NoLock();
     }
 
-    protected internal void DoStartClosingScreen(Screen screen)
+    protected internal void DoStartClosingScreen_NoLock(Screen screen)
     {
+      Screen currentScreen;
       lock (_syncObj)
       {
         if (_currentScreen == null || _currentScreen.ScreenState == Screen.State.Closing || 
             screen == null || screen != _currentScreen)
           return;
-
-        DoCloseDialogs(true, true);
-        _currentScreen.FireScreenClosingEvent();
+        currentScreen = _currentScreen;
       }
-      UnfocusCurrentScreen();
+      DoCloseDialogs_NoLock(true, true);
+      currentScreen.FireScreenClosingEvent();
+      UnfocusCurrentScreen_NoLock();
     }
 
-    protected internal void CompleteScreenClosure()
-    {
-      Screen screen;
-      lock (_syncObj)
-      {
-        // Has the current screen finished closing?
-        if (_currentScreen != null && (_currentScreen.ScreenState != Screen.State.Closing || !_currentScreen.DoneClosing))
-          return;
-
-        screen = _nextScreen;
-        if (screen != null)
-          screen.FireScreenShowingEvent();
-
-        DoCloseScreen();
-        _currentScreen = screen;
-        _nextScreen = null;
-
-        BackgroundDisabled = (_currentScreen == null) ? false : !_currentScreen.HasBackground;
-      }
-      FocusScreen(screen);
-    }
-
-    protected internal void DoExchangeScreen(Screen screen)
+    protected internal void DoExchangeScreen_NoLock(Screen screen)
     {
       screen.Prepare();
       lock (_syncObj)
@@ -773,11 +857,36 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _currentScreen.ScreenState = Screen.State.Closing;
   
         _nextScreen = screen;
-        CompleteScreenClosure();
       }
+      CompleteScreenClosure_NoLock();
     }
 
-    protected internal void DoSetSuperLayer(Screen screen)
+    protected internal void CompleteScreenClosure_NoLock()
+    {
+      Screen screen;
+      lock (_syncObj)
+      {
+        // Has the current screen finished closing?
+        if (_currentScreen != null && (_currentScreen.ScreenState != Screen.State.Closing || !_currentScreen.DoneClosing))
+          return;
+
+        screen = _nextScreen;
+        if (screen != null)
+          // Outside the lock - we're firing events
+          screen.TriggerScreenShowingEvent();
+      }
+      DoCloseScreen_NoLock();
+      lock (_syncObj)
+      {
+        _currentScreen = screen;
+        _nextScreen = null;
+
+        BackgroundDisabled = (_currentScreen == null) ? false : !_currentScreen.HasBackground;
+      }
+      SetInputFocus_NoLock(screen);
+    }
+
+    protected internal void DoSetSuperLayer_NoLock(Screen screen)
     {
       if (screen != null)
         screen.Prepare();
@@ -788,12 +897,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _currentSuperLayer = screen;
       }
       if (screen == null)
-        FocusScreen(GetScreens(false, true, true, false).Last());
+        SetInputFocus_NoLock(GetScreens(false, true, true, false).Last());
       else
-        UnfocusCurrentScreen();
+        UnfocusCurrentScreen_NoLock();
     }
 
-    protected internal void DoReloadScreens()
+    protected internal void DoReloadScreens_NoLock()
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Reload");
       // Remember all open screens
@@ -804,15 +913,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
       {
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.ResourceName;
-        screenName = _currentScreen.ResourceName;
+        screenName = _currentScreen == null ? null : _currentScreen.ResourceName;
         superLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
-        dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         // Remember all dialogs and their close callbacks
-        dialogsReverse.AddRange(_dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.ResourceName, dd.DialogInstanceId, dd.CloseCallback)));
+        dialogsReverse = new List<DialogSaveDescriptor>(
+            _dialogStack.Select(dd => new DialogSaveDescriptor(dd.DialogScreen.ResourceName, dd.DialogInstanceId, dd.CloseCallback)));
+        dialogsReverse.Reverse();
       }
 
       // Close all
-      DoCloseCurrentScreenAndDialogs(true, true, false);
+      DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
 
       // Reload background
       if (backgroundName != null)
@@ -823,14 +933,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (screen == null)
         // Error message was shown in GetScreen()
         return;
-      DoExchangeScreen(screen);
+      DoExchangeScreen_NoLock(screen);
 
       // Reload dialogs
       foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
         Screen dialog = GetScreen(dialogDescriptor.DialogName, ScreenType.ScreenOrDialog);
         dialog.ScreenInstanceId = dialogDescriptor.DialogId;
-        DoShowDialog(new DialogData(dialog, dialogDescriptor.CloseCallback));
+        DoShowDialog_NoLock(new DialogData(dialog, dialogDescriptor.CloseCallback));
       }
 
       if (superLayerName != null)
@@ -840,7 +950,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (superLayer == null)
             // Error message was shown in GetScreen()
           return;
-        DoSetSuperLayer(superLayer);
+        DoSetSuperLayer_NoLock(superLayer);
       }
     }
 
@@ -903,11 +1013,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <summary>
     /// Disposes all resources which were allocated by the screen manager.
     /// </summary>
+    // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Shutdown()
     {
       UnsubscribeFromMessages();
       // Close all screens to make sure all SlimDX objects are correctly cleaned up
-      DoCloseCurrentScreenAndDialogs(true, true, false);
+      DoCloseCurrentScreenAndDialogs_NoLock(true, true, false);
       FinishGarbageCollection();
 
       _skinManager.Dispose();
@@ -927,84 +1038,41 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <summary>
     /// Renders the current screens (background, main and dialogs).
     /// </summary>
+    // Don't hold the ScreenManager's lock while calling this method; At least one _NoLock method is called inside here
     public void Render()
     {
-      // The next lock operation could cause deadlocks, see comment of this class
-      lock (_syncObj)
-      {
-        SkinContext.FrameRenderingStartTime = DateTime.Now;
-        
-        // Check if we're waiting for screens to finish closing
-        CompleteScreenClosure();
-        CompleteDialogClosures();
+      SkinContext.FrameRenderingStartTime = DateTime.Now;
 
-        IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
-        IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
+      // Check if we're waiting for screens to finish closing
+      CompleteScreenClosure_NoLock();
+      CompleteDialogClosures_NoLock();
+
+      _renderAndResourceAccessLock.EnterReadLock();
+      _renderFinished.Reset();
+      try
+      {
+        IList<Screen> disabledScreens;
+        IList<Screen> enabledScreens;
+        lock (_syncObj)
+        {
+          disabledScreens = GetScreens(_backgroundDisabled, false, false, false);
+          enabledScreens = GetScreens(!_backgroundDisabled, true, true, true);
+        }
         foreach (Screen screen in disabledScreens)
-          // Animation of screen is necessary to avoid an overrun of the async properties setter buffer
-          screen.Animate();
+          // Animation of disabled screens is necessary to avoid an overrun of the async properties setter buffer
+          screen.SetValues();
         foreach (Screen screen in enabledScreens)
         {
+          screen.SetValues();
           screen.Animate();
           screen.Render();
         }
       }
-    }
-
-    /// <summary>
-    /// Switches the active skin and theme. This method will set the skin with
-    /// the specified <paramref name="newSkinName"/> and the theme belonging
-    /// to this skin with the specified <paramref name="newThemeName"/>, or the
-    /// default theme for this skin.
-    /// </summary>
-    /// <param name="newSkinName">Name of the skin to load or <c>null</c> to use the current skin.</param>
-    /// <param name="newThemeName">Name of the theme to load or <c>null</c>, if the default theme should be used.</param>
-    public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
-    {
-      lock (_syncObj)
+      finally
       {
-        ServiceRegistration.Get<ILogger>().Info("ScreenManager: Loading skin '{0}' with theme '{1}'",
-            newSkinName, newThemeName);
-
-        string currentScreenName = _currentScreen == null ? null : _currentScreen.ResourceName;
-        string currentSuperLayerName = _currentSuperLayer == null ? null : _currentSuperLayer.ResourceName;
-        Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.ResourceName;
-
-        UninstallBackgroundManager();
-        _backgroundData.Unload();
-
-        DoCloseCurrentScreenAndDialogs(true, true, false);
-
-        PlayersHelper.ReleaseGUIResources();
-
-        // Albert, 2011-03-25: I think that actually, ContentManager.Free() should be called here. Clear() makes the ContentManager
-        // forget all its cached assets and so we must make sure that no more asset references are in the system. That's why we also
-        // need to clear the brush cache.
-        Controls.Brushes.BrushCache.Instance.Clear();
-        ServiceRegistration.Get<ContentManager>().Clear();
-
-        WaitForPendingOperations();
-
-        PrepareSkinAndTheme(newSkinName, newThemeName);
-        PlayersHelper.ReallocGUIResources();
-
-        if (!InstallBackgroundManager())
-          _backgroundData.Load(currentBackgroundName);
-
-        Screen screen = GetScreen(currentScreenName, ScreenType.ScreenOrDialog);
-        DoExchangeScreen(screen);
-
-        if (currentSuperLayerName != null)
-        {
-          Screen superLayer = GetScreen(currentSuperLayerName, ScreenType.SuperLayer);
-          DoSetSuperLayer(superLayer);
-        }
+        _renderAndResourceAccessLock.ExitReadLock();
+        _renderFinished.Set();
       }
-      SkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
-      settings.Skin = SkinName;
-      settings.Theme = ThemeName;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     /// <summary>
@@ -1051,12 +1119,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// in the appropriate directory.</param>
     /// <returns>Root UI element of the desired screen or <c>null</c>, if an error occured while
     /// loading the screen.</returns>
-    public static Screen GetScreen(string screenName, ScreenType screenType)
+    public Screen GetScreen(string screenName, ScreenType screenType)
     {
       return GetScreen(screenName, new WorkflowManagerModelLoader(), screenType);
     }
 
-    public static Screen GetScreen(string screenName, IModelLoader loader, ScreenType screenType)
+    public Screen GetScreen(string screenName, IModelLoader loader, ScreenType screenType)
     {
       try
       {
@@ -1076,7 +1144,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             throw new NotImplementedException(string.Format("Screen type {0} is unknown", screenType));
         }
         string relativeScreenPath = relativeDirectory + Path.DirectorySeparatorChar + screenName + ".xaml";
-        Screen result = LoadScreen(screenName, relativeScreenPath, loader);
+
+        Screen result;
+        _renderAndResourceAccessLock.EnterReadLock();
+        try
+        {
+          result = LoadScreen(screenName, relativeScreenPath, loader);
+        }
+        finally
+        {
+          _renderAndResourceAccessLock.ExitReadLock();
+        }
+
         if (result == null)
         {
           ServiceRegistration.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
@@ -1163,12 +1242,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public DialogData ShowDialogEx(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
       Screen newDialog = GetScreen(dialogName, ScreenType.ScreenOrDialog);
       if (newDialog == null)
         return null;
       DialogData result = new DialogData(newDialog, dialogCloseCallback);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageShowDialog(result);
       return result;
     }
@@ -1283,14 +1362,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public void SwitchTheme(string newThemeName)
+    public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
-      SwitchSkinAndTheme(null, newThemeName);
-    }
+      ServiceRegistration.Get<ILogger>().Info("ScreenManager: Preparing to load skin '{0}' with theme '{1}'", newSkinName, newThemeName);
 
-    public void SwitchSkin(string newSkinName)
-    {
-      SwitchSkinAndTheme(newSkinName, null);
+      IncPendingOperations();
+      ScreenManagerMessaging.SendMessageSwitchSkinAndTheme(newSkinName, newThemeName);
     }
 
     public void ReloadSkinAndTheme()
@@ -1353,25 +1430,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void CloseDialog(Guid dialogInstanceId)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, CloseDialogsMode.CloseSingleDialog);
     }
 
     public void CloseDialogs(Guid dialogInstanceId, bool inclusive)
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}' and all dialogs on top of it", dialogInstanceId);
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId, inclusive ? CloseDialogsMode.CloseAllOnTopIncluding : CloseDialogsMode.CloseAllOnTopExcluding);
     }
 
     public void CloseTopmostDialog()
     {
-      IncPendingOperations();
       Guid? dialogInstanceId = TopmostDialogInstanceId;
       if (dialogInstanceId.HasValue)
       {
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to close dialog '{0}'", dialogInstanceId);
+        IncPendingOperations();
         ScreenManagerMessaging.SendMessageCloseDialogs(dialogInstanceId.Value, CloseDialogsMode.CloseSingleDialog);
       }
       else
@@ -1392,10 +1469,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool SetSuperLayer(string superLayerName)
     {
-      IncPendingOperations();
       if (superLayerName == null)
       {
         ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to hide super layer...");
+        IncPendingOperations();
         ScreenManagerMessaging.SendMessageSetSuperLayer(null);
         return true;
       }
@@ -1404,14 +1481,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageSetSuperLayer(newScreen);
       return true;
     }
 
     public void Reload()
     {
-      IncPendingOperations();
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
+      IncPendingOperations();
       ScreenManagerMessaging.SendMessageReloadScreens();
     }
 

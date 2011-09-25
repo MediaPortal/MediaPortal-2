@@ -25,14 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Settings;
-using MediaPortal.Core.Threading;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
@@ -290,9 +290,9 @@ namespace MediaPortal.UiComponents.Media.Models
       pc.CloseWhenFinished = settings.ClosePlayerWhenFinished; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       if (play)
       {
-        if (pc.AVType == AVType.Video)
-          pcm.ShowFullscreenContent(false);
         pc.Play();
+        if (pc.AVType == AVType.Video)
+          pcm.ShowFullscreenContent(true);
       }
     }
 

@@ -26,16 +26,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using TagLib;
 using File = TagLib.File;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 {
@@ -66,13 +66,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
-    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a media provider.
+    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a resource provider.
     /// </summary>
-    protected class MediaProviderFileAbstraction : File.IFileAbstraction
+    protected class ResourceProviderFileAbstraction : File.IFileAbstraction
     {
       protected IResourceAccessor _resourceAccessor;
 
-      public MediaProviderFileAbstraction(IResourceAccessor resourceAccessor)
+      public ResourceProviderFileAbstraction(IResourceAccessor resourceAccessor)
       {
         _resourceAccessor = resourceAccessor;
       }
@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasAudioExtension(string fileName)
     {
-      string ext = Path.GetExtension(fileName).ToLower();
+      string ext = (Path.GetExtension(fileName) ?? string.Empty).ToLower();
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns>Guessed title string.</returns>
     protected static string GuessTitle(string filePath)
     {
-      string fileName = Path.GetFileName(filePath);
+      string fileName = Path.GetFileName(filePath) ?? string.Empty;
       int i = fileName.IndexOf('-');
       return i == -1 ? Path.GetFileNameWithoutExtension(fileName) : fileName.Substring(i + 1).Trim();
     }
@@ -184,7 +184,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns>Guessed artist(s) enumeration.</returns>
     protected static string GuessArtist(string filePath)
     {
-      string fileName = Path.GetFileName(filePath);
+      string fileName = Path.GetFileName(filePath) ?? string.Empty;
       // Test form Artist - Title
       int start = fileName.IndexOf('-');
       if (start > -1)
@@ -265,7 +265,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         try
         {
           ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
-          tag = File.Create(new MediaProviderFileAbstraction(mediaItemAccessor));
+          tag = File.Create(new ResourceProviderFileAbstraction(mediaItemAccessor));
 
         }
         catch (CorruptFileException)

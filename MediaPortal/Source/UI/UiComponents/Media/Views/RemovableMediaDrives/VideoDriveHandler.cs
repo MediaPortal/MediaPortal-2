@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
@@ -60,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     protected VideoDriveHandler(DriveInfo driveInfo, IEnumerable<Guid> extractedMIATypeIds) : base(driveInfo)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      ResourcePath rp = LocalFsMediaProviderBase.ToResourcePath(driveInfo.Name);
+      ResourcePath rp = LocalFsResourceProviderBase.ToResourcePath(driveInfo.Name);
       using (IResourceAccessor ra = rp.CreateLocalResourceAccessor())
         _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
       MediaItemAspect mia = _mediaItem.Aspects[MediaAspect.ASPECT_ID];

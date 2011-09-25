@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.Exceptions;
@@ -444,7 +444,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
             if (rd == null)
               throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
                   "' doesn't contain a ResourceDictionary as root element");
-            _localStyleResources.TakeOver(rd, true);
+            _localStyleResources.TakeOver(rd, false, true);
           }
           catch (Exception ex)
           {

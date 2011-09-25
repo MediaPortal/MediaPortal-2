@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {

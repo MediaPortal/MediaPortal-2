@@ -24,22 +24,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Timers;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common.Runtime;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
@@ -75,6 +77,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public const string KEY_SHOW_MUTE = "ShowMute";
 
     public static readonly ICollection<string> EMPTY_NAMES_COLLECTION = new List<string>().AsReadOnly();
+    protected static readonly TimeSpan TIMEOUT_INFINITE = TimeSpan.FromMilliseconds(-1);
 
     #endregion
 
@@ -89,6 +92,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected bool _initialized = false;
     protected bool _updating = false;
     protected AsynchronousMessageQueue _messageQueue = null;
+    protected ManualResetEvent _updateFinished = new ManualResetEvent(true);
     protected object _syncObj = new object();
 
     // Derived properties/fields
@@ -247,9 +251,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     public override void Dispose()
     {
-      base.Dispose();
-      UnsubscribeFromMessages();
       StopTimer();
+      _updateFinished.Close();
+      UnsubscribeFromMessages();
+      base.Dispose();
     }
 
     #endregion
@@ -278,11 +283,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
       lock (_syncObj)
+      {
         if (_timer == null)
           // Avoid calls after timer was stopped
           return;
+        _updateFinished.Reset();
+      }
       CheckShowMouseControls();
       UpdateProperties();
+      _updateFinished.Set();
     }
 
     void SubscribeToMessages()
@@ -338,6 +347,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         _timer.Dispose();
         _timer = null;
       }
+      _updateFinished.WaitOne(TIMEOUT_INFINITE);
     }
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -1458,8 +1468,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       if (playerContext == null)
         return;
       IPlayerSlotController psc = playerContext.PlayerSlotController;
+      AudioStreamDescriptor currentAudioStream;
       IList<AudioStreamDescriptor> audioStreamDescriptors =
-          new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors());
+          new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors(out currentAudioStream));
       int slotIndex = psc.SlotIndex;
       if (audioStreamDescriptors.Count <= 1)
         if (IsAudio)

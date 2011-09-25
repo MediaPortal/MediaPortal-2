@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Linq;
 using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,8 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected object _instanciationData;
     protected object _instance = null;
     protected int _namespaceCount = 0;
-    protected IDictionary<object, object> _keyedElements =
-      new Dictionary<object, object>();
+    protected IDictionary<object, object> _keyedElements = new Dictionary<object, object>();
 
     #endregion
 
@@ -114,12 +114,17 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       return _keyedElements.ContainsKey(key);
     }
 
-    public object GetKeyedElement(object key)
+    public bool TryGetKeyedElement(object key, out object element)
     {
-      return _keyedElements[key];
+      return _keyedElements.TryGetValue(key, out element);
     }
 
     #endregion
+
+    public override string ToString()
+    {
+      return "Element context: " + _instance;
+    }
   }
 
   /// <summary>
@@ -157,12 +162,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     // Cache variables
     protected INamespaceHandler _currentNamespaceHandler = null;
-
-    #endregion
-
-    #region Constructor
-
-    public ElementContextStack() {}
 
     #endregion
 
@@ -275,10 +274,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public INameScope GetCurrentNameScope()
     {
-      foreach (ElementContextInfo eci in this)
-        if (eci.Instance is INameScope)
-          return (INameScope) eci.Instance;
-      return null;
+      return this.Where(eci => eci.Instance is INameScope).Select(eci => (INameScope) eci.Instance).FirstOrDefault();
     }
 
     #endregion

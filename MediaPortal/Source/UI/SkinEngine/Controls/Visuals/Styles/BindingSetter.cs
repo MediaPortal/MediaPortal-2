@@ -23,7 +23,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_bindingWrapper);
+      MPF.TryCleanupAndDispose(_bindingWrapper);
       base.Dispose();
     }
 

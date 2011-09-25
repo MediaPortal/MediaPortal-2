@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UI.Players.Picture.Settings
 {

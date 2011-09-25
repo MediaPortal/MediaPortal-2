@@ -23,7 +23,7 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration;
+using MediaPortal.Common.Configuration;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
@@ -79,7 +79,10 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         themeItem.SetLabel(KEY_IMAGESRC, preview);
         _items.Add(themeItem);
         if (themeSetting.CurrentThemeName == theme.Name)
+        {
+          themeItem.Selected = true;
           _choosenItem = themeItem;
+        }
       }
       _items.FireChange();
       base.SettingChanged();

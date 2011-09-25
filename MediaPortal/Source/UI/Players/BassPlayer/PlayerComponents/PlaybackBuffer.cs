@@ -24,8 +24,8 @@
 
 using System;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Players;
 using Ui.Players.BassPlayer.Settings;
 using Ui.Players.BassPlayer.Utils;
@@ -98,6 +98,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       Log.Debug("PlaybackBuffer.Dispose()");
 
       ResetInputStream();
+
+      _updateThreadFinished.Close();
+      _notifyBufferUpdateThread.Close();
     }
 
     #endregion

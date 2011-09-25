@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;

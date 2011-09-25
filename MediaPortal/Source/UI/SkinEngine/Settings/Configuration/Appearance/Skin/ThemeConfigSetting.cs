@@ -24,8 +24,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -43,10 +43,6 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
     protected string _currentThemeName = null;
 
     #endregion
-
-    public ThemeConfigSetting()
-    {
-    }
 
     public ICollection<Theme> Themes
     {
@@ -86,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       if (screenManager == null)
         return;
-      screenManager.SwitchTheme(_currentThemeName);
+      screenManager.SwitchSkinAndTheme(null, _currentThemeName);
     }
 
     #endregion

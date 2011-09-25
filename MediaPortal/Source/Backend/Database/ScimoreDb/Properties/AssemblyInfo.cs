@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("ScimoreDb")]
-[assembly: AssemblyDescription("ScimoreDb for MediaPortal 2")]
+[assembly: AssemblyDescription("Scimore database for MediaPortal 2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]

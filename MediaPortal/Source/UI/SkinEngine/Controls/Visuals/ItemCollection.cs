@@ -25,7 +25,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
@@ -37,7 +38,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     protected IList<object> _elements = new List<object>();
     protected object _syncObj = new object();
-    protected bool _isReadOnly = false;
 
     public ItemCollectionChangedDlgt CollectionChanged;
 
@@ -57,12 +57,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _elements[index]; }
       set
       {
+        bool changed;
         lock (_syncObj)
-          if (value != _elements[index])
-          {
+        {
+          changed = value != _elements[index];
+          if (changed)
             _elements[index] = value;
-            FireCollectionChanged();
-          }
+        }
+        if (changed)
+          FireCollectionChanged();
       }
     }
 
@@ -76,10 +79,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void AddAll<T>(IEnumerable<T> elements)
     {
       lock (_syncObj)
-      {
         CollectionUtils.AddAll(_elements, elements);
-        FireCollectionChanged();
+      FireCollectionChanged();
+    }
+
+    /// <summary>
+    /// Removes and returns all elements of this item collection without disposing them.
+    /// </summary>
+    /// <returns></returns>
+    public IList<object> ExtractElements()
+    {
+      IList<object> result;
+      lock (_syncObj)
+      {
+        result = _elements;
+        _elements = new List<object>();
       }
+      FireCollectionChanged();
+      return result;
     }
 
     #region ICollection implementation
@@ -87,10 +104,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Add(object element)
     {
       lock (_syncObj)
-      {
         _elements.Add(element);
-        FireCollectionChanged();
-      }
+      FireCollectionChanged();
     }
 
     public void CopyTo(object[] array, int arrayIndex)
@@ -101,13 +116,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Remove(object element)
     {
+      bool result;
       lock (_syncObj)
       {
-        bool result = _elements.Remove(element);
-        UIElement.TryCleanupAndDispose(ref element);
-        FireCollectionChanged();
-        return result;
+        result = _elements.Remove(element);
+        MPF.TryCleanupAndDispose(element);
       }
+      FireCollectionChanged();
+      return result;
     }
 
     public void Clear()
@@ -115,13 +131,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       lock (_syncObj)
       {
         foreach (object element in _elements)
-        {
-          object o = element;
-          UIElement.TryCleanupAndDispose(ref o);
-        }
+          MPF.TryCleanupAndDispose(element);
         _elements.Clear();
-        FireCollectionChanged();
       }
+      FireCollectionChanged();
     }
 
     public bool Contains(object item)
@@ -141,8 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool IsReadOnly
     {
-      get { return _isReadOnly; }
-      set { _isReadOnly = value; }
+      get { return false; }
     }
 
     #endregion

@@ -25,10 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 
@@ -237,6 +238,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       // Initialize SkinContext with new values
       skinResources.Prepare();
+      SkinResourcesMessaging.SendSkinResourcesMessage(SkinResourcesMessaging.MessageType.SkinOrThemeChanged);
     }
 
     /// <summary>
@@ -360,11 +362,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       ReleasePluginSkinResources();
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      ICollection<string> result = new List<string>();
-      foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
-          SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker))
-        result.Add(skinDirectoryResource.Path);
-      return result;
+      return pluginManager.RequestAllPluginItems<PluginResource>(SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker).Select(
+          skinDirectoryResource => skinDirectoryResource.Path).ToList();
     }
 
     #region ISkinResourceManager implementation

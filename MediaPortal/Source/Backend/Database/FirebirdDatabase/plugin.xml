@@ -14,6 +14,6 @@
 
   <Register Location="/Services">
     <Service Id="FirebirdDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
-        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.Firebird.FirebirdSQLDatabase"/>
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.Firebird.FirebirdSQLDatabase"/>
   </Register>
 </Plugin>

@@ -38,5 +38,12 @@ namespace MediaPortal.Plugins.SlimTvClient.Interfaces
     bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs);
     bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
     bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs);
+    /// <summary>
+    /// Gets a channel from an IProgram.
+    /// </summary>
+    /// <param name="program">Program.</param>
+    /// <param name="channel">Channel.</param>
+    /// <returns>True if succeeded.</returns>
+    bool GetChannel(IProgram program, out IChannel channel);
   }
 }

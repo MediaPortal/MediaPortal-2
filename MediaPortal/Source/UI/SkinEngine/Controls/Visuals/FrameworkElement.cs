@@ -33,15 +33,17 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -91,8 +93,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public enum ElementState
   {
+    /// <summary>
+    /// The element is used as template, style resource or during resource creation.
+    /// </summary>
     Available,
+
+    /// <summary>
+    /// The element doesn't participate in the render run yet but is being prepared. This means we can take some shortcuts
+    /// when setting properties.
+    /// </summary>
+    Preparing,
+
+    /// <summary>
+    /// The element participates in the render run. In this state, the render thread is the only thread which may access several
+    /// properties of the elements in the screens (only some exceptions for properties which can be accessed by the input thread).
+    /// </summary>
     Running,
+
+    /// <summary>
+    /// The element is (being) disposed.
+    /// </summary>
     Disposing
   }
 
@@ -132,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
     
-    protected volatile bool _setFocus = false;
+    protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
     protected SizeF? _availableSize;
     protected RectangleF? _outerRect;
@@ -199,12 +219,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
 
-      _layoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
-      _marginProperty.Attach(OnMeasureGetsInvalid);
-      _visibilityProperty.Attach(OnParentCompleteLayoutGetsInvalid);
-      _opacityProperty.Attach(OnOpacityChanged);
-      _opacityMaskProperty.Attach(OnOpacityChanged);
-      _actualPositionProperty.Attach(OnActualBoundsChanged);
+      LayoutTransformProperty.Attach(OnLayoutTransformPropertyChanged);
+      MarginProperty.Attach(OnMeasureGetsInvalid);
+      VisibilityProperty.Attach(OnParentCompleteLayoutGetsInvalid);
+      OpacityProperty.Attach(OnOpacityChanged);
+      OpacityMaskProperty.Attach(OnOpacityChanged);
+      ActualPositionProperty.Attach(OnActualBoundsChanged);
     }
 
     void Detach()
@@ -215,12 +235,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
 
-      _layoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
-      _marginProperty.Detach(OnMeasureGetsInvalid);
-      _visibilityProperty.Detach(OnParentCompleteLayoutGetsInvalid);
-      _opacityProperty.Detach(OnOpacityChanged);
-      _opacityMaskProperty.Detach(OnOpacityChanged);
-      _actualPositionProperty.Detach(OnActualBoundsChanged);
+      LayoutTransformProperty.Detach(OnLayoutTransformPropertyChanged);
+      MarginProperty.Detach(OnMeasureGetsInvalid);
+      VisibilityProperty.Detach(OnParentCompleteLayoutGetsInvalid);
+      OpacityProperty.Detach(OnOpacityChanged);
+      OpacityMaskProperty.Detach(OnOpacityChanged);
+      ActualPositionProperty.Detach(OnActualBoundsChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -243,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MinHeight = fe.MinHeight;
       MaxWidth = fe.MaxWidth;
       MaxHeight = fe.MaxHeight;
-      _setFocus = fe.SetFocus;
+      _setFocusPrio = fe.SetFocusPrio;
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
@@ -253,9 +273,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(ContextMenuCommand);
-      Registration.TryCleanupAndDispose(Style);
+      if (HasFocus || SetFocus)
+      {
+        FrameworkElement parent = VisualParent as FrameworkElement;
+        if (parent != null)
+          parent.SetFocus = true;
+      }
+      MPF.TryCleanupAndDispose(ContextMenuCommand);
       base.Dispose();
+      MPF.TryCleanupAndDispose(Style);
     }
 
     #endregion
@@ -264,13 +290,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
-      Style oldStyle = oldValue as Style;
+      Style oldStyle = (Style) oldValue;
       if (oldStyle != null)
       {
         oldStyle.Reset(this);
-        Registration.TryCleanupAndDispose(oldStyle);
+        MPF.TryCleanupAndDispose(oldStyle);
       }
-      Style.Set(this);
+      if (Style != null)
+        Style.Set(this);
       InvalidateLayout(true, true);
     }
 
@@ -484,6 +511,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _styleProperty; }
     }
 
+    /// <summary>
+    /// Style of this element. This property must be set to a sensible value, else, this element cannot be rendered.
+    /// This property can be guessed by assigning te return value of <see cref="CopyDefaultStyle"/>.
+    /// </summary>
     public Style Style
     {
       get { return (Style) _styleProperty.GetValue(); }
@@ -492,16 +523,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Helper property to make it possible in the screenfiles to set the focus to a framework element (or its first focusable child)
-    /// before the screen was initialized. Use this property to set the initial focus.
+    /// when the screen is initialized. Use this property to set the initial focus.
     /// </summary>
-    public bool SetFocus
+    public SetFocusPriority SetFocusPrio
     {
-      get { return _setFocus; }
+      get { return _setFocusPrio; }
       set
       {
-        _setFocus = value;
-        InvalidateLayout(false, true);
+        _setFocusPrio = value;
+        if (value > SetFocusPriority.None)
+          InvalidateLayout(false, true);
       }
+    }
+
+    public bool SetFocus
+    {
+      get { return _setFocusPrio > SetFocusPriority.None; }
+      set { _setFocusPrio = value ? SetFocusPriority.Default : SetFocusPriority.None; }
     }
 
     public AbstractProperty HasFocusProperty
@@ -632,6 +670,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Checks if this element is focusable. This is the case if the element is visible, enabled and
     /// focusable. If this is the case, this method will set the focus to this element.
     /// </summary>
+    /// <param name="checkChildren">If this parameter is set to <c>true</c>, this method will also try to
+    /// set the focus to any of its child elements.</param>
     public bool TrySetFocus(bool checkChildren)
     {
       if (HasFocus)
@@ -641,7 +681,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Screen screen = Screen;
         if (screen == null)
           return false;
-        MakeVisible(this, ActualBounds);
+        RectangleF actualBounds = ActualBounds;
+        MakeVisible(this, actualBounds);
+        screen.UpdateFocusRect(actualBounds);
         screen.FrameworkElementGotFocus(this);
         HasFocus = true;
         return true;
@@ -662,16 +704,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void UpdateFocus()
     {
+      if (_setFocusPrio == SetFocusPriority.None)
+        return;
       Screen screen = Screen;
       if (screen == null)
         return;
-      screen.UpdateFocusRect(ActualBounds);
-      if (!_setFocus)
-        return;
-      _setFocus = false;
-      FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
-      if (fe != null)
-        fe.TrySetFocus(true);
+      screen.ScheduleSetFocus(this, _setFocusPrio);
+      _setFocusPrio = SetFocusPriority.None;
     }
 
     /// <summary>
@@ -985,6 +1024,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', exiting because measurement is invalid", GetType().Name, Name));
 #endif
 #endif
+        InvalidateLayout(true, true); // Re-schedule arrangement
         return;
       }
 #if DEBUG_LAYOUT
@@ -1035,7 +1075,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CheckFireLoaded(); // Has to be done after all triggers are initialized to make EventTriggers for UIElement.Loaded work properly
 
       ArrangeOverride();
-      UpdateFocus(); // Has to be done after all children have arranged to make SetFocus work properly
+      UpdateFocus(); // Has to be done after all children have arranged to make SetFocusPrio work properly
     }
 
     protected virtual void ArrangeOverride()
@@ -1171,26 +1211,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// layout debug defines are in the scope of this file.
     /// This method must be called from the render thread before the call to <see cref="Render"/>.
     /// </remarks>
-    public void UpdateLayoutRoot()
+    /// <param name="skinSize">The size of the skin.</param>
+    public void UpdateLayoutRoot(SizeF skinSize)
     {
-      Screen screen = Screen;
-      SizeF screenSize = screen == null ? SizeF.Empty : new SizeF(screen.SkinWidth, screen.SkinHeight);
-      SizeF size = new SizeF(screenSize);
+      SizeF size = new SizeF(skinSize);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, screenSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
       Measure(ref size);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, screenSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', arranging with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
       // Ignore the measured size - arrange with screen size
-      Arrange(new RectangleF(new PointF(0, 0), screenSize));
+      Arrange(new RectangleF(new PointF(0, 0), skinSize));
     }
 
     protected bool TransformMouseCoordinates(ref float x, ref float y)
@@ -1223,7 +1262,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (!IsMouseOver)
           {
             IsMouseOver = true;
-            FireEvent(MOUSEENTER_EVENT);
+            FireEvent(MOUSEENTER_EVENT, RoutingStrategyEnum.Direct);
           }
           bool inVisibleArea = IsInVisibleArea(xTrans, yTrans);
           if (!hasFocus && inVisibleArea)
@@ -1236,7 +1275,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (IsMouseOver)
           {
             IsMouseOver = false;
-            FireEvent(MOUSELEAVE_EVENT);
+            FireEvent(MOUSELEAVE_EVENT, RoutingStrategyEnum.Direct);
           }
           if (hasFocus)
             ResetFocus();
@@ -1249,6 +1288,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       return x >= ActualPosition.X && x <= ActualPosition.X + ActualWidth &&
           y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight;
+    }
+
+    public Style CopyDefaultStyle()
+    {
+      Type type = GetType();
+      Style result = null;
+      while (result == null && type != null)
+      {
+        result = FindResource(type) as Style;
+        type = type.BaseType;
+      }
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
+    }
+
+    /// <summary>
+    /// Find the default style especially in the loading phase of an element when the element tree is not yet put together.
+    /// </summary>
+    /// <param name="context">Current parser context.</param>
+    /// <returns>Default style for this element or <c>null</c>, if no default style is defined.</returns>
+    protected Style CopyDefaultStyle(IParserContext context)
+    {
+      Type type = GetType();
+      Style result = null;
+      while (result == null && type != null)
+      {
+        result = (ResourceDictionary.FindResourceInParserContext(type, context) ?? FindResource(type)) as Style;
+        type = type.BaseType;
+      }
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
     }
 
     #region Focus & control predicition
@@ -1335,7 +1403,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return null;
       if (!currentFocusRect.HasValue)
         return focusableChildren.First();
-      return FindNextFocusElement(focusableChildren, currentFocusRect, dir);
+      FrameworkElement result = FindNextFocusElement(focusableChildren, currentFocusRect, dir);
+      if (result != null)
+        return result;
+      return focusableChildren.First();
     }
 
     /// <summary>
@@ -1529,6 +1600,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      if (HasFocus)
+        state[prefix + "/Focused"] = true;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      object focused;
+      bool? bFocused;
+      if (state.TryGetValue(prefix + "/Focused", out focused) && (bFocused = focused as bool?).HasValue && bFocused.Value)
+        SetFocusPrio = SetFocusPriority.RestoreState;
+    }
+
     public virtual void DoRender(RenderContext localRenderContext)
     {
     }
@@ -1659,6 +1746,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       PrimitiveBuffer.DisposePrimitiveBuffer(ref _opacityMaskContext);
+    }
+
+    public override void FinishInitialization(IParserContext context)
+    {
+      base.FinishInitialization(context);
+      if (Style == null)
+        Style = CopyDefaultStyle(context);
     }
   }
 }

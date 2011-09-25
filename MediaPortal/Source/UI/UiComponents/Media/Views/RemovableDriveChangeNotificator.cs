@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.RemovableMedia;
 
 namespace MediaPortal.UiComponents.Media.Views

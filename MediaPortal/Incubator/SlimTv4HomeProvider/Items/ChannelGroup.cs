@@ -30,6 +30,8 @@ namespace MediaPortal.Plugins.SlimTvClient.Providers.Items
   {
     #region IChannelGroup Member
 
+    public int ServerIndex { get; set; }
+
     public int ChannelGroupId { get; set; }
 
     public string Name { get; set; }

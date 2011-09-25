@@ -1,7 +1,7 @@
-using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.Weather.Grabbers;
 using MediaPortal.UiComponents.Weather.Settings;
 

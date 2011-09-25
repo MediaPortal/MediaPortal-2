@@ -21,8 +21,9 @@
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CurrentItem="{Binding Source={StaticResource Model},Path=CurrentConfigController.ChoosenItem,Mode=TwoWay}">
           <ListView.Resources>
             <CommandList x:Key="Menu_Command">
-              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
               <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
+              <!-- Close the dialog after the Save call because the closing of the dialog makes the ListView's CurrentItem being set to null -->
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
             </CommandList>
           </ListView.Resources>
         </ListView>

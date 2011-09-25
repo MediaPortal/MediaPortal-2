@@ -24,8 +24,8 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Dispose()
     {
       FrameworkElement visual = Visual;
-      Registration.TryCleanupAndDispose(visual);
+      MPF.TryCleanupAndDispose(visual);
       base.Dispose();
     }
 

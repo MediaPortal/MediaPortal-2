@@ -42,6 +42,19 @@
     <String Name="Zoom" Text="Zoom"/>
     <String Name="Zoom149" Text="Zoom 14:9"/>
   </Section>
+  <Section Name="Effects"> <!-- File names (files in shaders/effects, without extension) to effect names to be shown in the GUI -->
+    <String Name="denoise" Text="Denoise"/>
+    <String Name="directional_blur" Text="Directional blur"/>
+    <String Name="glass_tiles" Text="Glass tiles"/>
+    <String Name="greyscale" Text="Greyscale"/>
+    <String Name="invert" Text="Invert"/>
+    <String Name="none" Text="None"/>
+    <String Name="pixelate" Text="Pixelate"/>
+    <String Name="sepia" Text="Sepia"/>
+    <String Name="sharpen" Text="Sharpen"/>
+    <String Name="sharpen_complex" Text="Sharpen (complex)"/>
+    <String Name="zoom_blur" Text="Zoom blur"/>
+  </Section>
   <Section Name="PlayerControl">
     <String Name="NoPlayer" Text="No player"/>
     <String Name="NoMediaItem" Text="- No media item -"/>

@@ -22,8 +22,8 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration;
-using MediaPortal.Core;
+using MediaPortal.Common.Configuration;
+using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers

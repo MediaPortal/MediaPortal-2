@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
@@ -79,12 +79,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void Attach()
     {
+      _autoCenteringProperty.Attach(OnArrangeGetsInvalid);
       _horizontalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
       _verticalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
     }
 
     protected void Detach()
     {
+      _autoCenteringProperty.Detach(OnArrangeGetsInvalid);
       _horizontalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
       _verticalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
     }
@@ -98,8 +100,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
       AutoCentering = scp.AutoCentering;
-      HorizontalScrollDisabled = scp.HorizontalScrollDisabled;
-      VerticalScrollDisabled = scp.VerticalScrollDisabled;
+      HorizontalFitToSpace = scp.HorizontalFitToSpace;
+      VerticalFitToSpace = scp.VerticalFitToSpace;
       Attach();
     }
 
@@ -234,9 +236,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           availableSize = _innerRect.Size;
         }
 
-        if (HorizontalScrollDisabled)
+        if (HorizontalFitToSpace)
           availableSize.Width = _innerRect.Size.Width;
-        if (VerticalScrollDisabled)
+        if (VerticalFitToSpace)
           availableSize.Height = _innerRect.Size.Height;
 
         ArrangeChild(_templateControl, _templateControl.HorizontalAlignment, _templateControl.VerticalAlignment,
@@ -281,6 +283,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      state[prefix + "/ScrollOffsetX"] = _scrollOffsetX;
+      state[prefix + "/ScrollOffsetY"] = _scrollOffsetX;
+  }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      float? scrollOffsetX;
+      float? scrollOffsetY;
+      object so;
+      if (state.TryGetValue(prefix + "/ScrollOffsetX", out so) && (scrollOffsetX = so as float?).HasValue &&
+          state.TryGetValue(prefix + "/ScrollOffsetY", out so) && (scrollOffsetY = so as float?).HasValue)
+        SetScrollOffset(scrollOffsetX.Value, scrollOffsetY.Value);
+    }
+
     #region Public properties
 
     /// <summary>
@@ -308,7 +328,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.HorizontalScrollBarVisibility"/> setting.
     /// </summary>
-    public bool HorizontalScrollDisabled
+    public bool HorizontalFitToSpace
     {
       get { return (bool) _horizontalScrollDisabledProperty.GetValue(); }
       set { _horizontalScrollDisabledProperty.SetValue(value); }
@@ -324,7 +344,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.VerticalScrollBarVisibility"/> setting.
     /// </summary>
-    public bool VerticalScrollDisabled
+    public bool VerticalFitToSpace
     {
       get { return (bool) _verticalScrollDisabledProperty.GetValue(); }
       set { _verticalScrollDisabledProperty.SetValue(value); }

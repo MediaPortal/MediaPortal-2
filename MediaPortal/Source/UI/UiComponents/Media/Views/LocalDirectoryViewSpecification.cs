@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.UiComponents.Media.Views
 {

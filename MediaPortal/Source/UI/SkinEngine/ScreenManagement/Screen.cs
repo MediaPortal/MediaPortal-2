@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -46,6 +46,41 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   public delegate void ClosedEventDlgt(Screen screen);
 
+  public enum SetFocusPriority
+  {
+    None,
+
+    /// <summary>
+    /// Set the focus to the element if no other focusable element is present.
+    /// </summary>
+    Fallback,
+
+    /// <summary>
+    /// Set the focus to the element as default, but value other default priorities higher.
+    /// </summary>
+    DefaultLow,
+
+    /// <summary>
+    /// Set the focus to the element as default.
+    /// </summary>
+    Default,
+
+    /// <summary>
+    /// Set the focus to this element as default, overrule other default focus elements.
+    /// </summary>
+    DefaultHigh,
+
+    /// <summary>
+    /// Special focus priority used to restore the last skin state.
+    /// </summary>
+    RestoreState,
+
+    /// <summary>
+    /// Set the focus to this element in any case. Overrule all other focus priorities.
+    /// </summary>
+    Highest
+  }
+
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
@@ -57,6 +92,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string SHOW_EVENT = "Screen.Show";
     public const string CLOSE_EVENT = "Screen.Hide";
+
+    /// <summary>
+    /// Number of render cycles where we will try to handle a set-focus query. If it is not possible to set the focus on the requested element
+    /// after this number of render cycles, the query will be discarded.
+    /// </summary>
+    protected int MAX_SET_FOCUS_AGE = 10;
 
     #endregion
 
@@ -130,6 +171,27 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    protected class ScheduledFocus
+    {
+      protected FrameworkElement _focusElement = null;
+      protected int _age = 0;
+      
+      public ScheduledFocus(FrameworkElement focusElement)
+      {
+        _focusElement = focusElement;
+      }
+
+      public FrameworkElement FocusElement
+      {
+        get { return _focusElement; }
+      }
+
+      public int IncAge()
+      {
+        return ++_age;
+      }
+    }
+
     #endregion
 
     #region Enums
@@ -153,6 +215,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected int _skinWidth;
     protected int _skinHeight;
     protected bool _hasBackground = true;
+    // TODO: Replace by OrderedDictionary when we move to .net 4
+    protected IDictionary<SetFocusPriority, ScheduledFocus> _scheduledFocus = new Dictionary<SetFocusPriority, ScheduledFocus>();
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
@@ -164,6 +228,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     protected FrameworkElement _focusedElement = null;
     protected RectangleF? _lastFocusRect = null;
+    protected WeakReference _lastFocusedElement = new WeakReference(null);
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
@@ -175,6 +240,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
 
     #endregion
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      _root.CleanupAndDispose();
+      _animator.Dispose();
+    }
 
     /// <summary>
     /// Initializes this instance.
@@ -233,7 +305,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else if (value == State.Closing)
           { } // Nothing to do
         else if (value == State.Closed)
-          _root.SetElementState(ElementState.Disposing);
+          { } // Nothing to do
         else
           throw new IllegalCallException("Invalid screen state transition from {0} to {1}", _state, value);
         _state = value;
@@ -328,6 +400,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _keyBindings.Remove(key);
     }
 
+    public void SetValues()
+    {
+      lock (_root)
+        _animator.SetValues();
+    }
+
     public void Animate()
     {
       lock (_root)
@@ -348,7 +426,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _mouseMovePending = null;
           DoHandleMouseMove(x, y);
         }
-        _root.UpdateLayoutRoot();
+        if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
+          _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
+        HandleScheduledFocus();
         if (_screenShowEventPending)
         {
           DoFireScreenShowingEvent();
@@ -370,7 +450,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         inputManager.MouseWheeled += HandleMouseWheel;
         HasInputFocus = true;
       }
-      PretendMouseMove();
+      FrameworkElement lastFocusElement = (FrameworkElement) _lastFocusedElement.Target;
+      if (!PretendMouseMove() && lastFocusElement != null)
+        lastFocusElement.SetFocusPrio = SetFocusPriority.DefaultHigh;
     }
 
     public void DetachInput()
@@ -396,11 +478,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         _root.InvalidateLayout(true, true);
         int maxNumUpdate = 10;
+        // Prepare run. In the prepare run, the screen uses some shortcuts to set values
+        _root.SetElementState(ElementState.Preparing);
+        SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
+        _root.UpdateLayoutRoot(skinSize);
+        // Switch to "Running" state which builds the final screen structure
+        _root.SetElementState(ElementState.Running);
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
+        {
+          SetValues();
           // It can be necessary to call UpdateLayoutRoot multiple times because UI elements sometimes initialize template controls/styles etc.
           // in the first Measure() call, which then need to invalidate the element tree again. That can happen multiple times.
-          _root.UpdateLayoutRoot();
-        _root.SetElementState(ElementState.Running);
+          _root.UpdateLayoutRoot(skinSize);
+        }
+        HandleScheduledFocus();
       }
     }
 
@@ -414,7 +505,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _root.Deallocate();
       }
       FireClosed();
-      _root.CleanupAndDispose();
+    }
+
+    protected void HandleScheduledFocus()
+    {
+      if (_scheduledFocus.Count == 0)
+        // Shortcut
+        return;
+      for (SetFocusPriority prio = SetFocusPriority.Highest; prio != SetFocusPriority.None; prio--)
+      {
+        ScheduledFocus sf;
+        if (_scheduledFocus.TryGetValue(prio, out sf))
+          if (sf.FocusElement.TrySetFocus(true))
+          {
+            // Remove all lower focus priority requests
+            for (SetFocusPriority removePrio = prio; removePrio != SetFocusPriority.None; removePrio--)
+              _scheduledFocus.Remove(removePrio);
+          }
+          else if (sf.IncAge() > MAX_SET_FOCUS_AGE)
+            _scheduledFocus.Remove(prio);
+      }
     }
 
     protected void FireClosed()
@@ -424,11 +534,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         dlgt(this);
     }
 
-    protected void PretendMouseMove()
+    protected bool PretendMouseMove()
     {
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
       if (inputManager.IsMouseUsed)
+      {
         DoHandleMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+        return true;
+      }
+      return false;
     }
 
     protected void DoHandleMouseMove(float x, float y)
@@ -533,6 +647,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return new RenderContext(transform, null, new RectangleF(0, 0, _skinWidth, _skinHeight));
     }
 
+    protected RectangleF CreateCenterRect()
+    {
+      return new RectangleF(_skinWidth / 2 - 10, _skinHeight / 2 - 10, _skinWidth / 2 + 10, _skinHeight / 2 + 10);
+    }
+
     /// <summary>
     /// Returns the currently focused element in this screen.
     /// </summary>
@@ -550,47 +669,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       internal set { _screenInstanceId = value; }
     }
 
-    public void FireScreenShowingEvent()
+    public void TriggerScreenShowingEvent()
     {
       _screenShowEventPending = true;
     }
 
     protected void DoFireScreenShowingEvent()
     {
-      FireEvent(SHOW_EVENT);
+      FireEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
     }
 
     public void FireScreenClosingEvent()
     {
-      FireEvent(CLOSE_EVENT);
+      FireEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
       _closeTime = FindCloseEventCompletionTime();
     }
 
     public bool DoneClosing
     {
       get { return SkinContext.FrameRenderingStartTime.CompareTo(_closeTime) > 0; }
-    }
-
-    /// <summary>
-    /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
-    /// focus. This will reset the focus on the former focused element.
-    /// This will be called from the <see cref="FrameworkElement"/> class.
-    /// </summary>
-    /// <param name="focusedElement">The element which gained focus.</param>
-    /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
-    /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
-    /// should be called again after the element arranged its layout.</returns>
-    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
-    {
-      if (_focusedElement == focusedElement)
-        return;
-      RemoveCurrentFocus();
-      if (focusedElement == null)
-        return;
-      _focusedElement = focusedElement;
-      _lastFocusRect = focusedElement.ActualBounds;
-      focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
-      return;
     }
 
     /// <summary>
@@ -610,7 +707,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected void UpdateFocus(ref Key key)
     {
       FrameworkElement focusedElement = FocusedElement;
-      FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? new RectangleF?() :
+      FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? _lastFocusRect ?? CreateCenterRect() :
           focusedElement.ActualBounds, key);
       if (cntl != null)
       {
@@ -631,6 +728,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
+    /// focus. This will reset the focus on the former focused element.
+    /// This will be called from the <see cref="FrameworkElement"/> class.
+    /// </summary>
+    /// <param name="focusedElement">The element which gained focus.</param>
+    /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
+    /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
+    /// should be called again after the element arranged its layout.</returns>
+    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
+    {
+      if (_focusedElement == focusedElement)
+        return;
+      RemoveCurrentFocus();
+      if (focusedElement == null)
+        return;
+      _focusedElement = focusedElement;
+      _lastFocusRect = focusedElement.ActualBounds;
+      focusedElement.FireEvent(FrameworkElement.GOTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
+      return;
+    }
+
+    /// <summary>
     /// Informs the screen that the specified <paramref name="focusedElement"/> lost its
     /// focus. This will be called from the <see cref="FrameworkElement"/> class.
     /// </summary>
@@ -639,8 +758,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (focusedElement != null && _focusedElement == focusedElement)
       {
+        _lastFocusedElement.Target = _focusedElement;
         _focusedElement = null;
-        focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT);
+        focusedElement.FireEvent(FrameworkElement.LOSTFOCUS_EVENT, RoutingStrategyEnum.Bubble);
       }
     }
 
@@ -731,12 +851,19 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void AddChild(FrameworkElement child)
     {
       _root = child;
+      _root.VisualParent = this;
       SetScreen(this);
       ScreenState = _state; // Set the visual's element state via our ScreenState setter
-      _root.VisualParent = this;
       InitializeTriggers();
     }
 
     #endregion
+
+    public void ScheduleSetFocus(FrameworkElement element, SetFocusPriority setFocusPriority)
+    {
+      if (_scheduledFocus.ContainsKey(setFocusPriority))
+        return;
+      _scheduledFocus[setFocusPriority] = new ScheduledFocus(element);
+    }
   }
 }

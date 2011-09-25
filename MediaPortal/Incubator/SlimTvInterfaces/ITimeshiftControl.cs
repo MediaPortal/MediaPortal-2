@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTvClient.Interfaces

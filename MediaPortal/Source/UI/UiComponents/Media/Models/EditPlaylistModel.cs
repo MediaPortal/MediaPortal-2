@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;

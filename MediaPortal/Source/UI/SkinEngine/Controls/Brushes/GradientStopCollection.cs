@@ -26,13 +26,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IDisposable, IEnumerable<GradientStop>, IAddChild<GradientStop>
+  public class GradientStopCollection : IDisposable, IEnumerable<GradientStop>, IAddChild<GradientStop>, ISkinEngineManagedResource
   {
     #region Protected fields
 

@@ -25,9 +25,9 @@
 using System;
 using System.IO;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.PlayerComponents;
@@ -62,6 +62,12 @@ namespace Ui.Players.BassPlayer
   /// </remarks>
   public class Controller : IDisposable
   {
+    #region Consts
+
+    public static readonly TimeSpan TIMESPAN_INFINITE = TimeSpan.FromMilliseconds(-1);
+
+    #endregion
+
     #region Delegates
 
     // Delegates used in conjunction with workitems.
@@ -86,6 +92,7 @@ namespace Ui.Players.BassPlayer
     protected volatile int _volume = 100;
 
     protected Thread _playerThread;
+    protected AutoResetEvent _playerThreadNotifyEvent = new AutoResetEvent(false);
     protected volatile bool _mainThreadTerminated;
     protected WorkItemQueue _workItemQueue;
 
@@ -125,6 +132,8 @@ namespace Ui.Players.BassPlayer
       _outputDeviceManager.Dispose();
 
       _bassLibraryManager.Dispose();
+
+      _playerThreadNotifyEvent.Close();
     }
 
     #region Public members
@@ -182,10 +191,8 @@ namespace Ui.Players.BassPlayer
     public void EnqueueWorkItem(WorkItem workItem)
     {
       lock (_syncObj)
-      {
         _workItemQueue.Enqueue(workItem);
-        Monitor.PulseAll(_syncObj);
-      }
+      _playerThreadNotifyEvent.Set();
     }
 
     public void StateReady()
@@ -355,16 +362,16 @@ namespace Ui.Players.BassPlayer
         {
           WorkItem item = DequeueWorkItem();
 
-          lock (_syncObj)
+          if (_mainThreadTerminated)
+            // Check the terminated flag early
+            break;
+          if (item == null)
+            _playerThreadNotifyEvent.WaitOne(TIMESPAN_INFINITE);
+          else
           {
-            if (_mainThreadTerminated)
-              // Has to be checked again inside the lock statement
-              break;
-            if (item == null)
-              Monitor.Wait(_syncObj);
-          }
-          if (item != null) // Must be done outside lock
             item.Invoke();
+            item.Dispose();
+          }
         }
       }
       catch (Exception e)
@@ -382,11 +389,8 @@ namespace Ui.Players.BassPlayer
         return;
       Log.Debug("Stopping player main thread");
 
-      lock (_syncObj)
-      {
-        _mainThreadTerminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _mainThreadTerminated = true;
+      _playerThreadNotifyEvent.Set();
       _playerThread.Join();
     }
 

@@ -27,7 +27,7 @@
 //#define DEBUG_DRME
 
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -66,29 +66,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   }
 
   /// <summary>
-  /// Controls how the DynamicResource markup extension will assign the specified resource to
-  /// its target property.
-  /// </summary>
-  public enum AssignmentMode
-  {
-    /// <summary>
-    /// A reference to the specified resource will be copied to the target property. This is the
-    /// default setting, which is compliant to the WPF behavior of the DynamicResource markup extension.
-    /// </summary>
-    Reference,
-
-    /// <summary>
-    /// Will assign a copy of the resource to the target property. The logical parent of the resource
-    /// will be modified to reference the target object.
-    /// </summary>
-    Copy
-  }
-
-  /// <summary>
   /// Implements the MPF DynamicResource markup extension, with extended functionality.
   /// There are some more properties to finer control the behavior of this class.
   /// <seealso cref="TreeSearchMode"/>
-  /// <seealso cref="AssignmentMode"/>
   /// </summary>
   /// <remarks>
   /// This class is realized as a <see cref="IBinding">Binding</see>, because it
@@ -108,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected bool _attachedToSkinResources = false; // Are we attached to skin resources?
     protected AbstractProperty _resourceKeyProperty; // Resource key to resolve
     protected AbstractProperty _treeSearchModeProperty;
-    protected AbstractProperty _assignmentModeProperty;
+    protected object _lastUpdateValue = null;
 
     #endregion
 
@@ -141,21 +121,18 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       _resourceKeyProperty = new SProperty(typeof(string), null);
       _treeSearchModeProperty = new SProperty(typeof (TreeSearchMode), TreeSearchMode.LogicalTree);
-      _assignmentModeProperty = new SProperty(typeof(AssignmentMode), AssignmentMode.Reference);
     }
 
     void Attach()
     {
       _resourceKeyProperty.Attach(OnPropertyChanged);
       _treeSearchModeProperty.Attach(OnPropertyChanged);
-      _assignmentModeProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
     {
       _resourceKeyProperty.Detach(OnPropertyChanged);
       _treeSearchModeProperty.Detach(OnPropertyChanged);
-      _assignmentModeProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -165,7 +142,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       DynamicResourceMarkupExtension drme = (DynamicResourceMarkupExtension) source;
       ResourceKey = drme.ResourceKey;
       TreeSearchMode = drme.TreeSearchMode;
-      AssignmentMode = drme.AssignmentMode;
       Attach();
     }
 
@@ -203,21 +179,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       get { return (TreeSearchMode) _treeSearchModeProperty.GetValue(); }
       set { _treeSearchModeProperty.SetValue(value); }
-    }
-
-    public AbstractProperty AssignmentModeProperty
-    {
-      get { return _assignmentModeProperty; }
-    }
-
-    /// <summary>
-    /// Specifies, if the original resource should be used or copied when assigning to
-    /// the target property.
-    /// </summary>
-    public AssignmentMode AssignmentMode
-    {
-      get { return (AssignmentMode) _assignmentModeProperty.GetValue(); }
-      set { _assignmentModeProperty.SetValue(value); }
     }
 
     #endregion
@@ -300,23 +261,24 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected void UpdateTarget(object value)
     {
-      object assignValue;
-      if (AssignmentMode == AssignmentMode.Reference)
-        assignValue = value;
-      else if (AssignmentMode == AssignmentMode.Copy)
-      {
-        IEnumerable<IBinding> deferredBindings;
-        assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
-        if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
-          ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
-        MpfCopyManager.ActivateBindings(deferredBindings);
-      }
-      else
-        throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);
+      // We're called multiple times, for example when a resource dictionary changes.
+      // To avoid too many updates, we remember the last updated value.
+      if (ReferenceEquals(value, _lastUpdateValue))
+        return;
+      _lastUpdateValue = value;
+
+      IEnumerable<IBinding> deferredBindings;
+      object assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
+      if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
+        ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
+      MpfCopyManager.ActivateBindings(deferredBindings);
 #if DEBUG_DRME
       DebugOutput("Setting target value to '{0}'", assignValue);
 #endif
-      _contextObject.SetBindingValue(_targetDataDescriptor, TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
+      object assignValueConverted = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
+      if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
+        MPF.TryCleanupAndDispose(assignValue);
+      _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
     }
 
     /// <summary>
@@ -401,9 +363,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         {
           // Attach change handler to resource dictionary
           AttachToResources(resources);
-          if (resources.ContainsKey(ResourceKey))
+          object value;
+          if (resources.TryGetValue(ResourceKey, out value))
           {
-            UpdateTarget(resources[ResourceKey]);
+            UpdateTarget(value);
             return true;
           }
         }

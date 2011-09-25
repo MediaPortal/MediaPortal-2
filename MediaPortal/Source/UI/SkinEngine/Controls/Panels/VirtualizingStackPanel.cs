@@ -22,9 +22,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -60,6 +63,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     // Assigned in CalculateInnerDesiredSize
     protected float _averageItemSize = 0;
 
+    protected IItemProvider _newItemProvider = null; // Store new item provider until next render cylce
+
     #endregion
 
     #region Ctor
@@ -78,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.Dispose();
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider != null)
-        itemProvider.Dispose();
+        MPF.TryCleanupAndDispose(itemProvider);
     }
 
     #endregion
@@ -90,8 +95,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _itemProvider; }
       set
       {
-        _itemProvider = value;
-        InvalidateLayout(true, true);
+        if (_itemProvider != value)
+        {
+          if (_elementState == ElementState.Running)
+            lock (Children.SyncRoot)
+            {
+              if (_newItemProvider == value)
+                return;
+              if (_newItemProvider != null)
+                MPF.TryCleanupAndDispose(_newItemProvider);
+              _newItemProvider = value;
+            }
+          else
+          {
+            if (_newItemProvider != value && _newItemProvider != null)
+              MPF.TryCleanupAndDispose(_newItemProvider);
+            if (_itemProvider != null)
+              MPF.TryCleanupAndDispose(_itemProvider);
+            _itemProvider = value;
+          }
+          InvalidateLayout(true, true);
+        }
       }
     }
 
@@ -151,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // Reached the last item
           break;
         FrameworkElement item = GetItem(end + 1, itemProvider, true);
-        if (!item.IsVisible)
+        if (item == null || !item.IsVisible)
           continue;
         if (ct-- == 0)
           break;
@@ -173,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // Reached the last item
           break;
         FrameworkElement item = GetItem(start - 1, itemProvider, true);
-        if (!item.IsVisible)
+        if (item == null || !item.IsVisible)
           continue;
         if (ct-- == 0)
           break;
@@ -195,8 +219,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      lock (Children.SyncRoot)
+      FrameworkElementCollection children = Children;
+      lock (children.SyncRoot)
       {
+        if (_newItemProvider != null)
+        {
+          if (children.Count > 0)
+          children.Clear(false);
+          if (_itemProvider != null)
+            MPF.TryCleanupAndDispose(_itemProvider);
+          _itemProvider = _newItemProvider;
+        }
         _averageItemSize = 0;
         IItemProvider itemProvider = ItemProvider;
         if (itemProvider == null)
@@ -213,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           for (int i = 0; i < numItems; i++)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
-            if (!item.IsVisible)
+            if (item == null || !item.IsVisible)
               continue;
             exemplaryChildren.Add(item);
           }
@@ -232,15 +265,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         bool newlyCreated;
         FrameworkElement item = itemProvider.GetOrCreateItem(childIndex, this, out newlyCreated);
+        if (item == null)
+          return null;
+        if (newlyCreated)
+          // VisualParent and item.Screen were set by the item provider
+          item.SetElementState(_elementState == ElementState.Running ? ElementState.Running : ElementState.Preparing);
         if (newlyCreated || forceMeasure)
         {
           SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float) ActualWidth, float.NaN) :
               new SizeF(float.NaN, (float) ActualHeight);
           item.Measure(ref childSize);
         }
-        if (newlyCreated)
-          // item.Screen was set by the item provider
-          item.SetElementState(ElementState.Running);
         return item;
       }
     }
@@ -297,7 +332,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = _actualLastVisibleChild; i >= 0; i--)
               {
                 FrameworkElement item = GetItem(i, itemProvider, true);
-                if (!item.IsVisible)
+                if (item == null || !item.IsVisible)
                   continue;
                 if (ct-- == 0)
                   break;
@@ -311,7 +346,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = _actualLastVisibleChild + 1; i < numItems; i++)
                 {
                   FrameworkElement item = GetItem(i, itemProvider, true);
-                  if (!item.IsVisible)
+                  if (item == null || !item.IsVisible)
                     continue;
                   if (ct-- == 0)
                     break;
@@ -330,7 +365,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = _actualFirstVisibleChild; i < numItems; i++)
               {
                 FrameworkElement item = GetItem(i, itemProvider, true);
-                if (!item.IsVisible)
+                if (item == null || !item.IsVisible)
                   continue;
                 if (ct-- == 0)
                   break;
@@ -344,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
                 {
                   FrameworkElement item = GetItem(i, itemProvider, true);
-                  if (!item.IsVisible)
+                  if (item == null || !item.IsVisible)
                     continue;
                   if (ct-- == 0)
                     break;
@@ -378,7 +413,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           for (int i = _actualFirstVisibleChild - 1; i >= 0 && i >= _actualFirstVisibleChild - numArrangeAroundViewport; i--)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
-            if (!item.IsVisible)
+            if (item == null || !item.IsVisible)
               continue;
             SizeF childSize = new SizeF(item.DesiredSize);
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
@@ -413,7 +448,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           for (int i = _actualFirstVisibleChild; i < numItems && i <= _actualLastVisibleChild + numArrangeAroundViewport; i++)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
-            if (!item.IsVisible)
+            if (item == null || !item.IsVisible)
               continue;
             SizeF childSize = new SizeF(item.DesiredSize);
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
@@ -593,6 +628,53 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           numElementsBeforeAndAfter, numElementsBeforeAndAfter, elements);
     }
 
+    protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.SaveChildrenState(state, prefix);
+      else
+      {
+        IList<FrameworkElement> arrangedItemsCopy;
+        int index;
+        lock (Children.SyncRoot)
+        {
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
+          index = _arrangedItemsStartIndex;
+        }
+        state[prefix + "/ItemsStartIndex"] = index;
+        state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+        foreach (FrameworkElement child in arrangedItemsCopy)
+          child.SaveUIState(state, prefix + "/Child_" + (index++));
+      }
+    }
+
+    public override void RestoreChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.RestoreChildrenState(state, prefix);
+      else
+      {
+        object oNumItems;
+        object oIndex;
+        int? numItems;
+        int? startIndex;
+        if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
+            (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
+        {
+          int numRestoreItems = Math.Max(numItems.Value, itemProvider.NumItems);
+          for (int i = 0; i < numRestoreItems; i++)
+          {
+            FrameworkElement child = GetItem(startIndex.Value + i, itemProvider, false);
+            if (child == null)
+              continue;
+            child.RestoreUIState(state, prefix + "/Child_" + i);
+          }
+        }
+      }
+    }
+
     public override bool FocusPageUp()
     {
       IItemProvider itemProvider = ItemProvider;
@@ -632,7 +714,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to first element
@@ -685,7 +768,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to last element
@@ -738,7 +822,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to first element
@@ -791,7 +876,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Bound(ref index, 0, numItems - 1);
           SetScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
-          item.SetFocus = true;
+          if (item != null)
+            item.SetFocusPrio = SetFocusPriority.Default;
           return true;
         }
         // An element inside our visible range is focused - move to last element
@@ -815,7 +901,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (itemProvider.NumItems == 0)
           return false;
-        GetItem(0, itemProvider, true).SetFocus = true;
+        FrameworkElement item = GetItem(0, itemProvider, true);
+        if (item != null)
+          item.SetFocusPrio = SetFocusPriority.Default;
       }
       SetScrollIndex(0, true);
       return true;
@@ -833,7 +921,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         numItems = itemProvider.NumItems;
         if (numItems == 0)
           return false;
-        GetItem(numItems - 1, itemProvider, true).SetFocus = true;
+        FrameworkElement item = GetItem(numItems - 1, itemProvider, true);
+        if (item != null)
+          item.SetFocusPrio = SetFocusPriority.Default;
       }
       SetScrollIndex(numItems - 1, false);
       return true;

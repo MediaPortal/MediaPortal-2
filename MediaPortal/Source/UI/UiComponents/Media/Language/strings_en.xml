@@ -194,7 +194,7 @@
 
     <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
     
-    <String Name="NoPlaylistsInThisList" Text="- No playlists in this list -"/>
+    <String Name="NoPlaylistsAvailable" Text="- No playlists available -"/>
     <String Name="NoConfigPlaylistsHomeServerNotConnectedText" Text="The home server is currently not connected, so playlists cannot be managed at the moment"/>
     <String Name="EditNameOfPlaylist" Text="Edit the name of the playlist"/>
     <String Name="SavePlaylistSuccessfulText" Text="The playlist was successfully saved at the server."/>

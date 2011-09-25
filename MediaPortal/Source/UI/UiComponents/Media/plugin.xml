@@ -13,7 +13,7 @@
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration plugin -->
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"/> <!-- SkinBase -->
     <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"/> <!-- BassLibraries -->
-    <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}"/> <!-- AudioCDMediaProvider -->
+    <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}"/> <!-- AudioCDResourceProvider -->
   </DependsOn>
 
   <Runtime>

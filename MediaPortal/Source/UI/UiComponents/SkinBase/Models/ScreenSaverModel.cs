@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 

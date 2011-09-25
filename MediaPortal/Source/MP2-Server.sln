@@ -2,13 +2,13 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "System", "System", "{843A0AD1-33FC-4952-9465-B5E79C2C67D1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{843A0AD1-33FC-4952-9465-B5E79C2C67D1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{23FE1AB5-FA54-4863-8E01-871B3A969E71}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MetadataExtractors", "MetadataExtractors", "{1B4741DC-78EA-4D93-8EED-00CB9617AD2F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaProviders", "MediaProviders", "{985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ResourceProviders", "ResourceProviders", "{985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{E6118C44-7DD3-49C6-B39E-FF148ACC9DFC}"
 EndProject
@@ -22,23 +22,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicMetadataExtractor", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictureMetadataExtractor", "Extensions\MetadataExtractors\PictureMetadataExtractor\PictureMetadataExtractor.csproj", "{47B09A95-16F2-4B96-A9FE-4A96363442B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "System\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "Core\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "System\MediaPortal.Core\MediaPortal.Core.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "System\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalFsMediaProvider", "Extensions\MediaProviders\LocalFsMediaProvider\LocalFsMediaProvider.csproj", "{347E1EC5-D40A-4A9A-A219-B0507A8A0D40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalFsResourceProvider", "Extensions\ResourceProviders\LocalFsResourceProvider\LocalFsResourceProvider.csproj", "{347E1EC5-D40A-4A9A-A219-B0507A8A0D40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CueProvider", "Extensions\MediaProviders\CueProvider\CueProvider.csproj", "{0C708070-8102-4615-9B5F-2FCF652A4D13}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CueProvider", "Extensions\ResourceProviders\CueProvider\CueProvider.csproj", "{0C708070-8102-4615-9B5F-2FCF652A4D13}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Server", "Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "System\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "System\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "System\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerBase", "Backend\BackendComponents\ServerBase\ServerBase.csproj", "{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}"
 EndProject
@@ -54,9 +54,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLCEDatabase", "Backend\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScimoreDb", "Backend\Database\ScimoreDb\ScimoreDb.csproj", "{99071112-C30D-4EBB-87AD-990DD85118D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipMediaProvider", "Extensions\MediaProviders\ZipMediaProvider\ZipMediaProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BDHandler\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCDResourceProvider", "Extensions\ResourceProviders\AudioCDResourceProvider\AudioCDResourceProvider.csproj", "{A492604D-592C-425F-9DDD-A121BD6DE0B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsoResourceProvider", "Extensions\ResourceProviders\IsoResourceProvider\IsoResourceProvider.csproj", "{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,6 +146,14 @@ Global
 		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.Build.0 = Debug|x86
 		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.ActiveCfg = Release|x86
 		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.Build.0 = Release|x86
+		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Debug|x86.ActiveCfg = Debug|x86
+		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Debug|x86.Build.0 = Debug|x86
+		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Release|x86.ActiveCfg = Release|x86
+		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Release|x86.Build.0 = Release|x86
+		{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}.Debug|x86.ActiveCfg = Debug|x86
+		{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}.Debug|x86.Build.0 = Debug|x86
+		{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}.Release|x86.ActiveCfg = Release|x86
+		{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,6 +178,8 @@ Global
 		{347E1EC5-D40A-4A9A-A219-B0507A8A0D40} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
 		{0C708070-8102-4615-9B5F-2FCF652A4D13} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
 		{33721BC7-193A-4B80-9CFF-DC8A50700443} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
+		{A492604D-592C-425F-9DDD-A121BD6DE0B5} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
+		{ABB50339-0CA4-4CB4-8788-EA66C960ABCE} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
 		{9F6AECB3-1AB7-4348-8E97-563BCB392DB2} = {E6118C44-7DD3-49C6-B39E-FF148ACC9DFC}
 		{EFC339EB-9F75-4E5A-937A-A8BECA514715} = {E6118C44-7DD3-49C6-B39E-FF148ACC9DFC}
 		{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4} = {9F6AECB3-1AB7-4348-8E97-563BCB392DB2}

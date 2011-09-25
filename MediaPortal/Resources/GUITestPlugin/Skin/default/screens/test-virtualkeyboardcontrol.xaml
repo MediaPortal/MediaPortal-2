@@ -15,17 +15,15 @@
         Content="This screen shows text boxes at several screen positions. Click them or hit ok when one of them has keyboard focus to open a virtual keyboard."
         Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,50"/>
     <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="false">
-      <TextBox DockPanel.Dock="Top" Style="{ThemeResource TextBoxStyle}"/>
-      <TextBox DockPanel.Dock="Bottom" Style="{ThemeResource TextBoxStyle}"/>
+      <TextBox DockPanel.Dock="Top"/>
+      <TextBox DockPanel.Dock="Bottom"/>
       <StackPanel DockPanel.Dock="Left" Width="300" VerticalAlignment="Center">
-        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left" Style="{ThemeResource TextBoxStyle}"/>
-        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left" Style="{ThemeResource TextBoxStyle}"/>
-        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left" Style="{ThemeResource TextBoxStyle}"/>
+        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left"/>
+        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left"/>
+        <TextBox Margin="0,20,0,20" DockPanel.Dock="Left"/>
       </StackPanel>
-      <TextBox DockPanel.Dock="Right" Style="{ThemeResource TextBoxStyle}"
-          Width="300" VerticalAlignment="Center"/>
-      <TextBox DockPanel.Dock="Center" Style="{ThemeResource TextBoxStyle}"
-          PreferredTextLength="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+      <TextBox DockPanel.Dock="Right" Width="300" VerticalAlignment="Center"/>
+      <TextBox DockPanel.Dock="Center" PreferredTextLength="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </DockPanel>
     <VirtualKeyboardControl Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
         Style="{ThemeResource VirtualKeyboardControlStyle}"/>

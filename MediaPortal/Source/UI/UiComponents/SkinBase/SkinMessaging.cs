@@ -22,8 +22,8 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.UiComponents.SkinBase
 {

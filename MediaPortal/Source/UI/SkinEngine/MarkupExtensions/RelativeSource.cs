@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
@@ -41,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// This class acts as a data object. The search for the element referenced by this
   /// instance will be done by class <see cref="BindingMarkupExtension"/>.
   /// </summary>
-  public class RelativeSource
+  public class RelativeSource : ISkinEngineManagedResource
   {
     //public static RelativeSource PreviousData = new RelativeSource(RelativeSourceMode.PreviousData);
     public static RelativeSource TemplatedParent = new RelativeSource(RelativeSourceMode.TemplatedParent);

@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.RemovableMediaManager.Settings
 {

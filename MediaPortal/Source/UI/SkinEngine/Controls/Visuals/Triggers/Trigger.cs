@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Value);
+      MPF.TryCleanupAndDispose(Value);
       if (_dataDescriptor != null)
         _dataDescriptor.Detach(OnPropertyChanged);
       base.Dispose();

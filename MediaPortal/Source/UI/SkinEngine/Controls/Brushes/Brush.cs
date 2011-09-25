@@ -23,7 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -61,8 +61,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      Registration.TryCleanupAndDispose(RelativeTransform);
-      Registration.TryCleanupAndDispose(Transform);
+      MPF.TryCleanupAndDispose(RelativeTransform);
+      MPF.TryCleanupAndDispose(Transform);
     }
 
     void Init()

@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Weather.Settings.Configuration
 {

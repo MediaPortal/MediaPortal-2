@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -106,12 +106,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       {
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
-          double progress = (timepassed - time);
+          double progress = timepassed - time;
           if (progress == 0)
             patc.DataDescriptor.Value = key.Value;
           else
           {
-            progress /= (key.KeyTime.TotalMilliseconds - time);
+            progress /= key.KeyTime.TotalMilliseconds - time;
             Vector2 result = key.Interpolate(start, progress);
             patc.DataDescriptor.Value = result;
           }

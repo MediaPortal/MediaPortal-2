@@ -12,7 +12,7 @@
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
-    <ResourceWrapper x:Key="ChooseMediaProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
+    <ResourceWrapper x:Key="ChooseResourceProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Client_Element">
@@ -42,7 +42,7 @@
               Content="[System.Back]" IsEnabled="false"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding IsSystemSelected}"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseMediaProviderStateId}}"/>
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseResourceProviderStateId}}"/>
         </Grid>
       </Grid>
     </ResourceWrapper>

@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;

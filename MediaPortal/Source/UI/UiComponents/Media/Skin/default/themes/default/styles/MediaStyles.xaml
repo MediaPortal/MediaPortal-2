@@ -96,7 +96,6 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Style="{ThemeResource ProgressBarStyle}"
                     Value="{Binding Path=PercentPlayed}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
@@ -228,7 +227,6 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Style="{ThemeResource ProgressBarStyle}"
                     Value="{Binding Path=PercentPlayed}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
@@ -561,7 +559,7 @@
           <Button x:Name="ItemButton"
               Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemNameLabel" Property="Scroll" Value="Auto"/>
@@ -596,17 +594,17 @@
             <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveUpButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid}"
                 SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}"/>
             <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource PlaylistMoveDownButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid}"
                 SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}"/>
             <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3" Width="30" Height="30"
                 VerticalAlignment="Center" HorizontalAlignment="Center"
                 Style="{ThemeResource RemoveButtonStyle}" Context="{Binding}"
-                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -698,12 +696,12 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+            <ScrollViewer CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Media.NoPlaylistsAvailable]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
@@ -722,13 +720,13 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+            <ScrollViewer CanContentScroll="true"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Media.NoPlaylistsInThisList]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+            <Label Content="[Media.NoPlaylistsAvailable]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>

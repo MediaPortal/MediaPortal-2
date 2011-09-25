@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Commands;
+using MediaPortal.Common.Commands;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_command);
+      MPF.TryCleanupAndDispose(_command);
       base.Dispose();
     }
 

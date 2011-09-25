@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;

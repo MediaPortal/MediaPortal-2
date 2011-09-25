@@ -26,8 +26,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Xml.XPath;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement

@@ -1,4 +1,4 @@
-﻿using MediaPortal.Core.Settings;
+﻿using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.SlimTvClient.Providers.Settings
 {

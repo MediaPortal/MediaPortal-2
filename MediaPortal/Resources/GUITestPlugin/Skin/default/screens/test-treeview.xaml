@@ -9,7 +9,7 @@
         Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
     <UniformGrid Columns="2" DockPanel.Dock="Center">
       <TreeView Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
-          Margin="50"
+          Margin="50" RadioButton.GroupContext="RadioButtonGroup"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           ForceExpander="True"
           ItemsSource="{Binding Path=Tree,Mode=OneTime}">
@@ -20,14 +20,12 @@
           <!-- Command not necessary here. We use a dummy. -->
           <ResourceWrapper x:Key="Expander_Command"/>
   
-          <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
-  
-          <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+          <!-- Checker_Command isn't necessary here - the selection state will be propagated via the Selected property.
                We use a dummy. -->
           <ResourceWrapper x:Key="Checker_Command"/>
         </TreeView.Resources>
       </TreeView>
-      <TreeView Grid.Row="3" Grid.Column="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
+      <TreeView Grid.Row="3" Grid.Column="1" RadioButton.GroupContext="RadioButtonGroup"
           VerticalAlignment="Center" HorizontalAlignment="Center"
           ForceExpander="True" Width="200" Height="200"
           ItemsSource="{Binding Path=Tree,Mode=OneTime}">
@@ -37,12 +35,6 @@
   
           <!-- Command not necessary here. We use a dummy. -->
           <ResourceWrapper x:Key="Expander_Command"/>
-  
-          <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
-  
-          <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
-               We use a dummy. -->
-          <ResourceWrapper x:Key="Checker_Command"/>
         </TreeView.Resources>
       </TreeView>
     </UniformGrid>

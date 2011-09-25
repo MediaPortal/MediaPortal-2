@@ -31,8 +31,8 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Windows.Forms;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 

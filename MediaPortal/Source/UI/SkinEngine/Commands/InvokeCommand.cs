@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -55,9 +55,9 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(CommandStencil);
+      MPF.TryCleanupAndDispose(CommandStencil);
       foreach (object parameter in CommandParameters)
-        Registration.TryCleanupAndDispose(parameter);
+        MPF.TryCleanupAndDispose(parameter);
       base.Dispose();
     }
 

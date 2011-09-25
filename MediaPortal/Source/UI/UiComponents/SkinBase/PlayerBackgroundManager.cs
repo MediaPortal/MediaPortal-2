@@ -24,8 +24,8 @@
 
 using System.Collections.Generic;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;

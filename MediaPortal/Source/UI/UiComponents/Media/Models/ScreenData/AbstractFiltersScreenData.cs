@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.FilterCriteria;

@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 
 namespace MediaPortal.UI.Players.Picture
 {

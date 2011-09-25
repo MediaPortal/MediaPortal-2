@@ -26,8 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
@@ -559,6 +560,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         SetScrollIndex(index, false);
     }
 
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      state[prefix + "/FirstVisibleChild"] = _actualFirstVisibleChild;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      object first;
+      int? iFirst;
+      if (state.TryGetValue(prefix + "/FirstVisibleChild", out first) && (iFirst = first as int?).HasValue)
+        SetScrollIndex(iFirst.Value, true);
+    }
+
     #endregion
 
     #region Rendering
@@ -734,7 +750,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (visibleChildren.Count == 0)
         return false;
       SetScrollIndex(0, true);
-      visibleChildren[0].SetFocus = true;
+      visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
 
@@ -744,7 +760,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (visibleChildren.Count == 0)
         return false;
       SetScrollIndex(int.MaxValue, false);
-      visibleChildren[visibleChildren.Count - 1].SetFocus = true;
+      visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
 

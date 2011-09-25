@@ -37,10 +37,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
             Context = dataItem,
             Content = dataItem,
-            Screen = Screen
+            Screen = Screen,
+            ElementState = _elementState,
+            LogicalParent = this,
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle) ?? container.CopyDefaultStyle();
       container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       return container;
     }

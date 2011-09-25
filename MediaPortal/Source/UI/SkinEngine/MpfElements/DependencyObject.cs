@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -38,11 +38,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable
+  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedResource
   {
     #region Protected fields
 
     protected ICollection<BindingBase> _bindings = null;
+    protected IList<object> _adoptedObjects = null;
     protected IDictionary<string, AbstractProperty> _attachedProperties = null; // Lazy initialized
     protected AbstractProperty _dataContextProperty;
     protected AbstractProperty _logicalParentProperty;
@@ -87,7 +88,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           _binding.Dispose();
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
-          Registration.TryCleanupAndDispose(property.GetValue());
+          MPF.TryCleanupAndDispose(property.GetValue());
+      if (_adoptedObjects != null)
+        foreach (object o in _adoptedObjects)
+          MPF.TryCleanupAndDispose(o);
     }
 
     #endregion
@@ -120,6 +124,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     }
 
     #endregion
+
+    /// <summary>
+    /// Passes the ownership of the given object <paramref name="o"/> to this object. The caller can forget about the object disposal
+    /// of the given object; the given object's lifetime will not end before this object's lifetime ends.
+    /// </summary>
+    /// <param name="o">Object to be passed to this object.</param>
+    public void TakeOverOwnership(object o)
+    {
+      if (_adoptedObjects == null)
+        _adoptedObjects = new List<object>();
+      _adoptedObjects.Add(o);
+    }
 
     public static void TryDispose(ref object maybeDisposable)
     {

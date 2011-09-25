@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Core.General;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 {

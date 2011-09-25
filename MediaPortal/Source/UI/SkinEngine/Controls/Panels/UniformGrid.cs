@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.Utilities;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -335,6 +335,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
     #endregion
+
+    public override void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.SaveUIState(state, prefix);
+      state[prefix + "/ScrollIndexX"] = _scrollIndexX;
+      state[prefix + "/ScrollIndexY"] = _scrollIndexY;
+    }
+
+    public override void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      base.RestoreUIState(state, prefix);
+      object index;
+      int? iScrollX;
+      int? iScrollY;
+      if (state.TryGetValue(prefix + "/ScrollIndexX", out index) && (iScrollX = index as int?).HasValue &&
+          state.TryGetValue(prefix + "/ScrollIndexY", out index) && (iScrollY = index as int?).HasValue)
+        SetScrollIndex(iScrollX.Value, iScrollY.Value);
+    }
 
     #region IScrollViewerFocusSupport implementation
 

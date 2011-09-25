@@ -26,10 +26,11 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class ElementProvider<T> : IUnmodifiableResource, IInitializable where T : class
+  public class ElementProvider<T> : IDeepCopyable, IUnmodifiableResource, IInitializable where T : class
   {
     #region Protected fields
 
@@ -38,6 +39,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     protected object _owner = null;
 
     #endregion
+
+    public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      ElementProvider<T> ep = (ElementProvider<T>) source;
+      _owner = copyManager.GetCopy(ep._owner);
+    }
 
     /// <summary>
     /// Gets or sets a property path expression to the data string corresponding to a given object.

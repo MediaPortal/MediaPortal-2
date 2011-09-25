@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     {
       try
       {
-        return Registration.ObjectClassRegistrations[typeName];
+        return MPF.ObjectClassRegistrations[typeName];
       }
       catch
       {

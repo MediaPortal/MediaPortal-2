@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected override bool UpdateBinding()
     {
-      _retryBinding = true;
+      _valueAssigned = false;
       IDataDescriptor sourceDd;
       if (!Evaluate(out sourceDd))
         return false;
@@ -75,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       IBinding binding = bindingWrapper.Binding.CopyAndRetarget(_targetDataDescriptor);
       binding.Activate();
       // When the binding is copied, this instance is not needed any more
-      _retryBinding = false;
+      _valueAssigned = true;
       Dispose();
       return true;
     }

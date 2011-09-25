@@ -25,11 +25,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;

@@ -24,10 +24,11 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public interface IValueConverter
+  public interface IValueConverter : ISkinEngineManagedResource
   {
     bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
     bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result);

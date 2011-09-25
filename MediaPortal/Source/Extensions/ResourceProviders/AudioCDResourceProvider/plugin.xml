@@ -1,0 +1,21 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="AudioCDResourceProvider"
+    PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}"
+    Author="Albert"
+    Copyright="GPL"
+    Description="Audio CD Resource Provider"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="AudioCDResourceProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/ResourceProviders">
+    <Instance Id="AudioCDProvider" ClassName="MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider.AudioCDResourceProvider"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="AudioCDResourceProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>

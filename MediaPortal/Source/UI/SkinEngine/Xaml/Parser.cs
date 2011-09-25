@@ -269,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
       object key;
-      _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
+      _rootObject = ParserHelper.UnwrapIncludesAndCleanup(Instantiate(_xmlDocument.DocumentElement, out key));
       if (key != null)
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
       foreach (EvaluatableMarkupExtensionActivator activator in _deferredMarkupExtensionActivations)
@@ -507,8 +507,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           EventInfo evt = t.GetEvent(memberName);
           if (evt != null)
           { // Event assignment
-            HandleEventAssignment(elementContext.Instance, evt,
-                (string) Convert(value, typeof(string)));
+            HandleEventAssignment(elementContext.Instance, evt, (string) Convert(value, typeof(string)));
             return;
           }
           throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
@@ -630,6 +629,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             continue;
           object key;
           object value = Instantiate((XmlElement) childNode, out key);
+          if (key == null)
+            key = GetImplicitKey(value);
           IEvaluableMarkupExtension evaluableMarkupExtension = value as IEvaluableMarkupExtension;
           // Handle the case if a markup extension was instantiated as a child
           if (evaluableMarkupExtension != null)
@@ -638,9 +639,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             if (!evaluableMarkupExtension.Evaluate(out value))
               throw new XamlParserException("Could not evaluate markup extension '{0}'", evaluableMarkupExtension);
           }
-          IInclude include = value as IInclude;
-          if (include != null)
-            value = include.Content;
+          value = ParserHelper.UnwrapIncludesAndCleanup(value);
           if (key == null)
             resultList.Add(value);
           else
@@ -662,24 +661,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           resultList.Add(((XmlCharacterData) childNode).Data);
       }
       if (resultList.Count > 0 && resultDict.Count > 0)
-      {
-        // Try to add implicit keys for resources which don't have one
-        foreach (object o in resultList)
-        {
-          object key = GetImplicitKey(o);
-          try
-          {
-            resultDict.Add(key, o);
-          }
-          catch
-          {
-            throw new XamlBindingException(
-                "Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute",
-                node.Name);
-          }
-        }
-        resultList.Clear();
-      }
+        throw new XamlBindingException(
+            "Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute",
+            node.Name);
 
       if (resultDict.Count > 0)
         return resultDict;
@@ -859,18 +843,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     }
 
     /// <summary>
-    /// Given a root element parsed from a XAML file, this method extracts the root
-    /// element, if the given <paramref name="rootElement"/> is an include.
-    /// </summary>
-    /// <param name="rootElement">Root element parsed from a XAML file.</param>
-    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
-    protected static object UnwrapIncludes(object rootElement)
-    {
-      IInclude include = rootElement as IInclude;
-      return include == null ? rootElement : UnwrapIncludes(include.Content);
-    }
-
-    /// <summary>
     /// Returns the implicit key for the specified object. The method will try to cast
     /// <paramref name="o"/> to <see cref="IImplicitKey"/>. If the object doesn't implement
     /// this interface, an exception will be raised.
@@ -882,9 +854,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected static object GetImplicitKey(object o)
     {
       IImplicitKey implicitKey = o as IImplicitKey;
-      if (implicitKey == null)
-        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
-      return implicitKey.GetImplicitKey();
+      return implicitKey == null ? null : implicitKey.GetImplicitKey();
     }
 
     #endregion

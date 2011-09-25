@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -95,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_headerLabel);
+      MPF.TryCleanupAndDispose(_headerLabel);
       base.Dispose();
     }
 

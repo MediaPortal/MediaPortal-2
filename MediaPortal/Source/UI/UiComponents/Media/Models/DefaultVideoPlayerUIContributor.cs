@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.General;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;

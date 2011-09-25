@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -61,14 +61,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _isCheckedProperty.Attach(OnCheckChanged);
       _groupNameProperty.Attach(OnGroupNameChanged);
-      _isPressedProperty.Attach(OnButtonPressedChanged);
+
+      IsPressedProperty.Attach(OnButtonPressedChanged);
     }
 
     void Detach()
     {
       _isCheckedProperty.Detach(OnCheckChanged);
       _groupNameProperty.Detach(OnGroupNameChanged);
-      _isPressedProperty.Detach(OnButtonPressedChanged);
+
+      IsPressedProperty.Detach(OnButtonPressedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -79,6 +81,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IsChecked = rb.IsChecked;
       GroupName = rb.GroupName;
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      if (_radioButtonGroup != null)
+        _radioButtonGroup.Remove(this);
+      base.Dispose();
     }
 
     #endregion
@@ -136,7 +145,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected void InitializeGroup()
     {
+      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
+        return;
       if (_radioButtonGroup != null)
+        // Remove from last group, if the group name changed
         _radioButtonGroup.Remove(this);
       _radioButtonGroup = null;
       if (!string.IsNullOrEmpty(GroupName))
@@ -150,13 +162,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _radioButtonGroup = new List<RadioButton>();
           ns.RegisterName(GroupName, _radioButtonGroup);
         }
-        _radioButtonGroup.Add(this);
+        if (!_radioButtonGroup.Contains(this))
+          _radioButtonGroup.Add(this);
       }
     }
 
     #endregion
 
     #region Public properties
+
+    public override ElementState ElementState
+    {
+      internal set
+      {
+        base.ElementState = value;
+        if (value == ElementState.Running || value == ElementState.Preparing)
+          InitializeGroup();
+      }
+    }
 
     public AbstractProperty GroupNameProperty
     {
@@ -178,17 +201,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (bool) _isCheckedProperty.GetValue(); }
       set { _isCheckedProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Base overrides
-
-    public override void FireEvent(string eventName)
-    {
-      if (eventName == LOADED_EVENT)
-        InitializeGroup();
-      base.FireEvent(eventName);
     }
 
     #endregion
@@ -228,7 +240,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="targetObject">The object whose property value will
     /// be set.</param>
     /// <param name="value">Value of the <c>GroupContext</c> property on the
-    /// <paramref name="targetObject"/> to be set.</returns>
+    /// <paramref name="targetObject"/> to be set.</param>
     public static void SetGroupContext(DependencyObject targetObject, string value)
     {
       targetObject.SetAttachedPropertyValue<string>(GROUPCONTEXT_ATTACHED_PROPERTY, value);

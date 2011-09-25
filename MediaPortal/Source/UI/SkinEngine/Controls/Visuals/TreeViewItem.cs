@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -57,16 +57,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
-      _templateControlProperty.Attach(OnTemplateControlChanged);
-      _isExpandedProperty.Attach(OnExpandedChanged);
+      
+      TemplateControlProperty.Attach(OnTemplateControlChanged);
+      IsExpandedProperty.Attach(OnExpandedChanged);
     }
 
     void Detach()
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
-      _templateControlProperty.Detach(OnTemplateControlChanged);
-      _isExpandedProperty.Detach(OnExpandedChanged);
+      
+      TemplateControlProperty.Detach(OnTemplateControlChanged);
+      IsExpandedProperty.Detach(OnExpandedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -85,8 +87,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Content);
-      Registration.TryCleanupAndDispose(ContentTemplate);
+      MPF.TryCleanupAndDispose(Content);
+      MPF.TryCleanupAndDispose(ContentTemplate);
       base.Dispose();
     }
 
@@ -97,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnExpandedChanged(AbstractProperty property, object oldValue)
     {
       if (!IsItemsPrepared)
-        PrepareItems();
+        PrepareItems(false);
     }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
@@ -152,11 +154,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected override void PrepareItems()
+    protected override void PrepareItems(bool force)
     {
       if (!IsExpanded)
         return;
-      base.PrepareItems();
+      base.PrepareItems(force);
     }
 
     protected ContentPresenter FindContentPresenter()

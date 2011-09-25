@@ -25,7 +25,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities;
 
@@ -908,8 +908,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       _valueChanged += handler;
       if (!_attachedToProperty)
+      {
         _prop.Attach(OnPropertyChanged);
-      _attachedToProperty = true;
+        _attachedToProperty = true;
+      }
     }
 
     public void Detach(DataChangedHandler handler)

@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Plugins.SlimTvClient.Helpers;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.Items;
 using MediaPortal.Plugins.SlimTvClient.Interfaces.LiveTvMediaItem;

@@ -22,12 +22,13 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
-  public class DefinitionBase : IDeepCopyable
+  public class DefinitionBase : IDeepCopyable, ISkinEngineManagedResource
   {
     #region Protected fields
 

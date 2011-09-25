@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
-      _forceExpanderProperty.Attach(OnForceExpanderChanged);
+      _forceExpanderProperty.Detach(OnForceExpanderChanged);
       _subItemsProviderProperty.Detach(OnSubItemsProviderChanged);
       _selectedProperty.Detach(OnSelectedChanged);
     }
@@ -197,19 +197,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected void InitializeItemsSource()
+    protected bool InitializeItemsSource()
     {
       SubItemsProvider sip = SubItemsProvider;
+      IEnumerable oldItemsSource = ItemsSource;
       ItemsSource = sip == null ? null : sip.GetSubItems(Context);
+      if (oldItemsSource == ItemsSource)
+        return false;
       CheckExpandable();
+      return true;
     }
 
-    protected override void PrepareItems()
+    protected override void PrepareItems(bool force)
     {
-      SubItemsProvider sip = SubItemsProvider;
-      if (ItemsSource == null && sip != null)
-        InitializeItemsSource();
-      base.PrepareItems();
+      if (_preventItemsPreparation)
+        return;
+      _preventItemsPreparation = true;
+      try
+      {
+        SubItemsProvider sip = SubItemsProvider;
+        if (ItemsSource == null && sip != null)
+        {
+          if (InitializeItemsSource()) // This could trigger a recursive call of PrepareItems(true) if the ItemsSource was changed, that's why we set _preventItemsPreparation above
+            force = true;
+        }
+      }
+      finally
+      {
+        _preventItemsPreparation = false;
+      }
+      base.PrepareItems(force);
     }
 
     protected override FrameworkElement PrepareItemContainer(object dataItem)
@@ -221,7 +238,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Content = dataItem,
             Context = dataItem,
             ForceExpander = ForceExpander,
-            Screen = Screen
+            Screen = Screen,
+            ElementState = _elementState,
+            LogicalParent = this,
+
         };
       // Set this after the other properties have been initialized to avoid duplicate work
       container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);

@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -80,18 +80,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _backgroundProperty.Attach(OnBackgroundChanged);
       _templateProperty.Attach(OnTemplateChanged);
       _templateControlProperty.Attach(OnTemplateControlChanged);
+      _backgroundProperty.Attach(OnBackgroundChanged);
       _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
     }
 
     void Detach()
     {
-      _backgroundProperty.Detach(OnBackgroundChanged);
       _templateProperty.Detach(OnTemplateChanged);
       _templateControlProperty.Detach(OnTemplateControlChanged);
+      _backgroundProperty.Detach(OnBackgroundChanged);
       _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
     }
@@ -117,10 +117,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Template);
-      Registration.TryCleanupAndDispose(TemplateControl);
-      Registration.TryCleanupAndDispose(BorderBrush);
-      Registration.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(Template);
+      MPF.TryCleanupAndDispose(TemplateControl);
+      MPF.TryCleanupAndDispose(BorderBrush);
+      MPF.TryCleanupAndDispose(Background);
       base.Dispose();
     }
 
@@ -135,12 +135,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnTemplateChanged(AbstractProperty property, object oldValue)
     {
-      if (Template != null)
+      ControlTemplate template = Template;
+      if (template != null)
       {
-        Resources.Merge(Template.Resources);
+        Resources.Merge(template.Resources);
         FinishBindingsDlgt finishDlgt;
         IList<TriggerBase> newTriggers;
-        FrameworkElement templateControl = Template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
+        FrameworkElement templateControl = template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
+        if (templateControl != null)
+          templateControl.LogicalParent = this;
         TemplateControl = templateControl;
         finishDlgt.Invoke();
         UninitializeTriggers();
@@ -153,14 +156,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
-      Registration.TryCleanupAndDispose(oldTemplateControl);
+      MPF.TryCleanupAndDispose(oldTemplateControl);
 
       FrameworkElement element = TemplateControl;
       if (element != null)
       {
-        element.SetScreen(Screen);
-        element.SetElementState(ElementState.Running);
         element.VisualParent = this;
+        element.SetScreen(Screen);
+        element.SetElementState(_elementState);
         if (element.TemplateNameScope == null)
           // This might be the case if the TemplateControl is directly assigned, without the use of a FrameworkTemplate,
           // which normally sets the TemplateNameScope.

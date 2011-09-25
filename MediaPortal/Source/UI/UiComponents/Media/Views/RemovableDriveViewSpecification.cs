@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
 

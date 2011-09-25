@@ -26,17 +26,18 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class ServiceRegistrationMarkupExtension: IEvaluableMarkupExtension
+  public class ServiceRegistrationMarkupExtension: IEvaluableMarkupExtension, ISkinEngineManagedResource
   {
     #region Protected fields
 

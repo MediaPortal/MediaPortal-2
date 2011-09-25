@@ -1,0 +1,46 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MyPlugin"
+    PluginId="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Plugin template for a new plugin"
+    PluginVersion="0.1">
+  <!-- Set the attribute AutoActivate="true" in the "Plugin" element for code plugins whose activation state should
+       automatically turned to "activated". This is not needed for pure-skin plugins - skin plugins contribute their
+       skin fragments automatically without being activated. -->
+  <!-- Use a GUID generator to create a new unique GUID for the plugin. -->
+
+  <!-- The runtime section contains registrations related to the runtime state and code of the plugin. -->
+  <Runtime>
+    <!-- The assembly containing the code of the plugin. Special classes are only needed if registered below. -->
+    <Assembly FileName="MyPlugin.dll"/>
+  </Runtime>
+
+  <!-- Registration of all models which should be managed by the WorkflowManager. -->
+  <Register Location="/Models">
+    <!-- This registrations are necessary to 1) make the model ids public and 2) to find the model's class.
+         GUIDs are always written without the enclosing curly braces "{}". Use a GUID generator to generate new GUIDs
+         for all model. Use the same generated workflow model id in the workflow model's MODEL_ID_STR contant. -->
+    <Model Id="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" ClassName="MyPlugin.Models.MySimpleModel"/>
+    <Model Id="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" ClassName="MyPlugin.Models.MyWorkflowModel"/>
+  </Register>
+
+  <!-- Registration of our skin directory -->
+  <Register Location="/Resources/Skin">
+    <!-- This registration is necessary to declare the skin directory. You can use an arbitrary directory name or
+         relative path; the path must be the relative to directory of the plugin.
+         The id of the resource can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
+    <Resource Id="MySkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Registration of our language directory -->
+  <Register Location="/Resources/Language">
+    <!-- This registration is necessary to declare the language directory. Just like for the skin directory,
+         you can use an arbitrary directory name or relative path; the path must be the relative to the directory of the plugin.
+         The id of the resource can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
+    <Resource Id="MyLanguageResource" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>

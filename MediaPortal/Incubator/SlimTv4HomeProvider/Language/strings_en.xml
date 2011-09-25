@@ -2,7 +2,9 @@
 <Language>
   <Section Name="Settings">
     <String Name="Plugins.TV" Text="TV"/>
-    <String Name="Plugins.TV.TV4HomeServerAddress" Text="Tv4Home server address"/>
-    <String Name="Plugins.TV.TV4HomeServerAddress.Help" Text="Enter server name or IP address (empty uses localhost)."/>
+    <String Name="Plugins.TV.TV4HomeServerAddress" Text="Tv4Home server addresses"/>
+    <String Name="Plugins.TV.TV4HomeServerAddress.Help" Text="Enter server names or IP addresses, separated by ';' (defaults to localhost)."/>
+    <String Name="Plugins.TV.ConnectionErrorTitle" Text="Connection error"/>
+    <String Name="Plugins.TV.ConnectionErrorText" Text="Could not connect Tv4Home-Server: {0}"/>
   </Section>
 </Language>

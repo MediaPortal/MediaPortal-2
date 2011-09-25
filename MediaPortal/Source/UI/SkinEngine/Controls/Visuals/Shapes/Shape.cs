@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
@@ -83,8 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     public override void Dispose()
     {
       Detach();
-      Registration.TryCleanupAndDispose(Fill);
-      Registration.TryCleanupAndDispose(Stroke);
+      MPF.TryCleanupAndDispose(Fill);
+      MPF.TryCleanupAndDispose(Stroke);
       base.Dispose();
     }
 

@@ -23,13 +23,13 @@
 #endregion
 
 using System;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-  public abstract class ValueKeyFrame<T>: DependencyObject
+  public abstract class ValueKeyFrame<T> : DependencyObject
   {
     #region Protected fields
 

@@ -27,8 +27,8 @@ using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
@@ -98,8 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <returns><c>true</c>, if the conversion was successful, else <c>false</c>.</returns>
     protected static bool ToCollection(object obj, Type entryType, out ICollection result)
     {
-      if (obj is IInclude)
-        obj = ((IInclude) obj).Content;
+      obj = ParserHelper.UnwrapIncludesAndCleanup(obj);
       if (obj.GetType() != typeof(string)) // Don't treat strings as a collection of characters
       {
         if (obj is ICollection)
@@ -185,22 +184,38 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
       if (enumerableType != null) // Targets IList, ICollection, IList<>, ICollection<>
       {
-        IList<object> resultList = new List<object>();
         ICollection col;
         if (!ToCollection(val, entryType, out col))
           return false;
-        foreach (object entry in col)
-          resultList.Add(entry);
+        List<object> resultList = col.Cast<object>().ToList();
         result = resultList;
         return true;
       }
       if (val is ICollection && ((ICollection) val).Count == 1) // From collection to non-collection target
       {
-        // 
+        // Use the first (single) item of a collection or dictionary
         ICollection sourceCol = (ICollection) val;
         IEnumerator enumerator = sourceCol.GetEnumerator();
         enumerator.MoveNext();
-        return Convert(enumerator.Current, targetType, out result);
+        object item = enumerator.Current;
+        if (Convert(item, targetType, out result)) // Single collection item
+          return true;
+        KeyValuePair<object, object>? kvp = item as KeyValuePair<object, object>?;
+        if (kvp.HasValue && Convert(kvp.Value.Value, targetType, out result)) // Value of single dictionary entry - generic dictionary
+        {
+          IDisposable d = kvp.Value.Key as IDisposable;
+          if (d != null)
+            d.Dispose();
+          return true;
+        }
+        DictionaryEntry? entry = item as DictionaryEntry?;
+        if (entry.HasValue && Convert(entry.Value.Value, targetType, out result)) // Value of single dictionary entry - legacy dictionary
+        {
+          IDisposable d = entry.Value.Key as IDisposable;
+          if (d != null)
+            d.Dispose();
+          return true;
+        }
       }
 
       // Simple type conversions

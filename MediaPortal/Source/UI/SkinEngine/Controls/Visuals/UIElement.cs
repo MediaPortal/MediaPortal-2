@@ -28,9 +28,9 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -56,6 +56,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Visible = 0,
     Hidden = 1,
     Collapsed = 2,
+  }
+
+  public enum RoutingStrategyEnum
+  {
+    /// <summary>
+    /// Event handlers on the event source are invoked. The routed event then routes to successive parent elements until reaching the element tree root.
+    /// </summary>
+    Bubble,
+
+    /// <summary>
+    /// Only the source element itself is given the opportunity to invoke handlers in response.
+    /// </summary>
+    Direct,
+
+    /// <summary>
+    /// Initially, event handlers at the element tree root are invoked. The routed event then travels a route through successive child elements
+    /// along the route, towards the node element that is the routed event source (the element that raised the routed event).
+    /// </summary>
+    Tunnel,
+
+    /// <summary>
+    /// Event handlers of the complete visual tree starting at the element itself are invoked.
+    /// </summary>
+    VisualTree
   }
 
   /// <summary>
@@ -229,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Ctor
+    #region Ctor & maintainance
 
     protected UIElement()
     {
@@ -299,10 +323,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.CleanupAndDispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
-      Registration.TryCleanupAndDispose(RenderTransform);
-      Registration.TryCleanupAndDispose(LayoutTransform);
-      Registration.TryCleanupAndDispose(TemplateNameScope);
-      Registration.TryCleanupAndDispose(OpacityMask);
+      MPF.TryCleanupAndDispose(RenderTransform);
+      MPF.TryCleanupAndDispose(LayoutTransform);
+      MPF.TryCleanupAndDispose(TemplateNameScope);
+      MPF.TryCleanupAndDispose(OpacityMask);
+      MPF.TryCleanupAndDispose(_resources);
     }
 
     #endregion
@@ -521,10 +546,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
     /// other time-consuming tasks need to be executed.
     /// </remarks>
-    public ElementState ElementState
+    public virtual ElementState ElementState
     {
       get { return _elementState; }
-      set { _elementState = value; }
+      internal set { _elementState = value; }
     }
 
     #endregion
@@ -673,18 +698,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VisualParent = null;
     }
 
-    public static void TryCleanupAndDispose(ref object maybeUIElementOrDisposable)
-    {
-      UIElement u = maybeUIElementOrDisposable as UIElement;
-      if (u != null)
-      {
-        maybeUIElementOrDisposable = null;
-        u.CleanupAndDispose();
-        return;
-      }
-      TryDispose(ref maybeUIElementOrDisposable);
-    }
-
     /// <summary>
     /// Finds the resource with the given resource key.
     /// </summary>
@@ -718,7 +731,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
       Screen screen = Screen;
-      if (screen == null || _elementState == ElementState.Available)
+      if (screen == null || _elementState == ElementState.Available || _elementState == ElementState.Preparing ||
+          Thread.CurrentThread == SkinContext.RenderThread)
         dataDescriptor.Value = value;
       else
         screen.Animator.SetValue(dataDescriptor, value);
@@ -766,9 +780,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return value;
     }
 
-    // TODO: Add routing strategy parameter/functionality? See http://msdn.microsoft.com/en-us/library/ms742806.aspx#routing_strategies
-    public virtual void FireEvent(string eventName)
+    public virtual void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
     {
+      if (routingStrategy == RoutingStrategyEnum.Tunnel)
+      {
+        // Tunnel strategy: All parents first, then this element
+        UIElement parent = VisualParent as UIElement;
+        if (parent != null)
+          parent.FireEvent(eventName, routingStrategy);
+      }
       if (eventName == LOADED_EVENT)
       {
         if (_loaded != null)
@@ -777,6 +797,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIEventDelegate dlgt = EventOccured;
       if (dlgt != null)
         dlgt(eventName);
+      switch (routingStrategy)
+      {
+        case RoutingStrategyEnum.Bubble:
+          // Bubble strategy: First this element, then all parents
+          UIElement parent = VisualParent as UIElement;
+          if (parent != null)
+            parent.FireEvent(eventName, routingStrategy);
+          break;
+        case RoutingStrategyEnum.VisualTree:
+          // VisualTree strategy: First this element, then all children
+          foreach (UIElement child in GetChildren())
+            child.FireEvent(eventName, routingStrategy);
+          break;
+      }
     }
 
     public virtual void OnMouseMove(float x, float y)
@@ -846,7 +880,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Adds all children in the visual tree to the specified <paramref name="childrenOut"/> collection.
+    /// Adds all direct children in the visual tree to the specified <paramref name="childrenOut"/> collection.
     /// </summary>
     /// <param name="childrenOut">Collection to add children to.</param>
     public virtual void AddChildren(ICollection<UIElement> childrenOut) { }
@@ -958,11 +992,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public virtual void CheckFireLoaded()
+    public void CheckFireLoaded()
     {
       if (!_fireLoaded)
         return;
-      FireEvent(LOADED_EVENT);
+      FireEvent(LOADED_EVENT, RoutingStrategyEnum.Direct);
       _fireLoaded = false;
     }
 
@@ -996,6 +1030,78 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _allocated = false;
       foreach (FrameworkElement child in GetChildren())
         child.Deallocate();
+    }
+
+    /// <summary>
+    /// Saves the state of this <see cref="UIElement"/> and all its child elements in the given <paramref name="state"/> memento.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This function is used to store a visual state of parts of the screen, for example the scroll position of containers and
+    /// the current focus. Descendants which have sensible data to store and restore can override this method.
+    /// </para>
+    /// <para>
+    /// Note that between the calls to <see cref="SaveUIState"/> and <see cref="RestoreUIState"/>, the screen might have been rebuilt and/or
+    /// changed its UI elements so elements must be able to restore their state from a memento which potentially doesn't fit any more to 100%.
+    /// So the keys in the <paramref name="state"/> dictionary should be choosen in a way that they still can be used in changed elements,
+    /// i.e. try to prevent simple int indices as keys, for example.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">State memento which can be used to save the UI state.</param>
+    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.
+    /// To call <see cref="SaveUIState"/> for child elements, a <c>"/"</c> plus a descriptive string for the child element should be added,
+    /// like <c>"/children"</c>.</param>
+    public virtual void SaveUIState(IDictionary<string, object> state, string prefix)
+    {
+      SaveChildrenState(state, prefix);
+    }
+
+    /// <summary>
+    /// Restores the state of this <see cref="UIElement"/> and all its child elements from the given <paramref name="state"/> memento.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SaveUIState"/>.
+    /// <para>
+    /// Note that this memento might have been stored by the screen in a different state with different controls present so the memento
+    /// might not fit any more to the element's state. Descendants must try to restore as much of their state as they can and behave fail-safe.
+    /// </para>
+    /// </remarks>
+    /// <param name="state">State memento which was filled by <see cref="SaveUIState"/>.</param>
+    /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
+    public virtual void RestoreUIState(IDictionary<string, object> state, string prefix)
+    {
+      RestoreChildrenState(state, prefix);
+    }
+
+    /// <summary>
+    /// Saves the UI state of all children in the given <paramref name="state"/> memento under the given <paramref name="prefix"/>
+    /// (see <see cref="SaveUIState"/>).
+    /// </summary>
+    /// <remarks>
+    /// This method is a generic implementation which simply saves the states of all children returned by <see cref="GetChildren"/>.
+    /// Sub classes can override this behaviour by a better implementation.
+    /// </remarks>
+    /// <param name="state">State memento which can be used to save the children's UI state.</param>
+    /// <param name="prefix">Key prefix to be used in the given <paramref name="state"/> memento dictionary.
+    /// To call <see cref="SaveUIState"/> for child elements, a <c>"/"</c> plus a descriptive string for the child element should be added,
+    /// like <c>"/children"</c>.</param>
+    protected virtual void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      int i = 0;
+      foreach (UIElement child in GetChildren())
+        child.SaveUIState(state, prefix + "/Child_" + (i++));
+    }
+
+    /// <summary>
+    /// Counterpart to <see cref="SaveChildrenState"/>.
+    /// </summary>
+    /// <param name="state">State memento which was filled by <see cref="SaveChildrenState"/>.</param>
+    /// <param name="prefix">Key prefix which was used in the given <paramref name="state"/> memento dictionary.</param>
+    public virtual void RestoreChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      int i = 0;
+      foreach (UIElement child in GetChildren())
+        child.RestoreUIState(state, prefix + "/Child_" + (i++));
     }
 
     public override void SetBindingValue(IDataDescriptor dd, object value)
@@ -1064,7 +1170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override string ToString()
     {
       string name = Name;
-      return GetType().Name + (string.IsNullOrEmpty(name) ? string.Empty : (", Name: '" + name + "'"));
+      return GetType().Name + (string.IsNullOrEmpty(name) ? string.Empty : (", Name: '" + name + "'")) + ", ElementState: " + _elementState;
     }
 
     #endregion

@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_keyboardLayoutControl);
+      MPF.TryCleanupAndDispose(_keyboardLayoutControl);
       base.Dispose();
     }
 
@@ -53,9 +53,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (keyboardLayoutControl == null)
         return;
       keyboardLayoutControl.Context = parent;
-      keyboardLayoutControl.SetScreen(Screen);
-      keyboardLayoutControl.SetElementState(ElementState.Running);
       keyboardLayoutControl.VisualParent = this;
+      keyboardLayoutControl.SetScreen(Screen);
+      keyboardLayoutControl.SetElementState(_elementState);
       if (IsAllocated)
         keyboardLayoutControl.Allocate();
       _keyboardLayoutControl = keyboardLayoutControl;

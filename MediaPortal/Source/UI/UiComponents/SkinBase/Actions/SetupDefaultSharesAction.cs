@@ -23,13 +23,14 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
+using MediaPortal.UiComponents.SkinBase.Models;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -106,10 +107,13 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       get
       {
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
         bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+        bool homeServerConncted = contentDirectory != null;
         ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-        return !localHomeServer && localSharesManagement.Shares.Count == 0;
+        return localHomeServer ? (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0) :
+            localSharesManagement.Shares.Count == 0;
       }
     }
 
@@ -150,9 +154,32 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public void Execute()
     {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
+      SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
+      bool localHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+      bool homeServerConncted = contentDirectory != null;
+
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      if (CanSetupDefaultShares)
-        localSharesManagement.SetupDefaultShares();
+      if (localHomeServer)
+      {
+        if (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0)
+          contentDirectory.SetupDefaultServerShares();
+        // Update of shares lists is only necessary in case the shares are managed by our home server because
+        // in this case, we don't get a notification about the change in the set of shares.
+        // Maybe we should add such a notification later...
+        SharesConfigModel model = workflowManager.GetModel(SharesConfigModel.SHARESCONFIG_MODEL_ID) as SharesConfigModel;
+        if (model != null)
+          model.UpdateSharesLists_NoLock(false);
+      }
+      else
+      {
+        if (localSharesManagement.Shares.Count == 0)
+          localSharesManagement.SetupDefaultShares();
+        // The shares config model listens to update events from the local shares management, so we don't need to
+        // trigger an update of the shares lists here
+      }
     }
 
     #endregion

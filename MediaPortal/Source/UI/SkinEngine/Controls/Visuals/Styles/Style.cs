@@ -23,7 +23,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
@@ -77,6 +77,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         _setters.Add(copyManager.GetCopy(setter));
       TargetType = s.TargetType;
       _resources = copyManager.GetCopy(s.Resources);
+
+      _owner = copyManager.GetCopy(s._owner);
     }
 
     public override void Dispose()
@@ -85,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
         setterBase.Dispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
-      Registration.TryCleanupAndDispose(_resources);
+      MPF.TryCleanupAndDispose(_resources);
       base.Dispose();
     }
 
@@ -216,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       {
         foreach (TriggerBase trigger in triggers)
           if (element.Triggers.Remove(trigger))
-            Registration.TryCleanupAndDispose(trigger);
+            MPF.TryCleanupAndDispose(trigger);
         element.SetAttachedPropertyValue<ICollection<TriggerBase>>(STYLE_TRIGGERS_ATTACHED_PROPERTY_NAME, null);
       }
     }

@@ -24,12 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Geometries;
-using MediaPortal.Core.Localization;
+using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
@@ -280,7 +280,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _playerConfigurationMenu.Add(item);
         }
         // Audio streams
-        ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
+        AudioStreamDescriptor currentAudioStream;
+        ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams(out currentAudioStream);
         if (audioStreams.Count > 1)
         {
           ListItem item = new ListItem(KEY_NAME, RES_CHOOSE_AUDIO_STREAM)
@@ -338,12 +339,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           IPlayerContext pc = playerContextManager.GetPlayerContext(i);
           IPlayer player = pc.CurrentPlayer;
-          IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors());
+          AudioStreamDescriptor currentAudioStream;
+          IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors(out currentAudioStream));
           foreach (AudioStreamDescriptor asd in asds)
           {
-            string playedItem = player == null ? null : player.MediaItemTitle;
-            if (playedItem == null)
-              playedItem = pc.Name;
+            string playedItem = player == null ? null : player.MediaItemTitle ?? pc.Name;
             string choiceItemName;
             if (asds.Count > 1)
                 // Only display the audio stream name if the player has more than one audio stream
@@ -353,7 +353,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             AudioStreamDescriptor asdClosureCopy = asd;
             ListItem item = new ListItem(KEY_NAME, choiceItemName)
               {
-                  Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+                  Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy)),
+                  Selected = asd == currentAudioStream,
               };
             item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
             _audioStreamsMenu.Add(item);
@@ -374,12 +375,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _playerSlotAudioMenu.Clear();
         IPlayerContext pc = playerContextManager.GetPlayerContext(_playerSlotAudioMenuSlotIndex);
         IPlayer player = pc.CurrentPlayer;
-        IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors());
+        AudioStreamDescriptor currentAudioStream;
+        IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors(out currentAudioStream));
         foreach (AudioStreamDescriptor asd in asds)
         {
-          string playedItem = player == null ? null : player.MediaItemTitle;
-          if (playedItem == null)
-            playedItem = pc.Name;
+          string playedItem = player == null ? null : player.MediaItemTitle ?? pc.Name;
           string choiceItemName;
           if (asds.Count > 1)
               // Only display the audio stream name if the player has more than one audio stream
@@ -389,7 +389,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           AudioStreamDescriptor asdClosureCopy = asd;
           ListItem item = new ListItem(KEY_NAME, choiceItemName)
             {
-                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy)),
+                Selected = asd == currentAudioStream,
             };
           item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerSlotAudioMenu.Add(item);
@@ -400,7 +401,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (playerManager.Muted)
             item = new ListItem(KEY_NAME, RES_MUTE_OFF)
               {
-                  Command = new MethodDelegateCommand(PlayersResetMute)
+                  Command = new MethodDelegateCommand(PlayersResetMute),
+                  Selected = true,
               };
           else
             item = new ListItem(KEY_NAME, RES_MUTE)
@@ -421,12 +423,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (_playerChooseGeometryMenu.Count == 0)
       {
         IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
+        IGeometry defaultGeometry = geometryManager.DefaultVideoGeometry;
+        IPlayerContext pc = _playerGeometryMenuPlayerContext;
+        IVideoPlayer videoPlayer = pc == null ? null : pc.CurrentPlayer as IVideoPlayer;
         foreach (KeyValuePair<string, IGeometry> nameToGeometry in geometryManager.AvailableGeometries)
         {
           IGeometry geometry = nameToGeometry.Value;
+          IGeometry vpGeometry = videoPlayer == null ? null : videoPlayer.GeometryOverride ?? defaultGeometry;
           ListItem item = new ListItem(KEY_NAME, nameToGeometry.Key)
             {
-                Command = new MethodDelegateCommand(() => SetGeometry(_playerGeometryMenuPlayerContext, geometry))
+                Command = new MethodDelegateCommand(() => SetGeometry(_playerGeometryMenuPlayerContext, geometry)),
+                Selected = vpGeometry == geometry,
             };
           item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerChooseGeometryMenu.Add(item);
@@ -439,13 +446,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (_playerChooseEffectMenu.Count == 0)
       {
         IGeometryManager geometryManager = ServiceRegistration.Get<IGeometryManager>();
-        IDictionary<string, string> effects = geometryManager.AvailableEffects;
-        foreach (KeyValuePair<string, string> nameToEffect in effects)
+        string standardEffectFile = geometryManager.StandardEffectFile;
+        IPlayerContext pc = _playerEffectMenuPlayerContext;
+        IVideoPlayer videoPlayer = pc == null ? null : pc.CurrentPlayer as IVideoPlayer;
+        foreach (KeyValuePair<string, string> nameToEffect in geometryManager.AvailableEffects)
         {
           string file = nameToEffect.Key;
+          string vpEffectFile = videoPlayer == null ? null : videoPlayer.EffectOverride ?? standardEffectFile;
           ListItem item = new ListItem(KEY_NAME, nameToEffect.Value)
           {
-            Command = new MethodDelegateCommand(() => SetEffect(_playerEffectMenuPlayerContext, file))
+            Command = new MethodDelegateCommand(() => SetEffect(_playerEffectMenuPlayerContext, file)),
+            Selected = file == vpEffectFile,
           };
           item.AdditionalProperties[KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
           _playerChooseEffectMenu.Add(item);

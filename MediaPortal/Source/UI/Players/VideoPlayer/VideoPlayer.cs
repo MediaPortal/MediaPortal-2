@@ -30,11 +30,11 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Forms;
 using DirectShowLib;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
@@ -555,6 +555,9 @@ namespace MediaPortal.UI.Players.Video
 
           if (settings.H264Codec != null)
             pc.SetPreferredClsid(MediaSubType.H264, settings.H264Codec.GetCLSID());
+
+          if (settings.AudioCodecLATMAAC != null)
+            pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
 
           if (settings.AudioCodec != null)
           {

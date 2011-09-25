@@ -26,12 +26,12 @@ using System;
 using System.Data;
 using MediaPortal.Backend.Database;
 using System.IO;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using Scimore.Data.ScimoreClient;
 
-namespace MediaPortal.BackendComponents.Database.ScimoreDb
+namespace MediaPortal.Database.ScimoreDb
 {
   public class ScimoreDb : ISQLDatabase, IDisposable
   {

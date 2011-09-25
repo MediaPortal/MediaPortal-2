@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -114,13 +114,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       {
         if (key.KeyTime.TotalMilliseconds >= timepassed)
         {
-          double progress = (timepassed - time);
-          object value = null;
+          double progress = timepassed - time;
+          object value;
           if (progress == 0)
             value = key.Value;
           else
           {
-            progress /= (key.KeyTime.TotalMilliseconds - time);
+            progress /= key.KeyTime.TotalMilliseconds - time;
             Color result = key.Interpolate(start, progress);
             value = result;
           }
@@ -130,11 +130,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             throw new InvalidCastException(string.Format("Cannot from {0} to {1}", value == null ? null : value.GetType(), patc.DataDescriptor.DataType));
           return;
         }
-        else
-        {
-          time = key.KeyTime.TotalMilliseconds;
-          start = key.Value;
-        }
+        time = key.KeyTime.TotalMilliseconds;
+        start = key.Value;
       }
     }
 

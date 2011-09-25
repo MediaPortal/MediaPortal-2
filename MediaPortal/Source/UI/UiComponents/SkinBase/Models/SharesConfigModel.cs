@@ -25,14 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Exceptions;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Localization;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
@@ -66,7 +66,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string SHARES_REMOVE_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
     public const string SHARE_INFO_STATE_ID_STR = "1D5618C2-61F4-403c-8946-E80B043BA021";
     public const string SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
-    public const string SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public const string SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
     public const string SHARE_EDIT_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
     public const string SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
     public const string SHARE_EDIT_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
@@ -77,23 +77,25 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public const string SHARES_CONFIG_LOCAL_SHARE_RES = "[SharesConfig.LocalShare]";
     public const string SHARES_CONFIG_GLOBAL_SHARE_RES = "[SharesConfig.GlobalShare]";
 
-    public static Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
+    public static readonly Guid SHARESCONFIG_MODEL_ID = new Guid(SHARESCONFIG_MODEL_ID_STR);
 
-    public static Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
+    public static readonly Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
 
-    public static Guid SHARE_INFO_STATE_ID = new Guid(SHARE_INFO_STATE_ID_STR);
+    public static readonly Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
 
-    public static Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
-    public static Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
-    public static Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
+    public static readonly Guid SHARE_INFO_STATE_ID = new Guid(SHARE_INFO_STATE_ID_STR);
+
+    public static readonly Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
+    public static readonly Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
     public const string SHARE_KEY = "Share";
-    public const string MEDIA_PROVIDER_METADATA_KEY = "MediaProviderMetadata";
+    public const string RESOURCE_PROVIDER_METADATA_KEY = "ResourceProviderMetadata";
     public const string RESOURCE_PATH_KEY = "ResourcePath";
     public const string PATH_KEY = "Path";
     public const string SHARE_CATEGORIES_KEY = "Categories";
@@ -181,8 +183,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            UpdateProperties();
-            UpdateSharesLists(false);
+            UpdateProperties_NoLock();
+            UpdateSharesLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             if (_shareProxy is ServerShares)
@@ -190,8 +192,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
               NavigateBackToOverview();
             else
             {
-              UpdateProperties();
-              UpdateSharesLists(false);
+              UpdateProperties_NoLock();
+              UpdateSharesLists_NoLock(false);
             }
             break;
         }
@@ -204,8 +206,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
-            UpdateProperties();
-            UpdateSharesLists(false);
+            UpdateProperties_NoLock();
+            UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -238,7 +240,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _systemsList; }
     }
 
-    // Used by the skin to determine in state "choose mediaprovider" if the back button should be
+    // Used by the skin to determine in state "choose resource provider" if the back button should be
     // enabled to go back to state "choose system", so the underlaying properties must only be set once at the beginning of
     // the shares add workflow
     public bool IsShowSystemsChoice
@@ -374,23 +376,23 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    public void SelectMediaProviderAndContinue()
+    public void SelectResourceProviderAndContinue()
     {
       try
       {
-        MediaProviderMetadata mpm = _shareProxy.GetSelectedBaseMediaProvider();
-        if (mpm == null)
+        ResourceProviderMetadata rpm = _shareProxy.GetSelectedBaseResourceProvider();
+        if (rpm == null)
             // Error case: Should not happen
           return;
-        MediaProviderMetadata oldMediaProvider = _shareProxy.BaseMediaProvider;
-        if (oldMediaProvider == null ||
-            oldMediaProvider.MediaProviderId != mpm.MediaProviderId)
+        ResourceProviderMetadata oldResourceProvider = _shareProxy.BaseResourceProvider;
+        if (oldResourceProvider == null ||
+            oldResourceProvider.ResourceProviderId != rpm.ResourceProviderId)
           _shareProxy.ClearAllConfiguredProperties();
-        _shareProxy.BaseMediaProvider = mpm;
+        _shareProxy.BaseResourceProvider = rpm;
         // Check if the choosen MP implements a known path navigation interface and go to that screen,
         // if supported
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        if (_shareProxy.MediaProviderSupportsResourceTreeNavigation)
+        if (_shareProxy.ResourceProviderSupportsResourceTreeNavigation)
           workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
         else // If needed, add other path navigation screens here
             // Fallback: Simple TextBox path editor screen
@@ -446,7 +448,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         _shareProxy.EditMode = SharesProxy.ShareEditMode.EditShare;
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID);
       }
       catch (NotConnectedException)
       {
@@ -473,7 +475,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             _shareProxy = new ServerShares(share);
         }
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID);
       }
       catch (NotConnectedException)
       {
@@ -507,17 +509,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     void OnShareItemSelectionChanged(AbstractProperty shareItem, object oldValue)
     {
-      UpdateIsSharesSelected();
+      UpdateIsSharesSelected_NoLock();
     }
 
     protected ICollection<Share> GetSelectedShares(ItemsList sharesItemsList)
     {
-      ICollection<Share> result = new List<Share>(); // Fill the result inside the method to make it possible to lock other threads out while looking at the shares list
       lock (_syncObj)
-        foreach (ListItem shareItem in sharesItemsList)
-          if (shareItem.Selected)
-            result.Add((Share) shareItem.AdditionalProperties[SHARE_KEY]);
-      return result;
+        // Fill the result inside this method to make it possible to lock other threads out while looking at the shares list
+        return new List<Share>(sharesItemsList.Where(
+            shareItem => shareItem.Selected).Select(
+            shareItem => (Share) shareItem.AdditionalProperties[SHARE_KEY]));
     }
 
     protected ICollection<Share> GetSelectedLocalShares()
@@ -530,12 +531,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return GetSelectedShares(_serverSharesList);
     }
 
-    protected void UpdateIsSharesSelected()
+    protected void UpdateIsSharesSelected_NoLock()
     {
-      IsSharesSelected = GetSelectedLocalShares().Count > 0 || GetSelectedServerShares().Count > 0;
+      bool result;
+      lock (_syncObj)
+        result = GetSelectedLocalShares().Count > 0 || GetSelectedServerShares().Count > 0;
+      IsSharesSelected = result;
     }
 
-    protected void UpdateSystemsList()
+    protected void UpdateSystemsList_NoLock()
     {
       lock (_syncObj)
       {
@@ -563,7 +567,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _systemsList.FireChange();
     }
 
-    protected void UpdateSharesLists(bool create)
+    protected internal void UpdateSharesLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -581,12 +585,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         List<Share> serverShareDescriptors = IsHomeServerConnected ?
             new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
         int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
-        UpdateSharesList(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
+        UpdateSharesList_NoLock(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
         if (IsHomeServerConnected)
           // If our home server is not connected, don't try to update its list of shares
           try
           {
-            UpdateSharesList(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
+            UpdateSharesList_NoLock(_serverSharesList, serverShareDescriptors, ShareOrigin.Server, numShares == 1);
           }
           catch (NotConnectedException)
           {
@@ -608,7 +612,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateSharesList(ItemsList list, List<Share> shareDescriptors, ShareOrigin origin, bool selectFirstItem)
+    protected void UpdateSharesList_NoLock(ItemsList list, List<Share> shareDescriptors, ShareOrigin origin, bool selectFirstItem)
     {
       list.Clear();
       bool selectShare = selectFirstItem;
@@ -626,13 +630,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             path = LocalizationHelper.Translate(INVALID_PATH_RES, share.BaseResourcePath);
             // Error case: The path is invalid
           shareItem.SetLabel(PATH_KEY, path);
-          Guid? firstMediaProviderId = SharesProxy.GetBaseMediaProviderId(share.BaseResourcePath);
-          if (firstMediaProviderId.HasValue)
+          Guid? firstResourceProviderId = SharesProxy.GetBaseResourceProviderId(share.BaseResourcePath);
+          if (firstResourceProviderId.HasValue)
           {
-            MediaProviderMetadata firstMediaProviderMetadata = origin == ShareOrigin.Local ?
-                LocalShares.GetLocalMediaProviderMetadata(firstMediaProviderId.Value) :
-                ServerShares.GetServerMediaProviderMetadata(firstMediaProviderId.Value);
-            shareItem.AdditionalProperties[MEDIA_PROVIDER_METADATA_KEY] = firstMediaProviderMetadata;
+            ResourceProviderMetadata firstResourceProviderMetadata = origin == ShareOrigin.Local ?
+                LocalShares.GetLocalResourceProviderMetadata(firstResourceProviderId.Value) :
+                ServerShares.GetServerResourceProviderMetadata(firstResourceProviderId.Value);
+            shareItem.AdditionalProperties[RESOURCE_PROVIDER_METADATA_KEY] = firstResourceProviderMetadata;
           }
           string categories = StringUtils.Join(", ", share.MediaCategories);
           shareItem.SetLabel(SHARE_CATEGORIES_KEY, categories);
@@ -686,7 +690,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateProperties()
+    protected void UpdateProperties_NoLock()
     {
       lock (_syncObj)
       {
@@ -727,13 +731,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         if (workflowState == SHARES_OVERVIEW_STATE_ID)
         {
-          UpdateSharesLists(true);
+          UpdateSharesLists_NoLock(true);
         }
         else if (!push)
           return;
         if (workflowState == SHARES_REMOVE_STATE_ID)
         {
-          UpdateSharesLists(push);
+          UpdateSharesLists_NoLock(push);
         }
         else if (workflowState == SHARE_INFO_STATE_ID)
         {
@@ -741,12 +745,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         else if (workflowState == SHARE_ADD_CHOOSE_SYSTEM_STATE_ID)
         {
-          UpdateSystemsList();
+          UpdateSystemsList_NoLock();
         }
-        else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+        else if (workflowState == SHARE_EDIT_CHOOSE_RESOURCE_PROVIDER_STATE_ID)
         {
           // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
-          _shareProxy.UpdateMediaProvidersList();
+          _shareProxy.UpdateResourceProvidersList();
         }
         else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)
         {
@@ -754,7 +758,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         else if (workflowState == SHARE_EDIT_CHOOSE_PATH_STATE_ID)
         {
-          _shareProxy.UpdateMediaProviderPathTree();
+          _shareProxy.UpdateResourceProviderPathTree();
         }
         else if (workflowState == SHARE_EDIT_EDIT_NAME_STATE_ID)
         {
@@ -794,7 +798,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SHARESCONFIG_MODEL_ID_STR); }
+      get { return SHARESCONFIG_MODEL_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -806,7 +810,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       SubscribeToMessages();
       ClearData();
-      UpdateProperties();
+      UpdateProperties_NoLock();
       PrepareState(newContext.WorkflowState.StateId, true);
     }
 

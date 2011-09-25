@@ -26,8 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -47,13 +47,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private class AssetInstance
     {
       /// <summary>
-      /// This core object holds the actual (unmanaged) resource handle, and is only 
-      /// used internally in the ContentManager
+      /// This core object holds the actual (unmanaged) resource handle, and is only used internally in the ContentManager
       /// </summary>
       public IAssetCore core;
+
       /// <summary>
-      /// The asset member is a <see cref="WeakReference"/> to the asset wrapper that
-      /// is used by client classes.
+      /// The asset member is a <see cref="WeakReference"/> to the asset wrapper that is used by client classes.
       /// </summary>
       public WeakReference asset;
     }
@@ -179,13 +178,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         }
         else
           asset = texture.asset.Target as TextureAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null)
-      {
-        asset = new TextureAsset(texture.core as TextureAssetCore);
-        if (texture.asset == null)
-          texture.asset = new WeakReference(asset);
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null)
+        {
+          asset = new TextureAsset(texture.core as TextureAssetCore);
+          if (texture.asset == null)
+            texture.asset = new WeakReference(asset);
+        }
       }
       return asset;
     }
@@ -205,13 +204,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           effect = NewAssetInstance(effectName, AssetType.Effect, new EffectAssetCore(effectName));
         else
           asset = effect.asset.Target as EffectAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null)
-      {
-        asset = new EffectAsset(effect.core as EffectAssetCore);
-        if (effect.asset == null)
-          effect.asset = new WeakReference(asset);
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null)
+        {
+          asset = new EffectAsset(effect.core as EffectAssetCore);
+          if (effect.asset == null)
+            effect.asset = new WeakReference(asset);
+        }
       }
       return asset;
     }
@@ -278,13 +277,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           texture = NewAssetInstance(key, AssetType.RenderTexture, new RenderTextureAssetCore());
         else
           asset = texture.asset.Target as RenderTextureAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null) 
-      {
-        asset = new RenderTextureAsset(texture.core as RenderTextureAssetCore);
-        if (texture.asset == null)
-          texture.asset = new WeakReference(asset);
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null) 
+        {
+          asset = new RenderTextureAsset(texture.core as RenderTextureAssetCore);
+          if (texture.asset == null)
+            texture.asset = new WeakReference(asset);
+        }
       }
       return asset;
     }
@@ -401,13 +400,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         }
         else
           asset = texture.asset.Target as TextureAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null)
-      {
-        asset = new TextureAsset(texture.core as TextureAssetCore);
-        if (texture.asset == null)
-          texture.asset = new WeakReference(asset);
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null)
+        {
+          asset = new TextureAsset(texture.core as TextureAssetCore);
+          if (texture.asset == null)
+            texture.asset = new WeakReference(asset);
+        }
       }
       return asset;
     }
@@ -415,7 +414,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     private TextureAsset GetCreateThumbTexture(byte[] binaryData, string key)
     {
-      int type = (int) AssetType.Thumbnail;
+      const int type = (int) AssetType.Thumbnail;
       AssetInstance texture;
       TextureAsset asset = null;
 
@@ -427,13 +426,13 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         }
         else
           asset = texture.asset.Target as TextureAsset;
-      }
-      // If the asset wrapper has been garbage collected then re-allocate it
-      if (asset == null)
-      {
-        asset = new TextureAsset(texture.core as ThumbnailBinaryTextureAssetCore);
-        if (texture.asset == null)
-          texture.asset = new WeakReference(asset);
+        // If the asset wrapper has been garbage collected then re-allocate it
+        if (asset == null)
+        {
+          asset = new TextureAsset(texture.core as ThumbnailBinaryTextureAssetCore);
+          if (texture.asset == null)
+            texture.asset = new WeakReference(asset);
+        }
       }
       return asset;
     }

@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
@@ -96,6 +98,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       _scheduledAnimations = new List<AnimationContext>();
       _valuesToSet = new Dictionary<IDataDescriptor, object>();
+    }
+
+    public void Dispose()
+    {
+      foreach (object value in _valuesToSet.Values)
+        MPF.TryCleanupAndDispose(value);
+      // 2011-09-10 Albert TODO: Proper disposal of animation contexts. Not necessary at the moment because currently,
+      // no animation can cope with disposable objects. As soon as there are such animations, disposal should be implemented for AnimationContexts.
+      //foreach (AnimationContext context in _scheduledAnimations)
+      //  context.Dispose();
     }
 
     /// <summary>
@@ -183,10 +195,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_syncObject)
       {
-        IList<AnimationContext> removeContexts = new List<AnimationContext>(_scheduledAnimations.Count);
-        foreach (AnimationContext ac in _scheduledAnimations)
-          if (ac.TimelineContext.VisualParent == element)
-            removeContexts.Add(ac);
+        List<AnimationContext> removeContexts = new List<AnimationContext>(_scheduledAnimations.Where(ac => ac.TimelineContext.VisualParent == element));
         foreach (AnimationContext ac in removeContexts)
         {
           _scheduledAnimations.Remove(ac);
@@ -213,6 +222,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         {
           if (curVal == value)
             return;
+          MPF.TryCleanupAndDispose(curVal);
         }
         else if (dataDescriptor.Value == value)
           return;
@@ -242,9 +252,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Animate()
     {
-      // We need to copy the values dictionary, because we need to execute the setters outside our lock.
-      // Furthermore could the setting of each value cause changes to the values dictionary.
-      IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>();
       lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
@@ -264,6 +271,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _scheduledAnimations.Remove(ac);
         }
         stoppedAnimations.Clear();
+      }
+    }
+
+    public void SetValues()
+    {
+      // We need to copy the values dictionary, because we need to execute the setters outside our lock.
+      // Furthermore could the setting of each value cause changes to the values dictionary.
+      IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>();
+      lock (_syncObject)
+      {
         CollectionUtils.AddAll(values, _valuesToSet);
         _valuesToSet.Clear();
       }
@@ -282,10 +299,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AnimationContext GetContext(Timeline line, UIElement element)
     {
       lock (_syncObject)
-        foreach (AnimationContext context in _scheduledAnimations)
-          if (context.Timeline == line && context.TimelineContext.VisualParent == element)
-            return context;
-      return null;
+        return _scheduledAnimations.Where(context => context.Timeline == line && context.TimelineContext.VisualParent == element).FirstOrDefault();
     }
 
     // For performance reasons, store those local variables as fields
@@ -363,14 +377,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObject)
       {
         // Find conflicting properties in the values to be set
-        foreach (KeyValuePair<IDataDescriptor, object> property in
-            new Dictionary<IDataDescriptor, object>(_valuesToSet))
+        foreach (KeyValuePair<IDataDescriptor, object> property in new Dictionary<IDataDescriptor, object>(_valuesToSet))
         {
-          if (newPDs.Contains(property.Key))
-          {
-            conflictingProperties[property.Key] = property.Value;
-            _valuesToSet.Remove(property.Key);
-          }
+          if (!newPDs.Contains(property.Key))
+            continue;
+          conflictingProperties[property.Key] = property.Value;
+          _valuesToSet.Remove(property.Key);
         }
         // Find conflicting animations and conflicting animated properties
         foreach (AnimationContext ac in _scheduledAnimations)
@@ -380,11 +392,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           bool isConflict = false;
           foreach (KeyValuePair<IDataDescriptor, object> animProperty in animProperties)
           {
-            if (newPDs.Contains(animProperty.Key))
-            {
-              isConflict = true;
-              conflictingProperties[animProperty.Key] = animProperty.Value;
-            }
+            if (!newPDs.Contains(animProperty.Key))
+              continue;
+            isConflict = true;
+            conflictingProperties[animProperty.Key] = animProperty.Value;
           }
           if (isConflict)
             conflictingAnimations.Add(ac);
@@ -400,33 +411,35 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// (in case <see cref="HandoffBehavior.Compose"/>).
     /// The handoff behavior <see cref="HandoffBehavior.TemporaryReplace"/> will stop the conflicting
     /// animations, let the new animation run, and re-schedule the conflicting animations after the new animation.
-    /// <summary>
-    protected void ExecuteHandoff(AnimationContext animationContext,
-        ICollection<AnimationContext> conflictingAnimations,
+    /// </summary>
+    protected void ExecuteHandoff(AnimationContext animationContext, ICollection<AnimationContext> conflictingAnimations,
         HandoffBehavior handoffBehavior)
     {
       // Do the handoff depending on HandoffBehavior
-      if (handoffBehavior == HandoffBehavior.Compose)
-        foreach (AnimationContext ac in conflictingAnimations)
-          animationContext.WaitingFor.Add(ac);
-      else if (handoffBehavior == HandoffBehavior.TemporaryReplace)
-        foreach (AnimationContext ac in conflictingAnimations)
-          ac.WaitingFor.Add(animationContext);
-      else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
+      switch (handoffBehavior)
       {
-        // Reset values of conflicting animations
-        foreach (AnimationContext ac in conflictingAnimations)
-          ResetAllValues(ac);
-        // And remove those values which are handled by the new animation -
-        // avoids flickering
-        IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
-        animationContext.Timeline.AddAllAnimatedProperties(animationContext.TimelineContext, animProperties);
-        foreach (IDataDescriptor dd in animProperties.Keys)
-          _valuesToSet.Remove(dd);
+        case HandoffBehavior.Compose:
+          foreach (AnimationContext ac in conflictingAnimations)
+            animationContext.WaitingFor.Add(ac);
+          break;
+        case HandoffBehavior.TemporaryReplace:
+          foreach (AnimationContext ac in conflictingAnimations)
+            ac.WaitingFor.Add(animationContext);
+          break;
+        case HandoffBehavior.SnapshotAndReplace:
+          // Reset values of conflicting animations
+          foreach (AnimationContext ac in conflictingAnimations)
+            ResetAllValues(ac);
+          // And remove those values which are handled by the new animation -
+          // avoids flickering
+          IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
+          animationContext.Timeline.AddAllAnimatedProperties(animationContext.TimelineContext, animProperties);
+          foreach (IDataDescriptor dd in animProperties.Keys)
+            _valuesToSet.Remove(dd);
+          break;
+        default:
+          throw new NotImplementedException("Animator.HandleConflicts: HandoffBehavior '" + handoffBehavior + "' is not implemented");
       }
-      else
-        throw new NotImplementedException("Animator.HandleConflicts: HandoffBehavior '" + handoffBehavior.ToString() +
-                                          "' is not implemented");
     }
   }
 }

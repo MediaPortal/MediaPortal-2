@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -61,12 +61,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ShowDialog,
 
       /// <summary>
-      /// Internal message to close a dialog asynchronously. The dialog instance id of the dialog to close is
-      /// given in the parameter <see cref="DIALOG_INSTANCE_ID"/>.
-      /// </summary>
-      CloseDialog,
-
-      /// <summary>
       /// Internal message to close multiple dialogs asynchronously. The instance id of the dialog is given in the
       /// parameter <see cref="DIALOG_INSTANCE_ID"/>. The parameter <see cref="ScreenManagerMessaging.CLOSE_DIALOGS_MODE"/>
       /// is set to the desired close mode.
@@ -81,9 +75,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       /// <summary>
       /// Internal message to indicate that the current screen is about to be closed. This is sent prior to ShowScreen 
       /// to trigger hiding events / animations while the next screen is being prepared. The parameter 
-      /// <see cref="ScreenManagerMessaging.SCREEN"> is used to indicate which screen is being closed.
+      /// <see cref="ScreenManagerMessaging.SCREEN"/> is used to indicate which screen is being closed.
       /// </summary>
       ScreenClosing,
+
+      /// <summary>
+      /// Internal message to switch the skin/theme. The parameters <see cref="SKIN_NAME"/> and <see cref="THEME_NAME"/> are set.
+      /// </summary>
+      SwitchSkinAndTheme,
     }
 
     // Message data
@@ -92,6 +91,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public const string DIALOG_DATA = "DialogData"; // Type DialogData
     public const string DIALOG_INSTANCE_ID = "DialogInstanceId"; // Type Guid
     public const string CLOSE_DIALOGS_MODE = "Mode"; // Type CloseDialogsMode
+    public const string SKIN_NAME = "SkinName"; // Type string
+    public const string THEME_NAME = "ThemeName"; // Type string
 
     internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
@@ -133,6 +134,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       SystemMessage msg = new SystemMessage(MessageType.ScreenClosing);
       msg.MessageData[SCREEN] = screen;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageSwitchSkinAndTheme(string newSkinName, string newThemeName)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.SwitchSkinAndTheme);
+      msg.MessageData[SKIN_NAME] = newSkinName;
+      msg.MessageData[THEME_NAME] = newThemeName;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

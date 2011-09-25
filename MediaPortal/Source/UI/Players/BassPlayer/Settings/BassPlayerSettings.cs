@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Settings;
 
 namespace Ui.Players.BassPlayer.Settings
 {

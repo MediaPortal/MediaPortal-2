@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -66,8 +66,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
-      HorizontalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
-      VerticalContentAlignmentProperty.Attach(OnContentAlignmentChanged);
+      HorizontalContentAlignmentProperty.Detach(OnContentAlignmentChanged);
+      VerticalContentAlignmentProperty.Detach(OnContentAlignmentChanged);
       TemplateControlProperty.Detach(OnTemplateControlChanged);
     }
 
@@ -83,8 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Content);
-      Registration.TryCleanupAndDispose(ContentTemplate);
+      MPF.TryCleanupAndDispose(Content);
+      MPF.TryCleanupAndDispose(ContentTemplate);
       base.Dispose();
     }
 

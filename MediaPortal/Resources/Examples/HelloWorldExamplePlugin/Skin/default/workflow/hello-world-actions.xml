@@ -7,6 +7,9 @@
          workflow states. When executed, the given target state will be pushed onto the workflow navigation stack.
          There are also other action types which can be used at this place, for example it is possible to
          make the action visible and invisible programmatically when using a workflow contributor action.
+         
+         The Id uniquely identifies the action among all workflow actions. Use a GUID generator to create
+         a new action id.
 
          The action's name is only needed for debugging purposes and won't be shown to the user.
 

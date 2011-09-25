@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Models.MediaItemAspects
 {

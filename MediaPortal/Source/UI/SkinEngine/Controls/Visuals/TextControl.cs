@@ -25,9 +25,9 @@
 using System;
 using System.Drawing;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -99,8 +99,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _cursorBlinkTimer = new Timer(CursorBlinkHandler);
-      _caretIndexProperty = new SProperty(typeof(int), 0);
       _textProperty = new SProperty(typeof(string), string.Empty);
+      _caretIndexProperty = new SProperty(typeof(int), 0);
       _internalTextProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
 
@@ -117,26 +117,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _textProperty.Attach(OnTextChanged);
       _caretIndexProperty.Attach(OnCaretIndexChanged);
-      _colorProperty.Attach(OnColorChanged);
       _internalTextProperty.Attach(OnInternalTextChanged);
+      _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnCompleteLayoutGetsInvalid);
 
-      _hasFocusProperty.Attach(OnHasFocusChanged);
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);
+      HasFocusProperty.Attach(OnHasFocusChanged);
+      FontFamilyProperty.Attach(OnFontChanged);
+      FontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
       _caretIndexProperty.Detach(OnCaretIndexChanged);
-      _colorProperty.Detach(OnColorChanged);
       _internalTextProperty.Detach(OnInternalTextChanged);
+      _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnCompleteLayoutGetsInvalid);
 
-      _hasFocusProperty.Attach(OnHasFocusChanged);
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
+      HasFocusProperty.Detach(OnHasFocusChanged);
+      FontFamilyProperty.Detach(OnFontChanged);
+      FontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -415,7 +415,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       AllocFont();
 
-      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(Text), _asset.TextHeight(1));
+      SizeF childSize = _asset == null ? SizeF.Empty : new SizeF(_asset.TextWidth(Text ?? string.Empty), _asset.TextHeight(1));
 
       if (PreferredTextLength.HasValue && _asset != null)
         // We use the "W" character as the character which needs the most space in X-direction

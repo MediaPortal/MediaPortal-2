@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core;
+using MediaPortal.Common;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
@@ -161,10 +161,10 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected PointF _mousePosition = new PointF();
     protected DateTime? _callingClientStart = null;
     protected bool _busyScreenVisible = false;
-    protected bool _busyScreenPending = false;
     protected Thread _workThread;
     protected Queue<InputEvent> _inputEventQueue = new Queue<InputEvent>(30);
-    protected bool _terminated = false;
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected AutoResetEvent _inputAvailableEvent = new AutoResetEvent(false);
 
     protected static InputManager _instance = null;
     protected static object _syncObj = new object();
@@ -181,6 +181,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       ClearInputBuffer();
       Terminate();
+      _terminatedEvent.Set();
+      _terminatedEvent.Close();
+      _inputAvailableEvent.Close();
     }
 
     public static InputManager Instance
@@ -221,11 +224,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     public void Terminate()
     {
-      lock (_syncObj)
-      {
-        _terminated = true;
-        Monitor.PulseAll(_syncObj);
-      }
+      _terminatedEvent.Set();
+      _workThread.Join();
+    }
+
+    public bool IsTerminated
+    {
+      get { return _terminatedEvent.WaitOne(0); }
     }
 
     protected bool IsEventAvailable
@@ -249,54 +254,27 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         _inputEventQueue.Clear();
     }
 
-    protected void WaitWhileAndSetBusyScreenPending()
-    {
-      lock (_syncObj)
-        while (_busyScreenPending && !_terminated)
-          Monitor.Wait(_syncObj);
-    }
-
-    protected void ResetBusyScreenPending()
-    {
-      lock (_syncObj)
-      {
-        _busyScreenPending = false;
-        Monitor.PulseAll(_syncObj);
-      }
-    }
-
     protected void TryEvent_NoLock(InputEvent evt)
     {
-      try
+      bool showBusyScreen = false;
+      lock (_syncObj)
       {
-        bool showBusyScreen = false;
-        lock (_syncObj)
-        {
-          WaitWhileAndSetBusyScreenPending();
-          if (_terminated)
-            return;
-          if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
-          { // Client call lasts longer than our BUSY_TIMEOUT
-            ClearInputBuffer(); // Discard all later input
-            if (!_busyScreenVisible)
-              showBusyScreen = true;
-          }
-        }
-        if (showBusyScreen)
-        {
-          ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-          superLayerManager.ShowBusyScreen();
-          lock (_syncObj)
-          {
-            _busyScreenVisible = true;
-            Monitor.PulseAll(_syncObj);
-          }
-          return; // Finished, no further processing
+        if (IsTerminated)
+          return;
+        if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
+        { // Client call lasts longer than our BUSY_TIMEOUT
+          ClearInputBuffer(); // Discard all later input
+          if (!_busyScreenVisible)
+            showBusyScreen = true;
         }
       }
-      finally
+      if (showBusyScreen)
       {
-        ResetBusyScreenPending();
+        ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+        superLayerManager.ShowBusyScreen();
+        lock (_syncObj)
+          _busyScreenVisible = true;
+        return; // Finished, no further processing
       }
       EnqueueEvent(evt);
     }
@@ -319,25 +297,17 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
       finally
       {
-        try
+        bool hideBusyScreen;
+        lock (_syncObj)
         {
-          bool hideBusyScreen;
-          lock (_syncObj)
-          {
-            WaitWhileAndSetBusyScreenPending();
-            hideBusyScreen = _busyScreenVisible;
-            _busyScreenVisible = false;
-            _callingClientStart = null;
-          }
-          if (hideBusyScreen && !_terminated)
-          {
-            ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-            superLayerManager.HideBusyScreen();
-          }
+          hideBusyScreen = _busyScreenVisible;
+          _busyScreenVisible = false;
+          _callingClientStart = null;
         }
-        finally
+        if (hideBusyScreen && !IsTerminated)
         {
-          ResetBusyScreenPending();
+          ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+          superLayerManager.HideBusyScreen();
         }
       }
     }
@@ -347,7 +317,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       lock (_syncObj)
       {
         _inputEventQueue.Enqueue(evt);
-        Monitor.PulseAll(_syncObj);
+        _inputAvailableEvent.Set();
       }
     }
 
@@ -398,19 +368,16 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       while (true)
       {
-        InputEvent evt = DequeueEvent();
-        if (evt != null)
-          DispatchEvent(evt);
-        lock (_syncObj)
+        InputEvent evt;
+        while ((evt = DequeueEvent()) != null)
         {
-          if (_terminated)
-            // We have to check this in the synchronized block, else we could miss the PulseAll event
+          DispatchEvent(evt);
+          if (IsTerminated)
             break;
-          // We need to check this in a synchronized block. If we wouldn't prevent other threads from
-          // enqueuing data in this moment, we could miss the PulseAll event
-          if (!IsEventAvailable)
-            Monitor.Wait(_syncObj);
         }
+        WaitHandle.WaitAny(new WaitHandle[] {_terminatedEvent, _inputAvailableEvent});
+        if (IsTerminated)
+          break;
       }
     }
 

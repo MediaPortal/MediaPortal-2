@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -55,6 +55,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ValueWrapper vw = (ValueWrapper) source;
       Value = copyManager.GetCopy(vw.Value);
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      MPF.TryCleanupAndDispose(Value);
     }
 
     #endregion

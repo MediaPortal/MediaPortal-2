@@ -6,7 +6,7 @@
     DependsOnStyleResources="Colors,Buttons,OtherControls"
     >
 
-  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource ButtonStyle}">
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource DefaultButtonStyle}">
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
@@ -28,6 +28,11 @@
     </Setter>
   </Style>
 
+  <!-- Fallback keyboard layout which is loaded when no localized keyboard layout is available.
+       Localized keyboard layouts should be provided by localization plugins which provide language files.
+       To provide a localized keyboard layout, copy this control template into a file with name
+       VirtualKeyboardStyle_XX.xaml, where XX is the two-letter code for the language, like
+       de for german. Then change your copied control to build the desired layout. -->
   <ControlTemplate x:Key="VirtualKeyboardLayout">
     <Grid x:Name="FullKeyboardLayout">
       <Grid.ColumnDefinitions>
@@ -48,12 +53,9 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- TODO: Change styles to toggle button style -->
-        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource CheckBoxStyle}"
-            IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
-            IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" Style="{ThemeResource CheckBoxStyle}"
-            IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
       </Grid>
 
       <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

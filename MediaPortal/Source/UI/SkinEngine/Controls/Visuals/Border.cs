@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-using MediaPortal.Core.General;
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -110,8 +110,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Background);
-      Registration.TryCleanupAndDispose(BorderBrush);
+      MPF.TryCleanupAndDispose(Background);
+      MPF.TryCleanupAndDispose(BorderBrush);
       base.Dispose();
     }
 
@@ -165,9 +165,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement content = Content;
       if (content != null)
       {
-        content.SetScreen(Screen);
-        content.SetElementState(ElementState.Running);
         content.VisualParent = this;
+        content.SetScreen(Screen);
+        content.SetElementState(_elementState);
         if (IsAllocated)
           content.Allocate();
       }

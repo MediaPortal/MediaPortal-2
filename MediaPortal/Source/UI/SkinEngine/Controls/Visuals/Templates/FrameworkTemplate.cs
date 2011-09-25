@@ -45,12 +45,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>, IUnmodifiableResource
+  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<FrameworkElement>, IUnmodifiableResource
   {
     #region Protected fields
 
     protected ResourceDictionary _resourceDictionary;
-    protected UIElement _templateElement;
+    protected FrameworkElement _templateElement;
     protected IDictionary<string, object> _names = null;
     protected object _owner = null;
 
@@ -85,12 +85,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
           else
             _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
       }
+
+      _owner = copyManager.GetCopy(ft._owner);
     }
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(_templateElement);
-      Registration.TryCleanupAndDispose(_resourceDictionary);
+      MPF.TryCleanupAndDispose(_templateElement);
+      MPF.TryCleanupAndDispose(_resourceDictionary);
       base.Dispose();
     }
 
@@ -124,11 +126,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       get { return _resourceDictionary; }
     }
 
+    public FrameworkElement TemplateElement
+    {
+      get { return _templateElement; }
+    }
+
     #endregion
 
     #region IAddChild implementation
 
-    public void AddChild(UIElement o)
+    public void AddChild(FrameworkElement o)
     {
       _templateElement = o;
       // We need to set the template namescope to make sure when copying the template element, it will have its own

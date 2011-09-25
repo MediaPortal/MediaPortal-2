@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -91,6 +91,8 @@
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DiscreteObjectKeyFrame.cs" />
+    <Compile Include="Controls\Animations\ObjectAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleAnimation.cs" />
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
+    <Compile Include="MpfElements\ISkinEngineManagedResource.cs" />
     <Compile Include="MpfElements\Resources\IUnmodifiableResource.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
@@ -240,6 +243,8 @@
     <Compile Include="SpecialElements\Controls\WorkflowNavigationBarPanel.cs" />
     <Compile Include="SpecialElements\Controls\PlayerControl.cs" />
     <Compile Include="SpecialElements\Controls\WorkflowNavigationBar.cs" />
+    <Compile Include="SpecialElements\Workflow\WorkflowContext.cs" />
+    <Compile Include="SpecialElements\Workflow\WorkflowSaveRestoreStateAction.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
@@ -343,7 +348,7 @@
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
     <Compile Include="MarkupExtensions\TreeHelper.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
-    <Compile Include="MpfElements\Registration.cs" />
+    <Compile Include="MpfElements\MPF.cs" />
     <Compile Include="MpfElements\MpfNamespaceHandler.cs" />
     <Compile Include="MpfElements\Resources\Include.cs" />
     <Compile Include="MpfElements\Resources\ResourceDictionary.cs" />
@@ -399,6 +404,10 @@
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
+    <None Include="Skin\default\shaders\effects\directional_blur.fx" />
+    <None Include="Skin\default\shaders\effects\glass_tiles.fx" />
+    <None Include="Skin\default\shaders\effects\pixelate.fx" />
+    <None Include="Skin\default\shaders\effects\zoom_blur.fx" />
     <None Include="Skin\default\shaders\font.fx" />
     <None Include="Skin\default\shaders\font_fade.fx" />
     <None Include="Skin\default\shaders\greyscale.fx" />
@@ -435,17 +444,17 @@
     <None Include="Skin\default\shaders\transitions\wipe_up-left.fx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Core</Name>
+      <Name>MediaPortal.Common</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\System\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
       <Private>False</Private>

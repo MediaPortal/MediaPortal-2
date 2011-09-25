@@ -27,8 +27,8 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using BDInfo;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.UI.Players.Video
 {

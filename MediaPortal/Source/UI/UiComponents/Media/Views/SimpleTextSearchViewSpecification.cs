@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 

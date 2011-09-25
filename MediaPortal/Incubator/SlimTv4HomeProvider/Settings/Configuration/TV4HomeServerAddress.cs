@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Plugins.SlimTvClient.Providers.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration
 
     public override int DisplayLength
     {
-      get { return 30; }
+      get { return 50; }
     }
   }
 }

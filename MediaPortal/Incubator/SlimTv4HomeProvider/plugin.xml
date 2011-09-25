@@ -51,8 +51,8 @@
         ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.TV4HomeServerAddress"/>
   </Register>
   
-  <!-- The MediaProvider to access Tve3. -->
-  <Register Location="/Media/MediaProviders">
-    <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Providers.SlimTvMediaProvider"/>
+  <!-- The ResourceProvider to access Tve3. -->
+  <Register Location="/Media/ResourceProviders">
+    <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Providers.SlimTvResourceProvider"/>
   </Register>
 </Plugin>

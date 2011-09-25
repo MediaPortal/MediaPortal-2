@@ -35,8 +35,7 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
-            <TextBox x:Name="NumberSelectContent" Style="{ThemeResource TextBoxStyle}"
-                Margin="10,0,10,0" PreferredTextLength="5"
+            <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="5"
                 Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">

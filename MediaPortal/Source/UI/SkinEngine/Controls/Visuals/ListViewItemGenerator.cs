@@ -194,6 +194,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public FrameworkElement GetOrCreateItem(int index, FrameworkElement visualParent, out bool newCreated)
     {
+      if (index < 0 || index >= _materializedItems.Count)
+      {
+        newCreated = false;
+        return null;
+      }
       FrameworkElement result = _materializedItems[index];
       if (result != null)
       {

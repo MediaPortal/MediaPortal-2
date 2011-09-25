@@ -26,20 +26,20 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Backend;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.PluginManager;
 #if DEBUG
-using MediaPortal.Core.Services.Logging;
+using MediaPortal.Common.Services.Logging;
 #else
 using MediaPortal.Backend.Services.Logging;
 using System.IO;
 #endif
-using MediaPortal.Core.Services.Runtime;
+using MediaPortal.Common.Services.Runtime;
 using CommandLine;
-using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
-using MediaPortal.Core.Runtime;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Logging;
 
 [assembly: CLSCompliant(true)]
 

@@ -23,12 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
-  public class NameScope: INameScope, IDeepCopyable
+  public class NameScope: INameScope, IDeepCopyable, ISkinEngineManagedResource
   {
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
 

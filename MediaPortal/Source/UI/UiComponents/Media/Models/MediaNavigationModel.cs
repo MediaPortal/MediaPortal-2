@@ -24,11 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Commands;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -342,7 +342,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void PrepareState(NavigationContext context)
     {
       _currentNavigationContext = context;
-      NavigationData navigationData = NavigationData;
+      NavigationData navigationData = GetNavigationData(context, false);
       if (navigationData == null)
         PrepareRootState();
     }

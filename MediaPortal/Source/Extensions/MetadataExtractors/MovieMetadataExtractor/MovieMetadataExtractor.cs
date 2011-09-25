@@ -27,13 +27,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaInfoLib;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.Services.ThumbnailGenerator;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.Services.ThumbnailGenerator;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
@@ -271,10 +271,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         MovieResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (fsra != null && fsra.IsDirectory && fsra.Exists("VIDEO_TS"))
+        if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS") as IFileSystemResourceAccessor;
-          if (fsraVideoTs != null && fsraVideoTs.Exists("VIDEO_TS.IFO"))
+          if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
           { // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
             {

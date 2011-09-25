@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Screens;
@@ -35,7 +35,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Geometry;
 using MediaPortal.UI.SkinEngine.GUI;
-using MediaPortal.Core.PluginManager;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 
@@ -68,10 +68,7 @@ namespace MediaPortal.UI.SkinEngine
         {
           //switch to fullscreen
           IScreenControl sc = ServiceRegistration.Get<IScreenControl>();
-          if (sc.IsFullScreen)
-            sc.SwitchMode(ScreenMode.NormalWindowed);
-          else
-            sc.SwitchMode(ScreenMode.FullScreen);
+          sc.SwitchMode(sc.IsFullScreen ? ScreenMode.NormalWindowed : ScreenMode.FullScreen);
         });
     }
 
@@ -146,22 +143,23 @@ namespace MediaPortal.UI.SkinEngine
       _screenManager.Shutdown();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
-      ServiceRegistration.Remove<ISkinResourceManager>();
+      ServiceRegistration.RemoveAndDispose<ISkinResourceManager>();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
-      ServiceRegistration.Remove<IScreenManager>();
+      ServiceRegistration.RemoveAndDispose<IScreenManager>();
+      _screenManager = null;
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
-      ServiceRegistration.Remove<IInputManager>();
+      ServiceRegistration.RemoveAndDispose<IInputManager>();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
-      ServiceRegistration.Remove<IGeometryManager>();
+      ServiceRegistration.RemoveAndDispose<IGeometryManager>();
 
       SkinEngine.Controls.Brushes.BrushCache.Instance.Clear();
 
       ServiceRegistration.Get<ContentManager>().Clear();
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ContentManager service");
-      ServiceRegistration.Remove<ContentManager>();
+      ServiceRegistration.RemoveAndDispose<ContentManager>();
     }
 
     public void Dispose()

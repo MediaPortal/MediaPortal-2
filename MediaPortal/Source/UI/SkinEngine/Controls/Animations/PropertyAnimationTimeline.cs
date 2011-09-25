@@ -23,8 +23,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -120,13 +120,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       string targetName = Storyboard.GetTargetName(this);
       object targetObject = null;
-      INameScope ns = element.FindNameScope();
-      if (ns != null)
-        targetObject = ns.FindName(targetName);
-      if (targetObject == null)
-        targetObject = element.FindElement(new NameMatcher(targetName));
-      if (targetObject == null)
-        return null;
+      if (targetName == null)
+        targetObject = element;
+      else
+      {
+        INameScope ns = element.FindNameScope();
+        if (ns != null)
+          targetObject = ns.FindName(targetName);
+        if (targetObject == null)
+          targetObject = element.FindElement(new NameMatcher(targetName));
+        if (targetObject == null)
+          return null;
+      }
       try
       {
         IDataDescriptor result = new ValueDataDescriptor(targetObject);

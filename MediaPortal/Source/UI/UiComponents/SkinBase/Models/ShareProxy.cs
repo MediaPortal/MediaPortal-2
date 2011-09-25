@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
-using MediaPortal.Core.SystemResolver;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
@@ -56,15 +56,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     #region Protected fields
 
     protected ShareEditMode? _editMode;
-    protected ItemsList _allBaseMediaProvidersList;
-    protected AbstractProperty _isMediaProviderSelectedProperty;
-    protected AbstractProperty _baseMediaProviderProperty;
+    protected ItemsList _allBaseResourceProvidersList;
+    protected AbstractProperty _isResourceProviderSelectedProperty;
+    protected AbstractProperty _baseResourceProviderProperty;
     protected AbstractProperty _nativeSystemProperty;
     protected AbstractProperty _choosenResourcePathStrProperty;
     protected AbstractProperty _choosenResourcePathProperty;
     protected AbstractProperty _isChoosenPathValidProperty;
     protected AbstractProperty _choosenResourcePathDisplayNameProperty;
-    protected ItemsList _mediaProviderPathsTree;
+    protected ItemsList _resourceProviderPathsTree;
     protected AbstractProperty _shareNameProperty;
     protected AbstractProperty _isShareNameValidProperty;
     protected ItemsList _allMediaCategoriesList;
@@ -76,9 +76,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected SharesProxy(ShareEditMode? editMode)
     {
       _editMode = editMode;
-      _allBaseMediaProvidersList = new ItemsList();
-      _isMediaProviderSelectedProperty = new WProperty(typeof(bool), false);
-      _baseMediaProviderProperty = new WProperty(typeof(MediaProviderMetadata), null);
+      _allBaseResourceProvidersList = new ItemsList();
+      _isResourceProviderSelectedProperty = new WProperty(typeof(bool), false);
+      _baseResourceProviderProperty = new WProperty(typeof(ResourceProviderMetadata), null);
       _nativeSystemProperty = new WProperty(typeof(string), string.Empty);
       _choosenResourcePathStrProperty = new WProperty(typeof(string), string.Empty);
       _choosenResourcePathStrProperty.Attach(OnChoosenResourcePathStrChanged);
@@ -86,7 +86,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _choosenResourcePathProperty.Attach(OnChoosenResourcePathChanged);
       _isChoosenPathValidProperty = new WProperty(typeof(bool), false);
       _choosenResourcePathDisplayNameProperty = new WProperty(typeof(string), string.Empty);
-      _mediaProviderPathsTree = new ItemsList();
+      _resourceProviderPathsTree = new ItemsList();
       _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
       _isShareNameValidProperty = new WProperty(typeof(bool), true);
@@ -96,17 +96,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #region Event handlers
 
-    void OnMediaProviderItemSelectionChanged(AbstractProperty shareItem, object oldValue)
+    void OnResourceProviderItemSelectionChanged(AbstractProperty shareItem, object oldValue)
     {
-      UpdateIsMediaProviderSelected();
+      UpdateIsResourceProviderSelected();
     }
 
-    void OnChoosenResourcePathStrChanged(AbstractProperty mediaProviderURL, object oldValue)
+    void OnChoosenResourcePathStrChanged(AbstractProperty resourceProviderURL, object oldValue)
     {
       ChoosenResourcePath = ExpandResourcePathFromString(ChoosenResourcePathStr);
     }
 
-    void OnChoosenResourcePathChanged(AbstractProperty mediaProviderURL, object oldValue)
+    void OnChoosenResourcePathChanged(AbstractProperty resourceProviderURL, object oldValue)
     {
       // Don't update ChoosenResourcePathStr - the string is the master and can be written in several formats
       UpdateIsChoosenPathValid();
@@ -151,46 +151,46 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public abstract string ConfigShareTitle { get; }
 
     /// <summary>
-    /// Returns the information if the selected <see cref="BaseMediaProvider"/> supports a tree navigation through its
-    /// structure, i.e. we can use the property <see cref="MediaProviderPathsTree"/> and the method
-    /// <see cref="UpdateMediaProviderPathTree"/>.
+    /// Returns the information if the selected <see cref="BaseResourceProvider"/> supports a tree navigation through its
+    /// structure, i.e. we can use the property <see cref="ResourceProviderPathsTree"/> and the method
+    /// <see cref="UpdateResourceProviderPathTree"/>.
     /// </summary>
-    public abstract bool MediaProviderSupportsResourceTreeNavigation { get; }
+    public abstract bool ResourceProviderSupportsResourceTreeNavigation { get; }
 
     /// <summary>
-    /// List of all available base media providers.
+    /// List of all available base resource providers.
     /// </summary>
-    public ItemsList AllBaseMediaProviders
+    public ItemsList AllBaseResourceProviders
     {
-      get { return _allBaseMediaProvidersList; }
+      get { return _allBaseResourceProvidersList; }
     }
 
-    public AbstractProperty IsMediaProviderSelectedProperty
+    public AbstractProperty IsResourceProviderSelectedProperty
     {
-      get { return _isMediaProviderSelectedProperty; }
-    }
-
-    /// <summary>
-    /// <c>true</c> if at least one media provider is selected.
-    /// </summary>
-    public bool IsMediaProviderSelected
-    {
-      get { return (bool) _isMediaProviderSelectedProperty.GetValue(); }
-      set { _isMediaProviderSelectedProperty.SetValue(value); }
-    }
-
-    public AbstractProperty BaseMediaProviderProperty
-    {
-      get { return _baseMediaProviderProperty; }
+      get { return _isResourceProviderSelectedProperty; }
     }
 
     /// <summary>
-    /// Metadata structure of the selected base media provider.
+    /// <c>true</c> if at least one resource provider is selected.
     /// </summary>
-    public MediaProviderMetadata BaseMediaProvider
+    public bool IsResourceProviderSelected
     {
-      get { return (MediaProviderMetadata) _baseMediaProviderProperty.GetValue(); }
-      set { _baseMediaProviderProperty.SetValue(value); }
+      get { return (bool) _isResourceProviderSelectedProperty.GetValue(); }
+      set { _isResourceProviderSelectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BaseResourceProviderProperty
+    {
+      get { return _baseResourceProviderProperty; }
+    }
+
+    /// <summary>
+    /// Metadata structure of the selected base resource provider.
+    /// </summary>
+    public ResourceProviderMetadata BaseResourceProvider
+    {
+      get { return (ResourceProviderMetadata) _baseResourceProviderProperty.GetValue(); }
+      set { _baseResourceProviderProperty.SetValue(value); }
     }
 
     public AbstractProperty NativeSystemProperty
@@ -213,11 +213,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// Selected media provider path.
+    /// Selected resource provider path.
     /// </summary>
     /// <remarks>
     /// This property will be bound to an input field by the skin. The user can write the desired resource path itself,
-    /// if the choosen media provider is no filesystem media provider and thus we cannot provide a directory tree.
+    /// if the choosen resource provider is no filesystem resource provider and thus we cannot provide a directory tree.
     /// </remarks>
     public string ChoosenResourcePathStr
     {
@@ -231,7 +231,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// Selected media provider path as resource path instance.
+    /// Selected resource provider path as resource path instance.
     /// </summary>
     /// <remarks>
     /// This property will automatically be updated - either from the <see cref="ChoosenResourcePathStr"/>, which was
@@ -250,7 +250,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// <c>true</c> if the choosen media provider path (<see cref="ChoosenResourcePath"/>) is a valid path in the
+    /// <c>true</c> if the choosen resource provider path (<see cref="ChoosenResourcePath"/>) is a valid path in the
     /// target system.
     /// </summary>
     public bool IsChoosenPathValid
@@ -265,7 +265,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// Human-readable display name of the selected media provider path.
+    /// Human-readable display name of the selected resource provider path.
     /// </summary>
     public string ChoosenResourcePathDisplayName
     {
@@ -279,12 +279,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
-    /// Paths tree of the selected media provider, if the media provider supports path
+    /// Paths tree of the selected resource provider, if the resource provider supports path
     /// navigation.
     /// </summary>
-    public ItemsList MediaProviderPathsTree
+    public ItemsList ResourceProviderPathsTree
     {
-      get { return _mediaProviderPathsTree; }
+      get { return _resourceProviderPathsTree; }
     }
 
     public AbstractProperty ShareNameProperty
@@ -337,7 +337,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public void ClearAllConfiguredProperties()
     {
-      BaseMediaProvider = null;
+      BaseResourceProvider = null;
       ChoosenResourcePath = null;
       ShareName = string.Empty;
       MediaCategories.Clear();
@@ -347,7 +347,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected bool InitializePropertiesWithShare(Share share)
     {
       _origShare = share;
-      BaseMediaProvider = GetBaseMediaProviderMetadata(share.BaseResourcePath);
+      BaseResourceProvider = GetBaseResourceProviderMetadata(share.BaseResourcePath);
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       NativeSystem = serverConnectionManager.LastHomeServerName;
@@ -366,9 +366,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return true;
     }
 
-    protected abstract IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders();
+    protected abstract IEnumerable<ResourceProviderMetadata> GetAvailableBaseResourceProviders();
 
-    public static Guid? GetBaseMediaProviderId(ResourcePath path)
+    public static Guid? GetBaseResourceProviderId(ResourcePath path)
     {
       if (!path.IsAbsolute)
         return null;
@@ -378,56 +378,47 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       return firstProvider.ProviderId;
     }
 
-    protected MediaProviderMetadata GetBaseMediaProviderMetadata(ResourcePath path)
+    protected ResourceProviderMetadata GetBaseResourceProviderMetadata(ResourcePath path)
     {
-      Guid? mediaProviderId = GetBaseMediaProviderId(path);
-      return mediaProviderId.HasValue ? GetMediaProviderMetadata(mediaProviderId.Value) : null;
+      Guid? resourceProviderId = GetBaseResourceProviderId(path);
+      return resourceProviderId.HasValue ? GetResourceProviderMetadata(resourceProviderId.Value) : null;
     }
 
-    protected abstract MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId);
+    protected abstract ResourceProviderMetadata GetResourceProviderMetadata(Guid resourceProviderId);
 
-    public void UpdateMediaProvidersList()
+    public void UpdateResourceProvidersList()
     {
-      _allBaseMediaProvidersList.Clear();
+      _allBaseResourceProvidersList.Clear();
       bool selected = false;
-      List<MediaProviderMetadata> mediaProviderMDs = new List<MediaProviderMetadata>(GetAvailableBaseMediaProviders());
-      mediaProviderMDs.Sort((a, b) => a.Name.CompareTo(b.Name));
-      MediaProviderMetadata choosenBaseMediaProvider = BaseMediaProvider;
-      foreach (MediaProviderMetadata metadata in mediaProviderMDs)
+      List<ResourceProviderMetadata> resourceProviderMDs = new List<ResourceProviderMetadata>(GetAvailableBaseResourceProviders());
+      resourceProviderMDs.Sort((a, b) => a.Name.CompareTo(b.Name));
+      ResourceProviderMetadata choosenBaseResourceProvider = BaseResourceProvider;
+      foreach (ResourceProviderMetadata metadata in resourceProviderMDs)
       {
-        ListItem mediaProviderItem = new ListItem(SharesConfigModel.NAME_KEY, metadata.Name);
-        mediaProviderItem.AdditionalProperties[SharesConfigModel.MEDIA_PROVIDER_METADATA_KEY] = metadata;
-        if ((choosenBaseMediaProvider != null &&
-            choosenBaseMediaProvider.MediaProviderId == metadata.MediaProviderId) ||
-                mediaProviderMDs.Count == 1)
+        ListItem resourceProviderItem = new ListItem(SharesConfigModel.NAME_KEY, metadata.Name);
+        resourceProviderItem.AdditionalProperties[SharesConfigModel.RESOURCE_PROVIDER_METADATA_KEY] = metadata;
+        if ((choosenBaseResourceProvider != null && choosenBaseResourceProvider.ResourceProviderId == metadata.ResourceProviderId) ||
+            resourceProviderMDs.Count == 1)
         {
-          mediaProviderItem.Selected = true;
+          resourceProviderItem.Selected = true;
           selected = true;
         }
-        mediaProviderItem.SelectedProperty.Attach(OnMediaProviderItemSelectionChanged);
-        _allBaseMediaProvidersList.Add(mediaProviderItem);
+        resourceProviderItem.SelectedProperty.Attach(OnResourceProviderItemSelectionChanged);
+        _allBaseResourceProvidersList.Add(resourceProviderItem);
       }
-      IsMediaProviderSelected = selected;
+      IsResourceProviderSelected = selected;
     }
 
-    public MediaProviderMetadata GetSelectedBaseMediaProvider()
+    public ResourceProviderMetadata GetSelectedBaseResourceProvider()
     {
-      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
-        if (mediaProviderItem.Selected)
-          return mediaProviderItem.AdditionalProperties[SharesConfigModel.MEDIA_PROVIDER_METADATA_KEY] as MediaProviderMetadata;
-      return null;
+      return _allBaseResourceProvidersList.Where(resourceProviderItem => resourceProviderItem.Selected).Select(
+          resourceProviderItem => resourceProviderItem.AdditionalProperties[
+              SharesConfigModel.RESOURCE_PROVIDER_METADATA_KEY] as ResourceProviderMetadata).FirstOrDefault();
     }
 
-    public void UpdateIsMediaProviderSelected()
+    public void UpdateIsResourceProviderSelected()
     {
-      bool result = false;
-      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
-        if (mediaProviderItem.Selected)
-        {
-          result = true;
-          break;
-        }
-      IsMediaProviderSelected = result;
+      IsResourceProviderSelected = _allBaseResourceProvidersList.Any(resourceProviderItem => resourceProviderItem.Selected);
     }
 
     public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
@@ -438,7 +429,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         pathItem.SubItems.FireChange();
       }
       else
-        RefreshMediaProviderPathList(pathItem.SubItems, (ResourcePath) pathItem.AdditionalProperties[SharesConfigModel.RESOURCE_PATH_KEY]);
+        RefreshResourceProviderPathList(pathItem.SubItems, (ResourcePath) pathItem.AdditionalProperties[SharesConfigModel.RESOURCE_PATH_KEY]);
     }
 
     protected static ResourcePath FindChoosenResourcePath(ItemsList items)
@@ -457,7 +448,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected void UpdateChoosenResourcePath()
     {
-      ChoosenResourcePath = FindChoosenResourcePath(MediaProviderPathsTree);
+      ChoosenResourcePath = FindChoosenResourcePath(ResourceProviderPathsTree);
     }
 
     protected abstract ResourcePath ExpandResourcePathFromString(string path);
@@ -491,7 +482,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _mediaCategories.Add(categoryItem[SharesConfigModel.NAME_KEY]);
     }
 
-    protected void RefreshMediaProviderPathList(ItemsList items, ResourcePath path)
+    protected void RefreshResourceProviderPathList(ItemsList items, ResourcePath path)
     {
       items.Clear();
       IEnumerable<ResourcePathMetadata> res = GetChildDirectoriesData(path);
@@ -515,16 +506,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected abstract IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path);
 
-    public void UpdateMediaProviderPathTree()
+    public void UpdateResourceProviderPathTree()
     {
-      MediaProviderMetadata mpm = BaseMediaProvider;
-      if (mpm == null)
+      ResourceProviderMetadata rpm = BaseResourceProvider;
+      if (rpm == null)
       { // This happens when the WF-Manager navigates back to the overview screen - all properties have been cleared before
-        _mediaProviderPathsTree.Clear();
-        _mediaProviderPathsTree.FireChange();
+        _resourceProviderPathsTree.Clear();
+        _resourceProviderPathsTree.FireChange();
         return;
       }
-      RefreshMediaProviderPathList(_mediaProviderPathsTree, ResourcePath.BuildBaseProviderPath(mpm.MediaProviderId, "/"));
+      RefreshResourceProviderPathList(_resourceProviderPathsTree, ResourcePath.BuildBaseProviderPath(rpm.ResourceProviderId, "/"));
     }
 
     protected abstract IEnumerable<string> GetAllAvailableCategories();

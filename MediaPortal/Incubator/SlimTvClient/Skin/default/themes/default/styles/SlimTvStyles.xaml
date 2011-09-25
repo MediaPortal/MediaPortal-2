@@ -88,11 +88,9 @@
                     </Border.Background>
                     <!-- Shows the progress of current time in relation to the current playing program -->
                     <ProgressBar x:Name="CurrentProgramProgress" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource ProgressBarStyle}"
                       Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}"/>
                     <!-- Shows the buffer position of timeshift playback -->
                     <!--<ProgressBar x:Name="PlayingProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Style="{ThemeResource ProgressBarStyle}"
                       Value="{Binding Path=PercentPlayed}"/>-->
                   </Border>
 
@@ -233,7 +231,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <!--<ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false"
+          <!--<ScrollViewer CanContentScroll="false"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
@@ -321,7 +319,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ProgramGuideButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -489,7 +487,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -504,7 +502,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoAndProgramButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -521,7 +519,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
       
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 

@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -67,9 +67,9 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\System\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\..\Source\System\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Core</Name>
+      <Name>MediaPortal.Common</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">

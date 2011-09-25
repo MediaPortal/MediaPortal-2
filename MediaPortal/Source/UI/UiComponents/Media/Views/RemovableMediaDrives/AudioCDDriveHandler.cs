@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.SystemResolver;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.Extensions.MediaProviders.AudioCDMediaProvider;
+using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
 using MediaPortal.UiComponents.Media.Models.MediaItemAspects;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
@@ -144,7 +144,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
-          AudioCDMediaProvider.ToResourcePath(drive, track.TrackNo).Serialize());
+          AudioCDResourceProvider.ToResourcePath(drive, track.TrackNo).Serialize());
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
       mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track.TrackNo);
       audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) track.TrackNo);

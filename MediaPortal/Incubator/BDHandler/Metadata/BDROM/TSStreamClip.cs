@@ -19,8 +19,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.BDHandler.Settings;
 
 namespace BDInfo

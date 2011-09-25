@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Dispose()
     {
-      Registration.TryCleanupAndDispose(Storyboard);
+      MPF.TryCleanupAndDispose(Storyboard);
       base.Dispose();
     }
 

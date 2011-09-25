@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 

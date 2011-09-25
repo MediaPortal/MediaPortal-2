@@ -28,13 +28,13 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Runtime;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Core.Logging;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.General;
-using MediaPortal.Core.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -65,7 +65,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// </summary>
     public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
 
-    private Thread _renderThread;
     private bool _renderThreadStopped;
     private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
@@ -279,22 +278,22 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     protected void StartRenderThread_Async()
     {
-      if (_renderThread != null)
+      if (SkinContext.RenderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
       _renderThreadStopped = false;
-      _renderThread = new Thread(RenderLoop) {Name = "DX Render"};
-      _renderThread.Start();
+      SkinContext.RenderThread = new Thread(RenderLoop) {Name = "DX Render"};
+      SkinContext.RenderThread.Start();
     }
 
     internal void StopRenderThread()
     {
       _renderThreadStopped = true;
-      if (_renderThread == null)
+      if (SkinContext.RenderThread == null)
         return;
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
-      _renderThread.Join();
-      _renderThread = null;
+      SkinContext.RenderThread.Join();
+      SkinContext.RenderThread = null;
     }
 
     private void SynchronizeToVideoPlayerFramerate(ISlimDXVideoPlayer videoPlayer)
@@ -303,7 +302,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         if (videoPlayer == _synchronizedVideoPlayer)
           return;
-        ISlimDXVideoPlayer oldPlayer = videoPlayer;
+        ISlimDXVideoPlayer oldPlayer = _synchronizedVideoPlayer;
         _synchronizedVideoPlayer = null;
         if (oldPlayer != null)
           oldPlayer.SetRenderDelegate(null);
@@ -363,6 +362,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       _messageQueue.Shutdown();
       Close();
+      _videoRenderFrameEvent.Close();
     }
 
     public void Minimize()
@@ -474,12 +474,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         else
           _isScreenSaverActive = false;
 
-        if (IsFullScreen)
-          // If we are in fullscreen mode, we may control the mouse cursor
-          ShowMouseCursor(inputManager.IsMouseUsed);
-        else
-          // Reset it to visible state, if state was switched
-          ShowMouseCursor(true);
+        // If we are in fullscreen mode, we may control the mouse cursor, else reset it to visible state, if state was switched
+        ShowMouseCursor(!IsFullScreen || inputManager.IsMouseUsed);
       }
       catch (Exception ex)
       {

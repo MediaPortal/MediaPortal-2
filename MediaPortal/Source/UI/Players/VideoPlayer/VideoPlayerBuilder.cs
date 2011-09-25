@@ -23,13 +23,13 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
-using MediaPortal.Core.MediaManagement.ResourceAccess;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.Services.PluginManager.Builders;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.PluginManager.Builders;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -154,9 +154,10 @@ namespace MediaPortal.UI.Players.Video
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it
         ServiceRegistration.Get<ILogger>().Warn("{0}: Unable to play '{1}'", e, playerType, locator);
-        if (player is IDisposable)
-          ((IDisposable) player).Dispose();
-        player = null;
+        IDisposable disposablePlayer = player as IDisposable;
+        if (disposablePlayer != null)
+          disposablePlayer.Dispose();
+        throw;
       }
       return (IPlayer) player;
     }
