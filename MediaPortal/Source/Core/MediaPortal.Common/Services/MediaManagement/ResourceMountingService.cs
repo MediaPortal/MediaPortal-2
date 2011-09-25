@@ -315,7 +315,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (result == DokanNet.DOKAN_SUCCESS)
         logger.Debug("ResourceMountingService: DokanMain returned successfully");
       else
-        logger.Warn("ResourceMountingService: DokanMain returned with error code {0}", result);
+        logger.Warn("ResourceMountingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
     }
 
     protected VirtualFileSystemResource ParseFileName(string fileName)
@@ -589,12 +589,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         VirtualBaseDirectory directory = resource as VirtualBaseDirectory;
         fileinfo.FileName = filename;
         fileinfo.CreationTime = resource.CreationTime;
-        fileinfo.LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged;
-        if (fileinfo.LastAccessTime < MIN_FILE_DATE)
-          fileinfo.LastAccessTime = MIN_FILE_DATE;
-        fileinfo.LastWriteTime = resource.CreationTime;
-        if (fileinfo.LastWriteTime < MIN_FILE_DATE)
-          fileinfo.LastWriteTime = MIN_FILE_DATE;
+        fileinfo.LastAccessTime = CorrectTimeValue(resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged);
+        fileinfo.LastWriteTime = CorrectTimeValue(resource.CreationTime);
         if (file != null)
         {
           fileinfo.Attributes = FILE_ATTRIBUTES;
@@ -623,19 +619,26 @@ namespace MediaPortal.Common.Services.MediaManagement
         {
           VirtualFileSystemResource resource = entry.Value;
           IResourceAccessor resourceAccessor = resource.ResourceAccessor;
+          bool isFile = resource is VirtualFile;
           FileInformation fi = new FileInformation
             {
-              Attributes = resource is VirtualFile ? FILE_ATTRIBUTES : DIRECTORY_ATTRIBUTES,
+              Attributes = isFile ? FILE_ATTRIBUTES : DIRECTORY_ATTRIBUTES,
               CreationTime = resource.CreationTime,
-              LastAccessTime = resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged,
-              LastWriteTime = directory.CreationTime, // When using DateTime.MinValue, the resource is not recognized
-              Length = resourceAccessor == null ? 0 : resourceAccessor.Size,
+              LastAccessTime = CorrectTimeValue(resourceAccessor == null ? resource.CreationTime : resourceAccessor.LastChanged),
+              LastWriteTime = CorrectTimeValue(directory.CreationTime),
+              Length = resourceAccessor == null || !isFile ? 0 : resourceAccessor.Size,
               FileName = entry.Key
             };
           files.Add(fi);
         }
         return DokanNet.DOKAN_SUCCESS;
       }
+    }
+
+    protected DateTime CorrectTimeValue(DateTime time)
+    {
+      // When using DateTime.MinValue, resources are not recognized
+      return time < MIN_FILE_DATE ? MIN_FILE_DATE : time;
     }
 
     public int SetFileAttributes(string filename, FileAttributes attr, DokanFileInfo info)
