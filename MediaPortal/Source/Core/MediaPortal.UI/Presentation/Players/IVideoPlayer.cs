@@ -78,7 +78,7 @@ namespace MediaPortal.UI.Presentation.Players
     void SetAudioStream(string audioStream);
 
     /// <summary>
-    /// Gets the name of the current audio stream.
+    /// Gets the name of the current audio stream or <c>null</c> if there is no current audio stream.
     /// </summary>
     string CurrentAudioStream { get; }
   }

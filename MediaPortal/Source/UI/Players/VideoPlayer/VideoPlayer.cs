@@ -992,10 +992,6 @@ namespace MediaPortal.UI.Players.Video
     }
 
 
-    /// <summary>
-    /// Sets the current audio stream.
-    /// </summary>
-    /// <param name="audioStream">audio stream</param>
     public virtual void SetAudioStream(string audioStream)
     {
       lock (SyncObj)
@@ -1013,24 +1009,15 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    /// <summary>
-    /// Gets the current audio stream.
-    /// </summary>
-    /// <value>The current audio stream.</value>
     public virtual string CurrentAudioStream
     {
       get
       {
         lock (SyncObj)
-        {
-          return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : String.Empty;
-        }
+          return _streamInfoAudio != null ? _streamInfoAudio.CurrentStreamName : null;
       }
     }
 
-    /// <summary>
-    /// Returns list of available audio streams.
-    /// </summary>
     public virtual string[] AudioStreams
     {
       get
