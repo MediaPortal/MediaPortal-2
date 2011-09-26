@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public IsoResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, "[IsoResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(ISO_RESOURCE_PROVIDER_ID, "[IsoResourceProvider.Name]", false);
     }
 
     #endregion

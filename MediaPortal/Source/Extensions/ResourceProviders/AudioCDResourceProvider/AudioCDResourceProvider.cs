@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
 
     public AudioCDResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(AUDIO_CD_RESOURCE_PROVIDER_ID, "[AudioCDResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(AUDIO_CD_RESOURCE_PROVIDER_ID, "[AudioCDResourceProvider.Name]", true);
     }
 
     public bool TryExtract(string path, out char drive, out byte trackNo)

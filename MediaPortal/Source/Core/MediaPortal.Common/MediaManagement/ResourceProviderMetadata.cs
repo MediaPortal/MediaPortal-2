@@ -44,16 +44,18 @@ namespace MediaPortal.Common.MediaManagement
 
     protected Guid _resourceProviderId;
     protected string _name;
+    protected bool _transientMedia;
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
-    public ResourceProviderMetadata(Guid resourceProviderId, string name)
+    public ResourceProviderMetadata(Guid resourceProviderId, string name, bool transientMedia)
     {
       _resourceProviderId = resourceProviderId;
       _name = name;
+      _transientMedia = transientMedia;
     }
 
     /// <summary>
@@ -72,6 +74,16 @@ namespace MediaPortal.Common.MediaManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the information if this resource provider provides access to transient resources like removable media or temporary
+    /// available resources.
+    /// </summary>
+    [XmlIgnore]
+    public bool TransientMedia
+    {
+      get { return _transientMedia; }
     }
 
     public void Serialize(XmlWriter writer)
@@ -98,7 +110,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("Id", IsNullable = false)]
+    [XmlAttribute("Id")]
     public string XML_Id
     {
       get { return MarshallingHelper.SerializeGuid(_resourceProviderId); }
@@ -108,11 +120,21 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("Name", IsNullable = false)]
+    [XmlAttribute("Name")]
     public string XML_Name
     {
       get { return _name; }
       set { _name = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("TransientMedia")]
+    public bool XML_TransientMedia
+    {
+      get { return _transientMedia; }
+      set { _transientMedia = value; }
     }
 
    #endregion

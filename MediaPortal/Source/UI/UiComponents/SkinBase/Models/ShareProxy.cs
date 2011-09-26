@@ -390,7 +390,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       _allBaseResourceProvidersList.Clear();
       bool selected = false;
-      List<ResourceProviderMetadata> resourceProviderMDs = new List<ResourceProviderMetadata>(GetAvailableBaseResourceProviders());
+      List<ResourceProviderMetadata> resourceProviderMDs = new List<ResourceProviderMetadata>(
+          GetAvailableBaseResourceProviders().Where(metadata => !metadata.TransientMedia));
       resourceProviderMDs.Sort((a, b) => a.Name.CompareTo(b.Name));
       ResourceProviderMetadata choosenBaseResourceProvider = BaseResourceProvider;
       foreach (ResourceProviderMetadata metadata in resourceProviderMDs)

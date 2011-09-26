@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
 
     public LocalFsResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, "[LocalFsResourceProvider.Name]");
+      _metadata = new ResourceProviderMetadata(LOCAL_FS_RESOURCE_PROVIDER_ID, "[LocalFsResourceProvider.Name]", false);
     }
 
     #endregion
