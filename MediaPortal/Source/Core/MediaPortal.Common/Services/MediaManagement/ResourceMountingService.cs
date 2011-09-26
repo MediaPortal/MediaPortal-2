@@ -296,26 +296,26 @@ namespace MediaPortal.Common.Services.MediaManagement
         _mountPoint = pathManager.GetPath("<REMOTERESOURCES>");
         if (!Directory.Exists(_mountPoint))
           Directory.CreateDirectory(_mountPoint);
+
+        if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
+          logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
+
+        DokanOptions opt = new DokanOptions
+          {
+            MountPoint = _mountPoint,
+            VolumeLabel = VOLUME_LABEL,
+          };
+        int result = DokanNet.DokanMain(opt, this);
+        if (result == DokanNet.DOKAN_SUCCESS)
+          logger.Debug("ResourceMountingService: DokanMain returned successfully");
+        else
+          logger.Warn("ResourceMountingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
       }
       catch (Exception exception)
       {
-        logger.Warn("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem", exception);
+        logger.Error("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem ({1})", _mountPoint, exception);
         return;
       }
-
-      if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
-        logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
-
-      DokanOptions opt = new DokanOptions
-        {
-          MountPoint = _mountPoint,
-          VolumeLabel = VOLUME_LABEL,
-        };
-      int result = DokanNet.DokanMain(opt, this);
-      if (result == DokanNet.DOKAN_SUCCESS)
-        logger.Debug("ResourceMountingService: DokanMain returned successfully");
-      else
-        logger.Warn("ResourceMountingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
     }
 
     protected VirtualFileSystemResource ParseFileName(string fileName)
