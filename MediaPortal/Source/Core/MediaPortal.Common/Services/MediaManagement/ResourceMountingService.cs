@@ -296,7 +296,14 @@ namespace MediaPortal.Common.Services.MediaManagement
         _mountPoint = pathManager.GetPath("<REMOTERESOURCES>");
         if (!Directory.Exists(_mountPoint))
           Directory.CreateDirectory(_mountPoint);
-
+      }
+      catch (Exception e)
+      {
+        logger.Error("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem", e, _mountPoint);
+        return;
+      }
+      try
+      {
         if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
           logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
 
@@ -311,10 +318,9 @@ namespace MediaPortal.Common.Services.MediaManagement
         else
           logger.Warn("ResourceMountingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
       }
-      catch (Exception exception)
+      catch (Exception e)
       {
-        logger.Error("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem ({1})", _mountPoint, exception);
-        return;
+        logger.Error("ResourceMountingService: Error mounting virtual filesystem at folder '{0}' (is DOKAN not installed?)", e, _mountPoint);
       }
     }
 
