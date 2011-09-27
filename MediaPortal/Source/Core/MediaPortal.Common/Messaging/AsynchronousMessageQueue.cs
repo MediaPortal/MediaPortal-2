@@ -46,7 +46,7 @@ namespace MediaPortal.Common.Messaging
 
     protected ShutdownWatcher _shutdownWatcher;
     protected Thread _messageDeliveryThread = null;
-    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
+    protected ManualResetEvent _terminatedEvent = new ManualResetEvent(true);
     protected AutoResetEvent _messageAvailableEvent = new AutoResetEvent(false);
 
     #endregion
@@ -215,6 +215,7 @@ namespace MediaPortal.Common.Messaging
         return;
       RegisterAtAllMessageChannels();
       _shutdownWatcher = ShutdownWatcher.Create(this);
+      _terminatedEvent.Reset();
       Thread thread;
       lock (_syncObj)
         _messageDeliveryThread = thread = new Thread(DoWork)
