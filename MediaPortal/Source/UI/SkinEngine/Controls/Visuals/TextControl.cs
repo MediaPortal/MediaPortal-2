@@ -495,10 +495,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       Deallocate();
-      WaitHandle notifyObject = new ManualResetEvent(false);
-      _cursorBlinkTimer.Dispose(notifyObject);
-      notifyObject.WaitOne();
-      notifyObject.Close();
+      _cursorBlinkTimer.Dispose();
       base.Dispose();
     }
   }
