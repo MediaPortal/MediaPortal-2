@@ -98,12 +98,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
       int numNotifications = notificationService.Notifications.Count;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      Guid currentWorkflowStateId = workflowManager.CurrentNavigationContext.WorkflowState.StateId;
       if (numNotifications == 0)
-      {
-        if (currentWorkflowStateId == Consts.WF_STATE_ID_WATCH_NOTIFICATIONS)
-          workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS, true);
-      }
+        workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS, true);
       IsNotificationsHintVisible = !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS) && numNotifications > 0;
       NumNotificationsTotal = numNotifications;
       IsNotificationsAvailable = numNotifications > 0;
