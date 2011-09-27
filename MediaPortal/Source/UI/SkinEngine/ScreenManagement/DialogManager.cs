@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -149,14 +148,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected static ListItem CreateButtonListItem(string buttonText, Guid dialogHandle, DialogResult dialogResult,
         bool isDefault)
     {
-      ListItem result = new ListItem(KEY_NAME, buttonText);
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      IList<ICommand> commands = new List<ICommand>
-          {
-              new DialogResultCommand(dialogHandle, dialogResult),
-              new MethodDelegateCommand(screenManager.CloseTopmostDialog)
-          };
-      result.Command = new CommandList(commands);
+      ListItem result = new ListItem(KEY_NAME, buttonText)
+        {
+            Command = new DialogResultCommand(dialogHandle, dialogResult)
+        };
       if (isDefault)
         result.AdditionalProperties["IsDefault"] = true;
       return result;

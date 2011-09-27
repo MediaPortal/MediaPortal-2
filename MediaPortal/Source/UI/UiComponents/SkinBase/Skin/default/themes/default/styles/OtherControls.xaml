@@ -266,7 +266,14 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource DialogButtonStyle}" Margin="5,0,5,0"
-              Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
+              IsDefault="{Binding AdditionalProperties[IsDefault]}">
+            <Button.Command>
+              <CommandList>
+                <LateBoundValue BindingValue="{Binding Command}"/>
+                <Command Source="{Service ScreenManager}" Path="CloseDialog"
+                    Parameters="{LateBoundValue BindingValue={Binding RelativeSource={RelativeSource TemplatedParent},Path=Screen.ScreenInstanceId}}"/>
+              </CommandList>
+            </Button.Command>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
