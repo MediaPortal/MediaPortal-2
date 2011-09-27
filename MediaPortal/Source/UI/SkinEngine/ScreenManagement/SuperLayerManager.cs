@@ -59,7 +59,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Dispose()
     {
-      _superLayerHideTimer.Dispose();
+      WaitHandle notifyObject = new ManualResetEvent(false);
+      _superLayerHideTimer.Dispose(notifyObject);
+      notifyObject.WaitOne();
+      notifyObject.Close();
     }
 
     protected void DoHideSuperLayer(object state)

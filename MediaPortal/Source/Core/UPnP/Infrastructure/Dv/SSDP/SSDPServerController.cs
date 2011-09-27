@@ -181,8 +181,13 @@ namespace UPnP.Infrastructure.Dv.SSDP
       lock (_serverData.SyncObj)
       {
         RevokeAdvertisements();
-        _advertisementTimer.Dispose();
-        _searchResponseTimer.Dispose();
+        ManualResetEvent notifyObject = new ManualResetEvent(false);
+        _advertisementTimer.Dispose(notifyObject);
+        notifyObject.WaitOne();
+        notifyObject.Reset();
+        _searchResponseTimer.Dispose(notifyObject);
+        notifyObject.WaitOne();
+        notifyObject.Close();
         CloseSSDPEndpoints();
       }
     }

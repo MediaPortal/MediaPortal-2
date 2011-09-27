@@ -122,7 +122,10 @@ namespace UPnP.Infrastructure.CP.GENA
         if (!_isActive)
           return;
         _isActive = false;
-        _subscriptionRenewalTimer.Dispose();
+        WaitHandle notifyObject = new ManualResetEvent(false);
+        _subscriptionRenewalTimer.Dispose(notifyObject);
+        notifyObject.WaitOne();
+        notifyObject.Close();
         foreach (EventSubscription subscription in new List<EventSubscription>(_subscriptions.Values))
           if (unsubscribeEvents)
             UnsubscribeEvents(subscription);
@@ -306,10 +309,7 @@ namespace UPnP.Infrastructure.CP.GENA
       catch (WebException e)
       {
         HttpWebResponse response = (HttpWebResponse) e.Response;
-        if (response == null)
-          service.InvokeEventSubscriptionFailed(new UPnPError(503, "Cannot complete event subscription"));
-        else
-          service.InvokeEventSubscriptionFailed(new UPnPError((uint) response.StatusCode, "Cannot complete event subscription"));
+        service.InvokeEventSubscriptionFailed(new UPnPError(response == null ? 503 : (uint) response.StatusCode, "Cannot complete event subscription"));
         if (response != null)
           response.Close();
         return;

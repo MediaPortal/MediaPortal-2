@@ -76,11 +76,7 @@ namespace MediaPortal.UI.Players.Picture
 
     public void Dispose()
     {
-      if (_slideShowTimer != null)
-      {
-        _slideShowTimer.Dispose();
-        _slideShowTimer = null;
-      }
+      DisposeTimer();
     }
 
     #region Protected members
@@ -150,7 +146,10 @@ namespace MediaPortal.UI.Players.Picture
       lock (_syncObj)
         if (_slideShowTimer != null)
         {
-          _slideShowTimer.Dispose();
+          WaitHandle notifyObject = new ManualResetEvent(false);
+          _slideShowTimer.Dispose(notifyObject);
+          notifyObject.WaitOne();
+          notifyObject.Close();
           _slideShowTimer = null;
         }
     }
