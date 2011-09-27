@@ -9,7 +9,7 @@
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ServerConnection.AttachToServerHeader]"/>
 
-    <!-- AttachToServerModel -->
+    <!-- ServerAttachmentModel -->
     <Model x:Key="Model" Id="81A130E1-F417-47e4-AC9C-0B2E4912331F"/>
 
     <!-- Contents -->
