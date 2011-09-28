@@ -416,9 +416,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Draws this text.
+    /// Standard draw method for this text.
     /// </summary>
-    /// <param name="textBox">The text box.</param>
+    /// <param name="textBox">The box where the text should be drawn.</param>
     /// <param name="horzAlignment">The horizontal alignment.</param>
     /// <param name="vertAlignment">The vertical alignment.</param>
     /// <param name="color">The color.</param>
@@ -429,8 +429,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="scrollSpeed">Text scrolling speed in units (pixels at original skin size) per second.</param>
     /// <param name="finalTransform">The final combined layout/render-transform.</param>
     public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, Color4 color,
-        bool wrap, bool fade, float zOrder,
-        TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
+        bool wrap, bool fade, float zOrder, TextScrollEnum scrollMode, float scrollSpeed, Matrix finalTransform)
     {
       if (!IsAllocated || wrap != _lastWrap || _textChanged || (wrap && textBox.Width != _lastTextBoxWidth))
       {
@@ -459,7 +458,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
           break;
       }
-      // Do vertical alignment by adjusting ScrollPos.Y
+      // Do vertical alignment by adjusting yPosition
       float yPosition = 0.0f;
       switch (vertAlignment)
       {
@@ -505,6 +504,69 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           DoRender(finalTransform);
         }
       }
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+    }
+
+    /// <summary>
+    /// Simplified render method to draw the text with a given text offset. This can be used for text edit controls where the text is
+    /// shifted horizontally against its textbox.
+    /// </summary>
+    /// <param name="textBox">The box where the text should be drawn.</param>
+    /// <param name="horzAlignment">The horizontal alignment.</param>
+    /// <param name="vertAlignment">The vertical alignment.</param>
+    /// <param name="offsetX">Horizontal offset of the text in relation to its text box. A negative offset will make the text start left of its
+    /// normal position.</param>
+    /// <param name="color">The color.</param>
+    /// <param name="zOrder">A value indicating the depth (and thus position in the visual heirachy) that this element should be rendered at.</param>
+    /// <param name="finalTransform">The final combined layout/render-transform.</param>
+    public void Render(RectangleF textBox, HorizontalTextAlignEnum horzAlignment, VerticalTextAlignEnum vertAlignment, float offsetX,
+        Color4 color, float zOrder, Matrix finalTransform)
+    {
+      if (!IsAllocated || _lastWrap || _textChanged)
+      {
+        Allocate(textBox.Width, false);
+        if (!IsAllocated)
+          return;
+      }
+
+      // Prepare horizontal alignment info for shader. X is position offset, Y is multiplyer for line width.
+      Vector4 alignParam;
+      switch (horzAlignment)
+      {
+        case HorizontalTextAlignEnum.Center:
+          alignParam = new Vector4(textBox.Width / 2.0f, -0.5f, zOrder, 1.0f);
+          break;
+        case HorizontalTextAlignEnum.Right:
+          alignParam = new Vector4(textBox.Width, -1.0f, zOrder, 1.0f);
+          break;
+        //case TextAlignEnum.Left:
+        default:
+          alignParam = new Vector4(0.0f, 0.0f, zOrder, 1.0f);
+          break;
+      }
+      // Do vertical alignment by adjusting yPosition
+      float yPosition = 0.0f;
+      switch (vertAlignment)
+      {
+        case VerticalTextAlignEnum.Bottom:
+          yPosition = Math.Max(textBox.Height - _lastTextSize.Height, 0.0f);
+          break;
+        case VerticalTextAlignEnum.Center:
+          yPosition += Math.Max((textBox.Height - _lastTextSize.Height) / 2.0f, 0.0f);
+          break;
+        //case TextAlignEnum.Top:
+        // Do nothing
+      }
+
+      // No fading
+       _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT);
+
+      // Render
+      _effect.Parameters[PARAM_COLOR] = color;
+      _effect.Parameters[PARAM_ALIGNMENT] = alignParam;
+      _effect.Parameters[PARAM_SCROLL_POSITION] = new Vector4(offsetX, yPosition, 0.0f, 0.0f);
+      _effect.Parameters[PARAM_TEXT_RECT] = new Vector4(textBox.Left, textBox.Top, textBox.Width, textBox.Height);
+      DoRender(finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
