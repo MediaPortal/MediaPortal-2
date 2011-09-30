@@ -261,8 +261,8 @@ namespace MediaPortal.UiComponents.Weather.Models
 
         bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
 
-        ServiceRegistration.Get<ILogger>().Info(
-            result ? "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
+        ServiceRegistration.Get<ILogger>().Info(result ?
+            "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
             cityToRefresh.Name, cityToRefresh.Id);
 
         // Copy the data to the skin property.

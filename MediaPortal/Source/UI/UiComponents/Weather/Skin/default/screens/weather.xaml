@@ -14,19 +14,30 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <StackPanel Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
         <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="50"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <StackPanel x:Name="CurrentConditionOverview" Margin="0,0,50,0" Grid.Column="0" Grid.Row="0"
+          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
-            <Label x:Name="LocName" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=CurrentLocation.Name}" Color="{ThemeResource TextColor}"/>
+            <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
+              <Label x:Name="Temperature" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                  Content="{Binding CurrentLocation.Condition.Temperature}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content=" ("/>
+              <Label x:Name="TempFeel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                  Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                  Content=")"/>
+            </StackPanel>
+            <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.Name}"/>
           </StackPanel>
-          <Grid x:Name="CurrentConditionDetail" Grid.Column="1" Grid.Row="0"
+          <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
@@ -40,35 +51,27 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Label Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Temp]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.Temperature}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunrise]"/>
+            <Label Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
 
-            <Label Grid.Column="0" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Tempfeel]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunset]" />
+            <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
 
-            <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.UVIndex]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.UVIndex}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Wind]"/>
+            <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
 
-            <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Wind]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.Wind}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Humidity]"/>
+            <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
 
-            <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Humidity]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.Humidity}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Dewpoint]"/>
+            <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
 
-            <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Dewpoint]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.Condition.DewPoint}" Color="{ThemeResource TextColor}"/>
-
-            <Label Grid.Column="0" Grid.Row="6" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Sunrise]" Color="{ThemeResource TextColor}" />
-            <Label Grid.Column="2" Grid.Row="6" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.LocationInfo.SunRise}" Color="{ThemeResource TextColor}"/>
-
-            <Label Grid.Column="0" Grid.Row="7" FontSize="{ThemeResource SmallFontSize}" Content="[Weather.Sunset]" />
-            <Label Grid.Column="2" Grid.Row="7" FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.LocationInfo.SunSet}" Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.UVIndex]"/>
+            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
           </Grid>
         </Grid>
-        <Grid x:Name="ForecastPanel" Margin="30"
+        <Grid x:Name="ForecastPanel" Margin="30,20,30,20"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -78,49 +81,64 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day1" Content="{Binding CurrentLocation.ForecastCollection[0].Day}" Color="{ThemeResource TextColor}" />
+            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day1" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[0].Day}"/>
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[0].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[0].High}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[0].Low}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[0].High}"
+                HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[0].Low}"
+                HorizontalAlignment="Center"/>
           </StackPanel>
           <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day2" Content="{Binding CurrentLocation.ForecastCollection[1].Day}" Color="{ThemeResource TextColor}" />
+            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day2" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[1].Day}"/>
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[1].High}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[1].Low}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[1].High}"
+                HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[1].Low}"
+                HorizontalAlignment="Center"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day3" Content="{Binding CurrentLocation.ForecastCollection[2].Day}" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day3" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[2].Day}"/>
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[2].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[2].High}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[2].Low}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[2].High}"
+                HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[2].Low}"
+                HorizontalAlignment="Center"/>
           </StackPanel>
           <StackPanel Grid.Column="3" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day4" Content="{Binding CurrentLocation.ForecastCollection[3].Day}" Color="{ThemeResource TextColor}" />
+            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day4" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[3].Day}"/>
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[3].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[3].High}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[3].Low}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[3].High}"
+                HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[3].Low}"
+                HorizontalAlignment="Center"/>
           </StackPanel>
           <StackPanel Grid.Column="4" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day5" Content="{Binding CurrentLocation.ForecastCollection[4].Day}" Color="{ThemeResource TextColor}" />
+            <Label FontSize="{ThemeResource SmallFontSize}" x:Name="Day5" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[4].Day}"/>
             <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[4].SmallIconProperty}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[4].High}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding CurrentLocation.ForecastCollection[4].Low}"
-                HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[4].High}"
+                HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.ForecastCollection[4].Low}"
+                HorizontalAlignment="Center"/>
           </StackPanel>
         </Grid>
-        <StackPanel Margin="20" HorizontalAlignment="Left">
-          <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
-          <Label FontSize="{ThemeResource SmallFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
+        <StackPanel HorizontalAlignment="Left">
+          <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
+          <Label FontSize="{ThemeResource SmallerFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
             HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
         </StackPanel>
       </StackPanel>
