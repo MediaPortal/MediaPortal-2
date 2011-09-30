@@ -33,7 +33,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
