@@ -34,7 +34,7 @@
         </Grid.RowDefinitions>
 
         <Label x:Name="SkipStepLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"
-            Content="{Binding SkipStep}" />
+            Content="{Binding SkipStep}" Color="{ThemeResource TextColor}"/>
 
       </Grid>
     </Border>

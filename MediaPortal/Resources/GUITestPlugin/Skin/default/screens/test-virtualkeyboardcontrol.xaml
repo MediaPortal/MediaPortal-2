@@ -10,10 +10,11 @@
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
-    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Content="Virtual keyboard test screen"/>
+    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Content="Virtual keyboard test screen" Color="{ThemeResource TextColor}"/>
     <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center"
         Content="This screen shows text boxes at several screen positions. Click them or hit ok when one of them has keyboard focus to open a virtual keyboard."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,50"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,50"
+        Color="{ThemeResource TextColor}"/>
     <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="false">
       <TextBox DockPanel.Dock="Top"/>
       <TextBox DockPanel.Dock="Bottom"/>

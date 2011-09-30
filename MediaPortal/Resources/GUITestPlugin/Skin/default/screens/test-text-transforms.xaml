@@ -3,10 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
   <DockPanel LastChildFill="True">
-    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="Text transforms test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Text transforms test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows different transformations for Labels."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,30"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,30"
+        Color="{ThemeResource TextColor}"/>
     <Grid DockPanel.Dock="Center">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -50,7 +53,7 @@
   
       <!-- First row: All texts, no transformation -->
   
-      <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Different text sizes, normal orientation"/>
+      <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Different text sizes, normal orientation" Color="{ThemeResource TextColor}"/>
       <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
           Background="{StaticResource TextBackgroundColor}"/>
       <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource BigTextStyle}" Color="{StaticResource TestTextColor}"
@@ -59,9 +62,9 @@
       <!-- Second row: All texts, N degrees RenderTransform -->
   
       <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-        <Label Content="Different text sizes, rotated by "/>
-        <Label Content="{StaticResource TestLabelRTAngle}"/>
-        <Label Content=" degrees (RenderTransform)"/>
+        <Label Content="Different text sizes, rotated by " Color="{ThemeResource TextColor}"/>
+        <Label Content="{StaticResource TestLabelRTAngle}" Color="{ThemeResource TextColor}"/>
+        <Label Content=" degrees (RenderTransform)" Color="{ThemeResource TextColor}"/>
       </StackPanel>
       <Label Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
           Background="{StaticResource TextBackgroundColor}">
@@ -83,9 +86,9 @@
       <!-- Third row: All texts, N degrees LayoutTransform -->
   
       <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-        <Label Content="Different text sizes, rotated by "/>
-        <Label Content="{StaticResource TestLabelLTAngle}"/>
-        <Label Content=" degrees (LayoutTransform)"/>
+        <Label Content="Different text sizes, rotated by " Color="{ThemeResource TextColor}"/>
+        <Label Content="{StaticResource TestLabelLTAngle}" Color="{ThemeResource TextColor}"/>
+        <Label Content=" degrees (LayoutTransform)" Color="{ThemeResource TextColor}"/>
       </StackPanel>
       <Label Grid.Row="5" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
           Background="{StaticResource TextBackgroundColor}">
@@ -107,11 +110,11 @@
       <!-- Fourth row: All texts, N degrees RenderTransform + N degrees LayoutTransform -->
   
       <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-        <Label Content="Different text sizes, rotated by "/>
-        <Label Content="{StaticResource TestLabelRTAngle}"/>
-        <Label Content=" degrees RenderTransform and "/>
-        <Label Content="{StaticResource TestLabelLTAngle}"/>
-        <Label Content=" degrees LayoutTransform"/>
+        <Label Content="Different text sizes, rotated by " Color="{ThemeResource TextColor}"/>
+        <Label Content="{StaticResource TestLabelRTAngle}" Color="{ThemeResource TextColor}"/>
+        <Label Content=" degrees RenderTransform and " Color="{ThemeResource TextColor}"/>
+        <Label Content="{StaticResource TestLabelLTAngle}" Color="{ThemeResource TextColor}"/>
+        <Label Content=" degrees LayoutTransform" Color="{ThemeResource TextColor}"/>
       </StackPanel>
       <Label Grid.Row="7" Grid.Column="0" Style="{StaticResource SmallTextStyle}" Color="{StaticResource TestTextColor}"
           Background="{StaticResource TextBackgroundColor}">

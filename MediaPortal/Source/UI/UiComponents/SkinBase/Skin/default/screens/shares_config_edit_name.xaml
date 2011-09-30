@@ -28,7 +28,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Wrap="True"/>
+        <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Color="{ThemeResource TextColor}" Wrap="True"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0"
             Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
         <!-- Row 3 contains error message - not necessary here -->

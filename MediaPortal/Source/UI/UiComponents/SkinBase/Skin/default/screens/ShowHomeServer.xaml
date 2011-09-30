@@ -23,14 +23,16 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" IsVisible="{Binding !IsHomeServerAttached}">
-          <Label Content="[ServerConnection.NoHomeServerAttached]" Wrap="True"/>
+          <Label Content="[ServerConnection.NoHomeServerAttached]" Color="{ThemeResource TextColor}" Wrap="True"/>
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" IsVisible="{Binding IsHomeServerAttached}">
-          <Label Content="[ServerConnection.AttachedText.Before]" Wrap="True"/>
+          <Label Content="[ServerConnection.AttachedText.Before]" Color="{ThemeResource TextColor}" Wrap="True"/>
           <Label Color="{ThemeResource EmphasisTextColor}" Content="{Binding Path=HomeServer}"/>
-          <Label Content="[ServerConnection.AttachedText.After]"/>
-          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsConnected]" IsVisible="{Binding IsHomeServerConnected}"/>
-          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsNotConnected]" IsVisible="{Binding !IsHomeServerConnected}"/>
+          <Label Content="[ServerConnection.AttachedText.After]" Color="{ThemeResource TextColor}"/>
+          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsConnected]"
+              Color="{ThemeResource TextColor}" IsVisible="{Binding IsHomeServerConnected}"/>
+          <Label Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Content="[ServerConnection.HomeServerIsNotConnected]"
+              Color="{ThemeResource TextColor}" IsVisible="{Binding !IsHomeServerConnected}"/>
         </StackPanel>
       </Grid>
     </ResourceWrapper>

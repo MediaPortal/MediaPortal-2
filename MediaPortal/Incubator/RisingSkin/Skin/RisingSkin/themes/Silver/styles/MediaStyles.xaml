@@ -80,8 +80,8 @@
                       <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                       </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
                   </DockPanel>
                 </Grid>
@@ -102,7 +102,8 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                           FontSize="{ThemeResource SmallFontSize}"/>
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
                     <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -118,33 +119,35 @@
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
-                      Content="{Binding Duration}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"
-                      FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding Duration}" 
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                        VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
+                          Command="{Command Previous}"/>
                       <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command SeekBackward}"/>
+                          Command="{Command SeekBackward}"/>
                       <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
+                          Command="{Command Play}"/>
                       <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
+                          Command="{Command Pause}"/>
                       <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
+                          Command="{Command Stop}"/>
                       <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command SeekForward}"/>
+                          Command="{Command SeekForward}"/>
                       <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
-                      <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                          Command="{Command Next}"/>
+                      <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
                     </StackPanel>
                     <!-- PlayControlsPanel -->
@@ -225,8 +228,8 @@
                       <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                       </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
                   </DockPanel>
                 </Grid>
@@ -247,7 +250,7 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0"  Content="{Binding CurrentTime}"
-                           FontSize="{ThemeResource SmallFontSize}"/>
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <Border x:Name="BgProgressbar" Grid.Row="0" Grid.Column="1"
                       HorizontalAlignment="Stretch" VerticalAlignment="Center"
@@ -263,13 +266,15 @@
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
-                      Content="{Binding Duration}" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"
-                      FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding Duration}" 
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}"
+                        FontSize="{ThemeResource SmallFontSize}"/>
 
 
                     <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"/>
+                        Content="{Binding PlayerStateText}" Scroll="Auto"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
@@ -364,7 +369,7 @@
                       VerticalAlignment="Center"/>
                 </Grid> <!-- PlayerStatePanel -->
                 <Label x:Name="PictureName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
-                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
               </DockPanel> <!-- HeadLine -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="10,10,10,0"
                   IsVisible="{Binding ShowMouseControls}" >
@@ -468,7 +473,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
+                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
                       HorizontalAlignment="Left" VerticalAlignment="Center"
                       MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
@@ -494,7 +499,8 @@
                 </Button.Triggers>
               </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
-                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  Content="{Binding PlayerStateText}" Scroll="Auto" Color="{ThemeResource TextColor}"
+                  MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -701,8 +707,10 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding SimpleTitle}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 
@@ -763,8 +771,10 @@
             </MultiBinding>
           </Image.Height>
         </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -779,9 +789,10 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="Filter_l.png" 
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="0,0,0,0" Source="Filter_l.png"
              Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -827,8 +838,10 @@
             </MultiBinding>
           </Image.Height>
         </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -843,10 +856,10 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Navigation_l.png" 
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Navigation_l.png"
              Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-               HorizontalAlignment="Center"/>
+        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
+             FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -890,8 +903,10 @@
             </MultiBinding>
           </Image.Height>
         </Image>
-        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch">
           <Grid.IsVisible>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 1">
@@ -923,11 +938,11 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" 
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
              Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"
              FallbackSource="Movie_l.png"/>
         <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
+             Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -966,8 +981,10 @@
             </MultiBinding>
           </Image.Height>
         </Image>
-        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -982,10 +999,11 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Music_l.png" 
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="Music_l.png"
              Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
+        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+            HorizontalAlignment="Center"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -1025,8 +1043,10 @@
             </MultiBinding>
           </Image.Height>
         </Image>
-        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>
@@ -1041,11 +1061,12 @@
           <RowDefinition Height="120"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}" 
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
              Thumbnail="True" Width="{StaticResource THUMB_WIDTH_L}" Height="{StaticResource THUMB_HEIGHT_L}"
              FallbackSource="Picture_l.png"/>
-        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center"/>
+        <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}"
+            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+            HorizontalAlignment="Center"/>
       </Grid>
     </ControlTemplate>
   </ResourceWrapper>

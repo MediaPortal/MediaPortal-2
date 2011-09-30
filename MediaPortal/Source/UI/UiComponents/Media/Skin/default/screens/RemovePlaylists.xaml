@@ -32,7 +32,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Content="[Media.ChoosePlaylistsToBeRemovedText]" Wrap="True"/>
+          <Label Grid.Row="0" Content="[Media.ChoosePlaylistsToBeRemovedText]" Color="{ThemeResource TextColor}" Wrap="True"/>
           <DockPanel LastChildFill="True" Grid.Row="1">
             <DockPanel x:Name="PlaylistsPanel" Margin="0,0,0,10" DockPanel.Dock="Center"
                 LastChildFill="True"

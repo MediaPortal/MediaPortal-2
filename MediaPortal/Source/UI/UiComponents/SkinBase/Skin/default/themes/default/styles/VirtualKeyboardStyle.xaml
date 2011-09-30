@@ -19,7 +19,8 @@
               BorderThickness="{ThemeResource VirtualKeyboardBorderThickness}" CornerRadius="{ThemeResource VirtualKeyboardCornerRadius}">
             <StackPanel>
               <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
-                  IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}" HorizontalAlignment="Center"/>
+                  IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}"
+                  Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
               <VirtualKeyboardPresenter/>
             </StackPanel>
           </Border>

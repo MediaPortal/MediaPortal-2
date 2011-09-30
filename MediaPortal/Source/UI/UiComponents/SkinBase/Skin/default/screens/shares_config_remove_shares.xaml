@@ -24,7 +24,7 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.Column="0" IsVisible="{Binding !AnyShareAvailable}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
-            Content="[SharesConfig.NoSharesAvailable]"/>
+            Content="[SharesConfig.NoSharesAvailable]" Color="{ThemeResource TextColor}"/>
         <Grid Grid.Row="0" Grid.Column="0" IsVisible="{Binding AnyShareAvailable}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
@@ -35,7 +35,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Wrap="True"/>
+          <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Color="{ThemeResource TextColor}" Wrap="True"/>
           <UniformGrid Grid.Row="1" Columns="1">
             <Grid x:Name="GlobalSharesPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding IsHomeServerConnected}" Margin="0,0,0,10">
@@ -46,7 +46,7 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.GlobalShares]"/>
+              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
               <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkableSharesListViewStyle}"
                   ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
@@ -60,7 +60,7 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.LocalShares]"/>
+              <Label Margin="10" Grid.Row="0" Grid.Column="0" Content="[SharesConfig.LocalShares]" Color="{ThemeResource TextColor}"/>
               <ListView Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource MultiMarkableSharesListViewStyle}"
                   ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>

@@ -36,7 +36,7 @@
               Command="{Command PrevGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
               Command="{Command NextGroup}"/>
-            <Label x:Name="GroupNameLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+            <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
         </StackPanel>
         <StackPanel x:Name="TimeControls" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
@@ -44,7 +44,8 @@
               Command="{Command ScrollBackward}"/>
           <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
               Command="{Command ScrollForward}"/>
-          <Label x:Name="GuideStartTimeLabel" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GuideStartTime}"/>
+          <Label x:Name="GuideStartTimeLabel" Content="{Binding GuideStartTime}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
 
           <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"

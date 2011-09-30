@@ -4,6 +4,7 @@
     >
   <DockPanel
       Context="{Model Id=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}" LastChildFill="False">
-    <Label Content="Use MPF code to fill this screen" DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Label Content="Use MPF code to fill this screen" Color="{ThemeResource TextColor}"
+        DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"/>
   </DockPanel>
 </Screen>

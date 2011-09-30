@@ -26,7 +26,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseResourceProviderPathForShare]" Wrap="True"/>
+        <Label Grid.Row="0" Content="[SharesConfig.ChooseResourceProviderPathForShare]" Color="{ThemeResource TextColor}" Wrap="True"/>
         <TreeView Grid.Row="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             ForceExpander="True"
@@ -50,7 +50,8 @@
             <ResourceWrapper x:Key="Checker_Command"/>
           </TreeView.Resources>
         </TreeView>
-        <Label Grid.Row="2" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Margin="10,5,10,0" Scroll="Auto"/>
+        <Label Grid.Row="2" Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}"
+            Margin="10,5,10,0" Scroll="Auto"/>
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

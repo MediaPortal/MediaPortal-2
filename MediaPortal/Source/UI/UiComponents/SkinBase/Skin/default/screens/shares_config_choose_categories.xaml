@@ -23,7 +23,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseShareCategories]" Wrap="True"/>
+        <Label Grid.Row="0" Content="[SharesConfig.ChooseShareCategories]" Color="{ThemeResource TextColor}" Wrap="True"/>
         <ListView Grid.Row="1" Margin="0,10,0,0"
             Style="{ThemeResource MultiMarkableListViewStyle}"
             ItemsSource="{Binding Path=ShareProxy.AllMediaCategories,Mode=OneTime}"/>

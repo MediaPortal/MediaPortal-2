@@ -24,7 +24,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Wrap="True"
+        <Label Grid.Row="1" Margin="30" Content="{Binding Message}" Color="{ThemeResource TextColor}" Wrap="True"
             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>

@@ -139,7 +139,7 @@
         <StackPanel HorizontalAlignment="Left">
           <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding LastUpdateTime}" Color="{ThemeResource HintTextColor}" IsVisible="{Binding !IsUpdating}"/>
           <Label FontSize="{ThemeResource SmallerFontSize}" x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
-            HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
+              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
         </StackPanel>
       </StackPanel>
     </ResourceWrapper>

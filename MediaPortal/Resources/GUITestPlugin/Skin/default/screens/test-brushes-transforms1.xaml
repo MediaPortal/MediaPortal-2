@@ -191,7 +191,7 @@
 
     <!-- First row: All brushes, no transformation -->
 
-    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Content="All transforms, normal orientation"/>
+    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Content="All transforms, normal orientation" Color="{ThemeResource TextColor}"/>
     <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}"/>
     <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource LinearGradientRectangleStyle}"/>
     <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource RadialGradientRectangleStyle}"/>
@@ -202,9 +202,9 @@
     <!-- Second row: All brushes, N degrees RenderTransform -->
 
     <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
-      <Label Content="All transforms, rotated by "/>
-      <Label Content="{StaticResource RectangleRTAngle}"/>
-      <Label Content=" degrees (RenderTransform)"/>
+      <Label Content="All transforms, rotated by " Color="{ThemeResource TextColor}"/>
+      <Label Content="{StaticResource RectangleRTAngle}" Color="{ThemeResource TextColor}"/>
+      <Label Content=" degrees (RenderTransform)" Color="{ThemeResource TextColor}"/>
     </StackPanel>
     <Button Grid.Row="3" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
       <Button.RenderTransform>
@@ -252,9 +252,9 @@
     <!-- Third row: All brushes, N degrees LayoutTransform -->
 
     <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
-      <Label Content="All transforms, rotated by "/>
-      <Label Content="{StaticResource RectangleLTAngle}"/>
-      <Label Content=" degrees (LayoutTransform)"/>
+      <Label Content="All transforms, rotated by " Color="{ThemeResource TextColor}"/>
+      <Label Content="{StaticResource RectangleLTAngle}" Color="{ThemeResource TextColor}"/>
+      <Label Content=" degrees (LayoutTransform)" Color="{ThemeResource TextColor}"/>
     </StackPanel>
     <Button Grid.Row="5" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
       <Button.LayoutTransform>
@@ -302,11 +302,11 @@
     <!-- Fourth row: All brushes, N degrees RenderTransform + N degrees LayoutTransform -->
 
     <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
-      <Label Content="All transforms, rotated by "/>
-      <Label Content="{StaticResource RectangleRTAngle}"/>
-      <Label Content=" degrees RenderTransform and "/>
-      <Label Content="{StaticResource RectangleLTAngle}"/>
-      <Label Content=" degrees LayoutTransform"/>
+      <Label Content="All transforms, rotated by " Color="{ThemeResource TextColor}"/>
+      <Label Content="{StaticResource RectangleRTAngle}" Color="{ThemeResource TextColor}"/>
+      <Label Content=" degrees RenderTransform and " Color="{ThemeResource TextColor}"/>
+      <Label Content="{StaticResource RectangleLTAngle}" Color="{ThemeResource TextColor}"/>
+      <Label Content=" degrees LayoutTransform" Color="{ThemeResource TextColor}"/>
     </StackPanel>
     <Button Grid.Row="7" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
       <Button.RenderTransform>

@@ -3,10 +3,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Context="{Model Id=A6C3F942-105C-48cd-AEFF-059DA79773A9}">
   <DockPanel LastChildFill="True">
-    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="TreeView test" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Content="TreeView test" Color="{ThemeResource TextColor}" Wrap="True"/>
     <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
         Content="This screen shows two tree views contained in scroll viewers of different sizes to show the scrolling behaviour in X- and Y-direction."
-        Wrap="True" FontSize="{ThemeResource SmallFontSize}"/>
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
     <UniformGrid Columns="2" DockPanel.Dock="Center">
       <TreeView Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
           Margin="50" RadioButton.GroupContext="RadioButtonGroup"

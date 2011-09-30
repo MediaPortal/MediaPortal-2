@@ -11,7 +11,7 @@
     <!-- Alternative contents -->
     <ResourceWrapper x:Key="Alternative_Contents_Element">
       <DockPanel LastChildFill="False">
-        <Label FontSize="{ThemeResource HugeFontSize}" DockPanel.Dock="Center"
+        <Label FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" DockPanel.Dock="Center"
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Content="[Home.Title]"/>
       </DockPanel>

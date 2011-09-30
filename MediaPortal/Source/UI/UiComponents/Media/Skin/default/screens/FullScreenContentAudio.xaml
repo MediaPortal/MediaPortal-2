@@ -14,6 +14,7 @@
     </Grid.RowDefinitions>
     <Label DockPanel.Dock="Center"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        Content="In the future, you will see an audio visualization here"/>
+        Content="In the future, you will see an audio visualization here"
+        Color="{ThemeResource TextColor}"/>
   </Grid>
 </Screen>
