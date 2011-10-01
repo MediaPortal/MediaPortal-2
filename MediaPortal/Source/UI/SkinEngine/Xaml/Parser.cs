@@ -94,11 +94,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// </summary>
     public const string XMLNS_NS_URI = "http://www.w3.org/2000/xmlns/";
 
-    /// <summary>
-    /// URI for the "x:" namespace.
-    /// </summary>
-    public const string XAML_NS_URI = "http://schemas.microsoft.com/winfx/2006/xaml";
-
     #region Delegate types
 
     /// <summary>
@@ -328,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           {
             string importNamespaceURI = attr.Value;
             INamespaceHandler handler;
-            if (importNamespaceURI == XAML_NS_URI)
+            if (importNamespaceURI == XamlNamespaceHandler.XAML_NS_URI)
               // Implicit namespace: Use default x:-handler
               handler = new XamlNamespaceHandler();
             else if (importNamespaceURI.StartsWith("clr-namespace:"))
@@ -380,7 +375,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             // Check XML attributes on member element - only x:Uid is permitted
             foreach (XmlAttribute attr in node.Attributes)
             {
-              if (attr.NamespaceURI != XAML_NS_URI || attr.LocalName != "Uid")
+              if (attr.NamespaceURI != XamlNamespaceHandler.XAML_NS_URI || attr.LocalName != "Uid")
                 throw new XamlParserException("No attributes are allowed on member elements except x:Uid");
               // TODO: Handle x:Uid markup extension
             }
@@ -513,7 +508,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           throw new XamlBindingException("XAML parser: Member '{0}' was not found on type '{1}'",
             memberName, t.Name);
         }
-        else if (memberDeclarationNode.NamespaceURI == XAML_NS_URI)
+        else if (memberDeclarationNode.NamespaceURI == XamlNamespaceHandler.XAML_NS_URI)
         { // XAML attributes ("x:Attr") will be ignored here - they are evaluated
           // in the code processing the parent instance
         }
@@ -561,7 +556,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         name = Convert(ParseValue(memberDeclarationNode), typeof(string)) as string;
         return;
       }
-      if (memberDeclarationNode.NamespaceURI != XAML_NS_URI)
+      if (memberDeclarationNode.NamespaceURI != XamlNamespaceHandler.XAML_NS_URI)
         // Ignore other attributes not located in the x: namespace
         return;
       // x: attributes
