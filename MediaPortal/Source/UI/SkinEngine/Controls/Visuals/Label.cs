@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _contentProperty = new SProperty(typeof(string), null);
-      _colorProperty = new SProperty(typeof(Color), Color.White);
+      _colorProperty = new SProperty(typeof(Color), Color.DarkViolet);
       _scrollProperty = new SProperty(typeof(TextScrollEnum), TextScrollEnum.None);
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
       _wrapProperty = new SProperty(typeof(bool), false);
