@@ -55,12 +55,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
   public partial class MainForm : Form, IScreenControl
   {
     /// <summary>
-    /// Timespan from the last user input to the start of the screen saver.
-    /// </summary>
-    // TODO: Make this configurable
-    public static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
-
-    /// <summary>
     /// Maximum time between frames when our render thread is synchronized to the EVR.
     /// </summary>
     public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
@@ -78,6 +72,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
+    /// <summary>
+    /// Timespan from the last user input to the start of the screen saver.
+    /// </summary>
+    protected TimeSpan _screenSaverTimeOut;
     protected bool _mouseHidden = false;
     private readonly object _reclaimDeviceSyncObj = new object();
     private readonly AsynchronousMessageQueue _messageQueue;
@@ -116,6 +114,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // GraphicsDevice has to be initialized after the form was sized correctly
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       GraphicsDevice.Initialize(this);
+
+      // Read and apply ScreenSaver settings
+      ScreenSaverSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ScreenSaverSettings>();
+      _screenSaverTimeOut = TimeSpan.FromMinutes(settings.ScreenSaverTimeoutMin);
+      _isScreenSaverEnabled = settings.ScreenSaverEnabled;
 
       Application.Idle += OnApplicationIdle;
       _adaptToSizeEnabled = true;
@@ -469,8 +472,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // Screen saver
         IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
         if (_isScreenSaverEnabled)
-          _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
-              DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
+          _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
+              DateTime.Now - inputManager.LastInputTime > _screenSaverTimeOut;
         else
           _isScreenSaverActive = false;
 
