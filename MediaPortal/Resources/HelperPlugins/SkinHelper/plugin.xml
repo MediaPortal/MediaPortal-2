@@ -1,0 +1,15 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SkinHelper"
+    PluginId="{8A3E438C-2304-4119-BF3A-0EB8A287B59C}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="true" 
+    Description="Provides several helper functions for skinners"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="SkinHelper.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Helpers.SkinHelper.PluginStateTracker"/>
+  </Runtime>
+</Plugin>

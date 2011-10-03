@@ -8,8 +8,8 @@
     <ProjectGuid>{E35C2BE6-5EF1-492A-A8B4-2C7CB5153868}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Helpers.ReloadSkin</RootNamespace>
-    <AssemblyName>ReloadSkin</AssemblyName>
+    <RootNamespace>MediaPortal.Helpers.SkinHelper</RootNamespace>
+    <AssemblyName>SkinHelper</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -54,7 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReloadSkinPlugin.cs" />
+    <Compile Include="PluginStateTracker.cs" />
+    <Compile Include="ReloadSkinActions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

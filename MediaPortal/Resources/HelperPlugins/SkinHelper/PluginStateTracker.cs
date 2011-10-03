@@ -26,31 +26,24 @@ using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
-using MediaPortal.UI.Control.InputManager;
-using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.Helpers.ReloadSkin
+namespace MediaPortal.Helpers.SkinHelper
 {
-  public class ReloadSkinPlugin : IPluginStateTracker
+  public class PluginStateTracker : IPluginStateTracker
   {
-    #region Consts
-
-    // F5 is already used for media screen refresh
-    public static readonly Key RELOAD_SCREEN_KEY = Key.F3;
-    public static readonly Key RELOAD_THEME_KEY = Key.F4;
-    public static readonly Key SAVE_SKIN_AND_THEME_KEY = Key.F12;
-
-    #endregion
-
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
 
-    protected string _skinName = null;
-    protected string _themeName = null;
+    protected ReloadSkinActions _reloadSkinActions = null;
 
     #endregion
+
+    public PluginStateTracker()
+    {
+      _reloadSkinActions = new ReloadSkinActions();
+    }
 
     protected void DropMessageQueue()
     {
@@ -68,10 +61,10 @@ namespace MediaPortal.Helpers.ReloadSkin
     {
       ISystemStateService sss = ServiceRegistration.Get<ISystemStateService>();
       if (sss.CurrentState == SystemState.Running)
-        AddKeyActions();
+        _reloadSkinActions.RegisterKeyActions();
       else
       {
-        _messageQueue = new AsynchronousMessageQueue(typeof(ReloadSkinPlugin), new string[]
+        _messageQueue = new AsynchronousMessageQueue(typeof(ReloadSkinActions), new string[]
           {
               SystemMessaging.CHANNEL
           });
@@ -90,38 +83,11 @@ namespace MediaPortal.Helpers.ReloadSkin
           SystemState newState = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
           if (newState == SystemState.Running)
           {
-            AddKeyActions();
+            _reloadSkinActions.RegisterKeyActions();
             DropMessageQueue();
           }
         }
       }
-    }
-
-    void AddKeyActions()
-    {
-      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.AddKeyBinding(RELOAD_SCREEN_KEY, ReloadScreenAction);
-      inputManager.AddKeyBinding(RELOAD_THEME_KEY, ReloadThemeAction);
-      inputManager.AddKeyBinding(SAVE_SKIN_AND_THEME_KEY, SaveSkinAndThemeAction);
-    }
-
-    static void ReloadScreenAction()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.Reload();
-    }
-
-    void ReloadThemeAction()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.SwitchSkinAndTheme(_skinName, _themeName);
-    }
-
-    void SaveSkinAndThemeAction()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      _skinName = screenManager.SkinName;
-      _themeName = screenManager.ThemeName;
     }
 
     public bool RequestEnd()
@@ -131,10 +97,8 @@ namespace MediaPortal.Helpers.ReloadSkin
 
     public void Stop()
     {
-      IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      inputManager.RemoveKeyBinding(RELOAD_SCREEN_KEY);
-      inputManager.RemoveKeyBinding(RELOAD_THEME_KEY);
       DropMessageQueue();
+      _reloadSkinActions.UnregisterKeyActions();
     }
 
     public void Continue()
