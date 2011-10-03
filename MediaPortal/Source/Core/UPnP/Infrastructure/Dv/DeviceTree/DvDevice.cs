@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
@@ -224,15 +225,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// tree starting with this device contains a device with the given name.</returns>
     public DvDevice FindDeviceByUDN(string deviceUDN)
     {
-      if (UDN == deviceUDN)
-        return this;
-      foreach (DvDevice embeddedDevice in _embeddedDevices)
-      {
-        DvDevice result = embeddedDevice.FindDeviceByUDN(deviceUDN);
-        if (result != null)
-          return result;
-      }
-      return null;
+      return UDN == deviceUDN ? this : _embeddedDevices.Select(embeddedDevice => embeddedDevice.FindDeviceByUDN(deviceUDN)).
+          FirstOrDefault(result => result != null);
     }
 
     /// <summary>
@@ -284,7 +278,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
       StringBuilder result = new StringBuilder(10000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
+      using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, Encoding.UTF8))
+      using (XmlWriter writer = XmlWriter.Create(stringWriter, UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
