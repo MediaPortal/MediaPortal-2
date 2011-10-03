@@ -31,7 +31,10 @@ using System.Threading;
 using Dokan;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.ResourceAccess;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.MediaManagement.Settings;
+using MediaPortal.Common.Services.SystemResolver;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -180,9 +183,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       protected IDictionary<string, VirtualFileSystemResource> _children = null; // Lazily initialized
 
-      // ReSharper disable SuggestBaseTypeForParameter
+// ReSharper disable SuggestBaseTypeForParameter
       public VirtualDirectory(string name, IFileSystemResourceAccessor resourceAccessor) : base(name, resourceAccessor) { }
-      // ReSharper restore SuggestBaseTypeForParameter
+// ReSharper restore SuggestBaseTypeForParameter
 
       public override void Dispose()
       {
@@ -282,36 +285,64 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected string _mountPoint = null;
+    protected char? _driveLetter = null;
     protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
+
+      // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
+     // write a sensible destructor in this class which removes the Dokan drive
+
+     protected bool DriveInUse(char driveLetter)
+     {
+       return Directory.Exists(driveLetter + ":\\");
+     }
+
+     /// <summary>
+     /// Checks if a mounted drive exists and the filesystem type is DOKAN.
+     /// </summary>
+     /// <param name="driveLetter">Drive letter.</param>
+     /// <returns>True if mounted Dokan drive.</returns>
+     protected bool IsDokanDrive(char driveLetter)
+     {
+       DriveInfo driveInfo = new DriveInfo(driveLetter+":");
+       // check the IsReady property to avoid DriveNotFoundException on other Properties
+       return (driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN");
+     }
 
     protected void Run()
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+
+      char? driveLetter = ReadDriveLetterFromSettings();
+      if (!driveLetter.HasValue)
+      {
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+        driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
+            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
+      }
 
       try
       {
-        _mountPoint = pathManager.GetPath("<REMOTERESOURCES>");
-        if (!Directory.Exists(_mountPoint))
-          Directory.CreateDirectory(_mountPoint);
-      }
-      catch (Exception e)
-      {
-        logger.Error("ResourceMountingService: Unable to access or create remote resource directory '{0}' in filesystem", e, _mountPoint);
-        return;
-      }
-      try
-      {
-        if (DokanNet.DokanRemoveMountPoint(_mountPoint) == 1)
-          logger.Info("ResourceMountingService: Successfully unmounted remote resource directory '{0}' from unclean shutdown", _mountPoint);
+        // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
+        // lost Dokan mount from a formerly crashed MediaPortal
+        if (IsDokanDrive(driveLetter.Value) && DokanNet.DokanUnmount(driveLetter.Value) == DokanNet.DOKAN_SUCCESS)
+          logger.Info("ResourceMountingService: Successfully unmounted remote resource drive '{0}' from former unclean shutdown", driveLetter.Value);
 
+        if (DriveInUse(driveLetter.Value))
+          logger.Warn("ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.", driveLetter.Value);
+
+        _driveLetter = driveLetter;
         DokanOptions opt = new DokanOptions
           {
-            MountPoint = _mountPoint,
+            DriveLetter = driveLetter.Value,
             VolumeLabel = VOLUME_LABEL,
+            //UseKeepAlive = true,
+            //DebugMode = true,
+            //ThreadCount = 5,
+            //UseAltStream = true,
+            //UseStdErr = true
           };
+
         int result = DokanNet.DokanMain(opt, this);
         if (result == DokanNet.DOKAN_SUCCESS)
           logger.Debug("ResourceMountingService: DokanMain returned successfully");
@@ -320,7 +351,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
       catch (Exception e)
       {
-        logger.Error("ResourceMountingService: Error mounting virtual filesystem at folder '{0}' (is DOKAN not installed?)", e, _mountPoint);
+        logger.Error("ResourceMountingService: Error mounting virtual filesystem at drive '{0}' (is DOKAN not installed?)", e, driveLetter.Value);
       }
     }
 
@@ -346,6 +377,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       return resource;
     }
 
+    protected char? ReadDriveLetterFromSettings()
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ResourceMountingSettings settings = settingsManager.Load<ResourceMountingSettings>();
+      return settings.DriveLetter;
+    }
+
     protected VirtualRootDirectory GetRootDirectory(string rootDirectoryName)
     {
       VirtualFileSystemResource directoryResource;
@@ -356,12 +394,12 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region IResourceMountingService implementation
 
-    public string MountPoint
+    public char? DriveLetter
     {
       get
       {
         lock (_syncObj)
-          return _mountPoint;
+          return _driveLetter;
       }
     }
 
@@ -386,36 +424,37 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public void Shutdown()
     {
-      string mountPoint;
+      char? driveLetter;
       lock (_syncObj)
       {
         _root.Dispose();
         if (!_started)
           return;
-        mountPoint = _mountPoint;
+        driveLetter = _driveLetter;
       }
-      if (!String.IsNullOrEmpty(mountPoint))
-        try
-        {
-          if (DokanNet.DokanRemoveMountPoint(mountPoint) == 0)
-            ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount remote resource directory '{0}'", mountPoint);
-          else
-            ServiceRegistration.Get<ILogger>().Info("Successfully unmounted remote resource directory '{0}'", mountPoint);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Error("Error removing Dokan mount point", e);
-        }
+      if (!driveLetter.HasValue)
+        return;
+      try
+      {
+        if (DokanNet.DokanUnmount(driveLetter.Value) == 0)
+          ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount drive '{0}'", driveLetter.Value);
+        else
+          ServiceRegistration.Get<ILogger>().Info("Successfully unmounted drive '{0}'", driveLetter.Value);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error unmounting Dokan drive '{0}'", e, driveLetter.Value);
+      }
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
     {
       lock (_syncObj)
       {
-        if (String.IsNullOrEmpty(_mountPoint))
+        if (!_driveLetter.HasValue)
           return null;
         _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
-        return Path.Combine(_mountPoint, rootDirectoryName);
+        return Path.Combine(_driveLetter + ":\\", rootDirectoryName);
       }
     }
 
@@ -446,7 +485,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       lock (_syncObj)
       {
-        if (String.IsNullOrEmpty(_mountPoint))
+        if (!_driveLetter.HasValue)
           return null;
         VirtualRootDirectory rootDirectory = GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
@@ -456,7 +495,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         rootDirectory.AddResource(resourceName, fsra != null && fsra.IsDirectory ?
             (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
             new VirtualFile(resourceName, resourceAccessor));
-        return Path.Combine(_mountPoint, rootDirectoryName + "\\" + resourceName);
+        return Path.Combine(_driveLetter + ":\\", rootDirectoryName + "\\" + resourceName);
       }
     }
 
