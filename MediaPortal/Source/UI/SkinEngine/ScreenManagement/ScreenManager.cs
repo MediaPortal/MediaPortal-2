@@ -1086,25 +1086,44 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// is not defined in the current skin resource chain.</returns>
     public static Screen LoadScreen(string screenName, string relativeScreenPath, IModelLoader loader)
     {
-      SkinResources resourceBundle;
-      string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
-      if (skinFilePath == null)
+      Screen result = null;
+      SkinResources resourceBundle = SkinContext.SkinResources;
+      while (result == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("ScreenManager: No skinfile for screen '{0}'", relativeScreenPath);
-        return null;
+        string skinFilePath = resourceBundle.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
+        if (skinFilePath == null)
+        {
+          ServiceRegistration.Get<ILogger>().Error("ScreenManager: No skinfile for screen '{0}'", relativeScreenPath);
+          return null;
+        }
+        ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading screen from file path '{0}'...", skinFilePath);
+        try
+        {
+          object obj = XamlLoader.Load(skinFilePath, loader, true);
+          result = obj as Screen;
+          if (result == null)
+          {
+            if (obj != null)
+              ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
+            DependencyObject.TryDispose(ref obj);
+          }
+        }
+        catch (Exception e)
+        {
+          SkinResources inheritedBundle = resourceBundle.InheritedSkinResources;
+          if (inheritedBundle == null)
+          {
+            ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading screen file '{0}', no fallback screen available", e, skinFilePath);
+            return null;
+          }
+          ServiceRegistration.Get<ILogger>().Error(
+              "ScreenManager: Error loading screen '{0}' in resource bundle '{1}', falling back to resource bundle '{2}'",
+              e, screenName, resourceBundle.Name, inheritedBundle);
+          resourceBundle = inheritedBundle;
+        }
       }
-      ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Loading screen from file path '{0}'...", skinFilePath);
-      object obj = XamlLoader.Load(skinFilePath, loader, true);
-      Screen screen = obj as Screen;
-      if (screen == null)
-      {
-        if (obj != null)
-          ServiceRegistration.Get<ILogger>().Warn("ScreenManager: XAML file '{0}' is expected to be a screen but the top-level element is a '{1}'. Try using a top-level 'Screen' element.", screenName, obj.GetType().Name);
-        DependencyObject.TryDispose(ref obj);
-        return null;
-      }
-      screen.Initialize(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight);
-      return screen;
+      result.Initialize(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight);
+      return result;
     }
 
     /// <summary>
