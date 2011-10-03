@@ -278,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           {
             foreach (string skinDirectoryPath in Directory.GetDirectories(rootDirectoryPath))
             {
-              string skinName = Path.GetFileName(skinDirectoryPath);
+              string skinName = Path.GetFileName(skinDirectoryPath) ?? string.Empty;
               if (skinName.StartsWith("."))
                 continue;
               Skin skin;
