@@ -41,19 +41,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Grid.Resources>
-      <Model x:Key="ScreenSaverModel" Id="D4B7FEDD-243F-4afc-A8BE-28BBBF17D799"/>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     </Grid.Resources>
-
-    <!-- Screensaver control -->
-    <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding Source={StaticResource ScreenSaverModel}, Path=IsScreenSaverActive}">
-      <Control.TemplateControl>
-        <Include Source="screens\ScreenSaver.inc"/>
-      </Control.TemplateControl>
-    </Control>
-
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-        LastChildFill="True" IsVisible="{Binding Source={StaticResource ScreenSaverModel}, Path=!IsScreenSaverActive}">
+        LastChildFill="True">
       <Grid x:Name="HeaderPanel" DockPanel.Dock="Top" Background="{ThemeResource HeaderPanelBackgroundBrush}">
         <Grid.RowDefinitions>
           <RowDefinition Height="100"/>

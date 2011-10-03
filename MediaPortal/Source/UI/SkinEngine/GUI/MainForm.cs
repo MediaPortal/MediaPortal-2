@@ -46,7 +46,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 using MediaPortal.UI.SkinEngine.Settings;
 using SlimDX.Direct3D9;
-using Screen=MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
+using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.GUI
 {
@@ -58,6 +58,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
     /// Maximum time between frames when our render thread is synchronized to the EVR.
     /// </summary>
     public static int EVR_RENDER_MAX_MS_PER_FRAME = 100;
+
+    private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
 
     private bool _renderThreadStopped;
     private ISlimDXVideoPlayer _synchronizedVideoPlayer = null;
@@ -285,7 +287,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         throw new Exception("DirectX MainForm: Render thread already running");
       ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
       _renderThreadStopped = false;
-      SkinContext.RenderThread = new Thread(RenderLoop) {Name = "DX Render"};
+      SkinContext.RenderThread = new Thread(RenderLoop) { Name = "DX Render" };
       SkinContext.RenderThread.Start();
     }
 
@@ -346,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         if (shouldWait || !_hasFocus)
           // The device was lost or we don't have focus - reduce the render rate
           Thread.Sleep(10);
-        
+
         if (GraphicsDevice.DeviceLost)
           break;
       }
@@ -472,8 +474,28 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // Screen saver
         IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
         if (_isScreenSaverEnabled)
+        {
+          // Check if there is any active player that is not paused
+          IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+          int activePlayers = 0;
+          playerManager.ForEach(psc =>
+          {
+            IMediaPlaybackControl player = psc.CurrentPlayer as IMediaPlaybackControl;
+            if (player != null && !player.IsPaused)
+              activePlayers++;
+          });
+
+          // Remember old state, calls to IScreenManager are only required on state changes
+          bool wasScreenSaverActive = _isScreenSaverActive;
           _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
-              DateTime.Now - inputManager.LastInputTime > _screenSaverTimeOut;
+                                 DateTime.Now - inputManager.LastInputTime > _screenSaverTimeOut &&
+                                 activePlayers == 0;
+          if (wasScreenSaverActive != _isScreenSaverActive)
+          {
+            IScreenManager superLayerManager = ServiceRegistration.Get<IScreenManager>();
+            superLayerManager.SetSuperLayer(_isScreenSaverActive ? SCREEN_SAVER_SCREEN : null);
+          }
+        }
         else
           _isScreenSaverActive = false;
 

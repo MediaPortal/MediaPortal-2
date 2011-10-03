@@ -547,7 +547,6 @@
     <Content Include="Skin\RisingSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\RisingSkin\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\RisingSkin\screens\MediaItemsList.inc" />
-    <Content Include="Skin\RisingSkin\screens\ScreenSaver.inc" />
     <Content Include="Skin\RisingSkin\skin.xml" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\Filter.png" />
     <Content Include="Skin\RisingSkin\themes\Silver\images\Filter_l.png" />
@@ -665,6 +664,11 @@
     <Content Include="Skin\RisingSkin\backgrounds\default-background.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\RisingSkin\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
