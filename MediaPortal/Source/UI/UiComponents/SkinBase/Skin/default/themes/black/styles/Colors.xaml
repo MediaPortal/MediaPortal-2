@@ -146,8 +146,6 @@
 
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
 
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
-
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
 

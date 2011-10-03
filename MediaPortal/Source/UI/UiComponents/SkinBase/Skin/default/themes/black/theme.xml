@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Theme Name="black" Version="1.0">
-  <ShortDescription>Black</ShortDescription>
+  <ShortDescription>Black theme</ShortDescription>
   <Preview>images\preview.png</Preview>
-  <Author>Team MediaPortal</Author>
+  <Author>Albert</Author>
   <ThemeVersion>1.0</ThemeVersion>
   <SkinEngine>1.0</SkinEngine>
 

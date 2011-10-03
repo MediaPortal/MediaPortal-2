@@ -11,14 +11,14 @@
   <ResourceWrapper x:Key="BackgroundGradient2Color" Resource="#FF101010"/>
 
   <!-- Header panel colors -->
-  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient1Color" Value="#40000000"/>
-  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient2Color" Value="#30000000"/>
-  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient3Color" Value="#10000000"/>
+  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient1Color" Resource="#40000000"/>
+  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient2Color" Resource="#30000000"/>
+  <ResourceWrapper x:Key="HeaderPanelBackgroundGradient3Color" Resource="#10000000"/>
 
   <!-- Footer panel colors -->
-  <ResourceWrapper x:Key="FooterPanelBackgroundGradient1Color" Value="#40000000"/>
-  <ResourceWrapper x:Key="FooterPanelBackgroundGradient2Color" Value="#30000000"/>
-  <ResourceWrapper x:Key="FooterPanelBackgroundGradient3Color" Value="#10000000"/>
+  <ResourceWrapper x:Key="FooterPanelBackgroundGradient1Color" Resource="#40000000"/>
+  <ResourceWrapper x:Key="FooterPanelBackgroundGradient2Color" Resource="#30000000"/>
+  <ResourceWrapper x:Key="FooterPanelBackgroundGradient3Color" Resource="#10000000"/>
 
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EFB0B0B0"/>
 
@@ -143,8 +143,6 @@
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FFA0A0A0"/>
 
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
