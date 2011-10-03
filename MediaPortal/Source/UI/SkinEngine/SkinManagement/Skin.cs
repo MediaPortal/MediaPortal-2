@@ -183,9 +183,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         CheckResourcesInitialized(); // Load themes
         if (_defaultThemeName != null && _themes.ContainsKey(_defaultThemeName))
           return _themes[_defaultThemeName];
-        IEnumerator<KeyValuePair<string, Theme>> enumer = _themes.GetEnumerator();
-        if (enumer.MoveNext())
-          return enumer.Current.Value;
         return null;
       }
     }
