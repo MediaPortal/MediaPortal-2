@@ -22,7 +22,9 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -205,16 +207,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       element.GetPendingOrCurrentValue(dd, out obj);
       SetSetterData(targetObject, new SetterData(obj));
 
-      if (TypeConverter.Convert(Value, dd.DataType, out obj))
-        if (ReferenceEquals(Value, obj))
+      object value = Value;
+      if (TypeConverter.Convert(value, dd.DataType, out obj))
+        if (ReferenceEquals(value, obj))
           element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
         else
           // Avoid creating a copy twice
           element.SetValueInRenderThread(dd, obj);
       else
-        // TODO: Log output
+      {
         // Value is not compatible: We cannot execute
+        ServiceRegistration.Get<ILogger>().Warn("Setter for property '{0}': Cannot convert value {1} to target type {2}", _propertyName,
+            value == null ? "'null'" : ("of type " + value.GetType().Name), dd.DataType.Name);
         return;
+      }
     }
 
     public override void Restore(UIElement element)
