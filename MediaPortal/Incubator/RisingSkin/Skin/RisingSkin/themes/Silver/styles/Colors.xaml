@@ -22,11 +22,6 @@
 
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#EF909090"/>
 
-  <ResourceWrapper x:Key="ButtonFocusStyle">
-    <ResourceWrapper.Resource>
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
-  
   <ResourceWrapper x:Key="DialogBorderColor">
     <ResourceWrapper.Resource>
       <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
