@@ -162,8 +162,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
       if (scp == null)
         return null;
-      if (CanContentScroll)
-        return scp.Content as IScrollInfo;
+      IScrollInfo scpContentSI = scp.Content as IScrollInfo;
+      if (CanContentScroll && scpContentSI != null)
+        return scpContentSI;
       return scp;
     }
 
