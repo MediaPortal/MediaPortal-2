@@ -140,7 +140,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       result = val;
       // Trivial cases
       if (val == null)
-        return true;
+        // Cannot convert null to value type
+        return !targetType.IsValueType;
       if (targetType.IsAssignableFrom(val.GetType()))
         return true;
 
