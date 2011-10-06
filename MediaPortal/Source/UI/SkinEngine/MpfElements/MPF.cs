@@ -259,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         // If you try to build a ResourceWrapper with a string and assign that ResourceWrapper to a Button's Content property
         // with a StaticResource, for example, the ResourceWrapper will be assigned directly without the data template being
         // applied. To make it sill work, we need this explicit type conversion here.
-        result = new Label { Content = (string) value };
+        result = new Label { Content = (string) value, Color = Color.White };
         return true;
       }
       if (targetType == typeof(Transform))
