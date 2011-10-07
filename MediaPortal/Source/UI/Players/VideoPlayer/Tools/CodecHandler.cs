@@ -282,7 +282,9 @@ namespace MediaPortal.UI.Players.Video.Tools
           null);
         do
         {
-          enumMoniker.Next(1, moniker, IntPtr.Zero);
+          try { enumMoniker.Next(1, moniker, IntPtr.Zero); }
+          catch { }
+
           if ((moniker[0] == null))
             break;
 
@@ -299,6 +301,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       finally
       {
         FilterGraphTools.TryRelease(ref enumMoniker);
+        FilterGraphTools.TryRelease(ref mapper);
       }
     }
 
