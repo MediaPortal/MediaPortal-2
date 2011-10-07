@@ -170,9 +170,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void UpdateScrollBars()
     {
-      ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
-      if (scp == null)
-        return;
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
@@ -236,12 +233,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       scp.HorizontalFitToSpace = HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled;
       scp.VerticalFitToSpace = VerticalScrollBarVisibility == ScrollBarVisibility.Disabled;
 
+      if (_attachedScrollInfo != null)
+        _attachedScrollInfo.Scrolled -= OnScrollInfoScrolled;
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
       scrollInfo.DoScroll = true;
-      if (_attachedScrollInfo != null)
-        _attachedScrollInfo.Scrolled -= OnScrollInfoScrolled;
       _attachedScrollInfo = scrollInfo;
       _attachedScrollInfo.Scrolled += OnScrollInfoScrolled;
     }
