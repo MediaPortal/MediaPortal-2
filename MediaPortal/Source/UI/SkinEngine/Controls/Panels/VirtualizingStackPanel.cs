@@ -135,14 +135,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
             (!_pendingScrollIndex.HasValue &&
-             ((_scrollToFirst && _actualFirstVisibleChild == childIndex) ||
-              (!_scrollToFirst && _actualLastVisibleChild == childIndex))))
+             ((_scrollToFirst && _actualFirstVisibleChildIndex == childIndex) ||
+              (!_scrollToFirst && _actualLastVisibleChildIndex == childIndex))))
           return;
         _pendingScrollIndex = childIndex;
         _scrollToFirst = first;
       }
       InvalidateLayout(true, true);
-      InvokeScrolled();
     }
 
     // It's actually "GetVisibleChildren", but that member already exists in Panel
@@ -159,8 +158,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return result;
       float availableSize = GetExtendsInNonOrientationDirection(totalSize);
       if (!_doScroll)
-        _actualFirstVisibleChild = 0;
-      int start = _actualFirstVisibleChild;
+        _actualFirstVisibleChildIndex = 0;
+      int start = _actualFirstVisibleChildIndex;
       Bound(ref start, 0, numItems - 1);
       int end = start - 1;
       float sumExtendsInOrientationDirection = 0;
@@ -282,6 +281,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override void ArrangeChildren()
     {
+      bool fireScrolled = false;
       lock (Children.SyncRoot)
       {
         _arrangedItemsStartIndex = -1;
@@ -297,6 +297,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int numItems = itemProvider.NumItems;
         if (numItems > 0)
         {
+          PointF actualPosition = ActualPosition;
           SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
           // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
@@ -308,13 +309,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           bool invertLayouting = false;
           if (_pendingScrollIndex.HasValue)
           {
+            fireScrolled = true;
             int pendingSI = _pendingScrollIndex.Value;
             Bound(ref pendingSI, 0, numItems - 1);
             if (_scrollToFirst)
-              _actualFirstVisibleChild = pendingSI;
+              _actualFirstVisibleChildIndex = pendingSI;
             else
             {
-              _actualLastVisibleChild = pendingSI;
+              _actualLastVisibleChildIndex = pendingSI;
               invertLayouting = true;
             }
             _pendingScrollIndex = null;
@@ -326,10 +328,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             float spaceLeft = actualExtendsInOrientationDirection;
             if (invertLayouting)
             {
-              Bound(ref _actualLastVisibleChild, 0, numItems - 1);
-              _actualFirstVisibleChild = _actualLastVisibleChild + 1;
+              Bound(ref _actualLastVisibleChildIndex, 0, numItems - 1);
+              _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex + 1;
               int ct = MAX_NUM_VISIBLE_ITEMS;
-              for (int i = _actualLastVisibleChild; i >= 0; i--)
+              for (int i = _actualLastVisibleChildIndex; i >= 0; i--)
               {
                 FrameworkElement item = GetItem(i, itemProvider, true);
                 if (item == null || !item.IsVisible)
@@ -339,11 +341,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
                 if (spaceLeft + DELTA_DOUBLE < 0)
                   break; // Found item which is not visible any more
-                _actualFirstVisibleChild = i;
+                _actualFirstVisibleChildIndex = i;
               }
               if (spaceLeft > 0)
               { // We need to correct the last scroll index
-                for (int i = _actualLastVisibleChild + 1; i < numItems; i++)
+                for (int i = _actualLastVisibleChildIndex + 1; i < numItems; i++)
                 {
                   FrameworkElement item = GetItem(i, itemProvider, true);
                   if (item == null || !item.IsVisible)
@@ -353,16 +355,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
-                  _actualLastVisibleChild = i;
+                  _actualLastVisibleChildIndex = i;
                 }
               }
             }
             else
             {
-              Bound(ref _actualFirstVisibleChild, 0, numItems - 1);
-              _actualLastVisibleChild = _actualFirstVisibleChild - 1;
+              Bound(ref _actualFirstVisibleChildIndex, 0, numItems - 1);
+              _actualLastVisibleChildIndex = _actualFirstVisibleChildIndex - 1;
               int ct = MAX_NUM_VISIBLE_ITEMS;
-              for (int i = _actualFirstVisibleChild; i < numItems; i++)
+              for (int i = _actualFirstVisibleChildIndex; i < numItems; i++)
               {
                 FrameworkElement item = GetItem(i, itemProvider, true);
                 if (item == null || !item.IsVisible)
@@ -372,11 +374,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
                 if (spaceLeft + DELTA_DOUBLE < 0)
                   break; // Found item which is not visible any more
-                _actualLastVisibleChild = i;
+                _actualLastVisibleChildIndex = i;
               }
               if (spaceLeft > 0)
               { // We need to correct the first scroll index
-                for (int i = _actualFirstVisibleChild - 1; i >= 0; i--)
+                for (int i = _actualFirstVisibleChildIndex - 1; i >= 0; i--)
                 {
                   FrameworkElement item = GetItem(i, itemProvider, true);
                   if (item == null || !item.IsVisible)
@@ -386,15 +388,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
-                  _actualFirstVisibleChild = i;
+                  _actualFirstVisibleChildIndex = i;
                 }
               }
             }
           }
           else
           {
-            _actualFirstVisibleChild = 0;
-            _actualLastVisibleChild = numItems - 1;
+            _actualFirstVisibleChildIndex = 0;
+            _actualLastVisibleChildIndex = numItems - 1;
           }
 
           // 2) Arrange children
@@ -404,13 +406,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _totalHeight = actualExtendsInNonOrientationDirection;
           _arrangedItems.Clear();
 
-          _arrangedItemsStartIndex = _actualFirstVisibleChild;
+          _arrangedItemsStartIndex = _actualFirstVisibleChildIndex;
           // Heavy scrolling works best with at least two times the number of visible items arranged above and below
           // our visible children. That was tested out. If someone has a better heuristic, please use it here.
           int numArrangeAroundViewport = ((int) (actualExtendsInOrientationDirection / _averageItemSize) + 1) * NUM_ADD_MORE_FOCUS_ELEMENTS;
-          // Elements before _actualFirstVisibleChild
+          // Elements before _actualFirstVisibleChildIndex
           float startOffset = 0;
-          for (int i = _actualFirstVisibleChild - 1; i >= 0 && i >= _actualFirstVisibleChild - numArrangeAroundViewport; i--)
+          for (int i = _actualFirstVisibleChildIndex - 1; i >= 0 && i >= _actualFirstVisibleChildIndex - numArrangeAroundViewport; i--)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
@@ -421,7 +423,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             startOffset -= desiredExtendsInOrientationDirection;
             if (Orientation == Orientation.Vertical)
             {
-              PointF position = new PointF(ActualPosition.X, ActualPosition.Y + startOffset);
+              PointF position = new PointF(actualPosition.X, actualPosition.Y + startOffset);
 
               childSize.Width = actualExtendsInNonOrientationDirection;
 
@@ -431,7 +433,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
             else
             {
-              PointF position = new PointF(ActualPosition.X + startOffset, ActualPosition.Y);
+              PointF position = new PointF(actualPosition.X + startOffset, actualPosition.Y);
 
               childSize.Height = actualExtendsInNonOrientationDirection;
 
@@ -444,8 +446,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
 
           startOffset = 0;
-          // Elements from _actualFirstVisibleChild to _actualLastVisibleChild + _numArrangeAroundViewport
-          for (int i = _actualFirstVisibleChild; i < numItems && i <= _actualLastVisibleChild + numArrangeAroundViewport; i++)
+          // Elements from _actualFirstVisibleChildIndex to _actualLastVisibleChildIndex + _numArrangeAroundViewport
+          for (int i = _actualFirstVisibleChildIndex; i < numItems && i <= _actualLastVisibleChildIndex + numArrangeAroundViewport; i++)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
@@ -455,7 +457,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(childSize);
             if (Orientation == Orientation.Vertical)
             {
-              PointF position = new PointF(ActualPosition.X, ActualPosition.Y + startOffset);
+              PointF position = new PointF(actualPosition.X, actualPosition.Y + startOffset);
 
               childSize.Width = actualExtendsInNonOrientationDirection;
 
@@ -467,7 +469,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
             else
             {
-              PointF position = new PointF(ActualPosition.X + startOffset, ActualPosition.Y);
+              PointF position = new PointF(actualPosition.X + startOffset, actualPosition.Y);
 
               childSize.Height = actualExtendsInNonOrientationDirection;
 
@@ -491,10 +493,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
         {
           _arrangedItemsStartIndex = 0;
-          _actualFirstVisibleChild = 0;
-          _actualLastVisibleChild = -1;
+          _actualFirstVisibleChildIndex = 0;
+          _actualLastVisibleChildIndex = -1;
         }
       }
+      if (fireScrolled)
+        InvokeScrolled();
     }
 
     protected override void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
@@ -516,8 +520,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
           arrangedStart = _arrangedItemsStartIndex;
-          oldFirstViewableChild = _actualFirstVisibleChild - arrangedStart;
-          oldLastViewableChild = _actualLastVisibleChild - arrangedStart;
+          oldFirstViewableChild = _actualFirstVisibleChildIndex - arrangedStart;
+          oldLastViewableChild = _actualLastVisibleChildIndex - arrangedStart;
         }
         if (arrangedStart < 0)
           return;
@@ -593,8 +597,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (itemProvider == null)
         return base.GetRenderedChildren();
 
-      return _arrangedItems.Skip(_actualFirstVisibleChild - _arrangedItemsStartIndex).
-          Take(_actualLastVisibleChild - _actualFirstVisibleChild + 1);
+      return _arrangedItems.Skip(_actualFirstVisibleChildIndex - _arrangedItemsStartIndex).
+          Take(_actualLastVisibleChildIndex - _actualFirstVisibleChildIndex + 1);
     }
 
     #endregion
@@ -620,8 +624,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       lock (Children.SyncRoot)
       {
         arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
-        first = _actualFirstVisibleChild - _arrangedItemsStartIndex;
-        last = _actualLastVisibleChild - _arrangedItemsStartIndex;
+        first = _actualFirstVisibleChildIndex - _arrangedItemsStartIndex;
+        last = _actualLastVisibleChildIndex - _arrangedItemsStartIndex;
       }
       int numElementsBeforeAndAfter = elementsBeforeAndAfter ? NUM_ADD_MORE_FOCUS_ELEMENTS : 0;
       AddFocusedElementRange(arrangedItemsCopy, startingRect, first, last,
@@ -693,8 +697,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         IList<FrameworkElement> localChildren;
         lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
         {
-          firstLocal = _actualFirstVisibleChild - _arrangedItemsStartIndex;
-          firstVisibleChildIndex = _actualFirstVisibleChild;
+          firstLocal = _actualFirstVisibleChildIndex - _arrangedItemsStartIndex;
+          firstVisibleChildIndex = _actualFirstVisibleChildIndex;
           numItems = itemProvider.NumItems;
           localChildren = new List<FrameworkElement>(_arrangedItems);
           if (localChildren.Count == 0)
@@ -747,8 +751,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         IList<FrameworkElement> localChildren;
         lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
         {
-          lastLocal = _actualLastVisibleChild - _arrangedItemsStartIndex;
-          lastVisibleChildIndex = _actualLastVisibleChild;
+          lastLocal = _actualLastVisibleChildIndex - _arrangedItemsStartIndex;
+          lastVisibleChildIndex = _actualLastVisibleChildIndex;
           numItems = itemProvider.NumItems;
           localChildren = new List<FrameworkElement>(_arrangedItems);
           if (localChildren.Count == 0)
@@ -801,8 +805,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         IList<FrameworkElement> localChildren;
         lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
         {
-          firstLocal = _actualFirstVisibleChild - _arrangedItemsStartIndex;
-          firstVisibleChildIndex = _actualFirstVisibleChild;
+          firstLocal = _actualFirstVisibleChildIndex - _arrangedItemsStartIndex;
+          firstVisibleChildIndex = _actualFirstVisibleChildIndex;
           numItems = itemProvider.NumItems;
           localChildren = new List<FrameworkElement>(_arrangedItems);
           if (localChildren.Count == 0)
@@ -855,8 +859,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         IList<FrameworkElement> localChildren;
         lock (Children.SyncRoot) // We must aquire the children's lock when accessing the _renderOrder
         {
-          lastLocal = _actualLastVisibleChild - _arrangedItemsStartIndex;
-          lastVisibleChildIndex = _actualLastVisibleChild;
+          lastLocal = _actualLastVisibleChildIndex - _arrangedItemsStartIndex;
+          lastVisibleChildIndex = _actualLastVisibleChildIndex;
           numItems = itemProvider.NumItems;
           localChildren = new List<FrameworkElement>(_arrangedItems);
           if (localChildren.Count == 0)
@@ -939,7 +943,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Vertical)
           return 0;
-        int firstVisibleChildIndex = _actualFirstVisibleChild;
+        int firstVisibleChildIndex = _actualFirstVisibleChildIndex;
         return firstVisibleChildIndex == 0 ? 0 : (firstVisibleChildIndex - 1) * _averageItemSize;
       }
     }
@@ -954,7 +958,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Horizontal)
           return 0;
-        int firstVisibleChildIndex = _actualFirstVisibleChild;
+        int firstVisibleChildIndex = _actualFirstVisibleChildIndex;
         return firstVisibleChildIndex * _averageItemSize;
       }
     }
@@ -969,7 +973,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Horizontal)
           return true;
-        return _actualFirstVisibleChild == 0;
+        return _actualFirstVisibleChildIndex == 0;
       }
     }
 
@@ -983,7 +987,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Horizontal)
           return true;
-        return _actualLastVisibleChild == itemProvider.NumItems - 1;
+        return _actualLastVisibleChildIndex == itemProvider.NumItems - 1;
       }
     }
 
@@ -997,7 +1001,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Vertical)
           return true;
-        return _actualFirstVisibleChild == 0;
+        return _actualFirstVisibleChildIndex == 0;
       }
     }
 
@@ -1011,7 +1015,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (Orientation == Orientation.Vertical)
           return true;
-        return _actualLastVisibleChild == itemProvider.NumItems - 1;
+        return _actualLastVisibleChildIndex == itemProvider.NumItems - 1;
       }
     }
 
