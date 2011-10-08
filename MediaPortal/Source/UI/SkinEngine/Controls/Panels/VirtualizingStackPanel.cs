@@ -156,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int numItems = itemProvider.NumItems;
       if (numItems == 0)
         return result;
-      float availableSize = GetExtendsInNonOrientationDirection(totalSize);
+      float availableSize = GetExtendsInNonOrientationDirection(Orientation, totalSize);
       if (!_doScroll)
         _actualFirstVisibleChildIndex = 0;
       int start = _actualFirstVisibleChildIndex;
@@ -178,10 +178,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           continue;
         if (ct-- == 0)
           break;
-        float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(item.DesiredSize);
+        float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
         if (childExtendsInOrientationDirection > availableSize + DELTA_DOUBLE)
           break;
-        float childExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(item.DesiredSize);
+        float childExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, item.DesiredSize);
         availableSize -= childExtendsInOrientationDirection;
         sumExtendsInOrientationDirection += childExtendsInOrientationDirection;
         if (childExtendsInNonOrientationDirection > maxExtendsInNonOrientationDirection)
@@ -200,10 +200,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           continue;
         if (ct-- == 0)
           break;
-        float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(item.DesiredSize);
+        float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
         if (childExtendsInOrientationDirection > availableSize + DELTA_DOUBLE)
           break;
-        float childExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(item.DesiredSize);
+        float childExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, item.DesiredSize);
         availableSize -= childExtendsInOrientationDirection;
         sumExtendsInOrientationDirection += childExtendsInOrientationDirection;
         if (childExtendsInNonOrientationDirection > maxExtendsInNonOrientationDirection)
@@ -252,7 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         if (exemplaryChildren.Count == 0)
           return SizeF.Empty;
-        _averageItemSize = GetExtendsInOrientationDirection(resultSize) / exemplaryChildren.Count;
+        _averageItemSize = GetExtendsInOrientationDirection(Orientation, resultSize) / exemplaryChildren.Count;
         return Orientation == Orientation.Vertical ? new SizeF(resultSize.Height * numItems / exemplaryChildren.Count, resultSize.Width) :
             new SizeF(resultSize.Height, resultSize.Width * numItems / exemplaryChildren.Count);
       }
@@ -301,9 +301,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
           // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
-          float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(actualSize);
+          float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
           // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
-          float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(actualSize);
+          float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
@@ -338,7 +338,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   continue;
                 if (ct-- == 0)
                   break;
-                spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                 if (spaceLeft + DELTA_DOUBLE < 0)
                   break; // Found item which is not visible any more
                 _actualFirstVisibleChildIndex = i;
@@ -352,7 +352,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                     continue;
                   if (ct-- == 0)
                     break;
-                  spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                  spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
                   _actualLastVisibleChildIndex = i;
@@ -371,7 +371,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   continue;
                 if (ct-- == 0)
                   break;
-                spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                 if (spaceLeft + DELTA_DOUBLE < 0)
                   break; // Found item which is not visible any more
                 _actualLastVisibleChildIndex = i;
@@ -385,7 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                     continue;
                   if (ct-- == 0)
                     break;
-                  spaceLeft -= GetExtendsInOrientationDirection(item.DesiredSize);
+                  spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
                   _actualFirstVisibleChildIndex = i;
@@ -419,7 +419,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               continue;
             SizeF childSize = new SizeF(item.DesiredSize);
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
-            float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(childSize);
+            float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
             startOffset -= desiredExtendsInOrientationDirection;
             if (Orientation == Orientation.Vertical)
             {
@@ -454,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               continue;
             SizeF childSize = new SizeF(item.DesiredSize);
             // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
-            float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(childSize);
+            float desiredExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, childSize);
             if (Orientation == Orientation.Vertical)
             {
               PointF position = new PointF(actualPosition.X, actualPosition.Y + startOffset);

@@ -211,6 +211,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     }
 
 
+    protected static float GetExtendsInOrientationDirection(Orientation orientation, SizeF size)
+    {
+      return orientation == Orientation.Vertical ? size.Height : size.Width;
+    }
+
+    protected static float GetExtendsInNonOrientationDirection(Orientation orientation, SizeF size)
+    {
+      return orientation == Orientation.Vertical ? size.Width : size.Height;
+    }
+
     protected override void ArrangeOverride()
     {
       PointF oldPosition = ActualPosition;
