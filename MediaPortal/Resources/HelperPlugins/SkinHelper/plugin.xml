@@ -8,8 +8,24 @@
     Description="Provides several helper functions for skinners"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/> <!-- SkinEngine -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="SkinHelper.dll"/>
     <PluginStateTracker ClassName="MediaPortal.Helpers.SkinHelper.PluginStateTracker"/>
   </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="1C27C172-AD96-45A5-9E72-736E6D4B1ED5" Name="ThemeColorsModel" ClassName="MediaPortal.Helpers.SkinHelper.Models.ThemeColorsModel"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="SkinHelperLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="SkinHelperSkin" Directory="Skin" Type="Skin"/>
+  </Register>
 </Plugin>

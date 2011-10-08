@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="SkinHelper">
+    <String Name="ThemeColorsWorkflowNavigationContextDisplayLabel" Text="Theme colors"/>
+    <String Name="MenuShowThemeColors" Text="Show theme colors"/>
+    <String Name="ShowThemeColorsTitle" Text="Theme colors"/>
+    <String Name="ShowThemeColorsText" Text="This screen shows all color resources defined in the current theme (and inherited resources)"/>
+  </Section>
+</Language>

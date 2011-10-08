@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Theme color state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="782140E7-4850-4C4D-9A88-7F670B4F37E2"
+        Name="Home->ThemeColors"
+        DisplayCategory="c-ThemeColors"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="77E6F7F5-B94B-4015-B0F6-8EC1A915BE42"
+        DisplayTitle="[SkinHelper.MenuShowThemeColors]"/>
+  </MenuActions>
+</Workflow>
