@@ -95,10 +95,11 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Content}"
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" Content="{TemplateBinding Content}"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!-- ScrollBar X -->
-            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0" Margin="2">
+            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -125,7 +126,8 @@
               </StackPanel>
             </Grid>
             <!-- ScrollBar Y -->
-            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1" Margin="2">
+            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                Grid.ZIndex="0" Margin="2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
