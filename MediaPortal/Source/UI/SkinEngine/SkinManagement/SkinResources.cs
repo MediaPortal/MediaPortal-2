@@ -226,6 +226,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
+    /// Gets the resources which are defined in this resource bundle.
+    /// </summary>
+    public ResourceDictionary LocalStyleResources
+    {
+      get { return _localStyleResources; }
+    }
+
+    /// <summary>
     /// Gets the native width of the skin this resource bundle belongs to.
     /// </summary>
     public abstract int SkinWidth { get; }
