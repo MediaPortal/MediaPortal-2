@@ -271,7 +271,7 @@ namespace UPnP.Infrastructure.Utils
         try
         {
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
+              new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4, address));
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -283,13 +283,13 @@ namespace UPnP.Infrastructure.Utils
         {
           // We only receive in those multicast groups where we joined
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
+              new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -308,7 +308,7 @@ namespace UPnP.Infrastructure.Utils
         try
         {
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
+              new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4, address));
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
@@ -320,13 +320,13 @@ namespace UPnP.Infrastructure.Utils
         {
           // We only receive in those multicast groups where we joined
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
+              new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL, address.ScopeId));
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
         }
         catch (SocketException e)
