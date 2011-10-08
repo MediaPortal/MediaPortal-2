@@ -58,16 +58,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected bool _doScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
-    // Variables to pass a scroll job to the render thread
+    // Variables to pass a scroll job to the render thread. Method Arrange will process the request.
     protected int? _pendingScrollIndex = null;
     protected bool _scrollToFirst = true;
 
-    // Index of the first visible item which will be drawn at our ActualPosition - when modified by method
-    // SetScrollOffset, it will be applied the next time Arrange is called.
+    // Index of the first visible item which will be drawn at our ActualPosition - updated by method Arrange.
     protected int _actualFirstVisibleChild = 0;
     
     // Index of the last visible child item. When scrolling, this index denotes the "opposite children" to the
-    // child denoted by the _scrollOffset.
+    // child denoted by the _actualFirstVisibleChild.
     protected int _actualLastVisibleChild = -1;
 
     #endregion
