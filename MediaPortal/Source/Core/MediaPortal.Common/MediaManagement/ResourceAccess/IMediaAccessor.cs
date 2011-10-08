@@ -91,14 +91,14 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
     /// independent of their category.</param>
     /// <returns>Ids of metadata extractors which can handle the specified <paramref name="mediaCategory"/>.</returns>
-    IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory);
+    ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory);
 
     /// <summary>
     /// Returns the ids of all local metadata extractors which fill the given media item aspect types.
     /// </summary>
     /// <param name="miaTypeIDs">IDs of media item aspects which should be filled.</param>
     /// <returns>Ids of metadata extractors which fill the specified media item aspects.</returns>
-    IEnumerable<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs);
+    ICollection<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs);
 
     /// <summary>
     /// Extracts the specified metadata from the specified local media item.

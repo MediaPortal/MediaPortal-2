@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.ResourceAccess;
@@ -123,6 +124,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected ResourceProviderPluginItemChangeListener _resourceProvidersPluginItemChangeListener;
     protected MetadataExtractorPluginItemChangeListener _metadataExtractorsPluginItemChangeListener;
     protected IDictionary<Guid, IResourceProvider> _providers = null;
@@ -144,13 +146,15 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     protected void RegisterProvider(IResourceProvider provider)
     {
-      _providers.Add(provider.Metadata.ResourceProviderId, provider);
+      lock (_syncObj)
+        _providers.Add(provider.Metadata.ResourceProviderId, provider);
       MediaAccessorMessaging.SendResourceProviderMessage(MediaAccessorMessaging.MessageType.ResourceProviderAdded, provider.Metadata.ResourceProviderId);
     }
 
     protected void RegisterMetadataExtractor(IMetadataExtractor metadataExtractor)
     {
-      _metadataExtractors.Add(metadataExtractor.Metadata.MetadataExtractorId, metadataExtractor);
+      lock (_syncObj)
+        _metadataExtractors.Add(metadataExtractor.Metadata.MetadataExtractorId, metadataExtractor);
       MediaAccessorMessaging.SendResourceProviderMessage(MediaAccessorMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
     }
 
@@ -159,11 +163,14 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     protected void CheckProviderPluginsLoaded()
     {
-      if (_providers != null)
-        return;
-      _providers = new Dictionary<Guid, IResourceProvider>();
+      lock (_syncObj)
+      {
+        if (_providers != null)
+          return;
+        _providers = new Dictionary<Guid, IResourceProvider>();
+      }
       foreach (IResourceProvider provider in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IResourceProvider>(
-          RESOURCE_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker(RESOURCE_PROVIDERS_USE_COMPONENT_NAME))) // TODO: Make providers removable
+          RESOURCE_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker(RESOURCE_PROVIDERS_USE_COMPONENT_NAME)))
         RegisterProvider(provider);
     }
 
@@ -172,10 +179,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// </summary>
     protected void CheckMetadataExtractorPluginsLoaded()
     {
-      if (_metadataExtractors != null)
-        return;
-      _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
-
+      lock (_syncObj)
+      {
+        if (_metadataExtractors != null)
+          return;
+        _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
+      }
       foreach (IMetadataExtractor metadataExtractor in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IMetadataExtractor>(
           METADATA_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME))) // TODO: Make metadata extractors removable
         RegisterMetadataExtractor(metadataExtractor);
@@ -208,7 +217,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       get
       {
         CheckProviderPluginsLoaded();
-        return _providers;
+        lock (_syncObj)
+          return new Dictionary<Guid, IResourceProvider>(_providers);
       }
     }
 
@@ -245,7 +255,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       get
       {
         CheckMetadataExtractorPluginsLoaded();
-        return _metadataExtractors;
+        lock (_syncObj)
+          return new Dictionary<Guid, IMetadataExtractor>(_metadataExtractors);
       }
     }
 
@@ -261,7 +272,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ICollection<Share> CreateDefaultShares()
     {
-      ICollection<Share> result = new List<Share>();
+      List<Share> result = new List<Share>();
       Guid localFsResourceProviderId = new Guid(LOCAL_FS_RESOURCEPROVIDER_ID);
       if (LocalResourceProviders.ContainsKey(localFsResourceProviderId))
       {
@@ -296,12 +307,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (result.Count > 0)
         return result;
       // Fallback: If no share was added for the defaults above, use the provider's root folders
-      foreach (IBaseResourceProvider resourceProvider in LocalBaseResourceProviders)
-      {
-        ResourceProviderMetadata metadata = resourceProvider.Metadata;
-        Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.ResourceProviderId, "/"), metadata.Name, null);
-        result.Add(sd);
-      }
+      result.AddRange(LocalBaseResourceProviders.Select(resourceProvider => resourceProvider.Metadata).Select(
+          metadata => Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.ResourceProviderId, "/"), metadata.Name, null)));
       return result;
     }
 
@@ -315,22 +322,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
-    public IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
+    public ICollection<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
     {
-      foreach (IMetadataExtractor metadataExtractor in LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
-        if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
-          yield return metadataExtractor.Metadata.MetadataExtractorId;
-      }
+      return new List<Guid>(LocalMetadataExtractors.Values.Select(
+          metadataExtractor => new KeyValuePair<MetadataExtractorMetadata, IMetadataExtractor>(metadataExtractor.Metadata, metadataExtractor)).Where(md2me =>
+          mediaCategory == null || md2me.Key.ShareCategories.Contains(mediaCategory)).Select(md2me => md2me.Key.MetadataExtractorId));
     }
 
-    public IEnumerable<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs)
+    public ICollection<Guid> GetMetadataExtractorsForMIATypes(IEnumerable<Guid> miaTypeIDs)
     {
-      // Return all metadata extractors which fill our desired media item aspects
       return LocalMetadataExtractors.Where(
           extractor => extractor.Value.Metadata.ExtractedAspectTypes.Keys.Intersect(miaTypeIDs).Count() > 0).Select(
-          kvp => kvp.Key);
+          kvp => kvp.Key).ToList();
     }
 
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
@@ -353,8 +356,18 @@ namespace MediaPortal.Common.Services.MediaManagement
       bool success = false;
       foreach (IMetadataExtractor extractor in metadataExtractors)
       {
-        if (extractor.TryExtractMetadata(mediaItemAccessor, result, forceQuickMode))
-          success = true;
+        try
+        {
+          if (extractor.TryExtractMetadata(mediaItemAccessor, result, forceQuickMode))
+            success = true;
+        }
+        catch (Exception e)
+        {
+          MetadataExtractorMetadata mem = extractor.Metadata;
+          ServiceRegistration.Get<ILogger>().Error("MediaAccessor: Error extracting metadata from metadata extractor '{0}' (Id: '{1}')",
+              e, mem.Name, mem.MetadataExtractorId);
+          throw;
+        }
       }
       return success ? result : null;
     }
