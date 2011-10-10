@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
@@ -523,12 +522,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinResources: Adding skin resource directory '{0}' to {1} '{2}'", rootDirectoryPath, GetType().Name, Name);
       // Add resource files for this directory
-      int directoryNameLength = rootDirectoryPath.Length;
+      int directoryNameLength = FileUtils.CheckTrailingPathDelimiter(rootDirectoryPath).Length;
       foreach (string resourceFilePath in FileUtils.GetAllFilesRecursively(rootDirectoryPath))
       {
         string resourceName = resourceFilePath.Substring(directoryNameLength).ToLowerInvariant();
-        if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
-          resourceName = resourceName.Substring(1);
         if (_localResourceFilePaths.ContainsKey(resourceName))
           logger.Warn("SkinResources: Duplicate skin resource '{0}', using resource from '{1}'",
               resourceName, _localResourceFilePaths[resourceName]);
