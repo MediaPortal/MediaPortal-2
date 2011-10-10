@@ -1041,7 +1041,7 @@ namespace MediaPortal.Common.Services.PluginManager
       String pluginsDirectoryPath = ServiceRegistration.Get<IPathManager>().GetPath("<PLUGINS>");
       foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
       {
-        if (Path.GetFileName(pluginDirectoryPath).StartsWith("."))
+        if ((Path.GetFileName(pluginDirectoryPath) ?? string.Empty).StartsWith("."))
           continue;
         try
         {
