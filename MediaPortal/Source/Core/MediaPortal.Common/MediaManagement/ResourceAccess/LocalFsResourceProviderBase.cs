@@ -55,6 +55,12 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     #region Public methods
 
+    /// <summary>
+    /// Transforms a path from the local filesystem resource provider to a DOS path.
+    /// </summary>
+    /// <param name="providerPath">Path which is valid in the local filesystem resource provider.
+    /// The specified resource may not exist in filesystem.</param>
+    /// <returns></returns>
     public static string ToDosPath(string providerPath)
     {
       if (string.IsNullOrEmpty(providerPath) || providerPath == "/")
@@ -64,12 +70,23 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       return providerPath.Replace('/', Path.DirectorySeparatorChar);
     }
 
+
+    /// <summary>
+    /// Transforms a DOS path to a path which can be used in the local filesystem resource provider.
+    /// </summary>
+    /// <param name="dosPath">DOS or UNC path.</param>
+    /// <returns>Path which is valid in the local filesystem resource provider.</returns>
     public static string ToProviderPath(string dosPath)
     {
       dosPath = dosPath.Replace(Path.DirectorySeparatorChar, '/');
       return dosPath.StartsWith("/") ? dosPath : "/" + dosPath;
     }
 
+    /// <summary>
+    /// Returns a <see cref="ResourcePath"/> instance which points to the given DOS path.
+    /// </summary>
+    /// <param name="dosPath">DOS path to be wrapped.</param>
+    /// <returns>Resource path instance for the given DOS path.</returns>
     public static ResourcePath ToResourcePath(string dosPath)
     {
       return ResourcePath.BuildBaseProviderPath(LOCAL_FS_RESOURCE_PROVIDER_ID, "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/'));
