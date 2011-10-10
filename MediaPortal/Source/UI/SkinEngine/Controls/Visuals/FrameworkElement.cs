@@ -1417,7 +1417,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="dir">Direction to move the focus.</param>
     /// <returns>Next focusable element in the given <paramref name="dir"/> or <c>null</c>, if the given
     /// <paramref name="potentialNextFocusElements"/> don't contain a focusable element in the given direction.</returns>
-    protected static FrameworkElement FindNextFocusElement(ICollection<FrameworkElement> potentialNextFocusElements,
+    protected static FrameworkElement FindNextFocusElement(IEnumerable<FrameworkElement> potentialNextFocusElements,
         RectangleF? currentFocusRect, MoveFocusDirection dir)
     {
       FrameworkElement bestMatch = null;
