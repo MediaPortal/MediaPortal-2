@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasAudioExtension(string fileName)
     {
-      string ext = (Path.GetExtension(fileName) ?? string.Empty).ToLower();
+      string ext = PathHelper.GetExtension(fileName).ToLowerInvariant();
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
@@ -170,9 +170,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns>Guessed title string.</returns>
     protected static string GuessTitle(string filePath)
     {
-      string fileName = Path.GetFileName(filePath) ?? string.Empty;
+      string fileName = PathHelper.GetFileNameWithoutExtension(filePath) ?? string.Empty;
       int i = fileName.IndexOf('-');
-      return i == -1 ? Path.GetFileNameWithoutExtension(fileName) : fileName.Substring(i + 1).Trim();
+      return i == -1 ? fileName : fileName.Substring(i + 1).Trim();
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <returns>Guessed artist(s) enumeration.</returns>
     protected static string GuessArtist(string filePath)
     {
-      string fileName = Path.GetFileName(filePath) ?? string.Empty;
+      string fileName = PathHelper.GetFileName(filePath) ?? string.Empty;
       // Test form Artist - Title
       int start = fileName.IndexOf('-');
       if (start > -1)
