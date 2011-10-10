@@ -38,8 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   /// In contrast to the WPF <c>IScrollViewer</c> interface, where direct scrolling is supported,
   /// MediaPortal only supports indirect scrolling, which is done as a result of focus movements.
   /// Those focus movements are triggered by calls to the interface methods of
-  /// <see cref="IScrollViewerFocusSupport"/>. In contrast, this interface provides information
-  /// about the current scrolling state.
+  /// <see cref="IScrollViewerFocusSupport"/>. So in contrast to the WPF <c>IScrollViewer</c>, this
+  /// interface provides information about the current scrolling state.
   /// <see cref="IScrollViewerFocusSupport"/> contains the extended focus movement methods, which are
   /// only indirectly related to scrolling, while <see cref="IScrollInfo"/> contains methods directly
   /// related to the scrolling. Typically, both interfaces are implemented by scrollable controls.

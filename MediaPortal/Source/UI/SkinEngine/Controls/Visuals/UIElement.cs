@@ -629,15 +629,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// will take two actions here:
     /// <list type="bullet">
     /// <item>Scroll the specified <paramref name="element"/> to a visible region inside its borders,
-    /// while undoing layout transformations which will be applied to children.</item>
-    /// <item>Call this inherited method, which delegates the call to the visual parent.</item>
+    /// while undoing layout transformations which will be applied to children. At the same time,
+    /// the <paramref name="elementBounds"/> should be updated to the new bounds after scrolling.</item>
+    /// <item>Call this inherited method (in <see cref="UIElement"/>), which delegates the call to
+    /// the visual parent.</item>
     /// </list>
     /// The call to the visual parent should use the same <paramref name="element"/> but an updated
-    /// <paramref name="elementBounds"/> rectangle.
+    /// <paramref name="elementBounds"/> rectangle. The <paramref name="elementBounds"/> parameter
+    /// should reflect the updated element's bounds after the scrolling update has taken place in the
+    /// next layout cycle.
     /// </remarks>
     /// <param name="element">The original element which should be made visible.</param>
-    /// <param name="elementBounds">The element's bounds after the scrolling update has taken place in the
-    /// next layout cycle.</param>
+    /// <param name="elementBounds">The element's bounds which will be active after the scrolling
+    /// update.</param>
     public virtual void MakeVisible(UIElement element, RectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
