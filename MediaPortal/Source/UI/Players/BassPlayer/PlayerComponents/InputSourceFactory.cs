@@ -23,12 +23,10 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
-using MediaPortal.Utilities;
 using Ui.Players.BassPlayer.InputSources;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.Settings;
@@ -101,7 +99,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       {
         if (accessor is AudioCDResourceAccessor)
           return true;
-        string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
+        string ext = PathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();
         BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
         return settings.SupportedExtensions.IndexOf(ext) > -1;
       }

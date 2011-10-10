@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.ResourceAccess;
@@ -208,7 +207,7 @@ namespace MediaPortal.UI.Players.Picture
         return false;
 
       IResourceAccessor accessor = locator.CreateAccessor();
-      string ext = StringUtils.TrimToEmpty(Path.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
+      string ext = StringUtils.TrimToEmpty(PathHelper.GetExtension(accessor.ResourcePathName)).ToLowerInvariant();
 
       PicturePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<PicturePlayerSettings>();
       return settings.SupportedExtensions.IndexOf(ext) > -1;

@@ -154,10 +154,6 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #endregion
 
-    #region Public members
-
-    #endregion
-
     #region Private Members
 
     private BassAudioFileInputSource(IResourceAccessor resourceAccessor) : base(resourceAccessor) { }
