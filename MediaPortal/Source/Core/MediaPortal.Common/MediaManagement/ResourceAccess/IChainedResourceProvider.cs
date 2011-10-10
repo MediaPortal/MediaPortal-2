@@ -43,6 +43,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <paramref name="potentialBaseResourceAccessor"/> as base resource accessor for providing a file system out of the
     /// input resource.
     /// </summary>
+    /// <param name="potentialBaseResourceAccessor">Resource accessor for the base resource, this provider should take as input.
+    /// The base resource accessor must not be disposed by this method!</param>
     /// <returns><c>true</c> if the given resource accessor can be used to chain this provider to, else <c>false</c></returns>
     bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor);
 
@@ -50,8 +52,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
     /// in the given <paramref name="baseResourceAccessor"/>.
     /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
+    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as input.
+    /// The base resource accessor must not be disposed by this method!</param>
     /// <param name="path">Path to evaluate.</param>
     /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
     /// else <c>false</c>.</returns>
@@ -62,7 +64,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <paramref name="baseResourceAccessor"/>.
     /// </summary>
     /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
+    /// input. The ownership of the base resource accessor goes to this method and will be transferred to the returned
+    /// resource accessor, i.e. disposing the returned resource accessor should also dispose the base resource accessor.</param>
     /// <param name="path">Path to be accessed by the returned resource accessor.</param>
     /// <returns>Resource accessor instance or <c>null</c>, if the given <paramref name="baseResourceAccessor"/> cannot
     /// be used to chain this resource provider up. The returned resource accessor may be of any interface derived
