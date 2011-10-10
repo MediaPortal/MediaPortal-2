@@ -114,16 +114,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     }
 
     /// <summary>
-    /// Gets the file name and extension of the last path segment.
+    /// Gets the file name and extension of the last path segment or <c>null</c>, if this resource path is empty.
     /// </summary>
     public string FileName
     {
-      get
-      {
-        if (_pathSegments.Count == 0)
-          return null;
-        return Path.GetFileName(_pathSegments[_pathSegments.Count-1].Path);
-      }
+      get { return _pathSegments.Count == 0 ? null : PathHelper.GetFileName(_pathSegments[_pathSegments.Count-1].Path); }
     }
 
     /// <summary>
