@@ -125,7 +125,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       return rris.ResourceExists(nativeSystemId, resourcePath);
     }
 
-    public IResourceAccessor GetResource(string path)
+    public IFileSystemResourceAccessor GetResource(string path)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       string nativeSystemId = _resourceLocator.NativeSystemId;
@@ -159,6 +159,16 @@ namespace MediaPortal.Common.Services.MediaManagement
       ICollection<ResourcePathMetadata> directoriesData = rris.GetChildDirectories(
           _resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
       return WrapResourcePathsData(directoriesData);
+    }
+
+    public override IResourceAccessor Clone()
+    {
+      RemoteFileSystemResourceAccessor result = new RemoteFileSystemResourceAccessor(_resourceLocator, _isFile, _resourcePathName, _resourceName)
+        {
+            _sizeCache = _sizeCache,
+            _lastChangedCache = _lastChangedCache
+        };
+      return result;
     }
 
     #endregion

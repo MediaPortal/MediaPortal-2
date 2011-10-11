@@ -71,13 +71,19 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
     {
-      string resourceName = potentialBaseResourceAccessor.ResourceName;
-      if (string.IsNullOrEmpty(resourceName) || !potentialBaseResourceAccessor.IsFile)
+      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
+      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
+          !".iso".Equals(PathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
-      if (".iso".Equals(Path.GetExtension(resourceName), StringComparison.OrdinalIgnoreCase))
-      {
-        return true;
-      }
+
+      using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(potentialBaseResourceAccessor.Clone()))
+      using (IsoReader isoReader = new IsoReader())
+        try
+        {
+          isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
+          return true;
+        }
+        catch (Exception) {}
       return false;
     }
 
@@ -87,15 +93,17 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       if (string.IsNullOrEmpty(resourceName) || baseResourceAccessor.IsFile)
         return false;
 
-      IsoReader isoReader = new IsoReader();
-      string resourcePathName = baseResourceAccessor.ResourcePathName;
-      isoReader.Open(resourcePathName);
-      
-      string dosPath = "\\" + LocalFsResourceProviderBase.ToDosPath(Path.GetDirectoryName(path));
-      string dosResource = "\\" + LocalFsResourceProviderBase.ToDosPath(path);
-      
-      string[] dirList = isoReader.GetDirectories(dosPath, SearchOption.TopDirectoryOnly);
-      return dirList.Any(entry => entry.Equals(dosResource, StringComparison.OrdinalIgnoreCase));
+      using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(baseResourceAccessor.Clone()))
+      using (IsoReader isoReader = new IsoReader())
+      {
+        isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
+
+        string dosPath = Path.GetDirectoryName(LocalFsResourceProviderBase.ToDosPath(path));
+        string dosResource = "\\" + LocalFsResourceProviderBase.ToDosPath(path);
+
+        string[] dirList = isoReader.GetDirectories(dosPath, SearchOption.TopDirectoryOnly);
+        return dirList.Any(entry => entry.Equals(dosResource, StringComparison.OrdinalIgnoreCase));
+      }
     }
 
     public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)

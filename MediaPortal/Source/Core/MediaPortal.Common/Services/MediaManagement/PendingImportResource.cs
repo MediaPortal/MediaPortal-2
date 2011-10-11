@@ -93,7 +93,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     [XmlAttribute("ResourceAccessor")]
     public string XML_ResourceAccessor
     {
-      get { return _resourceAccessor.LocalResourcePath.Serialize(); } 
+      get { return _resourceAccessor.CanonicalLocalResourcePath.Serialize(); } 
       set
       {
         try

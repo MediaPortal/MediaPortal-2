@@ -37,12 +37,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   /// Temporary local accessor instance for a resource which might located anywhere in an MP 2 system.
   /// </summary>
   /// <remarks>
-  /// Via this instance, the resource, which potentially is located in a remote system, can be accessed
-  /// via a local resource provider chain specified by the <see cref="LocalResourcePath"/>.
-  /// To get a resource accessor, get an <see cref="IResourceLocator"/> and use its
-  /// <see cref="IResourceLocator.CreateAccessor"/> method.
-  /// The temporary resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method
-  /// when it is not needed any more. This will clean up resources which were allocated to access the resource.
+  /// Via this instance, the resource, which potentially is located in a remote system, can be accessed using a local resource provider chain.
+  /// To obtain a resource accessor, get an <see cref="IResourceLocator"/> and use its <see cref="IResourceLocator.CreateAccessor"/> method.
+  /// The temporary resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method when it is not needed any more.
+  /// This will clean up resources which were allocated to access the resource.
   /// </remarks>
   public interface IResourceAccessor : IDisposable
   {
@@ -73,6 +71,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <summary>
     /// Returns the full human readable path name for this resource.
     /// </summary>
+    /// <remarks>
+    /// This path does not always point to a local directory! Don't use it as directory in the file system. To obtain a local
+    /// filesystem path, you need an <see cref="ILocalFsResourceAccessor"/> and use its <see cref="ILocalFsResourceAccessor.LocalFileSystemPath"/>
+    /// property.
+    /// </remarks>
     /// <value>A human readable name of this resource. For a filesystem resource accessor,
     /// this could be the file path, for example.</value>
     string ResourcePathName { get; }
@@ -80,7 +83,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <summary>
     /// Returns the technical resource path which points to this resource.
     /// </summary>
-    ResourcePath LocalResourcePath { get; }
+    /// <remarks>
+    /// This property always returns the path to the original resource, i.e. without any translation to local filesystem resource accessors etc.
+    /// </remarks>
+    ResourcePath CanonicalLocalResourcePath { get; }
 
     /// <summary>
     /// Gets the date and time when this resource was changed for the last time.
@@ -116,5 +122,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
     /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
     Stream OpenWrite();
+
+    /// <summary>
+    /// Doubles this instance.
+    /// </summary>
+    /// <returns>New resource accessor which points to the same resource as this resource accessor.</returns>
+    IResourceAccessor Clone();
   }
 }

@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region Static methods
 
-    public static IResourceAccessor GetResourceAccessor(string path)
+    public static IFileSystemResourceAccessor GetResourceAccessor(string path)
     {
       // parse slotindex from path and cut the prefix off.
       int slotIndex;
@@ -83,7 +83,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       get { return _path; }
     }
 
-    public ResourcePath LocalResourcePath
+    public ResourcePath CanonicalLocalResourcePath
     {
       get
       {
@@ -128,6 +128,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return null;
     }
 
+    public IResourceAccessor Clone()
+    {
+      return new SlimTvResourceAccessor(_slotIndex, _path);
+    }
+
     #endregion
 
     #region IDisposable Member
@@ -162,7 +167,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return true;
     }
 
-    public IResourceAccessor GetResource(string path)
+    public IFileSystemResourceAccessor GetResource(string path)
     {
       return GetResourceAccessor(path);
     }

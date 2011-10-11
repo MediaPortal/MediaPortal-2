@@ -67,9 +67,9 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
       get { return _provider; }
     }
 
-    public ResourcePath LocalResourcePath
+    public ResourcePath CanonicalLocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, AudioCDResourceProvider.BuildProviderPath(_drive, _trackNo)); }
+      get { return ResourcePath.BuildBaseProviderPath(AudioCDResourceProvider.AUDIO_CD_RESOURCE_PROVIDER_ID, AudioCDResourceProvider.BuildProviderPath(_drive, _trackNo)); }
     }
 
     public DateTime LastChanged
@@ -115,6 +115,11 @@ namespace MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider
     public string ResourcePathName
     {
       get { return string.Format("Track {0} on drive {1}:", _trackNo, _drive); }
+    }
+
+    public IResourceAccessor Clone()
+    {
+      return new AudioCDResourceAccessor(_provider, _drive, _trackNo);
     }
 
     #endregion

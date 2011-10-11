@@ -49,18 +49,17 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// if there is no chained resource provider to unfold the given directory.</returns>
     public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor)
     {
+      IChainedResourceProvider provider; // Needed in multiple source locations, that's why we declare it here
       if (directoryAccessor is IFileSystemResourceAccessor)
       {
         IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) directoryAccessor;
         ICollection<IFileSystemResourceAccessor> childDirectories = fsra.GetChildDirectories();
         ICollection<IFileSystemResourceAccessor> result = childDirectories == null ?
-                                                                                       new List<IFileSystemResourceAccessor>() :
-                                                                                                                                   new List<IFileSystemResourceAccessor>(childDirectories);
+            new List<IFileSystemResourceAccessor>() : new List<IFileSystemResourceAccessor>(childDirectories);
         ICollection<IFileSystemResourceAccessor> files = fsra.GetFiles();
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
           {
-            IChainedResourceProvider provider;
             if (CanBeUnfolded(fileAccessor, out provider))
             {
               IResourceAccessor ra = provider.CreateResourceAccessor(fileAccessor, "/");
@@ -69,20 +68,18 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
               else
                 ra.Dispose();
             }
+            else
+              fileAccessor.Dispose();
           }
         return result;
       }
-      else
-      { // Try to unfold simple resource
-        IChainedResourceProvider provider;
-        if (CanBeUnfolded(directoryAccessor, out provider))
-        {
-          IResourceAccessor ra = provider.CreateResourceAccessor(directoryAccessor, "/");
-          if (ra is IFileSystemResourceAccessor)
-            return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {(IFileSystemResourceAccessor) ra});
-          else
-            ra.Dispose();
-        }
+      // Try to unfold simple resource
+      if (CanBeUnfolded(directoryAccessor, out provider))
+      {
+        IResourceAccessor ra = provider.CreateResourceAccessor(directoryAccessor, "/");
+        if (ra is IFileSystemResourceAccessor)
+          return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {(IFileSystemResourceAccessor) ra});
+        ra.Dispose();
       }
       return null;
     }

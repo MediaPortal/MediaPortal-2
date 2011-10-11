@@ -80,6 +80,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       get { return _lastChanged; }
     }
 
+    public override IResourceAccessor Clone()
+    {
+      return new RemoteFileResourceAccessor(_resourceLocator, _resourcePathName, _resourceName, _lastChanged, _size);
+    }
+
     #endregion
   }
 }

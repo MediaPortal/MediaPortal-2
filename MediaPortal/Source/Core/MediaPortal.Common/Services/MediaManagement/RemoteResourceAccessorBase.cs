@@ -96,7 +96,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       get { return _resourcePathName; }
     }
 
-    public ResourcePath LocalResourcePath
+    public ResourcePath CanonicalLocalResourcePath
     {
       get { return _resourceLocator.NativeResourcePath; }
     }
@@ -129,6 +129,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         throw new IllegalCallException("Only files can provide stream access");
       return null;
     }
+
+    public abstract IResourceAccessor Clone();
 
     #endregion
 

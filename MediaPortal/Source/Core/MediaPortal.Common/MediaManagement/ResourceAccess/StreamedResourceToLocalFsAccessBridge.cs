@@ -86,6 +86,12 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
     }
 
+    /// <summary>
+    /// Returns a resource accessor instance of interface <see cref="ILocalFsResourceAccessor"/>. This instance will be provided
+    /// ba a local filesystem access bridge, if necessary.
+    /// </summary>
+    /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
+    /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
     public static ILocalFsResourceAccessor GetLocalFsResourceAccessor(IResourceAccessor baseResourceAccessor)
     {
       // Try to get an ILocalFsResourceAccessor
@@ -125,9 +131,9 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       get { return _baseAccessor.ResourcePathName; }
     }
 
-    public ResourcePath LocalResourcePath
+    public ResourcePath CanonicalLocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFileSystemPath); }
+      get { return _baseAccessor.CanonicalLocalResourcePath; }
     }
 
     public DateTime LastChanged
@@ -146,7 +152,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       return fsra == null ? false : fsra.ResourceExists(path);
     }
 
-    public IResourceAccessor GetResource(string path)
+    public IFileSystemResourceAccessor GetResource(string path)
     {
       IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
       return fsra == null ? null : fsra.GetResource(path);
@@ -167,6 +173,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     {
       // Using the stream on the base accessor doesn't cost so much resources than creating the bridge here
       return _baseAccessor.OpenWrite();
+    }
+
+    public IResourceAccessor Clone()
+    {
+      return new StreamedResourceToLocalFsAccessBridge(_baseAccessor.Clone());
     }
 
     #endregion
@@ -205,6 +216,15 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         PrepareStreamAccess();
         return _mountPath;
       }
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return "StreamedRA access bridge; Root dir = '"  + _rootDirectoryName + "', mount path='" + _mountPath + "', base accessor='" + _baseAccessor + "'";
     }
 
     #endregion

@@ -66,7 +66,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// </summary>
     /// <param name="path">Relative or absolute path which is valid in the underlaying resource provider.</param>
     /// <returns>Resource accessor for the desired resource, if it exists, else <c>null</c>.</returns>
-    IResourceAccessor GetResource(string path);
+    IFileSystemResourceAccessor GetResource(string path);
 
     /// <summary>
     /// Returns the resource accessors for all child files of this directory resource.

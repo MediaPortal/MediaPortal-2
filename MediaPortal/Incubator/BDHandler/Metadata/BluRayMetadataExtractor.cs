@@ -93,7 +93,7 @@ namespace MediaPortal.Media.MetadataExtractors
         ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
         if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("BDMV"))
         {
-          IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV") as IFileSystemResourceAccessor;
+          IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
           if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
           {
             // BluRay
@@ -106,12 +106,9 @@ namespace MediaPortal.Media.MetadataExtractors
 
             mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
-            using (IResourceAccessor resourceAccessor = fsra.LocalResourcePath.CreateLocalResourceAccessor())
-            {
-              string bdmvDirectory = resourceAccessor.ResourcePathName;
-              BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
-              mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE,bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
-            }
+            string bdmvDirectory = fsra.LocalFileSystemPath;
+            BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
+            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE,bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
             return true;
           }
         }

@@ -186,8 +186,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
-        // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("PictureMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("PictureMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

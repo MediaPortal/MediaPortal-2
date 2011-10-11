@@ -65,6 +65,22 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #endregion
 
+    public static string ToEntryPath(string providerPath)
+    {
+      if (providerPath == "/")
+        return null;
+      if (providerPath.StartsWith("/"))
+        return providerPath.Substring(1);
+      throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid provider path", providerPath));
+    }
+
+    public static string ToProviderPath(string entryPath)
+    {
+      if (entryPath.StartsWith("/"))
+        throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid entry path", entryPath));
+      return '/' + entryPath;
+    }
+
     #region IResourceProvider implementation
 
     /// <summary>
@@ -79,61 +95,31 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    /// <summary>
-    /// Returns the information if this chained resource provider can use the given
-    /// <paramref name="potentialBaseResourceAccessor"/> as base resource accessor for providing a file system out of the
-    /// input resource.
-    /// </summary>
-    /// <returns><c>true</c> if the given resource accessor can be used to chain this provider to, else <c>false</c></returns>
     public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
     {
-      if (string.IsNullOrEmpty(potentialBaseResourceAccessor.ResourceName) || !potentialBaseResourceAccessor.IsFile)
+      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
+      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
+          !".zip".Equals(PathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
-      if (".zip".Equals(Path.GetExtension(potentialBaseResourceAccessor.ResourceName), StringComparison.CurrentCultureIgnoreCase))
-      {
+
+      using (Stream resourceStream = potentialBaseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
         try
         {
-          ZipFile zFile = new ZipFile(potentialBaseResourceAccessor.ResourcePathName);
-          if (zFile.Count > 0)
+          using (new ZipFile(resourceStream))
             return true;
         }
-        catch (Exception) {}
-      }
+        catch (ZipException) {} // Thrown if the file doesn't contain a valid ZIP archive
       return false;
     }
 
-    /// <summary>
-    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
-    /// in the given <paramref name="baseResourceAccessor"/>.
-    /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
-    /// <param name="path">Path to evaluate.</param>
-    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
-    /// else <c>false</c>.</returns>
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
-      using (ZipFile zFile = new ZipFile(baseResourceAccessor.ResourcePathName))
-      {
-        if (path.Equals("/") && zFile.Count > 0) 
-          return true;
-        return zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == path);
-      }
+      string entryPath = ToEntryPath(path);
+      using (Stream resourceStream = baseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
+      using (ZipFile zFile = new ZipFile(resourceStream))
+        return path.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
     }
 
-    /// <summary>
-    /// Creates a resource accessor for the given <paramref name="path"/>, interpreted in the given
-    /// <paramref name="baseResourceAccessor"/>.
-    /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input.</param>
-    /// <param name="path">Path to be accessed by the returned resource accessor.</param>
-    /// <returns>Resource accessor instance or <c>null</c>, if the given <paramref name="baseResourceAccessor"/> cannot
-    /// be used to chain this resource provider up. The returned resource accessor may be of any interface derived
-    /// from <see cref="IResourceAccessor"/>, i.e. a file system provider will return a resource accessor of interface
-    /// <see cref="IFileSystemResourceAccessor"/>.</returns>
-    /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
-    /// described by the path doesn't exist in the <paramref name="baseResourceAccessor"/>.</exception>
     public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
     {
       return new ZipResourceAccessor(this, baseResourceAccessor, path);

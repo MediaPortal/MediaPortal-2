@@ -363,7 +363,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             {
                 ResourceName = childAccessor.ResourceName,
                 HumanReadablePath = childAccessor.ResourcePathName,
-                ResourcePath = childAccessor.LocalResourcePath
+                ResourcePath = childAccessor.CanonicalLocalResourcePath
             });
       }
       outParams = new List<object> {result};
@@ -390,7 +390,7 @@ namespace MediaPortal.Common.Services.MediaManagement
             {
                 ResourceName = fileAccessor.ResourceName,
                 HumanReadablePath = fileAccessor.ResourcePathName,
-                ResourcePath = fileAccessor.LocalResourcePath
+                ResourcePath = fileAccessor.CanonicalLocalResourcePath
             });
       }
       outParams = new List<object> {result};
@@ -505,11 +505,11 @@ namespace MediaPortal.Common.Services.MediaManagement
         IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
         if (fsra != null)
         {
-          IResourceAccessor ra2 = fsra.GetResource(relativePathStr);
+          IFileSystemResourceAccessor ra2 = fsra.GetResource(relativePathStr);
           if (ra2 != null)
             try
             {
-              serializedPath = ra2.LocalResourcePath.Serialize();
+              serializedPath = ra2.CanonicalLocalResourcePath.Serialize();
             }
             finally
             {

@@ -183,7 +183,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           {
             ResourceName = childAccessor.ResourceName,
             HumanReadablePath = childAccessor.ResourcePathName,
-            ResourcePath = childAccessor.LocalResourcePath
+            ResourcePath = childAccessor.CanonicalLocalResourcePath
           };
     }
 

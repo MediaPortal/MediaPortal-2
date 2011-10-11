@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
       get { return LocalFsResourceProviderBase.ToDosPath(_path); }
     }
 
-    public ResourcePath LocalResourcePath
+    public ResourcePath CanonicalLocalResourcePath
     {
       get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, _path); }
     }
@@ -106,9 +106,9 @@ namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
       return _provider.IsResource(path);
     }
 
-    public IResourceAccessor GetResource(string path)
+    public IFileSystemResourceAccessor GetResource(string path)
     {
-      return _provider.CreateResourceAccessor(ExpandPath(path));
+      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ExpandPath(path));
     }
 
     public void PrepareStreamAccess()
@@ -130,6 +130,11 @@ namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
       if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
       return File.OpenWrite(dosPath);
+    }
+
+    public IResourceAccessor Clone()
+    {
+      return new LocalFsResourceAccessor(_provider, _path);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
@@ -202,7 +207,7 @@ namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
           DriveInfo di = new DriveInfo(path);
           return di.IsReady ? string.Format("[{0}] {1}", path, di.VolumeLabel) : path;
         }
-        path = StringUtils.RemoveSuffixIfPresent(path, "/");
+        path = LocalFsResourceProviderBase.ToDosPath(StringUtils.RemoveSuffixIfPresent(path, "/"));
         return Path.GetFileName(path);
       }
     }

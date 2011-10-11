@@ -291,7 +291,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
-      ResourcePath path = mediaItemAccessor.LocalResourcePath;
+      ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
@@ -322,7 +322,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      ResourcePath currentFilePath = fileAccessor.LocalResourcePath;
+      ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
       try
       {
         if (importJob.JobType == ImportJobType.Refresh)
@@ -347,7 +347,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected Guid GetOrAddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId,
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler)
     {
-      ResourcePath directoryPath = directoryAccessor.LocalResourcePath;
+      ResourcePath directoryPath = directoryAccessor.CanonicalLocalResourcePath;
       MediaItem directoryItem = mediaBrowsing.LoadItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
       if (directoryItem != null)
       {
@@ -397,7 +397,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         ICollection<IMetadataExtractor> metadataExtractors, ICollection<MediaItemAspectMetadata> mediaItemAspectTypes,
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      ResourcePath currentDirectoryPath = directoryAccessor.LocalResourcePath;
+      ResourcePath currentDirectoryPath = directoryAccessor.CanonicalLocalResourcePath;
       try
       {
         ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, currentDirectoryPath);
@@ -425,7 +425,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           if (files != null)
             foreach (IFileSystemResourceAccessor fileAccessor in files)
             { // Add & update files
-              ResourcePath currentFilePath = fileAccessor.LocalResourcePath;
+              ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
               string serializedFilePath = currentFilePath.Serialize();
               try
               {
@@ -588,7 +588,7 @@ namespace MediaPortal.Common.Services.MediaManagement
                       importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
               }
               else
-                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
+                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.CanonicalLocalResourcePath.Serialize());
             }
             lock (importJob.SyncObj)
               importJob.PendingResources.Remove(pendingImportResource);

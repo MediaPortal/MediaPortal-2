@@ -271,7 +271,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("VIDEO_TS"))
         {
-          IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS") as IFileSystemResourceAccessor;
+          IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
           { // Video DVD
             using (MediaInfoWrapper videoTsInfo = ReadMediaInfo(fsraVideoTs.GetResource("VIDEO_TS.IFO")))
@@ -335,8 +335,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
-        // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        // couldn't perform our task here.
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }

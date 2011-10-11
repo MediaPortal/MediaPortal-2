@@ -335,7 +335,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
-        String raPath = resourceAccessor.LocalResourcePath.Serialize();
+        String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Live TV");

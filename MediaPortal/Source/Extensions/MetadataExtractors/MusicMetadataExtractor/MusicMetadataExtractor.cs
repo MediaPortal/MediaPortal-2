@@ -271,8 +271,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         catch (CorruptFileException)
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
-          // couldn't perform our task here
-          ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.LocalResourcePath);
+          // couldn't perform our task here.
+          ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.CanonicalLocalResourcePath);
           return false;
         }
 
@@ -323,14 +323,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.LocalResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
         return false;
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.LocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
