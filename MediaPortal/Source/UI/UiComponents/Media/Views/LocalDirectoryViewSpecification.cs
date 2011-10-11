@@ -132,49 +132,51 @@ namespace MediaPortal.UiComponents.Media.Views
       subViewSpecifications = new List<ViewSpecification>();
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerable<Guid> metadataExtractorIds = mediaAccessor.GetMetadataExtractorsForMIATypes(_necessaryMIATypeIds.Union(_optionalMIATypeIds));
-      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor();
-      // Add all items at the specified path
-      ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
-      if (files != null)
-        foreach (IFileSystemResourceAccessor childAccessor in files)
-        {
-          try
+      using (IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalResourceAccessor())
+      {
+        // Add all items at the specified path
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
+        if (files != null)
+          foreach (IFileSystemResourceAccessor childAccessor in files)
           {
-            MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
-            if (result != null)
-              mediaItems.Add(result);
+            try
+            {
+              MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
+              if (result != null)
+                mediaItems.Add(result);
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
+            }
+            finally
+            {
+              childAccessor.Dispose();
+            }
           }
-          catch (Exception e)
+        ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
+        if (directories != null)
+          foreach (IFileSystemResourceAccessor childAccessor in directories)
           {
-            ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating local media item for '{0}'", e, childAccessor);
+            try
+            {
+              MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
+              if (result == null)
+                subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.CanonicalLocalResourcePath,
+                  _necessaryMIATypeIds, _optionalMIATypeIds));
+              else
+                mediaItems.Add(result);
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}'", e, childAccessor);
+            }
+            finally
+            {
+              childAccessor.Dispose();
+            }
           }
-          finally
-          {
-            childAccessor.Dispose();
-          }
-        }
-      ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
-      if (directories != null)
-        foreach (IFileSystemResourceAccessor childAccessor in directories)
-        {
-          try
-          {
-            MediaItem result = mediaAccessor.CreateLocalMediaItem(childAccessor, metadataExtractorIds);
-            if (result == null)
-              subViewSpecifications.Add(new LocalDirectoryViewSpecification(null, childAccessor.CanonicalLocalResourcePath,
-                _necessaryMIATypeIds, _optionalMIATypeIds));
-            else
-              mediaItems.Add(result);
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("LocalDirectoryViewSpecification: Error creating media item or view specification for '{0}'", e, childAccessor);
-          }
-          finally
-          {
-            childAccessor.Dispose();
-          }
-        }
+      }
     }
 
     #endregion
