@@ -50,9 +50,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     /// <summary>
     /// Creates a new instance of this class which is based on the given <paramref name="baseAccessor"/>.
     /// </summary>
+    /// <remarks>
+    /// Calling this constructor should be only done if the caller really knows that he needs a new bridge. Prefer calling
+    /// <see cref="GetLocalFsResourceAccessor"/> if you just need an instance of <see cref="ILocalFsResourceAccessor"/>.
+    /// </remarks>
     /// <param name="baseAccessor">Resource accessor denoting a file.</param>
-    /// <exception cref="ArgumentException">If the given <paramref name="baseAccessor"/> doesn't denote a file
-    /// resource (i.e. <c><see cref="IResourceAccessor.IsFile"/> == false</c>.</exception>
     public StreamedResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
     {
       _baseAccessor = baseAccessor;
@@ -101,8 +103,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     }
 
     /// <summary>
-    /// Returns a resource accessor instance of interface <see cref="ILocalFsResourceAccessor"/>. This instance will be provided
-    /// ba a local filesystem access bridge, if necessary.
+    /// Returns a resource accessor instance of interface <see cref="ILocalFsResourceAccessor"/>. This instance will return the
+    /// given <paramref name="baseResourceAccessor"/>, casted to <see cref="ILocalFsResourceAccessor"/> if possible, or
+    /// a new instance of <see cref="StreamedResourceToLocalFsAccessBridge"/> to provide the <see cref="ILocalFsResourceAccessor"/>
+    /// instance.
     /// </summary>
     /// <param name="baseResourceAccessor">Resource accessor which is used to provide the resource contents.</param>
     /// <returns>Resource accessor which implements <see cref="ILocalFsResourceAccessor"/>.</returns>
@@ -114,7 +118,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         // Simple case: The media item is located in the local file system or the resource provider returns
         // an ILocalFsResourceAccessor from elsewhere - simply return it
         return result;
-      // Set up a resource bridge mapping the remote or complex resource to a local file
+      // Set up a resource bridge mapping the remote or complex resource to a local file or directory
       return new StreamedResourceToLocalFsAccessBridge(baseResourceAccessor);
     }
 
