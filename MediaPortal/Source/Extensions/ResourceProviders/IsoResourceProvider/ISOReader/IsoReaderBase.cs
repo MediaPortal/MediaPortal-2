@@ -248,10 +248,6 @@ namespace ISOReader
                         }
                     }
 
-                    //When reading the table is finished we go out
-                    if (iOffset >= uiTableSize)
-                        break;
-
                     iOffset += r.Length + 8;
 
                     if ((r2.Number % 2) > 0)
@@ -262,6 +258,10 @@ namespace ISOReader
 
                     if (r2.ParentNumber == 0)     //If found = root path you pass to the next
                         iOffset++;
+
+                    //When reading the table is finished we go out
+                    if (iOffset >= uiTableSize)
+                        break;
                 }
             }
             catch (Exception ex)
