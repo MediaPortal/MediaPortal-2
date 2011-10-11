@@ -90,7 +90,7 @@ namespace MediaPortal.Media.MetadataExtractors
     {
       try
       {
-        using (ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor))
+        using (ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor.Clone()))
           if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("BDMV"))
           {
             IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
