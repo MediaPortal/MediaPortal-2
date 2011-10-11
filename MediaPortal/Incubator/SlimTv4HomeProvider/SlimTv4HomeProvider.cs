@@ -238,7 +238,20 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public int SelectedChannelId { get; set; }
 
-    public int SelectedChannelGroupId { get; set; }
+    public int SelectedChannelGroupId
+    {
+      get
+      {
+        TV4HomeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TV4HomeProviderSettings>();
+        return settings.LastChannelGroupId;
+      }
+      set
+      {
+        TV4HomeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TV4HomeProviderSettings>();
+        settings.LastChannelGroupId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
 
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
