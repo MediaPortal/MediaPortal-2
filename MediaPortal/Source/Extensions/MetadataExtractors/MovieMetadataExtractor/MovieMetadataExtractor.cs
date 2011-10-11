@@ -327,8 +327,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!extractedAspectData.TryGetValue(ThumbnailLargeAspect.ASPECT_ID, out thumbnailLargeAspect))
             extractedAspectData[ThumbnailLargeAspect.ASPECT_ID] = thumbnailLargeAspect = new MediaItemAspect(ThumbnailLargeAspect.Metadata);
 
-          ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor);
-          result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
+          using (ILocalFsResourceAccessor lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor.Clone()))
+            result.UpdateMetadata(mediaAspect, videoAspect, thumbnailSmallAspect, thumbnailLargeAspect, lfsra.LocalFileSystemPath, forceQuickMode);
           return true;
         }
       }
