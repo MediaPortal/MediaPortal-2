@@ -71,6 +71,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     #endregion
 
+    #region Protected methods
+
     protected void MountResource()
     {
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
@@ -84,6 +86,18 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
       resourceMountingService.RemoveResource(_rootDirectoryName, _baseAccessor);
       resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
+    }
+
+    #endregion
+
+    #region Public members
+
+    /// <summary>
+    /// Returns a resource path which points to the transient local resource provided by this resource access bridge.
+    /// </summary>
+    public ResourcePath TransientLocalResourcePath
+    {
+      get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFileSystemPath); }
     }
 
     /// <summary>
@@ -103,6 +117,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       // Set up a resource bridge mapping the remote or complex resource to a local file
       return new StreamedResourceToLocalFsAccessBridge(baseResourceAccessor);
     }
+
+    #endregion
 
     #region IResourceAccessor implementation
 
