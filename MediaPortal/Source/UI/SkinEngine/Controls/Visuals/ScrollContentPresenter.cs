@@ -633,22 +633,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool IsViewPortAtTop
     {
-      get { return TemplateControl == null || _actualScrollOffsetY == 0; }
+      get { return TemplateControl == null || Math.Abs(_actualScrollOffsetY) < DELTA_DOUBLE; }
     }
 
     public bool IsViewPortAtBottom
     {
-      get { return TemplateControl == null || -_actualScrollOffsetY + ActualHeight >= TotalHeight; }
+      get { return TemplateControl == null || -_actualScrollOffsetY + ActualHeight + DELTA_DOUBLE >= TotalHeight; }
     }
 
     public bool IsViewPortAtLeft
     {
-      get { return TemplateControl == null || _actualScrollOffsetX == 0; }
+      get { return TemplateControl == null || Math.Abs(_actualScrollOffsetX) < DELTA_DOUBLE; }
     }
 
     public bool IsViewPortAtRight
     {
-      get { return TemplateControl == null || -_actualScrollOffsetX + ActualWidth >= TotalWidth; }
+      get { return TemplateControl == null || -_actualScrollOffsetX + ActualWidth + DELTA_DOUBLE >= TotalWidth; }
     }
 
     #endregion
