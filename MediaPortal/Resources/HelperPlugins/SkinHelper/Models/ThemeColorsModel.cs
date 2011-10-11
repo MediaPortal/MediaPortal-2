@@ -88,11 +88,15 @@ namespace MediaPortal.Helpers.SkinHelper.Models
         object key = localStyleResource.Key;
         object value = localStyleResource.Value;
         object c;
+        object testString;
+        int testInt;
         if (TypeConverter.Convert(value, typeof(Color), out c))
-        {
-          Color color = (Color) c;
-          result.Add(BuildColorListItem(key.ToString(), color));
-        }
+          // Avoid conversion of strings containing int values
+          if (!TypeConverter.Convert(value, typeof(string), out testString) || !int.TryParse((string) testString, out testInt))
+          {
+            Color color = (Color) c;
+            result.Add(BuildColorListItem(key.ToString(), color));
+          }
       }
       SkinResources inherited = resourceBundle.InheritedSkinResources;
       if (inherited != null)
