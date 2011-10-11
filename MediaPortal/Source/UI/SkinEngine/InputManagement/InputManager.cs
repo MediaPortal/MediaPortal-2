@@ -28,6 +28,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.Presentation.Screens;
@@ -73,7 +74,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     #region Inner classes
 
     protected class InputEvent
-    {}
+    {
+      public override string ToString()
+      {
+        return GetType().Name;
+      }
+    }
 
     protected class KeyEvent : InputEvent
     {
@@ -294,6 +300,10 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
           ExecuteMouseClick((MouseClickEvent) evt);
         else if (eventType == typeof(MouseWheelEvent))
           ExecuteMouseWheel((MouseWheelEvent) evt);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("InputManager: Error dispatching event '{0}'", e, evt);
       }
       finally
       {
