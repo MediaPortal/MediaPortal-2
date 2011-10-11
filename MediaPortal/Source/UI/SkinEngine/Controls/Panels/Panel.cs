@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Utils;
 using MediaPortal.Utilities;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -219,6 +220,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected static float GetExtendsInNonOrientationDirection(Orientation orientation, SizeF size)
     {
       return orientation == Orientation.Vertical ? size.Width : size.Height;
+    }
+
+    protected static double SumActualExtendsInOrientationDirection(IList<FrameworkElement> elements, Orientation orientation, int startIndex, int endIndex)
+    {
+      CalcHelper.Bound(ref startIndex, 0, elements.Count-1);
+      CalcHelper.Bound(ref endIndex, 0, elements.Count-1);
+      if (startIndex == endIndex || elements.Count == 0)
+        return 0;
+      bool invert = startIndex > endIndex;
+      if (invert)
+      {
+        int tmp = startIndex;
+        startIndex = endIndex;
+        endIndex = tmp;
+      }
+      double result = 0;
+      if (orientation == Orientation.Horizontal)
+        for (int i = startIndex; i < endIndex; i++)
+          result += elements[i].ActualWidth;
+      else
+        for (int i = startIndex; i < endIndex; i++)
+          result += elements[i].ActualHeight;
+      return invert ? -result : result;
     }
 
     protected override void ArrangeOverride()

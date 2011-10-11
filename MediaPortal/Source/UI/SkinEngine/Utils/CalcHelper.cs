@@ -23,12 +23,10 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.UI.SkinEngine.Controls.Transforms;
-using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Utils
 {
-  public class GeometricHelper
+  public class CalcHelper
   {
     /// <summary>
     /// Tests whether any of the rect's bounds is <see cref="float.NaN"/>.
@@ -50,6 +48,26 @@ namespace MediaPortal.UI.SkinEngine.Utils
     public static bool HasExtends(Rectangle rect)
     {
       return !rect.IsEmpty && !double.IsNaN(rect.Top) && !double.IsNaN(rect.Bottom) && !double.IsNaN(rect.Left) && !double.IsNaN(rect.Right);
+    }
+
+    public static void Bound(ref int value, int lowerBound, int upperBound)
+    {
+      if (value < lowerBound)
+        value = lowerBound;
+      if (value > upperBound)
+        value = upperBound;
+    }
+
+    public static void LowerBound(ref int value, int lowerBound)
+    {
+      if (value < lowerBound)
+        value = lowerBound;
+    }
+
+    public static void UpperBound(ref int value, int upperBound)
+    {
+      if (value > upperBound)
+        value = upperBound;
     }
   }
 }

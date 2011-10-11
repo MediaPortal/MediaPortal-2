@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -398,7 +398,7 @@
     <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
     <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
     <Compile Include="Xaml\Parser.cs" />
-    <Compile Include="Utils\GeometricHelper.cs" />
+    <Compile Include="Utils\CalcHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
