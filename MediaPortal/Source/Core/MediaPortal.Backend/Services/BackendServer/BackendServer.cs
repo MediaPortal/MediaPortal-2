@@ -39,8 +39,8 @@ namespace MediaPortal.Backend.Services.BackendServer
 {
   public class BackendServer : IBackendServer, IDisposable
   {
-    public const string MP2SERVER_DEVICEVERSION = "MediaPortal2/1.0";
-    public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 Web Server";
+    public const string MP2SERVER_DEVICEVERSION = "MediaPortal-2-Server/1.0";
+    public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 (Server) Web Server";
 
     internal class UPnPLoggerDelegate : UPnPLogger
     {
