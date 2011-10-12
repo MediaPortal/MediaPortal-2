@@ -133,6 +133,20 @@ namespace MediaPortal.Utilities.Cache
     }
 
     /// <summary>
+    /// Removes the entry with the given key.
+    /// </summary>
+    /// <param name="key">Key of the entry to remove.</param>
+    public void Remove(TKey key)
+    {
+      lock (_syncObj)
+      {
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = FindEntry(key);
+        if (current != null)
+          _data.Remove(current);
+      }
+    }
+
+    /// <summary>
     /// Returns the value which is stored in the cache for the specified <paramref name="key"/> if
     /// it is present in the cache.
     /// </summary>
