@@ -270,7 +270,11 @@ namespace MediaPortal.Common.Services.MediaManagement
           IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
           try
           {
-            _stream = resourceAccessor == null ? null : resourceAccessor.OpenRead();
+            if (resourceAccessor != null)
+            {
+              resourceAccessor.PrepareStreamAccess();
+              _stream = resourceAccessor.OpenRead();
+            }
           }
           catch (Exception e)
           {
