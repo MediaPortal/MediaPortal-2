@@ -201,7 +201,7 @@ namespace MediaPortal.Utilities.Cache
       lock (_syncObj)
       {
         LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
-        while (current != null && !current.Value.Value.Equals(key))
+        while (current != null && !current.Value.Key.Equals(key))
           current = current.Next;
         return current;
       }
