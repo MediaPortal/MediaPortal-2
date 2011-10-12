@@ -114,19 +114,36 @@ namespace MediaPortal.Utilities.Cache
     }
 
     /// <summary>
+    /// Adds the given key; value pair to this cache.
+    /// </summary>
+    /// <remarks>
+    /// If the given <paramref name="key"/> already exists, the new entry will replace the old entry.
+    /// </remarks>
+    /// <param name="key">Key of the new entry.</param>
+    /// <param name="value">Value of the new entry.</param>
+    public void Add(TKey key, TValue value)
+    {
+      lock (_syncObj)
+      {
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = FindEntry(key);
+        if (current != null)
+          _data.Remove(current);
+        _data.AddFirst(new KeyValuePair<TKey, TValue>(key, value));
+      }
+    }
+
+    /// <summary>
     /// Returns the value which is stored in the cache for the specified <paramref name="key"/> if
     /// it is present in the cache.
     /// </summary>
     /// <param name="key">Key to retrieve the value for.</param>
     /// <param name="value">Contained value if the key is found in the cache.</param>
     /// <returns><c>true</c>, if the given <paramref name="key"/> is found in the cache, else <c>false</c>.</returns>
-    public bool TryGet(TKey key, out TValue value)
+    public bool TryGetValue(TKey key, out TValue value)
     {
       lock (_syncObj)
       {
-        LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
-        while (current != null && !current.Value.Value.Equals(key))
-          current = current.Next;
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = FindEntry(key);
         if (current != null)
         {
           _data.Remove(current);
@@ -147,9 +164,7 @@ namespace MediaPortal.Utilities.Cache
     {
       lock (_syncObj)
       {
-        LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
-        while (current != null && !current.Value.Value.Equals(key))
-          current = current.Next;
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = FindEntry(key);
         if (current == null)
           return;
         _data.Remove(current);
@@ -161,10 +176,21 @@ namespace MediaPortal.Utilities.Cache
     /// <summary>
     /// Removes all entries from this cache.
     /// </summary>
-    public void PruneAll()
+    public void Clear()
     {
       lock (_syncObj)
         _data.Clear();
+    }
+
+    protected LinkedListNode<KeyValuePair<TKey, TValue>> FindEntry(TKey key)
+    {
+      lock (_syncObj)
+      {
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
+        while (current != null && !current.Value.Value.Equals(key))
+          current = current.Next;
+        return current;
+      }
     }
 
     /// <summary>
