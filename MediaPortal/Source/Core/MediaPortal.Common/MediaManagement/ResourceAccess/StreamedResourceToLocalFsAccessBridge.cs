@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.Services.MediaManagement;
+using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Common.MediaManagement.ResourceAccess
 {
@@ -37,70 +38,170 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
   /// </remarks>
   public class StreamedResourceToLocalFsAccessBridge : ILocalFsResourceAccessor
   {
+    #region Classes
+
+    protected class MountingData
+    {
+      protected string _cacheKey;
+      protected int _usageCount = 0;
+      protected IResourceAccessor _baseAccessor;
+      protected string _rootDirectoryName;
+      protected string _mountPath;
+
+      /// <summary>
+      /// Creates a new instance of this class which is based on the given <paramref name="baseAccessor"/>.
+      /// </summary>
+      /// <param name="cacheKey">Key which is used for this instance.</param>
+      /// <param name="baseAccessor">Resource accessor denoting a filesystem resource.</param>
+      public MountingData(string cacheKey, IResourceAccessor baseAccessor)
+      {
+        _cacheKey = cacheKey;
+        _baseAccessor = baseAccessor;
+        lock (_syncObj)
+          _mountCache.Add(_cacheKey, this);
+        MountResource();
+      }
+
+      ~MountingData()
+      {
+        Dispose();
+      }
+
+      public void Dispose()
+      {
+        lock (_syncObj)
+        {
+          _activeMounts.Remove(_cacheKey);
+          _mountCache.Remove(_cacheKey);
+        }
+        UnmountResource();
+        if (_baseAccessor != null)
+        {
+          _baseAccessor.Dispose();
+          _baseAccessor = null;
+        }
+      }
+
+      #region Protected methods
+
+      protected void MountResource()
+      {
+        IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+        _rootDirectoryName = Guid.NewGuid().ToString();
+        _mountPath = resourceMountingService.CreateRootDirectory(_rootDirectoryName) == null ?
+            null : resourceMountingService.AddResource(_rootDirectoryName, _baseAccessor);
+      }
+
+      protected void UnmountResource()
+      {
+        IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+        resourceMountingService.RemoveResource(_rootDirectoryName, _baseAccessor);
+        resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
+      }
+
+      #endregion
+
+      #region Public members
+
+      public string CacheKey
+      {
+        get { return _cacheKey; }
+      }
+
+      /// <summary>
+      /// Returns a resource path which points to the transient local resource provided by this resource access bridge.
+      /// </summary>
+      public ResourcePath TransientLocalResourcePath
+      {
+        get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFileSystemPath); }
+      }
+
+      public string LocalFileSystemPath
+      {
+        get { return _mountPath; }
+      }
+
+      public void IncUsage()
+      {
+        lock (_syncObj)
+        {
+          _usageCount++;
+          if (_usageCount == 1)
+            _activeMounts[_cacheKey] = this;
+        }
+      }
+
+      public void DecUsage()
+      {
+        lock (_syncObj)
+        {
+          _usageCount--;
+          if (_usageCount == 0)
+            _activeMounts.Remove(_cacheKey);
+        }
+      }
+
+      public IResourceAccessor ResourceAccessor
+      {
+        get { return _baseAccessor; }
+      }
+
+      public string MountPath
+      {
+        get { return _mountPath; }
+      }
+
+      #endregion
+
+      #region Base overrides
+
+      public override string ToString()
+      {
+        return "MountData; Root dir = '"  + _rootDirectoryName + "', mount path='" + _mountPath + "', base accessor='" + _baseAccessor + "'";
+      }
+
+      #endregion
+    }
+
+    #endregion
+
+    #region Consts
+
+    public const int MOUNT_CACHE_SIZE = 20;
+
+    #endregion
+
     #region Protected fields
 
-    protected IResourceAccessor _baseAccessor;
-    protected string _rootDirectoryName;
-    protected string _mountPath;
+    protected static IDictionary<string, MountingData> _activeMounts = new Dictionary<string, MountingData>(); // Maintained by class MountingData
+    protected static SmallLRUCache<string, MountingData> _mountCache = new SmallLRUCache<string, MountingData>(MOUNT_CACHE_SIZE); // Maintained by this class
+    protected static object _syncObj = _mountCache.SyncObj;
+
+    protected MountingData _mountingData;
 
     #endregion
 
     #region Ctor & maintenance
 
     /// <summary>
-    /// Creates a new instance of this class which is based on the given <paramref name="baseAccessor"/>.
+    /// Creates a new instance of this class which is based on the given <paramref name="mountingData"/>.
     /// </summary>
-    /// <remarks>
-    /// Calling this constructor should be only done if the caller really knows that he needs a new bridge. Prefer calling
-    /// <see cref="GetLocalFsResourceAccessor"/> if you just need an instance of <see cref="ILocalFsResourceAccessor"/>.
-    /// </remarks>
-    /// <param name="baseAccessor">Resource accessor denoting a file.</param>
-    public StreamedResourceToLocalFsAccessBridge(IResourceAccessor baseAccessor)
+    /// <param name="mountingData">Mount this bridge is based on.</param>
+    protected StreamedResourceToLocalFsAccessBridge(MountingData mountingData)
     {
-      _baseAccessor = baseAccessor;
-      MountResource();
+      _mountingData = mountingData;
+      _mountingData.IncUsage();
     }
 
     public void Dispose()
     {
-      UnmountResource();
-      if (_baseAccessor != null)
-      {
-        _baseAccessor.Dispose();
-        _baseAccessor = null;
-      }
-    }
-
-    #endregion
-
-    #region Protected methods
-
-    protected void MountResource()
-    {
-      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
-      _rootDirectoryName = Guid.NewGuid().ToString();
-      _mountPath = resourceMountingService.CreateRootDirectory(_rootDirectoryName) == null ?
-          null : resourceMountingService.AddResource(_rootDirectoryName, _baseAccessor);
-    }
-
-    protected void UnmountResource()
-    {
-      IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
-      resourceMountingService.RemoveResource(_rootDirectoryName, _baseAccessor);
-      resourceMountingService.DisposeRootDirectory(_rootDirectoryName);
+      _mountingData.DecUsage();
+      _mountingData = null;
     }
 
     #endregion
 
     #region Public members
-
-    /// <summary>
-    /// Returns a resource path which points to the transient local resource provided by this resource access bridge.
-    /// </summary>
-    public ResourcePath TransientLocalResourcePath
-    {
-      get { return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFileSystemPath); }
-    }
 
     /// <summary>
     /// Returns a resource accessor instance of interface <see cref="ILocalFsResourceAccessor"/>. This instance will return the
@@ -119,7 +220,24 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         // an ILocalFsResourceAccessor from elsewhere - simply return it
         return result;
       // Set up a resource bridge mapping the remote or complex resource to a local file or directory
-      return new StreamedResourceToLocalFsAccessBridge(baseResourceAccessor);
+      lock (_mountCache.SyncObj)
+      {
+        MountingData md;
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        if (!_mountCache.TryGetValue(key, out md))
+          _mountCache.Add(key, md = new MountingData(key, baseResourceAccessor));
+        return new StreamedResourceToLocalFsAccessBridge(md);
+      }
+    }
+
+    public static void Shutdown()
+    {
+      lock (_mountCache.SyncObj)
+      {
+        foreach (MountingData mountingData in _mountCache.Values)
+          mountingData.Dispose();
+        _mountCache.Clear();
+      }
     }
 
     #endregion
@@ -133,71 +251,69 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     public bool Exists
     {
-      get { return _baseAccessor.Exists; }
+      get { return _mountingData.ResourceAccessor.Exists; }
     }
 
     public bool IsFile
     {
-      get { return _baseAccessor.IsFile; }
+      get { return _mountingData.ResourceAccessor.IsFile; }
     }
 
     public string ResourceName
     {
-      get { return _baseAccessor.ResourceName; }
+      get { return _mountingData.ResourceAccessor.ResourceName; }
     }
 
     public string ResourcePathName
     {
-      get { return _baseAccessor.ResourcePathName; }
+      get { return _mountingData.ResourceAccessor.ResourcePathName; }
     }
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get { return _baseAccessor.CanonicalLocalResourcePath; }
+      get { return _mountingData.ResourceAccessor.CanonicalLocalResourcePath; }
     }
 
     public DateTime LastChanged
     {
-      get { return _baseAccessor.LastChanged; }
+      get { return _mountingData.ResourceAccessor.LastChanged; }
     }
 
     public long Size
     {
-      get { return _baseAccessor.Size; }
+      get { return _mountingData.ResourceAccessor.Size; }
     }
 
     public bool ResourceExists(string path)
     {
-      IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+      IFileSystemResourceAccessor fsra = _mountingData.ResourceAccessor as IFileSystemResourceAccessor;
       return fsra == null ? false : fsra.ResourceExists(path);
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+      IFileSystemResourceAccessor fsra = _mountingData.ResourceAccessor as IFileSystemResourceAccessor;
       return fsra == null ? null : fsra.GetResource(path);
     }
 
     public void PrepareStreamAccess()
     {
-      _baseAccessor.PrepareStreamAccess();
+      _mountingData.ResourceAccessor.PrepareStreamAccess();
     }
 
     public Stream OpenRead()
     {
-      // Using the stream on the base accessor doesn't cost so much resources than creating the bridge here
-      return _baseAccessor.OpenRead();
+      return _mountingData.ResourceAccessor.OpenRead();
     }
 
     public Stream OpenWrite()
     {
-      // Using the stream on the base accessor doesn't cost so much resources than creating the bridge here
-      return _baseAccessor.OpenWrite();
+      return _mountingData.ResourceAccessor.OpenWrite();
     }
 
     public IResourceAccessor Clone()
     {
-      return new StreamedResourceToLocalFsAccessBridge(_baseAccessor.Clone());
+      return new StreamedResourceToLocalFsAccessBridge(_mountingData);
     }
 
     #endregion
@@ -208,19 +324,21 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     {
       get
       {
-        IFileSystemResourceAccessor fsra = _baseAccessor as IFileSystemResourceAccessor;
+        IFileSystemResourceAccessor fsra = _mountingData.ResourceAccessor as IFileSystemResourceAccessor;
         return fsra == null ? false : fsra.IsDirectory;
       }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
-      return new List<IFileSystemResourceAccessor>();
+      IFileSystemResourceAccessor fsra = _mountingData.ResourceAccessor as IFileSystemResourceAccessor;
+      return fsra == null ? new List<IFileSystemResourceAccessor>() : fsra.GetFiles();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      return new List<IFileSystemResourceAccessor>();
+      IFileSystemResourceAccessor fsra = _mountingData.ResourceAccessor as IFileSystemResourceAccessor;
+      return fsra == null ? new List<IFileSystemResourceAccessor>() : fsra.GetChildDirectories();
     }
 
     #endregion
@@ -231,10 +349,11 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     {
       get
       {
-        if (_mountPath == null)
+        string result = _mountingData.MountPath;
+        if (result == null)
           return null;
         PrepareStreamAccess();
-        return _mountPath;
+        return result;
       }
     }
 
@@ -244,7 +363,7 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     public override string ToString()
     {
-      return "StreamedRA access bridge; Root dir = '"  + _rootDirectoryName + "', mount path='" + _mountPath + "', base accessor='" + _baseAccessor + "'";
+      return "StreamedRA access bridge; MountingData = '"  + _mountingData + "'";
     }
 
     #endregion
