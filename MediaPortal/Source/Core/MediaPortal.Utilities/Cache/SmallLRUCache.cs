@@ -23,16 +23,22 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 
-namespace MediaPortal.Common.General
+namespace MediaPortal.Utilities.Cache
 {
   /// <summary>
   /// Cache class which stores a fixed maximum amount of (key; value) mapping entries. An entry which
   /// is not among the last used entries will be discarded from the cache.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// This cache implementation is performant for a low value of entries. An LRU cache with more than
-  /// 100 entries shouldn't use this implementation.
+  /// about 100 entries shouldn't use this implementation.
+  /// </para>
+  /// <para>
+  /// This implementation is multithreading-safe.
+  /// </para>
   /// </remarks>
   /// <typeparam name="TKey">Key type parameter.</typeparam>
   /// <typeparam name="TValue">Value type parameter.</typeparam>
@@ -40,6 +46,7 @@ namespace MediaPortal.Common.General
   {
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected LinkedList<KeyValuePair<TKey, TValue>> _data = new LinkedList<KeyValuePair<TKey, TValue>>();
     protected int _cacheSize;
 
@@ -66,38 +73,44 @@ namespace MediaPortal.Common.General
       get { return _cacheSize; }
       set
       {
-        _cacheSize = value;
-        Clip();
+        lock (_syncObj)
+        {
+          _cacheSize = value;
+          Clip();
+        }
       }
     }
 
     /// <summary>
-    /// Returns an enumeration over all available values. Enumerating over the returned
-    /// enumeration neither will change the cache order nor will make cache items stay in cache
-    /// if they are displaced in the meantime.
+    /// Returns a collection with all available values.
     /// </summary>
-    public IEnumerable<TValue> Values
+    public ICollection<TValue> Values
     {
       get
       {
-        ICollection<TValue> result = new List<TValue>();
-        foreach (KeyValuePair<TKey, TValue> entry in _data)
-          result.Add(entry.Value);
-        return result;
+        lock (_syncObj)
+          return _data.Select(entry => entry.Value).ToList();
       }
     }
 
     /// <summary>
-    /// Convenience implementation for method <see cref="Get(TKey,TValue)"/>. Will use the default
-    /// value of <see cref="TValue"/> for the defVal parameter. This method should be used if <see cref="TValue"/>
-    /// is a class.
+    /// Returns a collection with all available keys.
     /// </summary>
-    /// <param name="key">Key to retrieve the value for.</param>
-    /// <returns>Value for the specified <paramref name="key"/> if it is present in the cache. Else
-    /// the default value of <see cref="TValue"/> is returned.</returns>
-    public TValue Get(TKey key)
+    public ICollection<TKey> Keys
     {
-      return Get(key, default(TValue));
+      get
+      {
+        lock (_syncObj)
+          return _data.Select(entry => entry.Key).ToList();
+      }
+    }
+
+    /// <summary>
+    /// Returns the synchronization object which is used to lock the critical sections of this cache.
+    /// </summary>
+    public object SyncObj
+    {
+      get { return _syncObj; }
     }
 
     /// <summary>
@@ -105,42 +118,53 @@ namespace MediaPortal.Common.General
     /// it is present in the cache.
     /// </summary>
     /// <param name="key">Key to retrieve the value for.</param>
-    /// <param name="defVal">Default value to return if the key is not found in the cache.</param>
-    /// <returns>Value for the specified <paramref name="key"/> if it is present in the cache. Else
-    /// <paramref name="defVal"/> is returned.</returns>
-    public TValue Get(TKey key, TValue defVal)
+    /// <param name="value">Contained value if the key is found in the cache.</param>
+    /// <returns><c>true</c>, if the given <paramref name="key"/> is found in the cache, else <c>false</c>.</returns>
+    public bool TryGet(TKey key, out TValue value)
     {
-      LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
-      while (current != null && !current.Value.Value.Equals(key))
-        current = current.Next;
-      if (current != null)
+      lock (_syncObj)
       {
-        _data.Remove(current);
-        _data.AddFirst(current);
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
+        while (current != null && !current.Value.Value.Equals(key))
+          current = current.Next;
+        if (current != null)
+        {
+          _data.Remove(current);
+          _data.AddFirst(current);
+          value = current.Value.Value;
+          return true;
+        }
       }
-      return defVal;
+      value = default(TValue);
+      return false;
     }
 
     /// <summary>
-    /// This method has to be called when a cache entry is used. It will set the entry to the beginning of
-    /// the backing LRU list.
+    /// This method has to be called when a cache entry is used. It will set the entry to the beginning of the backing LRU list.
     /// </summary>
     /// <param name="key">Key of the used entry.</param>
-    /// <param name="value">Value of the used entry.</param>
-    public void NotifyUsage(TKey key, TValue value)
+    public void Touch(TKey key)
     {
-      LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
-      while (current != null && !current.Value.Value.Equals(key))
-        current = current.Next;
-      if (current == null)
-        current = new LinkedListNode<KeyValuePair<TKey, TValue>>(new KeyValuePair<TKey, TValue>(key, value));
-      else
+      lock (_syncObj)
       {
+        LinkedListNode<KeyValuePair<TKey, TValue>> current = _data.First;
+        while (current != null && !current.Value.Value.Equals(key))
+          current = current.Next;
+        if (current == null)
+          return;
         _data.Remove(current);
-        current.Value = new KeyValuePair<TKey, TValue>(key, value);
+        _data.AddFirst(current);
+        Clip();
       }
-      _data.AddFirst(current);
-      Clip();
+    }
+
+    /// <summary>
+    /// Removes all entries from this cache.
+    /// </summary>
+    public void PruneAll()
+    {
+      lock (_syncObj)
+        _data.Clear();
     }
 
     /// <summary>
@@ -148,8 +172,9 @@ namespace MediaPortal.Common.General
     /// </summary>
     protected void Clip()
     {
-      while (_data.Count >= _cacheSize)
-        _data.RemoveLast();
+      lock (_syncObj)
+        while (_data.Count >= _cacheSize)
+          _data.RemoveLast();
     }
   }
 }

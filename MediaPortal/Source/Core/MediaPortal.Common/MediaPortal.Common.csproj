@@ -119,7 +119,6 @@
     <Compile Include="General\HomogenousCollection.cs" />
     <Compile Include="General\IObservable.cs" />
     <Compile Include="General\WProperty.cs" />
-    <Compile Include="General\SmallLRUCache.cs" />
     <Compile Include="General\SystemName.cs" />
     <Compile Include="IStatus.cs" />
     <Compile Include="Localization\FormattingUtils.cs" />
