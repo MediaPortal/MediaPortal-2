@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.General;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities.Exceptions;
 
@@ -84,7 +85,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (RemoteFileSystemResourceAccessor.ConnectFileSystem(_nativeSystemId, _nativeResourcePath, out fsra))
         return fsra;
       IResourceAccessor ra;
-      if (RemoteFileResourceAccessor.ConnectFile(this, out ra))
+      if (RemoteFileResourceAccessor.ConnectFile(_nativeSystemId, _nativeResourcePath, out ra))
         return ra;
       throw new IllegalCallException("Cannot create resource accessor for resource location '{0}' at system '{1}'", _nativeResourcePath, _nativeSystemId);
     }

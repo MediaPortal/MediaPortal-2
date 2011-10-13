@@ -202,9 +202,10 @@
     <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RemoteResourceInformationService.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteResourceAccessorBase.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteFileSystemResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteFileResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteResourceAccessorBase.cs" />
+    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteFileSystemResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteFileResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\ResourceAccessModule.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />

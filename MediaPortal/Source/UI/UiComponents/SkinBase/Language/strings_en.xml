@@ -83,6 +83,9 @@
   <Section Name="LocalFsResourceProvider">
     <String Name="Name" Text="Local filesystem resource provider"/>
   </Section>
+  <Section Name="RemoteResourceProvider">
+    <String Name="Name" Text="Remote resource provider"/>
+  </Section>
   <Section Name="Players">
     <!-- For MP UI player subsystem -->
     <String Name="NoPlayerAvailableNotificationTitle" Text="No player"/>

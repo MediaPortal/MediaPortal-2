@@ -27,7 +27,7 @@ using System.IO;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Common.Services.ResourceAccess
+namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 {
   /// <summary>
   /// Multithreading-safe base class for remote resource accessors. Provides metadata and a remote access stream.
@@ -35,15 +35,17 @@ namespace MediaPortal.Common.Services.ResourceAccess
   public abstract class RemoteResourceAccessorBase : IResourceAccessor
   {
     protected object _syncObj = new object();
-    protected IResourceLocator _resourceLocator;
+    protected string _nativeSystemId;
+    protected ResourcePath _nativeResourcePath;
     protected bool _isFile;
     protected string _resourcePathName;
     protected string _resourceName;
     protected Stream _underlayingStream = null; // Lazy initialized
 
-    protected RemoteResourceAccessorBase(IResourceLocator resourceLocator, bool isFile, string resourcePathName, string resourceName)
+    protected RemoteResourceAccessorBase(string nativeSystemId, ResourcePath nativeResourcePath, bool isFile, string resourcePathName, string resourceName)
     {
-      _resourceLocator = resourceLocator;
+      _nativeSystemId = nativeSystemId;
+      _nativeResourcePath = nativeResourcePath;
       _isFile = isFile;
       _resourcePathName = resourcePathName;
       _resourceName = resourceName;
@@ -61,12 +63,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public string NativeSystemId
     {
-      get { return _resourceLocator.NativeSystemId; }
+      get { return _nativeSystemId; }
     }
 
-    public IResourceLocator ResourceLocator
+    public ResourcePath NativeResourcePath
     {
-      get { return _resourceLocator; }
+      get { return _nativeResourcePath; }
     }
 
     public abstract long Size { get; }
@@ -97,7 +99,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get { return _resourceLocator.NativeResourcePath; }
+      get
+      {
+        return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+            RemoteResourceProvider.BuildProviderPath(_nativeSystemId, _nativeResourcePath));
+      }
     }
 
     public abstract DateTime LastChanged { get; }
@@ -107,7 +113,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (!_isFile || _underlayingStream != null)
         return;
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      string resourceURL = rris.GetFileHttpUrl(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
+      string resourceURL = rris.GetFileHttpUrl(_nativeSystemId, _nativeResourcePath);
       lock (_syncObj)
       {
         _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size);
@@ -137,7 +143,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public override string ToString()
     {
-      return string.Format("Remote resource accessor for '{0}'", _resourceLocator);
+      return string.Format("Remote resource accessor for resource '{0}' at system '{1}'", _nativeResourcePath, _nativeSystemId);
     }
 
     #endregion

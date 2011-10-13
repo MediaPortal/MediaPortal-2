@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
   /// </summary>
   public class IsoResourceProvider : IChainedResourceProvider
   {
-    #region Public constants
+    #region Consts
 
     protected const string ISO_RESOURCE_PROVIDER_ID_STR = "{112728B1-F71D-4284-9E5C-3462E8D3C74D}";
     public static Guid ISO_RESOURCE_PROVIDER_ID = new Guid(ISO_RESOURCE_PROVIDER_ID_STR);

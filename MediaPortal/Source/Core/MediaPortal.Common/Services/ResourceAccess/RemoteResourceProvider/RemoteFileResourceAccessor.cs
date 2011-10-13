@@ -25,22 +25,22 @@
 using System;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Common.Services.ResourceAccess
+namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 {
   public class RemoteFileResourceAccessor : RemoteResourceAccessorBase
   {
     protected DateTime _lastChanged;
     protected long _size;
 
-    protected RemoteFileResourceAccessor(IResourceLocator resourceLocator,
+    protected RemoteFileResourceAccessor(string nativeSystemId, ResourcePath nativeResourcePath,
         string resourcePathName, string resourceName, DateTime lastChanged, long size) :
-            base(resourceLocator, true, resourcePathName, resourceName)
+        base(nativeSystemId, nativeResourcePath, true, resourcePathName, resourceName)
     {
       _lastChanged = lastChanged;
       _size = size;
     }
 
-    public static bool ConnectFile(IResourceLocator resourceLocator, out IResourceAccessor result)
+    public static bool ConnectFile(string nativeSystemId, ResourcePath nativeResourcePath, out IResourceAccessor result)
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       result = null;
@@ -50,12 +50,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
       string resourceName;
       DateTime lastChanged;
       long size;
-      if (!rris.GetResourceInformation(resourceLocator.NativeSystemId, resourceLocator.NativeResourcePath,
+      if (!rris.GetResourceInformation(nativeSystemId, nativeResourcePath,
           out isFileSystemResource, out isFile, out resourcePathName, out resourceName, out lastChanged, out size) ||
               !isFile)
         return false;
-      result = new RemoteFileResourceAccessor(resourceLocator,
-          resourcePathName, resourceName, lastChanged, size);
+      result = new RemoteFileResourceAccessor(nativeSystemId, nativeResourcePath, resourcePathName, resourceName, lastChanged, size);
       return true;
     }
 
@@ -71,7 +70,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       get
       {
         IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-        return rris.ResourceExists(_resourceLocator.NativeSystemId, _resourceLocator.NativeResourcePath);
+        return rris.ResourceExists(_nativeSystemId, _nativeResourcePath);
       }
     }
 
@@ -82,7 +81,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public override IResourceAccessor Clone()
     {
-      return new RemoteFileResourceAccessor(_resourceLocator, _resourcePathName, _resourceName, _lastChanged, _size);
+      return new RemoteFileResourceAccessor(_nativeSystemId, _nativeResourcePath, _resourcePathName, _resourceName, _lastChanged, _size);
     }
 
     #endregion
