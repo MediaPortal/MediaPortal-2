@@ -25,7 +25,7 @@
 using System;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Picture.Settings;
 using MediaPortal.UI.Presentation.Players;

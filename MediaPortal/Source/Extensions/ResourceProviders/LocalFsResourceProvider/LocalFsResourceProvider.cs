@@ -29,7 +29,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.FileEventNotification;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
 {

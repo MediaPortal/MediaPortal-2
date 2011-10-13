@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {

@@ -27,18 +27,22 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Registry;
 using MediaPortal.Common.Services.Localization;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.Messaging;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Services.Threading;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.TaskScheduler;
+using MediaPortal.Common.Threading;
 
 namespace MediaPortal.Common
 {
@@ -68,7 +72,7 @@ namespace MediaPortal.Common
       ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());
 
       logger.Debug("ApplicationCore: Registering IThreadPool service");
-      ServiceRegistration.Set<Threading.IThreadPool>(new Services.Threading.ThreadPool());
+      ServiceRegistration.Set<IThreadPool>(new ThreadPool());
 
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
@@ -86,19 +90,19 @@ namespace MediaPortal.Common
       ServiceRegistration.Set<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
 
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
-      ServiceRegistration.Set<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
+      ServiceRegistration.Set<IMediaAccessor>(new MediaAccessor());
 
       logger.Debug("ApplicationCore: Registering IImporterWorker service");
-      ServiceRegistration.Set<IImporterWorker>(new Services.MediaManagement.ImporterWorker());
+      ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
-      ServiceRegistration.Set<IResourceServer>(new Services.MediaManagement.ResourceServer());
+      ServiceRegistration.Set<IResourceServer>(new ResourceServer());
 
       logger.Debug("ApplicationCore: Registering IResourceMountingService");
-      ServiceRegistration.Set<IResourceMountingService>(new Services.MediaManagement.ResourceMountingService());
+      ServiceRegistration.Set<IResourceMountingService>(new ResourceMountingService());
 
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
-      ServiceRegistration.Set<IRemoteResourceInformationService>(new Services.MediaManagement.RemoteResourceInformationService());
+      ServiceRegistration.Set<IRemoteResourceInformationService>(new RemoteResourceInformationService());
 
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());

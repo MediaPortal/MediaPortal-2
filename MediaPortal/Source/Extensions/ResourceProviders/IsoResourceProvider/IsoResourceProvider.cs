@@ -26,7 +26,7 @@ using System;
 using System.IO;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using ISOReader;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider

@@ -25,7 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTvClient.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Providers

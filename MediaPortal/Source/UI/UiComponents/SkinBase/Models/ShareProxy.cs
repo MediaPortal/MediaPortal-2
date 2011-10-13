@@ -28,7 +28,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;

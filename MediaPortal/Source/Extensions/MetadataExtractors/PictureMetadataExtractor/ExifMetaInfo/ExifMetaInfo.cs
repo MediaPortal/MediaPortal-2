@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using System.IO;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor.ExifMetaInfo
 {

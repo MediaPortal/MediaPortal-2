@@ -28,8 +28,9 @@ using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;
 

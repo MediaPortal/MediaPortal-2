@@ -29,7 +29,7 @@ using System.Linq;
 using ICSharpCode.SharpZipLib.Core;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using ICSharpCode.SharpZipLib.Zip;
 using MediaPortal.Utilities.FileSystem;

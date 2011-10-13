@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace Ui.Players.BassPlayer.Utils
 {

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Common.MediaManagement.ResourceAccess;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
