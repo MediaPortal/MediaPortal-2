@@ -254,6 +254,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       StopTimer();
       _updateFinished.Close();
       UnsubscribeFromMessages();
+      DisposeCurrentPictureResourceAccessor();
       base.Dispose();
     }
 
