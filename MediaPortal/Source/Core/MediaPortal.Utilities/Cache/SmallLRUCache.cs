@@ -52,6 +52,10 @@ namespace MediaPortal.Utilities.Cache
 
     #endregion
 
+    public delegate void ObjectPrunedDlgt(SmallLRUCache<TKey, TValue> sender, TKey key, TValue value);
+
+    public event ObjectPrunedDlgt ObjectPruned;
+
     /// <summary>
     /// Creates a new instance of the <see cref="SmallLRUCache{TKey,TValue}"/> with the specified
     /// <paramref name="cacheSize"/>.
@@ -133,7 +137,7 @@ namespace MediaPortal.Utilities.Cache
     }
 
     /// <summary>
-    /// Removes the entry with the given key.
+    /// Removes the entry with the given key. The <see cref="ObjectPruned"/> event will not be fired here.
     /// </summary>
     /// <param name="key">Key of the entry to remove.</param>
     public void Remove(TKey key)
@@ -188,7 +192,7 @@ namespace MediaPortal.Utilities.Cache
     }
 
     /// <summary>
-    /// Removes all entries from this cache.
+    /// Removes all entries from this cache. The <see cref="ObjectPruned"/> event will not be fired here.
     /// </summary>
     public void Clear()
     {
@@ -214,7 +218,18 @@ namespace MediaPortal.Utilities.Cache
     {
       lock (_syncObj)
         while (_data.Count >= _cacheSize)
-          _data.RemoveLast();
+        {
+          LinkedListNode<KeyValuePair<TKey, TValue>> element = _data.Last;
+          _data.Remove(element);
+          FireObjectPruned(element.Value.Key, element.Value.Value);
+        }
+    }
+
+    protected void FireObjectPruned(TKey key, TValue value)
+    {
+      ObjectPrunedDlgt dlgt = ObjectPruned;
+      if (dlgt != null)
+        dlgt(this, key, value);
     }
   }
 }
