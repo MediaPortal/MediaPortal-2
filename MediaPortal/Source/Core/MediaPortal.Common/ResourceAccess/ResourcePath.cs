@@ -245,21 +245,22 @@ namespace MediaPortal.Common.ResourceAccess
     /// <remarks>
     /// See the class docs of <see cref="ResourcePath"/> for examples of serialized resource paths.
     /// </remarks>
-    /// <param name="resourceAccessorPath">Resource path of the form
+    /// <param name="resourcePathStr">Resource path of the form
     /// <c>{[Base-Provider-Id]}://[Base-Provider-Path]&gt;{[Virtual-Provider1-Id]}://[Virtual-Provider-Path1]&lt;...&gt;</c></param>
     /// <returns><see cref="ResourcePath"/> instance.</returns>
-    /// <exception cref="ArgumentException">If the given <paramref name="resourceAccessorPath"/> is malformed.</exception>
-    public static ResourcePath Deserialize(string resourceAccessorPath)
+    /// <exception cref="ArgumentException">If the given <paramref name="resourcePathStr"/> is malformed.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="resourcePathStr"/> is <c>null</c>.</exception>
+    public static ResourcePath Deserialize(string resourcePathStr)
     {
-      if (resourceAccessorPath == null)
-        throw new ArgumentNullException("resourceAccessorPath", "Cannot deserialize path string with value null");
+      if (resourcePathStr == null)
+        throw new ArgumentNullException("resourcePathStr", "Cannot deserialize path string with value null");
       bool firstIsBase = true;
-      if (resourceAccessorPath.StartsWith(">"))
+      if (resourcePathStr.StartsWith(">"))
       {
-        resourceAccessorPath = resourceAccessorPath.Substring(1);
+        resourcePathStr = resourcePathStr.Substring(1);
         firstIsBase = false;
       }
-      string[] pathSegmentStrs = resourceAccessorPath.Split('>');
+      string[] pathSegmentStrs = resourcePathStr.Split('>');
       ICollection<ProviderPathSegment> pathSegments = new List<ProviderPathSegment>(pathSegmentStrs.Length);
       bool isBase = firstIsBase;
       foreach (string pathSegmentStr in pathSegmentStrs)
