@@ -34,13 +34,13 @@ namespace MediaPortal.Common.ResourceAccess
 {
   /// <summary>
   /// Encapsulates a path expression which describes a resource provider chain in a given system
-  /// to a file or directory in MediaPortal.
+  /// to a file or directory in MediaPortal 2.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// In MediaPortal, a resource is identified by the id of a resource provider and a path which is sensible to that provider.
+  /// In MediaPortal 2, a resource is identified by the id of a resource provider and a path which is sensible to that provider.
   /// Providers can be chained in that way that a so called "base provider" provides access to a resource (e.g. from
-  /// the local HDD, form an FTP server, from an HTTP site, ...) by providing a <see cref="Stream"/> instance. If this
+  /// the local HDD, form an FTP server, from an HTTP site, ...) by providing a <see cref="Stream"/>. If this
   /// resource is able to be interpreted as an archive, for example, then an archive provider (which is able to handle such
   /// an archive resource) can be chained to the base provider, reading the archive contents from the stream.
   /// Such a chain of providers is called a resource provider chain. There can be any number of providers chained
@@ -49,6 +49,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// <para>
   /// A <see cref="ResourcePath"/> consists of one or more <see cref="ProviderPathSegment"/>s, describing a resource
   /// provider chain. Each of those path segments identifies a provider id together with a path in that provider.
+  /// In the simplest case, that chain only consists of a base resource provider
   /// </para>
   /// <para>
   /// <h1>Serialized form of a <see cref="ResourcePath"/></h1>
