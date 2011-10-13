@@ -30,7 +30,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
+namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 {
   public class LocalFsResourceAccessor : ILocalFsResourceAccessor, IResourceChangeNotifier
   {

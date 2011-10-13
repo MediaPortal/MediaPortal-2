@@ -76,10 +76,6 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ResourceProviders\LocalFsResourceProvider\LocalFsResourceProvider.csproj">
-      <Project>{347E1EC5-D40A-4A9A-A219-B0507A8A0D40}</Project>
-      <Name>LocalFsResourceProvider</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

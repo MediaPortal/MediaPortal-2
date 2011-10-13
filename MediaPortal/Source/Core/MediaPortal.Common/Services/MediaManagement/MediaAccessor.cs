@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -159,10 +160,33 @@ namespace MediaPortal.Common.Services.MediaManagement
       MediaAccessorMessaging.SendResourceProviderMessage(MediaAccessorMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
     }
 
+    protected void RegisterCoreProviders()
+    {
+      RegisterProvider(new LocalFsResourceProvider());
+    }
+
+    protected void DisposeProviders()
+    {
+      if (_providers == null)
+        return;
+      foreach (IDisposable d in _providers.Values.OfType<IDisposable>())
+        d.Dispose();
+      _providers = null;
+    }
+
+    protected void DisposeMetadataExtractors()
+    {
+      if (_metadataExtractors == null)
+        return;
+      foreach (IDisposable d in _metadataExtractors.Values.OfType<IDisposable>())
+        d.Dispose();
+      _metadataExtractors = null;
+    }
+
     /// <summary>
     /// Checks that the provider plugins are loaded.
     /// </summary>
-    protected void CheckProviderPluginsLoaded()
+    protected void CheckProvidersLoaded()
     {
       lock (_syncObj)
       {
@@ -173,12 +197,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       foreach (IResourceProvider provider in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IResourceProvider>(
           RESOURCE_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker(RESOURCE_PROVIDERS_USE_COMPONENT_NAME)))
         RegisterProvider(provider);
+      RegisterCoreProviders();
     }
 
     /// <summary>
     /// Checks that the provider plugins are loaded.
     /// </summary>
-    protected void CheckMetadataExtractorPluginsLoaded()
+    protected void CheckMetadataExtractorsLoaded()
     {
       lock (_syncObj)
       {
@@ -217,7 +242,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        CheckProviderPluginsLoaded();
+        CheckProvidersLoaded();
         lock (_syncObj)
           return new Dictionary<Guid, IResourceProvider>(_providers);
       }
@@ -255,7 +280,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get
       {
-        CheckMetadataExtractorPluginsLoaded();
+        CheckMetadataExtractorsLoaded();
         lock (_syncObj)
           return new Dictionary<Guid, IMetadataExtractor>(_metadataExtractors);
       }
@@ -269,6 +294,8 @@ namespace MediaPortal.Common.Services.MediaManagement
     public virtual void Shutdown()
     {
       UnregisterPluginItemListeners();
+      DisposeProviders();
+      DisposeMetadataExtractors();
     }
 
     public ICollection<Share> CreateDefaultShares()

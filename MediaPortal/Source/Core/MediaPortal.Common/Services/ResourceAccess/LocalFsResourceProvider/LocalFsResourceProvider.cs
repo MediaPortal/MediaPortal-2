@@ -26,12 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Common;
 using MediaPortal.Common.FileEventNotification;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Extensions.ResourceProviders.LocalFsResourceProvider
+namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 {
   /// <summary>
   /// Resource provider implementation for the local filesystem.

@@ -80,6 +80,9 @@
     <String Name="ImportCompletedTitle" Text="Import completed"/>
     <String Name="ImportCompletedText" Text="The import of '{0}' has finished."/>
   </Section>
+  <Section Name="LocalFsResourceProvider">
+    <String Name="Name" Text="Local filesystem resource provider"/>
+  </Section>
   <Section Name="Players">
     <!-- For MP UI player subsystem -->
     <String Name="NoPlayerAvailableNotificationTitle" Text="No player"/>

@@ -199,6 +199,8 @@
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
     <Compile Include="ResourceAccess\StreamedResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
+    <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RemoteResourceInformationService.cs" />
     <Compile Include="Services\ResourceAccess\RemoteResourceAccessorBase.cs" />
     <Compile Include="Services\ResourceAccess\RemoteFileSystemResourceAccessor.cs" />
