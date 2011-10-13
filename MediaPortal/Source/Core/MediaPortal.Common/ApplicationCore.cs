@@ -116,6 +116,7 @@ namespace MediaPortal.Common
 
     public static void StopCoreServices()
     {
+      StreamedResourceToLocalFsAccessBridge.Shutdown();
       ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
       ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();

@@ -57,9 +57,8 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
       {
         _cacheKey = cacheKey;
         _baseAccessor = baseAccessor;
-        lock (_syncObj)
-          _mountCache.Add(_cacheKey, this);
         MountResource();
+        _inactiveMounts.Add(_cacheKey, this);
       }
 
       ~MountingData()
@@ -69,17 +68,17 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
       public void Dispose()
       {
+        if (_baseAccessor == null)
+          // Already disposed
+          return;
         lock (_syncObj)
         {
           _activeMounts.Remove(_cacheKey);
-          _mountCache.Remove(_cacheKey);
+          _inactiveMounts.Remove(_cacheKey);
         }
         UnmountResource();
-        if (_baseAccessor != null)
-        {
-          _baseAccessor.Dispose();
-          _baseAccessor = null;
-        }
+        _baseAccessor.Dispose();
+        _baseAccessor = null;
       }
 
       #region Protected methods
@@ -126,8 +125,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         lock (_syncObj)
         {
           _usageCount++;
-          if (_usageCount == 1)
-            _activeMounts[_cacheKey] = this;
+          if (_usageCount > 1)
+            return;
+          _inactiveMounts.Remove(_cacheKey);
+          _activeMounts[_cacheKey] = this;
         }
       }
 
@@ -136,8 +137,10 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         lock (_syncObj)
         {
           _usageCount--;
-          if (_usageCount == 0)
-            _activeMounts.Remove(_cacheKey);
+          if (_usageCount > 0)
+            return;
+          _activeMounts.Remove(_cacheKey);
+          _inactiveMounts.Add(_cacheKey, this);
         }
       }
 
@@ -174,8 +177,13 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
     #region Protected fields
 
     protected static IDictionary<string, MountingData> _activeMounts = new Dictionary<string, MountingData>(); // Maintained by class MountingData
-    protected static SmallLRUCache<string, MountingData> _mountCache = new SmallLRUCache<string, MountingData>(MOUNT_CACHE_SIZE); // Maintained by this class
-    protected static object _syncObj = _mountCache.SyncObj;
+    protected static SmallLRUCache<string, MountingData> _inactiveMounts = new SmallLRUCache<string, MountingData>(MOUNT_CACHE_SIZE); // Maintained by this class
+    protected static object _syncObj = _inactiveMounts.SyncObj;
+
+    static StreamedResourceToLocalFsAccessBridge()
+    {
+      _inactiveMounts.ObjectPruned += OnInactiveMountPruned;
+    }
 
     protected MountingData _mountingData;
 
@@ -201,6 +209,15 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
 
     #endregion
 
+    #region Protected members
+
+    static void OnInactiveMountPruned(SmallLRUCache<string, MountingData> sender, string key, MountingData prunedMount)
+    {
+      prunedMount.Dispose();
+    }
+
+    #endregion
+
     #region Public members
 
     /// <summary>
@@ -220,23 +237,29 @@ namespace MediaPortal.Common.MediaManagement.ResourceAccess
         // an ILocalFsResourceAccessor from elsewhere - simply return it
         return result;
       // Set up a resource bridge mapping the remote or complex resource to a local file or directory
-      lock (_mountCache.SyncObj)
+      lock (_inactiveMounts.SyncObj)
       {
         MountingData md;
         string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
-        if (!_mountCache.TryGetValue(key, out md))
-          _mountCache.Add(key, md = new MountingData(key, baseResourceAccessor));
+        if (_inactiveMounts.TryGetValue(key, out md) || _activeMounts.TryGetValue(key, out md))
+          // Base accessor not needed - we use our cached accessor
+          baseResourceAccessor.Dispose();
+        else
+          md = new MountingData(key, baseResourceAccessor);
         return new StreamedResourceToLocalFsAccessBridge(md);
       }
     }
 
     public static void Shutdown()
     {
-      lock (_mountCache.SyncObj)
+      lock (_inactiveMounts.SyncObj)
       {
-        foreach (MountingData mountingData in _mountCache.Values)
+        foreach (MountingData mountingData in _inactiveMounts.Values)
           mountingData.Dispose();
-        _mountCache.Clear();
+        _inactiveMounts.Clear();
+        foreach (MountingData mountingData in _activeMounts.Values)
+          mountingData.Dispose();
+        _activeMounts.Clear();
       }
     }
 
