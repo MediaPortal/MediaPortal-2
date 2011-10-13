@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
@@ -54,6 +55,9 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     protected ResourceProviderMetadata _metadata;
 
+    protected static object _syncObj = new object();
+    internal static IDictionary<string, ZipResourceProxy> _zipUsages = new Dictionary<string, ZipResourceProxy>(); // Keys to proxy objects
+
     #endregion
 
     #region Ctor
@@ -64,6 +68,22 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     }
 
     #endregion
+
+    static void OnZipResourceProxyOrphaned(ZipResourceProxy proxy)
+    {
+      lock (_syncObj)
+      {
+        _zipUsages.Remove(proxy.Key);
+        proxy.Dispose();
+      }
+    }
+
+    internal ZipResourceProxy CreateZipResourceProxy(string key, IResourceAccessor zipFileResourceAccessor)
+    {
+      ZipResourceProxy result = new ZipResourceProxy(key, zipFileResourceAccessor);
+      result.Orphaned += OnZipResourceProxyOrphaned;
+      return result;
+    }
 
     public static string ToEntryPath(string providerPath)
     {
@@ -122,7 +142,26 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
     {
-      return new ZipResourceAccessor(this, baseResourceAccessor, path);
+      lock (_syncObj)
+      {
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        ZipResourceProxy proxy;
+        if (!_zipUsages.TryGetValue(key, out proxy))
+          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourceAccessor));
+        return new ZipResourceAccessor(this, proxy, path);
+      }
+    }
+
+    public IResourceAccessor CreateResourceAccessor(ResourcePath baseResourcePath, string path)
+    {
+      lock (_syncObj)
+      {
+        string key = baseResourcePath.Serialize();
+        ZipResourceProxy proxy;
+        if (!_zipUsages.TryGetValue(key, out proxy))
+          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourcePath.CreateLocalResourceAccessor()));
+        return new ZipResourceAccessor(this, proxy, path);
+      }
     }
 
     #endregion

@@ -26,13 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ICSharpCode.SharpZipLib.Core;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using ICSharpCode.SharpZipLib.Zip;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
@@ -41,12 +37,10 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     #region Protected fields
 
     protected ZipResourceProvider _zipProvider;
-    protected IResourceAccessor _baseZipResourceAccessor;
-    protected Stream _zipFileStream;
-    protected ZipFile _zipFile;
+    protected ZipResourceProxy _zipProxy;
     protected string _pathToDirOrFile;
 
-    // Default is root config
+    // Initialize with root config
     protected ZipEntry _zipEntry = null;
     protected bool _isDirectory = true;
     protected DateTime _lastChanged = DateTime.MinValue;
@@ -58,15 +52,17 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #region Ctor
 
-    public ZipResourceAccessor(ZipResourceProvider zipProvider, IResourceAccessor accessor, string pathToDirOrFile)
+    public ZipResourceAccessor(ZipResourceProvider zipProvider, ZipResourceProxy zipProxy, string pathToDirOrFile)
     {
       _zipProvider = zipProvider;
-      _baseZipResourceAccessor = accessor;
+      _zipProxy = zipProxy;
       _pathToDirOrFile = pathToDirOrFile;
+
+      _zipProxy.IncUsage();
 
       ReadCurrentDirectory();
       if (!_isDirectory && _zipEntry == null)
-        throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'", pathToDirOrFile, _baseZipResourceAccessor));
+        throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'", pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
     }
 
     private void ReadCurrentDirectory()
@@ -76,31 +72,29 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       int dirDepth = EvaluateDirDepth(entryPath);
 
       _currentDirList.Clear();
-      CloseZipFile();
-      _zipFileStream = _baseZipResourceAccessor.OpenRead(); // Not sure if the ZipFile closes the stream appropriately, so we keep a reference to it
-      _zipFile = new ZipFile(_zipFileStream);
-      foreach (ZipEntry entry in _zipFile)
-      {
-        if (entry.IsDirectory)
+      lock (_zipProxy.SyncObj)
+        foreach (ZipEntry entry in _zipProxy.ZipFile)
         {
-          int entryDirDepth = EvaluateDirDepth(StringUtils.RemoveSuffixIfPresent(entry.Name, "/"));
-          if (entryDirDepth == dirDepth && entry.Name.StartsWith(entryPath))
-            _currentDirList.Add(entry);
+          if (entry.IsDirectory)
+          {
+            int entryDirDepth = EvaluateDirDepth(StringUtils.RemoveSuffixIfPresent(entry.Name, "/"));
+            if (entryDirDepth == dirDepth && entry.Name.StartsWith(entryPath))
+              _currentDirList.Add(entry);
+          }
+          else
+          {
+            string dirName = GetDirectoryName(entry.Name);
+            if (entryPath == dirName)
+              _currentDirList.Add(entry);
+          }
+          if (entry.Name == entryPath)
+          {
+            _isDirectory = entry.IsDirectory;
+            _lastChanged = entry.DateTime;
+            _size = entry.Size;
+            _zipEntry = entry;
+          }
         }
-        else
-        {
-          string dirName = GetDirectoryName(entry.Name);
-          if (entryPath == dirName)
-            _currentDirList.Add(entry);
-        }
-        if (entry.Name == entryPath)
-        {
-          _isDirectory = entry.IsDirectory;
-          _lastChanged = entry.DateTime;
-          _size = entry.Size;
-          _zipEntry = entry;
-        }
-      }
     }
 
     #endregion
@@ -114,24 +108,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public void Dispose()
     {
-      if (!string.IsNullOrEmpty(_tempFileName))
-      {
-        try
-        {
-          File.Delete(_tempFileName);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("ZipResourceAccessor: Unable to delete temp file '{0}'", e, _tempFileName);
-        }
-        _tempFileName = null;
-      }
-      CloseZipFile();
-      if (_baseZipResourceAccessor != null)
-      {
-        _baseZipResourceAccessor.Dispose();
-        _baseZipResourceAccessor= null;
-      }
+      _zipProxy.DecUsage();
     }
 
     #endregion
@@ -141,17 +118,6 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     protected bool IsEmptyOrRoot
     {
       get { return (string.IsNullOrEmpty(_pathToDirOrFile) || _pathToDirOrFile == "/"); }
-    }
-
-    protected void CloseZipFile()
-    {
-      if (_zipFile != null)
-      {
-        _zipFile.Close();
-        _zipFileStream.Dispose();
-        _zipFile = null;
-        _zipFileStream = null;
-      }
     }
 
     protected static int EvaluateDirDepth(string path)
@@ -204,21 +170,21 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         if (string.IsNullOrEmpty(_pathToDirOrFile))
           return null;
         if (_pathToDirOrFile == "/")
-          return _baseZipResourceAccessor.ResourceName;
+          return _zipProxy.ZipFileResourceAccessor.ResourceName;
         return GetFileName(StringUtils.RemoveSuffixIfPresent(_pathToDirOrFile, "/"));
       }
     }
 
     public string ResourcePathName
     {
-      get { return _baseZipResourceAccessor.ResourcePathName + " > " + _pathToDirOrFile; }
+      get { return _zipProxy.ZipFileResourceAccessor.ResourcePathName + " > " + _pathToDirOrFile; }
     }
 
     public ResourcePath CanonicalLocalResourcePath
     {
       get
       {
-        ResourcePath resourcePath = new ResourcePath(_baseZipResourceAccessor.CanonicalLocalResourcePath);
+        ResourcePath resourcePath = new ResourcePath(_zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath);
         resourcePath.Append(ZipResourceProvider.ZIP_RESOURCE_PROVIDER_ID, _pathToDirOrFile);
         return resourcePath;
       }
@@ -238,21 +204,12 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     {
       if (!string.IsNullOrEmpty(_tempFileName))
         return;
-      if (string.IsNullOrEmpty(_tempFileName))
-      {
-        _tempFileName = FileUtils.CreateHumanReadableTempFilePath(_pathToDirOrFile);
-        using (FileStream streamWriter = File.Create(_tempFileName))
-        {
-          byte[] buffer = new byte[4096]; // 4K is optimum
-          StreamUtils.Copy(_zipFile.GetInputStream(_zipEntry), streamWriter, buffer);
-        }
-      }
+      _tempFileName = _zipProxy.GetTempFile(_zipEntry);
     }
 
     public Stream OpenRead()
     {
-     if (string.IsNullOrEmpty(_tempFileName))
-       PrepareStreamAccess();
+     PrepareStreamAccess();
       // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
      return File.OpenRead(_tempFileName);
     }
@@ -264,7 +221,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public IResourceAccessor Clone()
     {
-      return new ZipResourceAccessor(_zipProvider, _baseZipResourceAccessor.Clone(), _pathToDirOrFile);
+      return new ZipResourceAccessor(_zipProvider, _zipProxy, _pathToDirOrFile);
     }
 
     #endregion
@@ -282,7 +239,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     public IFileSystemResourceAccessor GetResource(string path)
     {
       string pathFile = ExpandPath(path);
-      return (IFileSystemResourceAccessor) _zipProvider.CreateResourceAccessor(_baseZipResourceAccessor.Clone(), pathFile);
+      return (IFileSystemResourceAccessor) _zipProvider.CreateResourceAccessor(_zipProxy.ZipFileResourceAccessor.Clone(), pathFile);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
@@ -291,7 +248,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         return null;
       List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
       CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
-          new ZipResourceAccessor(_zipProvider, _baseZipResourceAccessor.Clone(), ZipResourceProvider.ToProviderPath(fileEntry.Name))));
+          new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(fileEntry.Name))));
       return files;
     }
 
@@ -301,7 +258,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         return null;
       ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
       CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
-          new ZipResourceAccessor(_zipProvider, _baseZipResourceAccessor.Clone(), ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
+          new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
       return directories;
     }
 
