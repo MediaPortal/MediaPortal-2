@@ -76,7 +76,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// </example>
   /// </para>
   /// </remarks>
-  public class ResourcePath : IEnumerable<ProviderPathSegment>
+  public class ResourcePath : IEnumerable<ProviderPathSegment>, IComparable<ResourcePath>
   {
     protected List<ProviderPathSegment> _pathSegments = new List<ProviderPathSegment>();
 
@@ -406,6 +406,15 @@ namespace MediaPortal.Common.ResourceAccess
     IEnumerator IEnumerable.GetEnumerator()
     {
       return _pathSegments.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IComparable<ResourcePath> implementation
+
+    public int CompareTo(ResourcePath other)
+    {
+      return Serialize().CompareTo(other.Serialize());
     }
 
     #endregion
