@@ -45,16 +45,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public void Dispose() { }
 
-    protected ICollection<IFileSystemResourceAccessor> ConcatPaths(string rootPath,
-        IEnumerable<string> namesWithPathPrefix, bool isDirectory)
+    protected ICollection<IFileSystemResourceAccessor> CreateChildResourceAccessors(IEnumerable<string> namesWithPathPrefix, bool isDirectory)
     {
-      rootPath = StringUtils.CheckSuffix(rootPath, "/");
-      return namesWithPathPrefix.Select(file => new LocalFsResourceAccessor(_provider, rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
-    }
-
-    protected string ExpandPath(string path)
-    {
-      return path.StartsWith("/") ? path : StringUtils.CheckSuffix(_path, "/") + StringUtils.RemovePrefixIfPresent(path, "/");
+      string rootPath = StringUtils.CheckSuffix(_path, "/");
+      return namesWithPathPrefix.Select(filePath => new LocalFsResourceAccessor(
+          _provider, rootPath + Path.GetFileName(filePath) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     #region ILocalFsResourceAccessor implementation
@@ -102,13 +97,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     {
       if (string.IsNullOrEmpty(path))
         return false;
-      path = ExpandPath(path);
+      path = ProviderPaths.ExpandPath(_path, path);
       return _provider.IsResource(path);
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ExpandPath(path));
+      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ProviderPaths.ExpandPath(_path, path));
     }
 
     public void PrepareStreamAccess()
@@ -145,7 +140,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
         // No files at root level - there are only logical drives
         return new List<IFileSystemResourceAccessor>();
       string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
-      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? ConcatPaths(_path, Directory.GetFiles(dosPath), false) : null;
+      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? CreateChildResourceAccessors(Directory.GetFiles(dosPath), false) : null;
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
@@ -156,7 +151,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
         return Directory.GetLogicalDrives().Where(drive => new DriveInfo(drive).IsReady).Select<string, IFileSystemResourceAccessor>(
             drive => new LocalFsResourceAccessor(_provider, "/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/")).ToList();
       string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
-      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? ConcatPaths(_path, Directory.GetDirectories(dosPath), true) : null;
+      return (!string.IsNullOrEmpty(dosPath) && Directory.Exists(dosPath)) ? CreateChildResourceAccessors(Directory.GetDirectories(dosPath), true) : null;
     }
 
     public bool IsFile
@@ -172,7 +167,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
 
     public bool Exists
     {
-      get {
+      get
+      {
         if (string.IsNullOrEmpty(_path) || _path == "/")
           return false;
         string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
