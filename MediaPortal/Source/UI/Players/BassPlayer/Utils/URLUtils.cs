@@ -38,7 +38,7 @@ namespace Ui.Players.BassPlayer.Utils
     {
       if (string.IsNullOrEmpty(filePath))
         return false;
-      string ext = PathHelper.GetExtension(filePath).ToLowerInvariant();
+      string ext = DosPathHelper.GetExtension(filePath).ToLowerInvariant();
       switch (ext)
       {
         case ".mod":

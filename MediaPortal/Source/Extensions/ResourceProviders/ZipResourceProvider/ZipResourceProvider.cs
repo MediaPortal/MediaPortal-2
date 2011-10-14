@@ -122,7 +122,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     {
       string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
       if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
-          !".zip".Equals(PathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
+          !".zip".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
       using (Stream resourceStream = potentialBaseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here

@@ -119,7 +119,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     public string FileName
     {
-      get { return _pathSegments.Count == 0 ? null : PathHelper.GetFileName(_pathSegments[_pathSegments.Count-1].Path); }
+      get { return _pathSegments.Count == 0 ? null : DosPathHelper.GetFileName(_pathSegments[_pathSegments.Count-1].Path); }
     }
 
     /// <summary>

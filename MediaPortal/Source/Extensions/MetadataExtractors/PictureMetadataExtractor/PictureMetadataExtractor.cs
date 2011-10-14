@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
     /// <returns><c>true</c>, if the file's extension is supposed to be supported, else <c>false</c>.</returns>
     protected static bool HasImageExtension(string fileName)
     {
-      string ext = PathHelper.GetExtension(fileName).ToLowerInvariant();
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return PICTURE_EXTENSIONS.Contains(ext);
     }
 
@@ -149,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, PathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, DosPathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 

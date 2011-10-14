@@ -99,7 +99,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       {
         if (accessor is AudioCDResourceAccessor)
           return true;
-        string ext = PathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();
+        string ext = DosPathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();
         BassPlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<BassPlayerSettings>();
         return settings.SupportedExtensions.IndexOf(ext) > -1;
       }

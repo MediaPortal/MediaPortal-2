@@ -169,7 +169,7 @@
     <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\SerializationHelper.cs" />
-    <Compile Include="ResourceAccess\PathHelper.cs" />
+    <Compile Include="ResourceAccess\DosPathHelper.cs" />
     <Compile Include="ResourceAccess\ProviderPathSegment.cs" />
     <Compile Include="ResourceAccess\LocalFsResourceProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />

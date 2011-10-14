@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     {
       string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
       if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
-          !".iso".Equals(PathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
+          !".iso".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
       IResourceAccessor ra = potentialBaseResourceAccessor.Clone();

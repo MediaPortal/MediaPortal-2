@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MediaPortal.Common.ResourceAccess
 {
-  public class PathHelper
+  public class DosPathHelper
   {
     /// <summary>
     /// Returns the file name of the given <paramref name="path"/> (inclusive extension).

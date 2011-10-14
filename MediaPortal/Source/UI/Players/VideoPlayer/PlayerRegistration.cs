@@ -62,7 +62,7 @@ namespace MediaPortal.UI.Players.Video
     public static Type GetPlayerTypeForMediaItem(IResourceLocator locator, string mimeType)
     {
       string path = locator.NativeResourcePath.LastPathSegment.Path;
-      string extension = StringUtils.TrimToEmpty(PathHelper.GetExtension(path)).ToLowerInvariant();
+      string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(path)).ToLowerInvariant();
 
       Type playerType;
       if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
