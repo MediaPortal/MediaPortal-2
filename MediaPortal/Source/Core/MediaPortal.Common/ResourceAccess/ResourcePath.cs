@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Cache;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -79,6 +80,15 @@ namespace MediaPortal.Common.ResourceAccess
   /// </remarks>
   public class ResourcePath : IEnumerable<ProviderPathSegment>, IComparable<ResourcePath>
   {
+    public const int RESOURCE_PATH_CACHE_SIZE = 100;
+
+    protected static SmallLRUCache<ResourcePath, IResourceAccessor> _cachedResourceAccessors = new SmallLRUCache<ResourcePath, IResourceAccessor>(RESOURCE_PATH_CACHE_SIZE);
+
+    static ResourcePath()
+    {
+      _cachedResourceAccessors.ObjectPruned += OnResourcePathObjectsPruned;
+    }
+
     protected List<ProviderPathSegment> _pathSegments = new List<ProviderPathSegment>();
 
     /// <summary>
@@ -93,6 +103,23 @@ namespace MediaPortal.Common.ResourceAccess
         if (_pathSegments[i].IsBaseSegment)
           throw new ArgumentException(string.Format("Base path segment '{0}' cannot be appended to path '{1}'",
               _pathSegments[i].Serialize(), Serialize()));
+    }
+
+    static void OnResourcePathObjectsPruned(SmallLRUCache<ResourcePath, IResourceAccessor> sender, ResourcePath key, IResourceAccessor value)
+    {
+      value.Dispose();
+    }
+
+    protected static void AddToCache(ResourcePath path, IResourceAccessor ra)
+    {
+      lock (_cachedResourceAccessors.SyncObj)
+        _cachedResourceAccessors.Add(path, ra);
+    }
+
+    protected static bool TryGetFromCache(ResourcePath path, out IResourceAccessor ra)
+    {
+      lock (_cachedResourceAccessors.SyncObj)
+        return _cachedResourceAccessors.TryGetValue(path, out ra);
     }
 
     /// <summary>
@@ -319,11 +346,14 @@ namespace MediaPortal.Common.ResourceAccess
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
     public IResourceAccessor CreateLocalResourceAccessor()
     {
+      IResourceAccessor resourceAccessor;
+      if (TryGetFromCache(this, out resourceAccessor))
+        return resourceAccessor.Clone();
+
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = _pathSegments.GetEnumerator();
       if (!enumer.MoveNext())
         throw new UnexpectedStateException("Cannot build resource accessor for an empty resource path");
-      IResourceAccessor resourceAccessor = null;
       try
       {
         do
@@ -362,7 +392,18 @@ namespace MediaPortal.Common.ResourceAccess
           resourceAccessor.Dispose();
         throw;
       }
+      AddToCache(this, resourceAccessor.Clone());
       return resourceAccessor;
+    }
+
+    public static void ClearResourceCache()
+    {
+      lock (_cachedResourceAccessors.SyncObj)
+      {
+        foreach (IResourceAccessor resourceAccessor in _cachedResourceAccessors.Values)
+          resourceAccessor.Dispose();
+        _cachedResourceAccessors.Clear();
+      }
     }
 
     /// <summary>

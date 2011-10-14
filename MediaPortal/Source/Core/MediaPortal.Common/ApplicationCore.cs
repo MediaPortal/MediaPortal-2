@@ -120,6 +120,7 @@ namespace MediaPortal.Common
 
     public static void StopCoreServices()
     {
+      ResourcePath.ClearResourceCache();
       ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
       ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();
