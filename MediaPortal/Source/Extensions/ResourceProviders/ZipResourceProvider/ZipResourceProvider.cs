@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
   /// </summary>
   public class ZipResourceProvider : IChainedResourceProvider
   {
-    #region Public constants
+    #region Consts
 
     /// <summary>
     /// GUID string for the ZIP resource provider.
@@ -55,8 +55,8 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     protected ResourceProviderMetadata _metadata;
 
-    protected static object _syncObj = new object();
-    internal static IDictionary<string, ZipResourceProxy> _zipUsages = new Dictionary<string, ZipResourceProxy>(); // Keys to proxy objects
+    protected object _syncObj = new object();
+    internal IDictionary<string, ZipResourceProxy> _zipUsages = new Dictionary<string, ZipResourceProxy>(); // Keys to proxy objects
 
     #endregion
 
@@ -69,10 +69,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #endregion
 
-    static void OnZipResourceProxyOrphaned(ZipResourceProxy proxy)
+    void OnZipResourceProxyOrphaned(ZipResourceProxy proxy)
     {
       lock (_syncObj)
       {
+        if (proxy.UsageCount > 0)
+          // Double check if the proxy was reused when the lock was not set
+          return;
         _zipUsages.Remove(proxy.Key);
         proxy.Dispose();
       }
@@ -154,12 +157,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public IResourceAccessor CreateResourceAccessor(ResourcePath baseResourcePath, string path)
     {
+      IResourceAccessor baseResourceAccessor = baseResourcePath.CreateLocalResourceAccessor();
       lock (_syncObj)
       {
         string key = baseResourcePath.Serialize();
         ZipResourceProxy proxy;
         if (!_zipUsages.TryGetValue(key, out proxy))
-          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourcePath.CreateLocalResourceAccessor()));
+          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourceAccessor));
         return new ZipResourceAccessor(this, proxy, path);
       }
     }

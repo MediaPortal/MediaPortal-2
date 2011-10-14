@@ -32,7 +32,7 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
-  class ZipResourceAccessor : IFileSystemResourceAccessor
+  internal class ZipResourceAccessor : IFileSystemResourceAccessor
   {
     #region Protected fields
 

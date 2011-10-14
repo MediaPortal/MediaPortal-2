@@ -115,21 +115,25 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       get { return _zipFile; }
     }
 
+    public int UsageCount
+    {
+      get { return _usageCount; }
+    }
+
     public delegate void OrphanedDlgt(ZipResourceProxy proxy);
 
     public OrphanedDlgt Orphaned;
 
     public void DecUsage()
     {
-      bool fireOrphaned;
       lock (_syncObj)
       {
         _usageCount--;
-        fireOrphaned = _usageCount == 0;
+        if (_usageCount > 0)
+          return;
       }
       // Outside the lock:
-      if (fireOrphaned)
-        FireOrphaned();
+      FireOrphaned();
     }
 
     public void IncUsage()
