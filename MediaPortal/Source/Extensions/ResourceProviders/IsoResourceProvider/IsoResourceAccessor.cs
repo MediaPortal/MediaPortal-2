@@ -166,9 +166,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       get
       {
         // Abstract from intermediate local FS bridge usage
-        ResourcePath resourcePath = new ResourcePath(_baseIsoResourceAccessor.CanonicalLocalResourcePath);
-        resourcePath.Append(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathInIsoFile);
-        return resourcePath;
+        return _baseIsoResourceAccessor.CanonicalLocalResourcePath.ChainUp(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathInIsoFile);
       }
     }
 

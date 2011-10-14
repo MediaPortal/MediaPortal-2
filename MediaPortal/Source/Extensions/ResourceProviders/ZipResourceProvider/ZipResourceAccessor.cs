@@ -189,12 +189,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get
-      {
-        ResourcePath resourcePath = new ResourcePath(_zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath);
-        resourcePath.Append(ZipResourceProvider.ZIP_RESOURCE_PROVIDER_ID, _pathToDirOrFile);
-        return resourcePath;
-      }
+      get { return _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath.ChainUp(ZipResourceProvider.ZIP_RESOURCE_PROVIDER_ID, _pathToDirOrFile); }
     }
 
     public DateTime LastChanged
