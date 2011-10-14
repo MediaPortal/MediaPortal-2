@@ -118,21 +118,43 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
+    public bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor)
     {
+      resultResourceAccessor = null;
       string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
       if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
           !".zip".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
-      using (Stream resourceStream = potentialBaseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
-        try
-        {
-          using (new ZipFile(resourceStream))
-            return true;
-        }
-        catch (ZipException) {} // Thrown if the file doesn't contain a valid ZIP archive
-      return false;
+      lock (_syncObj)
+      {
+        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        ZipResourceProxy proxy;
+        if (!_zipUsages.TryGetValue(key, out proxy))
+          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
+        resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
+        return true;
+      }
+    }
+
+    public bool TryChainUp(ResourcePath potentialBaseResourcePath, string path, out IResourceAccessor resultResourceAccessor)
+    {
+      IResourceAccessor potentialBaseResourceAccessor = potentialBaseResourcePath.CreateLocalResourceAccessor();
+      resultResourceAccessor = null;
+      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
+      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
+          !".zip".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
+        return false;
+
+      lock (_syncObj)
+      {
+        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        ZipResourceProxy proxy;
+        if (!_zipUsages.TryGetValue(key, out proxy))
+          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
+        resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
+        return true;
+      }
     }
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
@@ -141,31 +163,6 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       using (Stream resourceStream = baseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
       using (ZipFile zFile = new ZipFile(resourceStream))
         return path.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
-    }
-
-    public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
-    {
-      lock (_syncObj)
-      {
-        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
-        ZipResourceProxy proxy;
-        if (!_zipUsages.TryGetValue(key, out proxy))
-          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourceAccessor));
-        return new ZipResourceAccessor(this, proxy, path);
-      }
-    }
-
-    public IResourceAccessor CreateResourceAccessor(ResourcePath baseResourcePath, string path)
-    {
-      IResourceAccessor baseResourceAccessor = baseResourcePath.CreateLocalResourceAccessor();
-      lock (_syncObj)
-      {
-        string key = baseResourcePath.Serialize();
-        ZipResourceProxy proxy;
-        if (!_zipUsages.TryGetValue(key, out proxy))
-          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, baseResourceAccessor));
-        return new ZipResourceAccessor(this, proxy, path);
-      }
     }
 
     #endregion

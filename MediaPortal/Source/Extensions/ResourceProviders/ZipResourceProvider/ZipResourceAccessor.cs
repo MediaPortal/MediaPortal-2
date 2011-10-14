@@ -62,8 +62,11 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
       ReadCurrentDirectory();
       if (!_isDirectory && _zipEntry == null)
+      {
+        _zipProxy.DecUsage();
         throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
             pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
+      }
     }
 
     private void ReadCurrentDirectory()
@@ -248,7 +251,10 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       IResourceAccessor ra = _zipProxy.ZipFileResourceAccessor.Clone();
       try
       {
-        return (IFileSystemResourceAccessor) _zipProvider.CreateResourceAccessor(ra, pathFile);
+        IResourceAccessor result;
+        if (!_zipProvider.TryChainUp(ra, pathFile, out result))
+          throw new ArgumentException(string.Format("Invalid resource path '{0}' for ZIP file '{1}'", path, _zipProxy.ZipFile.Name));
+        return (IFileSystemResourceAccessor) result;
       }
       catch
       {

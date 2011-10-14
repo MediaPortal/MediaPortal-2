@@ -22,31 +22,31 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Common.ResourceAccess
 {
   /// <summary>
   /// Interface to provide access to media files which are read from a resource accessor provided by another resource provider.
   /// </summary>
   /// <remarks>
-  /// MP 2 supports chaining of resource providers. A chained resource provider reads its input data from another resource provider,
+  /// MP 2 supports chains of resource providers. A chained resource provider reads its input data from another resource provider,
   /// which itself can be a base resource provider or another chained resource provider.
-  /// This interface provides method a <see cref="CreateResourceAccessor"/> as well as interface
-  /// <see cref="IBaseResourceProvider"/>, except that it needs an additional parameter for the base resource which provides
-  /// the input stream for this provider.
+  /// This interface provides a method similar to <see cref="IBaseResourceProvider.CreateResourceAccessor"/> to create a
+  /// <see cref="IResourceAccessor"/>, here, the method is <see cref="TryChainUp"/>. That method needs an additional parameter
+  /// for the base resource which provides the input stream for this provider.
   /// </remarks>
   public interface IChainedResourceProvider : IResourceProvider
   {
     /// <summary>
-    /// Returns the information if this chained resource provider can use the given
-    /// <paramref name="potentialBaseResourceAccessor"/> as base resource accessor for providing a file system out of the
-    /// input resource.
+    /// Tries to use the given <paramref name="potentialBaseResourceAccessor"/> as base resource accessor for providing a file system
+    /// out of the input resource.
     /// </summary>
     /// <param name="potentialBaseResourceAccessor">Resource accessor for the base resource, this provider should take as input.
-    /// The base resource accessor must not be disposed by this method!</param>
-    /// <returns><c>true</c> if the given resource accessor can be used to chain this provider to, else <c>false</c></returns>
-    bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor);
+    /// The ownership of the given base resource accessor remains at the caller.</param>
+    /// <param name="path">Path in the chained filesystem to return (e.g. <c>"/"</c>).</param>
+    /// <param name="resultResourceAccessor">Resource accessor in the chained file system at the given <paramref name="path"/>.
+    /// This parameter is only set to a sensible value if this method returns <c>true</c>.</param>
+    /// <returns><c>true</c> if this provider could successfully chain up onto the given resource accessor, else <c>false</c></returns>
+    bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor);
 
     /// <summary>
     /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
@@ -58,21 +58,5 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
     /// else <c>false</c>.</returns>
     bool IsResource(IResourceAccessor baseResourceAccessor, string path);
-
-    /// <summary>
-    /// Creates a resource accessor for the given <paramref name="path"/>, interpreted in the given
-    /// <paramref name="baseResourceAccessor"/>.
-    /// </summary>
-    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
-    /// input. The ownership of the base resource accessor goes to this method and will be transferred to the returned
-    /// resource accessor, i.e. disposing the returned resource accessor should also dispose the base resource accessor.</param>
-    /// <param name="path">Path to be accessed by the returned resource accessor.</param>
-    /// <returns>Resource accessor instance or <c>null</c>, if the given <paramref name="baseResourceAccessor"/> cannot
-    /// be used to chain this resource provider up. The returned resource accessor may be of any interface derived
-    /// from <see cref="IResourceAccessor"/>, i.e. a file system provider will return a resource accessor of interface
-    /// <see cref="IFileSystemResourceAccessor"/>.</returns>
-    /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
-    /// described by the path doesn't exist in the <paramref name="baseResourceAccessor"/>.</exception>
-    IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path);
   }
 }

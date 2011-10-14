@@ -87,6 +87,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       catch
       {
         _baseLocalFsIsoResourceAccessor.Dispose();
+        _baseIsoResourceAccessor.Dispose();
         throw;
       }
     }
@@ -235,7 +236,10 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       IResourceAccessor ra = _baseLocalFsIsoResourceAccessor.Clone();
       try
       {
-        return (IFileSystemResourceAccessor) _isoProvider.CreateResourceAccessor(ra, pathFile);
+        IResourceAccessor result;
+        if (!_isoProvider.TryChainUp(ra, pathFile, out result))
+          throw new ArgumentException(string.Format("Invalid resource path '{0}' for ISO file '{1}'", path, _baseLocalFsIsoResourceAccessor.LocalFileSystemPath));
+        return (IFileSystemResourceAccessor) result;
       }
       catch
       {

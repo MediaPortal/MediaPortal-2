@@ -351,14 +351,8 @@ namespace MediaPortal.Common.ResourceAccess
             IChainedResourceProvider chainedProvider = resourceProvider as IChainedResourceProvider;
             if (chainedProvider == null)
               throw new IllegalCallException("The resource provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedResourceProvider).Name);
-            try
-            {
-              resourceAccessor = chainedProvider.CreateResourceAccessor(resourceAccessor, pathSegment.Path);
-            }
-            catch (ArgumentException e)
-            {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e, this);
-            }
+            if (!chainedProvider.TryChainUp(resourceAccessor, pathSegment.Path, out resourceAccessor))
+              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", this);
           }
         } while (enumer.MoveNext());
       }

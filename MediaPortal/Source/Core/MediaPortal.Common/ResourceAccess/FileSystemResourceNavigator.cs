@@ -49,32 +49,24 @@ namespace MediaPortal.Common.ResourceAccess
     /// if there is no chained resource provider to unfold the given directory.</returns>
     public static ICollection<IFileSystemResourceAccessor> GetChildDirectories(IResourceAccessor directoryAccessor)
     {
-      IChainedResourceProvider chainedProvider; // Needed in multiple source locations, that's why we declare it here
+      IResourceAccessor chainedResourceAccesor; // Needed in multiple source locations, that's why we declare it here
       if (directoryAccessor is IFileSystemResourceAccessor)
       {
-        IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) directoryAccessor;
-        ICollection<IFileSystemResourceAccessor> childDirectories = fsra.GetChildDirectories();
+        IFileSystemResourceAccessor dirFsra = (IFileSystemResourceAccessor) directoryAccessor;
+        ICollection<IFileSystemResourceAccessor> childDirectories = dirFsra.GetChildDirectories();
         ICollection<IFileSystemResourceAccessor> result = childDirectories == null ?
             new List<IFileSystemResourceAccessor>() : new List<IFileSystemResourceAccessor>(childDirectories);
-        ICollection<IFileSystemResourceAccessor> files = fsra.GetFiles();
+        ICollection<IFileSystemResourceAccessor> files = dirFsra.GetFiles();
         if (files != null)
           foreach (IFileSystemResourceAccessor fileAccessor in files)
           {
-            if (CanBeUnfolded(fileAccessor, out chainedProvider))
+            if (TryUnfold(fileAccessor, out chainedResourceAccesor))
             {
-              IResourceAccessor ra;
-              try
-              {
-                ra = chainedProvider.CreateResourceAccessor(fileAccessor, "/");
-                if (ra is IFileSystemResourceAccessor)
-                  result.Add((IFileSystemResourceAccessor) ra);
-                else
-                  ra.Dispose();
-              }
-              catch
-              {
-                fileAccessor.Dispose();
-              }
+              IFileSystemResourceAccessor chainedFsra = chainedResourceAccesor as IFileSystemResourceAccessor;
+              if (chainedFsra != null)
+                result.Add(chainedFsra);
+              else
+                chainedResourceAccesor.Dispose();
             }
             else
               fileAccessor.Dispose();
@@ -82,21 +74,23 @@ namespace MediaPortal.Common.ResourceAccess
         return result;
       }
       // Try to unfold simple resource
-      if (CanBeUnfolded(directoryAccessor, out chainedProvider))
+      IResourceAccessor dra = directoryAccessor.Clone();
+      try
       {
-        IResourceAccessor dra = directoryAccessor.Clone();
-        try
+        if (TryUnfold(dra, out chainedResourceAccesor))
         {
-          IResourceAccessor ra = chainedProvider.CreateResourceAccessor(dra, "/");
-          if (ra is IFileSystemResourceAccessor)
-            return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {(IFileSystemResourceAccessor) ra});
-          ra.Dispose();
+          IFileSystemResourceAccessor chainedFsra = chainedResourceAccesor as IFileSystemResourceAccessor;
+          if (chainedFsra != null)
+            return new List<IFileSystemResourceAccessor>(new IFileSystemResourceAccessor[] {chainedFsra});
+          chainedResourceAccesor.Dispose();
         }
-        catch
-        {
+        else
           dra.Dispose();
-          throw;
-        }
+      }
+      catch
+      {
+        dra.Dispose();
+        throw;
       }
       return null;
     }
@@ -118,21 +112,17 @@ namespace MediaPortal.Common.ResourceAccess
     }
 
     /// <summary>
-    /// Returns the information if the given <paramref name="fileAccessor"/> can be unfolded as a virtual directory.
+    /// Tries to unfold the given <paramref name="fileAccessor"/> to a virtual directory.
     /// </summary>
-    /// <param name="fileAccessor">File resource accessor to be used as input for a potential chained
-    /// provider.</param>
-    /// <param name="provider">Chained resource provider which can chain upon the given file resource.</param>
-    public static bool CanBeUnfolded(IResourceAccessor fileAccessor, out IChainedResourceProvider provider)
+    /// <param name="fileAccessor">File resource accessor to be used as input for a potential chained provider.</param>
+    /// <param name="resultResourceAccessor">Chained resource accessor which was chained upon the given file resource.</param>
+    public static bool TryUnfold(IResourceAccessor fileAccessor, out IResourceAccessor resultResourceAccessor)
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IChainedResourceProvider cmp in mediaAccessor.LocalChainedResourceProviders)
-        if (cmp.CanChainUp(fileAccessor))
-        {
-          provider = cmp;
+        if (cmp.TryChainUp(fileAccessor, "/", out resultResourceAccessor))
           return true;
-        }
-      provider = null;
+      resultResourceAccessor = null;
       return false;
     }
   }

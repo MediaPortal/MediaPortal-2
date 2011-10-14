@@ -85,32 +85,16 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     #region IChainedResourceProvider implementation
 
-    public bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor)
+    public bool TryChainUp(IResourceAccessor potentialBaseResourceAccessor, string path, out IResourceAccessor resultResourceAccessor)
     {
+      resultResourceAccessor = null;
       string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
       if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
           !".iso".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
-      IResourceAccessor ra = potentialBaseResourceAccessor.Clone();
-      try
-      {
-        using (ILocalFsResourceAccessor localFsResourceAccessor =
-            StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-        using (IsoReader isoReader = new IsoReader())
-          try
-          {
-            isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
-            return true;
-          }
-          catch (Exception) {}
-      }
-      catch
-      {
-        ra.Dispose();
-        throw;
-      }
-      return false;
+      resultResourceAccessor = new IsoResourceAccessor(this, potentialBaseResourceAccessor, path);
+      return true;
     }
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
@@ -140,11 +124,6 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         ra.Dispose();
         throw;
       }
-    }
-
-    public IResourceAccessor CreateResourceAccessor(IResourceAccessor baseResourceAccessor, string path)
-    {
-      return new IsoResourceAccessor(this, baseResourceAccessor, path);
     }
 
     #endregion
