@@ -137,26 +137,6 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
-    public bool TryChainUp(ResourcePath potentialBaseResourcePath, string path, out IResourceAccessor resultResourceAccessor)
-    {
-      IResourceAccessor potentialBaseResourceAccessor = potentialBaseResourcePath.CreateLocalResourceAccessor();
-      resultResourceAccessor = null;
-      string resourcePathName = potentialBaseResourceAccessor.ResourcePathName;
-      if (string.IsNullOrEmpty(resourcePathName) || !potentialBaseResourceAccessor.IsFile ||
-          !".zip".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
-        return false;
-
-      lock (_syncObj)
-      {
-        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
-        ZipResourceProxy proxy;
-        if (!_zipUsages.TryGetValue(key, out proxy))
-          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
-        resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
-        return true;
-      }
-    }
-
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
       string entryPath = ToEntryPath(path);

@@ -34,7 +34,7 @@ using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
-  internal class ZipResourceProxy
+  internal class ZipResourceProxy : IDisposable
   {
     protected ZipFile _zipFile;
     protected string _key;
@@ -49,7 +49,15 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       _key = key;
       _zipFileResourceAccessor = zipFileAccessor;
       _zipFileStream = _zipFileResourceAccessor.OpenRead(); // Not sure if the ZipFile closes the stream appropriately, so we keep a reference to it
-      _zipFile = new ZipFile(_zipFileStream);
+      try
+      {
+        _zipFile = new ZipFile(_zipFileStream);
+      }
+      catch
+      {
+        _zipFileStream.Dispose();
+        throw;
+      }
     }
 
     public void Dispose()
@@ -158,6 +166,11 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         }
         return result;
       }
+    }
+
+    public override string ToString()
+    {
+      return string.Format("ZIP file proxy object for file '{0}'", _zipFile.Name);
     }
   }
 }
