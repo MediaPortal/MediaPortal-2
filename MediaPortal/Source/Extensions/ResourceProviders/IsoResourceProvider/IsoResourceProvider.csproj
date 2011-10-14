@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IsoResourceProxy.cs" />
     <Compile Include="IsoResourceProvider.cs" />
     <Compile Include="ISOReader\DirectoryRecord.cs" />
     <Compile Include="ISOReader\FileFlags.cs" />

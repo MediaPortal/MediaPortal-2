@@ -28,7 +28,6 @@ using System.IO;
 using System.Linq;
 using MediaPortal.Common.ResourceAccess;
 using ISOReader;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
@@ -38,57 +37,48 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     #region Protected fields
 
     protected IsoResourceProvider _isoProvider;
-    protected IResourceAccessor _baseIsoResourceAccessor;
-    protected ILocalFsResourceAccessor _baseLocalFsIsoResourceAccessor;
+    internal IsoResourceProxy _isoProxy;
     protected string _pathInIsoFile;
 
     protected bool _isDirectory;
     protected DateTime _lastChanged;
     protected long _size;
-    protected IsoReader _isoReader;
-    
+
     #endregion
 
     #region Ctor
 
-    public IsoResourceAccessor(IsoResourceProvider isoProvider, IResourceAccessor baseIsoAccessor, string pathInIsoFile)
+    public IsoResourceAccessor(IsoResourceProvider isoProvider, IsoResourceProxy isoProxy, string pathInIsoFile)
     {
       if (!pathInIsoFile.StartsWith("/"))
         throw new ArgumentException("Wrong path '{0}': Path in ISO file must start with a '/' character", pathInIsoFile);
+      _isoProxy = isoProxy;
+      _isoProxy.IncUsage();
       _isoProvider = isoProvider;
-      _baseIsoResourceAccessor = baseIsoAccessor;
-      _baseLocalFsIsoResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(baseIsoAccessor.Clone()); // The StreamedResourceToLocalFsAccessBridge might dispose the given RA
-      try
-      {
-        _pathInIsoFile = pathInIsoFile;
-        _isoReader = new IsoReader();
-        _isoReader.Open(_baseLocalFsIsoResourceAccessor.LocalFileSystemPath);
+      _pathInIsoFile = pathInIsoFile;
 
+      _isDirectory = true;
+      _lastChanged = _isoProxy.IsoFileResourceAccessor.LastChanged;
+      _size = -1;
+
+      if (IsEmptyOrRoot)
+        return;
+      lock (_isoProxy.SyncObj)
+      {
+        string dosPath = IsoResourceProvider.ToDosPath(pathInIsoFile);
+        RecordEntryInfo entry;
         try
         {
-          _isDirectory = true;
-          _lastChanged = baseIsoAccessor.LastChanged;
-          _size = -1;
-
-          if (!IsEmptyOrRoot)
-          {
-            string dosPath = IsoResourceProvider.ToDosPath(pathInIsoFile);
-            RecordEntryInfo entry = _isoReader.GetRecordEntryInfo(dosPath); // Path must start with /
-            _isDirectory = entry.Directory;
-            _lastChanged = entry.Date;
-            _size = _isDirectory ? (long) (-1) : entry.Size;
-          }
+          entry = _isoProxy.IsoReader.GetRecordEntryInfo(dosPath); // Path must start with /
         }
         catch
         {
-          _isoReader.Close();
+          _isoProxy.DecUsage();
+          throw;
         }
-      }
-      catch
-      {
-        _baseLocalFsIsoResourceAccessor.Dispose();
-        _baseIsoResourceAccessor.Dispose();
-        throw;
+        _isDirectory = entry.Directory;
+        _lastChanged = entry.Date;
+        _size = _isDirectory ? (long) (-1) : entry.Size;
       }
     }
 
@@ -98,21 +88,10 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public void Dispose()
     {
-      if (_isoReader != null)
-      {
-        _isoReader.Dispose();
-        _isoReader = null;
-      }
-      if (_baseLocalFsIsoResourceAccessor != null)
-      {
-        _baseLocalFsIsoResourceAccessor.Dispose();
-        _baseLocalFsIsoResourceAccessor = null;
-      }
-      if (_baseIsoResourceAccessor != null)
-      {
-        _baseIsoResourceAccessor.Dispose();
-        _baseIsoResourceAccessor = null;
-      }
+      if (_isoProxy == null)
+        return;
+      _isoProxy.DecUsage();
+      _isoProxy = null;
     }
 
     #endregion
@@ -150,7 +129,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         if (string.IsNullOrEmpty(_pathInIsoFile))
           return null;
         if (_pathInIsoFile == "/")
-          return _baseIsoResourceAccessor.ResourceName;
+          return _isoProxy.IsoFileResourceAccessor.ResourceName;
         string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
         return Path.GetFileName(FileUtils.RemoveTrailingPathDelimiter(dosPath));
       }
@@ -158,7 +137,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public string ResourcePathName
     {
-      get { return _baseIsoResourceAccessor.ResourcePathName + " > " + _pathInIsoFile; }
+      get { return _isoProxy.IsoFileResourceAccessor.ResourcePathName + " > " + _pathInIsoFile; }
     }
 
     public ResourcePath CanonicalLocalResourcePath
@@ -166,7 +145,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       get
       {
         // Abstract from intermediate local FS bridge usage
-        return _baseIsoResourceAccessor.CanonicalLocalResourcePath.ChainUp(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathInIsoFile);
+        return _isoProxy.IsoFileResourceAccessor.CanonicalLocalResourcePath.ChainUp(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathInIsoFile);
       }
     }
 
@@ -187,7 +166,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public Stream OpenRead()
     {
       string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
-      return _isoReader.GetFileStream(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+      return _isoProxy.IsoReader.GetFileStream(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
     }
 
     public Stream OpenWrite()
@@ -197,16 +176,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public IResourceAccessor Clone()
     {
-      IResourceAccessor ra = _baseIsoResourceAccessor.Clone();
-      try
-      {
-        return new IsoResourceAccessor(_isoProvider, ra, _pathInIsoFile);
-      }
-      catch
-      {
-        ra.Dispose();
-        throw;
-      }
+      return new IsoResourceAccessor(_isoProvider, _isoProxy, _pathInIsoFile);
     }
 
     #endregion
@@ -224,19 +194,20 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         return true;
       string dosPath = "\\" + IsoResourceProvider.ToDosPath(_pathInIsoFile);
       string dosCombined = "\\" + IsoResourceProvider.ToDosPath(Path.Combine(_pathInIsoFile, path));
-      string[] dirList = _isoReader.GetFileSystemEntries(dosPath, SearchOption.TopDirectoryOnly);
+      string[] dirList = _isoProxy.IsoReader.GetFileSystemEntries(dosPath, SearchOption.TopDirectoryOnly);
       return dirList.Any(entry => entry.Equals(dosCombined, StringComparison.OrdinalIgnoreCase));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
       string pathFile = IsoResourceProvider.ToProviderPath(Path.Combine(_pathInIsoFile, path));
-      IResourceAccessor ra = _baseLocalFsIsoResourceAccessor.Clone();
+      IResourceAccessor ra = _isoProxy.IsoFileResourceAccessor.Clone();
       try
       {
         IResourceAccessor result;
         if (!_isoProvider.TryChainUp(ra, pathFile, out result))
-          throw new ArgumentException(string.Format("Invalid resource path '{0}' for ISO file '{1}'", path, _baseLocalFsIsoResourceAccessor.LocalFileSystemPath));
+          throw new ArgumentException(string.Format("Invalid resource path '{0}' for ISO file '{1}'",
+              path, _isoProxy.IsoFileResourceAccessor.ResourcePathName));
         return (IFileSystemResourceAccessor) result;
       }
       catch
@@ -249,35 +220,17 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
       string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
-      string[] files = _isoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      IResourceAccessor ra = _baseLocalFsIsoResourceAccessor.Clone();
-      try
-      {
-        return files.Select(path => new IsoResourceAccessor(_isoProvider, ra,
-            IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
-      }
-      catch
-      {
-        ra.Dispose();
-        throw;
-      }
+      string[] files = _isoProxy.IsoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
+      return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+          IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
       string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
-      string[] files = _isoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      IResourceAccessor ra = _baseLocalFsIsoResourceAccessor.Clone();
-      try
-      {
-        return files.Select(path => new IsoResourceAccessor(_isoProvider, ra,
-            IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
-      }
-      catch
-      {
-        ra.Dispose();
-        throw;
-      }
+      string[] files = _isoProxy.IsoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
+      return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+          IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     #endregion

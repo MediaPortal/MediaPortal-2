@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
@@ -49,6 +50,9 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     protected ResourceProviderMetadata _metadata;
 
+    protected object _syncObj = new object();
+    internal IDictionary<string, IsoResourceProxy> _isoUsages = new Dictionary<string, IsoResourceProxy>(); // Keys to proxy objects
+
     #endregion
 
     #region Ctor
@@ -74,6 +78,25 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       return StringUtils.CheckPrefix(path, "/");
     }
 
+    void OnIsoResourceProxyOrphaned(IsoResourceProxy proxy)
+    {
+      lock (_syncObj)
+      {
+        if (proxy.UsageCount > 0)
+          // Double check if the proxy was reused when the lock was not set
+          return;
+        _isoUsages.Remove(proxy.Key);
+        proxy.Dispose();
+      }
+    }
+
+    internal IsoResourceProxy CreateIsoResourceProxy(string key, IResourceAccessor isoFileResourceAccessor)
+    {
+      IsoResourceProxy result = new IsoResourceProxy(key, isoFileResourceAccessor);
+      result.Orphaned += OnIsoResourceProxyOrphaned;
+      return result;
+    }
+
     #region IResourceProvider implementation
 
     public ResourceProviderMetadata Metadata
@@ -93,8 +116,15 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
           !".iso".Equals(DosPathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
-      resultResourceAccessor = new IsoResourceAccessor(this, potentialBaseResourceAccessor, path);
-      return true;
+      lock (_syncObj)
+      {
+        string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        IsoResourceProxy proxy;
+        if (!_isoUsages.TryGetValue(key, out proxy))
+          _isoUsages.Add(key, proxy = CreateIsoResourceProxy(key, potentialBaseResourceAccessor));
+        resultResourceAccessor = new IsoResourceAccessor(this, proxy, path);
+        return true;
+      }
     }
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
