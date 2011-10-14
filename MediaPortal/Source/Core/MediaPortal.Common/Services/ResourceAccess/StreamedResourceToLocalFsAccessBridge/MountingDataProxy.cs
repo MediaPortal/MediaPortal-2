@@ -28,7 +28,7 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge
 {
-  internal class MountingDataProxy
+  internal class MountingDataProxy : IDisposable
   {
     protected string _key;
     protected int _usageCount = 0;
