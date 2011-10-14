@@ -197,7 +197,9 @@
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="ResourceAccess\StreamedResourceToLocalFsAccessBridge.cs" />
+    <Compile Include="Services\ResourceAccess\ProviderPaths.cs" />
+    <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\MountingDataProxy.cs" />
+    <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\StreamedResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
     <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceProvider.cs" />
@@ -375,6 +377,7 @@
     <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

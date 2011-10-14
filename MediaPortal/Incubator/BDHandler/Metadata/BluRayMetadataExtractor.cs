@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.UI.Players.Video;
 
 namespace MediaPortal.Media.MetadataExtractors
@@ -90,28 +91,37 @@ namespace MediaPortal.Media.MetadataExtractors
     {
       try
       {
-        using (ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(mediaItemAccessor.Clone()))
-          if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("BDMV"))
-          {
-            IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
-            if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
+        IResourceAccessor ra = mediaItemAccessor.Clone();
+        try
+        {
+          using (ILocalFsResourceAccessor fsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+            if (fsra != null && fsra.IsDirectory && fsra.ResourceExists("BDMV"))
             {
-              // BluRay
-              MediaItemAspect mediaAspect;
-              if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-                extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-              MediaItemAspect videoAspect;
-              if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
-                extractedAspectData[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+              IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV");
+              if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
+              {
+                // BluRay
+                MediaItemAspect mediaAspect;
+                if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+                  extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+                MediaItemAspect videoAspect;
+                if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+                  extractedAspectData[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
 
-              mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
+                mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
 
-              string bdmvDirectory = fsra.LocalFileSystemPath;
-              BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
-              mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
-              return true;
+                string bdmvDirectory = fsra.LocalFileSystemPath;
+                BDInfoExt bdinfo = new BDInfoExt(bdmvDirectory);
+                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, bdinfo.GetTitle() ?? mediaItemAccessor.ResourceName);
+                return true;
+              }
             }
-          }
+        }
+        catch
+        {
+          ra.Dispose();
+          throw;
+        }
         return false;
       }
       catch

@@ -108,7 +108,10 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public void Dispose()
     {
+      if (_zipProxy == null)
+        return;
       _zipProxy.DecUsage();
+      _zipProxy = null;
     }
 
     #endregion
@@ -239,7 +242,16 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     public IFileSystemResourceAccessor GetResource(string path)
     {
       string pathFile = ExpandPath(path);
-      return (IFileSystemResourceAccessor) _zipProvider.CreateResourceAccessor(_zipProxy.ZipFileResourceAccessor.Clone(), pathFile);
+      IResourceAccessor ra = _zipProxy.ZipFileResourceAccessor.Clone();
+      try
+      {
+        return (IFileSystemResourceAccessor) _zipProvider.CreateResourceAccessor(ra, pathFile);
+      }
+      catch
+      {
+        ra.Dispose();
+        throw;
+      }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()

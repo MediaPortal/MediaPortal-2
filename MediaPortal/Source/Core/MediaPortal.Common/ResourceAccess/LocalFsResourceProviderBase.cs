@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.ResourceAccess
 {
@@ -65,8 +66,7 @@ namespace MediaPortal.Common.ResourceAccess
     {
       if (string.IsNullOrEmpty(providerPath) || providerPath == "/")
         return string.Empty;
-      if (providerPath.StartsWith("/"))
-        providerPath = providerPath.Substring(1);
+      providerPath = StringUtils.RemovePrefixIfPresent(providerPath, "/");
       return providerPath.Replace('/', Path.DirectorySeparatorChar);
     }
 
@@ -79,7 +79,7 @@ namespace MediaPortal.Common.ResourceAccess
     public static string ToProviderPath(string dosPath)
     {
       dosPath = dosPath.Replace(Path.DirectorySeparatorChar, '/');
-      return dosPath.StartsWith("/") ? dosPath : "/" + dosPath;
+      return StringUtils.CheckPrefix(dosPath, "/");
     }
 
     /// <summary>

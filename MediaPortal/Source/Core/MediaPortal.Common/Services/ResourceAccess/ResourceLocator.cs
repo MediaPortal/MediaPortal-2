@@ -95,7 +95,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       IResourceAccessor accessor = CreateAccessor();
       try
       {
-        return StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(accessor);
+        return StreamedResourceToLocalFsAccessBridge.StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(accessor);
       }
       catch
       {

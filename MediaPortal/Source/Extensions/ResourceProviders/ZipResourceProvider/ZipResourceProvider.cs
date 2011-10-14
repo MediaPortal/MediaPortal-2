@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       return result;
     }
 
-    public static string ToEntryPath(string providerPath)
+    internal static string ToEntryPath(string providerPath)
     {
       if (providerPath == "/")
         return null;
@@ -97,7 +97,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid provider path", providerPath));
     }
 
-    public static string ToProviderPath(string entryPath)
+    internal static string ToProviderPath(string entryPath)
     {
       if (entryPath.StartsWith("/"))
         throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid entry path", entryPath));

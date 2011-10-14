@@ -319,7 +319,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       {
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
-                                                                                                                                ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
+            ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
       }
 
       try

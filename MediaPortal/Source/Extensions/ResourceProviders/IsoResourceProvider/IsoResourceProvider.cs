@@ -28,6 +28,8 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using ISOReader;
+using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
@@ -58,6 +60,20 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     #endregion
 
+    internal static string ToDosPath(string providerPath)
+    {
+      if (providerPath == "/")
+        return string.Empty;
+      providerPath = StringUtils.RemovePrefixIfPresent(providerPath, "/");
+      return providerPath.Replace('/', Path.DirectorySeparatorChar);
+    }
+
+    internal static string ToProviderPath(string dosPath)
+    {
+      string path = dosPath.Replace(Path.DirectorySeparatorChar, '/');
+      return StringUtils.CheckPrefix(path, "/");
+    }
+
     #region IResourceProvider implementation
 
     public ResourceProviderMetadata Metadata
@@ -76,14 +92,24 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
           !".iso".Equals(PathHelper.GetExtension(resourcePathName), StringComparison.OrdinalIgnoreCase))
         return false;
 
-      using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(potentialBaseResourceAccessor.Clone()))
-      using (IsoReader isoReader = new IsoReader())
-        try
-        {
-          isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
-          return true;
-        }
-        catch (Exception) {}
+      IResourceAccessor ra = potentialBaseResourceAccessor.Clone();
+      try
+      {
+        using (ILocalFsResourceAccessor localFsResourceAccessor =
+            StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+        using (IsoReader isoReader = new IsoReader())
+          try
+          {
+            isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
+            return true;
+          }
+          catch (Exception) {}
+      }
+      catch
+      {
+        ra.Dispose();
+        throw;
+      }
       return false;
     }
 
@@ -93,16 +119,26 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       if (string.IsNullOrEmpty(resourceName) || baseResourceAccessor.IsFile)
         return false;
 
-      using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(baseResourceAccessor.Clone()))
-      using (IsoReader isoReader = new IsoReader())
+      IResourceAccessor ra = baseResourceAccessor.Clone();
+      try
       {
-        isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
+        using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
+        using (IsoReader isoReader = new IsoReader())
+        {
+          isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
 
-        string dosPath = Path.GetDirectoryName(LocalFsResourceProviderBase.ToDosPath(path));
-        string dosResource = "\\" + LocalFsResourceProviderBase.ToDosPath(path);
+          string isoPath = ToDosPath(path);
+          string dirPath = Path.GetDirectoryName(isoPath);
+          string isoResource = "\\" + isoPath;
 
-        string[] dirList = isoReader.GetDirectories(dosPath, SearchOption.TopDirectoryOnly);
-        return dirList.Any(entry => entry.Equals(dosResource, StringComparison.OrdinalIgnoreCase));
+          string[] dirList = isoReader.GetFileSystemEntries(dirPath, SearchOption.TopDirectoryOnly);
+          return dirList.Any(entry => entry.Equals(isoResource, StringComparison.OrdinalIgnoreCase));
+        }
+      }
+      catch
+      {
+        ra.Dispose();
+        throw;
       }
     }
 

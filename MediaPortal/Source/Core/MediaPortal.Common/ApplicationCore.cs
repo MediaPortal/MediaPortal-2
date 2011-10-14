@@ -120,13 +120,12 @@ namespace MediaPortal.Common
 
     public static void StopCoreServices()
     {
-      StreamedResourceToLocalFsAccessBridge.Shutdown();
       ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
       ServiceRegistration.Get<IResourceMountingService>().Shutdown();
       ServiceRegistration.Get<IResourceServer>().Shutdown();
       ServiceRegistration.Get<IImporterWorker>().Shutdown();
       ServiceRegistration.Get<ITaskScheduler>().Shutdown();
-      ServiceRegistration.Get<Threading.IThreadPool>().Stop();
+      ServiceRegistration.Get<IThreadPool>().Stop();
     }
 
     public static void RegisterDefaultMediaItemAspectTypes()
@@ -181,7 +180,7 @@ namespace MediaPortal.Common
       ServiceRegistration.RemoveAndDispose<IMessageBroker>();
 
       logger.Debug("ApplicationCore: Removing IThreadPool service");
-      ServiceRegistration.RemoveAndDispose<Threading.IThreadPool>();
+      ServiceRegistration.RemoveAndDispose<IThreadPool>();
 
       logger.Debug("ApplicationCore: Removing IRegistry service");
       ServiceRegistration.RemoveAndDispose<IRegistry>();
