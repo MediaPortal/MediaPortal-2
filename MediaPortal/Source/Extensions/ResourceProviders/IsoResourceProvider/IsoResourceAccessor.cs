@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         throw new ArgumentException("Wrong path '{0}': Path in ISO file must start with a '/' character", pathInIsoFile);
       _isoProvider = isoProvider;
       _baseIsoResourceAccessor = baseIsoAccessor;
-      _baseLocalFsIsoResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(baseIsoAccessor);
+      _baseLocalFsIsoResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(baseIsoAccessor.Clone()); // The StreamedResourceToLocalFsAccessBridge might dispose the given RA
       try
       {
         _pathInIsoFile = pathInIsoFile;
@@ -106,6 +106,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       {
         _baseLocalFsIsoResourceAccessor.Dispose();
         _baseLocalFsIsoResourceAccessor = null;
+      }
+      if (_baseIsoResourceAccessor != null)
+      {
+        _baseIsoResourceAccessor.Dispose();
+        _baseIsoResourceAccessor = null;
       }
     }
 
