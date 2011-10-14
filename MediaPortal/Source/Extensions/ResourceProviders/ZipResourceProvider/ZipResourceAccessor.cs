@@ -32,7 +32,7 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 {
-  internal class ZipResourceAccessor : IFileSystemResourceAccessor
+  internal class ZipResourceAccessor : ILocalFsResourceAccessor
   {
     #region Protected fields
 
@@ -62,7 +62,8 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
       ReadCurrentDirectory();
       if (!_isDirectory && _zipEntry == null)
-        throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'", pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
+        throw new ArgumentException(string.Format("ZipResourceAccessor: Cannot find zip entry for path '{0}' in ZIP file '{1}'",
+            pathToDirOrFile, _zipProxy.ZipFileResourceAccessor.CanonicalLocalResourcePath));
     }
 
     private void ReadCurrentDirectory()
@@ -207,6 +208,8 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     {
       if (!string.IsNullOrEmpty(_tempFileName))
         return;
+      if (_zipEntry == null)
+        return;
       _tempFileName = _zipProxy.GetTempFile(_zipEntry);
     }
 
@@ -272,6 +275,19 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
           new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
       return directories;
+    }
+
+    #endregion
+
+    #region ILocalFsResourceAccessor implementation
+
+    public string LocalFileSystemPath
+    {
+      get
+      {
+        PrepareStreamAccess();
+        return _tempFileName;
+      }
     }
 
     #endregion
