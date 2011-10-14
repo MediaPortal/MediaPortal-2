@@ -50,11 +50,6 @@ namespace MediaPortal.Common.Services.MediaManagement
   {
     #region Constants
 
-    /// <summary>
-    /// Contains the id of the LocalFsResourceProvider.
-    /// </summary>
-    protected const string LOCAL_FS_RESOURCEPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
-
     // Localization resources will be provided by the client's SkinBase plugin
     public const string MY_MUSIC_SHARE_NAME_RESOURE = "[Media.MyMusic]";
     public const string MY_VIDEOS_SHARE_NAME_RESOURCE = "[Media.MyVideos]";
@@ -303,7 +298,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public ICollection<Share> CreateDefaultShares()
     {
       List<Share> result = new List<Share>();
-      Guid localFsResourceProviderId = new Guid(LOCAL_FS_RESOURCEPROVIDER_ID);
+      Guid localFsResourceProviderId = LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID;
       if (LocalResourceProviders.ContainsKey(localFsResourceProviderId))
       {
         string folderPath;
