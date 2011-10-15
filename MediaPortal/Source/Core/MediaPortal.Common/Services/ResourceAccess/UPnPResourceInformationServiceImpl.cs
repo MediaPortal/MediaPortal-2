@@ -525,8 +525,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return null;
     }
 
-    static UPnPError OnGetResourceServerBaseURL(DvAction action, IList<object> inParams, out IList<object> outParams,
-        CallContext context)
+    static UPnPError OnGetResourceServerBaseURL(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       IResourceServer resourceServer = ServiceRegistration.Get<IResourceServer>();
       string baseURL = "http://" + NetworkHelper.IPEndPointToString(context.Endpoint.EndPointIPAddress,

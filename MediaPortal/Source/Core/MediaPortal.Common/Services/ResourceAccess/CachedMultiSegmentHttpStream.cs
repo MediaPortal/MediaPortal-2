@@ -51,6 +51,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     #region Private & protected fields
 
     protected readonly string _url;
+    protected readonly IPAddress _localIpAddress;
     protected readonly long _length;
     protected long _position = 0;
     private IList<HttpRangeChunk> _chunkCache = new List<HttpRangeChunk>();
@@ -82,6 +83,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       protected readonly long _startIndex; // Inclusive
       protected readonly long _endIndex; // Exclusive
       protected readonly string _url;
+      protected readonly IPAddress _localIpAddress;
 
       // Data for async request control
       protected readonly object _syncObject = new object();
@@ -98,11 +100,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
         _userAgent = WindowsAPI.GetOsVersionString() + " HTTP/1.1 " + PRODUCT_VERSION;
       }
 
-      public HttpRangeChunk(long start, long end, long wholeStreamLength, string url)
+      public HttpRangeChunk(long start, long end, long wholeStreamLength, string url, IPAddress localIpAddress)
       {
         _startIndex = start;
         _endIndex = Math.Min(wholeStreamLength, end);
         _url = url;
+        _localIpAddress = localIpAddress;
         Load_Async();
       }
 
@@ -133,6 +136,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       protected void Load_Async()
       {
         HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
+        NetworkUtils.SetLocalEndpoint(request, _localIpAddress);
         request.Method = "GET";
         request.KeepAlive = true;
         request.AllowAutoRedirect = true;
@@ -273,10 +277,16 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// <summary>
     /// Creates a <see cref="CachedMultiSegmentHttpStream"/> that can read data over HTTP.
     /// </summary>
-    public CachedMultiSegmentHttpStream(string url, long streamLength)
+    /// <param name="url">URL to retrieve the contents from.</param>
+    /// <param name="localIpAddress">Local IP address to help the underlaying HTTP request modules finding the correct outgoing
+    /// network interface. If this parameter is set, the outgoing request will be made on the network interface this local IP address
+    /// is bound to. If this parameter is set to <c>null</c>, the interface will be choosen automatically, which can fail.</param>
+    /// <param name="streamLength">Expected length of the resource stream.</param>
+    public CachedMultiSegmentHttpStream(string url, IPAddress localIpAddress, long streamLength)
     {
       _length = streamLength;
       _url = url;
+      _localIpAddress = localIpAddress;
     }
 
     protected override void Dispose(bool disposing)
@@ -460,7 +470,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         _chunkCache[0].Dispose();
         _chunkCache.RemoveAt(0);
       }
-      _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE, Length, _url));
+      _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE, Length, _url, _localIpAddress));
     }
 
     protected HttpRangeChunk ProvideReadAhead(long position, int numReadaheadChunks)

@@ -24,10 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.UPnP;
+using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Common.Services.ResourceAccess
@@ -143,10 +145,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return ResourcePath.Deserialize((string) outParameters[0]);
     }
 
-    public string GetResourceServerBaseURL()
+    public string GetResourceServerBaseURL(out IPAddress localIpAddress)
     {
       CpAction action = GetAction("GetResourceServerBaseURL");
       IList<object> outParameters = action.InvokeAction(null);
+      DeviceConnection connection = _serviceStub.Connection;
+      localIpAddress = connection == null ? null : connection.RootDescriptor.SSDPRootEntry.PreferredLink.Endpoint.EndPointIPAddress;
       return (string) outParameters[0];
     }
 

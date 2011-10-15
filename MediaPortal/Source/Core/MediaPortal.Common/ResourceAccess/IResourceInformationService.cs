@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -48,6 +49,6 @@ namespace MediaPortal.Common.ResourceAccess
 
     ResourcePath ExpandResourcePathFromString(Guid resourceProviderId, string path);
     ResourcePath ConcatenatePaths(ResourcePath basePath, string relativePath);
-    string GetResourceServerBaseURL();
+    string GetResourceServerBaseURL(out IPAddress localIpAddress);
   }
 }

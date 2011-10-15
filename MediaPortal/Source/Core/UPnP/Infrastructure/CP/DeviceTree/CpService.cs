@@ -115,6 +115,14 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
+    /// Returns the service's connection instance, if <see cref="IsConnected"/>.
+    /// </summary>
+    public DeviceConnection Connection
+    {
+      get { return _connection; }
+    }
+
+    /// <summary>
     /// Returns the device which contains this service.
     /// </summary>
     public CpDevice ParentDevice

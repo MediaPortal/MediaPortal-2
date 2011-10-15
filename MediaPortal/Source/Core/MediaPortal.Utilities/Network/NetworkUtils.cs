@@ -54,5 +54,40 @@ namespace MediaPortal.Utilities.Network
       string val = string.Format("bytes={0}-{1}", start, end);
       method.Invoke(request.Headers, new object[] { key, val });
     }
+
+    /// <summary>
+    /// Used internally as callback delegate for the <see cref="ServicePoint.BindIPEndPointDelegate"/> property
+    /// in <see cref="HttpWebRequest.ServicePoint"/>.
+    /// </summary>
+    /// <param name="servicePoint">The service point which is currently being bound.</param>
+    /// <param name="remoteEndPoint">The desired remote endoint to reach.</param>
+    /// <param name="preferredLocalIpAddress">Address which specifies the preferred local endpoint. This address is not part of the delegate
+    /// signature and must be provided from outside.</param>
+    /// <param name="retryCount">The number of times this delegate was called for a specified connection.</param>
+    /// <returns>The local IPEndPoint to which the ServicePoint should bind.</returns>
+    public static IPEndPoint BindIPEndPointCallback(ServicePoint servicePoint, IPEndPoint remoteEndPoint,
+        IPAddress preferredLocalIpAddress, int retryCount)
+    {
+      if (retryCount > 0)
+        return null;
+      IPEndPoint ipe = new IPEndPoint(preferredLocalIpAddress, 0);
+      return ipe;
+    }
+
+    /// <summary>
+    /// Sets the local endpoint/network interface which is used to send the given HTTP <paramref name="request"/>.
+    /// </summary>
+    /// <remarks>
+    /// Due to problems which can avoid HTTP requests being delivered correctly, it is sometimes necessary to give a HTTP request object a
+    /// "hint" which local endpoint should be used. If HTTP requests time out (which is often the case when virtual VMWare network interfaces are
+    /// installed), it might help to call this method.
+    /// </remarks>
+    /// <param name="request">HTTP web request to patch.</param>
+    /// <param name="preferredLocalIpAddress">Local IP address which is bound to the network interface which should be used to bind the
+    /// outgoing HTTP request to.</param>
+    public static void SetLocalEndpoint(HttpWebRequest request, IPAddress preferredLocalIpAddress)
+    {
+      request.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) => BindIPEndPointCallback(servicePoint, remoteEndPoint, preferredLocalIpAddress, retryCount);
+    }
   }
 }

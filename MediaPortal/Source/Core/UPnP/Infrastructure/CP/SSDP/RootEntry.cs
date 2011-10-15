@@ -272,6 +272,14 @@ namespace UPnP.Infrastructure.CP.SSDP
       _configIDs[remoteEndPoint] = value;
     }
 
+    /// <summary>
+    /// Adds a physical link to the device of this root entry.
+    /// </summary>
+    /// <param name="endpoint">Local endpoint to be used for this link.</param>
+    /// <param name="descriptionLocation">Location to retrieve the description from for this link.</param>
+    /// <param name="httpVersion">HTTP version to use to retrieve the description for this link.</param>
+    /// <param name="searchPort">Search port to use for search queries at the device for this link.</param>
+    /// <returns>Created <see cref="LinkData"/> instance.</returns>
     internal LinkData AddOrUpdateLink(EndpointConfiguration endpoint, string descriptionLocation,
         HTTPVersion httpVersion, int searchPort)
     {

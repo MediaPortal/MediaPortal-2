@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Xml.XPath;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Logging;
@@ -165,9 +166,15 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return GetResourceInformationService(nativeSystemId).GetChildDirectoriesData(nativeResourcePath);
     }
 
-    public string GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath)
+    public bool GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath, out string fileHttpUrl, out IPAddress localIpAddress)
     {
-      return ResourceHttpAccessUrlUtils.GetResourceURL(GetResourceInformationService(nativeSystemId).GetResourceServerBaseURL(), nativeResourcePath);
+      fileHttpUrl = null;
+      localIpAddress = null;
+      IResourceInformationService ris = FindResourceInformationService(nativeSystemId);
+      if (ris == null)
+        return false;
+      fileHttpUrl = ResourceHttpAccessUrlUtils.GetResourceURL(ris.GetResourceServerBaseURL(out localIpAddress), nativeResourcePath);
+      return true;
     }
   }
 }

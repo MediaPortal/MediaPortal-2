@@ -33,8 +33,10 @@ using System.Threading;
 using System.Xml;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
+using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
 using UPnP.Infrastructure.Utils.HTTP;
 
@@ -402,8 +404,10 @@ namespace UPnP.Infrastructure.CP.GENA
 
     protected HttpWebRequest CreateEventSubscribeRequest(ServiceDescriptor sd)
     {
+      LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
-          new Uri(sd.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), sd.EventSubURL));
+          new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
+      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "SUBSCRIBE";
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
       request.Headers.Add("CALLBACK", "<" + NetworkHelper.IPEndPointToString(_eventNotificationEndpoint) + _eventNotificationPath + ">");
@@ -415,8 +419,10 @@ namespace UPnP.Infrastructure.CP.GENA
     protected HttpWebRequest CreateRenewEventSubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = subscription.ServiceDescriptor;
+      LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
-          new Uri(sd.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), sd.EventSubURL));
+          new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
+      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "SUBSCRIBE";
       request.Headers.Add("SID", subscription.Sid);
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
@@ -426,8 +432,10 @@ namespace UPnP.Infrastructure.CP.GENA
     protected HttpWebRequest CreateEventUnsubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = subscription.ServiceDescriptor;
+      LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
       HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
-          new Uri(sd.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), sd.EventSubURL));
+          new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
+      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "UNSUBSCRIBE";
       request.Headers.Add("SID", subscription.Sid);
       return request;

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using MediaPortal.Common.Exceptions;
 
 namespace MediaPortal.Common.ResourceAccess
@@ -109,12 +110,19 @@ namespace MediaPortal.Common.ResourceAccess
     /// Gets an HTTP URL pointing to the file at the system with the given <paramref name="nativeSystemId"/> at the given
     /// <paramref name="nativeResourcePath"/>.
     /// </summary>
+    /// <remarks>
+    /// For multi-network interface environments, it can be necessary to point the underlaying modules to the correct network
+    /// interface for outgoing HTTP requests. Among the file's HTTP URL, this method also returns the appropriate local IP address
+    /// which should be used as local endpoint for the HTTP request.
+    /// </remarks>
     /// <param name="nativeSystemId">Id of the system where the file can be accessed.</param>
     /// <param name="nativeResourcePath">Path of the file resource at the system with the given
     /// <paramref name="nativeSystemId"/>.</param>
+    /// <param name="fileHttpUrl">The HTTP URL pointing to the requested file.</param>
+    /// <param name="localIpAddress">Local IP address which specifies the local network interface to send the HTTP request to.</param>
     /// <returns>HTTP URL where the file data can be retrieved or <c>null</c>, if the URL cannot be resolved.</returns>
     /// <exception cref="NotConnectedException">If the system of the given <paramref name="nativeSystemId"/> is not
     /// connected.</exception>
-    string GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath);
+    bool GetFileHttpUrl(string nativeSystemId, ResourcePath nativeResourcePath, out string fileHttpUrl, out IPAddress localIpAddress);
   }
 }

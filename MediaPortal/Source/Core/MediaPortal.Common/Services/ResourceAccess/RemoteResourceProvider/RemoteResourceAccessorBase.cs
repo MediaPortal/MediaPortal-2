@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Exceptions;
 
@@ -113,11 +114,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       if (!_isFile || _underlayingStream != null)
         return;
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-      string resourceURL = rris.GetFileHttpUrl(_nativeSystemId, _nativeResourcePath);
+      string resourceURL;
+      IPAddress localIpAddress;
+      if (!rris.GetFileHttpUrl(_nativeSystemId, _nativeResourcePath, out resourceURL, out localIpAddress))
+        return;
       lock (_syncObj)
-      {
-        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, Size);
-      }
+        _underlayingStream = new CachedMultiSegmentHttpStream(resourceURL, localIpAddress, Size);
     }
 
     public Stream OpenRead()
