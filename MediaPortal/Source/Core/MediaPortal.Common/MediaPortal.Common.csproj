@@ -246,10 +246,10 @@
     <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
-    <Compile Include="Services\MediaManagement\Settings\ResourceMountingSettings.cs" />
+    <Compile Include="Services\ResourceAccess\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\ResourceAccess\ResourceMountingService.cs" />
     <Compile Include="Services\ResourceAccess\ResourceServer.cs" />
-    <Compile Include="Services\MediaManagement\Settings\ServerSettings.cs" />
+    <Compile Include="Services\ResourceAccess\Settings\ServerSettings.cs" />
     <Compile Include="Services\ResourceAccess\SynchronizedMasterStreamClient.cs" />
     <Compile Include="Services\ResourceAccess\UPnPResourceInformationServiceProxy.cs" />
     <Compile Include="Services\ResourceAccess\UPnPResourceInformationServiceImpl.cs" />

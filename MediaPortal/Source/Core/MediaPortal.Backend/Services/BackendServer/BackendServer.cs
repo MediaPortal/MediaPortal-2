@@ -27,7 +27,7 @@ using HttpServer;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
-using MediaPortal.Common.Services.MediaManagement.Settings;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using UPnP.Infrastructure;

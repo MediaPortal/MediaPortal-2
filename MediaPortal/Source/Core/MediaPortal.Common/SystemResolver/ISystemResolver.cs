@@ -23,10 +23,15 @@
 #endregion
 
 using MediaPortal.Common.General;
-using MediaPortal.Common.Services.SystemResolver;
 
 namespace MediaPortal.Common.SystemResolver
 {
+  public enum SystemType
+  {
+    Client,
+    Server
+  }
+
   public interface ISystemResolver
   {
     string LocalSystemId { get; }
