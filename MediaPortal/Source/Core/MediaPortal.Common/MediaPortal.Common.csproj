@@ -188,7 +188,14 @@
     <Compile Include="Messaging\MessageWatcher.cs" />
     <Compile Include="Services\Dokan\DokanNet.cs" />
     <Compile Include="Services\Dokan\DokanOperations.cs" />
+    <Compile Include="Services\Dokan\FileHandle.cs" />
     <Compile Include="Services\Dokan\Proxy.cs" />
+    <Compile Include="Services\Dokan\Dokan.cs" />
+    <Compile Include="Services\Dokan\VirtualBaseDirectory.cs" />
+    <Compile Include="Services\Dokan\VirtualDirectory.cs" />
+    <Compile Include="Services\Dokan\VirtualFile.cs" />
+    <Compile Include="Services\Dokan\VirtualFileSystemResource.cs" />
+    <Compile Include="Services\Dokan\VirtualRootDirectory.cs" />
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\Logging\log4netLogger.cs" />
