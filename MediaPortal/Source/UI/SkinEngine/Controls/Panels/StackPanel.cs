@@ -340,13 +340,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (dlgt != null) dlgt(this);
     }
 
-    public override void MakeVisible(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
-      MakeChildVisible(element, ref elementBounds);
-      base.MakeVisible(element, elementBounds);
+      BringIntoView(element, ref elementBounds);
+      base.BringIntoView(element, elementBounds);
     }
 
-    protected virtual void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
+    protected virtual void BringIntoView(UIElement element, ref RectangleF elementBounds)
     {
       if (_doScroll)
       {
@@ -485,7 +485,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Base overrides
 
-    public override void MakeItemVisible(int index)
+    public override void BringIntoView(int index)
     {
       if (index < _actualFirstVisibleChildIndex)
         SetScrollIndex(index, true);

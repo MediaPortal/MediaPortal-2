@@ -144,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvokeScrolled();
     }
 
-    public override void MakeVisible(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       if (_doScroll || AutoCentering != ScrollAutoCenteringEnum.None)
       {
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         elementBounds.Y += differenceY;
         SetScrollOffset(_actualScrollOffsetX + differenceX, _actualScrollOffsetY + differenceY);
       }
-      base.MakeVisible(element, elementBounds);
+      base.BringIntoView(element, elementBounds);
     }
 
     protected float CalculateVisibleScrollDifference(double elementPos, double elementSize, double actualPos, double actualSize)

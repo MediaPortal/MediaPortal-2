@@ -502,12 +502,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         InvokeScrolled();
     }
 
-    protected override void MakeChildVisible(UIElement element, ref RectangleF elementBounds)
+    protected override void BringIntoView(UIElement element, ref RectangleF elementBounds)
     {
       IItemProvider itemProvider = ItemProvider;
       if (itemProvider == null)
       {
-        base.MakeVisible(element, elementBounds);
+        base.BringIntoView(element, elementBounds);
         return;
       }
 

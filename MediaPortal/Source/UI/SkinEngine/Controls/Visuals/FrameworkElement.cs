@@ -682,7 +682,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (screen == null)
           return false;
         RectangleF actualBounds = ActualBounds;
-        MakeVisible(this, actualBounds);
+        BringIntoView(this, actualBounds);
         screen.UpdateFocusRect(actualBounds);
         screen.FrameworkElementGotFocus(this);
         HasFocus = true;
@@ -1198,6 +1198,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
         // - Use all the space, nothing to do here
       }
+    }
+
+    public void BringIntoView()
+    {
+      BringIntoView(this, ActualBounds);
     }
 
     #endregion

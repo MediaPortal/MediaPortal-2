@@ -456,10 +456,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (dlgt != null) dlgt(this);
     }
 
-    public override void MakeVisible(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       MakeChildVisible(element, ref elementBounds);
-      base.MakeVisible(element, elementBounds);
+      base.BringIntoView(element, elementBounds);
     }
 
     protected float SumActualLineExtendsInNonOrientationDirection(IList<LineMeasurement> lines, int startIndex, int endIndex)
@@ -639,7 +639,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Base overrides
 
-    public override void MakeItemVisible(int index)
+    public override void BringIntoView(int index)
     {
       int firstVisibleLine = _actualFirstVisibleLineIndex;
       int lastVisibleLine = _actualLastVisibleLineIndex;

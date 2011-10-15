@@ -642,11 +642,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="element">The original element which should be made visible.</param>
     /// <param name="elementBounds">The element's bounds which will be active after the scrolling
     /// update.</param>
-    public virtual void MakeVisible(UIElement element, RectangleF elementBounds)
+    public virtual void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
-        parent.MakeVisible(element, elementBounds);
+        parent.BringIntoView(element, elementBounds);
     }
 
     /// <summary>

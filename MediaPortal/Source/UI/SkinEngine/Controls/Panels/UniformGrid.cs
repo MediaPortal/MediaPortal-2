@@ -274,7 +274,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       SetScrollIndex(_scrollIndexX, row - (_actualNumVisibleRows - 1));
     }
 
-    public override void MakeVisible(UIElement element, RectangleF elementBounds)
+    public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
       if (_doScroll)
       {
@@ -298,7 +298,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
         }
       }
-      base.MakeVisible(element, elementBounds);
+      base.BringIntoView(element, elementBounds);
     }
 
     public override bool IsChildRenderedAt(UIElement child, float x, float y)

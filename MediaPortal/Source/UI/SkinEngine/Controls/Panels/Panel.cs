@@ -204,11 +204,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// Scrolls the panel's child with the given <paramref name="index"/> to the visible area, if possible.
     /// </summary>
     /// <param name="index">Index of the child to make visible. </param>
-    public virtual void MakeItemVisible(int index)
+    public virtual void BringIntoView(int index)
     {
       FrameworkElement element = GetElement(index);
       if (element != null)
-        MakeVisible(element, element.ActualBounds);
+        BringIntoView(element, element.ActualBounds);
     }
 
 
