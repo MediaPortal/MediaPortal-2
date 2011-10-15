@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common.Services.MediaManagement;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
