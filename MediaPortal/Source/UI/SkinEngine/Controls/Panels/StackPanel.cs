@@ -563,8 +563,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int firstVisibleChildIndex = _actualFirstVisibleChildIndex;
         CalcHelper.Bound(ref firstVisibleChildIndex, 0, visibleChildren.Count - 1);
         FrameworkElement firstVisibleChild = visibleChildren[firstVisibleChildIndex];
-        if (firstVisibleChild == null)
-          return false;
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The topmost element is focused - move one page up
@@ -595,8 +593,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int lastVisibleChildIndex = _actualLastVisibleChildIndex;
         CalcHelper.Bound(ref lastVisibleChildIndex, 0, visibleChildren.Count - 1);
         FrameworkElement lastVisibleChild = visibleChildren[lastVisibleChildIndex];
-        if (lastVisibleChild == null)
-          return false;
         float limitPosition;
         if (InVisualPath(lastVisibleChild, currentElement))
           // The element at the bottom is focused - move one page down
@@ -627,8 +623,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int firstVisibleChildIndex = _actualFirstVisibleChildIndex;
         CalcHelper.Bound(ref firstVisibleChildIndex, 0, visibleChildren.Count - 1);
         FrameworkElement firstVisibleChild = visibleChildren[firstVisibleChildIndex];
-        if (firstVisibleChild == null)
-          return false;
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The leftmost element is focused - move one page left
@@ -659,8 +653,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         int lastVisibleChildIndex = _actualLastVisibleChildIndex;
         CalcHelper.Bound(ref lastVisibleChildIndex, 0, visibleChildren.Count - 1);
         FrameworkElement lastVisibleChild = visibleChildren[lastVisibleChildIndex];
-        if (lastVisibleChild == null)
-          return false;
         float limitPosition;
         if (InVisualPath(lastVisibleChild, currentElement))
           // The element at the bottom is focused - move one page down

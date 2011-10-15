@@ -710,8 +710,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.Bound(ref firstLocal, 0, localChildren.Count - 1);
         }
         FrameworkElement firstVisibleChild = localChildren[firstLocal];
-        if (firstVisibleChild == null)
-          return false;
         if (_averageItemSize == 0)
           return false;
         if (InVisualPath(firstVisibleChild, currentElement))
@@ -764,8 +762,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.Bound(ref lastLocal, 0, localChildren.Count - 1);
         }
         FrameworkElement lastVisibleChild = localChildren[lastLocal];
-        if (lastVisibleChild == null)
-          return false;
         if (_averageItemSize == 0)
           return false;
         if (InVisualPath(lastVisibleChild, currentElement))
@@ -818,8 +814,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.Bound(ref firstLocal, 0, localChildren.Count - 1);
         }
         FrameworkElement firstVisibleChild = localChildren[firstLocal];
-        if (firstVisibleChild == null)
-          return false;
         if (_averageItemSize == 0)
           return false;
         if (InVisualPath(firstVisibleChild, currentElement))
@@ -872,8 +866,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.Bound(ref lastLocal, 0, localChildren.Count - 1);
         }
         FrameworkElement lastVisibleChild = localChildren[lastLocal];
-        if (lastVisibleChild == null)
-          return false;
         if (_averageItemSize == 0)
           return false;
         if (InVisualPath(lastVisibleChild, currentElement))
