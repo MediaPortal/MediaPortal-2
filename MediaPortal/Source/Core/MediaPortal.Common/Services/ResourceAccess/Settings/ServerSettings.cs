@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.Services.MediaManagement.Settings
+namespace MediaPortal.Common.Services.ResourceAccess.Settings
 {
   public class ServerSettings
   {

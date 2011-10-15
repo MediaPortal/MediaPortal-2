@@ -29,7 +29,7 @@ using System.Linq;
 using System.Threading;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Dokan;
-using MediaPortal.Common.Services.MediaManagement.Settings;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Services.SystemResolver;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;

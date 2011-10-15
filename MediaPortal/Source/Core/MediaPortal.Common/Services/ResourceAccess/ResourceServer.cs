@@ -28,7 +28,7 @@ using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.MediaManagement.Settings;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Common.Services.ResourceAccess

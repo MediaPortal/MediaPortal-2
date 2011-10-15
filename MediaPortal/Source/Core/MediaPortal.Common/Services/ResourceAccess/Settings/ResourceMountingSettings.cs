@@ -24,23 +24,23 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.Services.MediaManagement.Settings
+namespace MediaPortal.Common.Services.ResourceAccess.Settings
 {
- public class ResourceMountingSettings
- {
-   protected char? _driveLetter = null;
+  public class ResourceMountingSettings
+  {
+    protected char? _driveLetter = null;
 
-   public const char DEFAULT_DRIVE_LETTER_CLIENT = 'R';
-   public const char DEFAULT_DRIVE_LETTER_SERVER = 'S';
+    public const char DEFAULT_DRIVE_LETTER_CLIENT = 'R';
+    public const char DEFAULT_DRIVE_LETTER_SERVER = 'S';
 
-   /// <summary>
-   /// Drive where non-filesystem resources are mounted in the local filesystem.
-   /// </summary>
-   [Setting(SettingScope.User)]
-   public char? DriveLetter
-   {
-     get { return _driveLetter; }
-     set { _driveLetter = value; }
-   }
- }
+    /// <summary>
+    /// Drive where non-filesystem resources are mounted in the local filesystem.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public char? DriveLetter
+    {
+      get { return _driveLetter; }
+      set { _driveLetter = value; }
+    }
+  }
 }
