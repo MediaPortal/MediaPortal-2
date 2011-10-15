@@ -54,7 +54,7 @@ namespace MediaPortal.Common.Services.Dokan
     protected Thread _mountThread;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
-    public Dokan(char driveLetter)
+    protected Dokan(char driveLetter)
     {
       _driveLetter = driveLetter;
       _mountThread = new Thread(Run) { Name = "Dokan" };
@@ -73,13 +73,13 @@ namespace MediaPortal.Common.Services.Dokan
       try
       {
         if (DokanNet.DokanUnmount(_driveLetter) == 0)
-          ServiceRegistration.Get<ILogger>().Error("Dokan failed to unmount drive '{0}'", _driveLetter);
+          ServiceRegistration.Get<ILogger>().Error("Dokan: Failed to unmount drive '{0}'", _driveLetter);
         else
-          ServiceRegistration.Get<ILogger>().Info("Successfully unmounted drive '{0}'", _driveLetter);
+          ServiceRegistration.Get<ILogger>().Info("Dokan: Successfully unmounted drive '{0}'", _driveLetter);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error unmounting Dokan drive '{0}'", e, _driveLetter);
+        ServiceRegistration.Get<ILogger>().Error("Dokan: Error unmounting drive '{0}'", e, _driveLetter);
       }
       lock (_syncObj)
         _root.Dispose();
@@ -89,7 +89,7 @@ namespace MediaPortal.Common.Services.Dokan
     // Could be helpful to move the DokanOperations implementation to a separate class to make it possible to
     // write a sensible destructor in this class which removes the Dokan drive
 
-    protected bool DriveInUse(char driveLetter)
+    protected static bool DriveInUse(char driveLetter)
     {
       return Directory.Exists(driveLetter + ":\\");
     }
@@ -99,11 +99,27 @@ namespace MediaPortal.Common.Services.Dokan
     /// </summary>
     /// <param name="driveLetter">Drive letter.</param>
     /// <returns>True if mounted Dokan drive.</returns>
-    protected bool IsDokanDrive(char driveLetter)
+    protected static bool IsDokanDrive(char driveLetter)
     {
       DriveInfo driveInfo = new DriveInfo(driveLetter+":");
       // check the IsReady property to avoid DriveNotFoundException on other Properties
       return (driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN");
+    }
+
+    protected static bool Prepare(char driveLetter)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
+      // lost Dokan mount from a formerly crashed MediaPortal
+      if (IsDokanDrive(driveLetter) && DokanNet.DokanUnmount(driveLetter) == DokanNet.DOKAN_SUCCESS)
+        logger.Info("Dokan: Successfully unmounted remote resource drive '{0}' from former unclean shutdown", driveLetter);
+
+      if (DriveInUse(driveLetter))
+      {
+        logger.Warn("Dokan: Drive letter '{0}' is already in use", driveLetter);
+        return false;
+      }
+      return true;
     }
 
     protected void Run()
@@ -112,14 +128,6 @@ namespace MediaPortal.Common.Services.Dokan
 
       try
       {
-        // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
-        // lost Dokan mount from a formerly crashed MediaPortal
-        if (IsDokanDrive(_driveLetter) && DokanNet.DokanUnmount(_driveLetter) == DokanNet.DOKAN_SUCCESS)
-          logger.Info("ResourceMountingService: Successfully unmounted remote resource drive '{0}' from former unclean shutdown", _driveLetter);
-
-        if (DriveInUse(_driveLetter))
-          logger.Warn("ResourceMountingService: Drive letter '{0}' is already in use. Unable to mount resources into local filesystem.", _driveLetter);
-
         DokanOptions opt = new DokanOptions
           {
               DriveLetter = _driveLetter,
@@ -131,15 +139,16 @@ namespace MediaPortal.Common.Services.Dokan
               //UseStdErr = true
           };
 
+        // DokanMain will return when a "DokanUnmount" call is done from ResMount thread (or in case of errors?)
         int result = DokanNet.DokanMain(opt, this);
         if (result == DokanNet.DOKAN_SUCCESS)
-          logger.Debug("ResourceMountingService: DokanMain returned successfully");
+          logger.Debug("Dokan: DokanMain returned successfully");
         else
-          logger.Warn("ResourceMountingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
+          logger.Warn("ResourceMouDokanntingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
       }
       catch (Exception e)
       {
-        logger.Error("ResourceMountingService: Error mounting virtual filesystem at drive '{0}' (is DOKAN not installed?)", e, _driveLetter);
+        logger.Error("Dokan: Error mounting virtual filesystem at drive '{0}' (is DOKAN not installed?)", e, _driveLetter);
       }
     }
 
@@ -159,6 +168,21 @@ namespace MediaPortal.Common.Services.Dokan
             return null;
         }
       return resource;
+    }
+
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
+
+    public char DriveLetter
+    {
+       get { return _driveLetter; }
+    }
+
+    public static Dokan Install(char driveLetter)
+    {
+      return Prepare(driveLetter) ? new Dokan(driveLetter) : null;
     }
 
     public VirtualRootDirectory GetRootDirectory(string rootDirectoryName)

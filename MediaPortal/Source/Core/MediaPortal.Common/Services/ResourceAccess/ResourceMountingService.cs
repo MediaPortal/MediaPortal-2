@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Dokan;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
-using MediaPortal.Common.Services.SystemResolver;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 
@@ -54,7 +54,6 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     protected object _syncObj = new object();
     protected bool _started = false;
-    protected char? _driveLetter = null;
     protected Thread _mountThread;
     protected Dokan.Dokan _dokanExecutor = null;
     protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
@@ -73,7 +72,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       get
       {
         lock (_syncObj)
-          return _driveLetter;
+          return _dokanExecutor == null ? new char?() : _dokanExecutor.DriveLetter;
       }
     }
 
@@ -95,11 +94,18 @@ namespace MediaPortal.Common.Services.ResourceAccess
         driveLetter = systemResolver.SystemType == SystemType.Server ? ResourceMountingSettings.DEFAULT_DRIVE_LETTER_SERVER :
             ResourceMountingSettings.DEFAULT_DRIVE_LETTER_CLIENT;
       }
-      _dokanExecutor = new Dokan.Dokan(driveLetter.Value);
+      _dokanExecutor = Dokan.Dokan.Install(driveLetter.Value);
+      if (_dokanExecutor == null)
+        ServiceRegistration.Get<ILogger>().Warn("ResourceMountingService: Due to problems in DOKAN, resources cannot be mounted into the local filesystem");
+      else
+        // We share the same synchronization object to avoid multithreading issues between the two classes
+        _syncObj = _dokanExecutor.SyncObj;
     }
 
     public void Shutdown()
     {
+      if (_dokanExecutor == null)
+        return;
       _dokanExecutor.Dispose();
     }
 
@@ -107,10 +113,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_syncObj)
       {
-        if (!_driveLetter.HasValue)
+        if (_dokanExecutor == null)
           return null;
+        char driveLetter = _dokanExecutor.DriveLetter;
         _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
-        return Path.Combine(_driveLetter + ":\\", rootDirectoryName);
+        return Path.Combine(driveLetter + ":\\", rootDirectoryName);
       }
     }
 
@@ -118,6 +125,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_syncObj)
       {
+        if (_dokanExecutor == null)
+          return;
         VirtualRootDirectory rootDirectory = _dokanExecutor.GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return;
@@ -130,6 +139,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_syncObj)
       {
+        if (_dokanExecutor == null)
+          return null;
         VirtualRootDirectory rootDirectory = _dokanExecutor.GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return null;
@@ -141,7 +152,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_syncObj)
       {
-        if (!_driveLetter.HasValue)
+        if (_dokanExecutor == null)
           return null;
         VirtualRootDirectory rootDirectory = _dokanExecutor.GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
@@ -151,7 +162,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
         rootDirectory.AddResource(resourceName, fsra != null && fsra.IsDirectory ?
                                                                                      (VirtualFileSystemResource) new VirtualDirectory(resourceName, fsra) :
                                                                                                                                                               new VirtualFile(resourceName, resourceAccessor));
-        return Path.Combine(_driveLetter + ":\\", rootDirectoryName + "\\" + resourceName);
+        char driveLetter = _dokanExecutor.DriveLetter;
+        return Path.Combine(driveLetter + ":\\", rootDirectoryName + "\\" + resourceName);
       }
     }
 
@@ -159,6 +171,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       lock (_syncObj)
       {
+        if (_dokanExecutor == null)
+          return;
         VirtualRootDirectory rootDirectory = _dokanExecutor.GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return;
