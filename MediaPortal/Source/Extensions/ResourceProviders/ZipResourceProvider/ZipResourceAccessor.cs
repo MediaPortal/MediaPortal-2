@@ -167,7 +167,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public bool IsFile
     {
-      get { return _zipEntry != null; }
+      get { return _zipEntry != null && !_isDirectory; }
     }
 
     public string ResourceName

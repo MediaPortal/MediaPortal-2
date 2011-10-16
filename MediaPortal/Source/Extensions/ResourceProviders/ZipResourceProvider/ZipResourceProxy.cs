@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public override string ToString()
     {
-      return string.Format("ZIP file proxy object for file '{0}'", _zipFile.Name);
+      return string.Format("ZIP file proxy object for file '{0}'", _zipFileResourceAccessor.ResourceName);
     }
   }
 }
