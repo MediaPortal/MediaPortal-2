@@ -39,11 +39,15 @@ namespace MediaPortal.Common.Services.Dokan
           _children = new Dictionary<string, VirtualFileSystemResource>(StringComparer.InvariantCultureIgnoreCase);
           try
           {
-            foreach (IFileSystemResourceAccessor childDirectoryAccessor in Directory.GetChildDirectories())
-              _children[childDirectoryAccessor.ResourceName] = new VirtualDirectory(
-                  childDirectoryAccessor.ResourceName, childDirectoryAccessor);
-            foreach (IFileSystemResourceAccessor fileAccessor in Directory.GetFiles())
-              _children[fileAccessor.ResourceName] = new VirtualFile(fileAccessor.ResourceName, fileAccessor);
+            ICollection<IFileSystemResourceAccessor> entries = Directory.GetChildDirectories();
+            if (entries != null)
+              foreach (IFileSystemResourceAccessor childDirectoryAccessor in entries)
+                _children[childDirectoryAccessor.ResourceName] = new VirtualDirectory(
+                    childDirectoryAccessor.ResourceName, childDirectoryAccessor);
+            entries = Directory.GetFiles();
+            if (entries != null)
+              foreach (IFileSystemResourceAccessor fileAccessor in entries)
+                _children[fileAccessor.ResourceName] = new VirtualFile(fileAccessor.ResourceName, fileAccessor);
           }
           catch (Exception e)
           {
