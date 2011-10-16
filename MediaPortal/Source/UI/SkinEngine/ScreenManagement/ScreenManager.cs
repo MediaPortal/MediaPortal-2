@@ -1120,7 +1120,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (inheritedBundle == null)
           {
             ServiceRegistration.Get<ILogger>().Error("ScreenManager: Error loading screen file '{0}', no fallback screen available", e, skinFilePath);
-            return null;
+            throw;
           }
           ServiceRegistration.Get<ILogger>().Error(
               "ScreenManager: Error loading screen '{0}' in resource bundle '{1}', falling back to resource bundle '{2}'",
