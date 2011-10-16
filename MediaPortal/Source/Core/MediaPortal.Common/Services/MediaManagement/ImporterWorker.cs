@@ -403,7 +403,9 @@ namespace MediaPortal.Common.Services.MediaManagement
         ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, currentDirectoryPath);
         if (ImportResource(directoryAccessor, parentDirectoryId, metadataExtractors, mediaItemAspectTypes,
             resultHandler, mediaAccessor))
-          // The directory could be imported as a media item
+          // The directory could be imported as a media item.
+          // If the directory itself was identified as a normal media item, don't import its children.
+          // Necessary for DVD directories, for example.
           return null;
         Guid directoryId = GetOrAddDirectory(directoryAccessor, parentDirectoryId, mediaBrowsing, resultHandler);
         IDictionary<string, MediaItem> path2Item = new Dictionary<string, MediaItem>();
@@ -418,40 +420,36 @@ namespace MediaPortal.Common.Services.MediaManagement
           }
         }
         CheckImportStillRunning(importJob.State);
-        // If the directory itself was identified as a normal media item, don't import its children.
-        // Necessary for DVD directories, for example.
-        { 
-          ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
-          if (files != null)
-            foreach (IFileSystemResourceAccessor fileAccessor in files)
-            { // Add & update files
-              ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
-              string serializedFilePath = currentFilePath.Serialize();
-              try
-              {
-                MediaItemAspect importerAspect;
-                MediaItem mediaItem;
-                if (importJob.JobType == ImportJobType.Refresh &&
-                    path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
-                    mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-                    importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
-                { // We can skip this file; it was imported after the last change time of the item
-                  path2Item.Remove(serializedFilePath);
-                  continue;
-                }
-                if (ImportResource(fileAccessor, directoryId, metadataExtractors, mediaItemAspectTypes,
-                    resultHandler, mediaAccessor))
-                  path2Item.Remove(serializedFilePath);
+        ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(directoryAccessor);
+        if (files != null)
+          foreach (IFileSystemResourceAccessor fileAccessor in files)
+          { // Add & update files
+            ResourcePath currentFilePath = fileAccessor.CanonicalLocalResourcePath;
+            string serializedFilePath = currentFilePath.Serialize();
+            try
+            {
+              MediaItemAspect importerAspect;
+              MediaItem mediaItem;
+              if (importJob.JobType == ImportJobType.Refresh &&
+                  path2Item.TryGetValue(serializedFilePath, out mediaItem) &&
+                  mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
+                  importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
+              { // We can skip this file; it was imported after the last change time of the item
+                path2Item.Remove(serializedFilePath);
+                continue;
               }
-              catch (Exception e)
-              {
-                CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
-                ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
-                importJob.State = ImportJobState.Erroneous;
-              }
-              CheckImportStillRunning(importJob.State);
+              if (ImportResource(fileAccessor, directoryId, metadataExtractors, mediaItemAspectTypes,
+                  resultHandler, mediaAccessor))
+                path2Item.Remove(serializedFilePath);
             }
-        }
+            catch (Exception e)
+            {
+              CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
+              ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, serializedFilePath);
+              importJob.State = ImportJobState.Erroneous;
+            }
+            CheckImportStillRunning(importJob.State);
+          }
         if (importJob.JobType == ImportJobType.Refresh)
         { // Remove remaining (= non-present) files
           foreach (string pathStr in path2Item.Keys)
