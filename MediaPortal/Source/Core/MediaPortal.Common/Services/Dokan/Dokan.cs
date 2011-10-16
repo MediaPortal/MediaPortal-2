@@ -201,6 +201,11 @@ namespace MediaPortal.Common.Services.Dokan
        get { return _driveLetter; }
     }
 
+    public VirtualRootDirectory RootDirectory
+    {
+      get { return _root; }
+    }
+
     public static Dokan Install(char driveLetter)
     {
       return Prepare(driveLetter) ? new Dokan(driveLetter) : null;

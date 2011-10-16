@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Dokan;
@@ -53,10 +52,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     #endregion
 
     protected object _syncObj = new object();
-    protected bool _started = false;
-    protected Thread _mountThread;
     protected Dokan.Dokan _dokanExecutor = null;
-    protected VirtualRootDirectory _root = new VirtualRootDirectory("/");
 
     protected char? ReadDriveLetterFromSettings()
     {
@@ -81,7 +77,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       get
       {
         lock (_syncObj)
-          return new List<string>(_root.ChildResources.Keys);
+          return new List<string>(_dokanExecutor.RootDirectory.ChildResources.Keys);
       }
     }
 
@@ -116,7 +112,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         if (_dokanExecutor == null)
           return null;
         char driveLetter = _dokanExecutor.DriveLetter;
-        _root.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
+        _dokanExecutor.RootDirectory.AddResource(rootDirectoryName, new VirtualRootDirectory(rootDirectoryName));
         return Path.Combine(driveLetter + ":\\", rootDirectoryName);
       }
     }
@@ -130,7 +126,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         VirtualRootDirectory rootDirectory = _dokanExecutor.GetRootDirectory(rootDirectoryName);
         if (rootDirectory == null)
           return;
-        _root.RemoveResource(rootDirectoryName);
+        _dokanExecutor.RootDirectory.RemoveResource(rootDirectoryName);
         rootDirectory.Dispose();
       }
     }
