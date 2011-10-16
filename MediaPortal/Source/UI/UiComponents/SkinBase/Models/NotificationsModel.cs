@@ -98,7 +98,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
       int numNotifications = notificationService.Notifications.Count;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (numNotifications == 0)
+      if (numNotifications == 0 && workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_WATCH_NOTIFICATIONS)
+        // Don't pop the watch-notifications state from the navigation stack if we are in a sub state
         workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS, true);
       IsNotificationsHintVisible = !workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_WATCH_NOTIFICATIONS) && numNotifications > 0;
       NumNotificationsTotal = numNotifications;
@@ -282,7 +283,8 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      return true;
+      INotificationService notificationService = ServiceRegistration.Get<INotificationService>();
+      return notificationService.Notifications.Count > 0;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
