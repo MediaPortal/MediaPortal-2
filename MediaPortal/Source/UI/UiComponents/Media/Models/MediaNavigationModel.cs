@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
@@ -193,6 +194,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected void PrepareRootState()
     {
+      // TODO: Add registration for skin-dependent optional MIA types to load
+      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = new Guid[]
+          {
+              ThumbnailSmallAspect.ASPECT_ID,
+              ThumbnailLargeAspect.ASPECT_ID,
+          };
       // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
       // music, movies, pictures and local media.
       Guid currentStateId = _currentNavigationContext.WorkflowState.StateId;
@@ -207,7 +214,7 @@ namespace MediaPortal.UiComponents.Media.Models
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
         ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MUSIC_VIEW_NAME,
-            null, Consts.NECESSARY_MUSIC_MIAS, null, true)
+            null, Consts.NECESSARY_MUSIC_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
@@ -233,7 +240,7 @@ namespace MediaPortal.UiComponents.Media.Models
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
         ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_MOVIES_VIEW_NAME,
-            null, Consts.NECESSARY_MOVIE_MIAS, null, true)
+            null, Consts.NECESSARY_MOVIE_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
@@ -258,7 +265,7 @@ namespace MediaPortal.UiComponents.Media.Models
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
           };
         ViewSpecification rootViewSpecification = new MediaLibraryQueryViewSpecification(Consts.RES_PICTURES_VIEW_NAME,
-            null, Consts.NECESSARY_PICTURE_MIAS, null, true)
+            null, Consts.NECESSARY_PICTURE_MIAS, skinDependentOptionalMIATypeIDs, true)
           {
               MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
           };
@@ -307,20 +314,17 @@ namespace MediaPortal.UiComponents.Media.Models
                 };
             return null;
           };
-        Guid[] necessaryMIATypeIDs = new Guid[]
+        IEnumerable<Guid> necessaryMIATypeIDs = new Guid[]
             {
                 ProviderResourceAspect.ASPECT_ID,
                 MediaAspect.ASPECT_ID,
             };
-        Guid[] optionalMIATypeIDs = new Guid[]
+        IEnumerable<Guid> optionalMIATypeIDs = new Guid[]
             {
                 AudioAspect.ASPECT_ID,
                 VideoAspect.ASPECT_ID,
                 PictureAspect.ASPECT_ID,
-                // TODO: Lazy load thumbnail aspects when they are needed in the skin
-                ThumbnailSmallAspect.ASPECT_ID,
-                ThumbnailLargeAspect.ASPECT_ID,
-            };
+            }.Union(skinDependentOptionalMIATypeIDs);
         string viewName = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
             Consts.RES_LOCAL_MEDIA_ROOT_VIEW_NAME : Consts.RES_BROWSE_MEDIA_ROOT_VIEW_NAME;
         ViewSpecification rootViewSpecification = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ?
