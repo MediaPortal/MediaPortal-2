@@ -486,7 +486,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         result.AddPathSegment(ps);
         if (pos >= path.Length)
           break;
-        if (path[pos] != '.')
+        char c = path[pos];
+        if (c == '[')
+          continue;
+        if (c != '.')
           throw new XamlParserException("PathExpression '{0}': '.' expected at position {1}", path, pos);
         pos++;
       }
