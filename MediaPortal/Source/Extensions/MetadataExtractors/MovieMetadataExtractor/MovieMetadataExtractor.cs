@@ -282,19 +282,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               result = MovieResult.CreateDVDInfo(fsra.ResourceName, videoTsInfo);
             }
             // Iterate over all video files; MediaInfo finds different audio/video metadata for each .ifo file
-            foreach (IFileSystemResourceAccessor file in fsraVideoTs.GetFiles())
-            {
-              string lowerPath = file.ResourcePathName.ToLowerInvariant();
-              if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
-                continue;
-              using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))
+            ICollection<IFileSystemResourceAccessor> files = fsraVideoTs.GetFiles();
+            if (files != null)
+              foreach (IFileSystemResourceAccessor file in files)
               {
-                // Before we start evaluating the file, check if it is a video at all
-                if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+                string lowerPath = file.ResourcePathName.ToLowerInvariant();
+                if (!lowerPath.EndsWith(".ifo") || lowerPath.EndsWith("video_ts.ifo"))
                   continue;
-                result.AddMediaInfo(mediaInfo);
+                using (MediaInfoWrapper mediaInfo = ReadMediaInfo(file))
+                {
+                  // Before we start evaluating the file, check if it is a video at all
+                  if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
+                    continue;
+                  result.AddMediaInfo(mediaInfo);
+                }
               }
-            }
           }
         }
         else if (mediaItemAccessor.IsFile)

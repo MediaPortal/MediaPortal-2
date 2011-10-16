@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using ISOReader;
@@ -122,7 +124,15 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         IsoResourceProxy proxy;
         if (!_isoUsages.TryGetValue(key, out proxy))
           _isoUsages.Add(key, proxy = CreateIsoResourceProxy(key, potentialBaseResourceAccessor));
-        resultResourceAccessor = new IsoResourceAccessor(this, proxy, path);
+        try
+        {
+          resultResourceAccessor = new IsoResourceAccessor(this, proxy, path);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("IsoResourceProvider: Error chaining up to '{0}'", e, potentialBaseResourceAccessor.CanonicalLocalResourcePath);
+          return false;
+        }
         return true;
       }
     }

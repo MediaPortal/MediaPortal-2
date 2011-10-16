@@ -582,8 +582,12 @@ namespace MediaPortal.Common.Services.MediaManagement
                 if (currentDirectoryId.HasValue && importJob.IncludeSubDirectories)
                   // Add subdirectories in front of work queue
                   lock (importJob.SyncObj)
-                    foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(fsra))
-                      importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                  {
+                    ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(fsra);
+                    if (directories != null)
+                      foreach (IFileSystemResourceAccessor childDirectory in directories)
+                        importJob.PendingResources.Insert(0, new PendingImportResource(currentDirectoryId.Value, childDirectory));
+                  }
               }
               else
                 ServiceRegistration.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.CanonicalLocalResourcePath.Serialize());

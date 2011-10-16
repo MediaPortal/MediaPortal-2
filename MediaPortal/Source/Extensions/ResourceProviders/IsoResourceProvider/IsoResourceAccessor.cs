@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using ISOReader;
 using MediaPortal.Utilities.FileSystem;
@@ -220,17 +222,33 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
       string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
-      string[] files = _isoProxy.IsoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
-          IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
+      try
+      {
+        string[] files = _isoProxy.IsoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
+        return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+            IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("IsoResourceAccessor: Error reading files of '{0}'", e, CanonicalLocalResourcePath);
+        return null;
+      }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
       string dosPath = IsoResourceProvider.ToDosPath(_pathInIsoFile);
-      string[] files = _isoProxy.IsoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-      return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
-          IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
+      try
+      {
+        string[] files = _isoProxy.IsoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
+        return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+            IsoResourceProvider.ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("IsoResourceAccessor: Error reading child directories of '{0}'", e, CanonicalLocalResourcePath);
+        return null;
+      }
     }
 
     #endregion

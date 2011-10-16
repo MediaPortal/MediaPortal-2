@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using ICSharpCode.SharpZipLib.Zip;
@@ -132,7 +134,15 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         ZipResourceProxy proxy;
         if (!_zipUsages.TryGetValue(key, out proxy))
           _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
-        resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
+        try
+        {
+          resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ZipResourceProvider: Error chaining up to '{0}'", e, potentialBaseResourceAccessor.CanonicalLocalResourcePath);
+          return false;
+        }
         return true;
       }
     }

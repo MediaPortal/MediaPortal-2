@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using ICSharpCode.SharpZipLib.Zip;
@@ -262,20 +264,36 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     {
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
-      List<IFileSystemResourceAccessor> files = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(files, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
-          new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(fileEntry.Name))));
-      return files;
+      try
+      {
+        List<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+        CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(fileEntry.Name))));
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ZipResourceAccessor: Error reading files of '{0}'", e, CanonicalLocalResourcePath);
+        return null;
+      }
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
       if (string.IsNullOrEmpty(_pathToDirOrFile))
         return null;
-      ICollection<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(directories, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
-          new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
-      return directories;
+      try
+      {
+        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
+        CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
+        return result;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ZipResourceAccessor: Error reading child directories of '{0}'", e, CanonicalLocalResourcePath);
+        return null;
+      }
     }
 
     #endregion

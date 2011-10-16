@@ -149,15 +149,17 @@ namespace MediaPortal.UiComponents.Media.General
         IEnumerable<Guid> metadataExtractorIds, IMediaAccessor mediaAccessor)
     {
       ICollection<IFileSystemResourceAccessor> directoryRAs = FileSystemResourceNavigator.GetChildDirectories(directoryRA);
-      foreach (IFileSystemResourceAccessor subDirectoryRA in directoryRAs)
-        AddLocalMediaItemsRecursive(subDirectoryRA, mediaItems, metadataExtractorIds, mediaAccessor);
+      if (directoryRAs != null)
+        foreach (IFileSystemResourceAccessor subDirectoryRA in directoryRAs)
+          AddLocalMediaItemsRecursive(subDirectoryRA, mediaItems, metadataExtractorIds, mediaAccessor);
       ICollection<IFileSystemResourceAccessor> fileRAs = FileSystemResourceNavigator.GetFiles(directoryRA);
-      foreach (IFileSystemResourceAccessor fileRA in fileRAs)
-      {
-        MediaItem item = mediaAccessor.CreateLocalMediaItem(fileRA, metadataExtractorIds);
-        if (item != null)
-          mediaItems.Add(item);
-      }
+      if (fileRAs != null)
+        foreach (IFileSystemResourceAccessor fileRA in fileRAs)
+        {
+          MediaItem item = mediaAccessor.CreateLocalMediaItem(fileRA, metadataExtractorIds);
+          if (item != null)
+            mediaItems.Add(item);
+        }
     }
   }
 }
