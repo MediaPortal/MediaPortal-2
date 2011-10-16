@@ -121,11 +121,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       lock (_syncObj)
       {
         string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
-        IsoResourceProxy proxy;
-        if (!_isoUsages.TryGetValue(key, out proxy))
-          _isoUsages.Add(key, proxy = CreateIsoResourceProxy(key, potentialBaseResourceAccessor));
         try
         {
+          IsoResourceProxy proxy;
+          if (!_isoUsages.TryGetValue(key, out proxy))
+            _isoUsages.Add(key, proxy = CreateIsoResourceProxy(key, potentialBaseResourceAccessor));
           resultResourceAccessor = new IsoResourceAccessor(this, proxy, path);
         }
         catch (Exception e)
@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       catch
       {
         ra.Dispose();
-        throw;
+        return false;
       }
     }
 

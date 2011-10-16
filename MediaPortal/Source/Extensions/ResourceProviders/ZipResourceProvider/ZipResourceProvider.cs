@@ -131,11 +131,11 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       lock (_syncObj)
       {
         string key = potentialBaseResourceAccessor.CanonicalLocalResourcePath.Serialize();
-        ZipResourceProxy proxy;
-        if (!_zipUsages.TryGetValue(key, out proxy))
-          _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
         try
         {
+          ZipResourceProxy proxy;
+          if (!_zipUsages.TryGetValue(key, out proxy))
+            _zipUsages.Add(key, proxy = CreateZipResourceProxy(key, potentialBaseResourceAccessor));
           resultResourceAccessor = new ZipResourceAccessor(this, proxy, path);
         }
         catch (Exception e)
@@ -151,8 +151,15 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     {
       string entryPath = ToEntryPath(path);
       using (Stream resourceStream = baseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
-      using (ZipFile zFile = new ZipFile(resourceStream))
-        return path.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
+        try
+        {
+          using (ZipFile zFile = new ZipFile(resourceStream))
+            return path.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
     }
 
     #endregion
