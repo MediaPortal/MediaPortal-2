@@ -178,18 +178,19 @@ namespace UPnP.Infrastructure.Dv.SSDP
     /// </summary>
     public void Close()
     {
+      ManualResetEvent notifyObject = new ManualResetEvent(false);
       lock (_serverData.SyncObj)
       {
         RevokeAdvertisements();
-        ManualResetEvent notifyObject = new ManualResetEvent(false);
         _advertisementTimer.Dispose(notifyObject);
         notifyObject.WaitOne();
         notifyObject.Reset();
         _searchResponseTimer.Dispose(notifyObject);
-        notifyObject.WaitOne();
-        notifyObject.Close();
-        CloseSSDPEndpoints();
       }
+      notifyObject.WaitOne();
+      notifyObject.Close();
+      lock (_serverData.SyncObj)
+        CloseSSDPEndpoints();
     }
 
     /// <summary>
