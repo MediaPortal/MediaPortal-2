@@ -30,6 +30,7 @@ using System.Threading;
 using Dokan;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.Services.Dokan
 {
@@ -41,6 +42,11 @@ namespace MediaPortal.Common.Services.Dokan
     /// Volume label for the virtual drive if our mount point is a drive letter.
     /// </summary>
     public static string VOLUME_LABEL = "MediaPortal 2 resource access";
+
+    /// <summary>
+    /// Timeout for the drive check before we assume the drive is an orphaned DOKAN drive.
+    /// </summary>
+    protected const int DRIVE_TIMEOUT_MS = 5000;
 
     protected const FileAttributes FILE_ATTRIBUTES = FileAttributes.ReadOnly;
     protected const FileAttributes DIRECTORY_ATTRIBUTES = FileAttributes.ReadOnly | FileAttributes.NotContentIndexed | FileAttributes.Directory;
@@ -97,13 +103,25 @@ namespace MediaPortal.Common.Services.Dokan
     /// <summary>
     /// Checks if a mounted drive exists and the filesystem type is DOKAN.
     /// </summary>
-    /// <param name="driveLetter">Drive letter.</param>
-    /// <returns>True if mounted Dokan drive.</returns>
+    /// <param name="driveLetter">Letter of drive to check.</param>
+    /// <returns><c>true</c>, if the drive with the given <paramref name="driveLetter"/> is a mounted Dokan drive, else <c>false</c>.</returns>
     protected static bool IsDokanDrive(char driveLetter)
     {
-      DriveInfo driveInfo = new DriveInfo(driveLetter+":");
-      // check the IsReady property to avoid DriveNotFoundException on other Properties
-      return (driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN");
+      bool result = false;
+      try
+      {
+        ThreadingUtils.CallWithTimeout(() =>
+          {
+            DriveInfo driveInfo = new DriveInfo(driveLetter+":");
+            // Check the IsReady property to avoid DriveNotFoundException
+            result = driveInfo.IsReady && driveInfo.DriveFormat == "DOKAN";
+          }, DRIVE_TIMEOUT_MS);
+      }
+      catch (TimeoutException)
+      {
+        result = true;
+      }
+      return result;
     }
 
     protected static bool Prepare(char driveLetter)
@@ -111,8 +129,11 @@ namespace MediaPortal.Common.Services.Dokan
       ILogger logger = ServiceRegistration.Get<ILogger>();
       // First check if the configured driveLetter refers to a Dokan drive, then do an unmount to remove a possibly 
       // lost Dokan mount from a formerly crashed MediaPortal
-      if (IsDokanDrive(driveLetter) && DokanNet.DokanUnmount(driveLetter) == DokanNet.DOKAN_SUCCESS)
-        logger.Info("Dokan: Successfully unmounted remote resource drive '{0}' from former unclean shutdown", driveLetter);
+      if (IsDokanDrive(driveLetter))
+        if (DokanNet.DokanUnmount(driveLetter) == 1)
+          logger.Info("Dokan: Successfully unmounted remote resource drive '{0}' from former unclean shutdown", driveLetter);
+        else
+          logger.Warn("Dokan: Could not unmount orphaned DOKAN drive '{0}' from former unclean shutdown", driveLetter);
 
       if (DriveInUse(driveLetter))
       {
