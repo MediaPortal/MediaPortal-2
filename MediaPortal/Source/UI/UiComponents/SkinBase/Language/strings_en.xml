@@ -41,7 +41,7 @@
   <Section Name="ServerConnection">
     <String Name="NotificationServerAvailableTitle" Text="MP2 server available"/>
     <String Name="NotificationServerAvailableText" Text="There is at least one MediaPortal 2 server available in the network. Attach to it to get all features of MediaPortal 2."/>
-    <String Name="ServerFormatText" Text="'{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+    <String Name="ServerFormatText" Text="'{0}' at host '{1}'"/> <!-- {0} = server name, {1} = host name -->
     <String Name="UnknownServerName" Text="&lt;Unknown&gt;"/>
     <String Name="UnknownServerSystem" Text="&lt;Unknown&gt;"/>
     <String Name="HomeServer" Text="Home server"/>
@@ -55,7 +55,7 @@
     <String Name="HomeServerIsNotConnected" Text="The home server is currently disconnected."/>
     <String Name="DetachMenu" Text="Detach"/>
     <String Name="DetachConfirmDialogHeader" Text="Detach from home server"/>
-    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>
+    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host '{1}'?"/>
     <String Name="SearchForServers" Text="Search for servers"/>
     <String Name="DetachFromServer" Text="Detach from home server"/>
     <String Name="AttachToServerHeader" Text="Attach to MediaPortal 2 server"/>
@@ -65,7 +65,7 @@
     <String Name="AttachToServerNoServerText" Text="Currently, there is no MediaPortal 2 server available in the network."/>
     <String Name="AttachButton" Text="Attach"/>
     <String Name="AttachInfoDialogHeader" Text="Server attached"/>
-    <String Name="AttachInfoDialogText" Text="This MediaPortal 2 client was attached to its new home server '{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+    <String Name="AttachInfoDialogText" Text="This MediaPortal 2 client was attached to its new home server '{0}' at host '{1}'"/> <!-- {0} = server name, {1} = host name -->
   </Section>
   <Section Name="Notifications">
     <String Name="Title" Text="Notifications"/>

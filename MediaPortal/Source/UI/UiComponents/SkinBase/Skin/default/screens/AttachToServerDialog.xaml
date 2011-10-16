@@ -43,13 +43,13 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Label Content="[ServerConnection.AttachToSingleText.Before]" Color="{ThemeResource TextColor}" Grid.Column="0" Grid.Row="0" Wrap="True"/>
-          <Label Content="{Binding Source={StaticResource Model},Path=SingleServer}"
+          <Label Content="{Binding Source={StaticResource Model},Path=AvailableServers[0][Name]}"
               Margin="10" Color="{ThemeResource EmphasisTextColor}" Grid.Column="0" Grid.Row="1" Wrap="True"/>
           <Label Content="[ServerConnection.AttachToSingleText.After]" Color="{ThemeResource TextColor}" Grid.Column="0" Grid.Row="2" Wrap="True"/>
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center">
             <Button Margin="10" x:Name="SingleServerAttachButton" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}"
-                Content="[ServerConnection.AttachButton]" Command="{Command Source={StaticResource Model},Path=ConnectToSingleServerAndClose}"/>
+                Content="[ServerConnection.AttachButton]" Command="{Binding Source={StaticResource Model},Path=AvailableServers[0].Command}"/>
             <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
                 Content="[System.Cancel]"
                 Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>

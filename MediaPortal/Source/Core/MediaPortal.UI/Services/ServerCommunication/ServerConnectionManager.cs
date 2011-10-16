@@ -190,7 +190,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
         return;
       }
-      ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}'", serverDescriptor.MPBackendServerUUID, serverDescriptor.GetPreferredLink().HostName);
+      SystemName preferredLink = serverDescriptor.GetPreferredLink();
+      ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}' (IP address: '{2}')", serverDescriptor.MPBackendServerUUID, preferredLink.HostName, preferredLink.Address);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;

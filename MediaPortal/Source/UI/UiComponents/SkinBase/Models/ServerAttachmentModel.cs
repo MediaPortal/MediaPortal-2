@@ -83,11 +83,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
     protected ItemsList _availableServers;
-    protected AbstractProperty _singleServerProperty;
     protected AbstractProperty _isNoServerAvailableProperty;
     protected AbstractProperty _isMultipleServersAvailableProperty;
     protected AbstractProperty _isSingleServerAvailableProperty;
-    protected ServerDescriptor _singleAvailableServer;
     protected Guid? _attachInfoDialogHandle = null; // null = no dialog shown, Guid.Empty = don't leave WF, attach info dialog will be shown, some GUID = dialog with that id is open
     protected Guid _detachConfirmDialogHandle = Guid.Empty;
     protected Mode _mode;
@@ -97,7 +95,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     public ServerAttachmentModel()
     {
-      _singleServerProperty = new WProperty(typeof(string), string.Empty);
       _isNoServerAvailableProperty = new WProperty(typeof(bool), false);
       _isSingleServerAvailableProperty = new WProperty(typeof(bool), false);
       _isMultipleServersAvailableProperty = new WProperty(typeof(bool), false);
@@ -199,14 +196,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         foreach (ServerDescriptor sd in availableServers.Values)
           if (!shownServers.ContainsKey(sd.MPBackendServerUUID))
           {
-            ListItem serverItem = new ListItem();
-            SystemName system = sd.GetPreferredLink();
-            serverItem.SetLabel(NAME_KEY, LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
-                sd.ServerName, system.HostName));
-            serverItem.SetLabel(SERVER_NAME_KEY, sd.ServerName);
-            serverItem.SetLabel(SYSTEM_KEY, system.HostName);
-            serverItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
-            serverItem.Command = new MethodDelegateCommand(() => ChooseNewHomeServerAndClose(serverItem));
+            ListItem serverItem = CreateServerItem(sd);
             _availableServers.Add(serverItem);
             serversChanged = true;
           }
@@ -217,16 +207,19 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IsNoServerAvailable = availableServers.Count == 0;
       IsSingleServerAvailable = availableServers.Count == 1;
       IsMultipleServersAvailable = availableServers.Count > 1;
-      if (availableServers.Count == 1)
-      {
-        IEnumerator<ServerDescriptor> enumer = availableServers.Values.GetEnumerator();
-        enumer.MoveNext();
-        _singleAvailableServer = enumer.Current;
-        SingleServer = LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
-            _singleAvailableServer.ServerName, _singleAvailableServer.GetPreferredLink().HostName);
-      }
-      else
-        SingleServer = string.Empty;
+    }
+
+    protected ListItem CreateServerItem(ServerDescriptor sd)
+    {
+      ListItem result = new ListItem();
+      SystemName system = sd.GetPreferredLink();
+      result.SetLabel(NAME_KEY, LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
+          sd.ServerName, system.HostName));
+      result.SetLabel(SERVER_NAME_KEY, sd.ServerName);
+      result.SetLabel(SYSTEM_KEY, system.HostName);
+      result.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
+      result.Command = new MethodDelegateCommand(() => ChooseNewHomeServerAndClose(result));
+      return result;
     }
 
     protected void ShowAttachToServerDialog()
@@ -295,17 +288,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    public string SingleServer
-    {
-      get { return (string) _singleServerProperty.GetValue(); }
-      set { _singleServerProperty.SetValue(value); }
-    }
-
-    public AbstractProperty SingleServerProperty
-    {
-      get { return _singleServerProperty; }
-    }
-
     public bool IsNoServerAvailable
     {
       get { return (bool) _isNoServerAvailableProperty.GetValue(); }
@@ -337,16 +319,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public AbstractProperty IsMultipleServersAvailableProperty
     {
       get { return _isMultipleServersAvailableProperty; }
-    }
-
-    /// <summary>
-    /// Called from the skin to connect to the <see cref="SingleServer"/>.
-    /// </summary>
-    public void ConnectToSingleServerAndClose()
-    {
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      scm.SetNewHomeServer(_singleAvailableServer.MPBackendServerUUID);
-      ShowAttachInformationDialogAndClose(_singleAvailableServer);
     }
 
     /// <summary>
