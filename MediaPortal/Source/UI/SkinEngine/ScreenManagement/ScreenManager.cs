@@ -295,37 +295,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public ScreenManager()
     {
-      SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       _skinManager = new SkinManager();
       _backgroundData = new BackgroundData(this);
-
-      string skinName = screenSettings.Skin;
-      string themeName = screenSettings.Theme;
-      if (string.IsNullOrEmpty(skinName))
-      {
-        skinName = SkinManager.DEFAULT_SKIN;
-        themeName = null;
-      }
-      SubscribeToMessages();
-
-      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
-      if (!PrepareSkinAndTheme(skinName, themeName))
-        PrepareSkinAndTheme(null, null);
-
-      // Update the settings with our current skin/theme values
-      if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
-      {
-        screenSettings.Skin = _skin.Name;
-        screenSettings.Theme = _theme == null ? null : _theme.Name;
-        ServiceRegistration.Get<ISettingsManager>().Save(screenSettings);
-      }
-      _garbageCollectorThread = new Thread(DoGarbageCollection)
-        {
-          Name = "ScrMgrGC",  //garbage collector thread
-          Priority = ThreadPriority.Lowest,
-          IsBackground = true
-        };
-      _garbageCollectorThread.Start();
     }
 
     public void Dispose()
@@ -1008,6 +979,41 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       // No locking here
       _skinManager.UninstallBackgroundManager();
+    }
+
+    /// <summary>
+    /// Initializes all resources, loads skin and theme, starts the screen manager's threads.
+    /// </summary>
+    public void Startup()
+    {
+      SkinSettings screenSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      string skinName = screenSettings.Skin;
+      string themeName = screenSettings.Theme;
+      if (string.IsNullOrEmpty(skinName))
+      {
+        skinName = SkinManager.DEFAULT_SKIN;
+        themeName = null;
+      }
+      SubscribeToMessages();
+
+      // Prepare the skin and theme - the theme will be activated in method MainForm_Load
+      if (!PrepareSkinAndTheme(skinName, themeName))
+        PrepareSkinAndTheme(null, null);
+
+      // Update the settings with our current skin/theme values
+      if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
+      {
+        screenSettings.Skin = _skin.Name;
+        screenSettings.Theme = _theme == null ? null : _theme.Name;
+        ServiceRegistration.Get<ISettingsManager>().Save(screenSettings);
+      }
+      _garbageCollectorThread = new Thread(DoGarbageCollection)
+        {
+          Name = "ScrMgrGC",  //garbage collector thread
+          Priority = ThreadPriority.Lowest,
+          IsBackground = true
+        };
+      _garbageCollectorThread.Start();
     }
 
     /// <summary>

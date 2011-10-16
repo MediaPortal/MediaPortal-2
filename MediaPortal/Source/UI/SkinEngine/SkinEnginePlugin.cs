@@ -101,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine
       _screenManager = new ScreenManager();
       ServiceRegistration.Set<IScreenManager>(_screenManager);
       GraphicsDevice.ScreenManager = _screenManager;
+      _screenManager.Startup();
 
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
       ServiceRegistration.Set<ISkinResourceManager>(_screenManager.SkinResourceManager);
