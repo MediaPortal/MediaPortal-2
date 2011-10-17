@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -46,17 +47,60 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 {
   public class SlimTv4HomeProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo
   {
-    private struct ServerContext
+    #region Internal class
+
+    internal class ServerContext
     {
       public string ServerName;
       public ITVEInteraction TvServer;
       public bool ConnectionOk;
+
+      public static bool IsLocal(string host)
+      {
+        if (string.IsNullOrEmpty(host))
+          return true;
+
+        string lowerHost = host.ToLowerInvariant();
+        return lowerHost == "localhost" || lowerHost == LocalSystem.ToLowerInvariant() || host == "127.0.0.1" || host == "::1";
+      }
+
+      public void CreateChannel()
+      {
+        Binding binding;
+        EndpointAddress endpointAddress;
+        if (IsLocal(ServerName))
+        {
+          endpointAddress = new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService");
+          binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
+        }
+        else
+        {
+          endpointAddress = new EndpointAddress(string.Format("http://{0}:4321/TV4Home.Server.CoreService/TVEInteractionService", ServerName));
+          binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+        }
+        binding.OpenTimeout = TimeSpan.FromSeconds(5);
+        TvServer = ChannelFactory<ITVEInteraction>.CreateChannel(binding, endpointAddress);
+      }
     }
-    private ServerContext[] _tvServers;
-    private readonly IChannel[] _channels = new IChannel[2];
+
+    #endregion
+
+    #region Constants
 
     private const string RES_TV_CONNECTION_ERROR_TITLE = "[Settings.Plugins.TV.ConnectionErrorTitle]";
     private const string RES_TV_CONNECTION_ERROR_TEXT = "[Settings.Plugins.TV.ConnectionErrorText]";
+    private const int MAX_RECONNECT_ATTEMPTS = 2;
+
+    #endregion
+
+    #region Fields
+
+    private static readonly string LocalSystem = SystemName.LocalHostName;
+    private readonly IChannel[] _channels = new IChannel[2];
+    private ServerContext[] _tvServers;
+    private int _reconnectCounter = 0;
+
+    #endregion
 
     #region ITvProvider Member
 
@@ -76,16 +120,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool Init()
     {
-      try
-      {
-        CreateAllTvServerConnections();
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SlimTv4HomeProvider Error: " + ex.Message);
-        return false;
-      }
+      CreateAllTvServerConnections();
+      return true;
     }
 
     public bool DeInit()
@@ -112,8 +148,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public String GetTimeshiftUserName(int slotIndex)
     {
-      // TODO: Add ClientName to allow multiple client connections to one server
-      return String.Format("SlimTvClient{0}", slotIndex);
+      return String.Format("STC_{0}_{1}", LocalSystem, slotIndex);
     }
 
     public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
@@ -139,29 +174,29 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        NotifyException(ex, indexChannel.ServerIndex);
         return false;
       }
     }
 
     public bool StopTimeshift(int slotIndex)
     {
+      Channel slotChannel = _channels[slotIndex] as Channel;
+      if (slotChannel == null)
+        return false;
+
+      if (!CheckConnection(slotChannel.ServerIndex))
+        return false;
+
       try
       {
-        Channel slotChannel = _channels[slotIndex] as Channel;
-        if (slotChannel == null)
-          return false;
-
-        if (!CheckConnection(slotChannel.ServerIndex))
-          return false;
-
         TvServer(slotChannel.ServerIndex).CancelCurrentTimeShifting(GetTimeshiftUserName(slotIndex));
         _channels[slotIndex] = null;
         return true;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error(ex.Message);
+        NotifyException(ex, slotChannel.ServerIndex);
         return false;
       }
     }
@@ -173,27 +208,56 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     private bool CheckConnection(int serverIndex)
     {
+      bool reconnect = false;
       ServerContext tvServer = _tvServers[serverIndex];
       try
       {
         if (tvServer.TvServer != null)
           tvServer.ConnectionOk = tvServer.TvServer.TestConnectionToTVService();
+
+        _reconnectCounter = 0;
       }
-      catch (Exception)
+      catch (CommunicationObjectFaultedException)
       {
-        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_TV_CONNECTION_ERROR_TITLE,
-          ServiceRegistration.Get<ILocalization>().ToString(RES_TV_CONNECTION_ERROR_TEXT, tvServer.ServerName), true);
+        reconnect = true;
+      }
+      catch (ProtocolException)
+      {
+        reconnect = true;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex, serverIndex);
+        return false;
+      }
+      if (reconnect)
+      {
+        // Try to reconnect
+        tvServer.CreateChannel();
+        if (_reconnectCounter++ < MAX_RECONNECT_ATTEMPTS)
+          return CheckConnection(serverIndex);
+
         return false;
       }
       return tvServer.ConnectionOk;
     }
 
-    private static bool IsLocal(string host)
+    private void NotifyException(Exception ex, int serverIndex)
     {
-      if (string.IsNullOrEmpty(host))
-        return true;
+      NotifyException(ex, null, serverIndex);
+    }
 
-      return host.ToLowerInvariant() == "localhost" || host == "127.0.0.1" || host == "::1";
+    private void NotifyException(Exception ex, string localizationMessage, int serverIndex)
+    {
+      string serverName = _tvServers[serverIndex].ServerName;
+      string notification = string.IsNullOrEmpty(localizationMessage)
+                              ? string.Format("{0}:", serverName)
+                              : ServiceRegistration.Get<ILocalization>().ToString(localizationMessage, serverName);
+      notification += " " + ex.Message;
+
+      ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.Error, RES_TV_CONNECTION_ERROR_TITLE,
+          notification, true);
+      ServiceRegistration.Get<ILogger>().Error(notification);
     }
 
     private void CreateAllTvServerConnections()
@@ -207,28 +271,21 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       for (int serverIndex = 0; serverIndex < serverNames.Length; serverIndex++)
       {
-        string serverName = serverNames[serverIndex];
-        Binding binding;
-        EndpointAddress endpointAddress;
-        if (IsLocal(serverName))
+        try
         {
-          endpointAddress = new EndpointAddress("net.pipe://localhost/TV4Home.Server.CoreService/TVEInteractionService");
-          binding = new NetNamedPipeBinding { MaxReceivedMessageSize = 10000000 };
+          string serverName = serverNames[serverIndex];
+          ServerContext tvServer = new ServerContext
+                                     {
+                                       ServerName = serverName,
+                                       ConnectionOk = false
+                                     };
+          _tvServers[serverIndex] = tvServer;
+          tvServer.CreateChannel();
         }
-        else
+        catch (Exception ex)
         {
-          endpointAddress = new EndpointAddress(string.Format("http://{0}:4321/TV4Home.Server.CoreService/TVEInteractionService", serverName));
-          binding = new BasicHttpBinding { MaxReceivedMessageSize = 10000000 };
+          NotifyException(ex, RES_TV_CONNECTION_ERROR_TEXT, serverIndex);
         }
-        binding.OpenTimeout = TimeSpan.FromSeconds(5);
-
-        ServerContext tvServer = new ServerContext
-                                   {
-                                     ServerName = serverName,
-                                     TvServer = ChannelFactory<ITVEInteraction>.CreateChannel(binding, endpointAddress),
-                                     ConnectionOk = false
-                                   };
-        _tvServers[serverIndex] = tvServer;
       }
     }
 
@@ -253,6 +310,19 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
+    /// <summary>
+    /// Creates a group prefix if more than 1 tvserver is used.
+    /// </summary>
+    /// <param name="serverIndex">Server Index</param>
+    /// <returns>Formatted prefix or String.Empty</returns>
+    protected string GetServerPrefix(int serverIndex)
+    {
+      if (_tvServers.Length == 1 || serverIndex >= _tvServers.Length)
+        return string.Empty;
+
+      return string.Format("{0}: ", _tvServers[serverIndex].ServerName);
+    }
+
     public bool GetChannelGroups(out IList<IChannelGroup> groups)
     {
       groups = new List<IChannelGroup>();
@@ -266,7 +336,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           List<WebChannelGroup> tvGroups = tvServer.TvServer.GetGroups();
           foreach (WebChannelGroup webChannelGroup in tvGroups)
           {
-            groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = String.Format("{0}: {1}", tvServer.ServerName, webChannelGroup.GroupName), ServerIndex = idx });
+            groups.Add(new ChannelGroup { ChannelGroupId = webChannelGroup.IdGroup, Name = String.Format("{0}{1}", GetServerPrefix(idx), webChannelGroup.GroupName), ServerIndex = idx });
           }
           idx++;
         }
