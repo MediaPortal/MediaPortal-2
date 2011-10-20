@@ -140,7 +140,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
       string resourceName = baseResourceAccessor.ResourceName;
-      if (string.IsNullOrEmpty(resourceName) || baseResourceAccessor.IsFile)
+      if (string.IsNullOrEmpty(resourceName) || !baseResourceAccessor.IsFile)
         return false;
 
       IResourceAccessor ra = baseResourceAccessor.Clone();
