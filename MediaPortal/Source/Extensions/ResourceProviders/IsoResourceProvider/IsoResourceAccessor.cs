@@ -120,6 +120,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     protected internal static bool IsResource(IsoReader isoReader, string providerPath)
     {
+      if (providerPath == "/")
+        return true;
       string isoPath = ToDosPath(providerPath);
       string dirPath = "\\" + Path.GetDirectoryName(isoPath);
       string isoResource = "\\" + isoPath;
@@ -220,9 +222,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public bool ResourceExists(string path)
     {
-      if (path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase)) 
-        return true;
-      return IsResource(_isoProxy.IsoReader, ExpandPath(path));
+      return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.IsoReader, ExpandPath(path));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)

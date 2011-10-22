@@ -125,9 +125,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     protected internal static bool IsResource(ZipFile zFile, string entryPath)
     {
-      if (entryPath.Equals("/"))
-        return true;
-      return zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
+      return entryPath.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
     }
 
     protected string ExpandPath(string relativeOrAbsoluteProviderPath)
@@ -263,10 +261,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public bool ResourceExists(string path)
     {
-      if (path.Equals(_pathToDirOrFile))
-        return true;
-      string entryPath = ToEntryPath(ExpandPath(path));
-      return IsResource(_zipProxy.ZipFile, entryPath);
+      return path.Equals(_pathToDirOrFile) || IsResource(_zipProxy.ZipFile, ToEntryPath(ExpandPath(path)));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
