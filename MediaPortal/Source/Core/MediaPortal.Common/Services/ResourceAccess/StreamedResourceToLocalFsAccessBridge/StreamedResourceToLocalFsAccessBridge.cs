@@ -83,7 +83,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
     {
       string rootPath = StringUtils.CheckSuffix(_path, "/");
       return namesWithPathPrefix.Select(filePath => new StreamedResourceToLocalFsAccessBridge(_mountingDataProxy,
-          rootPath + ProviderPaths.GetFileName(filePath) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
+          rootPath + ProviderPathHelper.GetFileName(filePath) + (isDirectory ? "/" : string.Empty))).Cast<IFileSystemResourceAccessor>().ToList();
     }
 
     static void OnMountingDataOrphaned(MountingDataProxy proxy)
@@ -198,7 +198,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       IResourceAccessor ra = _mountingDataProxy.ResourceAccessor.Clone();
       try
       {
-        return GetLocalFsResourceAccessor(ra, ProviderPaths.ExpandPath(_path, path));
+        return GetLocalFsResourceAccessor(ra, ProviderPathHelper.Combine(_path, path));
       }
       catch
       {

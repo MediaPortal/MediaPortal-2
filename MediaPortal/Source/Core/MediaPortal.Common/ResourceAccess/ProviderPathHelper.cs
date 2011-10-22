@@ -22,14 +22,22 @@
 
 #endregion
 
+using System;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Common.Services.ResourceAccess
+namespace MediaPortal.Common.ResourceAccess
 {
-  public class ProviderPaths
+  /// <summary>
+  /// Helper class for resource provider paths which are built in a standard way:
+  /// <list type="bullet">
+  /// <item><c>"/"</c> is the root element.</item>
+  /// <item>Path elements are separated by <c>'/'</c> characters.</item>
+  /// <item>A <c>".."</c> path element refers to the parent path element.</item>
+  /// </list>
+  /// </summary>
+  public static class ProviderPathHelper
   {
-    public static string ExpandPath(string rootPath, string path)
+    public static string Combine(string rootPath, string path)
     {
       while (path.StartsWith("."))
       {
@@ -37,12 +45,16 @@ namespace MediaPortal.Common.Services.ResourceAccess
           path = path.Substring(2);
         if (path.StartsWith("../"))
         {
+          path = path.Substring(3);
           rootPath = GetDirectoryName(rootPath);
           if (rootPath == null)
-            throw new InvalidDataException("Paths '{0}' and '{1}' cannot be concatenated", rootPath, path);
+            throw new ArgumentException(string.Format("Paths '{0}' and '{1}' cannot be concatenated", rootPath, path));
         }
+        while (path.StartsWith("/"))
+          // Remove double / characters in the middle of the path
+          path = path.Substring(1);
       }
-      return path.StartsWith("/") ? path : (StringUtils.CheckSuffix(rootPath, "/") + StringUtils.RemovePrefixIfPresent(path, "/"));
+      return path.StartsWith("/") ? path : (StringUtils.CheckSuffix(rootPath, "/") + path);
     }
 
     public static string GetDirectoryName(string path)

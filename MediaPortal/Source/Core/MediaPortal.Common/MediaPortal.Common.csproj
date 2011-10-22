@@ -149,6 +149,7 @@
     <Compile Include="MediaManagement\PlaylistContents.cs" />
     <Compile Include="MediaManagement\PlaylistInformationData.cs" />
     <Compile Include="MediaManagement\PlaylistRawData.cs" />
+    <Compile Include="ResourceAccess\ProviderPathHelper.cs" />
     <Compile Include="ResourceAccess\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />
     <Compile Include="MediaManagement\IImportResultHandler.cs" />
@@ -204,7 +205,6 @@
     <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="Services\ResourceAccess\ProviderPaths.cs" />
     <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\MountingDataProxy.cs" />
     <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\StreamedResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResource.cs" />

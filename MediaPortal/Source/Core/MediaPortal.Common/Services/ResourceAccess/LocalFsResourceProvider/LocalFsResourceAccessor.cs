@@ -97,13 +97,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     {
       if (string.IsNullOrEmpty(path))
         return false;
-      path = ProviderPaths.ExpandPath(_path, path);
+      path = ProviderPathHelper.Combine(_path, path);
       return _provider.IsResource(path);
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ProviderPaths.ExpandPath(_path, path));
+      return (IFileSystemResourceAccessor) _provider.CreateResourceAccessor(ProviderPathHelper.Combine(_path, path));
     }
 
     public void PrepareStreamAccess()
