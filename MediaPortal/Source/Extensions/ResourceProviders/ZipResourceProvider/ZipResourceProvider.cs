@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -37,6 +36,10 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
   /// <summary>
   /// Resource provider implementation for the ZIP files.
   /// </summary>
+  /// <remarks>
+  /// Provider paths used by this resource provider are in standard provider path form and thus can be processed by
+  /// the methods in <see cref="ProviderPathHelper"/>.
+  /// </remarks>
   public class ZipResourceProvider : IChainedResourceProvider
   {
     #region Consts
@@ -90,22 +93,6 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       return result;
     }
 
-    internal static string ToEntryPath(string providerPath)
-    {
-      if (providerPath == "/")
-        return null;
-      if (providerPath.StartsWith("/"))
-        return providerPath.Substring(1);
-      throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid provider path", providerPath));
-    }
-
-    internal static string ToProviderPath(string entryPath)
-    {
-      if (entryPath.StartsWith("/"))
-        throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid entry path", entryPath));
-      return '/' + entryPath;
-    }
-
     #region IResourceProvider implementation
 
     /// <summary>
@@ -149,12 +136,28 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public bool IsResource(IResourceAccessor baseResourceAccessor, string path)
     {
-      string entryPath = ToEntryPath(path);
+      string entryPath = ZipResourceAccessor.ToEntryPath(path);
+
+      lock (_syncObj)
+      {
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        try
+        {
+          ZipResourceProxy proxy;
+          if (_zipUsages.TryGetValue(key, out proxy))
+            return path.Equals("/") || ZipResourceAccessor.IsResource(proxy.ZipFile, entryPath);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
+
       using (Stream resourceStream = baseResourceAccessor.OpenRead()) // Not sure if the ZipFile will close the stream so we dispose it here
         try
         {
           using (ZipFile zFile = new ZipFile(resourceStream))
-            return path.Equals("/") || zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
+            return path.Equals("/") || ZipResourceAccessor.IsResource(zFile, entryPath);
         }
         catch (Exception)
         {

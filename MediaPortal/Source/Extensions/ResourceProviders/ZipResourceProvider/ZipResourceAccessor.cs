@@ -71,9 +71,13 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
+    #endregion
+
+    #region Private, protected and internal members
+
     private void ReadCurrentDirectory()
     {
-      string entryPath = ZipResourceProvider.ToEntryPath(_pathToDirOrFile) ?? string.Empty;
+      string entryPath = ToEntryPath(_pathToDirOrFile) ?? string.Empty;
 
       int dirDepth = EvaluateDirDepth(entryPath);
 
@@ -103,12 +107,35 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
         }
     }
 
-    #endregion
-
-    protected string ExpandPath(string path)
+    protected internal static string ToEntryPath(string providerPath)
     {
-      return path.StartsWith("/") ? path : StringUtils.CheckSuffix(_pathToDirOrFile, "/") + StringUtils.RemovePrefixIfPresent(path, "/");
+      if (providerPath == "/")
+        return null;
+      if (providerPath.StartsWith("/"))
+        return providerPath.Substring(1);
+      throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid provider path", providerPath));
     }
+
+    protected internal static string ToProviderPath(string entryPath)
+    {
+      if (entryPath.StartsWith("/"))
+        throw new ArgumentException(string.Format("ZipResourceProvider: '{0}' is not a valid entry path", entryPath));
+      return '/' + entryPath;
+    }
+
+    protected internal static bool IsResource(ZipFile zFile, string entryPath)
+    {
+      if (entryPath.Equals("/"))
+        return true;
+      return zFile.Cast<ZipEntry>().Any(entry => entry.IsDirectory && entry.Name == entryPath);
+    }
+
+    protected string ExpandPath(string relativeOrAbsoluteProviderPath)
+    {
+      return ProviderPathHelper.Combine(_pathToDirOrFile, relativeOrAbsoluteProviderPath);
+    }
+
+    #endregion
 
     #region IDisposable implementation
 
@@ -236,28 +263,16 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     public bool ResourceExists(string path)
     {
-      if (path.Equals("/"))
+      if (path.Equals(_pathToDirOrFile))
         return true;
-      path = ExpandPath(path);
-      return _currentDirList.Any(entry => entry.IsDirectory && entry.Name == path);
+      string entryPath = ToEntryPath(ExpandPath(path));
+      return IsResource(_zipProxy.ZipFile, entryPath);
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      string pathFile = ExpandPath(path);
-      IResourceAccessor ra = _zipProxy.ZipFileResourceAccessor.Clone();
-      try
-      {
-        IResourceAccessor result;
-        if (!_zipProvider.TryChainUp(ra, pathFile, out result))
-          throw new ArgumentException(string.Format("Invalid resource path '{0}' for ZIP file '{1}'", path, _zipProxy.ZipFile.Name));
-        return (IFileSystemResourceAccessor) result;
-      }
-      catch
-      {
-        ra.Dispose();
-        throw;
-      }
+      string pathToDirOrFile = ExpandPath(path);
+      return new ZipResourceAccessor(_zipProvider, _zipProxy, pathToDirOrFile);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
@@ -268,7 +283,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       {
         List<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
         CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsFile).Select(fileEntry =>
-            new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(fileEntry.Name))));
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(fileEntry.Name))));
         return result;
       }
       catch (Exception e)
@@ -286,7 +301,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       {
         ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
         CollectionUtils.AddAll(result, _currentDirList.Where(entry => entry.IsDirectory).Select(directoryEntry =>
-            new ZipResourceAccessor(_zipProvider, _zipProxy, ZipResourceProvider.ToProviderPath(directoryEntry.Name))));
+            new ZipResourceAccessor(_zipProvider, _zipProxy, ToProviderPath(directoryEntry.Name))));
         return result;
       }
       catch (Exception e)

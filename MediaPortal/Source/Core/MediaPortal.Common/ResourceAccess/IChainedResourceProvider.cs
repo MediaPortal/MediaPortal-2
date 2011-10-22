@@ -42,7 +42,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <param name="potentialBaseResourceAccessor">Resource accessor for the base resource, this provider should take as input.
     /// The ownership of the given base resource accessor remains at the caller.</param>
-    /// <param name="path">Path in the chained filesystem to return (e.g. <c>"/"</c>).</param>
+    /// <param name="path">Local provider path to the resource in the chained filesystem to return (e.g. <c>"/"</c>).</param>
     /// <param name="resultResourceAccessor">Resource accessor in the chained file system at the given <paramref name="path"/>.
     /// This parameter is only set to a sensible value if this method returns <c>true</c>.</param>
     /// <returns><c>true</c> if this provider could successfully chain up onto the given resource accessor, else <c>false</c></returns>
@@ -54,7 +54,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as input.
     /// The base resource accessor must not be disposed by this method!</param>
-    /// <param name="path">Path to evaluate.</param>
+    /// <param name="path">Local provider path to evaluate.</param>
     /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
     /// else <c>false</c>.</returns>
     bool IsResource(IResourceAccessor baseResourceAccessor, string path);

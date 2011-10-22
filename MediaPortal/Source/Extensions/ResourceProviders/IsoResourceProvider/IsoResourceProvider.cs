@@ -24,21 +24,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using ISOReader;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
   /// <summary>
   /// Resource provider implementation for ISO files.
   /// </summary>
+  /// <remarks>
+  /// Provider paths used by this resource provider are in standard provider path form and thus can be processed by
+  /// the methods in <see cref="ProviderPathHelper"/>.
+  /// </remarks>
   public class IsoResourceProvider : IChainedResourceProvider
   {
     #region Consts
@@ -65,20 +66,6 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     }
 
     #endregion
-
-    internal static string ToDosPath(string providerPath)
-    {
-      if (providerPath == "/")
-        return string.Empty;
-      providerPath = StringUtils.RemovePrefixIfPresent(providerPath, "/");
-      return providerPath.Replace('/', Path.DirectorySeparatorChar);
-    }
-
-    internal static string ToProviderPath(string dosPath)
-    {
-      string path = dosPath.Replace(Path.DirectorySeparatorChar, '/');
-      return StringUtils.CheckPrefix(path, "/");
-    }
 
     void OnIsoResourceProxyOrphaned(IsoResourceProxy proxy)
     {
@@ -143,6 +130,22 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       if (string.IsNullOrEmpty(resourceName) || !baseResourceAccessor.IsFile)
         return false;
 
+      // Test if we have already an ISO proxy for that ISO file
+      lock (_syncObj)
+      {
+        string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
+        try
+        {
+          IsoResourceProxy proxy;
+          if (_isoUsages.TryGetValue(key, out proxy))
+            return IsoResourceAccessor.IsResource(proxy.IsoReader, path);
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
+
       IResourceAccessor ra = baseResourceAccessor.Clone();
       try
       {
@@ -151,12 +154,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         {
           isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
 
-          string isoPath = ToDosPath(path);
-          string dirPath = Path.GetDirectoryName(isoPath);
-          string isoResource = "\\" + isoPath;
-
-          string[] dirList = isoReader.GetFileSystemEntries(dirPath, SearchOption.TopDirectoryOnly);
-          return dirList.Any(entry => entry.Equals(isoResource, StringComparison.OrdinalIgnoreCase));
+          return IsoResourceAccessor.IsResource(isoReader, path);
         }
       }
       catch
