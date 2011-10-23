@@ -32,7 +32,7 @@
         <TextBox Grid.Row="2" Margin="0,10,0,0"
             Text="{Binding Path=ShareProxy.ChoosenResourcePathStr,Mode=TwoWay}" PreferredTextLength="40"/>
         <Label Grid.Row="3" Content="[SharesConfig.ResourceProviderPathIsNotValid]" Color="{ThemeResource ErrorTextColor}" Wrap="True"
-            IsVisible="{Binding !ShareProxy.IsChoosenResourcePathValid}"/>
+            IsVisible="{Binding !ShareProxy.IsChoosenResourcePathValid}" Margin="20"/>
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

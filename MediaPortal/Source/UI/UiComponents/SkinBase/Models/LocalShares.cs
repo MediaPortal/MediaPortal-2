@@ -62,14 +62,23 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ResourceProviderMetadata rpm = BaseResourceProvider;
         if (rpm == null)
           return false;
-        IResourceAccessor rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
+        IResourceAccessor rootAccessor;
+        try
+        {
+          rootAccessor = GetResourceProvider(rpm.ResourceProviderId).CreateResourceAccessor("/");
+        }
+        catch (Exception)
+        {
+          return false;
+        }
         try
         {
           return rootAccessor is IFileSystemResourceAccessor;
         }
         finally
         {
-          rootAccessor.Dispose();
+          if (rootAccessor != null)
+            rootAccessor.Dispose();
         }
       }
     }
