@@ -199,6 +199,8 @@ namespace MediaPortal.UiComponents.Media.Models
     // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
     // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
     // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
+    // TODO: One problem is that we aren't able to navigate over inherited skins, so the registration needs to be done in each inherited
+    // skin. It would be easier to handle if this method would be able to collect all registered optional MIA types from all inherited skins.
     protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
