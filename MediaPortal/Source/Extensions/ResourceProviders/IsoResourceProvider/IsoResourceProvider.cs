@@ -28,8 +28,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using ISOReader;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using DiscUtils.Iso9660;
+using DiscUtils.Udf;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
@@ -138,7 +138,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         {
           IsoResourceProxy proxy;
           if (_isoUsages.TryGetValue(key, out proxy))
-            return IsoResourceAccessor.IsResource(proxy.IsoReader, path);
+            return IsoResourceAccessor.IsResource(proxy.IsoUdfReader, proxy.Iso9660Reader, path);
         }
         catch (Exception)
         {
@@ -146,21 +146,40 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         }
       }
 
-      IResourceAccessor ra = baseResourceAccessor.Clone();
+      UdfReader udfReader = null;
+      CDReader iso9660Reader = null;
+
       try
       {
-        using (ILocalFsResourceAccessor localFsResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(ra))
-        using (IsoReader isoReader = new IsoReader())
+        // Try udf-access first; if that doesn't work, try iso9660
+        try
         {
-          isoReader.Open(localFsResourceAccessor.LocalFileSystemPath);
-
-          return IsoResourceAccessor.IsResource(isoReader, path);
+          udfReader = new UdfReader(baseResourceAccessor.OpenRead());
         }
+        catch
+        {
+          udfReader = null;
+        }
+        try
+        {
+          iso9660Reader = new CDReader(baseResourceAccessor.OpenRead(), true, true);
+        }
+        catch
+        {
+          iso9660Reader = null;
+        }
+
+        if (udfReader == null && iso9660Reader == null)
+          return false;
+
+        return IsoResourceAccessor.IsResource(udfReader, iso9660Reader, path);
       }
-      catch
+      finally
       {
-        ra.Dispose();
-        return false;
+        if (udfReader != null)
+          udfReader.Dispose();
+        if (iso9660Reader != null)
+          iso9660Reader.Dispose();
       }
     }
 

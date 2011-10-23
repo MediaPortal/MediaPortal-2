@@ -29,9 +29,11 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using ISOReader;
+using DiscUtils.Iso9660;
+using DiscUtils.Udf;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
@@ -69,19 +71,41 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       lock (_isoProxy.SyncObj)
       {
         string dosPath = ToDosPath(pathToDirOrFile);
-        RecordEntryInfo entry;
-        try
+        if (_isoProxy.IsoUdfReader != null)
         {
-          entry = _isoProxy.IsoReader.GetRecordEntryInfo(dosPath); // Path must start with /
+          if (_isoProxy.IsoUdfReader.FileExists(dosPath))
+          {
+            _isDirectory = false;
+            _size = _isoProxy.IsoUdfReader.GetFileLength(dosPath);
+            _lastChanged = _isoProxy.IsoUdfReader.GetLastWriteTime(dosPath);
+            return;
+          }
+          if (_isoProxy.IsoUdfReader.DirectoryExists(dosPath))
+          {
+            _isDirectory = true;
+            _size = -1;
+            _lastChanged = _isoProxy.IsoUdfReader.GetLastWriteTime(dosPath);
+            return;
+          }
         }
-        catch
+        if (_isoProxy.Iso9660Reader != null)
         {
-          _isoProxy.DecUsage();
-          throw;
+          if (_isoProxy.Iso9660Reader.FileExists(dosPath))
+          {
+            _isDirectory = false;
+            _size = _isoProxy.Iso9660Reader.GetFileLength(dosPath);
+            _lastChanged = _isoProxy.Iso9660Reader.GetLastWriteTime(dosPath);
+            return;
+          }
+          if (_isoProxy.Iso9660Reader.DirectoryExists(dosPath))
+          {
+            _isDirectory = true;
+            _size = -1;
+            _lastChanged = _isoProxy.Iso9660Reader.GetLastWriteTime(dosPath);
+            return;
+          }
         }
-        _isDirectory = entry.Directory;
-        _lastChanged = entry.Date;
-        _size = _isDirectory ? (long) (-1) : entry.Size;
+        throw new ArgumentException("IsoResourceAccessor cannot access path or file '{0}' in iso-file", dosPath);
       }
     }
 
@@ -118,16 +142,21 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       return StringUtils.CheckPrefix(path, "/");
     }
 
-    protected internal static bool IsResource(IsoReader isoReader, string providerPath)
+    protected internal static bool IsResource(UdfReader udfReader, CDReader iso9660Reader, string providerPath)
     {
       if (providerPath == "/")
         return true;
-      string isoPath = ToDosPath(providerPath);
-      string dirPath = "\\" + Path.GetDirectoryName(isoPath);
-      string isoResource = "\\" + isoPath;
+      string isoResource = "\\" + ToDosPath(providerPath);
 
-      string[] dirList = isoReader.GetFileSystemEntries(dirPath, SearchOption.TopDirectoryOnly);
-      return dirList.Any(entry => entry.Equals(isoResource, StringComparison.OrdinalIgnoreCase));
+      if (udfReader != null)
+        if(udfReader.Exists(isoResource))
+          return true;
+
+      if (iso9660Reader != null)
+        if (iso9660Reader.Exists(isoResource))
+          return true;
+
+      return false;
     }
 
     protected string ExpandPath(string relativeOrAbsoluteProviderPath)
@@ -174,11 +203,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get
-      {
-        // Abstract from intermediate local FS bridge usage
-        return _isoProxy.IsoFileResourceAccessor.CanonicalLocalResourcePath.ChainUp(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathToDirOrFile);
-      }
+      get { return _isoProxy.IsoFileResourceAccessor.CanonicalLocalResourcePath.ChainUp(IsoResourceProvider.ISO_RESOURCE_PROVIDER_ID, _pathToDirOrFile); }
     }
 
     public DateTime LastChanged
@@ -198,7 +223,24 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     public Stream OpenRead()
     {
       string dosPath = ToDosPath(_pathToDirOrFile);
-      return _isoProxy.IsoReader.GetFileStream(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+      if (!dosPath.StartsWith("\\"))
+        dosPath = "\\" + dosPath;
+      if (_isoProxy.IsoUdfReader != null)
+      {
+        if (_isoProxy.IsoUdfReader.FileExists(dosPath))
+          return _isoProxy.IsoUdfReader.OpenFile(dosPath, FileMode.Open, FileAccess.Read);
+        if (_isoProxy.IsoUdfReader.DirectoryExists(dosPath))
+          throw new IllegalCallException ("IsoResourceAccessor.OpenRead() was called for directory '{0}'", dosPath);
+      }
+
+      if (_isoProxy.Iso9660Reader != null)
+      {
+        if (_isoProxy.Iso9660Reader.FileExists(dosPath))
+          return _isoProxy.Iso9660Reader.OpenFile(dosPath, FileMode.Open, FileAccess.Read);
+        if (_isoProxy.Iso9660Reader.DirectoryExists(dosPath))
+          throw new IllegalCallException ("IsoResourceAccessor.OpenRead() was called for directory '{0}'", dosPath);
+      }
+      return null;
     }
 
     public Stream OpenWrite()
@@ -222,7 +264,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public bool ResourceExists(string path)
     {
-      return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.IsoReader, ExpandPath(path));
+      return path.Equals(_pathToDirOrFile, StringComparison.OrdinalIgnoreCase) || IsResource(_isoProxy.IsoUdfReader, _isoProxy.Iso9660Reader, ExpandPath(path));
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
@@ -236,8 +278,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       string dosPath = ToDosPath(_pathToDirOrFile);
       try
       {
-        string[] files = _isoProxy.IsoReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-        return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+        string[] udfFiles = _isoProxy.IsoUdfReader == null ? new string[] {} :
+            _isoProxy.IsoUdfReader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+        string[] iso9660Files = _isoProxy.Iso9660Reader == null ? new string[] {} :
+            _isoProxy.Iso9660Reader.GetFiles(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+        return udfFiles.Union(iso9660Files).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
             ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
       }
       catch (Exception e)
@@ -252,8 +297,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       string dosPath = ToDosPath(_pathToDirOrFile);
       try
       {
-        string[] files = _isoProxy.IsoReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath, SearchOption.TopDirectoryOnly);
-        return files.Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
+        string[] udfDirectories = _isoProxy.IsoUdfReader == null ? new string[] {} :
+            _isoProxy.IsoUdfReader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+        string[] iso9660Directories = _isoProxy.Iso9660Reader == null ? new string[] {} :
+            _isoProxy.Iso9660Reader.GetDirectories(dosPath.StartsWith("\\") ? dosPath : "\\" + dosPath);
+        return udfDirectories.Union(iso9660Directories).Select(path => new IsoResourceAccessor(_isoProvider, _isoProxy,
             ToProviderPath(path))).Cast<IFileSystemResourceAccessor>().ToList();
       }
       catch (Exception e)

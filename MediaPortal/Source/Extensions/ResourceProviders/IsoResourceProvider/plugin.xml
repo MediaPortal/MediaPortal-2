@@ -7,6 +7,10 @@
     Description="ISO Files Resource Provider"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{171B66A6-9B70-4822-8F36-72CC86392241}"/> <!-- DiscUtils -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="IsoResourceProvider.dll"/>
   </Runtime>

@@ -54,17 +54,6 @@
   <ItemGroup>
     <Compile Include="IsoResourceProxy.cs" />
     <Compile Include="IsoResourceProvider.cs" />
-    <Compile Include="ISOReader\DirectoryRecord.cs" />
-    <Compile Include="ISOReader\FileFlags.cs" />
-    <Compile Include="ISOReader\IsoFileStream.cs" />
-    <Compile Include="ISOReader\IsoReader.cs" />
-    <Compile Include="ISOReader\IsoReaderBase.cs" />
-    <Compile Include="ISOReader\PathTableRecord.cs" />
-    <Compile Include="ISOReader\PathTableRecordPub.cs" />
-    <Compile Include="ISOReader\RecordEntryInfo.cs" />
-    <Compile Include="ISOReader\VolumeDescriptor.cs" />
-    <Compile Include="ISOReader\VolumeInfo.cs" />
-    <Compile Include="ISOReader\VolumeType.cs" />
     <Compile Include="IsoResourceAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -77,6 +66,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\DiscUtils\DiscUtils.csproj">
+      <Project>{B368925B-5794-4931-9F3F-E143F6BB7BE5}</Project>
+      <Name>DiscUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -87,7 +80,7 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
-robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP /XD .svn
+robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /MIR /NP
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

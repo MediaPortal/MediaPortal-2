@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Common.ResourceAccess;
-using ISOReader;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
+using DiscUtils.Iso9660;
+using DiscUtils.Udf;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
@@ -33,11 +33,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
   {
     #region Protected fields
 
-    protected IsoReader _isoReader;
+    protected UdfReader _udfReader;
+    protected CDReader _iso9660Reader;
     protected string _key;
     protected int _usageCount = 0;
     protected IResourceAccessor _isoFileResourceAccessor;
-    protected ILocalFsResourceAccessor _baseLocalFsIsoResourceAccessor;
     protected object _syncObj = new object();
 
     #endregion
@@ -48,19 +48,24 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     {
       _key = key;
       _isoFileResourceAccessor = isoFileResourceAccessor;
-      _baseLocalFsIsoResourceAccessor = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(isoFileResourceAccessor.Clone()); // The StreamedResourceToLocalFsAccessBridge might dispose the given RA
       try
       {
-        _isoReader = new IsoReader();
-        _isoReader.Open(_baseLocalFsIsoResourceAccessor.LocalFileSystemPath);
-
+        _udfReader = new UdfReader(_isoFileResourceAccessor.OpenRead());
       }
       catch
       {
-        _isoReader.Close();
-        _baseLocalFsIsoResourceAccessor.Dispose();
-        throw;
+        _udfReader = null;
       }
+
+      try
+      {
+        _iso9660Reader = new CDReader(_isoFileResourceAccessor.OpenRead(), true, true);
+      }
+      catch
+      {
+        _iso9660Reader = null;
+      }
+
     }
 
     #endregion
@@ -69,15 +74,15 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public void Dispose()
     {
-      if (_isoReader != null)
+      if (_udfReader != null)
       {
-        _isoReader.Dispose();
-        _isoReader = null;
+        _udfReader.Dispose();
+        _udfReader = null;
       }
-      if (_baseLocalFsIsoResourceAccessor != null)
+      if (_iso9660Reader != null)
       {
-        _baseLocalFsIsoResourceAccessor.Dispose();
-        _baseLocalFsIsoResourceAccessor = null;
+        _iso9660Reader.Dispose();
+        _iso9660Reader = null;
       }
       if (_isoFileResourceAccessor != null)
       {
@@ -110,9 +115,14 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       get { return _isoFileResourceAccessor; }
     }
 
-    public IsoReader IsoReader
+    public UdfReader IsoUdfReader
     {
-      get { return _isoReader; }
+      get { return _udfReader; }
+    }
+
+    public CDReader Iso9660Reader
+    {
+      get { return _iso9660Reader; }
     }
 
     public int UsageCount
@@ -144,7 +154,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public override string ToString()
     {
-      return string.Format("ISO file proxy object for file '{0}'", _baseLocalFsIsoResourceAccessor.LocalFileSystemPath);
+      return string.Format("ISO file proxy object for file '{0}'", _isoFileResourceAccessor.CanonicalLocalResourcePath);
     }
   }
 }
