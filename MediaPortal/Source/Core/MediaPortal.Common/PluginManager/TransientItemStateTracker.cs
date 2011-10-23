@@ -25,21 +25,16 @@
 namespace MediaPortal.Common.PluginManager
 {
   /// <summary>
-  /// Default implementation of a plugin item state tracker which will prevent to reject the item
-  /// and so prevents the item's plugin from being disabled.
+  /// Default implementation of a plugin item state tracker which will always allow to reject the item.
   /// </summary>
   /// <remarks>
-  /// Instances of this class can be used if a requested item cannot be removed from the running system
-  /// any more.
-  /// If possible, every item user should try to be able to cancel its item usage. This helps the plugin
-  /// system to be able to remove plugins which have been loaded at runtime.
-  /// <seealso cref="TransientItemStateTracker"/>
+  /// <seealso cref="FixedItemStateTracker"/>
   /// </remarks>
-  public class FixedItemStateTracker : IPluginItemStateTracker
+  public class TransientItemStateTracker : IPluginItemStateTracker
   {
     protected string _usageDescription;
 
-    public FixedItemStateTracker(string usageDescription)
+    public TransientItemStateTracker(string usageDescription)
     {
       _usageDescription = usageDescription;
     }
@@ -51,7 +46,7 @@ namespace MediaPortal.Common.PluginManager
 
     public bool RequestEnd(PluginItemRegistration itemRegistration)
     {
-      return false;
+      return true;
     }
 
     public void Stop(PluginItemRegistration itemRegistration) { }

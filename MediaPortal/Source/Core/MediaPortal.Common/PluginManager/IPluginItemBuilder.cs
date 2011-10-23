@@ -61,8 +61,7 @@ namespace MediaPortal.Common.PluginManager
     void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin);
 
     /// <summary>
-    /// Returns the information if this builder needs the item's plugin in an active state to build
-    /// the item.
+    /// Returns the information if this builder needs the item's plugin in an active state to build the item.
     /// </summary>
     /// <remarks>
     /// For example, if the builder will access the item's plugin's assemblies, it is necessary that

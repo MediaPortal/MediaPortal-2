@@ -27,6 +27,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
@@ -106,6 +107,8 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
+
+      AdditionalPluginItemBuilders.Register();
     }
 
     public static void StartCoreServices()
