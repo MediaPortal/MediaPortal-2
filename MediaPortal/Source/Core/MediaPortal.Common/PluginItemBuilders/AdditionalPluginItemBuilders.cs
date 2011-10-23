@@ -26,6 +26,10 @@ using MediaPortal.Common.PluginManager;
 
 namespace MediaPortal.Common.PluginItemBuilders
 {
+  /// <summary>
+  /// This class registers additional plugin item builders at the <see cref="IPluginManager">plugin manager</see> which
+  /// are provided by the <c>MediaPortal.Common</c> project.
+  /// </summary>
   public class AdditionalPluginItemBuilders
   {
     public const string MIA_TYPE_REGISTRATION_BUILDER_NAME = "MIATypeRegistration";

@@ -28,6 +28,10 @@ using MediaPortal.UI.Services.Players.Builders;
 
 namespace MediaPortal.UI.PluginItemBuilders
 {
+  /// <summary>
+  /// This class registers additional plugin item builders at the <see cref="IPluginManager">plugin manager</see> which
+  /// are provided by the <c>MediaPortal.UI</c> project.
+  /// </summary>
   public class AdditionalPluginItemBuilders
   {
     public const string BACKGROUND_BUILDER_NAME = "Background";
