@@ -53,7 +53,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
 
     public RemoteResourceProvider()
     {
-      _metadata = new ResourceProviderMetadata(REMOTE_RESOURCE_PROVIDER_ID, "[RemoteResourceProvider.Name]", false);
+      _metadata = new ResourceProviderMetadata(REMOTE_RESOURCE_PROVIDER_ID, "[RemoteResourceProvider.Name]", true);
     }
 
     #endregion
