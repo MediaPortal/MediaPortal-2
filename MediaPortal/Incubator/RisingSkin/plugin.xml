@@ -12,6 +12,32 @@
     <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}"/> <!-- Background Manager -->    
   </DependsOn>
 
+  <!-- Registrations for MIA types which need to be loaded by the Media navigation model for this skin -->
+  <Register Location="/Media/SkinSettings/RisingSkin/Music/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/RisingSkin/Movies/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/RisingSkin/Pictures/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/RisingSkin/BrowseMediaLibrary/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
+  <Register Location="/Media/SkinSettings/RisingSkin/BrowseLocalMedia/OptionalMIATypes">
+    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
+    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
+  </Register>
+
   <Register Location="/Resources/Skin">
     <Resource Id="RisingSkin" Directory="Skin" Type="Skin"/>
   </Register>

@@ -314,6 +314,9 @@ namespace MediaPortal.UiComponents.Media.General
           PictureAspect.ASPECT_ID,
       };
 
+    public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_PATH = "/Media/SkinSettings";
+    public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH = "OptionalMIATypes";
+
     public const int MAX_NUM_ITEMS_VISIBLE = 5000;
   }
 }

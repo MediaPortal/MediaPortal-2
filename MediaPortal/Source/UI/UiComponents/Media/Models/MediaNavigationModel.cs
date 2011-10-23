@@ -30,6 +30,9 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PluginItemBuilders;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -67,6 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     // Screen data is stored in current navigation context
     protected NavigationContext _currentNavigationContext = null;
+    protected static readonly IPluginItemStateTracker _mediaSkinMIATypeRegistrationStateTracker = new TransientItemStateTracker("MediaModelNavigation");
 
     #endregion
 
@@ -186,20 +190,30 @@ namespace MediaPortal.UiComponents.Media.Models
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
           break;
         case MediaNavigationMode.BrowseLocalMedia:
-        case MediaNavigationMode.BrowseMedia:
+        case MediaNavigationMode.BrowseMediaLibrary:
           PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView);
           break;
       }
     }
 
+    // Currently, we don't track skin changes while we're in the media navigation. Normally, that should not be necessary because to switch the skin,
+    // the user has to navigate out of media navigation. If we wanted to track skin changes and then update all our navigation data,
+    // we would need to register a plugin item registration change listener, which would need to trigger an update of all active media state data.
+    protected IEnumerable<Guid> GetMediaSkinOptionalMIATypes(MediaNavigationMode navigationMode)
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      string skinName = screenManager.SkinName;
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      string registrationLocation = Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_PATH + "/" + skinName + "/" +
+          navigationMode + "/" + Consts.MEDIA_SKIN_SETTINGS_REGISTRATION_OPTIONAL_TYPES_PATH;
+      IEnumerable<Guid> result = pluginManager.RequestAllPluginItems<MIATypeRegistration>(
+          registrationLocation, _mediaSkinMIATypeRegistrationStateTracker).Select(registration => registration.MediaItemAspectTypeId);
+      pluginManager.RevokeAllPluginItems(registrationLocation, _mediaSkinMIATypeRegistrationStateTracker);
+      return result;
+    }
+
     protected void PrepareRootState()
     {
-      // TODO: Add registration for skin-dependent optional MIA types to load
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = new Guid[]
-          {
-              ThumbnailSmallAspect.ASPECT_ID,
-              ThumbnailLargeAspect.ASPECT_ID,
-          };
       // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
       // music, movies, pictures and local media.
       Guid currentStateId = _currentNavigationContext.WorkflowState.StateId;
@@ -209,6 +223,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (currentStateId == Consts.WF_STATE_ID_MUSIC_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Music;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MusicItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -235,6 +250,7 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (currentStateId == Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Movies;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new MovieItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -260,6 +276,7 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (currentStateId == Consts.WF_STATE_ID_PICTURES_NAVIGATION_ROOT)
       {
         Mode = MediaNavigationMode.Pictures;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new PictureItem(mi)
           {
               Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi))
@@ -294,7 +311,8 @@ namespace MediaPortal.UiComponents.Media.Models
           currentStateId = Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT;
         }
         Mode = currentStateId == Consts.WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT ? MediaNavigationMode.BrowseLocalMedia :
-            MediaNavigationMode.BrowseMedia;
+            MediaNavigationMode.BrowseMediaLibrary;
+        IEnumerable<Guid> skinDependentOptionalMIATypeIDs = GetMediaSkinOptionalMIATypes(Mode);
         AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi =>
           {
             if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
