@@ -43,62 +43,22 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    #region Classes
-
-    protected class ModelItemStateTracker : IPluginItemStateTracker
-    {
-      #region Protected fields
-
-      protected WorkflowContributorAction _parent;
-
-      #endregion
-
-      #region Ctor
-
-      public ModelItemStateTracker(WorkflowContributorAction parent)
-      {
-        _parent = parent;
-      }
-
-      #endregion
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "WorkflowContributorAction: Usage of workflow action contributor model"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return true;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.Unbind();
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration) { }
-
-      #endregion
-    }
-
-    #endregion
-
     #region Protected fields
 
     protected IWorkflowContributor _contributor = null;
     protected int usages = 0;
     protected Guid _contributorModelId;
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected IPluginItemStateTracker _modelItemStateTracker;
 
     #endregion
 
     public WorkflowContributorAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
         Guid contributorModelId) : base(actionId, name, sourceStateId, displayTitle)
     {
-      _modelItemStateTracker = new ModelItemStateTracker(this);
+      _modelItemStateTracker = new DefaultItemStateTracker("WorkflowContributorAction: Usage of workflow action contributor model")
+        {
+            Stopped = registration => Unbind()
+        };
       _contributorModelId = contributorModelId;
     }
 

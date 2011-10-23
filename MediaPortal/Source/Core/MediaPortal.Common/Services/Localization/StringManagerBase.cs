@@ -42,64 +42,6 @@ namespace MediaPortal.Common.Services.Localization
   {
     public const string LANGUAGE_RESOURCES_REGISTRATION_PATH = "/Resources/Language";
 
-    protected class LanguagePluginItemStateTracker : IPluginItemStateTracker
-    {
-      protected StringManagerBase _parent;
-
-      public LanguagePluginItemStateTracker(StringManagerBase parent)
-      {
-        _parent = parent;
-      }
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "Localization system: Language resources"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        // We don't care about strings which are currently in use; we don't have an overview which strings are
-        // still needed
-        return true;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.RemoveLanguageResource(itemRegistration);
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      { }
-
-      #endregion
-    }
-
-    protected class LanguageResourcesRegistrationChangeListener : IItemRegistrationChangeListener
-    {
-      protected StringManagerBase _parent;
-
-      public LanguageResourcesRegistrationChangeListener(StringManagerBase parent)
-      {
-        _parent = parent;
-      }
-
-      #region IItemRegistrationChangeListener implementation
-
-      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
-      {
-        _parent.AddLanguageResources(items);
-      }
-
-      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
-      {
-        // Item removals are handled by the SkinResourcesPluginItemStateTracker
-      }
-
-      #endregion
-    }
-
     #region Protected fields
 
     protected IPluginItemStateTracker _languagePluginStateTracker;
@@ -114,8 +56,18 @@ namespace MediaPortal.Common.Services.Localization
 
     public StringManagerBase()
     {
-      _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
-      _languageResourcesRegistrationChangeListener = new LanguageResourcesRegistrationChangeListener(this);
+      _languagePluginStateTracker = new DefaultItemStateTracker("Localization system: Language resources")
+        {
+            // We don't care about strings which are currently in use; we don't have an overview which strings are still needed. So we don't
+            // provide an implementation of RequestEnd.
+
+            Stopped = RemoveLanguageResource
+        };
+      _languageResourcesRegistrationChangeListener = new DefaultItemRegistrationChangeListener("Localization system: Language resources")
+        {
+            ItemsWereAdded = (location, items) => AddLanguageResources(items)
+            // Item removals are handled by the SkinResourcesPluginItemStateTracker
+        };
     }
 
     public virtual void Dispose()

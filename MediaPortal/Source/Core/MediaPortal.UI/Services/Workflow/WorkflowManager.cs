@@ -50,51 +50,6 @@ namespace MediaPortal.UI.Services.Workflow
   {
     #region Classes
 
-    protected class ModelItemStateTracker : IPluginItemStateTracker
-    {
-      #region Protected fields
-
-      protected WorkflowManager _parent;
-
-      #endregion
-
-      #region Ctor
-
-      public ModelItemStateTracker(WorkflowManager parent)
-      {
-        _parent = parent;
-      }
-
-      #endregion
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "WorkflowManager: Model usage"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        // We could store the end-requested model in an array of "suspended models" in the WF manager,
-        // method WFM.GetOrLoadModel would then fail to load any of the suspended models
-        return !_parent.IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.NavigatePopModel(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      {
-        // If we'd maintain a collection of "suspended models" (like said in comment in method
-        // RequestEnd), we would need to cancel the suspension of the continued model here.
-      }
-
-      #endregion
-    }
-
     protected class ModelEntry
     {
       protected object _instance;
@@ -150,7 +105,7 @@ namespace MediaPortal.UI.Services.Workflow
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
 
     protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected DefaultItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -161,7 +116,17 @@ namespace MediaPortal.UI.Services.Workflow
 
     public WorkflowManager()
     {
-      _modelItemStateTracker = new ModelItemStateTracker(this);
+      _modelItemStateTracker = new DefaultItemStateTracker("WorkflowManager: Model usage")
+        {
+            // We could store the end-requested model in an array of "suspended models" in the WF manager,
+            // method WFM.GetOrLoadModel would then fail to load any of the suspended models
+            EndRequested = itemRegistration => !IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id)),
+
+            Stopped = itemRegistration => NavigatePopModel(new Guid(itemRegistration.Metadata.Id))
+
+            // If we'd maintain a collection of "suspended models" (like said in comment in method RequestEnd),
+            // we would need to cancel the suspension of the continued model in the Continued delegate.
+        };
       ServiceRegistration.Get<IPluginManager>().RegisterSystemPluginItemBuilder("Model", new ModelBuilder());
     }
 

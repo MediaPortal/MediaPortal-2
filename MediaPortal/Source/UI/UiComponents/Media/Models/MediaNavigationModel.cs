@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     // Screen data is stored in current navigation context
     protected NavigationContext _currentNavigationContext = null;
-    protected static readonly IPluginItemStateTracker _mediaSkinMIATypeRegistrationStateTracker = new TransientItemStateTracker("MediaModelNavigation");
+    protected static readonly IPluginItemStateTracker _mediaSkinMIATypeRegistrationStateTracker = new DefaultItemStateTracker("MediaModelNavigation");
 
     #endregion
 

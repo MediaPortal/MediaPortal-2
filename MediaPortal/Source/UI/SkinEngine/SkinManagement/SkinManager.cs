@@ -108,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
-        return false;
+        return true;
       }
 
       public void Stop(PluginItemRegistration itemRegistration)
@@ -118,62 +118,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
       public void Continue(PluginItemRegistration itemRegistration)
       {
-      }
-
-      #endregion
-    }
-
-    /// <summary>
-    /// Plugin item state tracker which allows skin resources to be revoked. When skin resources
-    /// are revoked by the plugin manager, the <see cref="SkinManager.ReloadSkins()"/> method
-    /// will be called from the <see cref="SkinResourcesPluginItemStateTracker.Stop"/> method.
-    /// </summary>
-    protected class SkinResourcesPluginItemStateTracker : IPluginItemStateTracker
-    {
-      protected SkinManager _skinManager;
-
-      public SkinResourcesPluginItemStateTracker(SkinManager skinManager)
-      {
-        _skinManager = skinManager;
-      }
-
-      public string UsageDescription
-      {
-        get { return "SkinManager: Usage of skin resources"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return true;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _skinManager.SkinResourcesWereChanged();
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration) { }
-    }
-
-    protected class SkinResourcesRegistrationChangeListener : IItemRegistrationChangeListener
-    {
-      protected SkinManager _skinManager;
-
-      public SkinResourcesRegistrationChangeListener(SkinManager skinManager)
-      {
-        _skinManager = skinManager;
-      }
-
-      #region IItemRegistrationChangeListener implementation
-
-      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
-      {
-        _skinManager.SkinResourcesWereChanged();
-      }
-
-      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
-      {
-        // Item removals are handled by the SkinResourcesPluginItemStateTracker
       }
 
       #endregion
@@ -192,16 +136,23 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     #region Protected fields
 
     protected readonly IDictionary<string, Skin> _skins = new Dictionary<string, Skin>();
-    protected readonly SkinResourcesPluginItemStateTracker _skinResourcesPluginItemStateTracker;
-    protected readonly SkinResourcesRegistrationChangeListener _skinResourcesRegistrationChangeListener;
+    protected readonly IPluginItemStateTracker _skinResourcesPluginItemStateTracker;
+    protected readonly IItemRegistrationChangeListener _skinResourcesRegistrationChangeListener;
     protected readonly BackgroundManagerData _backgroundManagerData;
 
     #endregion
 
     public SkinManager()
     {
-      _skinResourcesPluginItemStateTracker = new SkinResourcesPluginItemStateTracker(this);
-      _skinResourcesRegistrationChangeListener = new SkinResourcesRegistrationChangeListener(this);
+      _skinResourcesPluginItemStateTracker = new DefaultItemStateTracker("SkinManager: Usage of skin resources")
+        {
+            Stopped = itemRegistration => SkinResourcesWereChanged()
+        };
+      _skinResourcesRegistrationChangeListener = new DefaultItemRegistrationChangeListener("SkinManager: Usage of skin resources")
+        {
+            ItemsWereAdded = (location, items) => SkinResourcesWereChanged()
+            // Item removals are handled by the plugin item state tracker
+        };
       _backgroundManagerData = new BackgroundManagerData(this);
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
       pluginManager.AddItemRegistrationChangeListener(

@@ -151,7 +151,8 @@
     <Compile Include="MediaManagement\PlaylistRawData.cs" />
     <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
     <Compile Include="PluginItemBuilders\MIATypeRegistrationBuilder.cs" />
-    <Compile Include="PluginManager\TransientItemStateTracker.cs" />
+    <Compile Include="PluginManager\DefaultItemRegistrationChangeListener.cs" />
+    <Compile Include="PluginManager\DefaultItemStateTracker.cs" />
     <Compile Include="ResourceAccess\ProviderPathHelper.cs" />
     <Compile Include="ResourceAccess\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />

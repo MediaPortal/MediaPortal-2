@@ -33,29 +33,13 @@ namespace MediaPortal.Common.PluginManager
   /// any more.
   /// If possible, every item user should try to be able to cancel its item usage. This helps the plugin
   /// system to be able to remove plugins which have been loaded at runtime.
-  /// <seealso cref="TransientItemStateTracker"/>
+  /// <seealso cref="DefaultItemStateTracker"/>
   /// </remarks>
-  public class FixedItemStateTracker : IPluginItemStateTracker
+  public class FixedItemStateTracker : DefaultItemStateTracker
   {
-    protected string _usageDescription;
-
-    public FixedItemStateTracker(string usageDescription)
+    public FixedItemStateTracker(string usageDescription) : base(usageDescription)
     {
-      _usageDescription = usageDescription;
+      EndRequested += itemRegistration => false;
     }
-
-    public string UsageDescription
-    {
-      get { return _usageDescription; }
-    }
-
-    public bool RequestEnd(PluginItemRegistration itemRegistration)
-    {
-      return false;
-    }
-
-    public void Stop(PluginItemRegistration itemRegistration) { }
-
-    public void Continue(PluginItemRegistration itemRegistration) { }
   }
 }

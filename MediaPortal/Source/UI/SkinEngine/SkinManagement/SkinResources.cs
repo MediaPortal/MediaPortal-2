@@ -116,45 +116,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       }
     }
 
-    protected class ModelItemStateTracker : IPluginItemStateTracker
-    {
-      #region Protected fields
-
-      protected SkinResources _parent;
-
-      #endregion
-
-      #region Ctor
-
-      public ModelItemStateTracker(SkinResources parent)
-      {
-        _parent = parent;
-      }
-
-      #endregion
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "SkinResources: Usage of model in style resources"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return !_parent.StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id));
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        _parent.Release();
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration) { }
-
-      #endregion
-    }
-
     #endregion
 
     #region Protected fields
@@ -193,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// We request GUI models for our style resources - this plugin item tracker is present for
     /// those models.
     /// </summary>
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected DefaultItemStateTracker _modelItemStateTracker;
 
     /// <summary>
     /// Models currently loaded for the style.
@@ -205,7 +166,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     protected SkinResources(string name)
     {
       _name = name;
-      _modelItemStateTracker = new ModelItemStateTracker(this);
+      _modelItemStateTracker = new DefaultItemStateTracker("SkinResources: Usage of model in style resources")
+        {
+            EndRequested = itemRegistration => !StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id)),
+            Stopped = itemRegistration => Release()
+        };
     }
 
     /// <summary>
