@@ -26,9 +26,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Services.Players.Builders;
 
-namespace MediaPortal.UI.Builders
+namespace MediaPortal.UI.PluginItemBuilders
 {
-  public class AdditionalUiBuilders
+  public class AdditionalPluginItemBuilders
   {
     public const string BACKGROUND_BUILDER_NAME = "Background";
     public const string PLAYERBUILDER_BUILDER_NAME = "PlayerBuilder";

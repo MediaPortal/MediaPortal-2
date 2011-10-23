@@ -25,7 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.UI.Builders
+namespace MediaPortal.UI.PluginItemBuilders
 {
   public class StaticBackgroundManager : IBackgroundManager
   {

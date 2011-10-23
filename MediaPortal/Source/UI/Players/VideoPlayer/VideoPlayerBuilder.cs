@@ -49,7 +49,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
     {
-
+      // Noting to do
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
