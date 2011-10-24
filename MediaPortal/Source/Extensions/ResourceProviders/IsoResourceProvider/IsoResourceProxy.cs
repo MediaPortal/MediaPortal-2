@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.IO;
+using DiscUtils;
 using MediaPortal.Common.ResourceAccess;
 using DiscUtils.Iso9660;
 using DiscUtils.Udf;
@@ -33,11 +35,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
   {
     #region Protected fields
 
-    protected UdfReader _udfReader;
-    protected CDReader _iso9660Reader;
+    protected IFileSystem _diskFileSystem;
     protected string _key;
     protected int _usageCount = 0;
     protected IResourceAccessor _isoFileResourceAccessor;
+    protected Stream _underlayingStream;
     protected object _syncObj = new object();
 
     #endregion
@@ -48,24 +50,17 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     {
       _key = key;
       _isoFileResourceAccessor = isoFileResourceAccessor;
+
+      _underlayingStream = _isoFileResourceAccessor.OpenRead();
       try
       {
-        _udfReader = new UdfReader(_isoFileResourceAccessor.OpenRead());
+        _diskFileSystem = GetFileSystem(_underlayingStream);
       }
       catch
       {
-        _udfReader = null;
+        _underlayingStream.Dispose();
+        throw;
       }
-
-      try
-      {
-        _iso9660Reader = new CDReader(_isoFileResourceAccessor.OpenRead(), true, true);
-      }
-      catch
-      {
-        _iso9660Reader = null;
-      }
-
     }
 
     #endregion
@@ -74,15 +69,17 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public void Dispose()
     {
-      if (_udfReader != null)
+      if (_diskFileSystem != null)
       {
-        _udfReader.Dispose();
-        _udfReader = null;
+        IDisposable d = _diskFileSystem as IDisposable;
+        if (d != null)
+          d.Dispose();
+        _diskFileSystem = null;
       }
-      if (_iso9660Reader != null)
+      if (_underlayingStream != null)
       {
-        _iso9660Reader.Dispose();
-        _iso9660Reader = null;
+        _underlayingStream.Dispose();
+        _underlayingStream = null;
       }
       if (_isoFileResourceAccessor != null)
       {
@@ -115,14 +112,9 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       get { return _isoFileResourceAccessor; }
     }
 
-    public UdfReader IsoUdfReader
+    public IFileSystem DiskFileSystem
     {
-      get { return _udfReader; }
-    }
-
-    public CDReader Iso9660Reader
-    {
-      get { return _iso9660Reader; }
+      get { return _diskFileSystem; }
     }
 
     public int UsageCount
@@ -154,7 +146,20 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public override string ToString()
     {
-      return string.Format("ISO file proxy object for file '{0}'", _isoFileResourceAccessor.CanonicalLocalResourcePath);
+      return string.Format("ISO file proxy object for file '{0}', using {1} as file system", _isoFileResourceAccessor.CanonicalLocalResourcePath, _diskFileSystem);
+    }
+
+    public static IFileSystem GetFileSystem(Stream underlayingStream)
+    {
+      // Try UDF access first; if that doesn't work, try iso9660
+      try
+      {
+        return new UdfReader(underlayingStream);
+      }
+      catch
+      {
+        return new CDReader(underlayingStream, true, true);
+      }
     }
   }
 }

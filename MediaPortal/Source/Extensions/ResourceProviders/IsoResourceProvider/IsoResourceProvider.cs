@@ -24,12 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using DiscUtils;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using DiscUtils.Iso9660;
-using DiscUtils.Udf;
 
 namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 {
@@ -130,7 +130,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       if (string.IsNullOrEmpty(resourceName) || !baseResourceAccessor.IsFile)
         return false;
 
-      // Test if we have already an ISO proxy for that ISO file
+      // Test if we have already an ISO proxy for that ISO file...
       lock (_syncObj)
       {
         string key = baseResourceAccessor.CanonicalLocalResourcePath.Serialize();
@@ -138,7 +138,7 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         {
           IsoResourceProxy proxy;
           if (_isoUsages.TryGetValue(key, out proxy))
-            return IsoResourceAccessor.IsResource(proxy.IsoUdfReader, proxy.Iso9660Reader, path);
+            return IsoResourceAccessor.IsResource(proxy.DiskFileSystem, path);
         }
         catch (Exception)
         {
@@ -146,40 +146,19 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
         }
       }
 
-      UdfReader udfReader = null;
-      CDReader iso9660Reader = null;
-
-      try
+      // ... if not, test the resource in a new disk file system instance
+      using (Stream underlayingStream = baseResourceAccessor.OpenRead())
       {
-        // Try udf-access first; if that doesn't work, try iso9660
         try
         {
-          udfReader = new UdfReader(baseResourceAccessor.OpenRead());
+          IFileSystem diskFileSystem = IsoResourceProxy.GetFileSystem(underlayingStream);
+          using (diskFileSystem as IDisposable)
+            return IsoResourceAccessor.IsResource(diskFileSystem, path);
         }
         catch
         {
-          udfReader = null;
-        }
-        try
-        {
-          iso9660Reader = new CDReader(baseResourceAccessor.OpenRead(), true, true);
-        }
-        catch
-        {
-          iso9660Reader = null;
-        }
-
-        if (udfReader == null && iso9660Reader == null)
           return false;
-
-        return IsoResourceAccessor.IsResource(udfReader, iso9660Reader, path);
-      }
-      finally
-      {
-        if (udfReader != null)
-          udfReader.Dispose();
-        if (iso9660Reader != null)
-          iso9660Reader.Dispose();
+        }
       }
     }
 
