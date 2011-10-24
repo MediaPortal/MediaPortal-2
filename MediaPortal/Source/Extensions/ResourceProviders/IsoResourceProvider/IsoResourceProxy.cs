@@ -154,10 +154,14 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       // Try UDF access first; if that doesn't work, try iso9660
       try
       {
+        if (!UdfReader.Detect(underlayingStream))
+          throw new ArgumentException("The given stream does not contain a valid UDF filesystem");
         return new UdfReader(underlayingStream);
       }
       catch
       {
+        if (!CDReader.Detect(underlayingStream))
+          throw new ArgumentException("The given stream does neither contain a valid UDF nor a valid ISO9660 filesystem");
         return new CDReader(underlayingStream, true, true);
       }
     }
