@@ -30,6 +30,7 @@ using DiscUtils;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Exceptions;
@@ -47,6 +48,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
     protected bool _isDirectory;
     protected DateTime _lastChanged;
     protected long _size;
+    protected object _syncObj = new object();
+    protected Stream _stream = null;
 
     #endregion
 
@@ -94,6 +97,8 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public void Dispose()
     {
+      if (_stream != null)
+        _stream.Dispose();
       if (_isoProxy == null)
         return;
       _isoProxy.DecUsage();
@@ -192,10 +197,17 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
 
     public Stream OpenRead()
     {
-      string isoPath = ToIsoPath(_pathToDirOrFile);
-      if (!_isoProxy.DiskFileSystem.FileExists(isoPath))
-        throw new IllegalCallException ("Resource '{0}' is not a file", isoPath);
-      return _isoProxy.DiskFileSystem.OpenFile(isoPath, FileMode.Open, FileAccess.Read);
+      lock (_syncObj)
+      {
+        if (_stream == null)
+        {
+          string isoPath = ToIsoPath(_pathToDirOrFile);
+          if (!_isoProxy.DiskFileSystem.FileExists(isoPath))
+            throw new IllegalCallException ("Resource '{0}' is not a file", isoPath);
+          _stream = _isoProxy.DiskFileSystem.OpenFile(isoPath, FileMode.Open, FileAccess.Read);
+        }
+        return new SynchronizedMasterStreamClient(_stream, _syncObj);
+      }
     }
 
     public Stream OpenWrite()

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 
@@ -11,7 +13,8 @@ namespace MediaPortal.Common.Services.Dokan
   public class FileHandle
   {
     protected VirtualFileSystemResource _resource;
-    protected Stream _stream = null;
+    protected object _syncObj = new object();
+    protected IDictionary<Thread, Stream> _threadStreams = new Dictionary<Thread, Stream>();
 
     public FileHandle(VirtualFileSystemResource resource)
     {
@@ -27,35 +30,45 @@ namespace MediaPortal.Common.Services.Dokan
     {
       try
       {
-        if (_stream != null)
-          _stream.Dispose();
+        foreach (Stream stream in _threadStreams.Values)
+          stream.Dispose();
+        _threadStreams.Clear();
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("Dokan FileHandle: Error cleaning up resource '{0}'", e, _resource.ResourceAccessor);
       }
-      _stream = null;
     }
 
+    /// <summary>
+    /// Gets a stream for the resource which is described by this file handle if the stream is already open or opens a new stream for it.
+    /// </summary>
+    /// <returns>
+    /// This method returns the same stream for the same thread; it returns a new stream for a new thread.
+    /// </returns>
     public Stream GetOrOpenStream()
     {
-      if (_stream == null)
+      Thread currentThread = Thread.CurrentThread;
+      Stream stream;
+      lock (_syncObj)
+        if (_threadStreams.TryGetValue(currentThread, out stream))
+          return stream;
+
+      IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
+      try
       {
-        IResourceAccessor resourceAccessor = _resource.ResourceAccessor;
-        try
+        if (resourceAccessor != null)
         {
-          if (resourceAccessor != null)
-          {
-            resourceAccessor.PrepareStreamAccess();
-            _stream = resourceAccessor.OpenRead();
-          }
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Dokan FileHandle: Error creating stream for resource '{0}'", e, resourceAccessor);
+          resourceAccessor.PrepareStreamAccess();
+          lock (_syncObj)
+            return _threadStreams[currentThread] = resourceAccessor.OpenRead();
         }
       }
-      return _stream;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Dokan FileHandle: Error creating stream for resource '{0}'", e, resourceAccessor);
+      }
+      return null;
     }
   }
 }
