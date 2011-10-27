@@ -165,7 +165,7 @@ namespace MediaPortal.Common.Services.Dokan
         if (result == DokanNet.DOKAN_SUCCESS)
           logger.Debug("Dokan: DokanMain returned successfully");
         else
-          logger.Warn("ResourceMouDokanntingService: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
+          logger.Warn("Dokan: DokanMain returned with error code {0} - remote resources may not be available in this session", result);
       }
       catch (Exception e)
       {
@@ -295,7 +295,7 @@ namespace MediaPortal.Common.Services.Dokan
         }
         catch (Exception e)
         {
-          ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error creating file stream of resource '{0}'", e, handle.Resource);
+          ServiceRegistration.Get<ILogger>().Warn("Dokan: Error creating file stream of resource '{0}'", e, handle.Resource);
           return DokanNet.DOKAN_ERROR;
         }
       }
@@ -308,7 +308,7 @@ namespace MediaPortal.Common.Services.Dokan
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ReesourceMountingService: Error reading from stream of resource '{0}'", e, handle.Resource);
+        ServiceRegistration.Get<ILogger>().Warn("Dokan: Error reading from stream of resource '{0}'", e, handle.Resource);
         return DokanNet.DOKAN_ERROR;
       }
     }
