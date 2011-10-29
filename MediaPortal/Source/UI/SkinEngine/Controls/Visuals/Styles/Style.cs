@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
     protected AbstractProperty _targetTypeProperty;
-    protected AbstractProperty _triggerProperty;
+    protected AbstractProperty _triggersProperty;
     protected ResourceDictionary _resources;
     protected object _owner = null;
 
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     void Init()
     {
       _targetTypeProperty = new SProperty(typeof(Type), null);
-      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _triggersProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _resources = new ResourceDictionary();
     }
 
@@ -115,12 +115,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public AbstractProperty TriggersProperty
     {
-      get { return _triggerProperty; }
+      get { return _triggersProperty; }
     }
 
     public IList<TriggerBase> Triggers
     {
-      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
+      get { return (IList<TriggerBase>) _triggersProperty.GetValue(); }
     }
 
     public ResourceDictionary Resources
