@@ -886,7 +886,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     public void HandleMemberAssignment(IDataDescriptor dd, object value)
     {
       IBinding binding = value as IBinding;
-      if (binding != null)
+      if (binding != null && dd.DataType != typeof(IBinding)) // In case the property descriptor's type is IBinding, we want to assign the binding directly instead of binding it to the property
       {
         binding.SetTargetDataDescriptor(dd);
         _deferredBindings.Add(binding);
