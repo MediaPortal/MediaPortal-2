@@ -758,7 +758,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        return Orientation == Orientation.Vertical ? 0 : (float) SumActualExtendsInOrientationDirection(
+        return Orientation == Orientation.Horizontal ? 0 : (float) SumActualExtendsInOrientationDirection(
             GetVisibleChildren(), Orientation, 0, _actualFirstVisibleChildIndex);
       }
     }

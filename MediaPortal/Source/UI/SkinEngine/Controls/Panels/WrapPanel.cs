@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   /// </summary>
   // This class is implemented very similar to StackPanel; that's by design. We use almost the same technique for the layouting our element lines
   // as the StackPanel uses for its children. We don't use inheritance to avoid making it more complicated, so the code duplication is by design.
-  public class WrapPanel : Panel, IScrollInfo
+  public class WrapPanel : Panel, IScrollInfo, IScrollViewerFocusSupport
   {
     #region Consts
 
@@ -320,6 +320,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         // For Orientation == vertical, this is ActualHeight, for horizontal it is ActualWidth
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
+        // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
+        float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
         // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
         // because the rendering and focus system also needs the bounds of the currently invisible children
         float startPosition = 0;
@@ -353,7 +355,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // 1) Calculate scroll indices
         if (_doScroll)
         { // Calculate last visible child
-          float spaceLeft = actualExtendsInOrientationDirection;
+          float spaceLeft = actualExtendsInNonOrientationDirection;
           if (invertLayouting)
           {
             CalcHelper.Bound(ref _actualLastVisibleLineIndex, 0, _arrangedLines.Count - 1);
@@ -676,8 +678,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-      return _arrangedLines.Skip(_actualFirstVisibleLineIndex).Take(_actualLastVisibleLineIndex - _actualFirstVisibleLineIndex + 1).SelectMany(
-          line => visibleChildren.Skip(line.StartIndex).Take(line.EndIndex - line.StartIndex + 1));
+      int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
+      int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
+      return visibleChildren.Skip(start).Take(end - start + 1);
     }
 
     #endregion
@@ -686,35 +689,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool FocusUp()
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
         return AlignedPanelMoveFocus1(MoveFocusDirection.Up);
       return false;
     }
 
     public virtual bool FocusDown()
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
         return AlignedPanelMoveFocus1(MoveFocusDirection.Down);
       return false;
     }
 
     public virtual bool FocusLeft()
     {
-      if (Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Vertical)
         return AlignedPanelMoveFocus1(MoveFocusDirection.Left);
       return false;
     }
 
     public virtual bool FocusRight()
     {
-      if (Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Vertical)
         return AlignedPanelMoveFocus1(MoveFocusDirection.Right);
       return false;
     }
 
     public virtual bool FocusPageUp()
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
       {
         FrameworkElement currentElement = GetFocusedElementOrChild();
         if (currentElement == null)
@@ -751,7 +754,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool FocusPageDown()
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
       {
         FrameworkElement currentElement = GetFocusedElementOrChild();
         if (currentElement == null)
@@ -787,7 +790,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool FocusPageLeft()
     {
-      if (Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Vertical)
       {
         FrameworkElement currentElement = GetFocusedElementOrChild();
         if (currentElement == null)
@@ -824,7 +827,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool FocusPageRight()
     {
-      if (Orientation == Orientation.Horizontal)
+      if (Orientation == Orientation.Vertical)
       {
         FrameworkElement currentElement = GetFocusedElementOrChild();
         if (currentElement == null)
@@ -883,7 +886,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool ScrollDown(int numLines)
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
       {
         if (IsViewPortAtBottom)
           return false;
@@ -895,7 +898,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual bool ScrollUp(int numLines)
     {
-      if (Orientation == Orientation.Vertical)
+      if (Orientation == Orientation.Horizontal)
       {
         if (IsViewPortAtTop)
           return false;
@@ -939,32 +942,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public virtual float ViewPortStartX
     {
-      get { return Orientation == Orientation.Vertical ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
+      get { return Orientation == Orientation.Horizontal ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
     }
 
     public virtual float ViewPortStartY
     {
-      get { return Orientation == Orientation.Horizontal ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
+      get { return Orientation == Orientation.Vertical ? 0 : SumActualLineExtendsInNonOrientationDirection(_arrangedLines, 0, _actualFirstVisibleLineIndex - 1); }
     }
 
     public virtual bool IsViewPortAtTop
     {
-      get { return Orientation == Orientation.Horizontal || _actualFirstVisibleLineIndex == 0; }
+      get { return Orientation == Orientation.Vertical || _actualFirstVisibleLineIndex == 0; }
     }
 
     public virtual bool IsViewPortAtBottom
     {
-      get { return Orientation == Orientation.Horizontal || _actualLastVisibleLineIndex == GetVisibleChildren().Count - 1; }
+      get { return Orientation == Orientation.Vertical || _actualLastVisibleLineIndex == GetVisibleChildren().Count - 1; }
     }
 
     public virtual bool IsViewPortAtLeft
     {
-      get { return Orientation == Orientation.Vertical || _actualFirstVisibleLineIndex == 0; }
+      get { return Orientation == Orientation.Horizontal || _actualFirstVisibleLineIndex == 0; }
     }
 
     public virtual bool IsViewPortAtRight
     {
-      get { return Orientation == Orientation.Vertical || _actualLastVisibleLineIndex == GetVisibleChildren().Count - 1; }
+      get { return Orientation == Orientation.Horizontal || _actualLastVisibleLineIndex == GetVisibleChildren().Count - 1; }
     }
 
     #endregion
