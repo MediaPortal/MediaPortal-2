@@ -12,7 +12,6 @@
 
     <WorkflowState Id="17214BAC-E79C-4e5e-9280-A01478B27579"
         Name="ShowHomeServer" DisplayLabel="[ServerConnection.HomeServerWorkflowStateLabel]"
-        MainScreen="ShowHomeServer"
-        WorkflowModel="854ABA9A-71A1-420b-A657-9641815F9C01"/> <!-- Workflow model = HomeServerModel -->
+        MainScreen="ShowHomeServer"/>
   </States>
 </Workflow>
