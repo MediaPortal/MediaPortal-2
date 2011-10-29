@@ -28,6 +28,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Localization;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.SkinBase.General;
 
 namespace MediaPortal.UiComponents.SkinBase.Actions
 {
@@ -40,13 +41,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
 
     public const string ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR = "793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB";
 
-    protected const string ATTACH_TO_SERVER_STATE_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
-    protected const string DETACH_FROM_SERVER_STATE_STR = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
-
     public static readonly Guid ATTACH_DETACH_CONTRIBUTOR_MODEL_ID = new Guid(ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR);
-
-    public static readonly Guid ATTACH_TO_SERVER_STATE = new Guid(ATTACH_TO_SERVER_STATE_STR);
-    public static readonly Guid DETACH_FROM_SERVER_STATE = new Guid(DETACH_FROM_SERVER_STATE_STR);
 
     public const string SEARCH_FOR_SERVERS_RES = "[ServerConnection.SearchForServers]";
     public const string DETACH_FROM_SERVER_RES = "[ServerConnection.DetachFromServer]";
@@ -143,10 +138,8 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      if (string.IsNullOrEmpty(scm.HomeServerSystemId))
-        workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE);
-      else
-        workflowManager.NavigatePush(DETACH_FROM_SERVER_STATE);
+      workflowManager.NavigatePush(string.IsNullOrEmpty(scm.HomeServerSystemId) ?
+          Consts.WF_STATE_ID_ATTACH_TO_SERVER : Consts.WF_STATE_ID_DETACH_FROM_SERVER);
     }
 
     #endregion
