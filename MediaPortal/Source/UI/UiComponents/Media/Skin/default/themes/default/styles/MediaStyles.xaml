@@ -14,14 +14,20 @@
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
         Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime1}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime2}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
         Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime1}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime2}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
         Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[2].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime1}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource OSDCurrentPlayerControlAnimationTime2}" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -370,15 +376,15 @@
   <Storyboard x:Key="PressedPiPOSDButtonStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="PiPControlBorder" Storyboard.TargetProperty="BorderBrush.Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PipBorderColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:01" Value="{ThemeResource OSDPipBorderFocusColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime2}" Value="{ThemeResource OSDPipBorderFocusColor}"/>
     </ColorAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
+      <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 

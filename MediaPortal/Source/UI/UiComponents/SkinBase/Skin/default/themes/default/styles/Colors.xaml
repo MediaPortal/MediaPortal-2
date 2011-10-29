@@ -284,7 +284,7 @@
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerStrokeColor" Resource="White"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="#A00B3364"/>
-  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="#A0041B25"/>
+  <ResourceWrapper x:Key="FocusedWorkflowNavigationBarItemContainerFillColor" Resource="#A0008000"/>
   <ResourceWrapper x:Key="WorkflowNavigationBarFontColor" Resource="LightGray"/>
 
   <ResourceWrapper x:Key="WindowButtonColor" Resource="White"/>

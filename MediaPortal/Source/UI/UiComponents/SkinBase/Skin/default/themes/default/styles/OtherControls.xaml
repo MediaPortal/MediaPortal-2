@@ -1077,35 +1077,35 @@
   <Storyboard x:Key="FocusedNavbarContainerStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_LineLeft" Storyboard.TargetProperty="Stroke">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_LineLeft" Storyboard.TargetProperty="Fill">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowLeft" Storyboard.TargetProperty="Stroke">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowLeft" Storyboard.TargetProperty="Fill">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_Center_Back" Storyboard.TargetProperty="Fill">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_Center_Border" Storyboard.TargetProperty="Stroke">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowRight" Storyboard.TargetProperty="Stroke">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerStrokeColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="WorkflowNavigationBarItemContainer_ArrowRight" Storyboard.TargetProperty="Fill">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.4" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
+      <SplineColorKeyFrame KeyTime="{ThemeResource WorkflowNavigationBarFocusTime}" Value="{ThemeResource FocusedWorkflowNavigationBarItemContainerFillColor}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 

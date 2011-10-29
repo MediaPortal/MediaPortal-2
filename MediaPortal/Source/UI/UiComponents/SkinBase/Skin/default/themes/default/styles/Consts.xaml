@@ -3,40 +3,67 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
+  <!-- General font sizes -->
   <ResourceWrapper x:Key="HugeFontSize" Resource="54"/>
   <ResourceWrapper x:Key="BigFontSize" Resource="30"/>
   <ResourceWrapper x:Key="SmallFontSize" Resource="20"/>
   <ResourceWrapper x:Key="SmallerFontSize" Resource="18"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="9"/>
 
-  <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="200"/>
+  <!-- Screen transitions -->  
+  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.15"/>
+  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.15"/>
 
+  <!-- Scroll bar -->  
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- Dialogs -->
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
+  <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="200"/>
+  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="10"/>
+  <ResourceWrapper x:Key="DialogCloseButtonFocusedAnimationTime1" Resource="00:00:00.2"/>
+
+  <!-- Buttons -->
+  <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:02"/>
+  <ResourceWrapper x:Key="FocusedButtonAnimationTime2" Resource="00:00:04"/>
+  <ResourceWrapper x:Key="FocusedButtonScaleAnimationTime1" Resource="00:00:00.1"/>
+  <ResourceWrapper x:Key="PressedButtonAnimationTime1" Resource="00:00:00.2"/>
+  <ResourceWrapper x:Key="PressedButtonAnimationTime2" Resource="00:00:00.4"/>
+  <ResourceWrapper x:Key="PressedButtonScaleAnimationTime1" Resource="00:00:00.1"/>
+  <ResourceWrapper x:Key="DisabledButtonScaleAnimationTime1" Resource="00:00:00.1"/>
+
+  <!-- Text boxes -->
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
   <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
 
+  <!-- Virtual keyboard -->
   <ResourceWrapper x:Key="VirtualKeyboardBorderThickness" Resource="10"/>
   <ResourceWrapper x:Key="VirtualKeyboardCornerRadius" Resource="10"/>
 
+  <!-- Content group box -->
   <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="15"/>
 
+  <!-- Player control -->
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="8"/>
+
+  <!-- PiP -->
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
-
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
-  
-  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="10"/>
+  <ResourceWrapper x:Key="PressedPiPOSDButtonAnimationTime1" Resource="00:00:00.1"/>
+  <ResourceWrapper x:Key="PressedPiPOSDButtonAnimationTime2" Resource="00:00:01"/>
 
-  <!-- width and margin for small OSD buttons -->
+  <!-- OSD current player control -->  
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlAnimationTime1" Resource="00:00:00.4"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlAnimationTime2" Resource="00:00:00.8"/>
+
+  <!-- Small OSD buttons -->
   <ResourceWrapper x:Key="OSDControlWidth" Resource="18" />
   <ResourceWrapper x:Key="OSDControlMargin" Resource="8,4,8,4" />
-  
-  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.15"/>
-  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.15"/>
-  
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- Workflow navigation bar -->
+  <ResourceWrapper x:Key="WorkflowNavigationBarFocusTime" Resource="00:00:00.2"/>
 </ResourceDictionary>
