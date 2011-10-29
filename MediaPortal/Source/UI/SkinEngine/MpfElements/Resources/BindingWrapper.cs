@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       base.DeepCopy(source, copyManager);
       BindingWrapper bw = (BindingWrapper) source;
-      Binding = bw.Binding;
+      Binding = copyManager.GetCopy(bw.Binding);
     }
 
     #endregion

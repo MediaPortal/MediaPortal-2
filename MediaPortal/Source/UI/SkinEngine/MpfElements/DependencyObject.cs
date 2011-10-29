@@ -75,8 +75,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
       if (d._bindings != null)
+      {
+        ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
         foreach (BindingBase binding in d._bindings)
-          copyManager.GetCopy(binding);
+          bindings.Add(copyManager.GetCopy(binding));
+      }
     }
 
     public virtual void Dispose()
