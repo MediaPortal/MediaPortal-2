@@ -43,29 +43,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     protected const string MODEL_ID_STR = "854ABA9A-71A1-420b-A657-9641815F9C01";
 
-    protected const string SHOW_HOMESERVER_SCREEN = "ShowHomeServer";
-    protected const string NO_HOMESERVER_SCREEN = "NoHomeServer";
-
     protected const string SERVER_FORMAT_TEXT_RES = "[ServerConnection.ServerFormatText]";
 
     protected const string UNKNOWN_SERVER_NAME_RES = "[ServerConnection.UnknownServerName]";
     protected const string UNKNOWN_SERVER_SYSTEM_RES = "[ServerConnection.UnknownServerSystem]";
 
-    protected const string CONFIGURE_HOME_SERVER_STATE_STR = "17214BAC-E79C-4e5e-9280-A01478B27579";
-
-    public const string SERVER_DESCRIPTOR_KEY = "ServerDescriptor";
-    public const string NAME_KEY = "Name";
-    public const string SYSTEM_KEY = "System";
-
     protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    /// <summary>
-    /// In this state, the <see cref="HomeServerModel"/> shows a screen which displays the current home server.
-    /// </summary>
-    /// <remarks>
-    /// When the connection state changes, the screen will automatically change to reflect the current connection state.
-    /// </remarks>
-    public static Guid CONFIGURE_HOME_SERVER_STATE = new Guid(CONFIGURE_HOME_SERVER_STATE_STR);
 
     #endregion
 
