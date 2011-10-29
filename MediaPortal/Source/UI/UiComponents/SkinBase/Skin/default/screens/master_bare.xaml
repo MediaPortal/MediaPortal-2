@@ -33,6 +33,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+    <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
@@ -63,6 +64,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="130"/>
         <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <DockPanel x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" LastChildFill="True"
@@ -104,6 +106,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </StackPanel> <!-- PlayerControlsPanel -->
       <Control x:Name="NotificationControl" Grid.Column="2" Grid.Row="0" Margin="10" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      <Image x:Name="HomeServerConnected" Grid.Column="3" Grid.Row="0" Margin="10"
+          IsVisible="{Binding Source={StaticResource HomeServerModel},Path=IsHomeServerConnected}"
+          Source="connected-icon.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      <Image x:Name="HomeServerDisconnected" Grid.Column="3" Grid.Row="0" Margin="10"
+          IsVisible="{Binding Source={StaticResource HomeServerModel},Path=!IsHomeServerConnected}"
+          Source="disconnected-icon.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
     </Grid> <!-- HeaderPanel -->
     <Rectangle x:Name="UpperSeparator" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
         HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
