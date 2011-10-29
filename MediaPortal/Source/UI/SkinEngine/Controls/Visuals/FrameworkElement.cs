@@ -1708,7 +1708,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         occupiedTransformedBounds.Height += OPACITY_MASK_BOUNDS*2;
 
         // If the control bounds have changed we need to update our primitive context to make the 
-        //    texture coordinates match up
+        // texture coordinates match up
         if (_updateOpacityMask || _opacityMaskContext == null ||
             occupiedTransformedBounds != _lastOccupiedTransformedBounds ||
             renderTarget.Size != _lastOpacityRenderSize)

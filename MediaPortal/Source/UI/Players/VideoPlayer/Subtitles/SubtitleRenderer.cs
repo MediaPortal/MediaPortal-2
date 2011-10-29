@@ -159,6 +159,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   public class SubtitleRenderer
   {
     bool _reinitialzing = true;
+    private readonly DeviceEx _device;
     private bool _useBitmap = true; // if false use teletext
     private int _activeSubPage; // if use teletext, what page
     private static SubtitleRenderer _instance = null;
@@ -173,7 +174,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// <summary>
     /// Primitive buffer for rendering subtitles.
     /// </summary>
-    private PrimitiveBuffer _primitiveContext = new PrimitiveBuffer();
+    private readonly PrimitiveBuffer _primitiveContext = new PrimitiveBuffer();
 
     // important, these delegates must NOT be garbage collected
     // or horrible things will happen when the native code tries to call those!
@@ -239,6 +240,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
       _resetCallBack = new ResetCallback(Reset);
       _updateTimeoutCallBack = new UpdateTimeoutCallback(UpdateTimeout);
+      _device = SkinContext.Device;
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -534,7 +536,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         if (bitmap != null)
         {
           // allocate new texture
-          texture = new Texture(GraphicsDevice.Device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+          texture = new Texture(_device, bitmap.Width, bitmap.Height, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
 
           DataRectangle rect = texture.LockRectangle(0, LockFlags.None);
 
@@ -562,7 +564,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         }
         else
         {
-          texture = new Texture(GraphicsDevice.Device, 100, 100, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+          texture = new Texture(_device, 100, 100, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
         }
       }
       catch (Exception e)
@@ -709,7 +711,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
       bool alphaTest = false;
       bool alphaBlend = false;
-
       try
       {
         // store current settings so they can be restored when we are done
@@ -737,8 +738,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         // ServiceRegistration.Get<ILogger>().Debug("Subtitle render target: wx = {0} wy = {1} ww = {2} wh = {3}", wx, wy, wwidth, wheight);
 
         // enable alpha testing so that the subtitle is rendered with transparent background
-        GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, true);
-        GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, false);
+        _device.SetRenderState(RenderState.AlphaBlendEnable, true);
+        _device.SetRenderState(RenderState.AlphaTestEnable, false);
 
         EffectAsset effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
         effect.StartRender(_subTexture, FinalTransform);
@@ -753,9 +754,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // Restore device settings
-        GraphicsDevice.Device.SetTexture(0, null);
-        GraphicsDevice.Device.SetRenderState(RenderState.AlphaBlendEnable, alphaBlend);
-        GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, alphaTest);
+        _device.SetTexture(0, null);
+        _device.SetRenderState(RenderState.AlphaBlendEnable, alphaBlend);
+        _device.SetRenderState(RenderState.AlphaTestEnable, alphaTest);
       }
       catch (Exception e)
       {

@@ -28,15 +28,16 @@ using System.Threading;
 using System.Windows.Forms;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.DirectX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
 {                         
   public delegate void SkinResourcesChangedHandler(SkinResources newResources);
 
   /// <summary>
-  /// Holds context variables which are used by the skin controls.
+  /// Holds context variables which are used by the skin controls. This class may also be accessed from other plugins, for example video players.
   /// </summary>
-  public class SkinContext
+  public static class SkinContext
   {
     #region Private fields
 
@@ -69,13 +70,13 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static Size WindowSize
     {
       get { return (Size) _windowSizeProperty.GetValue(); }
-      set { _windowSizeProperty.SetValue(value); }
+      internal set { _windowSizeProperty.SetValue(value); }
     }
 
     public static DateTime FrameRenderingStartTime
     {
       get { return _frameRenderingStartTime; }
-      set { _frameRenderingStartTime = value; }
+      internal set { _frameRenderingStartTime = value; }
     }
 
     /// <summary>
@@ -84,13 +85,29 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static Form Form
     {
       get { return _form; }
-      set { _form = value; }
+      internal set { _form = value; }
     }
 
     public static Thread RenderThread
     {
       get { return _renderThread; }
-      set { _renderThread = value; }
+      internal set { _renderThread = value; }
+    }
+
+    /// <summary>
+    /// Gets the DirectX device.
+    /// </summary>
+    public static DeviceEx Device
+    {
+      get { return GraphicsDevice.Device; }
+    }
+
+    /// <summary>
+    /// Returns the Direct3D instance of the SkinEngine.
+    /// </summary>
+    public static Direct3DEx Direct3D
+    {
+      get { return MPDirect3D.Direct3D; }
     }
 
     /// <summary>
@@ -103,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static SkinResources @SkinResources
     {
       get { return _skinResources; }
-      set
+      internal set
       {
         _skinResources = value;
         _skinResourcesChangedDelegate.Fire(new object[] {_skinResources});
@@ -139,10 +156,13 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return GraphicsDevice.DesktopWidth / (float) _skinResources.SkinWidth; }
     }
 
+    /// <summary>
+    /// Gets the current average fraction frames per seconds.
+    /// </summary>
     public static float FPS
     {
       get { return _fps; }
-      set { _fps = value; }
+      internal set { _fps = value; }
     }
   }
 }

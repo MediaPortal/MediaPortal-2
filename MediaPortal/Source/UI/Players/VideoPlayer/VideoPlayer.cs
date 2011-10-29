@@ -41,7 +41,6 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
@@ -464,7 +463,7 @@ namespace MediaPortal.UI.Players.Video
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR
       config.SetNumberOfStreams(_streamCount);
 
-      IntPtr upDevice = GraphicsDevice.Device.ComPointer;
+      IntPtr upDevice = SkinContext.Device.ComPointer;
       int hr = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, SkinContext.Form.Handle);
       if (hr != 0)
       {

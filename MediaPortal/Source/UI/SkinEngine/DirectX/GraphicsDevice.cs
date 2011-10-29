@@ -46,7 +46,7 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
-  public static class GraphicsDevice
+  internal static class GraphicsDevice
   {
     #region Variables
 
@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Gets or sets the DirectX Device.
+    /// Gets or sets the DirectX device.
     /// </summary>
     public static DeviceEx Device
     {

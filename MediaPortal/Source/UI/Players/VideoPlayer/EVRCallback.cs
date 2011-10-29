@@ -34,7 +34,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
-using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video
@@ -72,16 +72,21 @@ namespace MediaPortal.UI.Players.Video
     private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
     private Size _aspectRatio = Size.Empty;
-    private readonly RenderDlgt _renderDlgt;
     private Texture _texture = null;
     private Surface _surface = null;
     private SizeF _surfaceMaxUV = Size.Empty;
+
+    private readonly Direct3DEx _direct3d;
+    private readonly DeviceEx _device;
+    private readonly RenderDlgt _renderDlgt;
 
     #endregion
 
     public EVRCallback(RenderDlgt renderDlgt)
     {
       _renderDlgt = renderDlgt;
+      _device = SkinContext.Device;
+      _direct3d = SkinContext.Direct3D;
     }
 
     #region public properties
@@ -193,9 +198,9 @@ namespace MediaPortal.UI.Players.Video
 
           if (_texture == null)
           {
-            int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-            AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-            _texture = new Texture(GraphicsDevice.Device, _croppedVideoSize.Width, _croppedVideoSize.Height,
+            int ordinal = _device.Capabilities.AdapterOrdinal;
+            AdapterInformation adapterInfo = _direct3d.Adapters[ordinal];
+            _texture = new Texture(_device, _croppedVideoSize.Width, _croppedVideoSize.Height,
                 1, Usage.RenderTarget, adapterInfo.CurrentDisplayMode.Format, Pool.Default);
             _surface = _texture.GetSurfaceLevel(0);
 
@@ -205,7 +210,7 @@ namespace MediaPortal.UI.Players.Video
 
           using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
           {
-            GraphicsDevice.Device.StretchRectangle(surf, cropRect,
+            _device.StretchRectangle(surf, cropRect,
                 _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
           }
         }

@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -94,14 +95,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public IList<DisplayMode> GetDisplayModes()
     {
-      IList<DisplayMode> result = new List<DisplayMode>();
-      foreach (DisplayMode mode in _graphicsSettings.FullscreenDisplayModes)
-      {
-        if ((mode.Width == 0) && (mode.Height == 0) && (mode.RefreshRate == 0))
-          continue;
-        result.Add(mode);
-      }
-      return result;
+      return _graphicsSettings.FullscreenDisplayModes.Where(mode => mode.Width != 0 || mode.Height != 0 || mode.RefreshRate != 0).ToList();
     }
 
     public string DesktopDisplayMode
