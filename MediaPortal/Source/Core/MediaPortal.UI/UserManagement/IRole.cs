@@ -27,10 +27,8 @@ using System.Collections.Generic;
 namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
-  /// Interface that defines a role. A role itself provides all methods to check
-  /// permissions on items (inherited from <see cref="IPermission"/>, and adds the
-  /// functionality to contain a set of child permissions (or roles), which will be
-  /// granted as a whole if the role is assigned to a user.
+  /// Interface that defines a role. A role itself provides all methods to check permissions on items (inherited from <see cref="IPermission"/>,
+  /// and adds the functionality to contain a set of child permissions (or roles), which will be granted as a whole if the role is assigned to a user.
   /// </summary>
   public interface IRole: IPermission
   {

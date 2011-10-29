@@ -28,9 +28,8 @@ using MediaPortal.UI.Services.UserManagement;
 namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
-  /// Interface for a permission. A permission may be an atomic right which can be
-  /// assigned or revoked to a user/role, or may be fleshed out by adding concrete
-  /// permission objects.
+  /// Interface for a permission. A permission may be an atomic right which can be assigned or revoked to a user/role,
+  /// or may be fleshed out by adding concrete permission objects.
   /// </summary>
   public interface IPermission
   {
@@ -40,7 +39,7 @@ namespace MediaPortal.UI.UserManagement
     string Name { get; set; }
 
     /// <summary>
-    /// Adds a permisson object to this permission (f.e. a MediaItem).
+    /// Adds a permisson object to this permission (e.g. a MediaItem).
     /// </summary>
     /// <param name="item">Ihe item to be added.</param>
     /// <returns><c>true</c>, if the permission object could successfully be added, else<c>false</c>.</returns>
@@ -63,8 +62,7 @@ namespace MediaPortal.UI.UserManagement
     /// Checks if this permission is applicable of the specified permission object.
     /// </summary>
     /// <param name="item">The item to check permission for.</param>
-    /// <returns><c>true</c>, if this permission includes the permission on the specified item,
-    /// else <c>false</c>.</returns>
+    /// <returns><c>true</c>, if this permission includes the permission on the specified item, else <c>false</c>.</returns>
     bool IncludesPermissionOn(IPermissionObject item);
   }
 }
