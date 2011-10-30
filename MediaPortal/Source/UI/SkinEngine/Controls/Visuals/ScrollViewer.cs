@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common.General;
@@ -250,15 +249,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void ArrangeTemplateControl()
     {
-      FrameworkElement templateControl = _initializedTemplateControl;
-      if (templateControl == null)
-        return;
-      RectangleF childRect = new RectangleF(_innerRect.X, _innerRect.Y,
-          (HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden) || (HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
-          templateControl.DesiredSize.Width : _innerRect.Width,
-          (VerticalScrollBarVisibility == ScrollBarVisibility.Hidden) || (VerticalScrollBarVisibility == ScrollBarVisibility.Disabled) ?
-          templateControl.DesiredSize.Height : _innerRect.Height);
-      templateControl.Arrange(childRect);
+      base.ArrangeTemplateControl();
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
     }

@@ -57,8 +57,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected float _actualScrollOffsetY = 0;
     protected bool _forcedOpacityMask = false;
     protected AbstractProperty _autoCenteringProperty;
-    protected AbstractProperty _horizontalScrollDisabledProperty;
-    protected AbstractProperty _verticalScrollDisabledProperty;
+    protected AbstractProperty _horizontalFitToSpaceProperty;
+    protected AbstractProperty _verticalFitToSpaceProperty;
 
     #endregion
 
@@ -73,22 +73,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void Init()
     {
       _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
-      _horizontalScrollDisabledProperty = new SProperty(typeof(bool), false);
-      _verticalScrollDisabledProperty = new SProperty(typeof(bool), false);
+      _horizontalFitToSpaceProperty = new SProperty(typeof(bool), false);
+      _verticalFitToSpaceProperty = new SProperty(typeof(bool), false);
     }
 
     protected void Attach()
     {
       _autoCenteringProperty.Attach(OnArrangeGetsInvalid);
-      _horizontalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
-      _verticalScrollDisabledProperty.Attach(OnScrollDisabledChanged);
+      _horizontalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
+      _verticalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
     }
 
     protected void Detach()
     {
       _autoCenteringProperty.Detach(OnArrangeGetsInvalid);
-      _horizontalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
-      _verticalScrollDisabledProperty.Detach(OnScrollDisabledChanged);
+      _horizontalFitToSpaceProperty.Detach(OnScrollDisabledChanged);
+      _verticalFitToSpaceProperty.Detach(OnScrollDisabledChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -318,36 +318,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _autoCenteringProperty; }
     }
 
-    public AbstractProperty HorizontalScrollDisabledProperty
+    public AbstractProperty HorizontalFitToSpaceProperty
     {
-      get { return _horizontalScrollDisabledProperty; }
+      get { return _horizontalFitToSpaceProperty; }
     }
 
     /// <summary>
-    /// Disables the horizontal scroll direction.
+    /// Makes the scroll content presenter's contents fit horizontally into its own space.
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.HorizontalScrollBarVisibility"/> setting.
     /// </summary>
     public bool HorizontalFitToSpace
     {
-      get { return (bool) _horizontalScrollDisabledProperty.GetValue(); }
-      set { _horizontalScrollDisabledProperty.SetValue(value); }
+      get { return (bool) _horizontalFitToSpaceProperty.GetValue(); }
+      set { _horizontalFitToSpaceProperty.SetValue(value); }
     }
 
-    public AbstractProperty VerticalScrollDisabledProperty
+    public AbstractProperty VerticalFitToSpaceProperty
     {
-      get { return _verticalScrollDisabledProperty; }
+      get { return _verticalFitToSpaceProperty; }
     }
 
     /// <summary>
-    /// Disables the vertical scroll direction.
+    /// Makes the scroll content presenter's contents fit vertically into its own space.
     /// If used inside a <see cref="ScrollViewer"/>, this property is configured by the scroll viewer according to its
     /// <see cref="ScrollViewer.VerticalScrollBarVisibility"/> setting.
     /// </summary>
     public bool VerticalFitToSpace
     {
-      get { return (bool) _verticalScrollDisabledProperty.GetValue(); }
-      set { _verticalScrollDisabledProperty.SetValue(value); }
+      get { return (bool) _verticalFitToSpaceProperty.GetValue(); }
+      set { _verticalFitToSpaceProperty.SetValue(value); }
     }
 
     #endregion
