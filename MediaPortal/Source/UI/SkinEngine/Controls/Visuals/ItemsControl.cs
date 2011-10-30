@@ -89,7 +89,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _currentItemProperty = new SProperty(typeof(object), null);
       _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
       _isEmptyProperty = new SProperty(typeof(bool), false);
-      AttachToItems(Items);
     }
 
     void Attach()
@@ -99,6 +98,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
+
+      _templateControlProperty.Attach(OnTemplateControlChanged);
+      AttachToItems(Items);
       AttachToItemsSource(ItemsSource);
     }
 
@@ -109,6 +111,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
+
+      _templateControlProperty.Detach(OnTemplateControlChanged);
       DetachFromItems(Items);
       DetachFromItemsSource(ItemsSource);
     }
@@ -204,6 +208,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
+    {
+      _panelTemplateApplied = false;
+      PrepareItems(true);
+    }
+
+    void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       _panelTemplateApplied = false;
       PrepareItems(true);
