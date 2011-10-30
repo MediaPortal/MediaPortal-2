@@ -106,12 +106,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </StackPanel> <!-- PlayerControlsPanel -->
       <Control x:Name="NotificationControl" Grid.Column="2" Grid.Row="0" Margin="10" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Top"/>
-      <Image x:Name="HomeServerConnected" Grid.Column="3" Grid.Row="0" Margin="10"
-          IsVisible="{Binding Source={StaticResource HomeServerModel},Path=IsHomeServerConnected}"
-          Source="connected-icon.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-      <Image x:Name="HomeServerDisconnected" Grid.Column="3" Grid.Row="0" Margin="10"
-          IsVisible="{Binding Source={StaticResource HomeServerModel},Path=!IsHomeServerConnected}"
-          Source="disconnected-icon.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      <DockPanel LastChildFill="True" Grid.Column="3" Grid.Row="0" Margin="10" Width="64" Height="64"
+          HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Image x:Name="HomeServerConnected" Stretch="Uniform"
+            IsVisible="{Binding Source={StaticResource HomeServerModel},Path=IsHomeServerConnected}"
+            Source="server-connected-icon.png"/>
+        <Image x:Name="HomeServerDisconnected" Stretch="Uniform"
+            IsVisible="{Binding Source={StaticResource HomeServerModel},Path=!IsHomeServerConnected}"
+            Source="server-disconnected-icon.png"/>
+      </DockPanel>
     </Grid> <!-- HeaderPanel -->
     <Rectangle x:Name="UpperSeparator" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
         HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
