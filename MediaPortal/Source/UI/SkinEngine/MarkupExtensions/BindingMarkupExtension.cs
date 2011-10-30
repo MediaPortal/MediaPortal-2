@@ -602,7 +602,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      foreach (AbstractProperty property in _attachedPropertiesCollection)
+      foreach (AbstractProperty property in new List<AbstractProperty>(_attachedPropertiesCollection))
         property.Detach(OnDataContextChanged);
       _attachedPropertiesCollection.Clear();
       if (_attachedSource != null)
