@@ -166,7 +166,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content != null)
       {
         content.VisualParent = this;
-        content.SetScreen(Screen);
         content.SetElementState(_elementState);
         if (IsAllocated)
           content.Allocate();

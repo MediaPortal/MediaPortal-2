@@ -37,7 +37,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
             Context = dataItem,
             Content = dataItem,
-            Screen = Screen,
             ElementState = _elementState,
             LogicalParent = this,
         };

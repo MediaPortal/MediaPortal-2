@@ -199,24 +199,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Execute(UIElement element);
   }
 
-  /// <summary>
-  /// UI element action which sets the specified screen to ui elements.
-  /// </summary>
-  public class SetScreenAction : IUIElementAction
-  {
-    protected Screen _screen;
-
-    public SetScreenAction(Screen screen)
-    {
-      _screen = screen;
-    }
-
-    public void Execute(UIElement element)
-    {
-      element.Screen = _screen;
-    }
-  }
-
   public delegate void UIEventDelegate(string eventName);
 
   #endregion
@@ -695,7 +677,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Screen screen = Screen;
       if (screen != null)
         screen.Animator.StopAll(this);
-      ResetScreen();
       Deallocate();
 
       Dispose(); // First dispose bindings before we can reset our VisualParent
@@ -1115,8 +1096,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetScreen(Screen screen)
     {
-      if (screen != null)
-        ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
+      Screen = screen;
     }
 
     /// <summary>
@@ -1127,11 +1107,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetElementState(ElementState state)
     {
       ForEachElementInTree_BreadthFirst(new SetElementStateAction(state));
-    }
-
-    public void ResetScreen()
-    {
-      ForEachElementInTree_BreadthFirst(new SetScreenAction(null));
     }
 
     public static bool InVisualPath(UIElement possibleParent, UIElement child)
