@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (d._bindings != null)
       {
         ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
-        foreach (BindingBase binding in d._bindings)
+        foreach (BindingBase binding in new List<BindingBase>(d._bindings))
           bindings.Add(copyManager.GetCopy(binding));
       }
     }
