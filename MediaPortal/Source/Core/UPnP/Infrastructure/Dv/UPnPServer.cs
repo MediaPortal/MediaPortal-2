@@ -270,14 +270,15 @@ namespace UPnP.Infrastructure.Dv
         if (!_serverData.IsActive)
           return;
         _serverData.IsActive = false;
-        _serverData.GENAController.Close();
-        _serverData.SSDPController.Close();
-        if (_serverData.HTTPListenerV4 != null)
-          _serverData.HTTPListenerV4.Stop();
-        if (_serverData.HTTPListenerV6 != null)
-          _serverData.HTTPListenerV6.Stop();
-        _serverData.UPnPEndPoints.Clear();
       }
+      _serverData.GENAController.Close();
+      _serverData.SSDPController.Close();
+      if (_serverData.HTTPListenerV4 != null)
+        _serverData.HTTPListenerV4.Stop();
+      if (_serverData.HTTPListenerV6 != null)
+        _serverData.HTTPListenerV6.Stop();
+      lock (_serverData.SyncObj)
+        _serverData.UPnPEndPoints.Clear();
     }
 
     #region Protected methods
