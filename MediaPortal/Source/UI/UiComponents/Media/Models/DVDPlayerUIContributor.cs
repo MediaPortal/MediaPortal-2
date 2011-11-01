@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -38,6 +37,7 @@ using MediaPortal.Common.Commands;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
+  // FIXME: Remove inline constants describing mouse events, rework mouse event handling?
   public class DVDPlayerUIContributor : BaseTimerControlledModel, IPlayerUIContributor
   {
     protected static string[] EMPTY_STRING_ARRAY = new string[] { };
