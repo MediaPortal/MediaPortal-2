@@ -425,7 +425,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           _totalHeight = actualExtendsInOrientationDirection;
         else
           _totalWidth = actualExtendsInOrientationDirection;
-        PointF position = actualPosition;
+        PointF position = Orientation == Orientation.Vertical ?
+            new PointF(actualPosition.X + startPosition, actualPosition.Y) :
+            new PointF(actualPosition.X, actualPosition.Y + startPosition);
         foreach (LineMeasurement line in _arrangedLines)
         {
           LayoutLine(visibleChildren, position, line);
