@@ -81,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
+      _active = false;
       DetachFromTargetObject();
       base.Dispose();
     }

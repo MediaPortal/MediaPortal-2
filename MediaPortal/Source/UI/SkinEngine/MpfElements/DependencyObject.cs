@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (d._bindings != null)
       {
         ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
-        foreach (BindingBase binding in new List<BindingBase>(d._bindings))
+        foreach (BindingBase binding in d._bindings)
           bindings.Add(copyManager.GetCopy(binding));
       }
     }
@@ -86,15 +86,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     {
       // Albert, 2010-01-18: The next line should not be done to avoid dependent bindings to fire, which were not disposed yet
       //DataContext = null;
-      if (_bindings != null)
-        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
-          _binding.Dispose();
+      DisposeBindings();
       if (_attachedProperties != null)
         foreach (AbstractProperty property in _attachedProperties.Values)
           MPF.TryCleanupAndDispose(property.GetValue());
       if (_adoptedObjects != null)
         foreach (object o in _adoptedObjects)
           MPF.TryCleanupAndDispose(o);
+    }
+
+    protected void DisposeBindings()
+    {
+      if (_bindings != null)
+        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
+          _binding.Dispose();
+      _bindings = null;
     }
 
     #endregion

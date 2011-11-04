@@ -299,7 +299,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Dispose()
     {
-      _elementState = ElementState.Disposing; // Not necessary to call SetElementState; children will set their state to Disposing by theirselves
       base.Dispose();
       foreach (UIElement child in GetChildren())
         child.CleanupAndDispose();
@@ -531,7 +530,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public virtual ElementState ElementState
     {
       get { return _elementState; }
-      internal set { _elementState = value; }
+      internal set
+      {
+        _elementState = value;
+        if (_elementState == ElementState.Disposing)
+          DisposeBindings();
+      }
     }
 
     #endregion
@@ -674,6 +678,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected internal void CleanupAndDispose()
     {
+      SetElementState(ElementState.Disposing);
       Screen screen = Screen;
       if (screen != null)
         screen.Animator.StopAll(this);
@@ -715,6 +720,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
+      if (_elementState == ElementState.Disposing)
+        return;
       Screen screen = Screen;
       if (screen == null || _elementState == ElementState.Available || _elementState == ElementState.Preparing ||
           Thread.CurrentThread == SkinContext.RenderThread)
