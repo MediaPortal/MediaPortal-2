@@ -359,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       vkc.Show(textProperty, settings);
     }
 
-    protected void OnVirtualKeyboardDialogClosed(string dialogName, Guid dialogInstanceId)
+    private void OnVirtualKeyboardDialogClosed(string dialogName, Guid dialogInstanceId)
     {
       if (dialogInstanceId != _virtualKeyboardDialogGuid)
         return;
@@ -368,7 +368,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _virtualKeyboardDialogGuid = null;
     }
 
-    protected void OnVirtualKeyboardClosed(VirtualKeyboardControl virtualKeyboardControl)
+    private void OnVirtualKeyboardClosed(VirtualKeyboardControl virtualKeyboardControl)
     {
       if (!_virtualKeyboardDialogGuid.HasValue)
         return;
