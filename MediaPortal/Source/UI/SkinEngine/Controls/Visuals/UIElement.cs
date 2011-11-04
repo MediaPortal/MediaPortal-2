@@ -40,7 +40,6 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
-using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -226,7 +225,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _templateNameScopeProperty;
     protected ResourceDictionary _resources;
     protected ElementState _elementState = ElementState.Available;
-    protected IExecutableCommand _loaded;
     protected bool _triggersInitialized = false;
     protected bool _fireLoaded = true;
     protected bool _allocated = false;
@@ -274,7 +272,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // TODO Albert78: Implement Freezing
       Freezable = el.Freezable;
       Opacity = el.Opacity;
-      Loaded = copyManager.GetCopy(el.Loaded);
       OpacityMask = copyManager.GetCopy(el.OpacityMask);
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
@@ -323,12 +320,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/>.
     /// </summary>
     public event UIEventDelegate EventOccured;
-
-    public IExecutableCommand Loaded
-    {
-      get { return _loaded; }
-      set { _loaded = value; }
-    }
 
     public ResourceDictionary Resources
     {
@@ -784,11 +775,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         UIElement parent = VisualParent as UIElement;
         if (parent != null)
           parent.FireEvent(eventName, routingStrategy);
-      }
-      if (eventName == LOADED_EVENT)
-      {
-        if (_loaded != null)
-          _loaded.Execute();
       }
       UIEventDelegate dlgt = EventOccured;
       if (dlgt != null)
