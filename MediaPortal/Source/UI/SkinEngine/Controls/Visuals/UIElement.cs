@@ -205,7 +205,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public abstract class UIElement : Visual, IContentEnabled
   {
-    protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
     protected const string LOADED_EVENT = "UIElement.Loaded";
 
     public const double DELTA_DOUBLE = 0.01;
@@ -301,7 +300,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.Dispose();
       foreach (UIElement child in GetChildren())
-        child.CleanupAndDispose();
+        child.StopAndDispose();
       foreach (TriggerBase triggerBase in Triggers)
         triggerBase.Dispose();
       MPF.TryCleanupAndDispose(RenderTransform);
@@ -676,13 +675,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected internal void CleanupAndDispose()
+    public void CleanupAndDispose()
     {
       SetElementState(ElementState.Disposing);
+      Deallocate();
+      StopAndDispose();
+    }
+
+    protected internal void StopAndDispose()
+    {
       Screen screen = Screen;
       if (screen != null)
         screen.Animator.StopAll(this);
-      Deallocate();
 
       Dispose(); // First dispose bindings before we can reset our VisualParent
       VisualParent = null;
