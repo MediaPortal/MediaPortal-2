@@ -25,6 +25,7 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -120,13 +121,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         key = Key.None;
         if (IsChecked)
         {
-          if (Checked != null)
-            Checked.Execute();
+          IExecutableCommand cmd = Checked;
+          if (cmd != null)
+            InputManager.Instance.ExecuteCommand(cmd.Execute);
         }
         else
         {
-          if (Unchecked != null)
-            Unchecked.Execute();
+          IExecutableCommand cmd = Unchecked;
+          if (cmd != null)
+            InputManager.Instance.ExecuteCommand(cmd.Execute);
         }
       }
     }

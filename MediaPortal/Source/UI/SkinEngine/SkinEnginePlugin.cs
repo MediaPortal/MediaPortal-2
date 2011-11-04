@@ -84,9 +84,6 @@ namespace MediaPortal.UI.SkinEngine
 
     public void Initialize()
     {
-      ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering ContentManager service");
-      ServiceRegistration.Set<ContentManager>(ContentManager.Instance);
-
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
       IGeometryManager geometryManager = new GeometryManager();
       ServiceRegistration.Set<IGeometryManager>(geometryManager);
@@ -158,9 +155,8 @@ namespace MediaPortal.UI.SkinEngine
 
       SkinEngine.Controls.Brushes.BrushCache.Instance.Clear();
 
-      ServiceRegistration.Get<ContentManager>().Clear();
+      ContentManager.Instance.Clear();
       ServiceRegistration.Get<ILogger>().Debug("SkinEnginePlugin: Removing ContentManager service");
-      ServiceRegistration.RemoveAndDispose<ContentManager>();
     }
 
     public void Dispose()

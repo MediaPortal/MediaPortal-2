@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -91,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public void Allocate()
     {
       if (_texture == null)
-        _texture = ServiceRegistration.Get<ContentManager>().GetRenderTexture(_name);
+        _texture = ContentManager.Instance.GetRenderTexture(_name);
       if (_texture.IsAllocated)
         return;
       _texture.AllocateDynamic(GRADIENT_TEXTURE_WIDTH, GRADIENT_TEXTURE_HEIGHT);

@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -164,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh)
       {
         _refresh = false;
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_LINEARGRADIENT);
+        _effect = ContentManager.Instance.GetEffect(EFFECT_LINEARGRADIENT);
 
         g_startpoint = new float[] {StartPoint.X, StartPoint.Y};
         g_endpoint = new float[] {EndPoint.X, EndPoint.Y};
@@ -209,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_refresh)
       {
         _refresh = false;
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_LINEAROPACITYGRADIENT);
+        _effect = ContentManager.Instance.GetEffect(EFFECT_LINEAROPACITYGRADIENT);
 
         g_startpoint = new float[] {StartPoint.X, StartPoint.Y};
         g_endpoint = new float[] {EndPoint.X, EndPoint.Y};

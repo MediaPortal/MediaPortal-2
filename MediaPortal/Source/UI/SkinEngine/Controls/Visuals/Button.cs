@@ -25,6 +25,7 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -103,9 +104,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       TrySetFocus(true);
       IsPressed = true;
-      IExecutableCommand command = Command;
-      if (command != null)
-        command.Execute();
+      IExecutableCommand cmd = Command;
+      if (cmd != null)
+        InputManager.Instance.ExecuteCommand(cmd.Execute);
     }
 
     #region Public properties

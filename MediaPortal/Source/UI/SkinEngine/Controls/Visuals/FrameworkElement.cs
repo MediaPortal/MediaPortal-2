@@ -33,12 +33,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MediaPortal.UI.Control.InputManager;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -659,9 +659,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!HasFocus)
         return;
       if (key == Key.None) return;
+      IExecutableCommand cmd = ContextMenuCommand;
       if (key == Key.ContextMenu && ContextMenuCommand != null)
       {
-        ContextMenuCommand.Execute();
+        if (cmd != null)
+          InputManager.Instance.ExecuteCommand(cmd.Execute);
         key = Key.None;
       }
     }
@@ -1684,7 +1686,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
       { // Control has an opacity mask
         // Get global render texture or create it if it doesn't exist
-        RenderTextureAsset renderTarget = ServiceRegistration.Get<ContentManager>().GetRenderTexture(
+        RenderTextureAsset renderTarget = ContentManager.Instance.GetRenderTexture(
             GLOBAL_RENDER_TEXTURE_ASSET_KEY);
 
         // Ensure it's allocated

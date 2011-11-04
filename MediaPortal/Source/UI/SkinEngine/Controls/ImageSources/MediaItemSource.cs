@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -84,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     public override void Allocate()
     {
       if (_texture == null && _thumbBinary != null)
-        _texture = ServiceRegistration.Get<ContentManager>().GetTexture(_thumbBinary, _key);
+        _texture = ContentManager.Instance.GetTexture(_thumbBinary, _key);
       if (_texture != null && !_texture.IsAllocated)
       {
         _texture.Allocate();

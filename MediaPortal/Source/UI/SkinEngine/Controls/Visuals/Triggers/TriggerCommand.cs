@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Commands;
@@ -80,8 +81,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public override void Execute(UIElement element)
     {
-      if (Command != null)
-        Command.Execute();
+      IExecutableCommand cmd = Command;
+      if (cmd != null)
+        InputManager.Instance.ExecuteCommand(cmd.Execute);
     }
 
     #endregion

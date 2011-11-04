@@ -24,7 +24,6 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -161,7 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
             CycleTextures();
         }
         else
-          _nextTexture = ServiceRegistration.Get<ContentManager>().GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
+          _nextTexture = ContentManager.Instance.GetTexture(uri, DecodePixelWidth, DecodePixelHeight, Thumbnail);
         _uriChanged = false;
       }
       // Check our previous texture is allocated. Syncronous.
@@ -246,7 +245,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       get
       {
-        TextureAsset nullTexture = ServiceRegistration.Get<ContentManager>().GetColorTexture(BorderColor);
+        TextureAsset nullTexture = ContentManager.Instance.GetColorTexture(BorderColor);
         if (!nullTexture.IsAllocated)
           nullTexture.Allocate();
         return nullTexture;

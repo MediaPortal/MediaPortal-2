@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -167,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void Allocate()
     {
       if (_tex == null && !string.IsNullOrEmpty(ImageSource))
-        _tex = ServiceRegistration.Get<ContentManager>().GetTexture(ImageSource, Thumbnail);
+        _tex = ContentManager.Instance.GetTexture(ImageSource, Thumbnail);
       if (_tex != null && !_tex.IsAllocated)
         _tex.Allocate();
     }

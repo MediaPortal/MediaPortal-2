@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
@@ -108,8 +109,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void Execute()
     {
-      if (Command != null)
-        Command.Execute();
+      IExecutableCommand cmd = Command;
+      if (cmd != null)
+        InputManager.Instance.ExecuteCommand(cmd.Execute);
     }
 
     protected void RegisterKeyBinding()

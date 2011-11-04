@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.Common;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -290,7 +289,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     /// <param name="size">The size to use for the font.</param>
     public void SetFont(String fontName, float size)
     {
-      SetFont(ServiceRegistration.Get<ContentManager>().GetFont(fontName, size), size);
+      SetFont(ContentManager.Instance.GetFont(fontName, size), size);
     }
 
     public string[] GetLines(float maxWidth, bool wrap)
@@ -476,11 +475,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       Vector4 fadeBorder;
       if (fade && CalculateFadeBorder(actualScrollMode, textBox, horzAlignment, out fadeBorder))
       {
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT_FADE);
+        _effect = ContentManager.Instance.GetEffect(EFFECT_FONT_FADE);
         _effect.Parameters[PARAM_FADE_BORDER] = fadeBorder;
       }
       else
-        _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT);
+        _effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
 
       // Render
       _effect.Parameters[PARAM_COLOR] = color;
@@ -559,7 +558,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       }
 
       // No fading
-       _effect = ServiceRegistration.Get<ContentManager>().GetEffect(EFFECT_FONT);
+       _effect = ContentManager.Instance.GetEffect(EFFECT_FONT);
 
       // Render
       _effect.Parameters[PARAM_COLOR] = color;

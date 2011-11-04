@@ -741,7 +741,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _device.SetRenderState(RenderState.AlphaBlendEnable, true);
         _device.SetRenderState(RenderState.AlphaTestEnable, false);
 
-        EffectAsset effect = ServiceRegistration.Get<ContentManager>().GetEffect("normal");
+        EffectAsset effect = ContentManager.Instance.GetEffect("normal");
         effect.StartRender(_subTexture, FinalTransform);
         _primitiveContext.Render(0);
         effect.EndRender();
