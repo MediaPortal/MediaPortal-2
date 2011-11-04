@@ -726,8 +726,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         // An element inside our visible range is focused - move to first element
         float limitPosition = ActualPosition.Y;
+        int firstPlusOne = firstLocal + 1;
+        CalcHelper.Bound(ref firstPlusOne, 0, localChildren.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(localChildren.Take(firstVisibleChildIndex), currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
+        while ((nextElement = FindNextFocusElement(localChildren.Take(firstPlusOne), currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
             (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -778,8 +780,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         // An element inside our visible range is focused - move to last element
         float limitPosition = ActualPosition.Y + (float) ActualHeight;
+        int lastMinusOne = lastLocal - 1;
+        CalcHelper.Bound(ref lastMinusOne, 0, localChildren.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(localChildren.Skip(lastVisibleChildIndex + 1), currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
+        while ((nextElement = FindNextFocusElement(localChildren.Skip(lastMinusOne), currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
             (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -830,8 +834,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         // An element inside our visible range is focused - move to first element
         float limitPosition = ActualPosition.X;
+        int firstPlusOne = firstLocal + 1;
+        CalcHelper.Bound(ref firstPlusOne, 0, localChildren.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(localChildren.Take(firstVisibleChildIndex), currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
+        while ((nextElement = FindNextFocusElement(localChildren.Take(firstPlusOne), currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
             (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
@@ -882,8 +888,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         // An element inside our visible range is focused - move to last element
         float limitPosition = ActualPosition.X + (float) ActualWidth;
+        int lastMinusOne = lastLocal - 1;
+        CalcHelper.Bound(ref lastMinusOne, 0, localChildren.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(localChildren.Skip(lastVisibleChildIndex + 1), currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
+        while ((nextElement = FindNextFocusElement(localChildren.Skip(lastMinusOne), currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
             (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);

@@ -738,12 +738,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement child = visibleChildren[childIndex];
           if (!InVisualPath(child, currentElement))
             continue;
-          // The topmost element is focused - move one page up
+          // One of the topmost elements is focused - move one page up
           limitPosition = child.ActualBounds.Bottom - (float) ActualHeight;
           break;
         }
+        int firstPlusOne = firstVisibleLineIndex + 1;
+        CalcHelper.Bound(ref firstPlusOne, 0, lines.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(lines.Take(firstVisibleLine.StartIndex).SelectMany(
+        while ((nextElement = FindNextFocusElement(lines.Take(firstPlusOne).SelectMany(
             line => visibleChildren.Skip(line.StartIndex).Take(line.EndIndex - line.StartIndex + 1)),
             currentElement.ActualBounds, MoveFocusDirection.Up)) != null && (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
@@ -775,11 +777,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement child = visibleChildren[childIndex];
           if (!InVisualPath(child, currentElement))
             continue;
-          // The element at the bottom is focused - move one page down
+          // One of the elements at the bottom is focused - move one page down
           limitPosition = child.ActualPosition.Y + (float) ActualHeight;
         }
+        int lastMinusOne = lastVisibleLineIndex - 1;
+        CalcHelper.Bound(ref lastMinusOne, 0, lines.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(lines.Skip(lastVisibleLineIndex + 1).SelectMany(
+        while ((nextElement = FindNextFocusElement(lines.Skip(lastMinusOne).SelectMany(
             line => visibleChildren.Skip(line.StartIndex).Take(line.EndIndex - line.StartIndex + 1)),
             currentElement.ActualBounds, MoveFocusDirection.Down)) != null && (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
           currentElement = nextElement;
@@ -811,12 +815,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement child = visibleChildren[childIndex];
           if (!InVisualPath(child, currentElement))
             continue;
-          // The leftmost element is focused - move one page left
+          // One of the leftmost elements is focused - move one page left
           limitPosition = child.ActualBounds.Right - (float) ActualWidth;
           break;
         }
+        int firstPlusOne = firstVisibleLineIndex + 1;
+        CalcHelper.Bound(ref firstPlusOne, 0, lines.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(lines.Take(firstVisibleLine.StartIndex).SelectMany(
+        while ((nextElement = FindNextFocusElement(lines.Take(firstPlusOne).SelectMany(
             line => visibleChildren.Skip(line.StartIndex).Take(line.EndIndex - line.StartIndex + 1)),
             currentElement.ActualBounds, MoveFocusDirection.Left)) != null && (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
@@ -850,12 +856,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             return false;
           if (!InVisualPath(child, currentElement))
             continue;
-          // The element at the bottom is focused - move one page down
+          // One of the elements at the bottom is focused - move one page down
           limitPosition = child.ActualPosition.X + (float) ActualWidth;
           break;
         }
+        int lastMinusOne = lastVisibleLineIndex - 1;
+        CalcHelper.Bound(ref lastMinusOne, 0, lines.Count - 1);
         FrameworkElement nextElement;
-        while ((nextElement = FindNextFocusElement(lines.Skip(lastVisibleLineIndex + 1).SelectMany(
+        while ((nextElement = FindNextFocusElement(lines.Skip(lastMinusOne).SelectMany(
             line => visibleChildren.Skip(line.StartIndex).Take(line.EndIndex - line.StartIndex + 1)),
             currentElement.ActualBounds, MoveFocusDirection.Right)) != null && (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
