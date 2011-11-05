@@ -1133,7 +1133,7 @@
     </Control>
   </DataTemplate>
 
-  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="Title"/>
+  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="SimpleTitle"/>
 
   <!-- Different styles for list and grid views -->
   <Style x:Key="MediaItemsListViewBaseStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">

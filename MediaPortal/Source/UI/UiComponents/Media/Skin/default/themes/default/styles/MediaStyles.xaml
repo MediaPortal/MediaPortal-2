@@ -686,7 +686,7 @@
 
   <!-- TODO: Data templates for navitems:ContainerItem, navitems:MovieItem, navitems:MusicItem, navitems:PictureItem -->
 
-  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="Title"/>
+  <DataStringProvider x:Key="MediaItemDataStringProvider" Path="SimpleTitle"/>
 
   <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
