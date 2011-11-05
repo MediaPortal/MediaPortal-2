@@ -109,18 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Screen Screen
     {
-      get
-      {
-        // Avoid the need to explicitly set the Screen property on each element. This method obtains the correct screen from the visual parent.
-        Screen result = (Screen) _screenProperty.GetValue();
-        if (result == null)
-        {
-          Visual parent = VisualParent;
-          if (parent != null)
-            Screen = result = parent.Screen;
-        }
-        return result;
-      }
+      get { return (Screen) _screenProperty.GetValue(); }
       set { _screenProperty.SetValue(value); }
     }
 

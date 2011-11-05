@@ -238,6 +238,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Content = dataItem,
             Context = dataItem,
             ForceExpander = ForceExpander,
+            Screen = Screen,
             ElementState = _elementState,
             LogicalParent = this,
 

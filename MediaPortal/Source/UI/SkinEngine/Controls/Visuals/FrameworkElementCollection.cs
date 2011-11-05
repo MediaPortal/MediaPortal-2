@@ -71,6 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         element.VisualParent = _parent;
         if (_parent != null)
         {
+          element.SetScreen(_parent.Screen);
           element.SetElementState(_parent.ElementState);
           if (_parent.IsAllocated && !element.IsAllocated)
             element.Allocate();
@@ -127,6 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (_parent != null)
           {
             element.VisualParent = _parent;
+            element.SetScreen(_parent.Screen);
             element.SetElementState(_parent.ElementState);
             if (_parent.IsAllocated)
               element.Allocate();
@@ -186,6 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             value.VisualParent = _parent;
             if (_parent != null)
             {
+              value.SetScreen(_parent.Screen);
               value.SetElementState(_parent.ElementState);
               if (_parent.IsAllocated && !value.IsAllocated)
                 value.Allocate();

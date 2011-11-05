@@ -148,6 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
             Context = dataItem,
             Content = dataItem,
+            Screen = _parent.Screen,
             VisualParent = visualParent
         };
       // Set this after the other properties have been initialized to avoid duplicate work
