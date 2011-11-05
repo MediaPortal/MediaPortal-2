@@ -671,10 +671,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
             (startIndex = (int?) oIndex).HasValue && (numItems = (int?) oNumItems).HasValue)
         {
-          int numRestoreItems = Math.Max(numItems.Value, itemProvider.NumItems);
-          for (int i = 0; i < numRestoreItems; i++)
+          int endIndexExcl = Math.Max(startIndex.Value + numItems.Value, itemProvider.NumItems);
+          for (int i = startIndex.Value; i < endIndexExcl; i++)
           {
-            FrameworkElement child = GetItem(startIndex.Value + i, itemProvider, false);
+            FrameworkElement child = GetItem(i, itemProvider, false);
             if (child == null)
               continue;
             child.RestoreUIState(state, prefix + "/Child_" + i);
