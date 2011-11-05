@@ -50,12 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Attach();
     }
 
-    public override void Dispose()
-    {
-      base.Dispose();
-      Detach();
-    }
-
     void Init()
     {
       _radiusXProperty = new SProperty(typeof(double), 0.0);
