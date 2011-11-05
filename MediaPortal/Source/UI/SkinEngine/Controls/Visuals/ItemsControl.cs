@@ -564,7 +564,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           ListViewItemGenerator lvig = new ListViewItemGenerator();
           lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
           IsEmpty = l.Count == 0;
-          vsp.ItemProvider = lvig;
+          vsp.SetItemProvider(lvig);
 
           SetPreparedItems(true, null, false, null);
         }

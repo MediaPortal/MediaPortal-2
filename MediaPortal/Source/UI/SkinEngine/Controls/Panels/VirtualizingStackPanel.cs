@@ -82,42 +82,51 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void Dispose()
     {
       base.Dispose();
-      IItemProvider itemProvider = ItemProvider;
+      IItemProvider itemProvider = _itemProvider;
+      _itemProvider = null;
+      if (itemProvider != null)
+        MPF.TryCleanupAndDispose(itemProvider);
+      itemProvider = _newItemProvider;
+      _newItemProvider = null;
       if (itemProvider != null)
         MPF.TryCleanupAndDispose(itemProvider);
     }
 
     #endregion
 
+    public void SetItemProvider(IItemProvider itemProvider)
+    {
+      if (_elementState == ElementState.Running)
+        lock (Children.SyncRoot)
+        {
+          if (_newItemProvider == itemProvider)
+            return;
+          if (_newItemProvider != null)
+            MPF.TryCleanupAndDispose(_newItemProvider);
+          if (_itemProvider == itemProvider)
+            return;
+          _newItemProvider = itemProvider;
+        }
+      else
+      {
+        if (_newItemProvider == itemProvider)
+          return;
+        if (_newItemProvider != null)
+          MPF.TryCleanupAndDispose(_newItemProvider);
+        if (_itemProvider == itemProvider)
+          return;
+        if (_itemProvider != null)
+          MPF.TryCleanupAndDispose(_itemProvider);
+        _itemProvider = itemProvider;
+      }
+      InvalidateLayout(true, true);
+    }
+
     #region Public properties
 
     public IItemProvider ItemProvider
     {
       get { return _itemProvider; }
-      set
-      {
-        if (_itemProvider != value)
-        {
-          if (_elementState == ElementState.Running)
-            lock (Children.SyncRoot)
-            {
-              if (_newItemProvider == value)
-                return;
-              if (_newItemProvider != null)
-                MPF.TryCleanupAndDispose(_newItemProvider);
-              _newItemProvider = value;
-            }
-          else
-          {
-            if (_newItemProvider != value && _newItemProvider != null)
-              MPF.TryCleanupAndDispose(_newItemProvider);
-            if (_itemProvider != null)
-              MPF.TryCleanupAndDispose(_itemProvider);
-            _itemProvider = value;
-          }
-          InvalidateLayout(true, true);
-        }
-      }
     }
 
     public bool IsVirtualizing
