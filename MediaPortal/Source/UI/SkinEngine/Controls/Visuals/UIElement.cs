@@ -997,7 +997,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (!_fireLoaded)
         return;
-      FireEvent(LOADED_EVENT, RoutingStrategyEnum.Direct);
+      FireEvent(LOADED_EVENT, RoutingStrategyEnum.VisualTree);
       _fireLoaded = false;
     }
 
