@@ -342,7 +342,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    // Allocation/Deallocation of TemplateControl not necessary because UIElement handles all direct children
+    // Allocation/Deallocation of _initializedTemplateControl not necessary because UIElement handles all direct children
 
     public override void Deallocate()
     {

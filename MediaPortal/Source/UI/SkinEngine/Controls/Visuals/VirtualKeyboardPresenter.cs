@@ -97,6 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         childrenOut.Add(keyboardControl);
     }
 
-    // Allocate/Deallocate not necessary because UIElement handles all direct children
+    // Allocate/Deallocate of _keyboardLayoutControl not necessary because UIElement handles all direct children
   }
 }

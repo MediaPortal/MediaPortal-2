@@ -397,6 +397,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return base.IsChildRenderedAt(child, x, y);
     }
 
+    // Allocate/Deallocate of Children not necessary because UIElement handles all direct children
+
     public override void Deallocate()
     {
       base.Deallocate();
