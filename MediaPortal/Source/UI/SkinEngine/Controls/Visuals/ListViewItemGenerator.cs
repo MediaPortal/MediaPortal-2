@@ -52,6 +52,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Dispose()
     {
       DisposeItems();
+      MPF.TryCleanupAndDispose(_itemTemplate);
+      _itemTemplate = null;
+      MPF.TryCleanupAndDispose(_itemContainerStyle);
+      _itemContainerStyle = null;
     }
 
     public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -89,6 +93,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _materializedItems = new List<FrameworkElement>(_items.Count);
       for (int i = 0; i < _items.Count; i++)
         _materializedItems.Add(null);
+      MPF.TryCleanupAndDispose(_itemContainerStyle);
+      MPF.TryCleanupAndDispose(_itemTemplate);
       _itemContainerStyle = itemContainerStyle;
       _itemTemplate = itemTemplate;
     }

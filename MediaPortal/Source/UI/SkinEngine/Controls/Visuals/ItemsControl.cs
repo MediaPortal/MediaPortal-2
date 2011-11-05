@@ -562,7 +562,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
-          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
+          lvig.Initialize(this, l, MpfCopyManager.DeepCopyCutLP(ItemContainerStyle), MpfCopyManager.DeepCopyCutLP(ItemTemplate));
           IsEmpty = l.Count == 0;
           vsp.SetItemProvider(lvig);
 
