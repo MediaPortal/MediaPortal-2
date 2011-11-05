@@ -63,16 +63,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _keyProperty.Attach(OnBindingConcerningPropertyChanged);
-      IsEnabledProperty.Attach(OnBindingConcerningPropertyChanged);
-      ScreenProperty.Attach(OnBindingConcerningPropertyChanged);
+      _keyProperty.Attach(OnBindingRelatedPropertyChanged);
+      IsEnabledProperty.Attach(OnBindingRelatedPropertyChanged);
+      ScreenProperty.Attach(OnBindingRelatedPropertyChanged);
     }
 
     void Detach()
     {
-      _keyProperty.Detach(OnBindingConcerningPropertyChanged);
-      IsEnabledProperty.Detach(OnBindingConcerningPropertyChanged);
-      ScreenProperty.Detach(OnBindingConcerningPropertyChanged);
+      _keyProperty.Detach(OnBindingRelatedPropertyChanged);
+      IsEnabledProperty.Detach(OnBindingRelatedPropertyChanged);
+      ScreenProperty.Detach(OnBindingRelatedPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return SizeF.Empty;
     }
 
-    void OnBindingConcerningPropertyChanged(AbstractProperty prop, object oldValue)
+    void OnBindingRelatedPropertyChanged(AbstractProperty prop, object oldValue)
     {
       UnregisterKeyBinding();
       RegisterKeyBinding();
@@ -116,15 +116,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void RegisterKeyBinding()
     {
+      if (_registeredScreen != null)
+        return;
       if (Key == null)
         return;
       Screen screen = Screen;
-      if (IsEnabled && screen != null)
-      {
-        _registeredScreen = screen;
-        _registeredKey = Key;
-        _registeredScreen.AddKeyBinding(_registeredKey, Execute);
-      }
+      if (screen == null || !IsEnabled)
+        return;
+      _registeredScreen = screen;
+      _registeredKey = Key;
+      _registeredScreen.AddKeyBinding(_registeredKey, Execute);
     }
 
     protected void UnregisterKeyBinding()
@@ -133,6 +134,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _registeredScreen.RemoveKeyBinding(_registeredKey);
       _registeredScreen = null;
       _registeredKey = null;
+    }
+
+    public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    {
+      base.FireEvent(eventName, routingStrategy);
+      if (eventName == LOADED_EVENT)
+        RegisterKeyBinding();
     }
 
     #endregion
