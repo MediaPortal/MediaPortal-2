@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Threading;
 
 namespace MediaPortal.Common.Threading
@@ -48,16 +49,109 @@ namespace MediaPortal.Common.Threading
   {
     #region Methods to add work
 
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work);
+    
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="queuePriority">Queue priority for the work.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, QueuePriority queuePriority);
+
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="description">Description for the work.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, string description);
+
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="threadPriority">Thread priority for the work.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, ThreadPriority threadPriority);
+    
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="workCompletedHandler">Event handler to be called on completion.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, WorkEventHandler workCompletedHandler);
+    
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="description">Description for the work.</param>
+    /// <param name="queuePriority">Queue priority for the work.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority);
+    
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="description">Description for the work.</param>
+    /// <param name="queuePriority">Queue priority for the work.</param>
+    /// <param name="threadPriority">Thread priority for the work.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority);
+
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work handler which contains the work to be performed.</param>
+    /// <param name="description">Description for the work.</param>
+    /// <param name="queuePriority">Queue priority for the work</param>
+    /// <param name="threadPriority">System.Threading.ThreadPriority for the work</param>
+    /// <param name="workCompletedHandler">WorkEventHandler to be called on completion.</param>
+    /// <returns><see cref="IWork"/> object or <c>null</c>, if the work could not be added.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler);
-    void Add(IWork work);
-    void Add(IWork work, QueuePriority queuePriority);
+
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <param name="work">Work to be performed by the threadpool.</param>
+    /// <returns><c>true</c>, if the work could successfully be added, else <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
+    bool Add(IWork work);
+
+    /// <summary>
+    /// Add work to be performed by the threadpool.
+    /// </summary>
+    /// <returns><c>true</c>, if the work could successfully be added, else <c>false</c>.</returns>
+    /// <param name="work">Add work to be performed by the threadpool</param>
+    /// <param name="queuePriority">Queue priority for the work.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="work"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">If the work's state is not <c>INIT</c>.</exception>
+    bool Add(IWork work, QueuePriority queuePriority);
 
     #endregion
 
@@ -70,6 +164,10 @@ namespace MediaPortal.Common.Threading
 
     #region Methods to control the threadpool
 
+    /// <summary>
+    /// Shuts down the ThreadPool. Active threads will eventually stop; idle threads
+    /// will be shutdown and queue will not accept new work anymore.
+    /// </summary>
     void Stop();
 
     #endregion
