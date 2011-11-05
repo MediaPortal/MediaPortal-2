@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using MediaPortal.Common.Logging;
@@ -413,11 +414,9 @@ namespace MediaPortal.Common.PluginManager
     internal static ICollection<PluginItemRegistration> GetItemRegistrations(string location)
     {
       IRegistryNode node = GetRegistryNode(location, false);
-      ICollection<PluginItemRegistration> result = new List<PluginItemRegistration>();
+      List<PluginItemRegistration> result = new List<PluginItemRegistration>();
       if (node != null && node.Items != null)
-        foreach (object item in node.Items.Values)
-          if (item is PluginItemRegistration)
-            result.Add((PluginItemRegistration) item);
+        result.AddRange(node.Items.Values.OfType<PluginItemRegistration>());
       return result;
     }
 
@@ -432,10 +431,9 @@ namespace MediaPortal.Common.PluginManager
     internal static ICollection<string> GetAvailableChildLocations(string location)
     {
       IRegistryNode node = GetRegistryNode(location, false);
-      ICollection<string> result = new List<string>();
+      List<string> result = new List<string>();
       if (node != null && node.SubNodes != null)
-        foreach (string childName in node.SubNodes.Keys)
-          result.Add(RegistryHelper.ConcatenatePaths(location, childName));
+        result.AddRange(node.SubNodes.Keys.Select(childName => RegistryHelper.ConcatenatePaths(location, childName)));
       return result;
     }
 
