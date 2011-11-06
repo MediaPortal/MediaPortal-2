@@ -123,12 +123,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     {
       ICollection<IBinding> deferredBindings = GetOrCreateDeferredBindingCollection();
       foreach (IBinding binding in bindings)
-        deferredBindings.Add(binding);
+        if (deferredBindings.Contains(binding))
+          continue;
+        else
+          deferredBindings.Add(binding);
     }
 
     protected ICollection<IBinding> GetOrCreateDeferredBindingCollection()
     {
-      return _deferredBindings ?? (_deferredBindings = new HashSet<IBinding>());
+      return _deferredBindings ?? (_deferredBindings = new List<IBinding>());
     }
 
     #region Public properties
@@ -188,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()
     {
-      return _bindings ?? (_bindings = new HashSet<BindingBase>());
+      return _bindings ?? (_bindings = new List<BindingBase>());
     }
 
     public void AddToBindingCollection(BindingBase binding)
