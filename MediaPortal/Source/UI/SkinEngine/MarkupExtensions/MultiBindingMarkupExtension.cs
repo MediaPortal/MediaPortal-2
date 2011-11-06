@@ -416,6 +416,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Activate()
     {
+      if (_active)
+        return;
       base.Activate();
       // Child bindings are never really "bound", because they are instantiated normally without binding them
       // to a target property, so we have to activate them manually

@@ -22,9 +22,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -212,7 +214,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       object value = Value;
       if (TypeConverter.Convert(value, dd.DataType, out obj))
         if (ReferenceEquals(value, obj))
-          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+        {
+          IEnumerable<IBinding> deferredBindings;
+          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj, out deferredBindings));
+          element.ActivateOrRememberBindings(deferredBindings);
+        }
         else
           // Avoid creating a copy twice
           element.SetValueInRenderThread(dd, obj);

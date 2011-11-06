@@ -541,9 +541,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set
       {
         _elementState = value;
+        if (PreparingOrRunning)
+          ActivateBindings();
         if (_elementState == ElementState.Disposing)
           DisposeBindings();
       }
+    }
+
+    internal bool PreparingOrRunning
+    {
+      get { return _elementState == ElementState.Preparing || _elementState == ElementState.Running; }
+    }
+
+    internal void ActivateOrRememberBindings(IEnumerable<IBinding> bindings)
+    {
+      if (PreparingOrRunning)
+        MpfCopyManager.ActivateBindings(bindings);
+      else
+        AddDeferredBindings(bindings);
     }
 
     #endregion

@@ -26,6 +26,7 @@ using System.Collections;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -244,14 +245,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      System.Collections.Generic.IEnumerable<IBinding> deferredBindings;
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, out deferredBindings);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
-      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
-      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, out deferredBindings);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel, out deferredBindings);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider, out deferredBindings);
       return container;
     }
   }

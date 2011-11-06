@@ -139,13 +139,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (template != null)
       {
         Resources.Merge(template.Resources);
-        FinishBindingsDlgt finishDlgt;
         IList<TriggerBase> newTriggers;
-        FrameworkElement templateControl = template.LoadContent(out newTriggers, out finishDlgt) as FrameworkElement;
+        FrameworkElement templateControl = template.LoadContent(out newTriggers) as FrameworkElement;
         if (templateControl != null)
           templateControl.LogicalParent = this;
         TemplateControl = templateControl;
-        finishDlgt.Invoke();
         UninitializeTriggers();
         CollectionUtils.AddAll(Triggers, newTriggers);
       }

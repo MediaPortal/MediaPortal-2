@@ -126,14 +126,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       // obj may be of arbitrary type; The type isn't fixed to DependencyObject
       _contextObject = obj;
-      _contextObject.GetOrCreateBindingCollection().Add(this);
+      _contextObject.AddToBindingCollection(this);
     }
 
     protected void DetachFromTargetObject()
     {
       if (_contextObject == null)
         return;
-      _contextObject.GetOrCreateBindingCollection().Remove(this);
+      _contextObject.RemoveFromBindingCollection(this);
     }
 
     #endregion

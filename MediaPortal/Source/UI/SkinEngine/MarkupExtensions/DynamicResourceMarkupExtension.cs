@@ -74,8 +74,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// This class is realized as a <see cref="IBinding">Binding</see>, because it
   /// has to track changes of the source resource and of the search path to it.
   /// </remarks>
-  public class DynamicResourceMarkupExtension: BindingBase
+  public class DynamicResourceMarkupExtension : BindingBase
   {
+    protected static readonly IEnumerable<IBinding> EMPTY_BINDING_ENUMERATION = new List<IBinding>();
     #region Protected fields
 
 #if DEBUG_DRME
@@ -271,14 +272,21 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       object assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
       if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
         ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
-      MpfCopyManager.ActivateBindings(deferredBindings);
 #if DEBUG_DRME
       DebugOutput("Setting target value to '{0}'", assignValue);
 #endif
       object assignValueConverted = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
       if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
+      {
         MPF.TryCleanupAndDispose(assignValue);
+        deferredBindings = EMPTY_BINDING_ENUMERATION;
+      }
       _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
+      UIElement contextUIElement = _contextObject as UIElement;
+      if (contextUIElement == null)
+        MpfCopyManager.ActivateBindings(deferredBindings);
+      else
+        contextUIElement.ActivateOrRememberBindings(deferredBindings);
     }
 
     /// <summary>
@@ -390,6 +398,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Activate()
     {
+      if (_active)
+        return;
       base.Activate();
       if (ResourceKey == null)
         throw new XamlBindingException("DynamicResource: property 'ResourceKey' must be given");

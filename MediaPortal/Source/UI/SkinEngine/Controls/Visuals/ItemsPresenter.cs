@@ -102,8 +102,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void ApplyTemplate(ItemsPanelTemplate template)
     {
       DetachScrolling();
-      FinishBindingsDlgt finishDlgt; // We don't need to finish the bindings on the new template because it is only a template
-      FrameworkElement content = template.LoadContent(out finishDlgt) as FrameworkElement;
+      FrameworkElement content = template.LoadContent() as FrameworkElement;
       FrameworkElement oldTemplateControl = TemplateControl;
       if (oldTemplateControl != null)
         oldTemplateControl.CleanupAndDispose();

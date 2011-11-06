@@ -38,6 +38,7 @@ using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using SlimDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
@@ -52,6 +53,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// </summary>
   public class MPF
   {
+    protected static readonly IEnumerable<IBinding> EMPTY_BINDING_ENUMERATION = new List<IBinding>();
+
     #region Variables
 
     protected static readonly NumberFormatInfo NUMBERFORMATINFO = CultureInfo.InvariantCulture.NumberFormat;
@@ -217,14 +220,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #region Public methods
 
+
     public static bool ConvertType(object value, Type targetType, out object result)
     {
+      IEnumerable<IBinding> deferredBindings;
+      bool ret = ConvertType(value, targetType, out result, out deferredBindings);
+      MpfCopyManager.ActivateBindings(deferredBindings);
+      return ret;
+    }
+
+    public static bool ConvertType(object value, Type targetType, out object result, out IEnumerable<IBinding> deferredBindings)
+    {
       result = value;
+      deferredBindings = EMPTY_BINDING_ENUMERATION;
       if (value == null)
-      {
-        result = value;
         return true;
-      }
       if (value is string && targetType == typeof(Type))
       {
         string typeName = (string) value;
@@ -249,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
             // Resource must be copied because setters and other controls most probably need a copy of the resource.
             // If we don't copy it, Setter is not able to check if we already return a copy because our input value differs
             // from the output value, even if we didn't do a copy here.
-            result = MpfCopyManager.DeepCopyCutLP(result);
+            result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
           }
           return true;
         }

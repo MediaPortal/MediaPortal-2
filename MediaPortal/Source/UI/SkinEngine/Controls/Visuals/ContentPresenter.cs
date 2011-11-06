@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -115,8 +116,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Try to unwrap ResourceWrapper before _content is accessed elsewhere.
       // That's the only function we need from the ConvertType method, that's why we only call MPF.ConvertType
       // instead of TypeConverter.Convert.
-      if (!MPF.ConvertType(content, typeof(object), out _content))
+      IEnumerable<IBinding> deferredBindings;
+      if (!MPF.ConvertType(content, typeof(object), out _content, out deferredBindings))
         _content = content;
+      else
+        ActivateOrRememberBindings(deferredBindings);
       DependencyObject depObj;
       if (!ReferenceEquals(content, _content) && (depObj = _content as DependencyObject) != null)
         depObj.LogicalParent = this;
@@ -137,10 +141,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         InstallAutomaticContentDataTemplate();
         return;
       }
-      FinishBindingsDlgt finishDlgt;
       IList<TriggerBase> triggers;
-      SetTemplateControl(ContentTemplate.LoadContent(out triggers, out finishDlgt) as FrameworkElement, triggers);
-      finishDlgt.Invoke();
+      SetTemplateControl(ContentTemplate.LoadContent(out triggers) as FrameworkElement, triggers);
     }
 
     /// <summary>
@@ -164,10 +166,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (dt != null)
       {
-        FinishBindingsDlgt finishDlgt;
         IList<TriggerBase> triggers;
-        SetTemplateControl(dt.LoadContent(out triggers, out finishDlgt) as FrameworkElement, triggers);
-        finishDlgt.Invoke();
+        SetTemplateControl(dt.LoadContent(out triggers) as FrameworkElement, triggers);
         return;
       }
       // Try to convert our content to a FrameworkElement.

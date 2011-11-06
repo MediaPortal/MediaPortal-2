@@ -733,7 +733,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
       // See comment about the copying in StaticResourceBase.FindResourceInParserContext()
       result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      MpfCopyManager.ActivateBindings(deferredBindings);
+      ActivateOrRememberBindings(deferredBindings);
       return result;
     }
 
@@ -754,13 +754,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard");
         return;
       }
-      FinishBindingsDlgt finishDlgt;
       IList<TriggerBase> triggers;
-      FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
+      FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers) as FrameworkElement;
       UninitializeTriggers();
       CollectionUtils.AddAll(Triggers, triggers);
       presenter.SetKeyboardLayoutControl(this, keyboardControl);
-      finishDlgt();
     }
 
     protected override void ArrangeTemplateControl()

@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
@@ -33,13 +32,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   {
     #region Public methods
 
-    public UIElement LoadContent(out FinishBindingsDlgt finishBindings)
+    public UIElement LoadContent()
     {
       if (_templateElement == null)
-      {
-        finishBindings = () => { };
         return null;
-      }
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       FrameworkElement result = cm.GetCopy(_templateElement);
@@ -49,11 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
         foreach (KeyValuePair<string, object> nameRegistration in _names)
           ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
       cm.FinishCopy();
-      IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
-      finishBindings = () =>
-        {
-          MpfCopyManager.ActivateBindings(deferredBindings);
-        };
+      result.ActivateOrRememberBindings(cm.GetDeferredBindings());
       return result;
     }
 

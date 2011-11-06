@@ -43,6 +43,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     #region Protected fields
 
     protected ICollection<BindingBase> _bindings = null;
+    protected ICollection<IBinding> _deferredBindings = null;
     protected IList<object> _adoptedObjects = null;
     protected IDictionary<string, AbstractProperty> _attachedProperties = null; // Lazy initialized
     protected AbstractProperty _dataContextProperty;
@@ -80,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         foreach (BindingBase binding in d._bindings)
           bindings.Add(copyManager.GetCopy(binding));
       }
+      // Deferred bindings not necessary to copy
     }
 
     public virtual void Dispose()
@@ -95,15 +97,39 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
           MPF.TryCleanupAndDispose(o);
     }
 
+    #endregion
+
     protected void DisposeBindings()
     {
       if (_bindings != null)
         foreach (BindingBase _binding in new List<BindingBase>(_bindings))
           _binding.Dispose();
       _bindings = null;
+      _deferredBindings = null;
     }
 
-    #endregion
+    protected void ActivateBindings()
+    {
+      if (_bindings != null)
+        foreach (BindingBase binding in new List<BindingBase>(_bindings))
+          binding.Activate();
+      if (_deferredBindings != null)
+        foreach (IBinding binding in _deferredBindings)
+          binding.Activate();
+      _deferredBindings = null;
+    }
+
+    protected void AddDeferredBindings(IEnumerable<IBinding> bindings)
+    {
+      ICollection<IBinding> deferredBindings = GetOrCreateDeferredBindingCollection();
+      foreach (IBinding binding in bindings)
+        deferredBindings.Add(binding);
+    }
+
+    protected ICollection<IBinding> GetOrCreateDeferredBindingCollection()
+    {
+      return _deferredBindings ?? (_deferredBindings = new HashSet<IBinding>());
+    }
 
     #region Public properties
 
@@ -162,7 +188,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public ICollection<BindingBase> GetOrCreateBindingCollection()
     {
-      return _bindings ?? (_bindings = new List<BindingBase>());
+      return _bindings ?? (_bindings = new HashSet<BindingBase>());
+    }
+
+    public void AddToBindingCollection(BindingBase binding)
+    {
+      ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
+      if (bindings.Contains(binding))
+        return;
+      bindings.Add(binding);
+    }
+
+    public void RemoveFromBindingCollection(BindingBase binding)
+    {
+      ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
+      bindings.Remove(binding);
     }
 
     public virtual INameScope FindNameScope()

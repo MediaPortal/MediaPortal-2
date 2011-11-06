@@ -170,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (childItemTemplate != null)
         childItemTemplate.LogicalParent = result;
       result.ContentTemplate = childItemTemplate;
-      MpfCopyManager.ActivateBindings(deferredBindings);
+      result.ActivateOrRememberBindings(deferredBindings);
       return result;
     }
 
