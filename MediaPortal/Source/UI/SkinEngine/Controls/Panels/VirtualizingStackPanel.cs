@@ -238,6 +238,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (_itemProvider != null)
             MPF.TryCleanupAndDispose(_itemProvider);
           _itemProvider = _newItemProvider;
+          _newItemProvider = null;
         }
         _averageItemSize = 0;
         IItemProvider itemProvider = ItemProvider;
