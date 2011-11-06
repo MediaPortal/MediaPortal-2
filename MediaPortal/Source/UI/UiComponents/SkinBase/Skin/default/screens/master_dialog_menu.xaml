@@ -18,9 +18,9 @@ Usage:
       <ResourceWrapper x:Key="Menu_Items">
         [Collection of ListItem instances]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Menu_Command">
-        [Command to be executed with the selected item as parameter]
-      </ResourceWrapper>
+
+      <Command to be executed with the selected item as parameter>
+      <Command x:Key="Menu_Command" .../>
     </Include.Resources>
   </Include>
 

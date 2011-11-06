@@ -55,7 +55,7 @@
               ItemsSource="{Binding Path=CurrentGroupChannels}"
               > 
               <ListView.Resources>
-                  <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
                 <!--<ResourceWrapper x:Key="Menu_Command">                  
                   <CommandList>
                     <Command Path="Command"/>

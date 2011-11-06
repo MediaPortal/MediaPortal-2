@@ -614,7 +614,7 @@
               SelectionChanged="{CommandStencil Source={StaticResource SlimTvMultiChannelGuide}, Path=UpdateProgram}">
 
         <ListView.Resources>
-          <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command}"/>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
         </ListView.Resources>
       </ListView>
     </Grid>
