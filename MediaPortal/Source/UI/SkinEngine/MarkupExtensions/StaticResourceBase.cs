@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (result == null)
         return null;
       IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // See comment about the copying in method FindResourceInParserContext()
+      // See comment about the copying in method ResourceDictionary.FindResourceInParserContext()
       return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
     }
   }

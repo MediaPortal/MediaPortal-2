@@ -731,7 +731,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (result == null)
         return null;
       IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
-      // See comment about the copying in StaticResourceBase.FindResourceInParserContext()
+      // See comment about the copying in ResourceDictionary.FindResourceInParserContext()
       result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
       ActivateOrRememberBindings(deferredBindings);
       return result;
