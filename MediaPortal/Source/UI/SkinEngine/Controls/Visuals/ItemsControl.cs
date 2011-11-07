@@ -380,14 +380,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _itemsHostPanel != null; }
     }
 
-    public override ElementState ElementState
+    protected override void OnUpdateElementState()
     {
-      internal set
-      {
-        base.ElementState = value;
-        if (value == ElementState.Running || value == ElementState.Preparing)
-          PrepareItems(false);
-      }
+      base.OnUpdateElementState();
+      if (_elementState == ElementState.Running || _elementState == ElementState.Preparing)
+        PrepareItems(false);
     }
 
     #endregion

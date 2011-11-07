@@ -171,14 +171,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public override ElementState ElementState
+    protected override void OnUpdateElementState()
     {
-      internal set
-      {
-        base.ElementState = value;
-        if (value == ElementState.Running || value == ElementState.Preparing)
-          InitializeGroup();
-      }
+      base.OnUpdateElementState();
+      if (_elementState == ElementState.Running || _elementState == ElementState.Preparing)
+        InitializeGroup();
     }
 
     public AbstractProperty GroupNameProperty

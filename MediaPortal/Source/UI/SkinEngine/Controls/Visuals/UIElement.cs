@@ -535,17 +535,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// In state <see cref="Visuals.ElementState.Disposing"/>, the element is about to be disposed, thus no more change triggers and
     /// other time-consuming tasks need to be executed.
     /// </remarks>
-    public virtual ElementState ElementState
+    public ElementState ElementState
     {
       get { return _elementState; }
       internal set
       {
+        if (_elementState == value)
+          return;
         _elementState = value;
-        if (PreparingOrRunning)
-          ActivateBindings();
-        if (_elementState == ElementState.Disposing)
-          DisposeBindings();
+        OnUpdateElementState();
       }
+    }
+
+    protected virtual void OnUpdateElementState()
+    {
+      if (PreparingOrRunning)
+        ActivateBindings();
+      if (_elementState == ElementState.Disposing)
+        DisposeBindings();
     }
 
     internal bool PreparingOrRunning
