@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -161,38 +162,52 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
-    /// <summary>
-    /// Given a music file name (or path), this method tries to guess the title of the music. This is done
-    /// by looking for a '-' character and taking the succeeding part of the name, or the whole name if
-    /// no '-' character is present.
-    /// </summary>
-    /// <param name="filePath">Absolute or relative music file name.</param>
-    /// <returns>Guessed title string.</returns>
-    protected static string GuessTitle(string filePath)
-    {
-      string fileName = DosPathHelper.GetFileNameWithoutExtension(filePath) ?? string.Empty;
-      int i = fileName.IndexOf('-');
-      return i == -1 ? fileName : fileName.Substring(i + 1).Trim();
-    }
+    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]*)\)?.? *-? *(.*)");
+    protected static readonly Regex TITLE_ARTIST_FORMAT1 = new Regex(@"(.*) *- *(.*)");
+    protected static readonly Regex TITLE_ARTIST_FORMAT2 = new Regex(@"(.*) *\((.*)\)");
 
     /// <summary>
-    /// Given a music file name (or path), this method tries to guess the artist(s) of the music. This is done
-    /// by looking for a '-' character and taking the preceding part of the name. If no '-' character is
-    /// present, an empty enumeration is returned.
+    /// Given a music file name, this method tries to guess title, artist and track number.
     /// </summary>
-    /// <param name="filePath">Absolute or relative music file name.</param>
-    /// <returns>Guessed artist(s) enumeration.</returns>
-    protected static string GuessArtist(string filePath)
+    /// <param name="fileName">Music file name (no file path!).</param>
+    /// <param name="title">Guessed title.</param>
+    /// <param name="artist">Guessed artist.</param>
+    /// <param name="trackNo">Guessed track number.</param>
+    protected static void GuessMetadataFromFileName(string fileName, out string title, out string artist, out uint? trackNo)
     {
-      string fileName = DosPathHelper.GetFileName(filePath) ?? string.Empty;
-      // Test form Artist - Title
-      int start = fileName.IndexOf('-');
-      if (start > -1)
-        return fileName.Substring(0, start).Trim();
-      // Test form Title (Artist)
-      start = fileName.IndexOf('(');
-      int end = start == -1 ? -1 : fileName.IndexOf(')', start);
-      return end > -1 ? fileName.Substring(start + 1, end - start - 1) : null;
+      fileName = fileName.Replace('_', ' ');
+      Match match = TRACKNO_FORMAT.Match(fileName);
+      string titleArtist;
+      if (match.Success)
+      { // (Track) - TitleArtist
+        GroupCollection groups = match.Groups;
+        uint trackNoInt;
+        trackNo = uint.TryParse(groups[1].Value.Trim(), out trackNoInt) ? (uint?) trackNoInt : null;
+        titleArtist = groups[2].Value.Trim();
+      }
+      else
+      {
+        trackNo = null;
+        titleArtist = fileName.Trim();
+      }
+      match = TITLE_ARTIST_FORMAT1.Match(titleArtist);
+      if (match.Success)
+      { // Artist - Track
+        GroupCollection groups = match.Groups;
+        artist = groups[1].Value.Trim();
+        title = groups[2].Value.Trim();
+        return;
+      }
+      match = TITLE_ARTIST_FORMAT2.Match(titleArtist);
+      if (match.Success)
+      { // Track (Artist)
+        GroupCollection groups = match.Groups;
+        title = groups[1].Value.Trim();
+        artist = groups[2].Value.Trim();
+        return;
+      }
+      title = null;
+      artist = null;
     }
 
     /// <summary>
@@ -280,15 +295,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
           return false;
 
-        string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
+        string fileName = DosPathHelper.GetFileNameWithoutExtension(humanReadablePath) ?? string.Empty;
+        string title;
+        string artist;
+        uint? trackNo;
+        GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
+        if (!string.IsNullOrEmpty(tag.Tag.Title))
+          title = tag.Tag.Title;
         IEnumerable<string> artists;
         if (tag.Tag.Performers.Length > 0)
           artists = tag.Tag.Performers;
         else
-        {
-          string artist = GuessArtist(humanReadablePath);
           artists = artist == null ? null : new string[] {artist};
-        }
+        if (tag.Tag.Track != 0)
+          trackNo = tag.Tag.Track;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
@@ -310,8 +330,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, tag.Properties.Duration.TotalSeconds);
         if (tag.Tag.Genres.Length > 0)
           audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
-        if (tag.Tag.Track != 0)
-          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) tag.Tag.Track);
+        if (trackNo.HasValue)
+          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, trackNo.Value);
         if (tag.Tag.TrackCount != 0)
           audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
         int year = (int) tag.Tag.Year;
