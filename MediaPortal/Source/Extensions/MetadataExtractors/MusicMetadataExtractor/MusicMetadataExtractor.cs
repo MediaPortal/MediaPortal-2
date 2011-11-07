@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
-    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]*)\)?.? *-? *(.*)");
+    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]+)\)?\.? *-? *(.*)");
     protected static readonly Regex TITLE_ARTIST_FORMAT1 = new Regex(@"(.*) *- *(.*)");
     protected static readonly Regex TITLE_ARTIST_FORMAT2 = new Regex(@"(.*) *\((.*)\)");
 
