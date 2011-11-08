@@ -124,6 +124,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
+    protected class PendingScreenEvent
+    {
+      protected string _eventName;
+      protected RoutingStrategyEnum _routingStrategy;
+
+      public PendingScreenEvent(string eventName, RoutingStrategyEnum routingStrategy)
+      {
+        _eventName = eventName;
+        _routingStrategy = routingStrategy;
+      }
+
+      public string EventName
+      {
+        get { return _eventName; }
+      }
+
+      public RoutingStrategyEnum RoutingStategy
+      {
+        get { return _routingStrategy; }
+      }
+    }
+
     #endregion
 
     #region Enums
@@ -164,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected FrameworkElement _root;
     protected PointF? _mouseMovePending = null;
-    protected bool _screenShowEventPending = false;
+    protected PendingScreenEvent _pendingScreenEvent = null;
     protected Animator _animator = new Animator();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
     protected Guid? _virtualKeyboardDialogGuid = null;
@@ -361,10 +383,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (_root.IsMeasureInvalid || _root.IsArrangeInvalid)
           _root.UpdateLayoutRoot(new SizeF(SkinWidth, SkinHeight));
         HandleScheduledFocus();
-        if (_screenShowEventPending)
+        if (_pendingScreenEvent != null)
         {
-          DoFireScreenShowingEvent();
-          _screenShowEventPending = false;
+          DoFireScreenEvent(_pendingScreenEvent);
+          _pendingScreenEvent = null;
         }
         _root.Render(_renderContext);
       }
@@ -628,20 +650,25 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       internal set { _screenInstanceId = value; }
     }
 
+    protected void TriggerScreenEvent(string eventName, RoutingStrategyEnum routingStrategy)
+    {
+      _pendingScreenEvent = new PendingScreenEvent(eventName, routingStrategy);
+    }
+
     public void TriggerScreenShowingEvent()
     {
-      _screenShowEventPending = true;
+      TriggerScreenEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
     }
 
-    protected void DoFireScreenShowingEvent()
+    public void TriggerScreenClosingEvent()
     {
-      FireEvent(SHOW_EVENT, RoutingStrategyEnum.VisualTree);
+      TriggerScreenEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
+      _closeTime = FindCloseEventCompletionTime().AddMilliseconds(20); // 20 more milliseconds because of the delay until the event is fired in render loop
     }
 
-    public void FireScreenClosingEvent()
+    protected void DoFireScreenEvent(PendingScreenEvent pendingScreenEvent)
     {
-      FireEvent(CLOSE_EVENT, RoutingStrategyEnum.VisualTree);
-      _closeTime = FindCloseEventCompletionTime();
+      FireEvent(pendingScreenEvent.EventName, pendingScreenEvent.RoutingStategy);
     }
 
     public bool DoneClosing

@@ -720,7 +720,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (dialogPersistence)
       {
         oldDialog.ScreenState = Screen.State.Closing;
-        oldDialog.FireScreenClosingEvent();
+        oldDialog.TriggerScreenClosingEvent();
       }
       else
       {
@@ -810,7 +810,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         currentScreen = _currentScreen;
       }
       DoCloseDialogs_NoLock(true, true);
-      currentScreen.FireScreenClosingEvent();
+      currentScreen.TriggerScreenClosingEvent();
       UnfocusCurrentScreen_NoLock();
     }
 
