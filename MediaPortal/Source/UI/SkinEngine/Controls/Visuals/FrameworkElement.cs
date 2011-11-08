@@ -1698,7 +1698,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         // Create a temporary render context and render the control to the render texture
         RenderContext tempRenderContext = new RenderContext(localRenderContext.Transform, Matrix.Identity, 
-          localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
+            localRenderContext.Opacity, bounds, localRenderContext.ZOrder);
         RenderToTexture(renderTarget, tempRenderContext);
 
         // Add bounds to our calculated, occupied area.

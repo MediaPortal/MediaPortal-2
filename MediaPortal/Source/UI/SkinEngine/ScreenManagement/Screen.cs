@@ -103,74 +103,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #region Classes
 
-    /// <summary>
-    /// Encapsulates an UI element together with its depth where it is located in the visual tree.
-    /// </summary>
-    protected class InvalidControl : IComparable<InvalidControl>
-    {
-      protected int _treeDepth = -1;
-      protected FrameworkElement _element;
-
-      public InvalidControl(FrameworkElement element)
-      {
-        _element = element;
-      }
-
-      protected void InitializeTreeDepth()
-      {
-        Visual current = _element;
-        while (current != null)
-        {
-          _treeDepth++;
-          current = current.VisualParent;
-        }
-      }
-
-      /// <summary>
-      /// Returns the number of steps wich are necessary to follow the <see cref="Visual.VisualParent"/>
-      /// reference on the <see cref="Element"/> until the root control is reached.
-      /// </summary>
-      public int TreeDepth
-      {
-        get
-        {
-          if (_treeDepth == -1)
-            InitializeTreeDepth();
-          return _treeDepth;
-        }
-      }
-
-      /// <summary>
-      /// Returns the invalid element.
-      /// </summary>
-      public FrameworkElement Element
-      {
-        get { return _element; }
-      }
-
-      public int CompareTo(InvalidControl other)
-      {
-        return TreeDepth - other.TreeDepth;
-      }
-
-      public override int GetHashCode()
-      {
-        return _element.GetHashCode();
-      }
-
-      public override bool Equals(object o)
-      {
-        if (!(o is InvalidControl))
-          return false;
-        return _element.Equals(((InvalidControl) o)._element);
-      }
-
-      public override string ToString()
-      {
-        return string.Format("Element: {0}, Depth: {1}", _element, TreeDepth);
-      }
-    }
-
     protected class ScheduledFocus
     {
       protected FrameworkElement _focusElement = null;
@@ -477,13 +409,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _root.Allocate();
 
         _root.InvalidateLayout(true, true);
-        int maxNumUpdate = 10;
-        // Prepare run. In the prepare run, the screen uses some shortcuts to set values
+        // Prepare run. In the prepare run, the screen uses some shortcuts to set values.
         _root.SetElementState(ElementState.Preparing);
         SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
         _root.UpdateLayoutRoot(skinSize);
         // Switch to "Running" state which builds the final screen structure
         _root.SetElementState(ElementState.Running);
+        int maxNumUpdate = 10;
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
         {
           SetValues();
@@ -547,11 +479,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected void DoHandleMouseMove(float x, float y)
     {
-      lock (_root)
+      try
+      {
         if (_root.CanHandleMouseMove())
           _root.OnMouseMove(x, y);
         else
           _mouseMovePending = new PointF(x, y);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse move event", e, _resourceName);
+      }
     }
 
     private void OnWindowSizeChanged(AbstractProperty property, object oldVal)
@@ -569,7 +507,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key '{0}'", e, _resourceName, key);
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing key event '{0}'", e, _resourceName, key);
       }
       // Try key bindings...
       KeyAction keyAction;
@@ -584,7 +522,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _root.OnKeyPressed(ref key);
+      try
+      {
+        _root.OnKeyPressed(ref key);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key event '{0}'", e, _resourceName, key);
+      }
       if (key != Key.None)
         UpdateFocus(ref key);
     }
@@ -593,7 +538,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       if (!HasInputFocus)
         return;
-      _root.OnMouseWheel(numberOfDeltas);
+      try
+      {
+        _root.OnMouseWheel(numberOfDeltas);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing mouse wheel event", e, _resourceName);
+      }
     }
 
     private void HandleMouseMove(float x, float y)
@@ -608,7 +560,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!HasInputFocus)
         return;
       bool handled = false;
-      _root.OnMouseClick(buttons, ref handled);
+      try
+      {
+        _root.OnMouseClick(buttons, ref handled);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while preprocessing mouse click event", e, _resourceName);
+      }
       if (handled)
         return;
       // If mouse click was not handled explicitly, map it to an appropriate key event
@@ -633,7 +592,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public override bool IsInArea(float x, float y)
     {
-      return true; // Screens always cover the whole physical screen
+      return true; // Screens always cover the whole physical area
     }
 
     protected void InitializeRenderContext()
