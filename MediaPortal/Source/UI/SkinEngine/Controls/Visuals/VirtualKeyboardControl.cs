@@ -716,16 +716,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected ControlTemplate FindKeyboardLayout(CultureInfo culture)
     {
       // Try culture specific keyboard layouts
-      ControlTemplate result = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX + '_' + culture.TwoLetterISOLanguageName) as ControlTemplate;
+      object o = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX + '_' + culture.TwoLetterISOLanguageName, false);
+      ControlTemplate result = o as ControlTemplate;
       if (result != null)
         return result;
+      if (o != null)
+        MPF.TryCleanupAndDispose(o);
       if (!culture.IsNeutralCulture)
         return FindKeyboardLayout(culture.Parent);
       // Fallback: Take default keyboard
-      return FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX) as ControlTemplate;
+      o = FindResourceInTheme(VIRTUAL_KEYBOARD_RESOURCE_PREFIX, false);
+      result = o as ControlTemplate;
+      if (result == null && o != null)
+        MPF.TryCleanupAndDispose(o);
+      return result;
     }
 
-    protected object FindResourceInTheme(string resourceKey)
+    protected object FindResourceInTheme(string resourceKey, bool activateBindings)
     {
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
       if (result == null)
@@ -733,7 +740,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
       // See comment about the copying in ResourceDictionary.FindResourceInParserContext()
       result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      ActivateOrRememberBindings(deferredBindings);
+      if (activateBindings)
+        ActivateOrRememberBindings(deferredBindings);
       return result;
     }
 

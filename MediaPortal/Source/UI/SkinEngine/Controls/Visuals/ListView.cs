@@ -43,11 +43,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             LogicalParent = this,
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      IEnumerable<IBinding> deferredBindings;
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, out deferredBindings) ?? container.CopyDefaultStyle();
-      container.ActivateOrRememberBindings(deferredBindings);
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
-      container.ActivateOrRememberBindings(deferredBindings);
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, false) ?? container.CopyDefaultStyle();
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
       return container;
     }
 

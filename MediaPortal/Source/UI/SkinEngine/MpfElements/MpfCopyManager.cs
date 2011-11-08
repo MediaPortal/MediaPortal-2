@@ -103,11 +103,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return result;
     }
 
-    public static T DeepCopyWithIdentities<T>(T o, IDictionary<object, object> identities)
+    public static T DeepCopyWithIdentities<T>(T o, IDictionary<object, object> identities, bool activateBindings)
     {
       IEnumerable<IBinding> deferredBindings;
       T result = DeepCopyWithIdentities(o, identities, out deferredBindings);
-      ActivateBindings(deferredBindings);
+      if (activateBindings)
+        ActivateBindings(deferredBindings);
       return result;
     }
 
@@ -134,11 +135,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return DeepCopyWithIdentities(o, identities, out deferredBindings);
     }
 
-    public static T DeepCopyWithFixedObject<T>(T o, object fixedObject)
+    public static T DeepCopyWithFixedObject<T>(T o, object fixedObject, bool activateBindings)
     {
       IEnumerable<IBinding> deferredBindings;
       T result = DeepCopyWithFixedObject(o, fixedObject, out deferredBindings);
-      ActivateBindings(deferredBindings);
+      if (activateBindings)
+        ActivateBindings(deferredBindings);
       return result;
     }
 
@@ -159,11 +161,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return DeepCopyWithIdentities(o, identities, out deferredBindings);
     }
 
-    public static new T DeepCopy<T>(T o)
+    public static new T DeepCopy<T>(T o, bool activateBindings)
     {
       IEnumerable<IBinding> deferredBindings;
       T result = DeepCopy(o, out deferredBindings);
-      ActivateBindings(deferredBindings);
+      if (activateBindings)
+        ActivateBindings(deferredBindings);
       return result;
     }
 
@@ -194,11 +197,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return DeepCopyWithIdentities(o, identities, out deferredBindings);
     }
 
-    public static T DeepCopyCutLP<T>(T o)
+    public static T DeepCopyCutLP<T>(T o, bool activateBindings)
     {
       IEnumerable<IBinding> deferredBindings;
       T result = DeepCopyCutLP(o, out deferredBindings);
-      ActivateBindings(deferredBindings);
+      if (activateBindings)
+        ActivateBindings(deferredBindings);
       return result;
     }
   }

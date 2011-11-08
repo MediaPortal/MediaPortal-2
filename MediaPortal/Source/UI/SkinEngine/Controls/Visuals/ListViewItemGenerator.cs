@@ -28,7 +28,6 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -162,15 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Set this after the other properties have been initialized to avoid duplicate work
       result.Style = ItemContainerStyle;
 
-      // We need to copy the item data template for the child containers, because the
-      // data template contains specific data for each container. We need to "personalize" the
-      // data template copy by assigning its LogicalParent.
-      IEnumerable<IBinding> deferredBindings;
-      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
-      if (childItemTemplate != null)
-        childItemTemplate.LogicalParent = result;
-      result.ContentTemplate = childItemTemplate;
-      result.ActivateOrRememberBindings(deferredBindings);
+      result.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
       return result;
     }
 
