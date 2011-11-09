@@ -33,7 +33,7 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class GradientStopCollection : IDisposable, IEnumerable<GradientStop>, IAddChild<GradientStop>, ISkinEngineManagedResource
+  public class GradientStopCollection : IDisposable, IEnumerable<GradientStop>, IAddChild<GradientStop>, ISkinEngineManagedObject
   {
     #region Protected fields
 

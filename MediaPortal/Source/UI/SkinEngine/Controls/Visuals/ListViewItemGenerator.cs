@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   /// To generate the items, the <see cref="ItemContainerStyle"/> is applied to <see cref="ListViewItem"/> instances,
   /// using the <see cref="ItemTemplate"/> as content template.
   /// </summary>
-  public class ListViewItemGenerator : IDeepCopyable, IItemProvider, ISkinEngineManagedResource
+  public class ListViewItemGenerator : IDeepCopyable, IItemProvider, ISkinEngineManagedObject
   {
     protected DataTemplate _itemTemplate = null;
     protected Style _itemContainerStyle = null;

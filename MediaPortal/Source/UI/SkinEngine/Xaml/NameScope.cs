@@ -29,7 +29,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
-  public class NameScope: INameScope, IDeepCopyable, ISkinEngineManagedResource
+  public class NameScope: INameScope, IDeepCopyable, ISkinEngineManagedObject
   {
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
 

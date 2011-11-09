@@ -37,7 +37,7 @@ using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class ServiceRegistrationMarkupExtension: IEvaluableMarkupExtension, ISkinEngineManagedResource
+  public class ServiceRegistrationMarkupExtension: IEvaluableMarkupExtension, ISkinEngineManagedObject
   {
     #region Protected fields
 

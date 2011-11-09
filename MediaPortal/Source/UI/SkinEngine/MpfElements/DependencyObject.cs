@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// </summary>
-  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedResource
+  public class DependencyObject: IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
     #region Protected fields
 

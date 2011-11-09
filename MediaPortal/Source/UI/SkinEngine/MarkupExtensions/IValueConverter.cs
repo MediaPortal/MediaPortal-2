@@ -28,7 +28,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public interface IValueConverter : ISkinEngineManagedResource
+  public interface IValueConverter : ISkinEngineManagedObject
   {
     bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
     bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result);

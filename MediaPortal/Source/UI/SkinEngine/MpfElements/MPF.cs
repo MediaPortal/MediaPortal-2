@@ -477,7 +477,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     protected static void TryCleanupAndDispose_NoCheckOwner(object maybeUIElementOrDisposable)
     {
-      if (!(maybeUIElementOrDisposable is ISkinEngineManagedResource))
+      if (!(maybeUIElementOrDisposable is ISkinEngineManagedObject))
         // Don't dispose external resources
         return;
       UIElement u = maybeUIElementOrDisposable as UIElement;

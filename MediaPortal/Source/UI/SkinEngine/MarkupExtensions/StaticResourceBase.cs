@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <summary>
   /// Base class for MPF static resource lookup markup extensions
   /// </summary>
-  public class StaticResourceBase : ISkinEngineManagedResource
+  public class StaticResourceBase : ISkinEngineManagedObject
   {
     protected object FindResourceInTheme(string resourceKey, IParserContext context)
     {

@@ -29,7 +29,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// screen changes/theme maintainance. We need this interface to distinguish between automatically disposed instances
   /// and external instances (for example model references which must not be disposed during screen changes/theme maintainance).
   /// </summary>
-  public interface ISkinEngineManagedResource
+  public interface ISkinEngineManagedObject
   {
   }
 }
