@@ -260,6 +260,17 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
 #endif
 
+    protected UIElement FindUIElementInLogicalTree(DependencyObject context)
+    {
+      do
+      {
+        UIElement result = context as UIElement;
+        if (result != null)
+          return result;
+      } while (context != null);
+      return null;
+    }
+
     protected void UpdateTarget(object value)
     {
       // We're called multiple times, for example when a resource dictionary changes.
@@ -282,11 +293,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         deferredBindings = EMPTY_BINDING_ENUMERATION;
       }
       _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
-      UIElement contextUIElement = _contextObject as UIElement;
-      if (contextUIElement == null)
-        MpfCopyManager.ActivateBindings(deferredBindings);
-      else
+      UIElement contextUIElement = FindUIElementInLogicalTree(_contextObject);
+      if (contextUIElement != null)
         contextUIElement.ActivateOrRememberBindings(deferredBindings);
+      // If we cannot find any UI element to pass the bindings to, we don't activate them. This means bindings, which are bound to
+      // an object which doesn't have an UI element in its logical tree, cannot be activated.
     }
 
     /// <summary>

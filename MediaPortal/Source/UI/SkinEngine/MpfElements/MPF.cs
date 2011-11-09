@@ -224,9 +224,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public static bool ConvertType(object value, Type targetType, out object result)
     {
       IEnumerable<IBinding> deferredBindings;
-      bool ret = ConvertType(value, targetType, out result, out deferredBindings);
-      MpfCopyManager.ActivateBindings(deferredBindings);
-      return ret;
+      return ConvertType(value, targetType, out result, out deferredBindings);
+      // Don't activate bindings - copied elements must be initialized by setting their element state which will automatically bind all bindings
+      letztes Problem noch: wir müssen dem Aufrufer die Bindings übergeben, damit er sie in seine pending collection tun kann
+        danach sollte 6) stimmen, das heißt, a) bindings sollten nie wieder feuern in available elementen und b) trotzdem in nicht-UI-Elementen,
+        z.B Brushes, funktionerien
     }
 
     public static bool ConvertType(object value, Type targetType, out object result, out IEnumerable<IBinding> deferredBindings)
