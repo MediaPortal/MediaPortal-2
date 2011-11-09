@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope
+  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IResourceContainer
   {
     public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
 

@@ -34,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// the object is resolved by a markup extension, for example. Instances of this class
   /// will be automatically converted to the underlaying <see cref="Resource"/> object.
   /// </summary>
-  public class ResourceWrapper : ValueWrapper, INameScope
+  public class ResourceWrapper : ValueWrapper, INameScope, IResourceContainer
   {
     #region Protected fields
 
