@@ -75,11 +75,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         }
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
+      DependencyObject containerForDeferredBindings = GetContainerForDeferredBindings();
       if (d._bindings != null)
       {
         ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
         foreach (BindingBase binding in d._bindings)
-          bindings.Add(copyManager.GetCopy(binding));
+        {
+          BindingBase bindingCopy = copyManager.GetCopy(binding);
+          bindings.Add(bindingCopy);
+          if (containerForDeferredBindings != null)
+            containerForDeferredBindings.AddDeferredBinding(bindingCopy);
+        }
       }
       // Deferred bindings not necessary to copy
     }
@@ -119,14 +125,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _deferredBindings = null;
     }
 
-    protected void AddDeferredBindings(IEnumerable<IBinding> bindings)
+    protected void AddDeferredBinding(IBinding binding)
     {
       ICollection<IBinding> deferredBindings = GetOrCreateDeferredBindingCollection();
-      foreach (IBinding binding in bindings)
-        if (deferredBindings.Contains(binding))
-          continue;
-        else
-          deferredBindings.Add(binding);
+      if (deferredBindings.Contains(binding))
+        return;
+      deferredBindings.Add(binding);
     }
 
     protected ICollection<IBinding> GetOrCreateDeferredBindingCollection()
@@ -158,7 +162,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public DependencyObject LogicalParent
     {
       get { return (DependencyObject) _logicalParentProperty.GetValue(); }
-      set { _logicalParentProperty.SetValue(value); }
+      set
+      {
+        _logicalParentProperty.SetValue(value);
+        if (_deferredBindings == null)
+          return;
+        DependencyObject containerForDeferredBindings = GetContainerForDeferredBindings();
+        if (containerForDeferredBindings == null || containerForDeferredBindings == this)
+          return;
+        foreach (IBinding deferredBinding in _deferredBindings)
+          containerForDeferredBindings.AddDeferredBinding(deferredBinding);
+      }
     }
 
     #endregion
@@ -194,12 +208,26 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return _bindings ?? (_bindings = new List<BindingBase>());
     }
 
+    protected virtual DependencyObject GetContainerForDeferredBindings()
+    {
+      if (this is IResourceContainer)
+        return null;
+      DependencyObject parent = LogicalParent;
+      if (parent == null)
+        return this;
+      return parent.GetContainerForDeferredBindings();
+    }
+
     public void AddToBindingCollection(BindingBase binding)
     {
       ICollection<BindingBase> bindings = GetOrCreateBindingCollection();
       if (bindings.Contains(binding))
         return;
       bindings.Add(binding);
+      DependencyObject containerForDeferredBindings = GetContainerForDeferredBindings();
+      if (containerForDeferredBindings == null)
+        return;
+      containerForDeferredBindings.AddDeferredBinding(binding);
     }
 
     public void RemoveFromBindingCollection(BindingBase binding)
@@ -287,7 +315,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <param name="value">The value to be set.</param>
     public virtual void SetBindingValue(IDataDescriptor dd, object value)
     {
+      SetDataDescriptorValueWithLP(dd, value);
+    }
+
+    public static void SetDataDescriptorValueWithLP(IDataDescriptor dd, object value)
+    {
       dd.Value = value;
+      DependencyObject targetObject = dd.TargetObject as DependencyObject;
+      DependencyObject depObjValue = value as DependencyObject;
+      if (targetObject != null && depObjValue != null)
+        depObjValue.LogicalParent = targetObject;
     }
   }
 }

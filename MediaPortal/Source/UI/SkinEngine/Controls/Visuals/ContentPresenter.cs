@@ -195,6 +195,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object content = _content;
       if (!(content is UIElement)) // If our content is an UIElement itself, it should only be used as template control but not as context
         templateControl.Context = content;
+      templateControl.LogicalParent = this;
       templateControl.VisualParent = this;
       templateControl.SetScreen(Screen);
       templateControl.SetElementState(_elementState);

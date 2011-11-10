@@ -560,14 +560,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _elementState == ElementState.Preparing || _elementState == ElementState.Running; }
     }
 
-    internal void ActivateOrRememberBindings(IEnumerable<IBinding> bindings)
-    {
-      if (PreparingOrRunning)
-        MpfCopyManager.ActivateBindings(bindings);
-      else
-        AddDeferredBindings(bindings);
-    }
-
     #endregion
 
     #region Layouting
@@ -1125,6 +1117,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       int i = 0;
       foreach (UIElement child in GetChildren())
         child.RestoreUIState(state, prefix + "/Child_" + (i++));
+    }
+
+    protected override DependencyObject GetContainerForDeferredBindings()
+    {
+      return this;
     }
 
     public override void SetBindingValue(IDataDescriptor dd, object value)

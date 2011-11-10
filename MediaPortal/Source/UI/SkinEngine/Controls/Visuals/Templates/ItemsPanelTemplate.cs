@@ -45,7 +45,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
         foreach (KeyValuePair<string, object> nameRegistration in _names)
           ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
       cm.FinishCopy();
-      result.ActivateOrRememberBindings(cm.GetDeferredBindings());
       return result;
     }
 

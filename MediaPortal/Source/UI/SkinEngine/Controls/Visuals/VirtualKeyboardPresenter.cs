@@ -53,6 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (keyboardLayoutControl == null)
         return;
       keyboardLayoutControl.Context = parent;
+      keyboardLayoutControl.LogicalParent = this;
       keyboardLayoutControl.VisualParent = this;
       keyboardLayoutControl.SetScreen(Screen);
       keyboardLayoutControl.SetElementState(_elementState);

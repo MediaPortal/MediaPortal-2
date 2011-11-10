@@ -107,7 +107,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (oldTemplateControl != null)
         oldTemplateControl.CleanupAndDispose();
       TemplateControl = content;
-      _itemsHostPanel = content == null ? null : content.FindElement(ItemsHostMatcher.Instance) as Panel;
+      if (content == null)
+        _itemsHostPanel = null;
+      else
+      {
+        content.LogicalParent = this;
+        _itemsHostPanel = content.FindElement(ItemsHostMatcher.Instance) as Panel;
+      }
       AttachScrolling();
     }
 

@@ -324,6 +324,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// <param name="dict">Resource dictionary whose contents should be merged.</param>
     public void Merge(ResourceDictionary dict)
     {
+      // No need to set the LogicalParent at the result because we don't bind bindings in ResourceDictionary
       TakeOver(MpfCopyManager.DeepCopyCutLP(dict), false, true);
     }
 

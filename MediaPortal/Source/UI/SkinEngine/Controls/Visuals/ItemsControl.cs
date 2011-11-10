@@ -536,6 +536,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           FrameworkElement element = itemCopy as FrameworkElement ?? PrepareItemContainer(itemCopy);
           if (element.Style == null)
             element.Style = ItemContainerStyle;
+          element.LogicalParent = this;
           preparedChildren.Add(element);
         }
         presenter.SetDataStrings(BuildDataStrings(items));
@@ -559,7 +560,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
-          lvig.Initialize(this, l, MpfCopyManager.DeepCopyCutLP(ItemContainerStyle), MpfCopyManager.DeepCopyCutLP(ItemTemplate));
+          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
           IsEmpty = l.Count == 0;
           vsp.SetItemProvider(lvig);
 

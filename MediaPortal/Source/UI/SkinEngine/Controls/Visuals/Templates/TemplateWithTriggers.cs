@@ -108,7 +108,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       // Setting the logical parent has to be done after the copy process has finished - else the logical parent will be overridden
       foreach (TriggerBase t in triggers)
         t.LogicalParent = result;
-      result.ActivateOrRememberBindings(cm.GetDeferredBindings());
       return result;
     }
 

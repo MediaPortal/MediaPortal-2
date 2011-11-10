@@ -76,12 +76,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return _identities.Values.OfType<IBinding>();
     }
 
-    public static void ActivateBindings(IEnumerable<IBinding> deferredBindings)
-    {
-      foreach (IBinding binding in deferredBindings)
-        binding.Activate();
-    }
-
     /// <summary>
     /// Creates a deep copy of object <paramref name="o"/> and returns it. This method will create a new object graph starting at the given object.
     /// </summary>
@@ -149,13 +143,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
     public static T DeepCopyCutLP<T>(T o)
     {
+      return DeepCopySetLP(o, null);
+    }
+
+    public static T DeepCopySetLP<T>(T o, DependencyObject newLP)
+    {
       IDictionary<object, object> identities = new Dictionary<object, object>();
       DependencyObject depObj = o as DependencyObject;
       if (depObj != null)
       {
         DependencyObject lp = depObj.LogicalParent;
         if (lp != null)
-          identities[lp] = null;
+          identities[lp] = newLP;
       }
       return DeepCopyWithIdentities(o, identities);
     }

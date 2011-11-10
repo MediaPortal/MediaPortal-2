@@ -212,10 +212,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       object value = Value;
       if (TypeConverter.Convert(value, dd.DataType, out obj))
         if (ReferenceEquals(value, obj))
-          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+          SetDataDescriptorValueWithLP(dd, MpfCopyManager.DeepCopyCutLP(obj));
         else
           // Avoid creating a copy twice
-          element.SetValueInRenderThread(dd, obj);
+          SetDataDescriptorValueWithLP(dd, obj);
       else
       {
         // Value is not compatible: We cannot execute
