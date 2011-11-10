@@ -40,8 +40,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
   public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IResourceContainer
   {
-    public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
-
     #region Protected fields
 
     protected static readonly ICollection<object> EMPTY_OBJECT_COLLECTION = new List<object>(0).AsReadOnly();
@@ -364,9 +362,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         string sourceFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
         if (sourceFilePath == null)
           throw new XamlLoadException("Could not open ResourceDictionary source file '{0}' (evaluated path is '{1}')", _source, sourceFilePath);
-        object obj = XamlLoader.Load(sourceFilePath,
-            (IModelLoader) context.GetContextVariable(typeof(IModelLoader)),
-            (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS));
+        object obj = XamlLoader.Load(sourceFilePath, (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
         ResourceDictionary mergeDict = obj as ResourceDictionary;
         if (mergeDict == null)
         {

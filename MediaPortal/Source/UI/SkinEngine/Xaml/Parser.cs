@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// </para>
   /// <para>
   /// <b>Parsing operation</b><br/>
-  /// The parsing operation starts when the method <see cref="Parser.Parse(bool)"/>
-  /// or <see cref="Parser.Parse(bool)"/>
+  /// The parsing operation starts when the method <see cref="Parser.Parse()"/>
+  /// or <see cref="Parser.Parse()"/>
   /// is called.
   /// The parser will first read the XAML file with an XML reader. This will
   /// result in checking the conformance of the file to the XML language specification.
@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// namespaces, all named elements created yet, and the current object which
   /// is built up, together with the context information of all parent elements
   /// up to the top of the tree. After the parsing process has finished,
-  /// the <see cref="Parser.Parse(bool)"/> method returns the root element
+  /// the <see cref="Parser.Parse()"/> method returns the root element
   /// of the created element tree.
   /// </para>
   /// <para>
@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected XmlDocument _xmlDocument;
 
     /// <summary>
-    /// Holds the root object which will be build up by the <see cref="Parse(bool)"/>
+    /// Holds the root object which will be build up by the <see cref="Parse()"/>
     /// method.
     /// </summary>
     protected object _rootObject;
@@ -192,7 +192,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected IDictionary<object ,object> _contextVariables = new Dictionary<object, object>();
 
     protected ICollection<EvaluatableMarkupExtensionActivator> _deferredMarkupExtensionActivations = new List<EvaluatableMarkupExtensionActivator>();
-    protected ICollection<IBinding> _deferredBindings = new List<IBinding>();
 
     #endregion
 
@@ -204,7 +203,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <remarks>
     /// The parsing operation will not start immediately, you'll first have to
     /// register all necessary namespace handlers. To start the parsing operation, call
-    /// method <see cref="Parse(bool)"/>.
+    /// method <see cref="Parse()"/>.
     /// </remarks>
     /// <param name="reader">The reader the parser will take its input to parse.</param>
     /// <param name="importNamespace">Delegate to be called when importing
@@ -234,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Returns the root object which was instantiated for the root XAML element
     /// in the XML tree. This property returns a value different from <c>null</c>,
-    /// when the <see cref="Parse(bool)"/> method has finished.
+    /// when the <see cref="Parse()"/> method has finished.
     /// </summary>
     public object RootObject
     {
@@ -256,10 +255,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Parses the XAML file associated with this parser.
     /// </summary>
-    /// <param name="activateBindings">If set to <c>true</c>, bindings will be activated, else they will be left
-    /// unactivated.</param>
     /// <returns>The visual corresponding to the root XAML element.</returns>
-    public object Parse(bool activateBindings)
+    public object Parse()
     {
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
@@ -269,9 +266,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
       foreach (EvaluatableMarkupExtensionActivator activator in _deferredMarkupExtensionActivations)
         activator.Activate();
-      if (activateBindings)
-        foreach (IBinding binding in _deferredBindings)
-          binding.Activate();
       return _rootObject;
     }
 
@@ -889,7 +883,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (binding != null && dd.DataType != typeof(IBinding)) // In case the property descriptor's type is IBinding, we want to assign the binding directly instead of binding it to the property
       {
         binding.SetTargetDataDescriptor(dd);
-        _deferredBindings.Add(binding);
         return;
       }
 

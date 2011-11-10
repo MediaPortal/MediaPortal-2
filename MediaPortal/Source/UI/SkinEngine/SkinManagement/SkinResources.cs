@@ -412,7 +412,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           {
             logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
             ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-                new StyleResourceModelLoader(this), false) as ResourceDictionary;
+                new StyleResourceModelLoader(this)) as ResourceDictionary;
             if (rd == null)
               throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
                   "' doesn't contain a ResourceDictionary as root element");

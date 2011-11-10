@@ -39,23 +39,19 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// </summary>              
   public class XamlLoader
   {
-    public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
-
     /// <summary>
     /// Loads the specified skin file and returns the root UIElement.
     /// </summary>
     /// <param name="skinFilePath">The path to the XAML skin file.</param>
     /// <param name="loader">Loader callback for GUI models.</param>
-    /// <param name="activateBindings">If set to <c>true</c>, bindings will be activated, else they will be left
-    /// unactivated.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(string skinFilePath, IModelLoader loader, bool activateBindings)
+    public static object Load(string skinFilePath, IModelLoader loader)
     {
       try
       {
         using (TextReader reader = new StreamReader(skinFilePath))
-          return Load(reader, loader, activateBindings);
+          return Load(reader, loader);
       }
       catch (XamlLoadException e)
       {
@@ -73,19 +69,16 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     /// <param name="reader">The reader containing the XAML contents of the skin file.</param>
     /// <param name="loader">Loader callback for GUI models.</param>
-    /// <param name="activateBindings">If set to <c>true</c>, bindings will be activated, else they will be left
-    /// unactivated.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(TextReader reader, IModelLoader loader, bool activateBindings)
+    public static object Load(TextReader reader, IModelLoader loader)
     {
       try
       {
         Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
         parser.SetCustomTypeConverter(MPF.ConvertType);
         parser.SetContextVariable(typeof(IModelLoader), loader);
-        parser.SetContextVariable(KEY_ACTIVATE_BINDINGS, activateBindings);
-        return parser.Parse(activateBindings);
+        return parser.Parse();
       }
       catch (Exception e)
       {
