@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
@@ -43,8 +42,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             LogicalParent = this,
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, false) ?? container.CopyDefaultStyle();
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle) ?? container.CopyDefaultStyle();
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       return container;
     }
 

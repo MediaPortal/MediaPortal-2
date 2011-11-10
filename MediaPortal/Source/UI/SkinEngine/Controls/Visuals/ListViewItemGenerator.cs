@@ -161,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Set this after the other properties have been initialized to avoid duplicate work
       result.Style = ItemContainerStyle;
 
-      result.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
+      result.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       return result;
     }
 

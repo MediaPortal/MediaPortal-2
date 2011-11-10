@@ -1306,7 +1306,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = FindResource(type) as Style;
         type = type.BaseType;
       }
-      return MpfCopyManager.DeepCopyCutLP(result, false); // Create an own copy of the style to be assigned
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
     }
 
     /// <summary>
@@ -1323,7 +1323,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         result = (ResourceDictionary.FindResourceInParserContext(type, context) ?? FindResource(type)) as Style;
         type = type.BaseType;
       }
-      return MpfCopyManager.DeepCopyCutLP(result, false); // Create an own copy of the style to be assigned
+      return MpfCopyManager.DeepCopyCutLP(result); // Create an own copy of the style to be assigned
     }
 
     #region Focus & control predicition

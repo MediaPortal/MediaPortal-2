@@ -279,8 +279,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       _lastUpdateValue = value;
 
-      IEnumerable<IBinding> deferredBindings;
-      object assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
+      object assignValue = MpfCopyManager.DeepCopyCutLP(value);
       if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
         ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
 #if DEBUG_DRME
@@ -288,14 +287,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 #endif
       object assignValueConverted = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
       if (!ReferenceEquals(assignValue, assignValueConverted) && !ReferenceEquals(assignValue, value))
-      {
         MPF.TryCleanupAndDispose(assignValue);
-        deferredBindings = EMPTY_BINDING_ENUMERATION;
-      }
       _contextObject.SetBindingValue(_targetDataDescriptor, assignValueConverted);
-      UIElement contextUIElement = FindUIElementInLogicalTree(_contextObject);
-      if (contextUIElement != null)
-        contextUIElement.ActivateOrRememberBindings(deferredBindings);
       // If we cannot find any UI element to pass the bindings to, we don't activate them. This means bindings, which are bound to
       // an object which doesn't have an UI element in its logical tree, cannot be activated.
     }

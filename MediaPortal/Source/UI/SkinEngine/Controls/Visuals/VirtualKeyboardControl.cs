@@ -36,7 +36,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -737,11 +736,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
       if (result == null)
         return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
       // See comment about the copying in ResourceDictionary.FindResourceInParserContext()
-      result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      if (activateBindings)
-        ActivateOrRememberBindings(deferredBindings);
+      result = MpfCopyManager.DeepCopyCutLP(result);
       return result;
     }
 

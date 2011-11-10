@@ -125,15 +125,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       }
       if (result == null)
         return null;
-      IEnumerable<IBinding> deferredBindings;
       // We do a copy of the result to avoid later problems when the property where the result is assigned to is copied.
       // If we don't cut the result's logical parent, a deep copy of the here assigned property would still reference
       // the static resource's logical parent, which would copy an unnecessary big tree.
       // And we cannot simply clean the logical parent of the here found resource because we must not change it.
       // So we must do a copy where we cut the logical parent.
-      result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      UIElement.RememberPendingBindingsInParserContext(deferredBindings, context);
-      return result;
+      return MpfCopyManager.DeepCopyCutLP(result);
     }
 
     public static void RegisterUnmodifiableResourceDuringParsingProcess(IUnmodifiableResource resource, IParserContext context)
@@ -327,7 +324,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     /// <param name="dict">Resource dictionary whose contents should be merged.</param>
     public void Merge(ResourceDictionary dict)
     {
-      TakeOver(MpfCopyManager.DeepCopyCutLP(dict, false), false, true);
+      TakeOver(MpfCopyManager.DeepCopyCutLP(dict), false, true);
     }
 
     public void RemoveResources(ResourceDictionary dict)

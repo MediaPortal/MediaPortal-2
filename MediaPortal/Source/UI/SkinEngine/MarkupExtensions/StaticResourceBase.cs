@@ -22,8 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -40,11 +38,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
       if (result == null)
         return null;
-      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
       // See comment about the copying in method ResourceDictionary.FindResourceInParserContext()
-      result = MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
-      UIElement.RememberPendingBindingsInParserContext(deferredBindings, context);
-      return result;
+      return MpfCopyManager.DeepCopyCutLP(result);
     }
   }
 }

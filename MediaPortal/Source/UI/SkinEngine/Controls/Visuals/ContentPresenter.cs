@@ -31,7 +31,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -116,11 +115,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Try to unwrap ResourceWrapper before _content is accessed elsewhere.
       // That's the only function we need from the ConvertType method, that's why we only call MPF.ConvertType
       // instead of TypeConverter.Convert.
-      IEnumerable<IBinding> deferredBindings;
-      if (!MPF.ConvertType(content, typeof(object), out _content, out deferredBindings))
+      if (!MPF.ConvertType(content, typeof(object), out _content))
         _content = content;
-      else
-        ActivateOrRememberBindings(deferredBindings);
       DependencyObject depObj;
       if (!ReferenceEquals(content, _content) && (depObj = _content as DependencyObject) != null)
         depObj.LogicalParent = this;

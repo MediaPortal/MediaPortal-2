@@ -244,14 +244,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, false);
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
+      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, false);
-      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel, false);
-      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, false);
-      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider, false);
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
       return container;
     }
   }

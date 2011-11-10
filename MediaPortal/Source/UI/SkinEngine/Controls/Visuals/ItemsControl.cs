@@ -532,9 +532,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         foreach (object item in items)
         {
-          IEnumerable<IBinding> deferredBindings;
-          object itemCopy = MpfCopyManager.DeepCopyWithFixedObject(item, this, out deferredBindings); // Keep this object as LogicalParent
-          ActivateOrRememberBindings(deferredBindings);
+          object itemCopy = MpfCopyManager.DeepCopyWithFixedObject(item, this); // Keep this object as LogicalParent
           FrameworkElement element = itemCopy as FrameworkElement ?? PrepareItemContainer(itemCopy);
           if (element.Style == null)
             element.Style = ItemContainerStyle;
@@ -561,11 +559,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
-          IEnumerable<IBinding> deferredBindings1;
-          IEnumerable<IBinding> deferredBindings2;
-          lvig.Initialize(this, l, MpfCopyManager.DeepCopyCutLP(ItemContainerStyle, out deferredBindings1), MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings2));
-          ActivateOrRememberBindings(deferredBindings1);
-          ActivateOrRememberBindings(deferredBindings2);
+          lvig.Initialize(this, l, MpfCopyManager.DeepCopyCutLP(ItemContainerStyle), MpfCopyManager.DeepCopyCutLP(ItemTemplate));
           IsEmpty = l.Count == 0;
           vsp.SetItemProvider(lvig);
 
