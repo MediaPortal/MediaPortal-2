@@ -38,7 +38,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   {
     #region Protected fields
 
-    protected bool _freezable = false;
     protected bool _enableBindings = false;
     protected IDictionary<string, object> _names = null;
 
@@ -54,7 +53,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper) source;
-      Freezable = rw.Freezable;
       if (rw._names == null)
         _names = null;
       else
@@ -102,12 +100,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       get { return Value; }
       set { Value = value; }
-    }
-
-    public bool Freezable
-    {
-      get { return _freezable; }
-      set { _freezable = value; }
     }
 
     public bool EnableBindings

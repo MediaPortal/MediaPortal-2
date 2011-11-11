@@ -21,7 +21,7 @@
   </ResourceWrapper>
 
   <!-- Default brush used to paint the background of a page/window -->
-  <ResourceWrapper x:Key="BackgroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="BackgroundBrush">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
       <GradientStop Color="{ThemeResource BackgroundGradient1Color}" Offset="0"/>
       <GradientStop Color="{ThemeResource BackgroundGradient2Color}" Offset="1"/>
@@ -29,7 +29,7 @@
   </ResourceWrapper>
 
   <!-- Default brush used to paint the background of a dialog -->
-  <ResourceWrapper x:Key="DialogBackgroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="DialogBackgroundBrush">
     <RadialGradientBrush GradientOrigin="0.186,0.311">
       <RadialGradientBrush.RelativeTransform>
         <TransformGroup>
@@ -58,7 +58,7 @@
     </LinearGradientBrush >
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush">
   	<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
   		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient1Color}" Offset="0"/>
   		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient2Color}" Offset="0.3"/>
