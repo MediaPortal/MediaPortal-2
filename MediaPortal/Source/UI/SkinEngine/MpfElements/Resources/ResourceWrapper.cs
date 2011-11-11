@@ -34,11 +34,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// the object is resolved by a markup extension, for example. Instances of this class
   /// will be automatically converted to the underlaying <see cref="Resource"/> object.
   /// </summary>
-  public class ResourceWrapper : ValueWrapper, INameScope, IResourceContainer
+  public class ResourceWrapper : ValueWrapper, INameScope, IBindingContainer
   {
     #region Protected fields
 
     protected bool _freezable = false;
+    protected bool _enableBindings = false;
     protected IDictionary<string, object> _names = null;
 
     #endregion
@@ -85,9 +86,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     protected IDictionary<string, object> GetOrCreateNames()
     {
-      if (_names == null)
-        _names = new Dictionary<string, object>();
-      return _names;
+      return _names ?? (_names = new Dictionary<string, object>());
     }
 
     #endregion
@@ -109,6 +108,24 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       get { return _freezable; }
       set { _freezable = value; }
+    }
+
+    public bool EnableBindings
+    {
+      get { return _enableBindings; }
+      set
+      {
+        _enableBindings = value;
+        if (!_enableBindings)
+          return;
+        if (_deferredBindings != null)
+        {
+          ICollection<IBinding> deferredBindings = _deferredBindings;
+          _deferredBindings = null;
+          foreach (IBinding binding in deferredBindings)
+            binding.Activate();
+        }
+      }
     }
 
     #endregion
@@ -140,6 +157,22 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       if (_names == null)
         return;
       _names.Remove(name);
+    }
+
+    #endregion
+
+    #region IBindingContainer implementation
+
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      if (_enableBindings)
+      {
+        foreach (IBinding binding in bindings)
+          binding.Activate();
+        return;
+      }
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
     }
 
     #endregion

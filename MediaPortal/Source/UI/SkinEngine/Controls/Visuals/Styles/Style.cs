@@ -264,6 +264,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
+    #region IBindingContainer implementation
+
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      // We don't bind bindings - simply ignore them
+    }
+
+    #endregion
+
     #region IInitializable implementation
 
     public override void FinishInitialization(IParserContext context)

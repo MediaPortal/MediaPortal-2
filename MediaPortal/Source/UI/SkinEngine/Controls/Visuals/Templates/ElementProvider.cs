@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -70,6 +72,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       get { return _owner; }
       set { _owner = value; }
+    }
+
+    #endregion
+
+    #region IBindingContainer implementation
+
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      // We don't bind bindings - simply ignore them
     }
 
     #endregion

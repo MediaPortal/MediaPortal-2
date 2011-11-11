@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IResourceContainer
+  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope, IBindingContainer
   {
     #region Protected fields
 
@@ -379,6 +379,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         _mergedDictionaries.Clear();
       }
       FireChanged();
+    }
+
+    #endregion
+
+    #region IBindingContainer implementation
+
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
+    {
+      // We don't bind bindings - simply ignore them
     }
 
     #endregion

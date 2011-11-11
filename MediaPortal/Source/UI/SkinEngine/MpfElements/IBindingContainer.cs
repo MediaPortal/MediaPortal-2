@@ -22,12 +22,20 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {
   /// <summary>
-  /// Marker interface for resource containers which don't support binding activation.
+  /// Marker interface for container classes which control binding activation of bindings on child elements.
   /// </summary>
-  public interface IResourceContainer
+  public interface IBindingContainer
   {
+    /// <summary>
+    /// Adds bindings of child elements to be activated, ignored or deferred.
+    /// </summary>
+    /// <param name="bindings">Enumeration of bindings.</param>
+    void AddBindings(IEnumerable<IBinding> bindings);
   }
 }

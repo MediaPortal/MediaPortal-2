@@ -220,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   #endregion
 
-  public abstract class UIElement : Visual, IContentEnabled
+  public abstract class UIElement : Visual, IContentEnabled, IBindingContainer
   {
     protected const string LOADED_EVENT = "UIElement.Loaded";
 
@@ -1119,9 +1119,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         child.RestoreUIState(state, prefix + "/Child_" + (i++));
     }
 
-    protected override DependencyObject GetContainerForDeferredBindings()
+    void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
     {
-      return this;
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
+      if (PreparingOrRunning)
+        ActivateBindings();
     }
 
     public override void SetBindingValue(IDataDescriptor dd, object value)

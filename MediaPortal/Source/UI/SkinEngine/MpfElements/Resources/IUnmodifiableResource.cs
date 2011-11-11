@@ -34,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// This interface provides a similar function as the WPF <c>Freezable</c> class, but a bit more lightweight. We can only
   /// differentiate between modifiable (=normal) and unmodifiable (corresponds to a WPF "frozen" object) objects.
   /// </remarks>
-  public interface IUnmodifiableResource : ISkinEngineManagedObject, IResourceContainer
+  public interface IUnmodifiableResource : ISkinEngineManagedObject, IBindingContainer
   {
     /// <summary>
     /// Gets the owner object of this resource. Implementors should simply provide a trivial implementation with
