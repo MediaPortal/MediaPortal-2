@@ -192,6 +192,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Guid? _virtualKeyboardDialogGuid = null;
     protected RenderContext _renderContext;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected object _syncObj = new object();
 
     #endregion
 
@@ -356,13 +357,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void SetValues()
     {
-      lock (_root)
+      lock (_syncObj)
         _animator.SetValues();
     }
 
     public void Animate()
     {
-      lock (_root)
+      lock (_syncObj)
         _animator.Animate();
     }
 
@@ -371,7 +372,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       uint time = (uint) Environment.TickCount;
       SkinContext.SystemTickCount = time;
 
-      lock (_root)
+      lock (_syncObj)
       {
         if (_mouseMovePending.HasValue)
         {
@@ -426,7 +427,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Prepare()
     {
-      lock (_root)
+      lock (_syncObj)
       {
         _root.Allocate();
 
@@ -453,7 +454,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       ScreenState = State.Closed;
       SkinContext.WindowSizeProperty.Detach(OnWindowSizeChanged);
-      lock (_root)
+      lock (_syncObj)
       {
         Animator.StopAll();
         _root.Deallocate();
@@ -503,10 +504,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       try
       {
-        if (_root.CanHandleMouseMove())
-          _root.OnMouseMove(x, y);
-        else
-          _mouseMovePending = new PointF(x, y);
+        lock (_syncObj)
+          if (_root.CanHandleMouseMove())
+            _root.OnMouseMove(x, y);
+          else
+            _mouseMovePending = new PointF(x, y);
       }
       catch (Exception e)
       {
@@ -525,7 +527,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       try
       {
-        _root.OnKeyPreview(ref key);
+        lock (_syncObj)
+          _root.OnKeyPreview(ref key);
       }
       catch (Exception e)
       {
@@ -546,14 +549,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       try
       {
-        _root.OnKeyPressed(ref key);
+        lock (_syncObj)
+          _root.OnKeyPressed(ref key);
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("Screen '{0}': Unhandled exception while processing key event '{0}'", e, _resourceName, key);
       }
       if (key != Key.None)
-        UpdateFocus(ref key);
+        lock (_syncObj)
+          UpdateFocus(ref key);
     }
 
     private void HandleMouseWheel(int numberOfDeltas)
@@ -562,7 +567,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       try
       {
-        _root.OnMouseWheel(numberOfDeltas);
+        lock (_syncObj)
+          _root.OnMouseWheel(numberOfDeltas);
       }
       catch (Exception e)
       {
@@ -584,7 +590,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       bool handled = false;
       try
       {
-        _root.OnMouseClick(buttons, ref handled);
+        lock (_syncObj)
+          _root.OnMouseClick(buttons, ref handled);
       }
       catch (Exception e)
       {
