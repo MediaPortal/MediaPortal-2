@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[weather.title]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Weather.Title]"/>
 
     <!-- Weather model -->
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>

@@ -8,7 +8,7 @@
     >
   <Include.Resources>
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text"
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
         Resource="{Binding Source={Service DialogManager},Path=CurrentDialogData.HeaderText,Mode=OneTime}"/>
 
     <DataTemplate x:Key="DialogButtonItemDataTemplate" DataType="{x:Type collections:ListItem}">

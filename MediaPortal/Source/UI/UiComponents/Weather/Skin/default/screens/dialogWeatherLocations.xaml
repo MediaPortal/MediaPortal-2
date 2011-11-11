@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
 
     <!-- Menu -->
-    <ResourceWrapper x:Key="Menu_Items">
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
       <Binding Source="{StaticResource Model}" Path="LocationsList" Mode="OneTime"/>
     </ResourceWrapper>
 

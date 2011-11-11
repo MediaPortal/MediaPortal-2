@@ -8,7 +8,8 @@
 
     <Model x:Key="ShowPlaylistModel" Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=PlaylistHeader}"/>
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=PlaylistHeader}"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">

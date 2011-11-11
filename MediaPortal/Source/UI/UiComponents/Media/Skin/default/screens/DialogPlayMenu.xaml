@@ -13,7 +13,8 @@
 
     <Model x:Key="PlayItemsModel" Id="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/>
 
-    <ResourceWrapper x:Key="Menu_Items" Resource="{Binding Source={StaticResource PlayItemsModel},Path=PlayMenuItems}"/>
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource PlayItemsModel},Path=PlayMenuItems}"/>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"

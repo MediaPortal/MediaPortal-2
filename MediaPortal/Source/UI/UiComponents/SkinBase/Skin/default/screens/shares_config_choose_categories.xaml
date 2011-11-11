@@ -10,7 +10,8 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle}"/>
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle}"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Client_Element">

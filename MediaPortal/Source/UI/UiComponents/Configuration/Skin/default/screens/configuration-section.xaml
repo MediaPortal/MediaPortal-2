@@ -10,7 +10,7 @@
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">

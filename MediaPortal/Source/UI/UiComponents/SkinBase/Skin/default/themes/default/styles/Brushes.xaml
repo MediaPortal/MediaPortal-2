@@ -6,22 +6,18 @@
 
   <!-- Master screen brushes -->
   <ResourceWrapper x:Key="HeaderPanelBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+      <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+      <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+      <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+    </LinearGradientBrush >
   </ResourceWrapper>
   <ResourceWrapper x:Key="FooterPanelBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+      <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+      <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+      <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+    </LinearGradientBrush >
   </ResourceWrapper>
 
   <!-- Default brush used to paint the background of a page/window -->
@@ -47,23 +43,19 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="DialogBorderBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="{ThemeResource DialogBorderGradient1Color}"/>
-        <GradientStop Offset="0.5" Color="{ThemeResource DialogBorderGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource DialogBorderGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Offset="0" Color="{ThemeResource DialogBorderGradient1Color}"/>
+      <GradientStop Offset="0.5" Color="{ThemeResource DialogBorderGradient2Color}"/>
+      <GradientStop Offset="1" Color="{ThemeResource DialogBorderGradient3Color}"/>
+    </LinearGradientBrush >
   </ResourceWrapper> 
 
   <ResourceWrapper x:Key="ContentGroupBoxBackgroundBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
-        <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
-        <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
+    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+      <GradientStop Offset="0" Color="{ThemeResource HeaderPanelBackgroundGradient1Color}"/>
+      <GradientStop Offset="0.7" Color="{ThemeResource HeaderPanelBackgroundGradient2Color}"/>
+      <GradientStop Offset="1" Color="{ThemeResource HeaderPanelBackgroundGradient3Color}"/>
+    </LinearGradientBrush >
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush" Freezable="true">
@@ -75,13 +67,11 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="PlayControlsFillBrush">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="{ThemeResource PlayControlsFillColor1}"/>
-        <GradientStop Offset="0.5" Color="{ThemeResource PlayControlsFillColor2}"/>
-        <GradientStop Offset="1" Color="{ThemeResource PlayControlsFillColor3}"/>
-      </LinearGradientBrush>
-    </ResourceWrapper.Resource>
+    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+      <GradientStop Offset="0" Color="{ThemeResource PlayControlsFillColor1}"/>
+      <GradientStop Offset="0.5" Color="{ThemeResource PlayControlsFillColor2}"/>
+      <GradientStop Offset="1" Color="{ThemeResource PlayControlsFillColor3}"/>
+    </LinearGradientBrush>
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="InactivePlayControlsFillBrush" Resource="{ThemeResource InactivePlayControlsFillColor}"/>
