@@ -313,7 +313,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// <param name="value">The value to be set.</param>
     public virtual void SetBindingValue(IDataDescriptor dd, object value)
     {
-      SetDataDescriptorValueWithLP(dd, value);
+      DependencyObject parent = LogicalParent;
+      if (parent == null)
+        SetDataDescriptorValueWithLP(dd, value);
+      else
+        parent.SetBindingValue(dd, value);
     }
 
     public static void SetDataDescriptorValueWithLP(IDataDescriptor dd, object value)
