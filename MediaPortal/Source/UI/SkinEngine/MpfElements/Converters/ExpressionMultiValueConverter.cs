@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 
         // The used expression parser supports access to static functions for those of the parameters whose type is a class.
         // We could add classes here like the code commented out below. To access a static member on the string class,
-        // the expression could be for example: {string}.Empty
+        // the expression could be for example: {string}.{Empty}
         // For now, we don't need this functionality, so we don't add types (Albert, 2009-04-22).
 
         //pvh.Parameters["char"] = new Parameter(typeof(char));
