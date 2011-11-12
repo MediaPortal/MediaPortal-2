@@ -183,8 +183,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           FrameworkElement oldElement = _elements[index];
           if (value != oldElement)
           {
-            oldElement.CleanupAndDispose();
-            _elements[index] = value;
             value.VisualParent = _parent;
             if (_parent != null)
             {
@@ -195,6 +193,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             }
             else
               value.SetElementState(ElementState.Available);
+            _elements[index] = value;
+            oldElement.CleanupAndDispose();
           }
         }
         value.InvalidateLayout(true, true);
