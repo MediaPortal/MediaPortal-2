@@ -773,6 +773,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       //  return;
       _isMeasureInvalid |= invalidateMeasure;
       _isArrangeInvalid |= invalidateArrange;
+      if (!IsVisible)
+        return;
       InvalidateParentLayout(invalidateMeasure, invalidateArrange);
     }
 
