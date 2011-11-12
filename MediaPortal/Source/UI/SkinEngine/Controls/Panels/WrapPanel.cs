@@ -679,6 +679,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
+      if (_actualFirstVisibleLineIndex < 0 || _actualLastVisibleLineIndex < _actualFirstVisibleLineIndex)
+        return new List<FrameworkElement>();
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
       int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
