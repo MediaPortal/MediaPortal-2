@@ -120,6 +120,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 			  for (int i = 0; i < values.Length; i++)
 			  {
 			    IDataDescriptor value = values[i];
+          if (!pvh.Parameters.Contains(value.DataType.Name))
+            pvh.Parameters[value.DataType.Name] = new Parameter(value.DataType);
 			    pvh.Parameters[i.ToString()] = new Parameter(value.Value, value.DataType);
 			  }
         evaluator.VariableHolder = pvh;

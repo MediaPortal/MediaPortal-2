@@ -118,7 +118,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         //pvh.Parameters["TimeZone"] = new Parameter(typeof(TimeZone));
 
         // Add child binding variable
-        pvh.Parameters["0"] = new Parameter(val, val == null ? null : val.GetType());
+        Type dataType = val == null ? null : val.GetType();
+        if (dataType != null)
+          pvh.Parameters[dataType.Name] = new Parameter(dataType);
+        pvh.Parameters["0"] = new Parameter(val, dataType);
         evaluator.VariableHolder = pvh;
         Tree tree = ep.Parse(expression);
         result = evaluator.Eval(tree);
