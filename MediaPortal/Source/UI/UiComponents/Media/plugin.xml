@@ -28,6 +28,7 @@
     <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="ShowPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.ShowPlaylistModel"/>
     <Model Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2" Name="EditPlaylistModel" ClassName="MediaPortal.UiComponents.Media.Models.EditPlaylistModel"/>
     <Model Id="039151B6-800B-4279-A1BE-7F421EEA8C9A" Name="ManagePlaylistsModel" ClassName="MediaPortal.UiComponents.Media.Models.ManagePlaylistsModel"/>
+    <Model Id="6997CD35-63F0-4F96-8997-E18C9382E2DC" Name="ViewModeModel" ClassName="MediaPortal.UiComponents.Media.Models.ViewModeModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="BrowseLocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseLocalMediaAction"/>
     <Model Id="92F6CE34-CB28-40f7-9136-AB576F479F94" Name="BrowseMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseMediaAction"/>
@@ -38,6 +39,7 @@
     <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ShowPlaylistAction"/>
     <Model Id="2C3A747D-7FD7-408b-8843-31842A2EB6F3" Name="ManagePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ManagePlaylistsAction"/>
     <Model Id="02848CDD-34F0-4719-9A52-DA959E848409" Name="SavePlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SavePlaylistAction"/>
+    <Model Id="4BDAE589-15AF-4B84-B930-9F24E66841BB" Name="SwitchViewModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchViewModeAction"/>
 
     <Model Id="8573DBD8-A257-426a-9875-9DB155D32D47" Name="ExtendedVideoSkip" ClassName="MediaPortal.UiComponents.Media.Models.ExtendedVideoSkip" />
   </Register>

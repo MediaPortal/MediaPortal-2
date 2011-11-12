@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
+    <Compile Include="Actions\SwitchViewModeAction.cs" />
     <Compile Include="Actions\SavePlaylistAction.cs" />
     <Compile Include="Actions\ManagePlaylistsAction.cs" />
     <Compile Include="Actions\PicturesAction.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Models\ExtendedVideoSkip.cs" />
     <Compile Include="Models\IPlayerUIContributor.cs" />
     <Compile Include="Models\DVDPlayerUIContributor.cs" />
+    <Compile Include="Models\ViewModeModel.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\MediaItemAspects\SpecialSortAspect.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
+    <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
     <Compile Include="Views\AllSharesViewSpecification.cs" />
@@ -255,6 +258,7 @@
     <Content Include="Skin\default\superlayers\SkipStepOSD.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistFailed.xaml" />
     <Content Include="Skin\default\screens\SavePlaylistSuccessful.xaml" />
+    <Content Include="Skin\default\screens\DialogSwitchViewMode.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PluginItemBuilders\" />

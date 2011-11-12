@@ -201,6 +201,14 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_PLAYLIST_LOAD_SOME_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadSomeItemsMissingText]";
     public const string RES_PLAYLIST_LOAD_ALL_ITEMS_MISSING_TEXT = "[Media.PlaylistLoadAllItemsMissingText]";
 
+    // View mode
+    public const string RES_SWITCH_VIEW_MODE = "[Media.SwitchViewModeMenuItem]";
+
+    public const string RES_SMALL_LIST = "[Media.SmallList]";
+    public const string RES_MEDIUM_LIST = "[Media.MediumList]";
+    public const string RES_LARGE_LIST = "[Media.LargeList]";
+    public const string RES_LARGE_Grid = "[Media.LargeGrid]";
+
     // Screens
     public const string SCREEN_BROWSE_MEDIA_NAVIGATION = "BrowseMediaNavigation";
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
@@ -238,6 +246,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_VIDEOCONTEXTMENU_DIALOG = "DialogVideoContextMenu";
 
     public const string DIALOG_ADD_TO_PLAYLIST_PROGRESS = "DialogAddToPlaylistProgress";
+
+    public const string DIALOG_SWITCH_VIEW_MODE = "DialogSwitchViewMode";
 
     // Timespans
     public static TimeSpan TS_SEARCH_TEXT_TYPE = TimeSpan.FromMilliseconds(300);

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Media workflow states -->
 <Workflow DescriptorVersion="1.0">
   <States>
     <!-- Media navigation -->
