@@ -728,7 +728,7 @@
 
   <!-- 
   Media Navigation styles   
-  We provide different control styles for thumbnail list and grid views for each navigation item (filter,audio,video,...).
+  We provide different control styles for thumbnail list and grid views for each navigation item (filter, audio, video,...).
   -->
   <!-- Filter -->
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
@@ -1051,7 +1051,6 @@
     </Grid>
   </ControlTemplate>
 
-  
   <!-- Specific media navigation data templates -->
   <DataTemplate DataType="{x:Type navitems:ContainerItem}">
     <Control>
@@ -1115,8 +1114,7 @@
 
   <DataStringProvider x:Key="MediaItemDataStringProvider" Path="SimpleTitle"/>
 
-  <!-- Different styles for list and grid views -->
-  <Style x:Key="MediaItemsListViewBaseStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate"/> <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
@@ -1130,26 +1128,31 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
-
-  <Style x:Key="MediaItemsListListViewStyle" BasedOn="{ThemeResource MediaItemsListViewBaseStyle}">
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MediaItemsGridListViewStyle" BasedOn="{ThemeResource MediaItemsListViewBaseStyle}">
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 4 ? {1} : {2}">
+              <Binding Source="{StaticResource LayoutManagerModel}" Path="ThumbnailSizeMode"/>
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
   </Style>
 
   <Style x:Key="PlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
