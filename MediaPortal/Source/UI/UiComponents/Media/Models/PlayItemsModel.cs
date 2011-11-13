@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models
   /// to use the play infrastructure of this Media plugin. Items will be played using default play menus and default CP and FSC states.
   /// </para>
   /// <para>
-  /// There are methods are available with several signatures to provide a maximum of flexibility for the caller. The user can be
+  /// There are methods available with several signatures to provide a maximum of flexibility for the caller. The user can be
   /// asked if he wants to play or enqueue the item(s) or the function can be choosen explicitly by the caller. The user
   /// can also be asked which kind of media items (audio/video/pictures) he wants to play/enqueue.
   /// </para>
