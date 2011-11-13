@@ -245,14 +245,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         };
       // Set this after the other properties have been initialized to avoid duplicate work
       // No need to set LogicalParent because styles and control templates don't bind bindings
-      container.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      container.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      container.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
 
       // Re-use some properties for our children
-      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      container.ItemsPanel = MpfCopyManager.DeepCopyCutLP(ItemsPanel);
-      container.ItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
-      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLP(SubItemsProvider);
+      container.ItemContainerStyle = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      container.ItemsPanel = MpfCopyManager.DeepCopyCutLVPs(ItemsPanel);
+      container.ItemTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
+      container.SubItemsProvider = MpfCopyManager.DeepCopyCutLVPs(SubItemsProvider);
       return container;
     }
   }

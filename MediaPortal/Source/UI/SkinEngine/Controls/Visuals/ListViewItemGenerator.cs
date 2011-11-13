@@ -95,8 +95,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(_itemContainerStyle);
       MPF.TryCleanupAndDispose(_itemTemplate);
       // No need to set the LogicalParent at styles or data templates because they don't bind bindings
-      _itemContainerStyle = MpfCopyManager.DeepCopyCutLP(itemContainerStyle);
-      _itemTemplate = MpfCopyManager.DeepCopyCutLP(itemTemplate);
+      _itemContainerStyle = MpfCopyManager.DeepCopyCutLVPs(itemContainerStyle);
+      _itemTemplate = MpfCopyManager.DeepCopyCutLVPs(itemTemplate);
     }
 
     /// <summary>
@@ -161,8 +161,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         };
       // Set this after the other properties have been initialized to avoid duplicate work
       // No need to set the LogicalParent because styles and content templates don't bind bindings
-      result.Style = MpfCopyManager.DeepCopyCutLP(ItemContainerStyle);
-      result.ContentTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      result.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);
+      result.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
       return result;
     }
 

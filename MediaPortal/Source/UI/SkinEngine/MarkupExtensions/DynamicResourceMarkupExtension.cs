@@ -279,7 +279,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       _lastUpdateValue = value;
 
-      object assignValue = MpfCopyManager.DeepCopyCutLP(value);
+      object assignValue = MpfCopyManager.DeepCopyCutLVPs(value);
       if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
         ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
 #if DEBUG_DRME

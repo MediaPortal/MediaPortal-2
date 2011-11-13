@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (result == null)
         return null;
       // See comment about the copying in method ResourceDictionary.FindResourceInParserContext()
-      return MpfCopyManager.DeepCopyCutLP(result);
+      return MpfCopyManager.DeepCopyCutLVPs(result);
     }
   }
 }

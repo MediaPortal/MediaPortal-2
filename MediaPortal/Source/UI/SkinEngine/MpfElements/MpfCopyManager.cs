@@ -130,23 +130,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     }
 
     /// <summary>
-    /// Creates a deep copy of object <paramref name="o"/> while cutting the structure at the logical parent of the object if it is a
-    /// <see cref="DependencyObject"/>.
-    /// The logical parent will be <c>null</c> for the copied object.
+    /// Creates a deep copy of object <paramref name="o"/> while cutting the structure at the logical and visual parents of the object
+    /// if it is a <see cref="DependencyObject"/> or <see cref="Visual"/>.
+    /// The logical and visual parents will be <c>null</c> for the copied object.
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling <see cref="DeepCopyWithIdentities{T}(T,IDictionary{object,object})"/>
-    /// with an identity map only containing the logical parent of <paramref name="o"/>, mapped to a <c>null</c> value,  if it is a
-    /// <see cref="DependencyObject"/>.
+    /// with an identity map only containing the logical and visual parents of <paramref name="o"/>, each mapped to a <c>null</c> value,
+    /// if <paramref name="o"/> is a <see cref="DependencyObject"/> or <see cref="Visual"/>.
     /// </remarks>
     /// <param name="o">Object to be copied.</param>
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
-    public static T DeepCopyCutLP<T>(T o)
+    public static T DeepCopyCutLVPs<T>(T o)
     {
-      return DeepCopySetLP(o, null);
+      return DeepCopySetLVPs(o, null, null);
     }
 
-    public static T DeepCopySetLP<T>(T o, DependencyObject newLP)
+    public static T DeepCopySetLVPs<T>(T o, DependencyObject newLP, Visual newVP)
     {
       IDictionary<object, object> identities = new Dictionary<object, object>();
       DependencyObject depObj = o as DependencyObject;
@@ -155,6 +155,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         DependencyObject lp = depObj.LogicalParent;
         if (lp != null)
           identities[lp] = newLP;
+      }
+      Visual v = o as Visual;
+      if (v != null)
+      {
+        Visual vp = v.VisualParent;
+        if (vp != null)
+          identities[vp] = newVP;
       }
       return DeepCopyWithIdentities(o, identities);
     }

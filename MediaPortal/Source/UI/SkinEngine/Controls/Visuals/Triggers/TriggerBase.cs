@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;

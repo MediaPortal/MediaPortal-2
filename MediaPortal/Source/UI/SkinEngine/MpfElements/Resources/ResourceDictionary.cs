@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       // the static resource's logical parent, which would copy an unnecessary big tree.
       // And we cannot simply clean the logical parent of the here found resource because we must not change it.
       // So we must do a copy where we cut the logical parent.
-      return MpfCopyManager.DeepCopyCutLP(result);
+      return MpfCopyManager.DeepCopyCutLVPs(result);
     }
 
     public static void RegisterUnmodifiableResourceDuringParsingProcess(IUnmodifiableResource resource, IParserContext context)
@@ -323,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public void Merge(ResourceDictionary dict)
     {
       // No need to set the LogicalParent at the result because we don't bind bindings in ResourceDictionary
-      TakeOver(MpfCopyManager.DeepCopyCutLP(dict), false, true);
+      TakeOver(MpfCopyManager.DeepCopyCutLVPs(dict), false, true);
     }
 
     public void RemoveResources(ResourceDictionary dict)

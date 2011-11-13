@@ -212,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       object value = Value;
       if (TypeConverter.Convert(value, dd.DataType, out obj))
         if (ReferenceEquals(value, obj))
-          SetDataDescriptorValueWithLP(dd, MpfCopyManager.DeepCopyCutLP(obj));
+          SetDataDescriptorValueWithLP(dd, MpfCopyManager.DeepCopyCutLVPs(obj));
         else
           // Avoid creating a copy twice
           SetDataDescriptorValueWithLP(dd, obj);

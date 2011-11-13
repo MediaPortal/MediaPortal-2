@@ -737,7 +737,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (result == null)
         return null;
       // See comment about the copying in ResourceDictionary.FindResourceInParserContext()
-      result = MpfCopyManager.DeepCopyCutLP(result);
+      result = MpfCopyManager.DeepCopyCutLVPs(result);
       return result;
     }
 

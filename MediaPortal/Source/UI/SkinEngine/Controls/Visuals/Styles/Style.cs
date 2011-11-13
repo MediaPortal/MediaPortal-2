@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       if (_basedOn != null)
         _basedOn.UpdateSettersAndCollectTriggers(element, finishedProperties, triggers);
       foreach (TriggerBase trigger in Triggers)
-        triggers.Add(MpfCopyManager.DeepCopySetLP(trigger, element));
+        triggers.Add(MpfCopyManager.DeepCopySetLVPs(trigger, element, null));
     }
 
     protected void ResetSetters(UIElement element, ICollection<string> finishedProperties)
