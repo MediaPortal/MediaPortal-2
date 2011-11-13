@@ -331,7 +331,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         if (tag.Tag.Genres.Length > 0)
           audioAspect.SetCollectionAttribute(AudioAspect.ATTR_GENRES, tag.Tag.Genres);
         if (trackNo.HasValue)
-          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, trackNo.Value);
+          audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) trackNo.Value);
         if (tag.Tag.TrackCount != 0)
           audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
         int year = (int) tag.Tag.Year;
