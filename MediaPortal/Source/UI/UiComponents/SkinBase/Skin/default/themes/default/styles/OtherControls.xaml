@@ -95,7 +95,7 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" Content="{TemplateBinding Content}"
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!-- ScrollBar X -->
             <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"

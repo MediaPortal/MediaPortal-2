@@ -84,8 +84,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _canContentScrollProperty = new SProperty(typeof(bool), false);
       _verticalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
       _horizontalScrollBarVisibilityProperty = new SProperty(typeof(ScrollBarVisibility), ScrollBarVisibility.Auto);
-
-      ConfigureContentScrollFacility();
     }
 
     void Attach()
@@ -117,21 +115,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       VerticalScrollBarVisibility = sv.VerticalScrollBarVisibility;
       HorizontalScrollBarVisibility = sv.HorizontalScrollBarVisibility;
       Attach();
-      copyManager.CopyCompleted += manager => ConfigureContentScrollFacility();
     }
 
     #endregion
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
-      UpdateScrollBars();
       ConfigureContentScrollFacility();
+      UpdateScrollBars();
     }
 
     void OnScrollBarVisibilityChanged(AbstractProperty property, object oldValue)
     {
-      UpdateScrollBars();
       ConfigureContentScrollFacility();
+      UpdateScrollBars();
     }
 
     public override void FireEvent(string eventName, RoutingStrategyEnum routingStrategy)
@@ -161,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
       if (scp == null)
         return null;
-      IScrollInfo scpContentSI = scp.Content as IScrollInfo;
+      IScrollInfo scpContentSI = scp.TemplateControl as IScrollInfo;
       if (CanContentScroll && scpContentSI != null)
         return scpContentSI;
       return scp;
@@ -235,8 +232,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_attachedScrollInfo != null)
         _attachedScrollInfo.Scrolled -= OnScrollInfoScrolled;
       IScrollInfo scrollInfo = FindScrollControl();
+      if (_attachedScrollInfo != null && _attachedScrollInfo != scrollInfo)
+        _attachedScrollInfo.DoScroll = false;
       if (scrollInfo == null)
+      {
+        _attachedScrollInfo = null;
         return;
+      }
       scrollInfo.DoScroll = true;
       _attachedScrollInfo = scrollInfo;
       _attachedScrollInfo.Scrolled += OnScrollInfoScrolled;
@@ -245,6 +247,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnScrollInfoScrolled(object sender)
     {
       UpdateScrollBars();
+    }
+
+    protected override System.Drawing.SizeF CalculateInnerDesiredSize(System.Drawing.SizeF totalSize)
+    {
+      ConfigureContentScrollFacility();
+      return base.CalculateInnerDesiredSize(totalSize);
     }
 
     protected override void ArrangeTemplateControl()

@@ -112,17 +112,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeContentPresenter();
     }
 
-    protected void InitializeContentPresenter()
-    {
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter == null)
-        return;
-      presenter.HorizontalContentAlignment = HorizontalContentAlignment;
-      presenter.VerticalContentAlignment = VerticalContentAlignment;
-      presenter.ContentTemplate = ContentTemplate;
-      presenter.Content = Content;
-    }
-
     #endregion
 
     #region Public properties
@@ -150,6 +139,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    protected override void OnUpdateElementState()
+    {
+      base.OnUpdateElementState();
+      if (PreparingOrRunning)
+        InitializeContentPresenter();
+    }
+
+    protected void InitializeContentPresenter()
+    {
+      if (!PreparingOrRunning)
+        return;
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter == null)
+        return;
+      presenter.HorizontalContentAlignment = HorizontalContentAlignment;
+      presenter.VerticalContentAlignment = VerticalContentAlignment;
+      presenter.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ContentTemplate); // Setting LogicalParent is not necessary because DataTemplate doesn't bind bindings
+      presenter.SetContent(MpfCopyManager.DeepCopyCutLVPs(Content));
+    }
 
     protected virtual ContentPresenter FindContentPresenter()
     {

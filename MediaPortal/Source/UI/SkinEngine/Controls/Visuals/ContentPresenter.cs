@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _horizontalContentAlignmentProperty;
     protected AbstractProperty _verticalContentAlignmentProperty;
     protected FrameworkElement _templateControl = null;
-    protected object _content = null;
+    protected object _convertedContent = null;
 
     #endregion
 
@@ -67,7 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _contentProperty.Attach(OnContentChanged);
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _horizontalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Attach(OnArrangeGetsInvalid);
@@ -75,7 +74,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Detach()
     {
-      _contentProperty.Detach(OnContentChanged);
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _horizontalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
       _verticalContentAlignmentProperty.Detach(OnArrangeGetsInvalid);
@@ -91,13 +89,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       HorizontalContentAlignment = p.HorizontalContentAlignment;
       VerticalContentAlignment = p.VerticalContentAlignment;
       _templateControl = copyManager.GetCopy(p._templateControl);
-      _content = copyManager.GetCopy(p._content);
+      _convertedContent = copyManager.GetCopy(p._convertedContent);
       Attach();
     }
 
     public override void Dispose()
     {
-      MPF.TryCleanupAndDispose(_content);
+      MPF.TryCleanupAndDispose(_convertedContent);
       MPF.TryCleanupAndDispose(_templateControl);
       MPF.TryCleanupAndDispose(Content);
       MPF.TryCleanupAndDispose(ContentTemplate);
@@ -106,28 +104,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnContentChanged(AbstractProperty property, object oldValue)
+    internal void SetContent(object content)
     {
+      object oldValue = Content;
       MPF.TryCleanupAndDispose(oldValue);
-      MPF.TryCleanupAndDispose(_content);
+      Content = content;
+      if (!ReferenceEquals(oldValue, _convertedContent))
+        MPF.TryCleanupAndDispose(_convertedContent);
 
-      object content = Content;
-      // Try to unwrap ResourceWrapper before _content is accessed elsewhere.
+      object convertedContent;
+      // Try to unwrap ResourceWrapper before _convertedContent is accessed elsewhere.
       // That's the only function we need from the ConvertType method, that's why we only call MPF.ConvertType
       // instead of TypeConverter.Convert.
-      if (!MPF.ConvertType(content, typeof(object), out _content))
-        _content = content;
-      DependencyObject depObj;
-      if (!ReferenceEquals(content, _content) && (depObj = _content as DependencyObject) != null)
-        depObj.LogicalParent = this;
+      if (!MPF.ConvertType(content, typeof(object), out convertedContent))
+        convertedContent = content;
+
+      _convertedContent = ReferenceEquals(content, convertedContent) ? MpfCopyManager.DeepCopySetLVPs(convertedContent, this, this) : convertedContent;
 
       if (ContentTemplate == null)
         // No ContentTemplate set
         InstallAutomaticContentDataTemplate();
       FrameworkElement templateControl = _templateControl;
-      if (!(_content is UIElement) && templateControl != null) // If our content is an UIElement itself, it should only be used as template control but not as context
+      if (!(_convertedContent is FrameworkElement) && templateControl != null) // If our content is a FrameworkElement itself, it should only be used as template control but not as context
         // The controls in the DataTemplate access their "data" via their data context, so we must assign it
-        templateControl.Context = _content;
+        templateControl.Context = _convertedContent;
     }
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
@@ -147,7 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     void InstallAutomaticContentDataTemplate()
     {
-      object content = _content;
+      object content = _convertedContent;
       if (content == null)
       {
         SetTemplateControl(null);
@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         oldTemplateControl.CleanupAndDispose();
       if (templateControl == null)
         return;
-      object content = _content;
+      object content = _convertedContent;
       if (!(content is UIElement)) // If our content is an UIElement itself, it should only be used as template control but not as context
         templateControl.Context = content;
       templateControl.LogicalParent = this;
@@ -218,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public object Content
     {
       get { return _contentProperty.GetValue(); }
-      set { _contentProperty.SetValue(value); }
+      internal set { _contentProperty.SetValue(value); }
     }
 
     public AbstractProperty ContentTemplateProperty
