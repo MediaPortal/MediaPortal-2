@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -324,6 +326,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       try
       {
         object result;
+        bool copy = false;
         lock (_syncObj)
         {
           IDataDescriptor[] values;
@@ -335,10 +338,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           Type targetType = _targetDataDescriptor == null ? typeof(object) : _targetDataDescriptor.DataType;
           if (!_converter.Convert(values, targetType, ConverterParameter, out result))
             return false;
+          copy = values.Any(dd => ReferenceEquals(dd.Value, result));
           IsSourceValueValid = sourceValueValid = true;
         }
+        object oldValue = _evaluatedSourceValue.SourceValue;
         // Set the binding's value outside the lock to comply with the MP2 threading policy
-        _evaluatedSourceValue.SourceValue = new ValueDataDescriptor(result);
+        _evaluatedSourceValue.SourceValue = new ValueDataDescriptor(copy ? MpfCopyManager.DeepCopyCutLVPs(result) : result);
+        if (oldValue != null)
+          MPF.TryCleanupAndDispose(oldValue);
         return true;
       }
       finally
