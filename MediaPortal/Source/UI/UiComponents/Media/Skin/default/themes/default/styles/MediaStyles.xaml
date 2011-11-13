@@ -1115,14 +1115,14 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <WrapPanel x:Name="GridItemsHost" IsItemsHost="True"/>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
