@@ -13,14 +13,14 @@ Usage:
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Source="screens\master_bare.xaml">
     <Include.Resources>
-      <ResourceWrapper x:Key="Client_Element">
+      <ControlTemplate x:Key="Client_Template">
         [UI element to be displayed in the client area]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Client_Element (Any UI element): Element to be shown in the client area.
+ - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
 -->
 
 <Screen
@@ -130,8 +130,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
 -->
 
-    <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
-    <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
-        Content="{DynamicResource ResourceKey=Client_Element,TreeSearchMode=Hybrid}"/>
+    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+    <Control x:Name="ClientArea" DockPanel.Dock="Center"
+        Template="{DynamicResource ResourceKey=Client_Template}"/>
   </DockPanel>
 </Screen>

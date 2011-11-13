@@ -16,7 +16,7 @@
     <ResourceWrapper x:Key="ChooseShareCategoriesStateId" Resource="6218FE5B-767E-48e6-9691-65E466B6020B"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -50,7 +50,7 @@
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareCategoriesStateId}}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
         <Grid.RowDefinitions>
@@ -61,7 +61,7 @@
           </Grid>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

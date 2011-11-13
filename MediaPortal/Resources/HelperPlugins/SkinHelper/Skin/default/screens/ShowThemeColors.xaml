@@ -59,7 +59,7 @@
     </Style>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="50" Context="{Model 843F373D-0B4B-47ba-8DD1-0D18F00FAAD3}"> <!-- NotificationsModel -->
         <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"
             DockPanel.Dock="Top"
@@ -70,7 +70,7 @@
         <ListView x:Name="ThemeColorsList" Style="{ThemeResource ThemeColorsListViewStyle}"
             ItemsSource="{Binding Source={Model 1C27C172-AD96-45A5-9E72-736E6D4B1ED5},Path=ThemeColors,Mode=OneTime}"/>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

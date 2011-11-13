@@ -14,7 +14,7 @@
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}"
               Margin="0,10,0,0">
@@ -67,6 +67,6 @@
           </Control>
         </GroupBox>
         </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

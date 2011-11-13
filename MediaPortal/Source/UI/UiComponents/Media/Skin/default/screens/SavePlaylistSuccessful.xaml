@@ -13,7 +13,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.SavePlaylistSuccessfulHeader]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
@@ -40,7 +40,7 @@
               Command="{Command NavigateRemovePlaylistSaveWorkflow}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

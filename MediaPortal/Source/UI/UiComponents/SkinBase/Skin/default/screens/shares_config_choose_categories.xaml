@@ -14,7 +14,7 @@
         Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle}"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -45,7 +45,7 @@
               Command="{Command Source={StaticResource Model},Path=FinishShareConfiguration}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

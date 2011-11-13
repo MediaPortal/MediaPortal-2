@@ -37,8 +37,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
-    <!-- Client_Element -->
-    <ResourceWrapper x:Key="Client_Element">
+    <!-- Client_Template -->
+    <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="10">
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
@@ -74,7 +74,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Content="{DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid}" SetFocus="true"/>
         </Grid>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

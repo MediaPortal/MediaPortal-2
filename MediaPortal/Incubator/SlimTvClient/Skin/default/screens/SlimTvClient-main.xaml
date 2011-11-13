@@ -14,7 +14,7 @@
     <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
 
     <!-- Contents -->
-    <!--<ResourceWrapper x:Key="Client_Element">-->
+    <!--<ControlTemplate x:Key="Client_Template">-->
     <ResourceWrapper x:Key="Contents_Element">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvClient}}">

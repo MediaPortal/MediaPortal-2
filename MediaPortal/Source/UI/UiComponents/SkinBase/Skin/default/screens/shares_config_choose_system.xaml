@@ -15,7 +15,7 @@
     <ResourceWrapper x:Key="ChooseResourceProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Client_Element">
+    <ControlTemplate x:Key="Client_Template">
       <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -45,7 +45,7 @@
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseResourceProviderStateId}}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

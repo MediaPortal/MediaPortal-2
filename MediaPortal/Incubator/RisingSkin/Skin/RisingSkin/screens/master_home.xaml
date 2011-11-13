@@ -15,15 +15,15 @@ Usage:
       <ResourceWrapper x:Key="Header_Text">
         [Header text]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Client_Element">
+      <ControlTemplate x:Key="Client_Template">
         [UI element to be displayed in the client area]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header
- - Client_Element (Any UI element): Element to be shown in the client area
+ - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
 -->
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
@@ -125,13 +125,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- FooterPanel -->
 
       <!-- Not sure if and how we should show shortcuts...
-    <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
-        Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
+      <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"
+          Height="100" ItemsSource="{DynamicResource KeyBindingControls}"/>
 -->
 
-      <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
-      <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Right"
-        Content="{DynamicResource Client_Element}"/>
+      <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+      <Control x:Name="ClientArea" DockPanel.Dock="Right"
+          Template="{DynamicResource Client_Template}"/>
     </DockPanel>
   </Grid>
 </Screen>
