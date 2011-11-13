@@ -12,7 +12,7 @@
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -38,6 +38,6 @@
               Command="{Command Source={StaticResource Model},Path=FinishDoReImport}"/>
         </StackPanel>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

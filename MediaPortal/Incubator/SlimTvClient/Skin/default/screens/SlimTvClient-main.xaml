@@ -15,7 +15,7 @@
 
     <!-- Contents -->
     <!--<ControlTemplate x:Key="Client_Template">-->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvClient}}">
           
@@ -70,6 +70,6 @@
           </StackPanel>-->
 
         </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

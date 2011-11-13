@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[HelloWorld.ScreenTitle]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel
           Context="{Model Id=5726DA5A-70D5-458f-AF67-611293D97912}" LastChildFill="False">
         <Label Content="[HelloWorld.SampleText]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
@@ -22,7 +22,7 @@
               HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

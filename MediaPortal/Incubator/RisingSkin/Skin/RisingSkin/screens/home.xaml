@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Home.Title]"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
         <DockPanel.Resources>
           <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
@@ -36,7 +36,7 @@
         </StackPanel>
 
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

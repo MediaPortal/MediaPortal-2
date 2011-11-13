@@ -12,7 +12,7 @@
 
     <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.CurrentlyPlayingInformationHeader]"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <GroupBox Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
         <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Context="{StaticResource SlimTvClient}">
           <Control.TemplateControl>
@@ -20,7 +20,7 @@
           </Control.TemplateControl>
         </Control>
       </GroupBox>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -80,7 +80,7 @@
               Command="{Command Source={StaticResource Model},Path=EditCurrentShare}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

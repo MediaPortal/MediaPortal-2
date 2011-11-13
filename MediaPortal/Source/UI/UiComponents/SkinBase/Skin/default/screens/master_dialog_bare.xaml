@@ -14,16 +14,16 @@ Usage:
       <ResourceWrapper x:Key="Dialog_Header_Text">
         [Header text to be shown as dialog title]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Contents_Element">
+      <ControlTemplate x:Key="Contents_Template">
         [Element which represents the contents area of the dialog.
          Will be placed into a ScrollViewer.]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
  - Dialog_Header_Text (String): The text to be displayed as dialog title
- - Contents_Element (Any UI element): Contents area of the dialog.
+ - Contents_Template (ConrolTemplate): Template for the content area of the dialog.
 -->
 
 <Screen
@@ -87,9 +87,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogCloseButtonStyle}"
               Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
-        <ContentPresenter x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
+        <Control x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            Content="{Binding Source={DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"/>
+            Template="{DynamicResource ResourceKey=Contents_Template}"/>
       </Grid>
     </Border>
   </Grid>

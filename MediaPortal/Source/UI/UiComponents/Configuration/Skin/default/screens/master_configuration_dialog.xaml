@@ -36,7 +36,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
         Resource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Text,Mode=OneTime}"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -51,6 +51,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ContentPresenter Content="{DynamicResource ResourceKey=Config_Client_Element,TreeSearchMode=Hybrid}"
             Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

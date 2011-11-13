@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
         <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -142,7 +142,7 @@
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource HintTextColor}"/>
         </StackPanel>
       </StackPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <StackPanel>
         <ListView Height="300" Width="400" x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}"
             ItemsSource="{Binding Source={StaticResource Model},Path=SetupSearchLocations,Mode=OneTime}"
@@ -30,7 +30,7 @@
           </ListView.Resources>
         </ListView>
       </StackPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

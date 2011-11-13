@@ -15,7 +15,7 @@
 
     <!-- Contents -->
     <!--<ControlTemplate x:Key="Client_Template">-->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
         <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvClient}}">
           
@@ -67,6 +67,6 @@
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Left" Command="{Command Path=PrevGroup}"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

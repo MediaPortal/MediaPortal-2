@@ -9,7 +9,7 @@
 
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
           <DockPanel LastChildFill="true"
@@ -65,7 +65,7 @@
           </DockPanel>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -58,7 +58,7 @@
               Command="{Command LoadPlaylist}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

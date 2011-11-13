@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -35,7 +35,7 @@
               Color="{ThemeResource TextColor}" IsVisible="{Binding !IsHomeServerConnected}"/>
         </StackPanel>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

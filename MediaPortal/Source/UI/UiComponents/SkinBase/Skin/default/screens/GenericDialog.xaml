@@ -34,7 +34,7 @@
       </Setter>
     </Style>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="GenericDialogContent">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -50,6 +50,6 @@
             Style="{ThemeResource DialogButtonsListViewStyle}"
             ItemsSource="{Binding Source={Service DialogManager},Path=CurrentDialogData.DialogButtons}"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

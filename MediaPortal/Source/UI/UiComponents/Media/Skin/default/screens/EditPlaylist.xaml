@@ -12,7 +12,7 @@
         Resource="{Binding Source={StaticResource EditPlaylistModel},Path=PlaylistHeader}"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource EditPlaylistModel}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -53,7 +53,7 @@
               Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
         </Grid>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

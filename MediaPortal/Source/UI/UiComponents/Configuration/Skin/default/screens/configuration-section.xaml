@@ -13,7 +13,7 @@
     <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -37,7 +37,7 @@
             Content="{Binding [Help]}" Wrap="True"
             IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

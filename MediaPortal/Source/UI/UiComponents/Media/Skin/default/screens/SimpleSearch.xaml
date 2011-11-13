@@ -11,7 +11,7 @@
     <Model x:Key="MediaNavigationModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource MediaNavigationModel},Path=NavigationData.CurrentScreenData}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -35,7 +35,7 @@
           </Control.TemplateControl>
         </Control>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

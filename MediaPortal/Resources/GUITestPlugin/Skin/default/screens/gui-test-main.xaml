@@ -10,7 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="GUI tests"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="True">
         <UniformGrid Columns="2" DockPanel.Dock="Center">
           <UniformGrid.Resources>
@@ -44,7 +44,7 @@
           </StackPanel>
         </UniformGrid>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

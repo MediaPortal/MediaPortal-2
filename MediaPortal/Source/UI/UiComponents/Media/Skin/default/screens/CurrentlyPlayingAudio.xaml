@@ -9,7 +9,7 @@
 
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
 
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <mp_special_controls:PlayerControl.TemplateControl>
@@ -43,7 +43,7 @@
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>

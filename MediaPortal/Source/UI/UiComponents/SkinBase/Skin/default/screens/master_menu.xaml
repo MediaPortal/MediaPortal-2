@@ -7,7 +7,7 @@ at the left side the menu,
 at the right side the content pane and
 at the bottom the navbar.
 
-The contents (Contents_Element) are displayed inside a GroupBox.
+The contents (Contents_Template) are displayed inside a GroupBox.
 If an alternative contents display should be used,
 the element Alternative_Contents_Element can be used; in that case, no
 surrounding GroupBox will be used.
@@ -24,9 +24,9 @@ Usage:
       </ResourceWrapper>
 
       <!- Either ->
-      <ResourceWrapper x:Key="Contents_Element">
+      <ControlTemplate x:Key="Contents_Template">
         [UI element to be displayed in the content area]
-      </ResourceWrapper>
+      </ControlTemplate>
       <!- Or ->
       <ResourceWrapper x:Key="Alternative_Contents_Element">
         [UI element to be displayed in the content area]
@@ -36,9 +36,9 @@ Usage:
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Header_Text (String): The text to be displayed as header. Only used when Contents_Element is given.
- - Contents_Element (Any UI element): Contents to be displayed in the content area at the right side,
-   inside a GroupBox.
+ - Header_Text (String): The text to be displayed as header. Only used when Contents_Template is given.
+ - Contents_Template (ConrolTemplate): Template for the contents to be displayed
+   in the content area at the right side, inside a GroupBox.
  - Alternative_Contents_Element (Any UI element): Contents to be displayed in the content area at
    the right side, without a GroupBox.
 -->
@@ -77,9 +77,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <GroupBox x:Name="ContentGroupBox" Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
               Header="{Binding Source={DynamicResource ResourceKey=Header_Text,TreeSearchMode=Hybrid},Path=Resource}" DockPanel.Dock="Center"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Content="{Binding Source={DynamicResource ResourceKey=Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"
-              IsVisible="{Binding RelativeSource={RelativeSource Self},Converter={StaticResource ReferenceToBoolConverter},Path=Content}"
-              Style="{ThemeResource ContentGroupBoxStyle}"/>
+              IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
+              Style="{ThemeResource ContentGroupBoxStyle}">
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"/>
+          </GroupBox>
           <ContentPresenter x:Name="AlternativeContentViewer" Grid.Row="0" Grid.Column="0"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              Content="{Binding Source={DynamicResource ResourceKey=Alternative_Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"

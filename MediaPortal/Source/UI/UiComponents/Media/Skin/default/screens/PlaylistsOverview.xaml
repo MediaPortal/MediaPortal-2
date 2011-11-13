@@ -13,7 +13,7 @@
     <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
+    <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
         <DockPanel Margin="0,0,0,10" DockPanel.Dock="Center"
             LastChildFill="True">
@@ -30,7 +30,7 @@
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </DockPanel>
       </DockPanel>
-    </ResourceWrapper>
+    </ControlTemplate>
 
   </Include.Resources>
 </Include>
