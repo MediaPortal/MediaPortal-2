@@ -193,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (templateControl == null)
         return;
       object content = _convertedContent;
-      if (!(content is UIElement)) // If our content is an UIElement itself, it should only be used as template control but not as context
+      if (!(content is FrameworkElement)) // If our content is a FrameworkElement itself, it should only be used as template control but not as context
         templateControl.Context = content;
       templateControl.LogicalParent = this;
       templateControl.VisualParent = this;

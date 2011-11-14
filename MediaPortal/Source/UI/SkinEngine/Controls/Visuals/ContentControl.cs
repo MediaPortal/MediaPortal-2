@@ -37,6 +37,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _contentTemplateProperty;
 
+    protected bool _contentPresenterInvalid = true;
+
     #endregion
 
     #region Ctor
@@ -94,21 +96,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentAlignmentChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
+      _contentPresenterInvalid = true;
       InitializeContentPresenter();
     }
 
@@ -149,8 +155,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void InitializeContentPresenter()
     {
+      if (!_contentPresenterInvalid)
+        return;
       if (!PreparingOrRunning)
         return;
+      _contentPresenterInvalid = false;
       ContentPresenter presenter = FindContentPresenter();
       if (presenter == null)
         return;
