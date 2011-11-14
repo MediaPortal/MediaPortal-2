@@ -36,7 +36,7 @@
           <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10">
             <Control.Resources>
-              <ResourceWrapper x:Key="OSD_InfoArea_Element">
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -85,7 +85,7 @@
                     </Grid>
                   </DockPanel>
                 </Grid>
-              </ResourceWrapper>
+              </ControlTemplate>
 
               <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
 
@@ -184,7 +184,7 @@
           <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10">
             <Control.Resources>
-              <ResourceWrapper x:Key="OSD_InfoArea_Element">
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -233,7 +233,7 @@
                     </Grid>
                   </DockPanel>
                 </Grid>
-              </ResourceWrapper>
+              </ControlTemplate>
 
               <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
 

@@ -21,7 +21,7 @@
           <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10">
             <Control.Resources>
-              <ResourceWrapper x:Key="OSD_InfoArea_Element">
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <DockPanel LastChildFill="true" Margin="3">
 
@@ -165,7 +165,7 @@
                     </Grid>
                   </Grid>
                 </DockPanel>
-              </ResourceWrapper>
+              </ControlTemplate>
               
               <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
 
