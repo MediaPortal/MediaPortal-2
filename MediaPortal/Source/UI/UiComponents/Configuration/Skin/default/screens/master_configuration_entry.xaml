@@ -20,7 +20,7 @@
           <RowDefinition Height="10"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Content="{DynamicResource ResourceKey=Config_Entry_Element,TreeSearchMode=Hybrid}"
+        <Control Template="{DynamicResource ResourceKey=Config_Entry_Template}"
             Grid.Column="0" Grid.Row="0"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
         <Label x:Name="ErrorText" Grid.Column="0" Grid.Row="1" Margin="10,20,10,10" Wrap="true"

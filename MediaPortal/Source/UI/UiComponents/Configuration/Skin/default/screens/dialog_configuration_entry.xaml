@@ -9,7 +9,7 @@
     <!-- Configuration model -->
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
-    <ResourceWrapper x:Key="Config_Entry_Element">
+    <ControlTemplate x:Key="Config_Entry_Template">
       <Grid x:Name="ContentsGrid">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -26,6 +26,6 @@
             Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
             HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Grid>
-    </ResourceWrapper>
+    </ControlTemplate>
   </Include.Resources>
 </Include>
