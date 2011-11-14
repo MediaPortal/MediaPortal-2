@@ -11,14 +11,15 @@ Usage:
       Source="screens\master_configuration_dialog_wb.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Config_Contents_Element">
+      <ControlTemplate x:Key="Config_Contents_Template">
         [Element which represents the contents area of the dialog.]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Config_Contents_Element (Any UI element): Configurable element to be displayed.
+ - Config_Contents_Template (ControlTemplate): Template for configurable element
+   to be displayed.
 -->
 
 <Include
@@ -42,7 +43,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="10"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Content="{DynamicResource ResourceKey=Config_Contents_Element,TreeSearchMode=Hybrid}"
+        <Control Template="{DynamicResource ResourceKey=Config_Contents_Template}"
             Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <Button x:Name="OkButton" Grid.Column="0" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
             Content="[System.Ok]" HorizontalAlignment="Center">

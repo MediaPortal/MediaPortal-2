@@ -13,15 +13,16 @@ Usage:
       Source="screens\master_configuration_dialog_wob.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Config_Contents_Element">
+      <ControlTemplate x:Key="Config_Contents_Template">
         [Element which represents the contents area of the dialog.
          Here, the configurable element should be displayed.]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Config_Contents_Element (Any UI element): Configurable element to be displayed.
+ - Config_Contents_Template (ControlTemplate): Template for configurable element
+   to be displayed.
 -->
 
 <Include
@@ -42,7 +43,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="*"/>
           <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Grid.Column="1" Grid.Row="1" Content="{DynamicResource ResourceKey=Config_Contents_Element,TreeSearchMode=Hybrid}"
+        <Control Grid.Column="1" Grid.Row="1" Template="{DynamicResource ResourceKey=Config_Contents_Template}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       </Grid>
     </ControlTemplate>
