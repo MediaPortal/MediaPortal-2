@@ -12,15 +12,16 @@ Usage:
       Source="screens\master_configuration_dialog.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Config_Client_Element">
+      <ControlTemplate x:Key="Config_Client_Template">
         [Element which represents the contents area of the dialog.
          Here, the configurable element should be displayed.]
-      </ResourceWrapper>
+      </ControlTemplate>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Config_Client_Element (Any UI element): Configurable element to be displayed.
+ - Config_Client_Template (ControlTemplate): Template of the configurable element
+   to be displayed.
 -->
 
 <Include
@@ -48,7 +49,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.RowDefinitions>
         <Label Grid.Column="0" Grid.Row="0" Wrap="True" Color="{ThemeResource TextColor}"
             Content="{Binding Source={StaticResource Model},Path=CurrentConfigController.Help,Mode=OneTime}"/>
-        <ContentPresenter Content="{DynamicResource ResourceKey=Config_Client_Element,TreeSearchMode=Hybrid}"
+        <Control Template="{DynamicResource ResourceKey=Config_Client_Template}"
             Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
       </Grid>
     </ControlTemplate>
