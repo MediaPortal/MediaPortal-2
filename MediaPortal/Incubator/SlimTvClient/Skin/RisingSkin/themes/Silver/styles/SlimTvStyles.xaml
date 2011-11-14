@@ -167,7 +167,7 @@
                 </DockPanel>
               </ControlTemplate>
               
-              <ResourceWrapper x:Key="OSD_ProgressAndControls_Element">
+              <ControlTemplate x:Key="OSD_ProgressAndControls_Template">
 
                 <DockPanel LastChildFill="true" Margin="3">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -245,7 +245,7 @@
                     <!-- PlayControlsPanel -->
                   </Grid>
                 </DockPanel>
-              </ResourceWrapper>
+              </ControlTemplate>
             </Control.Resources>
 
           </Control>
