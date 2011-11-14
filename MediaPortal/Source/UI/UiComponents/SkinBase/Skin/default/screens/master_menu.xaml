@@ -28,9 +28,9 @@ Usage:
         [UI element to be displayed in the content area]
       </ControlTemplate>
       <!- Or ->
-      <ResourceWrapper x:Key="Alternative_Contents_Element">
+      <ControlTemplate x:Key="Alternative_Contents_Template">
         [UI element to be displayed in the content area]
-      </ResourceWrapper>
+      </ControlTemplate>
 
     </Include.Resources>
   </Include>
@@ -39,8 +39,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header. Only used when Contents_Template is given.
  - Contents_Template (ConrolTemplate): Template for the contents to be displayed
    in the content area at the right side, inside a GroupBox.
- - Alternative_Contents_Element (Any UI element): Contents to be displayed in the content area at
-   the right side, without a GroupBox.
+ - Alternative_Contents_Template (ControlTemplate): Template of the contents to be displayed
+   in the content area at the right side, without a GroupBox.
 -->
 
 <Include
@@ -81,10 +81,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Style="{ThemeResource ContentGroupBoxStyle}">
             <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"/>
           </GroupBox>
-          <ContentPresenter x:Name="AlternativeContentViewer" Grid.Row="0" Grid.Column="0"
+          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Content="{Binding Source={DynamicResource ResourceKey=Alternative_Contents_Element,TreeSearchMode=Hybrid},Mode=OneTime}"
-             IsVisible="{Binding RelativeSource={RelativeSource Self},Converter={StaticResource ReferenceToBoolConverter},Path=Content}"/>
+             Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+             IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </Grid>
       </DockPanel>
     </ControlTemplate>
