@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -160,69 +158,27 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public IBinding CopyAndRetarget(IDataDescriptor newDd)
     {
-      // We'll simulate a DeepCopy here by
-      // 1) Creating a new Binding instance of our class via the default constructor
-      ConstructorInfo ci = GetType().GetConstructor(new Type[] {});
-      if (ci == null)
-        throw new ArgumentException(string.Format("Binding Type '{0}' doesn't implement a standard constructor", GetType().Name));
-      BindingBase result = (BindingBase) ci.Invoke(null);
-
-      // 2) Using an degenerated copy manager which will map every object to itself except
-      //    our context object, which will be mapped to the new target object
-      IDictionary<object, object> exceptionalIdentities = new Dictionary<object, object>();
+      IDictionary<object, object> exceptionalIdentities = new Dictionary<object, object>
+        {
+            {LogicalParent, null}
+        };
       if (_contextObject != null)
         exceptionalIdentities.Add(_contextObject, newDd.TargetObject);
-      // We will rely here on the fact that _targetDataDescriptor.TargetObject will
-      // never reference another object than _contextObject. Otherwise we would
-      // have to add the mapping (_targetDataDescriptor.TargetObject; newDd.TargetObject) too.
-      IdentityCopyManager copyManager = new IdentityCopyManager(exceptionalIdentities);
       IDataDescriptor targetSave = _targetDataDescriptor;
       try
       {
         _targetDataDescriptor = null; // We have to detach temporarily, else the copy won't work
-        result.DeepCopy(this, copyManager);
-        // 3) Exchange the target data descriptor by the new one
+        BindingBase result = MpfCopyManager.DeepCopyWithIdentities(this, exceptionalIdentities);
         result.SetTargetDataDescriptor(newDd);
+        return result;
       }
       finally
       {
         // Restore this binding attachment
         _targetDataDescriptor = targetSave;
       }
-
-      // 4) Do the afterwork of the copying process
-      copyManager.CompleteCopying();
-
-      return result;
     }
 
     #endregion
-  }
-
-  internal class IdentityCopyManager: ICopyManager
-  {
-    protected IDictionary<object, object> _exceptionalIdentities = new Dictionary<object, object>();
-
-    public IdentityCopyManager(IDictionary<object, object> exceptionalIdentities)
-    {
-      _exceptionalIdentities = exceptionalIdentities;
-    }
-
-    public T GetCopy<T>(T source)
-    {
-      if (source == null)
-        return default(T);
-      if (_exceptionalIdentities.ContainsKey(source))
-        return (T) _exceptionalIdentities[source];
-      return source;
-    }
-
-    public void CompleteCopying()
-    {
-      if (CopyCompleted != null)
-        CopyCompleted(this);
-    }
-
-    public event CopyCompletedDlgt CopyCompleted;
   }
 }
