@@ -80,9 +80,11 @@ namespace MediaPortal.UiComponents.Media.Models
       LayoutType = layoutType;
       LayoutSize = layoutSize;
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ViewSettings settings = settingsManager.Load<ViewSettings>();
       settings.LayoutType = layoutType;
       settings.LayoutSize = layoutSize;
+      settingsManager.Save(settings);
     }
 
     #region Members to be accessed from the GUI
