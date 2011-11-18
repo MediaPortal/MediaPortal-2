@@ -21,7 +21,6 @@
 */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -73,61 +72,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
-    protected DependencyObject FindTarget(UIElement startElement)
-    {
-      DependencyObject target = null;
-      if (!string.IsNullOrEmpty(TargetName))
-      {
-        target = startElement.FindElement(new NameMatcher(TargetName));
-        if (target == null)
-          return null;
-      }
-      return target ?? startElement;
-    }
-
     public override void Set(UIElement element)
     {
       if (_bindingWrapper == null || _bindingWrapper.Binding == null)
         return;
-      DependencyObject target = FindTarget(element);
-      if (target == null)
+      IDataDescriptor targetDd;
+      DependencyObject targetObject;
+      if (!FindPropertyDescriptor(element, out targetDd, out targetObject))
         return;
-      AbstractProperty bindingsProperty = target.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS, (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
+      AbstractProperty bindingsProperty = targetObject.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS,
+          (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
       IDictionary<BindingSetter, IBinding> bindings = (IDictionary<BindingSetter, IBinding>) bindingsProperty.GetValue();
       if (bindings.ContainsKey(this))
         return;
-      int index = Property.IndexOf('.');
-      if (index != -1)
-      {
-        string propertyProvider = Property.Substring(0, index);
-        string propertyName = Property.Substring(index + 1);
-        DefaultAttachedPropertyDataDescriptor targetDd;
-        if (DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
-            element, propertyProvider, propertyName, out targetDd))
-        bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
-      }
-      else
-      {
-        string propertyName = Property;
-        IDataDescriptor targetDd;
-        if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out targetDd))
-          bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
-      }
+      bindings.Add(this, _bindingWrapper.Binding.CopyAndRetarget(targetDd));
     }
 
     public override void Restore(UIElement element)
     {
-      DependencyObject target = FindTarget(element);
-      if (target == null)
+      IDataDescriptor targetDd;
+      DependencyObject targetObject;
+      if (!FindPropertyDescriptor(element, out targetDd, out targetObject))
         return;
-      AbstractProperty bindingsProperty = target.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS, (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
+      AbstractProperty bindingsProperty = targetObject.GetOrCreateAttachedProperty(BINDING_SETTER_BINDINGS,
+          (IDictionary<BindingSetter, IBinding>) new Dictionary<BindingSetter, IBinding>());
       IDictionary<BindingSetter, IBinding> bindings = (IDictionary<BindingSetter, IBinding>) bindingsProperty.GetValue();
       IBinding binding;
       if (!bindings.TryGetValue(this, out binding))
         return;
-      IDisposable d = binding as IDisposable;
-      if (d != null)
-        d.Dispose(); // Also removes the binding from the binding collection in its context object
+      MPF.TryCleanupAndDispose(binding); // Also removes the binding from the binding collection in its context object
       bindings.Remove(this);
     }
   }

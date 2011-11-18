@@ -21,7 +21,6 @@
 */
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -105,49 +104,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     #endregion
 
     #region Protected methods
-
-    protected bool FindPropertyDescriptor(UIElement element,
-        out IDataDescriptor propertyDescriptor, out DependencyObject targetObject)
-    {
-      string targetName = TargetName;
-      propertyDescriptor = null;
-      if (string.IsNullOrEmpty(targetName))
-        targetObject = element;
-      else
-      {
-        // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
-        // I think this is more than WPF does. It makes it possible to find elements instantiated
-        // by a template, for example.
-        targetObject = element.FindElementInNamescope(targetName) ??
-            element.FindElement(new NameMatcher(targetName));
-        if (targetObject == null)
-          return false;
-      }
-      string property = Property;
-      int index = property.IndexOf('.');
-      if (index != -1)
-      {
-        string propertyProvider = property.Substring(0, index);
-        string propertyName = property.Substring(index + 1);
-        DefaultAttachedPropertyDataDescriptor result;
-        if (!DefaultAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(new MpfNamespaceHandler(),
-            element, propertyProvider, propertyName, out result))
-          throw new ArgumentException(
-            string.Format("Attached property '{0}' cannot be set on element '{1}'", property, targetObject));
-        propertyDescriptor = result;
-        return true;
-      }
-      else
-      {
-        string propertyName = property;
-        IDataDescriptor result;
-        if (!ReflectionHelper.FindMemberDescriptor(targetObject, propertyName, out result))
-          throw new ArgumentException(
-              string.Format("Property '{0}' cannot be set on element '{1}'", property, targetObject));
-        propertyDescriptor = result;
-        return true;
-      }
-    }
 
     /// <summary>
     /// Wrapper class for storing the original value of a property
