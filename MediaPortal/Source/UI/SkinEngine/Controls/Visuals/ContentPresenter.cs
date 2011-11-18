@@ -107,8 +107,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     internal void SetContent(object content)
     {
       object oldValue = Content;
-      MPF.TryCleanupAndDispose(oldValue);
       Content = content;
+      MPF.TryCleanupAndDispose(oldValue);
       if (!ReferenceEquals(oldValue, _convertedContent))
         MPF.TryCleanupAndDispose(_convertedContent);
 
