@@ -27,6 +27,9 @@ using System.IO;
 
 namespace MediaPortal.Common.ResourceAccess
 {
+  /// <summary>
+  /// Helper class for DOS paths. Replaces class <see cref="Path"/> and provides methods which don't throw exceptions.
+  /// </summary>
   public class DosPathHelper
   {
     /// <summary>
@@ -49,7 +52,8 @@ namespace MediaPortal.Common.ResourceAccess
     /// This method works similar to <see cref="Path.GetExtension"/> but doesn't throw exceptions when the given path contains illegal characters.
     /// </remarks>
     /// <param name="path">DOS path to examine.</param>
-    /// <returns>Extension inclusive <c>'.'</c>, like <c>".txt"</c>.</returns>
+    /// <returns>Extension inclusive <c>'.'</c>, like <c>".txt"</c>, or <see cref="string.Empty"/> if the given <paramref name="path"/>
+    /// doesn't have a file extension.</returns>
     public static string GetExtension(string path)
     {
       string fileName = GetFileName(path);
@@ -67,7 +71,7 @@ namespace MediaPortal.Common.ResourceAccess
     /// given path contains illegal characters.
     /// </remarks>
     /// <param name="path">DOS path to examine.</param>
-    /// <returns>Extension without extension.</returns>
+    /// <returns>File name without extension or <see cref="string.Empty"/>, if the given <paramref name="path"/> doesn't have a file name.</returns>
     public static string GetFileNameWithoutExtension(string path)
     {
       string fileName = GetFileName(path);
