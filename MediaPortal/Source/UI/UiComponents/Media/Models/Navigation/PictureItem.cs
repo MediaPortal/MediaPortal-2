@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -40,29 +41,56 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         int? height = (int?) pictureAspect[PictureAspect.ATTR_HEIGHT];
         if (width.HasValue && width.Value > 0 && height.HasValue && height.Value > 0)
         {
-          Width = width.ToString();
-          Height = height.ToString();
+          Width = width;
+          Height = height;
           Size = width + " x " + height;
         }
       }
+      MediaItemAspect resourceAspect;
+      if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out resourceAspect))
+      {
+        ResourcePath rp = ResourcePath.Deserialize((string) resourceAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
+        string ext = ProviderPathHelper.GetExtension(rp.FileName);
+        if (ext.Length > 1)
+          // remove leading '.'
+          ext = ext.Substring(1);
+        Extension = ext;
+      }
+      MediaItemAspect mediaAspect;
+      if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      {
+        MimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+      }
     }
 
-    public string Width
+    public int? Width
     {
-      get { return this[Consts.KEY_WIDTH]; }
-      set { SetLabel(Consts.KEY_WIDTH, value); }
+      get { return (int?) _additionalProperties[Consts.KEY_WIDTH]; }
+      set { _additionalProperties[Consts.KEY_WIDTH] = value; }
     }
 
-    public string Height
+    public int? Height
     {
-      get { return this[Consts.KEY_HEIGHT]; }
-      set { SetLabel(Consts.KEY_HEIGHT, value); }
+      get { return (int?) _additionalProperties[Consts.KEY_HEIGHT]; }
+      set { _additionalProperties[Consts.KEY_HEIGHT] = value; }
     }
 
     public string Size
     {
       get { return this[Consts.KEY_SIZE]; }
       set { SetLabel(Consts.KEY_SIZE, value); }
+    }
+
+    public string Extension
+    {
+      get { return this[Consts.KEY_EXTENSION]; }
+      set { SetLabel(Consts.KEY_EXTENSION, value); }
+    }
+
+    public string MimeType
+    {
+      get { return this[Consts.KEY_MIMETYPE]; }
+      set { SetLabel(Consts.KEY_MIMETYPE, value); }
     }
   }
 }
