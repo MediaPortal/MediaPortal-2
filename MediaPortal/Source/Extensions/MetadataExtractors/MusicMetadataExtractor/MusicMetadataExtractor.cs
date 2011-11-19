@@ -169,14 +169,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     /// <summary>
     /// Given a music file name, this method tries to guess title, artist and track number.
     /// </summary>
-    /// <param name="fileName">Music file name (no file path!).</param>
+    /// <param name="fileNameWithoutExtension">Music file name (no file path and extension!).</param>
     /// <param name="title">Guessed title.</param>
     /// <param name="artist">Guessed artist.</param>
     /// <param name="trackNo">Guessed track number.</param>
-    protected static void GuessMetadataFromFileName(string fileName, out string title, out string artist, out uint? trackNo)
+    protected static void GuessMetadataFromFileName(string fileNameWithoutExtension, out string title, out string artist, out uint? trackNo)
     {
-      fileName = fileName.Replace('_', ' ');
-      Match match = TRACKNO_FORMAT.Match(fileName);
+      fileNameWithoutExtension = fileNameWithoutExtension.Replace('_', ' ');
+      Match match = TRACKNO_FORMAT.Match(fileNameWithoutExtension);
       string titleArtist;
       if (match.Success)
       { // (Track) - TitleArtist
@@ -188,7 +188,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
       else
       {
         trackNo = null;
-        titleArtist = fileName.Trim();
+        titleArtist = fileNameWithoutExtension.Trim();
       }
       match = TITLE_ARTIST_FORMAT1.Match(titleArtist);
       if (match.Success)
@@ -206,7 +206,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         artist = groups[2].Value.Trim();
         return;
       }
-      title = null;
+      title = fileNameWithoutExtension;
       artist = null;
     }
 
@@ -262,8 +262,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
     {
       if (!mediaItemAccessor.IsFile)
         return false;
-      string humanReadablePath = mediaItemAccessor.ResourcePathName;
-      if (!HasAudioExtension(humanReadablePath))
+      string fileName = mediaItemAccessor.ResourceName;
+      if (!HasAudioExtension(fileName))
         return false;
 
       // TODO: The creation of new media item aspects could be moved to a general method
@@ -295,7 +295,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MusicMetadataExtractor
         if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
           return false;
 
-        string fileName = DosPathHelper.GetFileNameWithoutExtension(humanReadablePath) ?? string.Empty;
+        fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
         string title;
         string artist;
         uint? trackNo;
