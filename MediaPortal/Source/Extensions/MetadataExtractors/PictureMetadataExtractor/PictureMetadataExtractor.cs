@@ -123,7 +123,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
 
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
     {
-      if (!HasImageExtension(mediaItemAccessor.ResourcePathName))
+      string fileName = mediaItemAccessor.ResourceName;
+      if (!HasImageExtension(fileName))
         return false;
 
       // TODO: The creation of new media item aspects could be moved to a general method
@@ -148,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(mediaItemAccessor))
         {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, DosPathHelper.GetFileNameWithoutExtension(mediaItemAccessor.ResourcePathName));
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
