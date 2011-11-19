@@ -322,7 +322,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ProgramGuideButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -498,7 +498,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -513,7 +513,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoAndProgramButtonStyle}" 
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
     </Grid>
   </DataTemplate>
@@ -530,7 +530,7 @@
       </Grid.ColumnDefinitions>
 
       <Button Style="{ThemeResource ChannelWithLogoButtonStyle}" Grid.Column="0" Grid.Row="0"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" />
       
       <ListView x:Name="ProgramItems" Grid.Column="1" Grid.Row="0" 

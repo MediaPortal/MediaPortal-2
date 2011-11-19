@@ -42,7 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <ListView x:Name="DialogMenu" Style="{ThemeResource MenuListViewStyle}"
-          ItemsSource="{Binding Source={DynamicResource ResourceKey=Menu_Items,TreeSearchMode=Hybrid},Path=Resource}" SetFocusPrio="Default"
+          ItemsSource="{DynamicResource ResourceKey=Menu_Items}" SetFocusPrio="Default"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </ControlTemplate>
   </Include.Resources>

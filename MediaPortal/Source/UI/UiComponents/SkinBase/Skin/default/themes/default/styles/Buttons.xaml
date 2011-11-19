@@ -818,7 +818,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate,TreeSearchMode=Hybrid}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

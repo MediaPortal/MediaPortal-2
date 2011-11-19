@@ -75,7 +75,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <GroupBox x:Name="ContentGroupBox" Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
-              Header="{Binding Source={DynamicResource ResourceKey=Header_Text,TreeSearchMode=Hybrid},Path=Resource}" DockPanel.Dock="Center"
+              Header="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" DockPanel.Dock="Center"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
               Style="{ThemeResource ContentGroupBoxStyle}">

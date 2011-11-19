@@ -832,7 +832,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate,TreeSearchMode=Hybrid}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
