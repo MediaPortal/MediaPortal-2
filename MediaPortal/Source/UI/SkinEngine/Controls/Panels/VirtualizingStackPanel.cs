@@ -103,6 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             return;
           if (_newItemProvider != null)
             MPF.TryCleanupAndDispose(_newItemProvider);
+          _newItemProvider = null;
           if (_itemProvider == itemProvider)
             return;
           _newItemProvider = itemProvider;
@@ -113,6 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return;
         if (_newItemProvider != null)
           MPF.TryCleanupAndDispose(_newItemProvider);
+        _newItemProvider = null;
         if (_itemProvider == itemProvider)
           return;
         if (_itemProvider != null)
@@ -239,6 +241,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             MPF.TryCleanupAndDispose(_itemProvider);
           _itemProvider = _newItemProvider;
           _newItemProvider = null;
+          _updateRenderOrder = true;
         }
         _averageItemSize = 0;
         IItemProvider itemProvider = ItemProvider;
