@@ -85,9 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region Public methods
 
-    public UIElement LoadContent(out IList<TriggerBase> triggers)
+    public UIElement LoadContent(UIElement triggerParent)
     {
-      triggers = new List<TriggerBase>(Triggers.Count);
       if (_templateElement == null)
         return null;
       MpfCopyManager cm = new MpfCopyManager();
@@ -98,6 +97,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       if (_names != null)
         foreach (KeyValuePair<string, object> nameRegistration in _names)
           ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
+      triggerParent.UninitializeTriggers();
+      ICollection<TriggerBase> triggers = triggerParent.Triggers;
       foreach (TriggerBase t in Triggers)
       {
         TriggerBase trigger = cm.GetCopy(t);

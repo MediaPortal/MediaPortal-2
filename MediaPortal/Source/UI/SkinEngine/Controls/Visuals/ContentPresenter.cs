@@ -31,7 +31,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -137,8 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         InstallAutomaticContentDataTemplate();
         return;
       }
-      IList<TriggerBase> triggers;
-      SetTemplateControl(ContentTemplate.LoadContent(out triggers) as FrameworkElement, triggers);
+      SetTemplateControl(ContentTemplate.LoadContent(this) as FrameworkElement);
     }
 
     /// <summary>
@@ -162,8 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (dt != null)
       {
-        IList<TriggerBase> triggers;
-        SetTemplateControl(dt.LoadContent(out triggers) as FrameworkElement, triggers);
+        SetTemplateControl(dt.LoadContent(this) as FrameworkElement);
         return;
       }
       // Try to convert our content to a FrameworkElement.
@@ -173,13 +170,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SetTemplateControl(templateControl);
       }
       // else: no content template to present the content
-    }
-
-    protected void SetTemplateControl(FrameworkElement templateControl, IList<TriggerBase> triggers)
-    {
-      SetTemplateControl(templateControl);
-      UninitializeTriggers();
-      CollectionUtils.AddAll(Triggers, triggers);
     }
 
     protected void SetTemplateControl(FrameworkElement templateControl)

@@ -30,11 +30,9 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
-using MediaPortal.Utilities;
 using SlimDX;
 using SlimDX.Direct3D9;
 using SizeF = System.Drawing.SizeF;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
@@ -139,13 +137,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (template != null)
       {
         Resources.Merge(template.Resources);
-        IList<TriggerBase> newTriggers;
-        FrameworkElement templateControl = template.LoadContent(out newTriggers) as FrameworkElement;
+        FrameworkElement templateControl = template.LoadContent(this) as FrameworkElement;
         if (templateControl != null)
           templateControl.LogicalParent = this;
         TemplateControl = templateControl;
-        UninitializeTriggers();
-        CollectionUtils.AddAll(Triggers, newTriggers);
       }
       else
         TemplateControl = null;

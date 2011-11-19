@@ -33,7 +33,6 @@ using MediaPortal.Common.Messaging;
 using System.Linq;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
@@ -758,10 +757,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ServiceRegistration.Get<ILogger>().Warn("VirtualKeyboardControl: Could not find style resource for virtual keyboard");
         return;
       }
-      IList<TriggerBase> triggers;
-      FrameworkElement keyboardControl = keyboardLayout.LoadContent(out triggers) as FrameworkElement;
-      UninitializeTriggers();
-      CollectionUtils.AddAll(Triggers, triggers);
+      FrameworkElement keyboardControl = keyboardLayout.LoadContent(this) as FrameworkElement;
       presenter.SetKeyboardLayoutControl(this, keyboardControl);
     }
 
