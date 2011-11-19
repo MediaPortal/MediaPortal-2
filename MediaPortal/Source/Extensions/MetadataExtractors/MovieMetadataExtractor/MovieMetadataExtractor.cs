@@ -192,7 +192,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!_height.HasValue)
             _height = mediaInfo.GetHeight(i);
           if (!_playTime.HasValue)
-            _playTime = mediaInfo.GetPlaytime(i);
+          {
+            long? time = mediaInfo.GetPlaytime(i);
+            if (time.HasValue && time > 1000)
+              _playTime = time.Value;
+          }
           if (!_vidBitRate.HasValue)
             _vidBitRate = mediaInfo.GetVidBitrate(i);
           string vidCodec = mediaInfo.GetVidCodec(i);
