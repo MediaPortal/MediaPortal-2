@@ -728,7 +728,7 @@
 
   <!-- Fallback data template, if data template for actual item type is not defined -->
   <DataTemplate DataType="{x:Type navitems:NavigationItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
@@ -742,7 +742,7 @@
 
   <!-- Filter -->
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -780,7 +780,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="180"/>
       </Grid.ColumnDefinitions>
@@ -797,7 +797,7 @@
 
   <!-- Container -->
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -835,7 +835,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="180"/>
       </Grid.ColumnDefinitions>
@@ -852,7 +852,7 @@
 
   <!-- Movie -->
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -907,7 +907,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="180"/>
       </Grid.ColumnDefinitions>
@@ -925,7 +925,7 @@
 
   <!-- Music -->
   <ControlTemplate x:Key="ListViewMusicItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -959,7 +959,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewMusicItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="180"/>
       </Grid.ColumnDefinitions>
@@ -977,7 +977,7 @@
 
   <!-- Picture -->
   <ControlTemplate x:Key="ListViewPictureItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1014,7 +1014,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewPictureItemTemplate">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="180"/>
       </Grid.ColumnDefinitions>
