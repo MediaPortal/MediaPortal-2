@@ -36,8 +36,27 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (mediaItem.Aspects.TryGetValue(PictureAspect.ASPECT_ID, out pictureAspect))
       {
         SimpleTitle = Title;
-        Size = pictureAspect[PictureAspect.ATTR_WIDTH] + "x" + pictureAspect[PictureAspect.ATTR_HEIGHT];
+        int? width = (int?) pictureAspect[PictureAspect.ATTR_WIDTH];
+        int? height = (int?) pictureAspect[PictureAspect.ATTR_HEIGHT];
+        if (width.HasValue && width.Value > 0 && height.HasValue && height.Value > 0)
+        {
+          Width = width.ToString();
+          Height = height.ToString();
+          Size = width + " x " + height;
+        }
       }
+    }
+
+    public string Width
+    {
+      get { return this[Consts.KEY_WIDTH]; }
+      set { SetLabel(Consts.KEY_WIDTH, value); }
+    }
+
+    public string Height
+    {
+      get { return this[Consts.KEY_HEIGHT]; }
+      set { SetLabel(Consts.KEY_HEIGHT, value); }
     }
 
     public string Size

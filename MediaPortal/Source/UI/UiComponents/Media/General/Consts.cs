@@ -272,6 +272,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_ARTISTS = "Artists";
     public const string KEY_YEAR = "Year";
     public const string KEY_SIZE = "Size";
+    public const string KEY_WIDTH = "Width";
+    public const string KEY_HEIGHT = "Height";
     public const string KEY_RATING = "Rating";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";

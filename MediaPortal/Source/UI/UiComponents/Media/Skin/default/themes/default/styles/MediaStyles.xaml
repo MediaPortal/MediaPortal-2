@@ -1008,7 +1008,7 @@
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}"
+      <Label x:Name="Size" Grid.Column="2" Content="{Binding Size}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
