@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.FileSystem;
@@ -411,11 +412,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           try
           {
             logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
-            ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-                new StyleResourceModelLoader(this)) as ResourceDictionary;
+            object o = XamlLoader.Load(pr.ResourcePath, new StyleResourceModelLoader(this));
+            ResourceDictionary rd = o as ResourceDictionary;
             if (rd == null)
-              throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
-                  "' doesn't contain a ResourceDictionary as root element");
+            {
+              if (o != null)
+                MPF.TryCleanupAndDispose(o);
+              throw new InvalidCastException("Style resource file '" + pr.ResourcePath + "' doesn't contain a ResourceDictionary as root element");
+            }
             _localStyleResources.TakeOver(rd, false, true);
           }
           catch (Exception ex)
