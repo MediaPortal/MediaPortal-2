@@ -196,7 +196,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!_vidBitRate.HasValue)
             _vidBitRate = mediaInfo.GetVidBitrate(i);
           string vidCodec = mediaInfo.GetVidCodec(i);
-          if (!string.IsNullOrEmpty(vidCodec))
+          if (!string.IsNullOrEmpty(vidCodec) && !_vidCodecs.Contains(vidCodec))
             _vidCodecs.Add(vidCodec);
         }
         _audioStreamCount = mediaInfo.GetAudioCount();
@@ -205,7 +205,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (!_audBitRate.HasValue)
             _audBitRate = mediaInfo.GetAudioBitrate(i);
           string audCodec = mediaInfo.GetAudioCodec(i);
-          if (!string.IsNullOrEmpty(audCodec))
+          if (!string.IsNullOrEmpty(audCodec) && !_audCodecs.Contains(audCodec))
             _audCodecs.Add(audCodec);
         }
       }
