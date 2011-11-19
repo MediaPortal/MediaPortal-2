@@ -22,7 +22,6 @@
 
 #endregion
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -153,8 +152,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.PictureMetadataExtractor
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : mediaItemAccessor.LastChanged);
           mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
-          pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (Int32) exif.PixXDim);
-          pictureAspect.SetAttribute(PictureAspect.ATTR_HEIGHT, (Int32) exif.PixYDim);
+          pictureAspect.SetAttribute(PictureAspect.ATTR_WIDTH, (int) exif.PixXDim);
+          pictureAspect.SetAttribute(PictureAspect.ATTR_HEIGHT, (int) exif.PixYDim);
           pictureAspect.SetAttribute(PictureAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
           pictureAspect.SetAttribute(PictureAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
           pictureAspect.SetAttribute(PictureAspect.ATTR_EXPOSURE_BIAS, ((double) exif.ExposureBias).ToString());
