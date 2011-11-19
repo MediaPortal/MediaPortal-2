@@ -1230,7 +1230,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayoutRoot {0} Name='{1}', measuring with screen size {2}", GetType().Name, Name, skinSize));
 #endif
 #endif
-      Measure(ref size);
+      do
+      {
+        Measure(ref size);
+      } while (_isMeasureInvalid);
 
 #if DEBUG_LAYOUT
 #if DEBUG_MORE_LAYOUT
