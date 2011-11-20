@@ -134,7 +134,7 @@ namespace MediaPortal.UiComponents.Media.Models
             UpdatePlaylists(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            if (!NavigateRemovePlaylistSaveWorkflow())
+            if (!NavigateBackToOverview())
             {
               UpdateProperties();
               UpdatePlaylists(false);
@@ -325,20 +325,23 @@ namespace MediaPortal.UiComponents.Media.Models
       PlayItemsModel.CheckQueryPlayAction(() => mediaItems, avType.Value);
     }
 
-    public bool NavigateRemovePlaylistSaveWorkflow()
+    public void NavigateRemovePlaylistSaveWorkflow()
     {
-      ClearData();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      bool result = workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME);
+      if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME))
+        return;
+      ClearData();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLIST_SAVE_EDIT_NAME, true);
-      return result;
     }
 
-    public void NavigateBackToOverview()
+    public bool NavigateBackToOverview()
     {
-      ClearData();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW))
+        return false;
+      ClearData();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW, false);
+      return true;
     }
 
     public static void ShowPlaylistsOverview()
