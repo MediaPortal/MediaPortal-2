@@ -225,6 +225,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityProperty.Attach(OnOpacityChanged);
       OpacityMaskProperty.Attach(OnOpacityChanged);
       ActualPositionProperty.Attach(OnActualBoundsChanged);
+      IsEnabledProperty.Attach(OnEnabledChanged);
     }
 
     void Detach()
@@ -241,6 +242,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OpacityProperty.Detach(OnOpacityChanged);
       OpacityMaskProperty.Detach(OnOpacityChanged);
       ActualPositionProperty.Detach(OnActualBoundsChanged);
+      IsEnabledProperty.Detach(OnEnabledChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -304,6 +306,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
+    }
+
+    void OnEnabledChanged(AbstractProperty property, object oldValue)
+    {
+      if (!IsEnabled)
+        ResetFocus();
     }
 
     void OnLayoutTransformChanged(IObservable observable)
