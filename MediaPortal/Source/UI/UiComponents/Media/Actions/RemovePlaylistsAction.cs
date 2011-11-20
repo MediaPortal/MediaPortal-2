@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
@@ -90,7 +91,16 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     protected void Update()
     {
-      _isEnabled = ServerPlaylists.GetPlaylists().Count > 0;
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      try
+      {
+        _isEnabled = scm.IsHomeServerConnected && ServerPlaylists.GetPlaylists().Count > 0;
+      }
+      catch (NotConnectedException)
+      {
+        // Can happen if during the evaluation above the server gets disconnected
+        _isEnabled = false;
+      }
       FireStateChanged();
     }
 
