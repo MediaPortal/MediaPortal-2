@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// To build special device configurations, either subclasses can be implemented doing the device initialization or
   /// an instance of this class can be created and configured from outside.
   /// </summary>
-  public class DvDevice
+  public class DvDevice : IDisposable
   {
     protected DvDevice _parentDevice = null;
     protected IList<DvDevice> _embeddedDevices = new List<DvDevice>();
@@ -74,6 +75,14 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       _deviceTypeVersion = deviceTypeVersion;
       _uuid = uuid;
       _deviceInformation = descriptor;
+    }
+
+    public virtual void Dispose()
+    {
+      foreach (DvDevice embeddedDevice in _embeddedDevices)
+        embeddedDevice.Dispose();
+      foreach (DvService service in _services)
+        service.Dispose();
     }
 
     /// <summary>
