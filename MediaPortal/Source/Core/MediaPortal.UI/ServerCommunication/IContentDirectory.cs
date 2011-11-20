@@ -54,6 +54,10 @@ namespace MediaPortal.UI.ServerCommunication
   /// Interface of the MediaPortal 2 server's ContentDirectory service. This interface is implemented by the
   /// MediaPortal 2 server.
   /// </summary>
+  /// <remarks>
+  /// At the client side, the messaging class <see cref="ContentDirectoryMessaging"/> represents the messaging part of
+  /// the content directory (state variables).
+  /// </remarks>
   public interface IContentDirectory
   {
     #region Shares management

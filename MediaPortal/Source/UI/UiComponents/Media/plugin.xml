@@ -39,6 +39,7 @@
     <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ShowPlaylistAction"/>
     <Model Id="2C3A747D-7FD7-408b-8843-31842A2EB6F3" Name="ManagePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.ManagePlaylistsAction"/>
     <Model Id="02848CDD-34F0-4719-9A52-DA959E848409" Name="SavePlaylistContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SavePlaylistAction"/>
+    <Model Id="3CE266A6-95C9-412E-B93F-FA15DFD63442" Name="RemovePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.RemovePlaylistsAction"/>
     <Model Id="4BDAE589-15AF-4B84-B930-9F24E66841BB" Name="SwitchViewModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchViewModeAction"/>
 
     <Model Id="8573DBD8-A257-426a-9875-9DB155D32D47" Name="ExtendedVideoSkip" ClassName="MediaPortal.UiComponents.Media.Models.ExtendedVideoSkip" />

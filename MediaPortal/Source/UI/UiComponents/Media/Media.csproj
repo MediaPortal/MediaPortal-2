@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
+    <Compile Include="Actions\RemovePlaylistsAction.cs" />
     <Compile Include="Actions\SwitchViewModeAction.cs" />
     <Compile Include="Actions\SavePlaylistAction.cs" />
     <Compile Include="Actions\ManagePlaylistsAction.cs" />

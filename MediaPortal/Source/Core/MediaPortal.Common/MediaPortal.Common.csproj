@@ -134,6 +134,7 @@
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\NoLogger.cs" />
+    <Compile Include="MediaManagement\ContentDirectoryMessaging.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />

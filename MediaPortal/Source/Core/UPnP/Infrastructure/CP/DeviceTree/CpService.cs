@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
@@ -197,13 +198,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       get
       {
-        foreach (CpStateVariable stateVariable in _stateVariables.Values)
-        {
-          CpExtendedDataType edt = stateVariable.DataType as CpExtendedDataType;
-          if (edt != null && !edt.SupportsStringEquivalent)
-            return true;
-        }
-        return false;
+        return _stateVariables.Values.Select(stateVariable => stateVariable.DataType as CpExtendedDataType).Any(
+            edt => edt != null && !edt.SupportsStringEquivalent);
       }
     }
 

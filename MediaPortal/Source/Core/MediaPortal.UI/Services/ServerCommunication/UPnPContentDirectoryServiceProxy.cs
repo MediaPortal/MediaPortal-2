@@ -42,7 +42,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
   /// </summary>
   public class UPnPContentDirectoryServiceProxy : UPnPServiceProxyBase, IContentDirectory
   {
-    public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory") { }
+    public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory")
+    {
+      serviceStub.StateVariableChanged += OnStateVariableChanged;
+      serviceStub.SubscribeStateVariables();
+    }
+
+    private void OnStateVariableChanged(CpStateVariable statevariable)
+    {
+      if (statevariable.Name == "PlaylistsChangeCounter")
+        FirePlaylistsChanged();
+      else if (statevariable.Name == "MIATypeRegistrationsChangeCounter")
+        FireMIATypeRegistrationsChanged();
+    }
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
@@ -73,6 +85,27 @@ namespace MediaPortal.UI.Services.ServerCommunication
           throw new NotImplementedException(string.Format("ProjectionFunction '{0}' is not implemented", projectionFunction));
       }
     }
+
+    protected void FirePlaylistsChanged()
+    {
+      ParameterlessMethod dlgt = PlaylistsChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    protected void FireMIATypeRegistrationsChanged()
+    {
+      ParameterlessMethod dlgt = MIATypeRegistrationsChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
+    #region State variables
+
+    public event ParameterlessMethod PlaylistsChanged;
+    public event ParameterlessMethod MIATypeRegistrationsChanged;
+
+    #endregion
 
     #region Shares management
 

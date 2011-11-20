@@ -209,6 +209,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
     }
 
+    protected internal UPnPContentDirectoryServiceProxy ContentDirectoryServiceProxy
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ContentDirectoryService;
+      }
+    }
+
     /// <summary>
     /// When a home server is connected, we store the connection data of the server to be able to
     /// provide the home server's data also when the connection is down. We'll refresh the data each time
@@ -259,9 +270,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       ICollection<Share> newShares = new List<Share>();
-      IContentDirectory cd = ContentDirectory;
+      UPnPContentDirectoryServiceProxy cd = ContentDirectoryServiceProxy;
       if (cd != null)
       {
+        // Update shares registration
         try
         {
           ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -305,6 +317,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
         }
+
+        // Update media item aspect type registration
         try
         {
           IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -323,12 +337,28 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
         }
 
+        // Register state variables
+        UPnPContentDirectoryServiceProxy contentDirectoryServiceProxy = cd;
+        contentDirectoryServiceProxy.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
+        contentDirectoryServiceProxy.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
+
+        // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
         ImporterCallback ic = new ImporterCallback(cd);
         importerWorker.Activate(ic, ic);
         foreach (Share share in newShares)
           importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
       }
+    }
+
+    static void OnContentDirectoryPlaylistsChanged()
+    {
+      ContentDirectoryMessaging.SendPlaylistsChangedMessage();
+    }
+
+    static void OnContentDirectoryMIATypeRegistrationsChanged()
+    {
+      ContentDirectoryMessaging.SendMIATypesChangedMessage();
     }
 
     #region IServerCommunicationManager implementation
@@ -382,13 +412,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public IContentDirectory ContentDirectory
     {
-      get
-      {
-        UPnPClientControlPoint cp;
-        lock (_syncObj)
-          cp = _controlPoint;
-        return cp == null ? null : cp.ContentDirectoryService;
-      }
+      get { return ContentDirectoryServiceProxy; }
     }
 
     public IResourceInformationService ResourceInformationService
