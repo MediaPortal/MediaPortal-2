@@ -56,8 +56,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected DvStateVariable PlaylistsChangeCounter;
     protected DvStateVariable MIATypeRegistrationsChangeCounter;
-    protected int _playlistsChangeCt = 0;
-    protected int _miaTypeRegistrationsChangeCt = 0;
+    protected UInt32 _playlistsChangeCt = 0;
+    protected UInt32 _miaTypeRegistrationsChangeCt = 0;
 
     public UPnPContentDirectoryServiceImpl() : base(
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
@@ -564,6 +564,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             ContentDirectoryMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     public override void Dispose()
