@@ -119,15 +119,18 @@ namespace UPnP.Infrastructure.CP.GENA
 
     public void Close(bool unsubscribeEvents)
     {
+      WaitHandle notifyObject = new ManualResetEvent(false);
       lock (_cpData.SyncObj)
       {
         if (!_isActive)
           return;
         _isActive = false;
-        WaitHandle notifyObject = new ManualResetEvent(false);
         _subscriptionRenewalTimer.Dispose(notifyObject);
-        notifyObject.WaitOne();
-        notifyObject.Close();
+      }
+      notifyObject.WaitOne();
+      notifyObject.Close();
+      lock (_cpData.SyncObj)
+      {
         foreach (EventSubscription subscription in new List<EventSubscription>(_subscriptions.Values))
           if (unsubscribeEvents)
             UnsubscribeEvents(subscription);
