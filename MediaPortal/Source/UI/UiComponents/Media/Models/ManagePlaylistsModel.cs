@@ -99,6 +99,7 @@ namespace MediaPortal.UiComponents.Media.Models
       AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            ServerConnectionMessaging.CHANNEL,
+           ContentDirectoryMessaging.CHANNEL,
         });
       messageQueue.MessageReceived += OnMessageReceived;
       messageQueue.Start();
@@ -139,6 +140,17 @@ namespace MediaPortal.UiComponents.Media.Models
               UpdateProperties();
               UpdatePlaylists(false);
             }
+            break;
+        }
+      }
+      else if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType =
+            (ContentDirectoryMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.PlaylistsChanged:
+            UpdatePlaylists(false);
             break;
         }
       }
