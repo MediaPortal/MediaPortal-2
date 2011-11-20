@@ -337,7 +337,8 @@ namespace MediaPortal.UiComponents.Media.Models
     public bool NavigateBackToOverview()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW))
+      if (!workflowManager.IsStateContainedInNavigationStack(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW) ||
+          workflowManager.CurrentNavigationContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW)
         return false;
       ClearData();
       workflowManager.NavigatePopToState(Consts.WF_STATE_ID_PLAYLISTS_OVERVIEW, false);
