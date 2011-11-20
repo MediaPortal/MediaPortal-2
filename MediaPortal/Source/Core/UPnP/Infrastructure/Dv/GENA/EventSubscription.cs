@@ -68,14 +68,14 @@ namespace UPnP.Infrastructure.Dv.GENA
       protected HttpWebRequest _httpWebRequest;
       protected EndpointConfiguration _endpoint;
       protected string _sid;
-      protected ICollection<string> _pendingCallbackURLs = new List<string>();
+      protected ICollection<string> _pendingCallbackURLs;
       protected uint _eventKey;
       protected byte[] _messageData;
 
-      public AsyncRequestState(EndpointConfiguration endpoint, string sid, ICollection<string> pendingCallbackURLs, uint eventKey, byte[] messageData)
+      public AsyncRequestState(EndpointConfiguration endpoint, string sid, IEnumerable<string> pendingCallbackURLs, uint eventKey, byte[] messageData)
       {
         _endpoint = endpoint;
-        _pendingCallbackURLs = pendingCallbackURLs;
+        _pendingCallbackURLs = new List<string>(pendingCallbackURLs);
         _sid = sid;
         _eventKey = eventKey;
         _messageData = messageData;

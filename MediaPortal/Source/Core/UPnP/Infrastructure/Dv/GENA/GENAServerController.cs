@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -117,9 +118,12 @@ namespace UPnP.Infrastructure.Dv.GENA
               subscription.StateVariableChanged(variable);
 
         // Multicast event notifications
-        EventingState eventingState = _serverData.ServiceMulticastEventingState[variable.ParentService];
-        if (variable.Multicast && eventingState.EventKey != 0)
+        if (variable.Multicast)
         {
+          EventingState eventingState = _serverData.GetMulticastEventKey(variable.ParentService);
+          if (eventingState.EventKey == 0)
+            // Avoid sending "normal" change events before the initial event was sent
+            return;
           eventingState.ModerateChangeEvent(variable);
           ScheduleMulticastEvents();
         }
@@ -223,10 +227,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       DateTime now = DateTime.Now;
       foreach (KeyValuePair<DvService, EventingState> kvp in _serverData.ServiceMulticastEventingState)
       {
-        ICollection<DvStateVariable> multicastVariables = new List<DvStateVariable>();
-        foreach (DvStateVariable variable in kvp.Key.StateVariables.Values)
-          if (variable.Multicast)
-            multicastVariables.Add(variable);
+        ICollection<DvStateVariable> multicastVariables = kvp.Key.StateVariables.Values.Where(variable => variable.Multicast).ToList();
         if (multicastVariables.Count > 0)
           kvp.Value.ScheduleEventNotification(multicastVariables, now);
       }
@@ -356,13 +357,7 @@ namespace UPnP.Infrastructure.Dv.GENA
               response.Send();
               return true;
             }
-            bool validURLs = true;
-            foreach (string url in callbackURLs)
-              if (!url.StartsWith("http://"))
-              {
-                validURLs = false;
-                break;
-              }
+            bool validURLs = callbackURLs.All(url => url.StartsWith("http://"));
             if (nt != "upnp:event" || !validURLs)
             {
               response.Status = HttpStatusCode.PreconditionFailed;
@@ -389,7 +384,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             response.Send();
             return true;
           }
-          else if (!string.IsNullOrEmpty(sid))
+          if (!string.IsNullOrEmpty(sid))
           { // Renewal
             DateTime date;
             if (RenewSubscription(config, sid, ref timeout, out date))
@@ -403,13 +398,10 @@ namespace UPnP.Infrastructure.Dv.GENA
               response.Send();
               return true;
             }
-            else
-            {
-              response.Status = HttpStatusCode.ServiceUnavailable;
-              response.Reason = "Unable to accept renewal";
-              response.Send();
-              return true;
-            }
+            response.Status = HttpStatusCode.ServiceUnavailable;
+            response.Reason = "Unable to accept renewal";
+            response.Send();
+            return true;
           }
         }
       }
@@ -436,13 +428,10 @@ namespace UPnP.Infrastructure.Dv.GENA
             response.Send();
             return true;
           }
-          else
-          {
-            response.Status = HttpStatusCode.PreconditionFailed;
-            response.Reason = "Precondition Failed";
-            response.Send();
-            return true;
-          }
+          response.Status = HttpStatusCode.PreconditionFailed;
+          response.Reason = "Precondition Failed";
+          response.Send();
+          return true;
         }
       }
       return false;
@@ -497,10 +486,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         EventSubscription subscription = FindEventSubscription(sid);
         if (subscription == null)
           return;
-        ICollection<DvStateVariable> variables = new List<DvStateVariable>();
-        foreach (DvStateVariable variable in subscription.Service.StateVariables.Values)
-          if (variable.SendEvents)
-            variables.Add(variable);
+        ICollection<DvStateVariable> variables = subscription.Service.StateVariables.Values.Where(variable => variable.SendEvents).ToList();
         if (variables.Count > 0)
           subscription.ScheduleEventNotification(variables);
       }
@@ -562,7 +548,7 @@ namespace UPnP.Infrastructure.Dv.GENA
     protected void SendMulticastEventNotification(DvService service, IEnumerable<DvStateVariable> variables)
     {
       DvDevice device = service.ParentDevice;
-      EventingState eventingState = _serverData.ServiceMulticastEventingState[service];
+      EventingState eventingState = _serverData.GetMulticastEventKey(service);
       // First cluster variables by multicast event level so we can put variables of the same event level into a single message
       IDictionary<string, ICollection<DvStateVariable>> variablesByLevel =
           new Dictionary<string, ICollection<DvStateVariable>>();
@@ -582,6 +568,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         {
           foreach (DvStateVariable variable in cluster)
             eventingState.UpdateModerationData(variable);
+          eventingState.IncEventKey();
           byte[] bodyData = Encoding.UTF8.GetBytes(GENAMessageBuilder.BuildEventNotificationMessage(
             cluster, false)); // Albert TODO: Is it correct not to force the simple string equivalent for extended data types here?
           SimpleHTTPRequest request = new SimpleHTTPRequest("NOTIFY", "*");
@@ -591,7 +578,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           request.SetHeader("SVCID", service.ServiceId);
           request.SetHeader("NT", "upnp:event");
           request.SetHeader("NTS", "upnp:propchange");
-          request.SetHeader("SEQ", _serverData.GetNextMulticastEventKey(service).ToString());
+          request.SetHeader("SEQ", eventingState.EventKey.ToString());
           request.SetHeader("LVL", varByLevel.Key);
           request.SetHeader("BOOTID.UPNP.ORG", _serverData.BootId.ToString());
 

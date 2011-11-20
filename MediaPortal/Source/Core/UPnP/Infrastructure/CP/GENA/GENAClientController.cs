@@ -410,7 +410,7 @@ namespace UPnP.Infrastructure.CP.GENA
       NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Method = "SUBSCRIBE";
       request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
-      request.Headers.Add("CALLBACK", "<" + NetworkHelper.IPEndPointToString(_eventNotificationEndpoint) + _eventNotificationPath + ">");
+      request.Headers.Add("CALLBACK", "<http://" + NetworkHelper.IPEndPointToString(_eventNotificationEndpoint) + _eventNotificationPath + ">");
       request.Headers.Add("NT", "upnp:event");
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
