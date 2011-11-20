@@ -568,6 +568,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           using (IDbCommand command = MediaLibrary_SubSchema.AddMediaItemToPlaylistCommand(transaction, playlistId, ct++, mediaItemId))
             command.ExecuteNonQuery();
         transaction.Commit();
+        ContentDirectoryMessaging.SendPlaylistsChangedMessage();
       }
       catch (Exception e)
       {
@@ -600,6 +601,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         using (IDbCommand command = MediaLibrary_SubSchema.DeletePlaylistCommand(transaction, playlistId))
           command.ExecuteNonQuery();
         transaction.Commit();
+        ContentDirectoryMessaging.SendPlaylistsChangedMessage();
         return true;
       }
       catch (Exception e)
@@ -798,13 +800,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
       if (_miaManagement.AddMediaItemAspectStorage(miam))
-        ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') was added", miam.AspectId, miam.Name);
+      {
+        ServiceRegistration.Get<ILogger>().Info(
+            "MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') was added", miam.AspectId, miam.Name);
+        ContentDirectoryMessaging.SendMIATypesChangedMessage();
+      }
     }
 
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
       if (_miaManagement.RemoveMediaItemAspectStorage(aspectId))
+      {
         ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Media item aspect storage for MIA type '{0}' was removed", aspectId);
+        ContentDirectoryMessaging.SendMIATypesChangedMessage();
+      }
     }
 
     public IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()

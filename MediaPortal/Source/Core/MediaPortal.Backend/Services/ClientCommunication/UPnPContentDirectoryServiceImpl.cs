@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Backend.MediaLibrary;
@@ -51,6 +52,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   /// </remarks>
   public class UPnPContentDirectoryServiceImpl : DvService
   {
+    protected AsynchronousMessageQueue _messageQueue;
+
+    protected DvStateVariable PlaylistsChangeCounter;
+    protected DvStateVariable MIATypeRegistrationsChangeCounter;
+    protected int _playlistsChangeCt = 0;
+    protected int _miaTypeRegistrationsChangeCt = 0;
+
     public UPnPContentDirectoryServiceImpl() : base(
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_ID)
@@ -261,6 +269,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_PlaylistIdentificationDataEnumeration);
+
+      // Change event for playlists
+      PlaylistsChangeCounter = new DvStateVariable("PlaylistsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
+          {
+            SendEvents = true
+          };
+      AddStateVariable(PlaylistsChangeCounter);
+
+      // Change event for MIA type registrations
+      MIATypeRegistrationsChangeCounter = new DvStateVariable("MIATypeRegistrationsChangeCounter", new DvStandardDataType(UPnPStandardDataType.Ui4))
+          {
+            SendEvents = true
+          };
+      AddStateVariable(MIATypeRegistrationsChangeCounter);
 
       // More state variables go here
 
@@ -536,6 +558,34 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddAction(deleteMediaItemOrPathAction);
 
       // More actions go here
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ContentDirectoryMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    public override void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.PlaylistsChanged:
+            PlaylistsChangeCounter.Value = _playlistsChangeCt++;
+            break;
+          case ContentDirectoryMessaging.MessageType.MIATypesChanged:
+            MIATypeRegistrationsChangeCounter.Value = _miaTypeRegistrationsChangeCt++;
+            break;
+        }
+      }
     }
 
     static UPnPError ParseOnlineState(string argumentName, string onlineStateStr, out bool all)
