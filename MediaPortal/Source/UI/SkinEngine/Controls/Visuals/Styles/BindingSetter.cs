@@ -74,6 +74,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public override void Set(UIElement element)
     {
+      // We must activate our bindings to make dynamic resource markup extensions assigning our binding work, for example
+      ActivateBindings();
       if (_bindingWrapper == null || _bindingWrapper.Binding == null)
         return;
       IDataDescriptor targetDd;
