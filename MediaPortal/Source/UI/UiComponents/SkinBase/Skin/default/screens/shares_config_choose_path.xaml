@@ -33,18 +33,11 @@
             ForceExpander="True"
             ItemsSource="{Binding Path=ShareProxy.ResourceProviderPathsTree,Mode=OneTime}">
           <TreeView.Resources>
-            <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data directly.
-                 We use a dummy. -->
-            <BindingWrapper x:Key="Expander_Binding"/>
+            <BindingWrapper x:Key="Expander_Binding" Binding="{Binding Path=AdditionalProperties[Expansion].IsExpanded,Mode=OneWayToSource}"/>
 
-            <CommandList x:Key="Expander_Command">
-              <Command Source="{StaticResource Model}" Path="ShareProxy.RefreshOrClearSubPathItems">
-                <Command.Parameters>
-                  <LateBoundValue BindingValue="{Binding}"/>
-                  <LateBoundValue BindingValue="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=!IsExpanded}"/>
-                </Command.Parameters>
-              </Command>
-            </CommandList>
+            <!-- Expander_Command isn't necessary here - the expansion event will be visible in the model
+                 by the change handler of the property which gets bound via Expander_Binding. -->
+            <ResourceWrapper x:Key="Expander_Command"/>
 
             <!-- Checker_Command isn't necessary here - the selection state will be propagated via the Selected property.
                  We use a dummy. -->

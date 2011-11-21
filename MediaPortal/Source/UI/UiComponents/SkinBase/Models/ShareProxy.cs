@@ -483,6 +483,41 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           _mediaCategories.Add(categoryItem[SharesConfigModel.KEY_NAME]);
     }
 
+    /// <summary>
+    /// We need a class to provide a property <see cref="IsExpanded"/> together with its <see cref="IsExpandedProperty"/>
+    /// in order to make the SkinEngine bind to our expansion flag.
+    /// </summary>
+    protected class ExpansionHelper
+    {
+      protected AbstractProperty _isExpandedProperty = new WProperty(typeof(bool), false);
+      protected SharesProxy _parent;
+      protected TreeItem _directoryItem;
+
+      public ExpansionHelper(TreeItem directoryItem, SharesProxy parent)
+      {
+        _parent = parent;
+        _directoryItem = directoryItem;
+        _isExpandedProperty.Attach(OnExpandedChanged);
+      }
+
+      void OnExpandedChanged(AbstractProperty property, object oldvalue)
+      {
+        bool expanded = (bool) property.GetValue();
+        _parent.RefreshOrClearSubPathItems(_directoryItem, !expanded);
+      }
+
+      public AbstractProperty IsExpandedProperty
+      {
+        get { return _isExpandedProperty; }
+      }
+
+      public bool IsExpanded
+      {
+        get { return (bool) _isExpandedProperty.GetValue(); }
+        set { _isExpandedProperty.SetValue(value); }
+      }
+    }
+
     protected void RefreshResourceProviderPathList(ItemsList items, ResourcePath path)
     {
       items.Clear();
@@ -499,6 +534,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           if (ChoosenResourcePath == childDirectory.ResourcePath)
             directoryItem.Selected = true;
           directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
+          directoryItem.AdditionalProperties[SharesConfigModel.KEY_EXPANSION] = new ExpansionHelper(directoryItem, this);
           items.Add(directoryItem);
         }
       }
