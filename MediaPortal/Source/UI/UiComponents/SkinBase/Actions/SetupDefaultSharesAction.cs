@@ -169,7 +169,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
         // Update of shares lists is only necessary in case the shares are managed by our home server because
         // in this case, we don't get a notification about the change in the set of shares.
         // Maybe we should add such a notification later...
-        SharesConfigModel model = workflowManager.GetModel(SharesConfigModel.SHARESCONFIG_MODEL_ID) as SharesConfigModel;
+        SharesConfigModel model = workflowManager.GetModel(SharesConfigModel.MODEL_ID_SHARESCONFIG) as SharesConfigModel;
         if (model != null)
           model.UpdateSharesLists_NoLock(false);
       }
