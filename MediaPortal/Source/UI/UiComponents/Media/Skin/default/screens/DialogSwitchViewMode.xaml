@@ -12,7 +12,7 @@
     <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
 
     <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
-        Resource="{Binding Source={StaticResource ViewModeModel},Path=ViewModeItemsList}"/>
+        Resource="{Binding Source={StaticResource ViewModeModel},Path=ViewModeItemsList,Mode=OneTime}"/>
 
     <!-- Menu_Command -->
     <CommandList x:Key="Menu_Command">

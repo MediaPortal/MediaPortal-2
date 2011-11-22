@@ -14,7 +14,7 @@
     <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
 
     <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
-        Resource="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChapterMenuItems}"/>
+        Resource="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChapterMenuItems,Mode=OneTime}"/>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"

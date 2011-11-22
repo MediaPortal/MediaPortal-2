@@ -9,7 +9,7 @@
     <Model x:Key="EditPlaylistModel" Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2"/>
 
     <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
-        Resource="{Binding Source={StaticResource EditPlaylistModel},Path=PlaylistHeader}"/>
+        Resource="{Binding Source={StaticResource EditPlaylistModel},Path=PlaylistHeader,Mode=OneTime}"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">

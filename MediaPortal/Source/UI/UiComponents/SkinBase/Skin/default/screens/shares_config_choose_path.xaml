@@ -11,7 +11,7 @@
 
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
-        Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle}"/>
+        Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle,Mode=OneTime}"/>
 
     <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
 
