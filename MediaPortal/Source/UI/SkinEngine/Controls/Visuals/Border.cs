@@ -279,8 +279,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual Thickness GetTotalBorderMargin()
     {
-      float borderInsetsX = GetBorderInsetX()*2;
-      float borderInsetsY = GetBorderInsetY()*2;
+      float borderInsetsX = GetBorderInsetX();
+      float borderInsetsY = GetBorderInsetY();
       return new Thickness(borderInsetsX, borderInsetsY, borderInsetsX, borderInsetsY);
     }
 
