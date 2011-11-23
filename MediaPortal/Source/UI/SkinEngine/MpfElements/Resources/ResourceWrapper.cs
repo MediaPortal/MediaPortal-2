@@ -108,15 +108,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       set
       {
         _enableBindings = value;
-        if (!_enableBindings)
-          return;
-        if (_deferredBindings != null)
-        {
-          ICollection<IBinding> deferredBindings = _deferredBindings;
-          _deferredBindings = null;
-          foreach (IBinding binding in deferredBindings)
-            binding.Activate();
-        }
+        if (_enableBindings)
+          ActivateBindings();
       }
     }
 

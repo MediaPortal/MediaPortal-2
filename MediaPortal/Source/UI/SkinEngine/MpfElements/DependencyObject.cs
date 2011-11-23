@@ -168,9 +168,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     protected void ActivateBindings()
     {
-      if (_bindings != null)
-        foreach (BindingBase binding in new List<BindingBase>(_bindings))
-          binding.Activate();
       if (_deferredBindings != null)
       {
         ICollection<IBinding> deferredBindings = _deferredBindings;
