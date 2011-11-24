@@ -48,8 +48,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="path">The source path which encloses the shape to triangulate.</param>
     /// <param name="cx">X coordinate of an interior point of the <paramref name="path"/>.</param>
     /// <param name="cy">Y coordinate of an interior point of the <paramref name="path"/>.</param>
+    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Returns a list of vertices describing a triangle list.</param>
-    public static void FillPolygon_TriangleList(GraphicsPath path, float cx, float cy, out PositionColoredTextured[] verts)
+    public static void FillPolygon_TriangleList(GraphicsPath path, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
     {
       verts = null;
       int pointCount = path.PointCount;
@@ -59,9 +60,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         verts = new PositionColoredTextured[3];
 
-        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
-        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
-        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, zCoord);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, zCoord);
         return;
       }
       bool closed = pathPoints[0] == pathPoints[pointCount - 1];
@@ -72,12 +73,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       for (int i = 0; i < pointCount; i++)
       {
         int offset = i * 3;
-        verts[offset].Position = new Vector3(cx, cy, 1);
-        verts[offset + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
+        verts[offset].Position = new Vector3(cx, cy, zCoord);
+        verts[offset + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
         if (i + 1 < pointCount)
-          verts[offset + 2].Position = new Vector3(pathPoints[i + 1].X, pathPoints[i + 1].Y, 1);
+          verts[offset + 2].Position = new Vector3(pathPoints[i + 1].X, pathPoints[i + 1].Y, zCoord);
         else
-          verts[offset + 2].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+          verts[offset + 2].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
       }
       return;
     }
@@ -94,8 +95,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="path">The source path which encloses the shape to triangulate.</param>
     /// <param name="cx">X coordinate of an interior point of the <paramref name="path"/>.</param>
     /// <param name="cy">Y coordinate of an interior point of the <paramref name="path"/>.</param>
+    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Returns a list of vertices describing a triangle fan.</param>
-    public static void FillPolygon_TriangleFan(GraphicsPath path, float cx, float cy, out PositionColoredTextured[] verts)
+    public static void FillPolygon_TriangleFan(GraphicsPath path, float cx, float cy, float zCoord, out PositionColoredTextured[] verts)
     {
       verts = null;
       int pointCount = path.PointCount;
@@ -105,9 +107,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         verts = new PositionColoredTextured[3];
 
-        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
-        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
-        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, zCoord);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, zCoord);
         return;
       }
       bool close = pathPoints[0] != pathPoints[pointCount - 1];
@@ -115,32 +117,28 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
       verts = new PositionColoredTextured[verticeCount];
 
-      verts[0].Position = new Vector3(cx, cy, 1); // First point is center point
+      verts[0].Position = new Vector3(cx, cy, zCoord); // First point is center point
       for (int i = 0; i < pointCount; i++)
         // Set the outer fan points
-        verts[i + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, 1);
+        verts[i + 1].Position = new Vector3(pathPoints[i].X, pathPoints[i].Y, zCoord);
       if (close)
         // Last point is the first point to close the shape
-        verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[verticeCount - 1].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
       return;
     }
 
-    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thicknessW, double thicknessH,
-        PolygonDirection direction, Matrix? layoutTransform)
+    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickness,
+        PolygonDirection direction)
     {
-      double ang = Math.Atan2(nextpoint.Y - point.Y, nextpoint.X - point.X);  //returns in radians
+      double ang = Math.Atan2(nextpoint.Y - point.Y, nextpoint.X - point.X);  // Returns in radians
       const double pi2 = Math.PI / 2.0;
 
       if (direction == PolygonDirection.Clockwise)
         ang += pi2;
       else
         ang -= pi2;
-      x = (float)(Math.Cos(ang) * thicknessW); //radians
-      y = (float)(Math.Sin(ang) * thicknessH);
-      if (layoutTransform.HasValue)
-        layoutTransform.Value.Transform(ref x, ref y);
-      x += point.X;
-      y += point.Y;
+      x = (float) (Math.Cos(ang) * thickness); // Radians
+      y = (float) (Math.Sin(ang) * thickness);
     }
 
     static PointF GetNextPoint(PointF[] points, int i, int max)
@@ -151,10 +149,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Converts the graphics path to an array of vertices using trianglestrip.
+    /// Converts the graphics path to an array of vertices using TriangleList.
     /// </summary>
-    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
-        out PositionColoredTextured[] verts, Matrix? layoutTransform)
+    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close, float zCoord,
+        out PositionColoredTextured[] verts)
     {
       CPoint2D[] points = new CPoint2D[path.PathPoints.Length];
       for (int i = 0; i < path.PointCount; i++)
@@ -163,28 +161,25 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         points[i] = new CPoint2D(pt.X, pt.Y);
       }
       PolygonDirection direction = CPolygon.GetPointsDirection(points);
-      TriangulateStroke_TriangleList(path, thickness, close, direction, out verts, layoutTransform);
+      TriangulateStroke_TriangleList(path, thickness, close, direction, zCoord, out verts);
     }
 
     /// <summary>
-    /// Converts the graphics path to an array of vertices using trianglestrip.
+    /// Converts the graphics path to an array of vertices using TriangleList.
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="thickness">The thickness of the line.</param>
     /// <param name="close">True if we should connect the first and last point.</param>
     /// <param name="direction">The polygon direction.</param>
+    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">The generated verts.</param>
-    /// <param name="layoutTransform">Final layout transform.</param>
-    /// <returns>vertex buffer</returns>
     public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
-        PolygonDirection direction, out PositionColoredTextured[] verts, Matrix? layoutTransform)
+        PolygonDirection direction, float zCoord, out PositionColoredTextured[] verts)
     {
       verts = null;
       if (path.PointCount <= 0)
         return;
 
-      float thicknessW = thickness;
-      float thicknessH = thickness;
       PointF[] points = path.PathPoints;
 
       int pointCount;
@@ -193,25 +188,36 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       else
         pointCount = points.Length - 1;
 
-      int verticeCount = pointCount * 2 * 3;
-      verts = new PositionColoredTextured[verticeCount];
+      int pointsLength = points.Length;
+      verts = new PositionColoredTextured[pointCount * 3 * 3 - 3];
 
+      int offset = 0;
+      PointF? lastInset = null;
       for (int i = 0; i < pointCount; i++)
       {
-        int offset = i * 6;
+        PointF nextPoint = GetNextPoint(points, i, pointsLength);
+        float insetX;
+        float insetY;
+        GetInset(points[i], nextPoint, out insetX, out insetY, thickness, direction);
 
-        PointF nextpoint = GetNextPoint(points, i, points.Length);
-        float x;
-        float y;
-        GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, layoutTransform);
-        verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
-        verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
-        verts[offset + 2].Position = new Vector3(x, y, 1);
+        if (lastInset.HasValue)
+        {
+          // If we wanted to have different StrokeLineJoin implementations, this should be done here. At the moment, the join is quite trivial.
+          verts[offset + 6].Position = new Vector3(points[i].X, points[i].Y, zCoord);
+          verts[offset + 7].Position = new Vector3(points[i].X + insetX, points[i].Y + insetY, zCoord);
+          verts[offset + 8].Position = new Vector3(points[i].X + lastInset.Value.X, points[i].Y + lastInset.Value.Y, zCoord);
+        }
 
-        verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
-        verts[offset + 4].Position = new Vector3(x, y, 1);
+        verts[offset].Position = new Vector3(points[i].X, points[i].Y, zCoord);
+        verts[offset + 1].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
+        verts[offset + 2].Position = new Vector3(points[i].X + insetX, points[i].Y + insetY, 1);
 
-        verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
+        verts[offset + 3].Position = new Vector3(nextPoint.X, nextPoint.Y, zCoord);
+        verts[offset + 4].Position = new Vector3(nextPoint.X + insetX, nextPoint.Y + insetY, zCoord);
+        verts[offset + 5].Position = new Vector3(points[i].X + insetX, points[i].Y + insetY, zCoord);
+
+        lastInset = new PointF(insetX, insetY);
+        offset += 6;
       }
     }
 
@@ -220,8 +226,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// specified <paramref name="path"/>. The path must be closed and describe a simple polygon.
     /// </summary>
     /// <param name="path">Path which may only contain one single subpath.</param>
+    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Returns a <see cref="PrimitiveType.TriangleList"/> of vertices.</param>
-    public static void Triangulate(GraphicsPath path, out PositionColoredTextured[] verts)
+    public static void Triangulate(GraphicsPath path, float zCoord, out PositionColoredTextured[] verts)
     {
       if (path.PointCount < 3)
       {
@@ -233,9 +240,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         verts = new PositionColoredTextured[3];
 
         PointF[] pathPoints = path.PathPoints;
-        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
-        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
-        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, zCoord);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, zCoord);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, zCoord);
         return;
       }
       ICollection<CPolygon> polygons = new List<CPolygon>(new CPolygon(path).Triangulate());
@@ -244,9 +251,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       int offset = 0;
       foreach (CPolygon triangle in polygons)
       {
-        verts[offset++].Position = new Vector3(triangle[0].X, triangle[0].Y, 1);
-        verts[offset++].Position = new Vector3(triangle[1].X, triangle[1].Y, 1);
-        verts[offset++].Position = new Vector3(triangle[2].X, triangle[2].Y, 1);
+        verts[offset++].Position = new Vector3(triangle[0].X, triangle[0].Y, zCoord);
+        verts[offset++].Position = new Vector3(triangle[1].X, triangle[1].Y, zCoord);
+        verts[offset++].Position = new Vector3(triangle[2].X, triangle[2].Y, zCoord);
       }
     }
 
@@ -257,15 +264,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="thickness">Thickness of the line</param>
     /// <param name="close">Whether to connect the last point back to the first</param>
     /// <param name="widthMode">How to place the weight of the line relative to it</param>
+    /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Generated vertices.</param>
-    public void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode,
+    public void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode, float zCoord,
         out PositionColoredTextured[] verts)
     {
       verts = null;
       if (path.PointCount < 3)
       {
         if (close) return;
-        else if (path.PointCount < 2)
+        if (path.PointCount < 2)
           return;
       }
 
@@ -343,7 +351,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       verts = new PositionColoredTextured[verticeCount];
 
       for (int i = 0; i < verticeCount; ++i)
-        verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, 1);
+        verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, zCoord);
     }
 
     protected static void ZCross(ref PointF left, ref PointF right, out double result)

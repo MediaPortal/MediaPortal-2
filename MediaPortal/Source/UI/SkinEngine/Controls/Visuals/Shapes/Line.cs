@@ -149,7 +149,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           PositionColoredTextured[] verts;
-          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, 1, out verts);
 
           Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
           PrimitiveBuffer.SetPrimitiveBuffer(ref _strokeContext, ref verts, PrimitiveType.TriangleList);
