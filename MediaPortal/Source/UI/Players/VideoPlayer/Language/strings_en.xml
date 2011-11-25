@@ -11,6 +11,8 @@
     <String Name="Players.Codecs.AudioCodecs.AudioCodec.Help" Text="Set the MPEG1/2 audio codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodecLATMAAC" Text="LATM-AAC Audio Codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help" Text="Set the LATM-AAC audio codec"/>
+    <String Name="Players.Codecs.AudioCodecs.AudioCodecAAC" Text="AAC Audio Codec"/>
+    <String Name="Players.Codecs.AudioCodecs.AudioCodecAAC.Help" Text="Set the AAC audio codec"/>
     <String Name="Players.Codecs.AudioCodecs.AudioRenderer" Text="Audio Renderer"/>
     <String Name="Players.Codecs.AudioCodecs.AudioRenderer.Help" Text="Set the audio renderer"/>
     <String Name="Players.DVDPlayer" Text="DVD Player"/>

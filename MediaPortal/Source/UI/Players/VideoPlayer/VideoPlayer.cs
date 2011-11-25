@@ -558,6 +558,9 @@ namespace MediaPortal.UI.Players.Video
           if (settings.AudioCodecLATMAAC != null)
             pc.SetPreferredClsid(MediaSubTypeExt.LATMAAC, settings.AudioCodecLATMAAC.GetCLSID());
 
+          if (settings.AudioCodecAAC != null)
+            pc.SetPreferredClsid(CodecHandler.MEDIASUBTYPE_AAC_AUDIO, settings.AudioCodecAAC.GetCLSID());
+
           if (settings.AudioCodec != null)
           {
             foreach (Guid guid in new Guid[]
