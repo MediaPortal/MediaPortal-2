@@ -641,6 +641,7 @@
             VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
         <Label x:Name="ItemNameLabel" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
             Content="{Binding SimpleTitle}"
+            Color="{ThemeResource PlaylistItemColor}"
             FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Left" VerticalAlignment="Center">
           <Label.Color>
             <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
