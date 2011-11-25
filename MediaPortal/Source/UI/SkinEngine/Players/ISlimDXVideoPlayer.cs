@@ -63,9 +63,14 @@ namespace MediaPortal.UI.SkinEngine.Players
     SizeF SurfaceMaxUV { get; }
 
     /// <summary>
-    /// Returns the texture for the current frame. May be <c>null</c>.
+    /// Returns the render surface for the current frame. May be <c>null</c>.
     /// </summary>
-    Texture Texture { get; } 
+    Surface Surface { get; } 
+
+    /// <summary>
+    /// Returns a mutex object to lock while accessing the <see cref="Texture"/>.
+    /// </summary>
+    object SurfaceLock { get; }
 
     /// <summary>
     /// Releases any GUI resources.

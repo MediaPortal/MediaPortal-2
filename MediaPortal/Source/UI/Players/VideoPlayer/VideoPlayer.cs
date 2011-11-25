@@ -322,7 +322,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+        _evrCallback = new EVRCallback(RenderFrame, _syncObj) { CropSettings = _cropSettings };
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -1208,7 +1208,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+        _evrCallback = new EVRCallback(RenderFrame, _syncObj) { CropSettings = _cropSettings };
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();
         IEnumPins enumer;
@@ -1261,9 +1261,14 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    public Texture Texture
+    public Surface Surface
     {
-      get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
+      get { return (_initialized && _evrCallback != null) ? _evrCallback.Surface : null; }
+    }
+
+    public object SurfaceLock
+    {
+      get { return _syncObj; }
     }
 
     #endregion

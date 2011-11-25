@@ -33,6 +33,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 using SlimDX;
 using MediaPortal.UI.Presentation.Players;
@@ -71,6 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
     protected RectangleF _lastVertsBounds;
+    protected Texture _texture = null;
     protected volatile bool _refresh = true;
 
     #endregion
@@ -118,6 +120,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      TryDispose(ref _texture);
+    }
+
+    #endregion
+
+    #region Protected & private members
+
     void OnGeometryChange(AbstractProperty prop, object oldVal)
     {
       string geometryName = Geometry;
@@ -141,56 +153,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _refresh = true;
       base.OnRelativeTransformChanged(trans);
     }
-
-    #endregion
-
-    #region Public properties
-
-    public AbstractProperty StreamProperty
-    {
-      get { return _streamProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the number of the player stream to be shown.
-    /// </summary>
-    public int Stream
-    {
-      get { return (int) _streamProperty.GetValue(); }
-      set { _streamProperty.SetValue(value); }
-    }
-
-    public AbstractProperty GeometryProperty
-    {
-      get { return _geometryProperty; }
-    }
-
-    /// <summary>
-    /// Allows the skin to override the video gemoetry asked for by the player.
-    /// </summary>
-    public string Geometry
-    {
-      get { return (string) _geometryProperty.GetValue(); }
-      set { _geometryProperty.SetValue(value); }
-    }
-
-    public AbstractProperty BorderColorProperty
-    {
-      get { return _borderColorProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the color to be used for drawing bars/borders around the video
-    /// </summary>
-    public Color BorderColor
-    {
-      get { return (Color) _borderColorProperty.GetValue(); }
-      set { _borderColorProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Protected members
 
     protected IGeometry ChooseVideoGeometry(IVideoPlayer player)
     {
@@ -273,6 +235,52 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
+    #region Public properties
+
+    public AbstractProperty StreamProperty
+    {
+      get { return _streamProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the number of the player stream to be shown.
+    /// </summary>
+    public int Stream
+    {
+      get { return (int) _streamProperty.GetValue(); }
+      set { _streamProperty.SetValue(value); }
+    }
+
+    public AbstractProperty GeometryProperty
+    {
+      get { return _geometryProperty; }
+    }
+
+    /// <summary>
+    /// Allows the skin to override the video gemoetry asked for by the player.
+    /// </summary>
+    public string Geometry
+    {
+      get { return (string) _geometryProperty.GetValue(); }
+      set { _geometryProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BorderColorProperty
+    {
+      get { return _borderColorProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the color to be used for drawing bars/borders around the video
+    /// </summary>
+    public Color BorderColor
+    {
+      get { return (Color) _borderColorProperty.GetValue(); }
+      set { _borderColorProperty.SetValue(value); }
+    }
+
+    #endregion
+
     #region Public members
 
     public override void SetupBrush(FrameworkElement parent, ref PositionColoredTextured[] verts, float zOrder, bool adaptVertsToBrushTexture)
@@ -298,7 +306,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // unnecessary. It is unclear whether this is how it is done by every graphics driver though, so I'll leave it in for the 
       // time being.
       SizeF maxuv = player.SurfaceMaxUV;
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, player.Texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
+      lock (player.SurfaceLock)
+      {
+        Surface playerSurface = player.Surface;
+        if (playerSurface == null)
+          return false;
+        DeviceEx device = SkinContext.Device;
+        SurfaceDescription desc = playerSurface.Description;
+        SurfaceDescription? textureDesc = _texture == null ? new SurfaceDescription?() : _texture.GetLevelDescription(0);
+        if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
+        {
+          TryDispose(ref _texture);
+          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, SkinContext.CurrentDisplayMode.Format, Pool.Default);
+        }
+        using (Surface target = _texture.GetSurfaceLevel(0))
+          device.StretchRectangle(playerSurface, target, TextureFilter.None);
+      }
+      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
