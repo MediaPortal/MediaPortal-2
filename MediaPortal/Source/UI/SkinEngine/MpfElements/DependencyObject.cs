@@ -326,7 +326,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         depObjValue.LogicalParent = targetObject;
     }
 
-    public static void TryDispose(ref object maybeDisposable)
+    public static void TryDispose<T>(ref T maybeDisposable) where T : class 
     {
       IDisposable d = maybeDisposable as IDisposable;
       if (d == null)
