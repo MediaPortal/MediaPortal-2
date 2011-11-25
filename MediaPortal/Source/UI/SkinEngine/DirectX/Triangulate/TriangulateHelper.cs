@@ -203,9 +203,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         if (lastInset.HasValue)
         {
           // If we wanted to have different StrokeLineJoin implementations, this should be done here. At the moment, the join is quite trivial.
-          verts[offset + 6].Position = new Vector3(points[i].X, points[i].Y, zCoord);
-          verts[offset + 7].Position = new Vector3(points[i].X + insetX, points[i].Y + insetY, zCoord);
-          verts[offset + 8].Position = new Vector3(points[i].X + lastInset.Value.X, points[i].Y + lastInset.Value.Y, zCoord);
+          verts[offset].Position = new Vector3(points[i].X, points[i].Y, zCoord);
+          verts[offset + 1].Position = new Vector3(points[i].X + insetX, points[i].Y + insetY, zCoord);
+          verts[offset + 2].Position = new Vector3(points[i].X + lastInset.Value.X, points[i].Y + lastInset.Value.Y, zCoord);
+          offset += 3;
         }
 
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, zCoord);
