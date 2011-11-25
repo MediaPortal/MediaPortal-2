@@ -111,6 +111,19 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
+    /// Returns the current display mode used in the SkinEngine.
+    /// </summary>
+    public static DisplayMode CurrentDisplayMode
+    {
+      get
+      {
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+        return adapterInfo.CurrentDisplayMode;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the skin resources currently in use.
     /// A query to this resource collection will automatically fallback on the
     /// next resource collection in the priority chain. For example,
