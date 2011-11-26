@@ -267,8 +267,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (exemplaryChildren.Count == 0)
           return SizeF.Empty;
         _averageItemSize = GetExtendsInOrientationDirection(Orientation, resultSize) / exemplaryChildren.Count;
-        return Orientation == Orientation.Vertical ? new SizeF(resultSize.Height * numItems / exemplaryChildren.Count, resultSize.Width) :
-            new SizeF(resultSize.Height, resultSize.Width * numItems / exemplaryChildren.Count);
+        return Orientation == Orientation.Vertical ? new SizeF(resultSize.Width, resultSize.Height * numItems / exemplaryChildren.Count) :
+            new SizeF(resultSize.Width * numItems / exemplaryChildren.Count, resultSize.Height);
       }
     }
 
