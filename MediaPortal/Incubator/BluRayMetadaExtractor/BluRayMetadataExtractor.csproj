@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -84,21 +84,10 @@
     <Compile Include="Metadata\BDROM\TSStreamClipFile.cs" />
     <Compile Include="Metadata\BDROM\TSStreamFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Metadata\BluRayMetadataExtractor.cs" />
     <Compile Include="Settings\BDInfoSettings.cs">
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -128,7 +117,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BDMEx_plugin.xml" />
+    <Content Include="plugin.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -141,12 +130,13 @@
   <PropertyGroup>
     <PostBuildEvent>@REM mkdir necessary because of the hack with the different plugin.xml file name, else copy does not create the plugin's directory
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)
-copy /Y "$(ProjectDir)BDMEx_plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\plugin.xml"
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 rem robocopy "$(ProjectDir)References"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)" /NP
 @REM Reset RoboCopy's exit code which is different from 0
 IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
 </PostBuildEvent>
-    <PreBuildEvent>rem "$(SolutionDir)\Tools\RevStamp.exe" "http://mp-bdhandler.googlecode.com/svn/trunk/" "$(ProjectDir)\Resources\revision.txt"  "$(ProjectDir)\Properties\AssemblyInfo.cs"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
