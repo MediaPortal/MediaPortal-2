@@ -67,7 +67,7 @@ namespace MediaPortal.UI.Players.Video
   {
     #region Variables
 
-    private readonly object _lock;
+    private readonly object _lock = new object();
     private CropSettings _cropSettings = null;
     private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
@@ -80,9 +80,8 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    public EVRCallback(RenderDlgt renderDlgt, object textureLock)
+    public EVRCallback(RenderDlgt renderDlgt)
     {
-      _lock = textureLock;
       _renderDlgt = renderDlgt;
       _device = SkinContext.Device;
     }
@@ -104,6 +103,11 @@ namespace MediaPortal.UI.Players.Video
     public Surface Surface
     {
       get { return _surface; }
+    }
+
+    public object SurfaceLock
+    {
+      get { return _lock; }
     }
 
     /// <summary>
