@@ -156,7 +156,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected StreamInfoHandler _streamInfoAudio = null;
     protected StreamInfoHandler _streamInfoSubtitles = null;
-    private readonly object _syncObj = new object();
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -1144,8 +1144,9 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void ReleaseGUIResources()
     {
+      // TODO (Albert, 2011-11-29): Clarify the following comment.
       //stops the renderer threads all of it's own.
-      lock (_evrCallback)
+      lock (_syncObj)
       {
         FreeEvrCallback();
         IEnumPins enumer;
