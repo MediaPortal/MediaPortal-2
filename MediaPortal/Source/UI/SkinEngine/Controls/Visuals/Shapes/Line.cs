@@ -161,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override SizeF CalculateInnerDesiredSize(SizeF totalSize)
     {
-      using (GraphicsPath p = GetLine(new RectangleF(0, 0, 0, 0)))
+      using (GraphicsPath p = GetLine(new RectangleF(new PointF(0, 0), totalSize)))
       {
         RectangleF bounds = p.GetBounds();
 
@@ -193,6 +193,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
         matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
+        RectangleF bounds = mPath.GetBounds(matrix);
+        matrix.Scale(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         mPath.Transform(matrix);
       }
       mPath.Flatten();
