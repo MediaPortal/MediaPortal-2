@@ -68,7 +68,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected volatile bool _performLayout;
     protected PrimitiveBuffer _fillContext;
     protected PrimitiveBuffer _strokeContext;
-    protected bool _hidden;
 
     #endregion
 
