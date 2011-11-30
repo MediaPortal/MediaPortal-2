@@ -25,7 +25,6 @@
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -37,7 +36,6 @@ using MediaPortal.Common.Commands;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
-  // FIXME: Remove inline constants describing mouse events, rework mouse event handling?
   public class DVDPlayerUIContributor : BaseTimerControlledModel, IPlayerUIContributor
   {
     protected static string[] EMPTY_STRING_ARRAY = new string[] { };
@@ -245,7 +243,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="key">Key that was pressed.</param>
     public void OnKeyPress(Key key)
     {
-      SendDvdPlayerKeyEvent(key);
+      _player.OnKeyPress(key);
     }
 
     /// <summary>
@@ -255,7 +253,7 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <param name="y">Y coordinate relative to the video size.</param>
     public void OnMouseMove(float x, float y)
     {
-      SendDvdPlayerMouseEvent("MouseMove", x, y);
+      _player.OnMouseMove(x, y);
     }
 
     /// <summary>
@@ -267,29 +265,8 @@ namespace MediaPortal.UiComponents.Media.Models
     public void OnMouseClick(MouseButtons buttons, float x, float y)
     {
       if (buttons == MouseButtons.Left)
-        SendDvdPlayerMouseEvent("MouseClick", x, y);
+        _player.OnMouseClick(x, y);
     }
-
-    public static void SendDvdPlayerMouseEvent(string messageType, float x, float y)
-    {
-      SystemMessage msg = new SystemMessage(messageType);
-      msg.MessageData["x"] = x;
-      msg.MessageData["y"] = y;
-      SendMessage(msg);
-    }
-
-    public static void SendDvdPlayerKeyEvent(Key key)
-    {
-      SystemMessage msg = new SystemMessage("KeyPress");
-      msg.MessageData["key"] = key;
-      SendMessage(msg);
-    }
-
-    private static void SendMessage(SystemMessage msg)
-    {
-      ServiceRegistration.Get<IMessageBroker>().Send("DVDPlayer Messaging", msg);
-    }
-
 
     /// <summary>
     /// Skips to previous chapter.
