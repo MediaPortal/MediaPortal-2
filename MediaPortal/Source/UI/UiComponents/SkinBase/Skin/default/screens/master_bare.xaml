@@ -116,13 +116,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
             Source="server-disconnected-icon.png"/>
       </DockPanel>
     </Grid> <!-- HeaderPanel -->
-    <Rectangle x:Name="UpperSeparator" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
+    <Line x:Name="UpperSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
         HorizontalAlignment="Stretch" DockPanel.Dock="Top"/>
     <DockPanel x:Name="FooterPanel" DockPanel.Dock="Bottom" Height="100" LastChildFill="False"
         Background="{ThemeResource FooterPanelBackgroundBrush}">
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" DockPanel.Dock="Bottom"/>
     </DockPanel> <!-- FooterPanel -->
-    <Rectangle x:Name="LowerSeparator" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
+    <Line x:Name="LowerSeparator" X1="0" X2="10" Height="1" Stroke="{ThemeResource HeaderFooterSeparatorLineStrokeColor}" StrokeThickness="1"
         HorizontalAlignment="Stretch" DockPanel.Dock="Bottom"/>
 
 <!-- Not sure if and how we should show shortcuts...
