@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Matrix=SlimDX.Matrix;
@@ -258,6 +257,32 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
     }
 
+  /// <summary>
+  /// Describes how points should be painted in a LineStrip relative to its center.
+  /// </summary>
+  /// <remarks>
+  /// The behavior of the <see cref="LeftHanded"/> and <see cref="RightHanded"/> modes depends on the order the points are
+  /// listed in. <see cref="LeftHanded"/> will draw the line on the outside of a clockwise curve and on the
+  /// inside of a counterclockwise curve; <see cref="RightHanded"/> is the opposite.
+  /// </remarks>
+  public enum WidthMode
+  {
+    /// <summary>
+    /// Centers the width on the line.
+    /// </summary>
+    Centered,
+
+    /// <summary>
+    /// Places the width on the left-hand side of the line.
+    /// </summary>
+    LeftHanded,
+
+    /// <summary>
+    /// Places the width on the right-hand side of the line.
+    /// </summary>
+    RightHanded
+  }
+
     /// <summary>
     /// Generates the vertices of a thickened line strip.
     /// </summary>
@@ -267,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="widthMode">How to place the weight of the line relative to it</param>
     /// <param name="zCoord">Z coordinate of the returned vertices.</param>
     /// <param name="verts">Generated vertices.</param>
-    public void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode, float zCoord,
+    public static void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode, float zCoord,
         out PositionColoredTextured[] verts)
     {
       verts = null;
