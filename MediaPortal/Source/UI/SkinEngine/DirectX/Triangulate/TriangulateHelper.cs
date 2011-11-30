@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <summary>
     /// Generates a list of triangles from an interior point (<paramref name="cx"/>;<paramref name="cy"/>)
     /// to each point of the source <paramref name="path"/>. The path must be closed and describe a simple polygon,
-    /// where no connection between (cx; cy) and a path points crosses the border (this means, from (cx; cy),
+    /// where no connection between (cx; cy) and any path point crosses the border (this means, from (cx; cy),
     /// each path point must be reached directly).
     /// The generated triangles are in the same form as if we would have generated a triangle fan,
     /// but this method returns them in the form of a triangle list.
