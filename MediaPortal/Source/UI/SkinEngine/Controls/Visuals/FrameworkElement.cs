@@ -152,6 +152,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected Size _lastOpacityRenderSize = new Size();
     
+    protected bool _styleSet = false;
+
     protected volatile SetFocusPriority _setFocusPrio = SetFocusPriority.None;
 
     protected SizeF? _availableSize;
@@ -290,17 +292,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Event handlers
 
-    protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
+    protected override void OnUpdateElementState()
     {
-      Style oldStyle = (Style) oldValue;
+      base.OnUpdateElementState();
+      if (PreparingOrRunning && !_styleSet)
+        UpdateStyle(null);
+    }
+
+    protected void UpdateStyle(Style oldStyle)
+    {
       if (oldStyle != null)
       {
         oldStyle.Reset(this);
         MPF.TryCleanupAndDispose(oldStyle);
       }
       if (Style != null)
+      {
         Style.Set(this);
+        _styleSet = true;
+      }
       InvalidateLayout(true, true);
+    }
+
+    protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
+    {
+      if (!PreparingOrRunning)
+        return;
+      UpdateStyle((Style) oldValue);
     }
 
     void OnActualBoundsChanged(AbstractProperty property, object oldValue)
