@@ -33,6 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };
 
+  public delegate void ContextChangedDlgt(object oldContext, object newContext);
+
   public class Visual : DependencyObject
   {
     #region Protected fields
@@ -65,6 +67,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    public event ContextChangedDlgt ContextChanged;
+
+    protected void FireContextChanged(object oldContext, object newContext)
+    {
+      ContextChangedDlgt dlgt = ContextChanged;
+      if (dlgt != null)
+        dlgt(oldContext, newContext);
+    }
+
     /// <summary>
     /// Gets or sets the context. This is a convenience property for setting the <see cref="DependencyObject.DataContext"/>
     /// with a <see cref="BindingMarkupExtension.Source"/> value of the given <paramref name="value"/>.
@@ -75,10 +86,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return DataContext == null ? null : DataContext.Source; }
       set
       {
+        BindingMarkupExtension bme = DataContext;
+        object oldContext = bme == null ? null : bme.Source;
         if (value == null)
         {
-          if (DataContext != null)
-            DataContext.Dispose();
+          if (bme != null)
+            bme.Dispose();
           DataContext = null;
         }
         else if (DataContext == null)
@@ -88,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         else
           DataContext.Source = value;
+        FireContextChanged(oldContext, value);
       }
     }
 

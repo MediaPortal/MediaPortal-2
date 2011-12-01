@@ -27,5 +27,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class TreeView : HeaderedItemsControl
   {
+    protected override bool InitializeSubItemsSource()
+    {
+      // Don't initialize the sub items source in the top level tree view
+      return false;
+    }
   }
 }
