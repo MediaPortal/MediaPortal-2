@@ -490,13 +490,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    protected virtual void PrepareItems(bool force)
+    protected void PrepareItems(bool force)
     {
+      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
+        return;
       if (_preventItemsPreparation)
         return;
+      _preventItemsPreparation = true;
+      try
+      {
+        PrepareItemsOverride(force);
+      }
+      finally
+      {
+        _preventItemsPreparation = false;
+      }
+    }
+
+    protected virtual void PrepareItemsOverride(bool force)
+    {
       if (_panelTemplateApplied && _itemsHostPanel != null && !force)
-        return;
-      if (_elementState != ElementState.Running && _elementState != ElementState.Preparing)
         return;
       // Check properties which are necessary in each case
       if (ItemsPanel == null)
