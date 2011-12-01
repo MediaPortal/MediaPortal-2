@@ -85,7 +85,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <Grid>
+          <Grid x:Name="ScrollViewerGrid">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
@@ -241,8 +241,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Control Focusable="true"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Control Focusable="true">
             <Control.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -293,8 +292,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch"
+          <CheckBox x:Name="NameMarker" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}"
               Content="{Binding}">
             <CheckBox.Triggers>
@@ -318,8 +316,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch"
+          <RadioButton x:Name="NameMarker" Margin="2,1,0,1"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
             <RadioButton.Triggers>
@@ -344,7 +341,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Control Focusable="true" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Control Focusable="true">
             <Control.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
@@ -357,7 +354,7 @@
               </Trigger>
             </Control.Triggers>
             <Control.TemplateControl>
-              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              <ContentPresenter/>
             </Control.TemplateControl>
           </Control>
         </ControlTemplate>
@@ -371,7 +368,6 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle}"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch"
               Command="{Binding Command}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -390,8 +386,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <CheckBox x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch"
+          <CheckBox x:Name="ShareMarker" Margin="2,1,0,1"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}"
               Content="{Binding}">
             <CheckBox.Triggers>
@@ -416,8 +411,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch"
+          <RadioButton x:Name="ShareMarker" Margin="2,1,0,1"
               IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
               Content="{Binding}">
             <RadioButton.Triggers>
@@ -441,59 +435,48 @@
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-    </Grid>
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+    </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
-  <DataTemplate x:Key="MainMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
-    </Grid>
+  <DataTemplate x:Key="MainMenuItemDataTemplate">
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+    </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="MainMenuItemDataStringProvider" Path="[Name]"/>
 
   <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
   <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32"
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding [Name]}"
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-    </Grid>
+    </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="ContentsMenuItemDataStringProvider" Path="[Name]"/>
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Thumbnail="True" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform"
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Image x:Name="Image" Thumbnail="True" Width="100" DockPanel.Dock="Left" Stretch="Uniform"
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}"
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="10,0,0,0" Content="{Binding [Name]}"
           FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-    </Grid>
+    </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="ImageDialogItemDataStringProvider" Path="[Name]"/>
 
   <!-- Data template for a simple share entry in the shares list -->
   <DataTemplate x:Key="ShareItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -521,7 +504,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer CanContentScroll="true">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -530,7 +513,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -564,7 +547,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -684,7 +667,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -716,7 +699,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -762,7 +745,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -807,11 +790,11 @@
 
   <!-- A data template for a default TreeItem -->
   <DataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}">
-    <!-- Extra grid necessary because we need a label (ItemLabel) to scroll and a panel (ItemControl) to
+    <!-- Extra panel necessary because we need a label (Name=ItemLabel) to scroll and a panel (Name=ItemControl) to
          set the background color when selected -->
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-    </Grid>
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+    </DockPanel>
   </DataTemplate>
 
   <DataStringProvider x:Key="DefaultTreeItemDataStringProvider" Path="[Name]"/>
@@ -825,7 +808,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer CanContentScroll="false" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer CanContentScroll="false">
             <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -1170,9 +1153,9 @@
 
   <!-- Data template for contents of workflow navigation bar entries -->
   <DataTemplate x:Key="WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Label x:Name="ItemLabel" Margin="2" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
-    </Grid>
+    <DockPanel x:Name="ItemControl" LastChildFill="True">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="2" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+    </DockPanel>
   </DataTemplate>
 
   <!-- Control which is used to symbolize the ellipsis of some entries when the workflow navigation bar is too long for the available space -->
@@ -1190,7 +1173,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          <ItemsPresenter/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1200,7 +1183,7 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
-              Margin="10" Orientation="Horizontal" VerticalAlignment="Top"
+              Margin="10" Orientation="Horizontal"
               EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"/>
         </ItemsPanelTemplate>
       </Setter.Value>

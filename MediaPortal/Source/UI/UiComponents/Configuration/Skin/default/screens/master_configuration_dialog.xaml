@@ -38,20 +38,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         Resource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Text,Mode=OneTime}"/>
 
     <ControlTemplate x:Key="Contents_Template">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="10"/>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Wrap="True" Color="{ThemeResource TextColor}"
+      <DockPanel LastChildFill="True">
+        <Label DockPanel.Dock="Top" Wrap="True" Color="{ThemeResource TextColor}"
             Content="{Binding Source={StaticResource Model},Path=CurrentConfigController.Help,Mode=OneTime}"/>
-        <Control Template="{DynamicResource ResourceKey=Config_Client_Template}"
-            Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
-      </Grid>
+        <Control Template="{DynamicResource ResourceKey=Config_Client_Template}" Margin="0,10,0,0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Fallback"/>
+      </DockPanel>
     </ControlTemplate>
   </Include.Resources>
 </Include>

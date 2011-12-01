@@ -459,15 +459,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid Margin="0,2,0,2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid x:Name="GrowControl" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+          <DockPanel Margin="0,2,0,2" LastChildFill="True">
+            <Grid x:Name="GrowControl" DockPanel.Dock="Left" RenderTransformOrigin="0.5,0.5">
               <Grid.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -477,8 +470,8 @@
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
                   Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>
-            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,10,0"/>
-          </Grid>
+            <ContentPresenter DockPanel.Dock="Left" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,10,0"/>
+          </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
@@ -915,7 +908,7 @@
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
+                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
