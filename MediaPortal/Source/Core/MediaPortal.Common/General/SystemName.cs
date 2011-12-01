@@ -163,6 +163,8 @@ namespace MediaPortal.Common.General
     protected bool IsALocalAddress()
     {
       IPAddress thisAddress;
+      if (_address == null)
+        return false;
       if (!IPAddress.TryParse(_address, out thisAddress))
         return false;
       foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
