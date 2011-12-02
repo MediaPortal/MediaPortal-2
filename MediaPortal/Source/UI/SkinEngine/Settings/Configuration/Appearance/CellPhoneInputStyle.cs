@@ -28,7 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration setting class to change the inut style setting for text controls.
+  /// Configuration setting class to change the input style setting for text controls.
   /// </summary>
   public class CellPhoneInputStyle : YesNo
   {
