@@ -32,8 +32,6 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
   /// </summary>
   public class CellPhoneInputStyle : YesNo
   {
-    #region Public Methods
-
     public override void Load()
     {
       _yes = SettingsManager.Load<AppSettings>().CellPhoneInputStyle;
@@ -46,7 +44,5 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
       settings.CellPhoneInputStyle = _yes;
       SettingsManager.Save(settings);
     }
-
-    #endregion
   }
 }
