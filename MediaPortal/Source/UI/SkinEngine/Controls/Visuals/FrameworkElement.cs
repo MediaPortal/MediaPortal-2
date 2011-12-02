@@ -1711,7 +1711,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           renderTransformMatrix, RenderTransformOrigin, Opacity);
       _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
 
-      if (OpacityMask == null)
+      Brushes.Brush opacityMask = OpacityMask;
+      if (opacityMask == null)
         // Simply render without opacity mask
         DoRender(localRenderContext);
       else
@@ -1753,9 +1754,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
         // Now render the opacitytexture with the OpacityMask brush
-        OpacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
+        opacityMask.BeginRenderOpacityBrush(renderTarget.Texture, new RenderContext(Matrix.Identity, Matrix.Identity, bounds));
         _opacityMaskContext.Render(0);
-        OpacityMask.EndRender();
+        opacityMask.EndRender();
       }
       // Calculation of absolute render size (in world coordinate system)
       parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
