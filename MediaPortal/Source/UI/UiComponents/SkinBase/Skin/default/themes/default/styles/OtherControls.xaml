@@ -680,7 +680,7 @@
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command}"
-                VerticalAlignment="Top"/>
+                VerticalAlignment="Top" Margin="0,0,5,0"/>
             <ContentPresenter x:Name="TreeItemContentPresenter" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -712,7 +712,7 @@
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command}"
-                VerticalAlignment="Center"/>
+                VerticalAlignment="Center" Margin="0,0,5,0"/>
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{Binding Path=Selected,Mode=TwoWay}"
