@@ -83,6 +83,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // Visuals
       _objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));
       _objectClassRegistrations.Add("Control", typeof(SkinEngine.Controls.Visuals.Control));
+      _objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
       _objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
       _objectClassRegistrations.Add("GroupBox", typeof(SkinEngine.Controls.Visuals.GroupBox));
       _objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
@@ -102,7 +103,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       _objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       _objectClassRegistrations.Add("TextControl", typeof(SkinEngine.Controls.Visuals.TextControl));
-      _objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
       _objectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
       _objectClassRegistrations.Add("KeyBindingControl", typeof(SkinEngine.Controls.Visuals.KeyBindingControl));
       _objectClassRegistrations.Add("VirtualKeyboardControl", typeof(SkinEngine.Controls.Visuals.VirtualKeyboardControl));
