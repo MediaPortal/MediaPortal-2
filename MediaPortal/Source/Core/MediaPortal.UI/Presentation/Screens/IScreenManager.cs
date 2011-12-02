@@ -114,6 +114,23 @@ namespace MediaPortal.UI.Presentation.Screens
     void ReloadSkinAndTheme();
 
     /// <summary>
+    /// Checks if the screen with the given <paramref name="screenName"/> is visible and shows it, if necessary.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown.</param>
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new screen, if the screen could
+    /// successfully be loaded, else <c>null</c>.</returns>
+    Guid? CheckScreen(string screenName);
+
+    /// <summary>
+    /// Checks if the screen with the given <paramref name="screenName"/> is visible and shows it, if necessary.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown.</param>
+    /// <param name="backgroundEnabled">Whether this screen will be displayed with a background.</param>
+    /// <returns><see cref="Guid"/> instance which uniquely identifies the new screen, if the screen could
+    /// successfully be loaded, else <c>null</c>.</returns>
+    Guid? CheckScreen(string screenName, bool backgroundEnabled);
+
+    /// <summary>
     /// Shows the screen with the given <paramref name="screenName"/>. All dialogs will be closed.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>

@@ -254,7 +254,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set
       {
         if (value == State.Preparing)
-          _root.SetElementState(ElementState.Available);
+          _root.SetElementState(ElementState.Preparing);
         else if (value == State.Running)
           _root.SetElementState(ElementState.Running);
         else if (value == State.Closing)
@@ -433,11 +433,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
         _root.InvalidateLayout(true, true);
         // Prepare run. In the prepare run, the screen uses some shortcuts to set values.
-        _root.SetElementState(ElementState.Preparing);
+        ScreenState = State.Preparing;
         SizeF skinSize = new SizeF(SkinWidth, SkinHeight);
         _root.UpdateLayoutRoot(skinSize);
         // Switch to "Running" state which builds the final screen structure
-        _root.SetElementState(ElementState.Running);
+        ScreenState = State.Running;
         int maxNumUpdate = 10;
         while ((_root.IsMeasureInvalid || _root.IsArrangeInvalid) && maxNumUpdate-- > 0)
         {

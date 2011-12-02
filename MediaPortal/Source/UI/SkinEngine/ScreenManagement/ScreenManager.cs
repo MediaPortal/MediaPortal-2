@@ -320,7 +320,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           case ScreenManagerMessaging.MessageType.ShowScreen:
             screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
             bool closeDialogs = (bool) message.MessageData[ScreenManagerMessaging.CLOSE_DIALOGS];
-            DoShowScreen_NoLock(screen, closeDialogs);
+            bool forceUpdate = (bool) message.MessageData[ScreenManagerMessaging.FORCE_UPDATE];
+            DoShowScreen_NoLock(screen, forceUpdate, closeDialogs);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SetSuperLayer:
@@ -341,11 +342,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
           case ScreenManagerMessaging.MessageType.ReloadScreens:
             DoReloadScreens_NoLock();
-            DecPendingOperations();
-            break;
-          case ScreenManagerMessaging.MessageType.ScreenClosing:
-            screen = (Screen) message.MessageData[ScreenManagerMessaging.SCREEN];
-            DoStartClosingScreen_NoLock(screen);
             DecPendingOperations();
             break;
           case ScreenManagerMessaging.MessageType.SwitchSkinAndTheme:
@@ -613,9 +609,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return true;
     }
 
-    protected internal void DoShowScreen_NoLock(Screen screen, bool closeDialogs)
+    protected internal void DoShowScreen_NoLock(Screen screen, bool forceUpdate, bool closeDialogs)
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screen.ResourceName);
+      if (_nextScreen == null && _currentScreen != null && _currentScreen.ResourceName == screen.ResourceName && !forceUpdate)
+      {
+        screen.ScreenState = Screen.State.Closed;
+        ScheduleDisposeScreen(screen);
+        return;
+      }
+      DoStartClosingScreen_NoLock(_currentScreen);
       if (closeDialogs)
         DoCloseDialogs_NoLock(true, false);
       DoExchangeScreen_NoLock(screen);
@@ -816,7 +819,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoExchangeScreen_NoLock(Screen screen)
     {
-      screen.Prepare();
       lock (_syncObj)
       {
         if (_nextScreen != null)
@@ -826,9 +828,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         if (_currentScreen != null)
           _currentScreen.ScreenState = Screen.State.Closing;
-  
+
         _nextScreen = screen;
       }
+      screen.Prepare();
       CompleteScreenClosure_NoLock();
     }
 
@@ -1277,13 +1280,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       return result;
     }
 
-    protected internal void ScreenChanging()
-    {
-      Screen screen = _currentScreen;
-      IncPendingOperations();
-      ScreenManagerMessaging.SendMessageScreenClosing(screen);
-    }
-
     #region IScreenManager implementation
 
     public string SkinName
@@ -1400,15 +1396,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       SwitchSkinAndTheme(_skin.Name, _theme == null ? null : _theme.Name);
     }
 
+    public Guid? CheckScreen(string screenName)
+    {
+      return ShowScreen(screenName, false, true);
+    }
+
+    public Guid? CheckScreen(string screenName, bool backgroundEnabled)
+    {
+      return ShowScreen(screenName, false, backgroundEnabled);
+    }
+
     public Guid? ShowScreen(string screenName)
     {
-      return ShowScreen(screenName, true);
+      return ShowScreen(screenName, true, true);
     }
 
     public Guid? ShowScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging();
+      return ShowScreen(screenName, true, backgroundEnabled);
+    }
 
+    public Guid? ShowScreen(string screenName, bool forceUpdate, bool backgroundEnabled)
+    {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
@@ -1417,7 +1426,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, forceUpdate, true);
       return newScreen.ScreenInstanceId;
     }
 
@@ -1428,8 +1437,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool ExchangeScreen(string screenName, bool backgroundEnabled)
     {
-      ScreenChanging();
-
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
       Screen newScreen = GetScreen(screenName, ScreenType.ScreenOrDialog);
       if (newScreen == null)
@@ -1438,7 +1445,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       newScreen.HasBackground = backgroundEnabled;
       IncPendingOperations();
-      ScreenManagerMessaging.SendMessageShowScreen(newScreen, false);
+      ScreenManagerMessaging.SendMessageShowScreen(newScreen, true, false);
       return true;
     }
 
