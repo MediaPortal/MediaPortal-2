@@ -14,16 +14,16 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="120"/>
-        </Grid.RowDefinitions>
+      <DockPanel LastChildFill="False">
+        <Label DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
+            HorizontalAlignment="Stretch"
+            DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+            Content="{Binding [Help]}" Wrap="True"
+            IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
         <ListView x:Name="ConfigItemsList"
-            Grid.Row="0" Grid.Column="0"
+            DockPanel.Dock="Center"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
@@ -31,12 +31,10 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
-        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
-            HorizontalAlignment="Stretch"
-            DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
-            Content="{Binding [Help]}" Wrap="True"
-            IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
-      </Grid>
+        <Label DockPanel.Dock="Center" Content="[Configuration.NoSettingsInThisSection]" IsVisible="{Binding ElementName=ConfigItemsList,Path=IsEmpty}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      </DockPanel>
     </ControlTemplate>
 
   </Include.Resources>
