@@ -23,34 +23,32 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration setting class to change the screen saver timeouts.
+  /// Configuration setting class to change the screen saver timeout.
   /// </summary>
   public class ScreenSaverTimeout : LimitedNumberSelect
   {
-    #region Public Methods
-
     public override void Load()
     {
-      _type = NumberType.Integer;
-      _step = 1.0;
-      _lowerLimit = 1;
-      _upperLimit = 30;
+      _type = NumberType.FloatingPoint;
+      _step = 0.5;
+      _lowerLimit = 0.5;
+      _upperLimit = 120;
       _value = SettingsManager.Load<ScreenSaverSettings>().ScreenSaverTimeoutMin;
     }
 
     public override void Save()
     {
       base.Save();
-      ScreenSaverSettings settings = SettingsManager.Load<ScreenSaverSettings>();
-      settings.ScreenSaverTimeoutMin = (int)_value;
-      SettingsManager.Save(settings);
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      screenControl.ConfigureScreenSaver(screenControl.IsScreenSaverEnabled, _value);
+      // The setting will be written by the screen control class
     }
-
-    #endregion
   }
 }

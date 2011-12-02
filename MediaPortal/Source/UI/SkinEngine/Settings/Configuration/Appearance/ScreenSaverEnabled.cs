@@ -23,17 +23,17 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration setting class to change enable or disable screen saver.
+  /// Configuration setting class to enable or disable the screen saver.
   /// </summary>
   public class ScreenSaverEnabled : YesNo
   {
-    #region Public Methods
-
     public override void Load()
     {
       _yes = SettingsManager.Load<ScreenSaverSettings>().ScreenSaverEnabled;
@@ -42,11 +42,9 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
     public override void Save()
     {
       base.Save();
-      ScreenSaverSettings settings = SettingsManager.Load<ScreenSaverSettings>();
-      settings.ScreenSaverEnabled = _yes;
-      SettingsManager.Save(settings);
+      IScreenControl screenControl = ServiceRegistration.Get<IScreenControl>();
+      screenControl.IsScreenSaverEnabled = _yes;
+      // The setting will be written by the screen control class
     }
-
-    #endregion
   }
 }

@@ -32,6 +32,6 @@ namespace MediaPortal.UI.SkinEngine.Settings
     public bool ScreenSaverEnabled { get; set; }
 
     [Setting(SettingScope.User, 5)]
-    public int ScreenSaverTimeoutMin { get; set; }
+    public double ScreenSaverTimeoutMin { get; set; }
   }
 }

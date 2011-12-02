@@ -388,6 +388,15 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceRegistration.Get<ISystemStateService>().Hibernate();
     }
 
+    public void ConfigureScreenSaver(bool screenSaverEnabled, double screenSaverTimeoutMin)
+    {
+      ScreenSaverSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ScreenSaverSettings>();
+      settings.ScreenSaverTimeoutMin = screenSaverTimeoutMin;
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      _screenSaverTimeOut = TimeSpan.FromMinutes(screenSaverTimeoutMin);
+      _isScreenSaverEnabled = screenSaverEnabled;
+    }
+
     public void SwitchMode(ScreenMode mode)
     {
       if (InvokeRequired)
@@ -473,31 +482,24 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         // Screen saver
         IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
+        // Remember old state, calls to IScreenManager are only required on state changes
+        bool wasScreenSaverActive = _isScreenSaverActive;
         if (_isScreenSaverEnabled)
         {
-          // Check if there is any active player that is not paused
-          IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
-          int activePlayers = 0;
-          playerManager.ForEach(psc =>
-          {
-            IMediaPlaybackControl player = psc.CurrentPlayer as IMediaPlaybackControl;
-            if (player != null && !player.IsPaused)
-              activePlayers++;
-          });
+          IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+          bool preventScreenSaver = playerContextManager.IsFullscreenContentWorkflowStateActive;
 
-          // Remember old state, calls to IScreenManager are only required on state changes
-          bool wasScreenSaverActive = _isScreenSaverActive;
-          _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
-                                 DateTime.Now - inputManager.LastInputTime > _screenSaverTimeOut &&
-                                 activePlayers == 0;
-          if (wasScreenSaverActive != _isScreenSaverActive)
-          {
-            IScreenManager superLayerManager = ServiceRegistration.Get<IScreenManager>();
-            superLayerManager.SetSuperLayer(_isScreenSaverActive ? SCREEN_SAVER_SCREEN : null);
-          }
+          _isScreenSaverActive = !preventScreenSaver &&
+              SkinContext.FrameRenderingStartTime - inputManager.LastMouseUsageTime > _screenSaverTimeOut &&
+              SkinContext.FrameRenderingStartTime - inputManager.LastInputTime > _screenSaverTimeOut;
         }
         else
           _isScreenSaverActive = false;
+        if (wasScreenSaverActive != _isScreenSaverActive)
+        {
+          IScreenManager superLayerManager = ServiceRegistration.Get<IScreenManager>();
+          superLayerManager.SetSuperLayer(_isScreenSaverActive ? SCREEN_SAVER_SCREEN : null);
+        }
 
         // If we are in fullscreen mode, we may control the mouse cursor, else reset it to visible state, if state was switched
         ShowMouseCursor(!IsFullScreen || inputManager.IsMouseUsed);
