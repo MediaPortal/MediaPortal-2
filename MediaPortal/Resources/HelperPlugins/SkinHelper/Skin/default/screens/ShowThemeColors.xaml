@@ -34,25 +34,21 @@
     </DataTemplate>
 
     <Style x:Key="ThemeColorsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-
-
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type ListView}">
-            <ScrollViewer CanContentScroll="false" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ScrollViewer CanContentScroll="False" Margin="5">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
-
-
       <Setter Property="ItemTemplate" Value="{ThemeResource ColorItemDataTemplate}"/>
       <Setter Property="ItemContainerStyle" Value="{ThemeResource ColorItemContainerStyle}"/>
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate>
-            <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>

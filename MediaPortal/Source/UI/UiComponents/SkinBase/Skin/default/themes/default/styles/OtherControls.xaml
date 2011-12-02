@@ -97,9 +97,8 @@
             <!-- Content -->
             <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <!-- ScrollBar X -->
-            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2">
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2,10,2,2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -125,9 +124,8 @@
                 </Rectangle>
               </StackPanel>
             </Grid>
-            <!-- ScrollBar Y -->
-            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="2">
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                Grid.ZIndex="0" Margin="10,2,2,2">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
@@ -504,7 +502,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="true">
+          <ScrollViewer CanContentScroll="True" Margin="5">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -513,7 +511,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -547,7 +545,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -565,12 +563,13 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
@@ -593,12 +592,13 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
@@ -621,12 +621,13 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
                 Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
@@ -699,7 +700,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid>
+          <Grid Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -712,7 +713,7 @@
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command}"
-                VerticalAlignment="Center" Margin="0,0,5,0"/>
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,3,0"/>
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{Binding Path=Selected,Mode=TwoWay}"
@@ -745,7 +746,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid>
+          <Grid Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -758,7 +759,7 @@
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpandable}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command}"
-                VerticalAlignment="Center"/>
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,3,0"/>
             <CheckBox x:Name="Checker"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{Binding Path=Selected,Mode=TwoWay}"
@@ -808,7 +809,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer CanContentScroll="false">
+          <ScrollViewer CanContentScroll="False" Margin="5">
             <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -817,7 +818,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -864,7 +865,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ItemsPresenter/>
+          <ItemsPresenter Margin="5"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1173,7 +1174,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ItemsPresenter/>
+          <ItemsPresenter Margin="5"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1183,7 +1184,7 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
-              Margin="10" Orientation="Horizontal"
+              Orientation="Horizontal"
               EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"/>
         </ItemsPanelTemplate>
       </Setter.Value>

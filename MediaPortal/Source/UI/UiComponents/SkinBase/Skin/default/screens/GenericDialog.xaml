@@ -19,7 +19,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type ListView}">
-            <ItemsPresenter VerticalAlignment="Top"/>
+            <ItemsPresenter Margin="10"/>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
@@ -28,7 +28,7 @@
       <Setter Property="ItemsPanel">
         <Setter.Value>
           <ItemsPanelTemplate>
-            <StackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" Margin="10" VerticalAlignment="Top"/>
+            <StackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" VerticalAlignment="Top"/>
           </ItemsPanelTemplate>
         </Setter.Value>
       </Setter>

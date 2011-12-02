@@ -234,8 +234,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <!--<ScrollViewer CanContentScroll="false"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
+          <!--<ScrollViewer CanContentScroll="False">-->
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           <!--</ScrollViewer>-->
         </ControlTemplate>
@@ -244,9 +243,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="0" 
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      Orientation="Horizontal" />
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"
+              Orientation="Horizontal" />
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

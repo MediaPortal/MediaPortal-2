@@ -330,27 +330,23 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid Margin="2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
-                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-              <Control.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </TransformGroup>
-              </Control.RenderTransform>
-            </Control>
-            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
+          <DockPanel Margin="0,2,0,2" LastChildFill="True">
+            <Grid Margin="2,0,5,0" DockPanel.Dock="Left"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+              <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
+                  VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                <Control.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                  </TransformGroup>
+                </Control.RenderTransform>
+              </Control>
+              <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
+            </Grid>
+            <ContentPresenter x:Name="RadioButtonContentPresenter" DockPanel.Dock="Center"
                 HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-          </Grid>
+          </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
@@ -391,68 +387,6 @@
   <!-- Implicit default style for RadioButton controls -->
   <Style BasedOn="{ThemeResource DefaultRadioButtonStyle}" TargetType="{x:Type RadioButton}"/>
 
-  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type RadioButton}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid Margin="0,2,0,2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-            <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
-                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-              <Control.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </TransformGroup>
-              </Control.RenderTransform>
-            </Control>
-            <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
-            </Trigger>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="button12.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="button7.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!-- ******************************** Checkbox *********************************** -->
 
   <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
@@ -460,7 +394,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <DockPanel Margin="0,2,0,2" LastChildFill="True">
-            <Grid x:Name="GrowControl" DockPanel.Dock="Left" RenderTransformOrigin="0.5,0.5">
+            <Grid x:Name="GrowControl" DockPanel.Dock="Left" Margin="2,0,5,0" RenderTransformOrigin="0.5,0.5"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
               <Grid.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -470,7 +405,7 @@
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
                   Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>
-            <ContentPresenter DockPanel.Dock="Left" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,10,0"/>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -1025,7 +960,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" Margin="0,2,0,2" RenderTransformOrigin="0.5,0.5">
+          <Grid x:Name="GrowControl" Margin="2" RenderTransformOrigin="0.5,0.5">
             <Grid.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
