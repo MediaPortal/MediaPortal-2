@@ -40,13 +40,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
   {
     public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
 
+    public const string RES_MEDIAPORTAL_2 = "[ScreenSaver.MediaPortal2]";
+
     protected AbstractProperty _isScreenSaverActiveProperty;
     protected AbstractProperty _isMouseUsedProperty;
+    protected AbstractProperty _screenSaverTextProperty;
 
     public ScreenSaverModel() : base(100)
     {
       _isScreenSaverActiveProperty = new WProperty(typeof(bool), false);
       _isMouseUsedProperty = new WProperty(typeof(bool), false);
+      _screenSaverTextProperty = new WProperty(typeof(string), RES_MEDIAPORTAL_2); // Might be made configurable
 
       Update();
     }
@@ -84,6 +88,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (bool) _isMouseUsedProperty.GetValue(); }
       internal set { _isMouseUsedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScreenSaverTextProperty
+    {
+      get { return _screenSaverTextProperty; }
+    }
+
+    public string ScreenSaverText
+    {
+      get { return (string) _screenSaverTextProperty.GetValue(); }
+      set { _screenSaverTextProperty.SetValue(value); }
     }
   }
 }

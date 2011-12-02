@@ -86,6 +86,9 @@
   <Section Name="RemoteResourceProvider">
     <String Name="Name" Text="Remote resource provider"/>
   </Section>
+  <Section Name="ScreenSaver">
+    <String Name="MediaPortal2" Text="MediaPortal 2"/>
+  </Section>
   <Section Name="Players">
     <!-- For MP UI player subsystem -->
     <String Name="NoPlayerAvailableNotificationTitle" Text="No player"/>
