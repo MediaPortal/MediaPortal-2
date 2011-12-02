@@ -140,7 +140,7 @@ namespace MediaPortal.Common.Services.Settings
 
     #endregion
 
-    #region Public Methods
+    #region Public methods
 
     /// <summary>
     /// Reads the value of a given entry.
