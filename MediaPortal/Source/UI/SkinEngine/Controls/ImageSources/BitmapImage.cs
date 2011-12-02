@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string UriSource
     {
-      get { return (string)_uriSourceProperty.GetValue(); }
+      get { return (string) _uriSourceProperty.GetValue(); }
       set { _uriSourceProperty.SetValue(value); }
     }
 
@@ -187,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Effect
     {
-      get { return (string)_effectProperty.GetValue(); }
+      get { return (string) _effectProperty.GetValue(); }
       set { _effectProperty.SetValue(value); }
     }
 
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double EffectTimer
     {
-      get { return (double)_effectTimerProperty.GetValue(); }
+      get { return (double) _effectTimerProperty.GetValue(); }
       set { _effectTimerProperty.SetValue(value); }
     }
 

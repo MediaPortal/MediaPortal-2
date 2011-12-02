@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public string Transition
     {
-      get { return (string)_transitionProperty.GetValue(); }
+      get { return (string) _transitionProperty.GetValue(); }
       set { _transitionProperty.SetValue(value); }
     }
 
@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     /// </summary>
     public double TransitionDuration
     {
-      get { return (double)_transitionDurationProperty.GetValue(); }
+      get { return (double) _transitionDurationProperty.GetValue(); }
       set { _transitionDurationProperty.SetValue(value); }
     }
 
@@ -190,7 +190,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       Allocate();
 
-      _frameData.Z = (float)EffectTimer;
+      _frameData.Z = (float) EffectTimer;
 
       if (_transitionActive)
       {

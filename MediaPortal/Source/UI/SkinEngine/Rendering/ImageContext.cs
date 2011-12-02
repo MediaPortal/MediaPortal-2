@@ -241,7 +241,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return false;
 
       // Apply effect parameters    
-      _effectTransition.Parameters[PARAM_OPACITY] = (float)renderContext.Opacity;
+      _effectTransition.Parameters[PARAM_OPACITY] = (float) renderContext.Opacity;
       _effectTransition.Parameters[PARAM_BRUSH_TRANSFORM] = _imageTransform;
       _effectTransition.Parameters[PARAM_FRAME_DATA] = endFrameData;
       _effectTransition.Parameters[PARAM_MIX_AB] = mixValue;
