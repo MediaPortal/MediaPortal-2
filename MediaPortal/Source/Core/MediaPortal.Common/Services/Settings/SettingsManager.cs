@@ -142,7 +142,7 @@ namespace MediaPortal.Common.Services.Settings
           }
           catch (Exception e)
           {
-            ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error setting property {0} in settings of type '{1}'" +
+            ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error setting property '{0}' in settings of type '{1}'" +
                 (att.HasDefault ? ", using default value" : string.Empty), e, property.Name, settingsType.Name);
             if (att.HasDefault)
               property.SetValue(result, att.DefaultValue, null);

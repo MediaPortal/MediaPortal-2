@@ -29,12 +29,12 @@
     <String Name="NotificationErrorLoadingSkinFallingBackToCurrentText" Text="Falling back to current skin"/>
     <String Name="NotificationErrorLoadingSkinFallingBackToDefaultText" Text="Falling back to default skin"/>
     <String Name="ErrorLoadingSkinResource" Text="Error loading skin resource"/>
-    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'."/>
-    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken."/>
-    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'."/>
-    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken."/>
-    <String Name="SuperLayerScreenMissing" Text="Cannot find the skin resource for super layer screen '{0}'."/>
-    <String Name="SuperLayerScreenBroken" Text="The skin resource for super layer screen '{0}' seems to be broken."/>
+    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'"/>
+    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken"/>
+    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'"/>
+    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken"/>
+    <String Name="SuperLayerScreenMissing" Text="Cannot find the skin resource for super layer screen '{0}'"/>
+    <String Name="SuperLayerScreenBroken" Text="The skin resource for super layer screen '{0}' seems to be broken"/>
   </Section>
   <Section Name="Geometries">
     <String Name="IntelligentZoom" Text="Intelligent Zoom"/>

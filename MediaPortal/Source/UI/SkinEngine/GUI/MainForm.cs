@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _adaptToSizeEnabled = false;
       _screenManager = screenManager;
 
-      ServiceRegistration.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Registering DirectX MainForm as IScreenControl service");
       ServiceRegistration.Set<IScreenControl>(this);
 
       InitializeComponent();
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       SkinContext.WindowSize = ClientSize;
 
       // GraphicsDevice has to be initialized after the form was sized correctly
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Initialize DirectX");
       GraphicsDevice.Initialize(this);
 
       // Read and apply ScreenSaver settings
@@ -213,8 +213,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void DisposeDirectX()
     {
-      ILogger logger = ServiceRegistration.Get<ILogger>();
-      logger.Debug("DirectX MainForm: Dispose DirectX");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Dispose DirectX");
       GraphicsDevice.Dispose();
     }
 
@@ -235,7 +234,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void StopUI()
     {
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping UI");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stoping UI");
       StopRenderThread();
       PlayersHelper.ReleaseGUIResources();
       ContentManager.Instance.Free();
@@ -243,7 +242,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public void StartUI()
     {
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting UI");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting UI");
       GraphicsDevice.Reset();
       PlayersHelper.ReallocGUIResources();
       StartRenderThread_Async();
@@ -285,7 +284,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       if (SkinContext.RenderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Starting render thread");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Starting render thread");
       _renderThreadStopped = false;
       SkinContext.RenderThread = new Thread(RenderLoop) { Name = "DX Render" };
       SkinContext.RenderThread.Start();
@@ -296,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _renderThreadStopped = true;
       if (SkinContext.RenderThread == null)
         return;
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Stoping render thread");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stoping render thread");
       SkinContext.RenderThread.Join();
       SkinContext.RenderThread = null;
     }
@@ -315,11 +314,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
           if (videoPlayer.SetRenderDelegate(VideoPlayerRender))
           {
             _synchronizedVideoPlayer = videoPlayer;
-            ServiceRegistration.Get<ILogger>().Info("DirectX MainForm: Synchronized render framerate to video player '{0}'", videoPlayer);
+            ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Synchronized render framerate to video player '{0}'", videoPlayer);
           }
           else
             ServiceRegistration.Get<ILogger>().Info(
-                "DirectX MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", videoPlayer);
+                "SkinEngine MainForm: Video player '{0}' doesn't provide render thread synchronization, using default framerate", videoPlayer);
       }
     }
 
@@ -352,7 +351,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         if (GraphicsDevice.DeviceLost)
           break;
       }
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Render thread stopped");
     }
 
     public void Start()
@@ -360,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       Activate();
       CheckTopMost();
       StartUI();
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Running");
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Running");
     }
 
     public void Shutdown()
@@ -405,7 +404,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         return;
       }
 
-      ServiceRegistration.Get<ILogger>().Debug("DirectX MainForm: Switching mode to {0}", mode);
+      ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Switching mode to {0}", mode);
       bool newFullscreen = mode == ScreenMode.FullScreen;
       AppSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AppSettings>();
 
@@ -506,7 +505,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in Idle handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in Idle handler", ex);
       }
     }
 
@@ -515,14 +514,14 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ILogger logger = ServiceRegistration.Get<ILogger>();
       try
       {
-        logger.Debug("DirectX MainForm: Stopping");
+        logger.Debug("SkinEngine MainForm: Stopping");
         StopUI();
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in FormClosing handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in FormClosing handler", ex);
       }
-      logger.Debug("DirectX MainForm: Closing");
+      logger.Debug("SkinEngine MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
       // setting the MainWindow, which would have added an event handler which calls
       // Application.ExitThread() for us
@@ -562,7 +561,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in MouseMove handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseMove handler", ex);
       }
     }
 
@@ -581,7 +580,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in KeyDown handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in KeyDown handler", ex);
       }
     }
 
@@ -600,7 +599,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in KeyPress handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in KeyPress handler", ex);
       }
     }
 
@@ -613,7 +612,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error occured in MouseClick handler", ex);
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in MouseClick handler", ex);
       }
     }
 
@@ -771,6 +770,5 @@ namespace MediaPortal.UI.SkinEngine.GUI
       base.OnLostFocus(e);
       _hasFocus = false;
     }
-
   }
 }
