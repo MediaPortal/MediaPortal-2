@@ -322,8 +322,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
-        _evrCallback.VideoSizePresent += OnVideoSizePresent;
+        CreateEvrCallback();
 
         AddEvr();
 
@@ -1148,7 +1147,6 @@ namespace MediaPortal.UI.Players.Video
       //stops the renderer threads all of it's own.
       lock (_syncObj)
       {
-        FreeEvrCallback();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
         if (enumer != null)
@@ -1196,8 +1194,15 @@ namespace MediaPortal.UI.Players.Video
         FilterGraphTools.TryRelease(ref _evr);
 
         EvrDeinit();
+        FreeEvrCallback();
         _initialized = false;
       }
+    }
+
+    protected virtual void CreateEvrCallback()
+    {
+      _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
+      _evrCallback.VideoSizePresent += OnVideoSizePresent;
     }
 
     protected virtual void FreeEvrCallback()
@@ -1212,8 +1217,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame) { CropSettings = _cropSettings };
-        _evrCallback.VideoSizePresent += OnVideoSizePresent;
+        CreateEvrCallback();
         AddEvr();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
