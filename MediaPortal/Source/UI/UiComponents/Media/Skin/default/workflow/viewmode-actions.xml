@@ -6,7 +6,7 @@
         Name="Media navigation->Switch view mode"
         DisplayCategory="a-ViewMode"
         SortOrder="a"
-        SourceState="*"
+        SourceStates="*"
         ContributorModelId="4BDAE589-15AF-4B84-B930-9F24E66841BB"/> <!-- ViewMode action -->
   </MenuActions>
 </Workflow>

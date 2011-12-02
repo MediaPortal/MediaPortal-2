@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 
@@ -38,9 +39,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected bool _isVisible = true;
     protected ParameterlessMethod _executor;
 
-    public MethodDelegateAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
+    public MethodDelegateAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
         ParameterlessMethod executor) :
-        base(actionId, name, sourceStateId, displayTitle)
+        base(actionId, name, sourceStateIds, displayTitle)
     {
       _executor = executor;
     }

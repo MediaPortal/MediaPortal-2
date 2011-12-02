@@ -43,9 +43,9 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public PushTransientStateNavigationTransition(Guid actionId, string name, string displayLabel, Guid sourceState,
+    public PushTransientStateNavigationTransition(Guid actionId, string name, string displayLabel, IEnumerable<Guid> sourceStateIds,
         WorkflowState transientTargetState, IResourceString displayTitle) :
-        base(actionId, name, sourceState, displayTitle)
+        base(actionId, name, sourceStateIds, displayTitle)
     {
       _displayLabel = displayLabel;
       _transientState = transientTargetState;

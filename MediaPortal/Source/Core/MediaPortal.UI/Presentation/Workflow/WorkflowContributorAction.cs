@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -52,8 +53,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public WorkflowContributorAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
-        Guid contributorModelId) : base(actionId, name, sourceStateId, displayTitle)
+    public WorkflowContributorAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
+        Guid contributorModelId) : base(actionId, name, sourceStateIds, displayTitle)
     {
       _modelItemStateTracker = new DefaultItemStateTracker("WorkflowContributorAction: Usage of workflow action contributor model")
         {

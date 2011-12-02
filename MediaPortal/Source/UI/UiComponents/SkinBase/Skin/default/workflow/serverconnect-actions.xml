@@ -6,7 +6,7 @@
         Name="ShowHomeServer->DetachFromServer"
         DisplayCategory="a-Detach"
         SortOrder="a"
-        SourceState="17214BAC-E79C-4e5e-9280-A01478B27579"
+        SourceStates="17214BAC-E79C-4e5e-9280-A01478B27579"
         ContributorModelId="793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB"/>
   </MenuActions>
 </Workflow>

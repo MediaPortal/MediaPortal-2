@@ -6,7 +6,7 @@
         Name="Home->ThemeColors"
         DisplayCategory="c-ThemeColors"
         SortOrder="a"
-        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="77E6F7F5-B94B-4015-B0F6-8EC1A915BE42"
         DisplayTitle="[SkinHelper.MenuShowThemeColors]"/>
   </MenuActions>

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 
@@ -40,8 +41,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public PushNavigationTransition(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle,
-        Guid targetStateId, string navigationContextDisplayLabel) : base(actionId, name, sourceStateId, displayTitle)
+    public PushNavigationTransition(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
+        Guid targetStateId, string navigationContextDisplayLabel) : base(actionId, name, sourceStateIds, displayTitle)
     {
       _navigationContextDisplayLabel = navigationContextDisplayLabel;
       _targetStateId = targetStateId;

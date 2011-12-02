@@ -6,7 +6,7 @@
         Name="SharesOverview->ShareAdd"
         DisplayCategory="a-SharesConfig"
         SortOrder="a"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+        SourceStates="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         ContributorModelId="9E456C79-3FF1-4040-8CD7-4247C4C12817"
         DisplayTitle="[SharesConfig.MenuAddShare]"/>
 
@@ -14,7 +14,7 @@
         Name="SharesOverview->SharesRemove"
         DisplayCategory="a-SharesConfig"
         SortOrder="c"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+        SourceStates="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         TargetState="900BA520-F989-48c0-B076-5DAD61945845"
         DisplayTitle="[SharesConfig.MenuRemoveShares]"/>
 
@@ -22,7 +22,7 @@
         Name="SharesOverview->SetupDefaultShares"
         DisplayCategory="b-SetupShares"
         SortOrder="a"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+        SourceStates="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         ContributorModelId="35907215-09EE-4886-9E8B-8A222B9B6DCA"
         DisplayTitle="[SharesConfig.SetupDefaultShares]"/>
   </MenuActions>

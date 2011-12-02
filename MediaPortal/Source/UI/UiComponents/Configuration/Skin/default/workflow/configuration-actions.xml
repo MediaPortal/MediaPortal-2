@@ -6,7 +6,7 @@
         Name="Home->ConfigurationMain"
         DisplayCategory="b-Settings"
         SortOrder="a"
-        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="E7422BB8-2779-49ab-BC99-E3F56138061B"
         DisplayTitle="[Configuration.Name]"/>
   </MenuActions>

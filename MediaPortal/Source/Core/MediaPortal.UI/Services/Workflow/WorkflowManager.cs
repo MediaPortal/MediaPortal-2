@@ -304,7 +304,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     protected static IEnumerable<WorkflowAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowAction> actions)
     {
-      return actions.Where(action => !action.SourceStateId.HasValue || action.SourceStateId.Value == sourceState);
+      return actions.Where(action => action.SourceStateIds == null || action.SourceStateIds.Contains(sourceState));
     }
 
     protected WorkflowState FindLastNonTransientState()

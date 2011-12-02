@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 
@@ -39,8 +40,8 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #endregion
 
-    public PopNavigationTransition(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle, int numPop) :
-        base(actionId, name, sourceStateId, displayTitle)
+    public PopNavigationTransition(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, int numPop) :
+        base(actionId, name, sourceStateIds, displayTitle)
     {
       _numPop = numPop;
     }
