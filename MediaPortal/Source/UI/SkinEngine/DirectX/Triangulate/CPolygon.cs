@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 
@@ -38,15 +38,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
   public class CPolygon : List<CPoint2D>
   {
     /// <summary>
-    /// Creates a new polygon with the polygon vertices of the <paramref name="other"/> polygon.
-    /// </summary>
-    public CPolygon(IEnumerable<CPoint2D> other)
-    {
-      foreach (CPoint2D point in other)
-        Add(point);
-    }
-
-    /// <summary>
     /// Creates a new simple polygon with the vertices in the specified graphics <paramref name="path"/>.
     /// </summary>
     /// <remarks>
@@ -55,26 +46,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// The polygon will be closed automatically.
     /// There are some conditions which need to be met, see method <see cref="CheckProperPolygon"/>.
     /// </remarks>
-    public CPolygon(GraphicsPath path)
-    {
-      PointF[] pathPoints = path.PathPoints;
-
-      CPoint2D lastPoint = new CPoint2D(pathPoints[0].X, pathPoints[0].Y);
-      Add(lastPoint);
-      for (int i = 1; i < pathPoints.Length; i++)
-      {
-        CPoint2D currentPoint = new CPoint2D(pathPoints[i].X, pathPoints[i].Y);
-        if (CPoint2D.SamePoints(lastPoint, currentPoint))
-          continue;
-        Add(currentPoint);
-        lastPoint = currentPoint;
-      }
-      if (pathPoints[pathPoints.Length - 1] != pathPoints[0]) // Its necessary here to use ==, not CPoint2D.SamePoints
-        // Need to close the path
-        Add(new CPoint2D(pathPoints[0].X, pathPoints[0].Y));
-
-      CheckProperPolygon();
-    }
+    public CPolygon(GraphicsPath path) : this(path.PathPoints.Select(point => new CPoint2D(point.X, point.Y)).ToList(), false) { }
 
     /// <summary>
     /// Creates a new simple polygon with the vertices in the specified <paramref name="points"/> array.
@@ -82,23 +54,34 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// points from the input.
     /// The polygon will be closed automatically.
     /// </summary>
-    public CPolygon(IList<CPoint2D> points)
+    /// <param name="points">The points to be used for the new polygon.</param>
+    public CPolygon(IList<CPoint2D> points) : this(points, false) { }
+
+    /// <summary>
+    /// Creates a new simple polygon with the vertices in the specified <paramref name="points"/> array.
+    /// </summary>
+    /// <param name="points">The points to be used for the new polygon.</param>
+    /// <param name="ignoreChecks">If set to <c>true</c>, the given points will be taken without modification.
+    /// If set to <c>true</c>, the constructor will reject consecutive points with a very small distance,
+    /// i.e. it will skip such points from the input. It will also be closed automatically.
+    /// </param>
+    protected CPolygon(IList<CPoint2D> points, bool ignoreChecks)
     {
       CPoint2D lastPoint = points[0];
       Add(lastPoint);
       for (int i = 1; i < points.Count; i++)
       {
         CPoint2D currentPoint = points[i];
-        if (CPoint2D.SamePoints(lastPoint, currentPoint))
+        if (!ignoreChecks && CPoint2D.SamePoints(lastPoint, currentPoint))
           continue;
         Add(currentPoint);
         lastPoint = currentPoint;
       }
-      if (!points[points.Count - 1].Equals(points[0])) // Its necessary here to use ==/CPoint2D.Equals, not CPoint2D.SamePoints
-        // Need to close the path
-        Add(points[0]);
+      if (!ignoreChecks && CPoint2D.SamePoints(this[Count - 1], this[0]))
+        RemoveAt(Count - 1);
 
-      CheckProperPolygon();
+      if (!ignoreChecks)
+        CheckProperPolygon();
     }
 
     /// <summary>
@@ -142,10 +125,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
       float fArea = GetPolygonArea(new CPoint2D[] { ptj, pti, ptk });
 
-      if (fArea > 0)
-        return VertexType.ConcavePoint;
-      else
-        return VertexType.ConvexPoint;
+      return fArea > 0 ? VertexType.ConcavePoint : VertexType.ConvexPoint;
     }
 
     /// <summary>
@@ -269,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           CPoint2D pti = this[CorrectIndex(i - 1)];
           CPoint2D ptj = this[i];
           CPoint2D ptk = this[CorrectIndex(i + 1)];
-          CPolygon ear = new CPolygon(new CPoint2D[] {pti, ptj, ptk});
+          CPolygon ear = new CPolygon(new CPoint2D[] {pti, ptj, ptk}, true);
           RemoveAt(i);
           return ear;
         }
@@ -278,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Reverses the polygon vertices to a different direction (clockwise <--> counter clockwise).
+    /// Reverses the polygon vertices to a different direction (clockwise &lt;--&gt; counter clockwise).
     /// </summary>
     public void ReverseVerticesDirection()
     {
@@ -299,7 +279,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// </summary>
     public IEnumerable<CPolygon> Triangulate()
     {
-      CPolygon remainingPolygon = new CPolygon(this);
+      CPolygon remainingPolygon = new CPolygon(this, true);
 
       while (remainingPolygon.Count > 3)
       {
@@ -334,8 +314,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// </remarks>
     /// <returns>Area of the specified polygon. Polygons with different point directions will produce a result
     /// with a different sign:
-    /// If area > 0: points are in clockwise order.
-    /// If area < 0: points are in counter clockwise order.
+    /// If area &gt; 0: points are in clockwise order.
+    /// If area &lt; 0: points are in counter clockwise order.
     /// </returns>
     public static float GetPolygonArea(IList<CPoint2D> points)
     {
@@ -382,10 +362,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           nCount--;
       }
 
-      if (nCount < 0)
-        return PolygonDirection.Counter_Clockwise;
-      else
-        return PolygonDirection.Clockwise;
+      return nCount < 0 ? PolygonDirection.Counter_Clockwise : PolygonDirection.Clockwise;
     }
 
     /// <summary>
