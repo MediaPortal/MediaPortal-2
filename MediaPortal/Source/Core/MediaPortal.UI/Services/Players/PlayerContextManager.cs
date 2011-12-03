@@ -478,7 +478,7 @@ namespace MediaPortal.UI.Services.Players
 
     public bool IsFullscreenContentWorkflowStateActive
     {
-      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.CurrentlyPlaying) != -1; }
+      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.FullscreenContent) != -1; }
     }
 
     public IPlayerContext CurrentPlayerContext
