@@ -13,12 +13,15 @@
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
-    <ImageBrush x:Name="BackdropImageBackground" ImageSource="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+    <VisualBrush x:Name="BackdropImageBackgroundBrush">
+      <VisualBrush.Visual>
+        <Image x:Name="BackdropImageBackground" Stretch="Uniform" Source="{Binding Source={StaticResource BackgroundManagerModel}, Path=BackgroundImage}" />
+      </VisualBrush.Visual>
+    </VisualBrush>
   </ResourceWrapper>
     
   <!-- ListView style to be used for main menu -->
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <!--<Setter Property="CurrentItem" Value="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem, Mode=OneWayToSource}"/>-->
     <Setter Property="SelectionChanged" Value="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
